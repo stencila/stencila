@@ -11,7 +11,7 @@ use stencila_cli_utils::{
     tabulated::{Attribute, Cell, CellAlignment, Color, Tabulated},
 };
 
-use crate::catalog::{self, ModelInfo};
+use crate::catalog::{self, ModelInfo, ModelSize};
 
 /// Manage and interact with generative AI models
 #[derive(Debug, Parser)]
@@ -184,6 +184,7 @@ impl List {
             "Id",
             "Aliases",
             "Provider",
+            "Model Size",
             "Capabilities",
             "Context",
             "Input $/M",
@@ -210,6 +211,7 @@ impl List {
                 id_cell,
                 aliases_cell,
                 provider_cell(&model.provider),
+                model_size_cell(model.model_size),
                 Cell::new(format_capabilities(model)),
                 context_cell(model.context_window),
                 cost_cell(model.input_cost_per_million),
@@ -258,6 +260,16 @@ fn provider_cell(provider: &str) -> Cell {
     Cell::new(label).fg(color)
 }
 
+/// Format a model size as a color-coded cell.
+fn model_size_cell(size: Option<ModelSize>) -> Cell {
+    match size {
+        Some(ModelSize::Small) => Cell::new("Small").fg(Color::Magenta),
+        Some(ModelSize::Medium) => Cell::new("Medium").fg(Color::Yellow),
+        Some(ModelSize::Large) => Cell::new("Large").fg(Color::Green),
+        None => Cell::new("—").add_attribute(Attribute::Dim),
+    }
+}
+
 /// Format model capabilities as a compact string (e.g. "T V R" or "T . .").
 fn format_capabilities(model: &ModelInfo) -> String {
     let t = if model.supports_tools { "T" } else { "." };
@@ -290,7 +302,7 @@ fn context_cell(tokens: u64) -> Cell {
     };
 
     let color = match tokens {
-        0..=8_000 => Color::DarkRed,
+        0..=8_000 => Color::Magenta,
         8_001..=32_000 => Color::DarkYellow,
         32_001..=128_000 => Color::Yellow,
         128_001..=256_000 => Color::Green,
