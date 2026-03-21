@@ -3,7 +3,7 @@
     "id": "claude-opus-4-6",
     "provider": "anthropic",
     "display_name": "Claude Opus 4.6",
-    "context_window": 200000,
+    "context_window": 1000000,
     "max_output": 128000,
     "supports_tools": true,
     "supports_vision": true,
@@ -123,7 +123,7 @@
     "id": "claude-sonnet-4-6",
     "provider": "anthropic",
     "display_name": "Claude Sonnet 4.6",
-    "context_window": 200000,
+    "context_window": 1000000,
     "max_output": 64000,
     "supports_tools": true,
     "supports_vision": true,
@@ -506,15 +506,15 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "input_cost_per_million": 0.5,
-    "output_cost_per_million": 3.0
+    "input_cost_per_million": 0.25,
+    "output_cost_per_million": 1.5
   },
   {
     "id": "gemini-3.1-flash-image-preview",
     "provider": "gemini",
     "display_name": "Nano Banana 2",
-    "context_window": 65536,
-    "max_output": 65536,
+    "context_window": 131072,
+    "max_output": 32768,
     "supports_tools": false,
     "supports_vision": true,
     "supports_reasoning": true,
@@ -1350,14 +1350,19 @@
     "id": "gpt-5.4-mini",
     "provider": "openai",
     "display_name": "gpt-5.4-mini",
-    "supports_tools": false,
-    "supports_vision": false,
-    "supports_reasoning": false
+    "context_window": 400000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.75,
+    "output_cost_per_million": 4.5
   },
   {
     "id": "gpt-5.4-nano-2026-03-17",
     "provider": "openai",
     "display_name": "gpt-5.4-nano-2026-03-17",
+    "context_window": 0,
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false
@@ -1366,14 +1371,19 @@
     "id": "gpt-5.4-nano",
     "provider": "openai",
     "display_name": "gpt-5.4-nano",
-    "supports_tools": false,
-    "supports_vision": false,
-    "supports_reasoning": false
+    "context_window": 400000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.2,
+    "output_cost_per_million": 1.25
   },
   {
     "id": "gpt-5.4-mini-2026-03-17",
     "provider": "openai",
     "display_name": "gpt-5.4-mini-2026-03-17",
+    "context_window": 0,
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false

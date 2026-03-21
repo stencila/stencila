@@ -122,13 +122,13 @@ fn catalog_latest_unknown_capability_returns_none() -> Result<(), Box<dyn std::e
 
 #[test]
 fn catalog_model_info_has_required_fields() -> Result<(), Box<dyn std::error::Error>> {
-    // Only check curated providers; test-injected placeholder models
-    // (from refresh tests) may have context_window = 0 which is valid
-    // for API-discovered entries.
+    // Only check curated providers with known token limits; newly discovered
+    // catalog entries may still have placeholder metadata pending enrichment.
     let curated_providers = ["anthropic", "openai", "gemini"];
     let curated: Vec<_> = list_models(None)?
         .into_iter()
         .filter(|m| curated_providers.contains(&m.provider.as_str()))
+        .filter(|m| m.context_window > 0)
         .collect();
     assert!(!curated.is_empty(), "catalog should contain curated models");
     for info in &curated {

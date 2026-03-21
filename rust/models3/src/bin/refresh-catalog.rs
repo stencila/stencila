@@ -20,18 +20,18 @@
 //! Each provider's own API is the primary source for model metadata
 //! (context window, capabilities). The [models.dev](https://models.dev)
 //! aggregator is used as a secondary source to fill in gaps — primarily
-//! cost data, which provider APIs do not expose. Provider-reported values
-//! are never overwritten by models.dev.
+//! cost data, which provider APIs do not expose. Manual-only fields such as
+//! `auth_types` are preserved across refreshes, while provider metadata fields
+//! may be updated from models.dev when newer values are available.
 
 #![allow(clippy::print_stdout, clippy::print_stderr)]
 
 use std::collections::{HashMap, HashSet};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
 
 use serde::{Deserialize, Serialize};
 
 const MODELS_DEV_API_URL: &str = "https://models.dev/api.json";
-const MODELS_DEV_CACHE_FILE: &str = "stencila-models3-modelsdev-api.json";
 
 /// Mirrors `catalog::ModelInfo` (this binary cannot import crate types).
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -39,7 +39,7 @@ struct ModelInfo {
     id: String,
     provider: String,
     display_name: String,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     context_window: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     max_output: Option<u64>,
@@ -195,6 +195,10 @@ async fn main() {
     };
 
     if added > 0 || enriched {
+        for model in &mut catalog {
+            model.context_window.get_or_insert(0);
+        }
+
         let json = serde_json::to_string_pretty(&catalog).expect("failed to serialize catalog");
         std::fs::write(&catalog_path, json).expect("failed to write catalog/models.json");
         println!("Wrote {}", catalog_path.display());
@@ -515,23 +519,7 @@ async fn fetch_gemini_models(
         .unwrap_or_default())
 }
 
-fn models_dev_cache_path() -> PathBuf {
-    std::env::temp_dir().join(MODELS_DEV_CACHE_FILE)
-}
-
 async fn fetch_models_dev_metadata(client: &reqwest::Client) -> Result<ModelsDevCatalog, String> {
-    let cache_path = models_dev_cache_path();
-
-    if cache_path.exists() {
-        match load_models_dev_cache(&cache_path) {
-            Ok(metadata) => return Ok(metadata),
-            Err(e) => eprintln!(
-                "models.dev cache {} invalid, re-downloading: {e}",
-                cache_path.display()
-            ),
-        }
-    }
-
     let bytes = client
         .get(MODELS_DEV_API_URL)
         .send()
@@ -543,19 +531,7 @@ async fn fetch_models_dev_metadata(client: &reqwest::Client) -> Result<ModelsDev
 
     let metadata: ModelsDevCatalog = serde_json::from_slice(&bytes).map_err(|e| e.to_string())?;
 
-    if let Some(parent) = cache_path.parent() {
-        std::fs::create_dir_all(parent).map_err(|e| e.to_string())?;
-    }
-
-    std::fs::write(&cache_path, &bytes).map_err(|e| e.to_string())?;
-    println!("Downloaded models.dev metadata to {}", cache_path.display());
-
     Ok(metadata)
-}
-
-fn load_models_dev_cache(path: &Path) -> Result<ModelsDevCatalog, String> {
-    let bytes = std::fs::read(path).map_err(|e| e.to_string())?;
-    serde_json::from_slice(&bytes).map_err(|e| e.to_string())
 }
 
 fn models_dev_provider_key(provider: &str) -> Option<&'static str> {
@@ -582,36 +558,28 @@ fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &ModelsDevCatalog) {
         };
 
         if let Some(limit) = &entry.limit {
-            if model.context_window.is_none()
-                && let Some(v) = limit.context
-            {
+            if let Some(v) = limit.context {
                 model.context_window = Some(v);
             }
-            if model.max_output.is_none() {
-                model.max_output = limit.output;
+            if let Some(v) = limit.output {
+                model.max_output = Some(v);
             }
         }
         if let Some(cost) = &entry.cost {
-            if model.input_cost_per_million.is_none() {
-                model.input_cost_per_million = cost.input;
+            if let Some(v) = cost.input {
+                model.input_cost_per_million = Some(v);
             }
-            if model.output_cost_per_million.is_none() {
-                model.output_cost_per_million = cost.output;
+            if let Some(v) = cost.output {
+                model.output_cost_per_million = Some(v);
             }
         }
-        if !model.supports_tools
-            && let Some(v) = entry.tool_call
-        {
+        if let Some(v) = entry.tool_call {
             model.supports_tools = v;
         }
-        if !model.supports_vision
-            && let Some(modalities) = &entry.modalities
-        {
+        if let Some(modalities) = &entry.modalities {
             model.supports_vision = modalities.input.iter().any(|m| m == "image");
         }
-        if !model.supports_reasoning
-            && let Some(v) = entry.reasoning
-        {
+        if let Some(v) = entry.reasoning {
             model.supports_reasoning = v;
         }
     }
