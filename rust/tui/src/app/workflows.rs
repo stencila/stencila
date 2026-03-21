@@ -2,10 +2,14 @@ use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
 use stencila_attractor::events::PipelineEvent;
+use stencila_attractor::interviewer::{Answer, QuestionType};
+use stencila_attractor::{context::ctx, interviewer::AnswerValue};
 
 use crate::{
-    agent::AgentProgress, autocomplete::workflows::WorkflowDefinitionInfo,
+    agent::AgentProgress,
+    autocomplete::workflows::WorkflowDefinitionInfo,
     config::WorkflowVerbosity,
+    interview::{InterviewSource, InterviewStatus},
 };
 
 use super::{
@@ -588,6 +592,46 @@ impl App {
             PipelineEvent::StageCompleted {
                 node_id, outcome, ..
             } => {
+                if let Some(AppMessage::Interview {
+                    interview,
+                    answers,
+                    status,
+                    ..
+                }) = self.messages.iter_mut().rev().find(|message| {
+                    matches!(
+                        message,
+                        AppMessage::Interview {
+                            source: InterviewSource::Workflow,
+                            status: InterviewStatus::Completed,
+                            interview,
+                            ..
+                        } if interview.stage == *node_id
+                    )
+                }) && interview.questions.len() == 1
+                    && answers.len() == 1
+                    && answers[0].is_timeout()
+                    && outcome.status.is_success()
+                    && outcome.context_updates.contains_key(ctx::HUMAN_GATE_LABEL)
+                    && matches!(interview.questions[0].r#type, QuestionType::SingleSelect)
+                    && let Some(label) = outcome
+                        .context_updates
+                        .get(ctx::HUMAN_GATE_LABEL)
+                        .and_then(serde_json::Value::as_str)
+                    && let Some(option) = interview.questions[0]
+                        .options
+                        .iter()
+                        .find(|option| option.label == label)
+                        .cloned()
+                {
+                    // When a timed-out human gate later resolves successfully,
+                    // rewrite the transcript from the generic timeout marker to
+                    // the actual route label chosen by the engine so the UI
+                    // reflects what the workflow really did.
+                    answers[0] =
+                        Answer::with_option(AnswerValue::Selected(option.key.clone()), option);
+                    *status = InterviewStatus::Completed;
+                }
+
                 if let Some(workflow) = &mut self.active_workflow {
                     let completed_status = if outcome.status.is_success() {
                         ExchangeStatus::Succeeded

@@ -410,9 +410,25 @@ fn route_interview(
             {
                 let mut outcome = build_human_outcome(choice);
                 outcome.context_updates.extend(context_updates);
+                // Preserve explicit workflow-author intent when a timeout
+                // fires: a configured default choice beats the generic
+                // auto-approve fallback to the first route.
+                outcome.notes = "[timed out; used default_choice]".into();
                 return outcome;
             }
-            return Outcome::retry("human gate timeout, no default");
+
+            if let Some(choice) = choices.first() {
+                let mut outcome = build_human_outcome(choice);
+                outcome.context_updates.extend(context_updates);
+                // `Wait with timeout` is intended to behave as delayed
+                // auto-approve. When no explicit default route exists,
+                // use the first outgoing edge, matching the immediate
+                // auto-approve semantics used elsewhere.
+                outcome.notes = "[timed out; auto-approved]".into();
+                return outcome;
+            }
+
+            return Outcome::retry("human gate timeout, no available choice");
         }
 
         if routing_ans.is_skipped() {
@@ -665,11 +681,25 @@ impl Handler for WaitForHumanHandler {
                 && let Some(default_target) = node.get_str_attr("human.default_choice")
                 && let Some(choice) = find_choice_by_str(default_target, &choices)
             {
-                return Ok(build_human_outcome(choice));
+                let mut outcome = build_human_outcome(choice);
+                // Keep explicit `human.default_choice` authoritative for
+                // timeout routing when present.
+                outcome.notes = "[timed out; used default_choice]".into();
+                return Ok(outcome);
             }
-            // default_choice absent or doesn't match any known edge
-            // target — fall through to the retry outcome below.
-            return Ok(Outcome::retry("human gate timeout, no default"));
+
+            if is_choice_based && let Some(choice) = choices.first() {
+                let mut outcome = build_human_outcome(choice);
+                // For choice-based gates, timeout now falls through to the
+                // same first-route selection rule as the auto-approve path.
+                outcome.notes = "[timed out; auto-approved]".into();
+                return Ok(outcome);
+            }
+
+            // Non-choice questions still have no general implicit timeout
+            // routing semantics, so retry when they time out without an
+            // explicit default route.
+            return Ok(Outcome::retry("human gate timeout, no available choice"));
         }
 
         if answer.is_skipped() {

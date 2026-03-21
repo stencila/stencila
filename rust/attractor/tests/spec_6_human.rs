@@ -527,7 +527,7 @@ async fn wait_human_timeout_with_default() -> AttractorResult<()> {
 }
 
 #[tokio::test]
-async fn wait_human_timeout_no_default_retries() -> AttractorResult<()> {
+async fn wait_human_timeout_no_default_auto_approves_first_route() -> AttractorResult<()> {
     let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
         AnswerValue::Timeout,
     )]));
@@ -543,7 +543,13 @@ async fn wait_human_timeout_no_default_retries() -> AttractorResult<()> {
 
     let outcome = handler.execute(node, &ctx, &g).await?;
 
-    assert_eq!(outcome.status, StageStatus::Retry);
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"deploy".to_string()));
+    assert!(
+        outcome.notes.contains("[timed out; auto-approved]"),
+        "expected timed-out auto-approval marker in notes, got: {:?}",
+        outcome.notes
+    );
     Ok(())
 }
 
@@ -1837,10 +1843,47 @@ async fn context_timeout_expiry_retries_without_default_choice() -> AttractorRes
 
     let outcome = handler.execute(node, &ctx, &g).await?;
 
-    assert_eq!(
-        outcome.status,
-        StageStatus::Retry,
-        "expected Retry when timeout fires without default_choice"
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(
+        outcome.suggested_next_ids.contains(&"accept".to_string()),
+        "expected timeout without default_choice to auto-approve first route, got: {:?}",
+        outcome.suggested_next_ids
+    );
+    assert!(
+        outcome.notes.contains("[timed out; auto-approved]"),
+        "expected timed-out auto-approval marker in notes, got: {:?}",
+        outcome.notes
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn wait_human_timeout_with_default_marks_notes() -> AttractorResult<()> {
+    let interviewer = Arc::new(QueueInterviewer::new(vec![Answer::new(
+        AnswerValue::Timeout,
+    )]));
+    let handler = WaitForHumanHandler::new(interviewer);
+
+    let mut g = human_gate_graph(&[("deploy", "[D] Deploy"), ("rollback", "[R] Rollback")]);
+    g.get_node_mut("gate")
+        .ok_or_else(|| stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "gate".into(),
+        })?
+        .attrs
+        .insert("human.default_choice".into(), AttrValue::from("rollback"));
+
+    let node = get_gate_node(&g)?;
+    let ctx = Context::new();
+    ctx.set(ctx::GATE_TIMEOUTS, serde_json::json!({"*": 5}));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Success);
+    assert!(outcome.suggested_next_ids.contains(&"rollback".to_string()));
+    assert!(
+        outcome.notes.contains("[timed out; used default_choice]"),
+        "expected default_choice timeout marker in notes, got: {:?}",
+        outcome.notes
     );
     Ok(())
 }

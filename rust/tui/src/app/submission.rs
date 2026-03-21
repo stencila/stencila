@@ -368,12 +368,35 @@ impl App {
     /// `Timeout` answers on its side; this method cleans up the TUI state
     /// so the user is no longer presented with a stale form and receives a
     /// visible explanation in the transcript.
-    pub(super) fn dismiss_timed_out_interview(&mut self) {
+    pub(super) fn complete_timed_out_interview(&mut self) {
         if let Some(state) = self.active_interview.take() {
             let msg_idx = state.msg_index;
 
-            if let Some(AppMessage::Interview { status, .. }) = self.messages.get_mut(msg_idx) {
+            let timed_out_answers =
+                if let Some(AppMessage::Interview { interview, .. }) = self.messages.get(msg_idx) {
+                    Some(
+                        // Mirror the interviewer's timeout/default semantics
+                        // into the transcript so completed timed-out forms do
+                        // not render as blank answers while we wait for any
+                        // subsequent stage-completion reconciliation.
+                        interview
+                            .questions
+                            .iter()
+                            .map(stencila_attractor::interviewer::Question::timeout_answer)
+                            .collect::<Vec<_>>(),
+                    )
+                } else {
+                    None
+                };
+
+            if let Some(AppMessage::Interview {
+                status, answers, ..
+            }) = self.messages.get_mut(msg_idx)
+            {
                 *status = InterviewStatus::Completed;
+                if let Some(timed_out_answers) = timed_out_answers {
+                    answers.clone_from(&timed_out_answers);
+                }
             }
 
             self.input.clear();
@@ -382,9 +405,8 @@ impl App {
             self.interview_preview_input.clear();
 
             self.messages.push(AppMessage::System {
-                content:
-                    "Interview timed out and was auto-completed using default or timeout answers."
-                        .to_string(),
+                content: "Interview timed out and was auto-completed using default answers."
+                    .to_string(),
             });
         }
     }
@@ -646,7 +668,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn dismiss_timed_out_interview_adds_system_message() {
+    async fn complete_timed_out_interview_adds_system_message() {
         use crate::interview::{InterviewResult, InterviewSource, InterviewState, InterviewStatus};
         use stencila_attractor::interviewer::{Interview, Question};
         use tokio::sync::oneshot;
@@ -669,7 +691,7 @@ mod tests {
         app.active_interview = Some(InterviewState::new(&interview, msg_index, tx));
 
         let initial_len = app.messages.len();
-        app.dismiss_timed_out_interview();
+        app.complete_timed_out_interview();
 
         assert!(app.active_interview.is_none());
         assert!(matches!(

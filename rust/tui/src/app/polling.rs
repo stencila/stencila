@@ -181,7 +181,7 @@ impl App {
                 .as_ref()
                 .is_some_and(oneshot::Sender::is_closed)
         {
-            self.dismiss_timed_out_interview();
+            self.complete_timed_out_interview();
         }
 
         // First, try to start a previously buffered interview.
