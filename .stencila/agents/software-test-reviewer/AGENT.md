@@ -20,6 +20,9 @@ when-not-to-use:
   - when running tests (use software-test-executor)
   - when implementing code or refactoring
   - when reviewing designs or plans
+# Large model with high reasoning suits evaluating coverage, edge cases, and
+# whether Red-phase tests are the right failures for the slice.
+model-size: large
 reasoning-effort: high
 trust-level: low
 allowed-skills:

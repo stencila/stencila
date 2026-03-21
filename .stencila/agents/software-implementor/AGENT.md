@@ -18,7 +18,10 @@ when-not-to-use:
   - when running tests (use software-test-executor)
   - when refactoring existing code (use software-code-refactorer)
   - when reviewing tests, designs, or plans
-reasoning-effort: high
+# Large model with medium reasoning suits TDD implementation: broad codebase
+# context helps discover conventions, while focused writes need less deliberation.
+model-size: large
+reasoning-effort: medium
 trust-level: medium
 allowed-skills:
   - software-implementation

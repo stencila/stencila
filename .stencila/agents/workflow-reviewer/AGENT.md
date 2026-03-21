@@ -12,6 +12,11 @@ when-to-use:
 when-not-to-use:
   - when the user wants to create a new workflow rather than review one
   - when the task is to execute or route a workflow instead of evaluating it
+# Large model with high reasoning is justified because workflows are reused
+# across many runs — catching structural flaws, missing steps, or broken
+# delegate relationships once prevents repeated failures at scale.
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - workflow-review
 allowed-tools:

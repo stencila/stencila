@@ -23,6 +23,10 @@ when-not-to-use:
   - when the main task is to create a new delivery plan or draft an initial implementation plan
   - when the main task is to write production code or review source code instead of evaluating a plan artifact
   - when the main task is to review a design specification rather than a delivery plan
+# Large model with high reasoning suits checking inter-slice sequencing,
+# feasibility, and coverage across complex delivery plans.
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - software-plan-review
 allowed-tools:

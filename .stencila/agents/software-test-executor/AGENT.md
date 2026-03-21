@@ -17,6 +17,9 @@ when-not-to-use:
   - when writing or creating tests (use software-test-creation)
   - when implementing code or refactoring
   - when creating, reviewing, or selecting delivery plan slices
+# Small model with medium reasoning is enough for scoped test execution,
+# framework discovery, and structured pass/fail summarization.
+model-size: small
 reasoning-effort: medium
 trust-level: medium
 allowed-skills:

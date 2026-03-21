@@ -17,6 +17,11 @@ when-to-use:
 when-not-to-use:
   - when running tests, reviewing tests, implementing code, or refactoring
   - when creating or reviewing a delivery plan or design spec
+# Large model with high reasoning is justified because tests are reused
+# throughout the TDD cycle — a poorly written test file haunts every
+# subsequent Green and Refactor phase. Large context helps read codebase
+# conventions; high reasoning ensures precise assertions from acceptance criteria.
+model-size: large
 reasoning-effort: high
 trust-level: medium
 allowed-skills:

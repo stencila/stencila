@@ -19,6 +19,12 @@ when-to-use:
 when-not-to-use:
   - when the main task is to create a design spec rather than plan its implementation
   - when the main task is to write production code, review code, or review an existing plan
+# Large model with medium reasoning is justified because the plan is the
+# backbone of the entire TDD workflow — every downstream agent reads from it.
+# Large context helps absorb the full design spec; medium reasoning suffices
+# for the structured decomposition into slices, phases, and DoD criteria.
+model-size: large
+reasoning-effort: medium
 allowed-skills:
   - software-plan-creation
 allowed-tools:

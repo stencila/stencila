@@ -12,6 +12,10 @@ when-to-use:
 when-not-to-use:
   - when the user wants to create a new agent rather than review one
   - when the task concerns a skill or workflow instead of an agent definition
+# Medium model with high reasoning fits checking agent configuration,
+# clarity, and consistency across metadata, tools, and instructions.
+model-size: medium
+reasoning-effort: high
 allowed-skills:
   - agent-review
 allowed-tools:

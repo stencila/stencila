@@ -27,7 +27,11 @@ when-not-to-use:
   - when reviewing tests, designs, or plans
   - when the code has no tests — refactoring without test coverage is unsafe
   - when reviewing code quality without making changes (a code-review agent would be better)
-reasoning-effort: high
+# Large model with medium reasoning mirrors the implementor: discovering
+# conventions across many files is a context-breadth task, and the test
+# suite constrains the transformation so deep deliberation is less critical.
+model-size: large
+reasoning-effort: medium
 trust-level: medium
 allowed-skills:
   - software-code-refactoring

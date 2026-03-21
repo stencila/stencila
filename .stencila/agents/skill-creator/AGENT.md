@@ -12,6 +12,13 @@ when-to-use:
 when-not-to-use:
   - when the user wants a skill reviewed rather than created
   - when the task is to create an agent or workflow instead of a skill
+# Large model with medium reasoning is justified because skills are reused across
+# many agents and invocations — getting the instructions, metadata, and tool
+# guidance right once pays off every time the skill is loaded. High reasoning
+# ensures careful deliberation over edge cases, tool guidance, and instruction
+# clarity, mirroring the depth applied by skill-reviewer.
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - skill-creation
 allowed-tools:

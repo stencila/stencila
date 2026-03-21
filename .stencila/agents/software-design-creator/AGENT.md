@@ -16,6 +16,11 @@ when-to-use:
 when-not-to-use:
   - when the main task is to write production code or review existing code
   - when the task is to create or review a Stencila agent, skill, or workflow instead of designing software
+# Large model with high reasoning is justified because design creation requires
+# architectural considerations and tradeoffs — decisions made here propagate
+# through every downstream artifact (plan, tests, implementation).
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - software-design-creation
 allowed-tools:

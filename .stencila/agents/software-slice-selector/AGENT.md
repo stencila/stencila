@@ -18,6 +18,9 @@ when-to-use:
 when-not-to-use:
   - when creating or reviewing a delivery plan (use software-plan-creator or software-plan-reviewer)
   - when implementing code, writing tests, or running tests
+# Medium model with medium reasoning fits structured plan analysis and slice
+# dependency tracking without needing an expensive frontier model.
+model-size: medium
 reasoning-effort: medium
 trust-level: low
 allowed-skills:

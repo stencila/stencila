@@ -10,6 +10,10 @@ when-to-use:
   - when the user's request needs to be routed to the best agent or workflow
 when-not-to-use:
   - when the user has already chosen a specific agent or workflow
+# Small model is sufficient for routing and delegation decisions, and medium
+# reasoning helps compare candidates without overspending on orchestration.
+model-size: small
+reasoning-effort: medium
 allowed-tools:
   - ask_user
   - list_workflows

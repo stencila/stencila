@@ -20,6 +20,10 @@ when-to-use:
 when-not-to-use:
   - when the main task is to create a new software design spec or draft an initial technical plan
   - when the main task is to write production code or review source code instead of evaluating a design artifact
+# Large model with high reasoning suits assessing design quality, feasibility,
+# and clarity across multi-component specifications.
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - software-design-review
 allowed-tools:

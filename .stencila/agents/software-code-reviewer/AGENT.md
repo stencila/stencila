@@ -20,6 +20,9 @@ when-not-to-use:
   - when the main task is to write or review tests (use software-test-reviewer)
   - when the main task is to review a delivery plan (use software-plan-reviewer)
   - when the main task is to review a design specification (use software-design-reviewer)
+# Large model with high reasoning suits nuanced code review across correctness,
+# security, maintainability, and project-specific conventions.
+model-size: large
 reasoning-effort: high
 trust-level: low
 allowed-skills:

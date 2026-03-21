@@ -12,6 +12,12 @@ when-to-use:
 when-not-to-use:
   - when the user wants an agent reviewed rather than created
   - when the task is to route work instead of authoring an agent definition
+# Large model with medium reasoning is justified because agents are reused
+# artifacts — consistent with skill-creator and workflow-creator. Writing
+# system instructions, scoping tools, and calibrating trust level benefit
+# from broad context; medium reasoning fits the structured authoring task.
+model-size: large
+reasoning-effort: medium
 allowed-skills:
   - agent-creation
 allowed-tools:

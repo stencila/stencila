@@ -12,6 +12,13 @@ when-to-use:
 when-not-to-use:
   - when the user wants a workflow reviewed rather than created
   - when the task is to route work instead of authoring a workflow
+# Large model with medium reasoning is justified because workflows are reused
+# across many runs — getting the steps, delegate relationships, and sequencing
+# right once pays off every time the workflow is executed. High reasoning
+# ensures careful deliberation over step ordering, agent delegation, and
+# error handling, mirroring the depth applied by workflow-reviewer.
+model-size: large
+reasoning-effort: high
 allowed-skills:
   - workflow-creation
 allowed-tools:
