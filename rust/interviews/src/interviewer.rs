@@ -323,6 +323,15 @@ impl Answer {
     }
 }
 
+/// Resolve an option key to its label, falling back to the raw key.
+fn resolve_option_label(options: &[QuestionOption], key: &str) -> String {
+    options
+        .iter()
+        .find(|o| o.key == *key)
+        .map(|o| o.label.clone())
+        .unwrap_or_else(|| key.to_string())
+}
+
 /// Produce a canonical string representation of an answer value.
 ///
 /// This is the single source of truth for how answer values are
@@ -344,22 +353,10 @@ pub fn canonical_answer_string(value: &AnswerValue, question: &Question) -> Stri
         AnswerValue::Skipped => "skipped".to_string(),
         AnswerValue::Timeout => "timeout".to_string(),
         AnswerValue::Text(text) => text.clone(),
-        AnswerValue::Selected(key) => question
-            .options
-            .iter()
-            .find(|o| o.key == *key)
-            .map(|o| o.label.clone())
-            .unwrap_or_else(|| key.clone()),
+        AnswerValue::Selected(key) => resolve_option_label(&question.options, key),
         AnswerValue::MultiSelected(keys) => keys
             .iter()
-            .map(|key| {
-                question
-                    .options
-                    .iter()
-                    .find(|o| o.key == *key)
-                    .map(|o| o.label.clone())
-                    .unwrap_or_else(|| key.clone())
-            })
+            .map(|key| resolve_option_label(&question.options, key))
             .collect::<Vec<_>>()
             .join(", "),
     }

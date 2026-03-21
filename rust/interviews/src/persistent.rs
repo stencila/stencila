@@ -11,6 +11,15 @@ use async_trait::async_trait;
 
 use crate::interviewer::{Answer, AnswerValue, Interview, InterviewError, Interviewer, Question};
 
+/// Acquire the DB lock, converting a poisoned-lock error into [`InterviewError`].
+fn lock_db(
+    db_conn: &Arc<Mutex<stencila_db::rusqlite::Connection>>,
+) -> Result<std::sync::MutexGuard<'_, stencila_db::rusqlite::Connection>, InterviewError> {
+    db_conn
+        .lock()
+        .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))
+}
+
 /// A record containing all data needed to insert a pending interview into the database.
 ///
 /// This struct groups the parameters that were previously passed as positional arguments
@@ -214,9 +223,7 @@ pub fn insert_pending_interview(
         )));
     }
 
-    let conn = db_conn
-        .lock()
-        .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))?;
+    let conn = lock_db(db_conn)?;
 
     conn.execute(
         "INSERT OR IGNORE INTO interviews (
@@ -282,9 +289,7 @@ pub fn update_interview_answer(
     answered_at: &str,
     duration_ms: i64,
 ) -> Result<(), InterviewError> {
-    let conn = db_conn
-        .lock()
-        .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))?;
+    let conn = lock_db(db_conn)?;
 
     // Update each question's answer
     for (answer, qid) in answers.iter().zip(question_ids.iter()) {
@@ -303,16 +308,7 @@ pub fn update_interview_answer(
         })?;
     }
 
-    // Update parent interview status
-    conn.execute(
-        "UPDATE interviews SET status = ?1, answered_at = ?2, duration_ms = ?3 WHERE interview_id = ?4",
-        (status, answered_at, duration_ms, interview_id),
-    )
-    .map_err(|e| {
-        InterviewError::BackendFailure(format!("failed to update interview status: {e}"))
-    })?;
-
-    Ok(())
+    set_status_on_conn(&conn, interview_id, status, answered_at, duration_ms)
 }
 
 /// Update an interview's status without modifying answers.
@@ -323,9 +319,18 @@ fn update_interview_status(
     answered_at: &str,
     duration_ms: i64,
 ) -> Result<(), InterviewError> {
-    let conn = db_conn
-        .lock()
-        .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))?;
+    let conn = lock_db(db_conn)?;
+    set_status_on_conn(&conn, interview_id, status, answered_at, duration_ms)
+}
+
+/// Set an interview's status on an already-locked connection.
+fn set_status_on_conn(
+    conn: &stencila_db::rusqlite::Connection,
+    interview_id: &str,
+    status: &str,
+    answered_at: &str,
+    duration_ms: i64,
+) -> Result<(), InterviewError> {
     conn.execute(
         "UPDATE interviews SET status = ?1, answered_at = ?2, duration_ms = ?3 WHERE interview_id = ?4",
         (status, answered_at, duration_ms, interview_id),
@@ -367,6 +372,11 @@ pub fn delete_interviews_for_context(
 /// Used during checkpoint/resume to recover in-flight interviews. Returns
 /// the `(interview_id, question_ids)` if a pending interview is found.
 ///
+/// When `stage_index` is `Some(i)`, only interviews for that exact stage are
+/// considered. When it is `None`, the lookup acts as a wildcard and matches
+/// pending interviews for the node regardless of whether they have a stored
+/// stage index.
+///
 /// # Errors
 ///
 /// Returns `InterviewError::BackendFailure` on database failure.
@@ -377,43 +387,22 @@ pub fn find_pending_interview(
     node_id: &str,
     stage_index: Option<i64>,
 ) -> Result<Option<(String, Vec<String>)>, InterviewError> {
-    let conn = db_conn
-        .lock()
-        .map_err(|e| InterviewError::BackendFailure(format!("poisoned DB lock: {e}")))?;
+    let conn = lock_db(db_conn)?;
 
-    let interview_id: Option<String> = if let Some(si) = stage_index {
-        match conn.query_row(
-            "SELECT interview_id FROM interviews
-             WHERE context_type = ?1 AND context_id = ?2 AND node_id = ?3
-               AND stage_index = ?4 AND status = 'pending'
-             ORDER BY asked_at DESC LIMIT 1",
-            (context_type, context_id, node_id, si),
-            |row| row.get(0),
-        ) {
-            Ok(id) => Some(id),
-            Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => None,
-            Err(e) => {
-                return Err(InterviewError::BackendFailure(format!(
-                    "failed to query pending interview: {e}"
-                )));
-            }
-        }
-    } else {
-        match conn.query_row(
-            "SELECT interview_id FROM interviews
-             WHERE context_type = ?1 AND context_id = ?2 AND node_id = ?3
-               AND status = 'pending'
-             ORDER BY asked_at DESC LIMIT 1",
-            (context_type, context_id, node_id),
-            |row| row.get(0),
-        ) {
-            Ok(id) => Some(id),
-            Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => None,
-            Err(e) => {
-                return Err(InterviewError::BackendFailure(format!(
-                    "failed to query pending interview: {e}"
-                )));
-            }
+    let interview_id: Option<String> = match conn.query_row(
+        "SELECT interview_id FROM interviews
+         WHERE context_type = ?1 AND context_id = ?2 AND node_id = ?3
+           AND (?4 IS NULL OR stage_index = ?4) AND status = 'pending'
+         ORDER BY asked_at DESC LIMIT 1",
+        (context_type, context_id, node_id, stage_index),
+        |row| row.get(0),
+    ) {
+        Ok(id) => Some(id),
+        Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => None,
+        Err(e) => {
+            return Err(InterviewError::BackendFailure(format!(
+                "failed to query pending interview: {e}"
+            )));
         }
     };
 
