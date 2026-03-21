@@ -77,6 +77,7 @@ questions:
     question: What specific changes or improvements should be made?
     type: freeform
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 
 ```text #commit-prompt

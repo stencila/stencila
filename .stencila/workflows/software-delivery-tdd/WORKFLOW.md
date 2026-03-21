@@ -330,8 +330,8 @@ questions:
   - header: Revision Notes
     question: What specific changes should be made?
     type: freeform
-    show-if: "human.decision == Revise"
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 
 ```text #commit-slice-prompt

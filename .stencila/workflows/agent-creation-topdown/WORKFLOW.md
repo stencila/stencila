@@ -116,6 +116,7 @@ questions:
   - header: Revision Notes
     question: What changes should be made to the agent design or skill list?
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 
 ```text #create-skill-prompt
@@ -180,6 +181,7 @@ questions:
   - header: Revision Notes
     question: What specific changes or improvements should be made?
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 
 ```text #commit-prompt

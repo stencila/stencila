@@ -75,6 +75,7 @@ questions:
   - header: Revision Notes
     question: What specific changes or improvements should be made?
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 
 ```text #commit-prompt

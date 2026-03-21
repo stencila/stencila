@@ -345,6 +345,7 @@ questions:
   - header: Revision Notes
     question: What changes should be made?
     store: human.feedback
+    show-if: "human.decision == Revise"
 ```
 ````
 
