@@ -249,12 +249,54 @@ impl List {
 /// Color and case a provider name cell.
 fn provider_cell(provider: &str) -> Cell {
     let (label, color) = match provider {
-        "openai" => ("OpenAI", Color::Green),
-        "anthropic" => ("Anthropic", Color::Magenta),
-        "gemini" => ("Gemini", Color::Blue),
-        "mistral" => ("Mistral", Color::Cyan),
-        "deepseek" => ("DeepSeek", Color::DarkCyan),
-        "ollama" => ("Ollama", Color::DarkYellow),
+        "openai" => (
+            "OpenAI",
+            Color::Rgb {
+                r: 116,
+                g: 185,
+                b: 146,
+            },
+        ),
+        "anthropic" => (
+            "Anthropic",
+            Color::Rgb {
+                r: 214,
+                g: 161,
+                b: 107,
+            },
+        ),
+        "gemini" => (
+            "Gemini",
+            Color::Rgb {
+                r: 76,
+                g: 139,
+                b: 245,
+            },
+        ),
+        "mistral" => (
+            "Mistral",
+            Color::Rgb {
+                r: 255,
+                g: 122,
+                b: 69,
+            },
+        ),
+        "deepseek" => (
+            "DeepSeek",
+            Color::Rgb {
+                r: 78,
+                g: 110,
+                b: 248,
+            },
+        ),
+        "ollama" => (
+            "Ollama",
+            Color::Rgb {
+                r: 156,
+                g: 163,
+                b: 175,
+            },
+        ),
         other => (other, Color::White),
     };
     Cell::new(label).fg(color)
