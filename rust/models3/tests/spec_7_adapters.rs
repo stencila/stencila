@@ -531,6 +531,20 @@ fn openai_response_translation_maps_usage_fields() -> Result<(), Box<dyn std::er
 }
 
 #[test]
+fn openai_response_translation_prefers_input_tokens_details()
+-> Result<(), Box<dyn std::error::Error>> {
+    let raw_response = fixture_json("openai/response_translation_input_tokens_details.json")?;
+    let response = openai::translate_response::translate_response(raw_response, None)?;
+
+    assert_eq!(response.usage.input_tokens, 15);
+    assert_eq!(response.usage.output_tokens, 25);
+    assert_eq!(response.usage.reasoning_tokens, Some(5));
+    assert_eq!(response.usage.cache_read_tokens, Some(10));
+
+    Ok(())
+}
+
+#[test]
 fn openai_response_translation_custom_tool_call_maps_apply_patch_input()
 -> Result<(), Box<dyn std::error::Error>> {
     let raw_response = fixture_json("openai/response_translation_custom_tool_call.json")?;

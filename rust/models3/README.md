@@ -201,10 +201,6 @@ Accumulator behavior currently assumes a single in-flight segment per kind and d
 
 The public `Request` / high-level option builders require an explicit model string; they do not currently auto-select a provider's latest model when no model is provided.
 
-### No sync wrapper API (`§2.6`)
-
-The crate currently exposes async APIs only (`Client`, `generate`, `stream_generate`, `generate_object`, `stream_object`) and does not provide blocking/sync wrappers.
-
 ### Tool execute context injection not implemented (`§5.2`)
 
 Tool execute handlers currently receive only parsed argument JSON; injected context parameters like `messages`, `abort_signal`, and `tool_call_id` are not supported.

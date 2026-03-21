@@ -407,11 +407,11 @@ pub(crate) fn parse_usage(usage: Option<&Value>) -> Usage {
         });
 
     let cache_read_tokens = usage
-        .pointer("/prompt_tokens_details/cached_tokens")
+        .pointer("/input_tokens_details/cached_tokens")
         .and_then(Value::as_u64)
         .or_else(|| {
             usage
-                .pointer("/input_tokens_details/cached_tokens")
+                .pointer("/prompt_tokens_details/cached_tokens")
                 .and_then(Value::as_u64)
         });
 

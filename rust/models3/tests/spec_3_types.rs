@@ -572,6 +572,22 @@ fn message_with_tool_result_serde() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
+// ── ToolResultData content accepts string, dict, or list ─────────────
+
+#[test]
+fn tool_result_data_accepts_list_content() -> Result<(), Box<dyn std::error::Error>> {
+    let list_content = serde_json::json!(["item1", "item2", {"key": "val"}]);
+    let part = ContentPart::tool_result("call_list", list_content.clone(), false);
+    let json = serde_json::to_string(&part)?;
+    let back: ContentPart = serde_json::from_str(&json)?;
+    if let ContentPart::ToolResult { tool_result } = &back {
+        assert_eq!(tool_result.content, list_content);
+    } else {
+        panic!("expected ToolResult variant");
+    }
+    Ok(())
+}
+
 // ── Response::reasoning() returns None vs Some ───────────────────────
 
 #[test]

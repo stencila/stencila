@@ -288,7 +288,7 @@ impl ToolCallData {
 pub struct ToolResultData {
     /// The `ToolCallData.id` this result answers.
     pub tool_call_id: String,
-    /// Tool output (string or structured).
+    /// Tool output (string, dict, or list).
     pub content: serde_json::Value,
     /// Whether tool execution failed.
     #[serde(default)]

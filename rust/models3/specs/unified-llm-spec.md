@@ -31,7 +31,7 @@ This specification defines a unified client library that solves this problem. De
 
 **Minimal surface area.** The library exposes a small number of types and functions. A developer can learn the full API in under an hour. Fewer concepts means fewer bugs and easier maintenance.
 
-**Streaming-first.** Streaming is a first-class operation, not a flag on a blocking call. The two generation modes -- blocking and streaming -- have separate methods with distinct return types. This makes the type system work for the developer.
+**Streaming-first.** Streaming is a first-class operation, not a flag on a one-shot response call. The two generation modes -- non-streaming and streaming -- have separate methods with distinct return types. This makes the type system work for the developer.
 
 **Composable.** Cross-cutting concerns (logging, retries, caching) are handled through middleware, not baked into the core. The core client is a thin routing layer.
 
@@ -165,13 +165,13 @@ INTERFACE ProviderAdapter:
     PROPERTY name : String             -- e.g., "openai", "anthropic", "gemini"
 
     FUNCTION complete(request: Request) -> Response
-        -- Send a request, block until the model finishes, return the full response.
+        -- Send a request and return the full response when generation finishes.
 
     FUNCTION stream(request: Request) -> AsyncIterator<StreamEvent>
         -- Send a request, return an asynchronous iterator of stream events.
 ```
 
-**Why two methods, not one.** A single method with a `stream: boolean` flag was rejected because the return types are fundamentally different. A blocking `Response` and an asynchronous event stream have different consumption patterns, error handling models, and lifetime semantics. Separate methods make the type system work for the developer.
+**Why two methods, not one.** A single method with a `stream: boolean` flag was rejected because the return types are fundamentally different. A full `Response` and an asynchronous event stream have different consumption patterns, error handling models, and lifetime semantics. Separate methods make the type system work for the developer.
 
 **No separate `send_tool_outputs` method.** Tool results are sent by including them in the message history of a new `complete()` or `stream()` call. This matches how Anthropic and Gemini work natively. The OpenAI adapter handles any translation internally.
 
@@ -203,7 +203,7 @@ result = generate(model = "...", prompt = "...", client = my_client)
 
 ### 2.6 Concurrency Model
 
-The library is async-first. All provider calls are non-blocking. The `complete()` and `stream()` methods are asynchronous. The high-level API provides both async and sync wrappers for languages that support both paradigms.
+The library is concurrency-friendly. Provider adapters should use non-blocking I/O internally and support concurrent requests safely. The canonical API exposes a non-streaming `complete()` operation and a streaming `stream()` operation. Languages that support both paradigms may offer async-native methods plus sync wrappers. In the pseudocode below, `complete()` denotes the non-streaming call regardless of whether the host language spells it sync or async.
 
 Multiple concurrent requests to different providers (or the same provider) are safe. The Client holds no mutable state between requests. Provider adapters manage their own connection pools and must be safe for concurrent use.
 
@@ -213,7 +213,7 @@ Each provider adapter MUST use the provider's native, preferred API -- not a com
 
 | Provider  | Required API                    | Why Not Compatibility Layer                                                |
 |-----------|---------------------------------|---------------------------------------------------------------------------|
-| OpenAI    | **Responses API** (`/v1/responses`) | The Responses API properly surfaces reasoning tokens, supports built-in tools (web search, file search, code interpreter), and is OpenAI's forward-looking API. The Chat Completions API does not return reasoning tokens for reasoning models (GPT-5.2 series, etc.) and lacks server-side conversation state. |
+| OpenAI    | **Responses API** (`/v1/responses`) | The Responses API properly surfaces reasoning tokens, supports built-in tools (web search, file search, code interpreter), and is OpenAI's forward-looking API. The Chat Completions API does not return reasoning tokens for GPT-5+ reasoning models and lacks server-side conversation state. |
 | Anthropic | **Messages API** (`/v1/messages`)   | The Messages API supports extended thinking with thinking blocks and signatures, prompt caching with `cache_control`, beta feature headers, and the strict user/assistant alternation model. There is no alternative. |
 | Gemini    | **Gemini API** (`/v1beta/models/*/generateContent`) | The native Gemini API supports grounding with Google Search, code execution, system instructions, and cached content. OpenAI-compatible endpoints for Gemini are limited shims. |
 
@@ -270,13 +270,13 @@ RECORD ModelInfo:
     aliases         : List<String>      -- shorthand names (e.g., ["sonnet", "claude-sonnet"])
 ```
 
-**At the time of writing (February 2026),** the top models available through each provider's API are:
+At the time of writing, the top models available through each provider's API are:
 
 | Provider  | Top Model(s)                                        |
 |-----------|-----------------------------------------------------|
 | Anthropic | **Claude Opus 4.6**, Claude Sonnet 4.5               |
-| OpenAI    | **GPT-5.2 series** (GPT-5.2, GPT-5.2-codex)        |
-| Gemini    | **Gemini 3 Pro (Preview)**, Gemini 3 Flash (Preview) |
+| OpenAI    | **GPT-5+ series** (currently GPT-5.2, GPT-5.2-codex) |
+| Gemini    | **Gemini 3.1 Pro Preview**, Gemini 3 Flash Preview |
 
 Implementations should default to the latest available models when no model is specified by the caller, and should prefer newer models in any model selection logic. However, the catalog must also include older models that are still served by the APIs, as callers may need them for cost, latency, or compatibility reasons.
 
@@ -292,7 +292,7 @@ MODELS = [
     ModelInfo(id="claude-sonnet-4-5",             provider="anthropic", display_name="Claude Sonnet 4.5", context_window=200000, supports_tools=true, supports_vision=true, supports_reasoning=true),
 
     -- ==========================================================
-    -- OpenAI -- prefer GPT-5.2 series for top quality
+    -- OpenAI -- prefer the latest GPT-5+ model for top quality
     -- ==========================================================
 
     ModelInfo(id="gpt-5.2",                       provider="openai",    display_name="GPT-5.2",           context_window=1047576, supports_tools=true, supports_vision=true, supports_reasoning=true),
@@ -300,10 +300,10 @@ MODELS = [
     ModelInfo(id="gpt-5.2-codex",                 provider="openai",    display_name="GPT-5.2 Codex",     context_window=1047576, supports_tools=true, supports_vision=true, supports_reasoning=true),
 
     -- ==========================================================
-    -- Gemini -- prefer Gemini 3 Flash Preview for latest
+    -- Gemini -- prefer Gemini 3.1 Pro Preview for top quality
     -- ==========================================================
 
-    ModelInfo(id="gemini-3-pro-preview",          provider="gemini",    display_name="Gemini 3 Pro (Preview)",   context_window=1048576, supports_tools=true, supports_vision=true, supports_reasoning=true),
+    ModelInfo(id="gemini-3.1-pro-preview",        provider="gemini",    display_name="Gemini 3.1 Pro Preview", context_window=1048576, supports_tools=true, supports_vision=true, supports_reasoning=true),
     ModelInfo(id="gemini-3-flash-preview",        provider="gemini",    display_name="Gemini 3 Flash (Preview)", context_window=1048576, supports_tools=true, supports_vision=true, supports_reasoning=true),
 ]
 ```
@@ -335,9 +335,9 @@ Prompt caching allows providers to reuse computation from previous requests when
 |-----------|-----------------------------------------------------------------------|---------------------|
 | OpenAI    | Automatic -- the Responses API caches shared prefixes server-side     | None. Use the Responses API and report `cache_read_tokens` from usage. |
 | Gemini    | Automatic -- prefix caching for repeated content, plus explicit `cachedContent` API for long contexts | None for automatic. Expose explicit caching via `provider_options`. |
-| Anthropic | **Not automatic.** Requires explicit `cache_control` annotations on content blocks. | The Anthropic adapter must inject `cache_control` breakpoints automatically for agentic workloads. |
+| Anthropic | **Not automatic.** Requires explicit `cache_control` annotations on content blocks. | The Anthropic adapter MUST support prompt caching and SHOULD inject `cache_control` breakpoints automatically for agentic workloads. |
 
-Anthropic is the only provider where the SDK must do extra work. Without cache_control annotations, every turn re-processes the entire system prompt and conversation history at full price. With proper caching, cached input tokens cost 90% less. This is the single highest-ROI optimization for agentic workloads.
+Anthropic is the only provider where the SDK must do extra work. Without `cache_control` annotations, every turn re-processes the entire system prompt and conversation history at full price. With proper caching, cached input tokens cost 90% less. Support for Anthropic prompt caching is required. Automatic breakpoint placement is recommended but implementation-specific, so adapters should document their heuristic and provide an escape hatch such as `provider_options.anthropic.auto_cache = false`.
 
 All three providers report cache statistics. The SDK must map these to `Usage.cache_read_tokens` and `Usage.cache_write_tokens` so callers can verify caching is working.
 
@@ -523,7 +523,7 @@ The `id` field is assigned by the provider and is required for linking tool resu
 ```
 RECORD ToolResultData:
     tool_call_id    : String            -- the ToolCallData.id this result answers
-    content         : String | Dict     -- the tool's output (text or structured)
+    content         : String | Dict | List -- the tool's output (text or structured)
     is_error        : Boolean           -- whether the tool execution failed
     image_data      : Bytes | None      -- optional image result
     image_media_type: String | None     -- MIME type for the image result
@@ -560,7 +560,7 @@ RECORD Request:
     top_p             : Float | None
     max_tokens        : Integer | None
     stop_sequences    : List<String> | None
-    reasoning_effort  : String | None               -- "none", "low", "medium", "high"
+    reasoning_effort  : String | None               -- "low", "medium", "high"; None means provider default (parameter omitted)
     metadata          : Dict<String, String> | None -- arbitrary key-value pairs
     provider_options  : Dict | None                 -- escape hatch for provider-specific params
 ```
@@ -576,13 +576,15 @@ request = Request(
     provider_options = {
         "anthropic": {
             "thinking": { "type": "enabled", "budget_tokens": 10000 },
-            "beta_features": ["interleaved-thinking-2025-05-14"]
+            "beta_headers": ["interleaved-thinking-2025-05-14"]
         }
     }
 )
 ```
 
 Code that uses `provider_options` is explicitly not portable. The library documents this tradeoff.
+
+In typed languages, implementations may model `provider_options` as provider-specific typed fields or option records (for example `anthropic_options`, `openai_options`, `gemini_options`) so long as the serialized request behavior is equivalent to the unified dictionary form above.
 
 ### 3.7 Response
 
@@ -655,7 +657,7 @@ RECORD Usage:
     input_tokens        : Integer           -- tokens in the prompt
     output_tokens       : Integer           -- tokens generated by the model
     total_tokens        : Integer           -- input + output
-    reasoning_tokens    : Integer | None    -- tokens used for chain-of-thought reasoning
+    reasoning_tokens    : Integer | None    -- tokens used for chain-of-thought reasoning (estimated for Anthropic when derived from thinking blocks)
     cache_read_tokens   : Integer | None    -- tokens served from prompt cache
     cache_write_tokens  : Integer | None    -- tokens written to prompt cache
     raw                 : Dict | None       -- raw provider usage data
@@ -674,33 +676,33 @@ Provider usage field mapping:
 
 | SDK Field           | OpenAI Field                                         | Anthropic Field                  | Gemini Field                          |
 |---------------------|------------------------------------------------------|----------------------------------|---------------------------------------|
-| input_tokens        | usage.prompt_tokens                                  | usage.input_tokens               | usageMetadata.promptTokenCount        |
-| output_tokens       | usage.completion_tokens                              | usage.output_tokens              | usageMetadata.candidatesTokenCount    |
-| reasoning_tokens    | usage.completion_tokens_details.reasoning_tokens     | (see note below)                 | usageMetadata.thoughtsTokenCount      |
-| cache_read_tokens   | usage.prompt_tokens_details.cached_tokens            | usage.cache_read_input_tokens    | usageMetadata.cachedContentTokenCount |
+| input_tokens        | usage.input_tokens                                   | usage.input_tokens               | usageMetadata.promptTokenCount        |
+| output_tokens       | usage.output_tokens                                  | usage.output_tokens              | usageMetadata.candidatesTokenCount    |
+| reasoning_tokens    | usage.output_tokens_details.reasoning_tokens         | (see note below)                 | usageMetadata.thoughtsTokenCount      |
+| cache_read_tokens   | usage.input_tokens_details.cached_tokens             | usage.cache_read_input_tokens    | usageMetadata.cachedContentTokenCount |
 | cache_write_tokens  | (not provided)                                       | usage.cache_creation_input_tokens| (not provided)                        |
 
 #### Reasoning Token Handling (Critical)
 
 Reasoning tokens are tokens the model uses for internal chain-of-thought before producing visible output. Properly tracking and surfacing reasoning tokens is essential for cost management and debugging, because reasoning tokens are billed as output tokens but are not visible in the response text.
 
-**OpenAI reasoning models (GPT-5.2 series, etc.):**
+**OpenAI reasoning models (GPT-5+):**
 - The **Responses API** (`/v1/responses`) is REQUIRED for reasoning models. The Chat Completions API does not return reasoning token breakdowns for these models. The Responses API returns `usage.output_tokens_details.reasoning_tokens` which tells you exactly how many tokens were spent on reasoning vs. visible output.
 - The `reasoning_effort` request parameter ("low", "medium", "high") controls how much reasoning the model does. This maps to `reasoning.effort` in the Responses API request body.
-- Reasoning content is not visible in the response (OpenAI does not expose the thinking text for GPT-5.2 series models). The adapter should still populate `reasoning_tokens` in Usage so callers can track costs.
+- Reasoning content is not visible in the response (OpenAI does not expose the thinking text for GPT-5+ reasoning models). The adapter should still populate `reasoning_tokens` in Usage so callers can track costs.
 
 **Anthropic extended thinking (Claude with thinking enabled):**
 - Extended thinking is enabled via the `thinking` parameter (through `provider_options`) and requires specific beta headers.
 - Anthropic surfaces thinking as explicit `thinking` content blocks in the response. These blocks contain the actual reasoning text and count toward `output_tokens` in the usage.
-- The adapter should populate `reasoning_tokens` by summing the token lengths of thinking blocks (Anthropic does not provide a separate reasoning token count, but the thinking block text can be used for estimation).
+- The adapter should populate `reasoning_tokens` by estimating from the token lengths of thinking blocks. Anthropic does not provide a separate exact reasoning token count.
 - Thinking blocks carry a `signature` field that must be round-tripped verbatim in subsequent messages.
 
-**Gemini thinking (Gemini 3 models):**
-- Gemini 3 Flash supports "thinking" via the `thinkingConfig` parameter.
+**Gemini thinking (Gemini 3+ models with thinking enabled):**
+- Gemini 3+ models with thinking enabled support "thinking" via the `thinkingConfig` parameter.
 - Gemini reports `thoughtsTokenCount` in `usageMetadata`, which maps directly to `reasoning_tokens`.
 - Thinking content may be returned in the response as a `thought` part.
 
-**Why this matters:** When switching between providers, reasoning token usage can vary dramatically. A query that uses 500 reasoning tokens on OpenAI GPT-5.2 might use 2000 thinking tokens on Claude. The unified SDK must track this accurately so callers can make informed cost decisions. Even though reasoning tokens make direct provider switching unfavorable (the thinking styles are different), the SDK should still translate correctly so higher-level tools can compare.
+**Why this matters:** When switching between providers, reasoning token usage can vary dramatically. A query that uses 500 reasoning tokens on an OpenAI GPT-5+ reasoning model might use 2000 thinking tokens on Claude. The unified SDK must track this accurately so callers can make informed cost decisions. Even though reasoning tokens make direct provider switching unfavorable (the thinking styles are different), the SDK should still translate correctly so higher-level tools can compare.
 
 ### 3.10 ResponseFormat
 
@@ -795,7 +797,7 @@ Consumers that only care about text deltas can filter for `TEXT_DELTA` events an
 
 ### 4.1 Low-Level: Client.complete()
 
-The fundamental blocking call. Sends a request, blocks until the model finishes, returns the full response.
+The fundamental non-streaming call. Sends a request and returns the full response when generation finishes.
 
 ```
 response = client.complete(Request(
@@ -812,7 +814,7 @@ response.usage          -- Usage(input_tokens=12, output_tokens=85, ...)
 
 **Behavior:**
 - Routes to the resolved provider adapter.
-- Blocks until the model produces a complete response.
+- Waits until the model produces a complete response, then returns or resolves with it.
 - Returns a Response object.
 - Raises an exception on provider errors.
 - Does NOT retry automatically. Retries are the responsibility of Layer 4 (high-level API) or application code.
@@ -843,7 +845,7 @@ FOR EACH event IN event_stream:
 
 ### 4.3 High-Level: generate()
 
-The primary blocking generation function. Wraps `Client.complete()` with tool execution loops, multi-step orchestration, prompt standardization, and automatic retries.
+The primary non-streaming generation function. Wraps `Client.complete()` with tool execution loops, multi-step orchestration, prompt standardization, and automatic retries.
 
 ```
 FUNCTION generate(
@@ -1164,6 +1166,8 @@ RECORD ToolResult:
     is_error        : Boolean           -- true if the tool execution failed
 ```
 
+`ToolCall` is the high-level equivalent of `ToolCallData`. `ToolCallData` appears inside `ContentPart` values in the message model; `ToolCall` is the extracted representation used for tool execution. The `raw_arguments` field preserves the unparsed JSON string before parsing into `arguments`.
+
 ### 5.5 Active Tools vs Passive Tools
 
 **Active tools** have an `execute` handler. When used with `generate()` or `stream()`, the library automatically executes them and loops until the model produces a final text response.
@@ -1184,12 +1188,17 @@ FUNCTION tool_loop(request, tools, max_tool_rounds, stop_when):
     conversation = request.messages
     steps = []
 
+    IF max_tool_rounds == 0:
+        response = client.complete(request_with(conversation))
+        steps.APPEND(StepResult(response, response.tool_calls, [], ...))
+        RETURN GenerateResult from steps
+
     FOR round_num FROM 0 TO max_tool_rounds:
         response = client.complete(request_with(conversation))
         tool_calls = response.tool_calls
 
-        -- Execute tools if the model wants to call them
-        IF tool_calls AND response.finish_reason.reason == "tool_calls":
+        -- Execute tools if the model wants to call them and budget remains
+        IF tool_calls AND response.finish_reason.reason == "tool_calls" AND round_num < max_tool_rounds:
             tool_results = execute_all_tools(tools, tool_calls)  -- concurrent
         ELSE:
             tool_results = []
@@ -1293,7 +1302,7 @@ SDKError
  |    +-- NotFoundError                 -- 404: model not found, endpoint not found
  |    +-- InvalidRequestError           -- 400: malformed request, invalid parameters
  |    +-- RateLimitError                -- 429: rate limit exceeded
- |    +-- ServerError                   -- 500-599: provider internal error
+ |    +-- ServerError                   -- 500+: provider internal error
  |    +-- ContentFilterError            -- response blocked by safety filter
  |    +-- ContextLengthError            -- input + output exceeds context window
  |    +-- QuotaExceededError            -- billing/usage quota exhausted
@@ -1302,6 +1311,7 @@ SDKError
  +-- NetworkError                       -- network-level failure
  +-- StreamError                        -- error during stream consumption
  +-- InvalidToolCallError               -- tool call arguments failed validation
+ +-- UnsupportedToolChoiceError         -- provider does not support the requested tool choice mode
  +-- NoObjectGeneratedError             -- structured output parsing/validation failed
  +-- ConfigurationError                 -- SDK misconfiguration (missing provider, etc.)
 ```
@@ -1335,6 +1345,7 @@ Every error carries a `retryable` property.
 | ContextLengthError     | 413         | false     |
 | QuotaExceededError     | (varies)    | false     |
 | ContentFilterError     | (varies)    | false     |
+| RequestTimeoutError    | 408         | false     |
 | ConfigurationError     | (N/A)       | false     |
 
 **Retryable errors** (transient -- may succeed on retry):
@@ -1343,11 +1354,12 @@ Every error carries a `retryable` property.
 |------------------------|-------------|-----------|
 | RateLimitError         | 429         | true      |
 | ServerError            | 500-504     | true      |
-| RequestTimeoutError    | 408         | true      |
 | NetworkError           | (N/A)       | true      |
 | StreamError            | (N/A)       | true      |
 
 **Unknown errors default to retryable.** This is a deliberate conservative choice: transient network issues and novel provider error codes are more common than permanent failures from unexpected codes. A false retry is cheaper than a false abort.
+
+Applications can opt in to timeout retries by configuring a custom `should_retry` predicate.
 
 ### 6.4 HTTP Status Code Mapping
 
@@ -1359,14 +1371,12 @@ Adapters map HTTP status codes to error types using this table:
 | 401    | AuthenticationError | false     |
 | 403    | AccessDeniedError   | false     |
 | 404    | NotFoundError       | false     |
-| 408    | RequestTimeoutError | true      |
+| 408    | RequestTimeoutError | false     |
 | 413    | ContextLengthError  | false     |
 | 422    | InvalidRequestError | false     |
 | 429    | RateLimitError      | true      |
-| 500    | ServerError         | true      |
-| 502    | ServerError         | true      |
-| 503    | ServerError         | true      |
-| 504    | ServerError         | true      |
+| 500-504| ServerError         | true      |
+| 505-599| ServerError         | true      |
 
 For Gemini (which may use gRPC status codes):
 
@@ -1508,7 +1518,7 @@ The adapter must translate a unified `Request` into the provider's native API fo
 
 7. **Apply provider options.** Merge any provider-specific options from `request.provider_options[provider_name]` into the request body.
 
-### 7.3Message Translation Details
+### 7.3 Message Translation Details
 
 #### OpenAI Message Translation (Responses API)
 
@@ -1532,7 +1542,7 @@ ContentPart Translations:
 
 Special behaviors:
 - System messages are extracted to the `instructions` parameter, not included in the `input` array.
-- The `reasoning.effort` parameter controls reasoning for o-series models ("low", "medium", "high").
+- The `reasoning.effort` parameter controls reasoning for GPT-5+ reasoning models ("low", "medium", "high").
 - Tool calls and results are top-level input items, not nested within messages.
 - For third-party OpenAI-compatible endpoints, use the Chat Completions format instead (see Section 7.10).
 
@@ -1586,7 +1596,7 @@ Special behaviors:
 - **Function response format:** Gemini's `functionResponse` uses the function *name* (not the call ID) and expects a dict for the response (wrap strings in `{"result": "..."}` if needed).
 - **Streaming format:** Gemini uses JSON chunks (optionally via SSE with `?alt=sse`), not a standard SSE endpoint.
 
-### 7.4Tool Definition Translation
+### 7.4 Tool Definition Translation
 
 | SDK Format              | OpenAI                                             | Anthropic                                        | Gemini                                             |
 |-------------------------|----------------------------------------------------|-------------------------------------------------|-----------------------------------------------------|
@@ -1605,7 +1615,7 @@ The adapter must parse the provider's response into the unified Response format:
 4. **Preserve raw response.** Store the complete provider response in `Response.raw` for debugging.
 5. **Extract rate limit info.** Parse `x-ratelimit-*` headers into `RateLimitInfo` if present.
 
-### 7.6Error Translation
+### 7.6 Error Translation
 
 The adapter must translate HTTP errors into the error hierarchy:
 
@@ -1665,6 +1675,7 @@ Provider Format (Responses API):
     event: response.completed      -- generation complete, includes usage with reasoning_tokens
 
 Translation:
+    response.created               -> STREAM_START event
     output_text.delta              -> TEXT_DELTA event (emit TEXT_START on first)
     function_call_arguments.delta  -> TOOL_CALL_DELTA event
     output_item.done (text)        -> TEXT_END event
@@ -1696,6 +1707,7 @@ Provider Format (SSE events):
     event: message_stop        -- stream complete
 
 Translation:
+    message_start                        -> STREAM_START
     content_block_start (type=text)     -> TEXT_START
     content_block_delta (type=text)     -> TEXT_DELTA
     content_block_stop  (type=text)     -> TEXT_END
@@ -1717,6 +1729,7 @@ Provider Format (SSE):
     data: {"candidates": [{"content": {"parts": [{"text": "..."}]}}], "usageMetadata": {...}}
 
 Translation:
+    first chunk received               -> STREAM_START
     parts[].text present               -> TEXT_DELTA (emit TEXT_START on first)
     parts[].functionCall present       -> TOOL_CALL_START + TOOL_CALL_END (full call in one chunk)
     candidate.finishReason present     -> TEXT_END
@@ -1736,17 +1749,17 @@ A summary of provider-specific behaviors that adapters must handle:
 | Developer role               | `instructions` or `developer` role | Merged with system                   | Merged with system                  |
 | Message alternation          | No strict requirement            | Strict user/assistant alternation      | No strict requirement               |
 | Reasoning tokens             | Via `output_tokens_details`; requires Responses API | Via thinking blocks (text visible) | Via `thoughtsTokenCount`          |
-| Tool call IDs                | Provider-assigned unique IDs     | Provider-assigned unique IDs           | No unique IDs (use function name)   |
+| Tool call IDs                | Provider-assigned unique IDs     | Provider-assigned unique IDs           | No provider-assigned IDs (generate synthetic IDs and map back to function names) |
 | Tool result format           | Separate `tool` role messages    | `tool_result` blocks in user messages  | `functionResponse` in user content  |
 | Tool choice "none"           | `"none"`                         | Omit tools from request entirely       | `"NONE"`                            |
 | max_tokens                   | Optional                         | Required (default to 4096)             | Optional (as `maxOutputTokens`)     |
-| Thinking blocks              | Not exposed (o-series internal)  | `thinking` / `redacted_thinking` blocks| `thought` parts (2.5 models)       |
+| Thinking blocks              | Not exposed (GPT-5+ internal)    | `thinking` / `redacted_thinking` blocks| `thought` parts (Gemini 3+ models with thinking enabled) |
 | Structured output            | Native json_schema mode          | Prompt engineering or tool extraction  | Native responseSchema               |
-| Streaming protocol           | SSE with `data:` lines           | SSE with event type + data lines       | SSE (with `?alt=sse`) or JSON       |
-| Stream termination           | `data: [DONE]`                   | `message_stop` event                   | Final chunk (no explicit signal)    |
+| Streaming protocol           | SSE with event type + data lines | SSE with event type + data lines       | SSE (with `?alt=sse`) or JSON       |
+| Stream termination           | `response.completed` event       | `message_stop` event                   | Final chunk (no explicit signal)    |
 | Finish reason for tools      | `tool_calls`                     | `tool_use`                             | No dedicated reason (infer from parts)|
 | Image input                  | Data URI in `image_url`          | `base64` source with `media_type`      | `inlineData` with `mimeType`        |
-| Prompt caching               | Automatic (free, 50% discount)   | Requires explicit `cache_control` blocks (90% discount) | Automatic (free prefix caching)   |
+| Prompt caching               | Automatic (free, 50% discount)   | Requires explicit `cache_control` blocks; SDK may inject them automatically (90% discount) | Automatic (free prefix caching)   |
 | Beta/feature headers         | N/A (features in request body)   | `anthropic-beta` header (comma-separated) | N/A (features in request body)   |
 | Authentication               | Bearer token in Authorization    | `x-api-key` header                     | `key` query parameter               |
 | API versioning               | Via URL path (/v1/)              | `anthropic-version` header             | Via URL path (/v1beta/)             |
@@ -1763,7 +1776,9 @@ To add support for a new provider:
 6. **Handle provider quirks.** Document any provider-specific behaviors (like Anthropic's strict alternation or Gemini's missing tool call IDs) and handle them in the adapter.
 7. **Register the adapter.** Add it to `Client.from_env()` with the appropriate environment variable checks, or allow users to register it programmatically.
 
-### 7.10OpenAI-Compatible Endpoints
+Third-party OpenAI-compatible endpoints that use Chat Completions terminate with `data: [DONE]`; see Section 7.10.
+
+### 7.10 OpenAI-Compatible Endpoints
 
 Many third-party services (vLLM, Ollama, Together AI, Groq, etc.) expose an OpenAI-compatible Chat Completions API. For these services, provide a separate `OpenAICompatibleAdapter` that uses the Chat Completions endpoint (`/v1/chat/completions`) rather than the Responses API:
 
@@ -2019,7 +2034,7 @@ For EACH provider (OpenAI, Anthropic, Gemini), verify:
 
 ### 8.5 Reasoning Tokens
 
-- [ ] OpenAI reasoning models (GPT-5.2 series, etc.) return `reasoning_tokens` in `Usage` via the Responses API
+- [ ] OpenAI reasoning models (GPT-5+) return `reasoning_tokens` in `Usage` via the Responses API
 - [ ] `reasoning_effort` parameter is passed through correctly to OpenAI reasoning models
 - [ ] Anthropic extended thinking blocks are returned as `THINKING` content parts when enabled
 - [ ] Thinking block `signature` field is preserved for round-tripping
@@ -2029,8 +2044,9 @@ For EACH provider (OpenAI, Anthropic, Gemini), verify:
 ### 8.6 Prompt Caching
 
 - [ ] **OpenAI**: caching works automatically via the Responses API (no client-side configuration needed)
-- [ ] **OpenAI**: `Usage.cache_read_tokens` is populated from `usage.prompt_tokens_details.cached_tokens`
-- [ ] **Anthropic**: adapter automatically injects `cache_control` breakpoints on the system prompt, tool definitions, and conversation prefix
+- [ ] **OpenAI**: `Usage.cache_read_tokens` is populated from `usage.input_tokens_details.cached_tokens`
+- [ ] **Anthropic**: adapter supports prompt caching via `cache_control` blocks
+- [ ] **Anthropic**: if automatic caching is enabled, the adapter injects `cache_control` breakpoints on the system prompt, tool definitions, and stable conversation prefix using a documented heuristic
 - [ ] **Anthropic**: `prompt-caching-2024-07-31` beta header is included automatically when cache_control is present
 - [ ] **Anthropic**: `Usage.cache_read_tokens` and `Usage.cache_write_tokens` are populated correctly
 - [ ] **Anthropic**: automatic caching can be disabled via `provider_options.anthropic.auto_cache = false`

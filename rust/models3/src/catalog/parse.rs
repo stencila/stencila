@@ -783,6 +783,15 @@ mod tests {
     }
 
     #[test]
+    fn parse_gemini_3_1_pro_preview() {
+        let p = parse_gemini("gemini-3.1-pro-preview").expect("should parse");
+        assert_eq!(p.version_major, 3);
+        assert_eq!(p.version_minor, 1);
+        assert_eq!(p.tier, "pro");
+        assert_eq!(p.suffix, "preview");
+    }
+
+    #[test]
     fn parse_gemini_flash_lite() {
         let p = parse_gemini("gemini-2.5-flash-lite").expect("should parse");
         assert_eq!(p.version_major, 2);
