@@ -34,6 +34,7 @@ allowed-tools:
   - glob
   - grep
   - shell
+  - ask_user
 ---
 
 You are an assistant that specializes in writing failing tests for TDD slices based on acceptance criteria and existing codebase conventions.

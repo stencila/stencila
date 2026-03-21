@@ -14,7 +14,7 @@ when-to-use:
   - when a TDD workflow needs to execute tests and report structured results
   - when the workflow must route based on test pass/fail outcomes after Red, Green, or Refactor phases
 when-not-to-use:
-  - when writing or creating tests (use software-test-creation)
+  - when writing or creating tests (use software-test-creator)
   - when implementing code or refactoring
   - when creating, reviewing, or selecting delivery plan slices
 # Small model with medium reasoning is enough for scoped test execution,

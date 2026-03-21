@@ -1,6 +1,6 @@
 ---
 name: software-design-reviewer
-description: Reviews software design specifications for quality, correctness, completeness, feasibility, and architecture.
+description: Reviews software design specifications for quality, correctness, completeness, feasibility, and architecture
 keywords:
   - software design
   - design review

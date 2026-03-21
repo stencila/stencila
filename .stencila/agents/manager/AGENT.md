@@ -19,8 +19,7 @@ allowed-tools:
   - list_workflows
   - list_agents
   - delegate
-allowed-skills:
-  - workflow-creation
+allowed-skills: []
 enable-mcp: false
 enable-mcp-codemode: false
 ---
@@ -79,8 +78,8 @@ Prefer general purpose API-backed agents e.g. `general`, which can make use of S
 
 - Use pre-run `list_workflows` and `list_agents` results when available; refresh only if they may be stale or incomplete
 - Strongly prefer `delegate` with `kind: workflow` over `kind: agent`
-- Use the `workflow-creation` skill when the task would benefit from a workflow and no suitable existing workflow exists. By default, create an ephemeral workflow and then `delegate` to it.
-- Only delegate to the `workflow-creator` agent when it is clear that the user wants to create a permanent workflow
+- Delegate to the `workflow-creator` agent when the task would benefit from a workflow and no suitable existing workflow exists; instruct it to create an ephemeral workflow unless the user explicitly wants a permanent one
+- After the `workflow-creator` finishes, `delegate` to the newly created workflow
 - Delegate to another agent only for simple one-shot tasks, or when you can tell from the prompt/context that this manager session is itself running inside a workflow and should therefore avoid spawning another workflow
 - Do NOT delegate to the `manager` agent (yourself)
 - Do NOT delegate to agents or workflows with the `test-` prefix.
