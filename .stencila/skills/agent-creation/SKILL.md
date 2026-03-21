@@ -67,6 +67,7 @@ These fields correspond to properties in the `Agent` schema (`schema/Agent.yaml`
 
 - `model` — model identifier. When omitted, the provider's default model is used.
 - `provider` — provider identifier. For CLI-backed sessions, use the CLI variant (e.g., `claude-cli`). When omitted, inferred from the model name or first available provider.
+- `model-size` — preferred model size tier, e.g. `small`, `medium`, `large`. Use this to express broad cost/latency/capability preferences without hard-coding a model.
 - `reasoning-effort` — `low`, `medium`, or `high`. Controls model reasoning depth.
 - `trust-level` — `low`, `medium` (default), or `high`. Controls tool call guard strictness.
 - `allowed-tools` — list of tool names the agent may use. Use a YAML list (one item per line) to avoid confusion. When omitted, all provider tools are available.
@@ -222,19 +223,28 @@ Validated with: `stencila agents validate pr-reviewer`
 
 ## Choosing Configuration
 
-Do not hard-code specific model names or providers in agent definitions unless the user explicitly requests one. Models and providers change frequently, and users may not have API keys for a given provider. Omitting `model` and `provider` lets Stencila resolve the best available option at runtime. Do not guess or invent model/provider identifiers — use only values the user explicitly provides, or omit the fields entirely. Invalid identifiers are not caught by validation and will fail at runtime.
+Do not hard-code specific model names or providers in agent definitions unless the user explicitly requests one. Models and providers change frequently, and users may not have API keys for a given provider. Omitting `model` and `provider` lets Stencila resolve the best available option at runtime. Prefer `model-size` when the user expresses a general preference such as speed, cost, or capability tier without naming a specific model. Do not guess or invent model/provider identifiers — use only values the user explicitly provides, or omit the fields entirely. Invalid identifiers are not caught by validation and will fail at runtime.
+
+Treat `model-size` as a cross-provider size classification managed by Stencila. It is useful for agents with simple or repetitive tasks that should prefer smaller, faster, cheaper models. These tiers are approximate across providers, not exact equivalence classes.
+
+Keep `model-size` and `reasoning-effort` conceptually separate:
+
+- `model-size` chooses the class of model to use.
+- `reasoning-effort` controls how much deliberation that chosen model applies.
+
+If the user specifies both `model-size` and `providers`, prefer that combination over hard-coding `model` values unless they explicitly ask for exact models.
 
 Guide the user with these defaults when they don't specify preferences:
 
-| Use case | Trust | Reasoning | Key tools |
-| -------- | ----- | --------- | --------- |
-| General coding | `medium` | `medium` | all (omit `allowed-tools`) |
-| Code review | `low` or `medium` | `high` | `read_file`, `grep`, `glob`, `shell` |
-| Quick tasks | `medium` | `low` | all |
-| Data analysis | `medium` | `high` | all |
-| Documentation | `low` | `medium` | `read_file`, `write_file`, `edit_file`, `grep`, `glob` |
+| Use case | Model size | Trust | Reasoning | Key tools |
+| -------- | ---------- | ----- | --------- | --------- |
+| General coding | `medium` | `medium` | `medium` | all (omit `allowed-tools`) |
+| Code review | `medium` or `large` | `low` or `medium` | `high` | `read_file`, `grep`, `glob`, `shell` |
+| Quick tasks | `small` | `medium` | `low` | all |
+| Data analysis | `medium` or `large` | `medium` | `high` | all |
+| Documentation | `small` or `medium` | `low` | `medium` | `read_file`, `write_file`, `edit_file`, `grep`, `glob` |
 
-When in doubt, omit optional fields — Stencila uses sensible defaults.
+When in doubt, omit optional fields — Stencila uses sensible defaults. If the user clearly wants a faster or cheaper agent, `model-size: small` is often a good fit. If they want stronger analysis or review quality without naming a provider, `model-size: medium` or `large` may be appropriate.
 
 When combining `allowed-skills` with `allowed-tools`, use this rule:
 

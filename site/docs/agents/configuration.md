@@ -90,11 +90,29 @@ Provider identifier: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `
 provider: anthropic
 ```
 
+### `model-size`
+
+**Type:** `string`
+
+Preferred model size tier, e.g. `small`, `medium`, `large`. Use this when you want to select a broad class of model rather than naming a specific model ID.
+
+Stencila treats model size as a cross-provider classification. It groups provider models into broad size tiers so you can express intent like “use a small, fast, cheap model” or “use a larger, more capable model” without tightly coupling the agent to one provider's naming scheme.
+
+These size tiers are a Stencila abstraction, not a provider-standard guarantee. A `small` model from one provider may differ from a `small` model from another provider in latency, price, or capability. The goal is approximate normalization of those tradeoffs across providers.
+
+When both `providers` and `model-size` are set, Stencila first constrains selection to the specified providers, then selects a model in the preferred size tier. If `models` is also set, the explicit `models` list takes precedence over `model-size`.
+
+```yaml
+model-size: medium
+```
+
 ### `reasoning-effort`
 
 **Type:** `string`
 
 Reasoning effort level: `low`, `medium`, `high`, or a custom provider-specific value. Controls how much the model reasons before responding. Higher effort uses more tokens but can improve quality. When not specified, the provider's default is used.
+
+This is different from `model-size`: `model-size` selects the class of model, while `reasoning-effort` controls how much the chosen model deliberates before answering.
 
 ```yaml
 reasoning-effort: high

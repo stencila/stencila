@@ -107,7 +107,7 @@ Agent definitions live in an `agents/` directory under `.stencila/` (workspace) 
 
 ## Choosing Models and Providers
 
-The `models`, `providers`, and `modelSize` fields control which LLM the agent uses. All are optional:
+The `models`, `providers`, and `model-size` fields control which LLM the agent uses. All are optional:
 
 ```yaml
 models:
@@ -116,7 +116,7 @@ models:
 providers:
   - anthropic
   - openai
-modelSize: medium
+model-size: medium
 ```
 
 The singular `model` and `provider` keys still work for backward compatibility:
@@ -126,11 +126,23 @@ model: claude-sonnet-4-5
 provider: anthropic
 ```
 
-- Routing precedence is `models` > `modelSize` > `providers` > defaults.
+- Routing precedence is `models` > `model-size` > `providers` > defaults.
 - If only `models` or `model` is set, the provider is inferred from each model name.
 - If only `providers` or `provider` is set, the default model for the first available provider is used.
-- If `modelSize` is set, Stencila selects the best available model in that size tier, optionally constrained by `providers`.
+- If `model-size` is set, Stencila selects the best available model in that size tier, optionally constrained by `providers`.
 - If neither is set, the first available provider with valid credentials is used.
+
+Use `model-size` when you want to express a broad tradeoff such as “use a small, fast, cheap model” without hard-coding a specific model ID. Stencila treats model size as a cross-provider classification, grouping provider models into broad tiers such as `small`, `medium`, and `large`.
+
+These tiers are a Stencila abstraction, not a provider-standard guarantee. A `small` model from one provider is not expected to be exactly equivalent to a `small` model from another provider; the classification is intended to normalize rough cost, latency, and capability tradeoffs across providers.
+
+If you combine `model-size` with `providers`, the provider list constrains which providers Stencila can choose from, and `model-size` selects the preferred tier within those providers.
+
+For example:
+
+- Use `model-size: small` for simple routing, formatting, summarization, or triage agents.
+- Use `model-size: medium` for general-purpose coding, analysis, or research agents.
+- Use `model-size: large` for difficult planning, deep review, or high-stakes reasoning tasks.
 
 Supported providers: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `deepseek`.
 
@@ -216,6 +228,13 @@ reasoning-effort: high
 ```
 
 Valid values: `low`, `medium`, `high`. When not set, the provider's default is used. Higher reasoning effort uses more tokens but can improve quality on complex tasks.
+
+`reasoning-effort` and `model-size` control different things:
+
+- `model-size` chooses which class of model to use.
+- `reasoning-effort` controls how much deliberation that chosen model applies before responding.
+
+In other words, `model-size` is about model capability tier and cost/latency tradeoffs, while `reasoning-effort` is about how hard the selected model should think.
 
 ## Limiting Turns and Tool Rounds
 

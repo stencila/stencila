@@ -39,6 +39,7 @@ Check each present field for validity:
 
 - **model**: do not hard-code a model unless the user explicitly requires one; flag hard-coded models as a warning since they reduce portability
 - **provider**: same as model — omit unless explicitly needed; flag hard-coded providers as a warning
+- **model-size**: if present, check that it is being used coherently as a broad model-tier preference (for example `small`, `medium`, `large`), and that it matches the agent's stated role and task complexity. Treat it as a Stencila cross-provider classification rather than an exact provider guarantee
 - **reasoning-effort**: typically `low`, `medium`, or `high` if present; custom provider-specific values are also valid
 - **trust-level**: must be `low`, `medium`, or `high` if present; check that it matches the agent's intended use (e.g., a read-only reviewer should not have `high` trust)
 - **allowed-tools**: check that listed tools are valid Stencila tool names (`read_file`, `write_file`, `edit_file`, `grep`, `glob`, `shell`, `web_fetch`, `use_skill`, `spawn_agent`, `send_input`, `wait`, `close_agent`, `ask_user`, `mcp_codemode`); flag unknown tool names
@@ -88,6 +89,7 @@ If both `allowed-skills` and `allowed-tools` are present, check tool coverage ac
 - Formatting is consistent (heading levels, list styles, code block languages)
 - Naming follows `thing-role` convention
 - Configuration choices are internally consistent (e.g., `max-turns: 5` with `reasoning-effort: high` suggests the agent expects complex tasks but has limited turns)
+- `model-size` and `reasoning-effort` are used coherently: `model-size` should reflect the desired cost/latency/capability tier, while `reasoning-effort` should reflect how much the selected model should deliberate. Flag cases where a very simple agent uses an unnecessarily large model tier without justification, or where a demanding analysis/review agent likely needs a larger tier than configured
 
 ## Report Format
 
@@ -123,7 +125,7 @@ Process:
 2. Read the file and check for supporting files in subdirectories (`scripts/`, `references/`, `assets/`)
 3. Read `schema/Agent.yaml` to verify field validity
 4. Evaluate frontmatter: `name` is `code-reviewer`, matches directory, valid kebab-case, follows `thing-role` convention; `description` is specific
-5. Check optional fields: `allowed-tools` lists `read_file`, `grep`, `glob`, `shell` — appropriate for a read-only reviewer
+5. Check optional fields: `model-size: medium` and `reasoning-effort: high` are a sensible combination for a read-only reviewer; `allowed-tools` lists `read_file`, `grep`, `glob`, `shell` — appropriate for that role
 6. Evaluate body: instructions say "do not modify files" — consistent with read-only tools
 7. Check security: no `write_file` or `edit_file` — good least privilege
 8. Run `stencila agents validate code-reviewer`
@@ -143,11 +145,12 @@ Output (use `###` headings in the report):
 > | Optional fields | ✅ Pass | All present fields have valid values |
 > | System instructions | ✅ Pass | Clear, imperative, consistent with tool restrictions |
 > | Security | ✅ Pass | Read-only tools, appropriate trust level |
-> | Consistency | ⚠️ Warning | `reasoning-effort` is not set; consider `high` for code review tasks |
+> | Consistency | ⚠️ Warning | `reasoning-effort` is not set; consider `high` for code review tasks, and consider `model-size: medium` if the agent should consistently avoid the smallest tier |
 >
 > ### Suggestions
 >
 > 1. Add `reasoning-effort: high` — code review benefits from deeper analysis, and this matches the defaults in the agent-creation skill's configuration guide
+> 2. Consider `model-size: medium` — this keeps the agent portable across providers while signaling that review work typically needs more than the smallest, fastest model tier
 
 Input: "Review the code-reviewer agent that delegates to one skill"
 
@@ -223,6 +226,7 @@ Output (use `###` headings in the report):
 - **Unresolved skill references**: If `allowed-skills` lists skill names that have no corresponding `SKILL.md`, do not flag them as errors. These are valid forward references from top-down design — note them as outstanding dependencies and evaluate the rest of the agent definition on its own merits. The runtime produces a warning for unresolved skill names, not an error.
 - **User-level agent**: Check `~/.config/stencila/agents/` if the agent is not found in the workspace.
 - **Hard-coded model or provider**: Flag as a warning, not a failure. Hard-coding reduces portability but may be intentional.
+- **Missing `model-size`**: Do not flag absence as a failure. Recommend it only when the agent would benefit from an explicit cross-provider size preference, such as a `small` tier for quick, low-stakes tasks or a `medium`/`large` tier for heavier review and analysis work.
 - **Unknown frontmatter fields**: Flag any fields not in the Agent schema as warnings — they may be typos or unsupported properties that will be silently ignored.
 - **User asks to fix issues**: If the user asks you to apply suggestions, make the changes, then validate with `stencila agents validate <agent-name>` before reporting completion.
 
