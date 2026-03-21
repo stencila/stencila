@@ -98,6 +98,9 @@ When reviewing names, apply these conventions:
 #### Prompts and content refs
 
 - Prompts are specific enough to guide each node's local task
+- When a node uses `persist`, check that the workflow uses it for the right reason: prefer `persist` when a node should keep its own conversational context but threads do not need to be shared across nodes. If the apparent intent is a shared multi-node conversation, warn that `persist` alone auto-generates different `thread-id` values per node and therefore does not create cross-node session sharing
+- When multiple sequential nodes appear intended to share one conversation, check for an explicit shared `thread-id` with `fidelity="full"` or graph-level defaults (`default-fidelity="full"`, `default-thread-id="..."`) instead of repeated `persist` attributes
+- Flag reuse of the same `thread-id` across different agents or across parallel branches, because shared threads should remain on one agent and one sequential path
 - When the workflow uses `prompt-ref`, `shell-ref`, `ask-ref`, or `interview-ref`, referenced ids exist in code blocks or code chunks in the same `WORKFLOW.md`, are unique, and are used where they improve readability, typically for long or multiline content rather than short single-line values
 - If `goal` is present, prompts should use `$goal` consistently. If `goal` is absent but prompts reference `$goal`, check that `goal-hint` is set (the user's response becomes `$goal` at runtime)
 - The workflow does not overuse content refs where simpler inline attributes would be clearer
