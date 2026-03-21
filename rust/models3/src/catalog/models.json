@@ -486,6 +486,42 @@
     "output_cost_per_million": 12.0
   },
   {
+    "id": "gemini-3.1-pro-preview-customtools",
+    "provider": "gemini",
+    "display_name": "Gemini 3.1 Pro Preview Custom Tools",
+    "context_window": 1048576,
+    "max_output": 65536,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 2.0,
+    "output_cost_per_million": 12.0
+  },
+  {
+    "id": "gemini-3.1-flash-lite-preview",
+    "provider": "gemini",
+    "display_name": "Gemini 3.1 Flash Lite Preview",
+    "context_window": 1048576,
+    "max_output": 65536,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.5,
+    "output_cost_per_million": 3.0
+  },
+  {
+    "id": "gemini-3.1-flash-image-preview",
+    "provider": "gemini",
+    "display_name": "Nano Banana 2",
+    "context_window": 65536,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.25,
+    "output_cost_per_million": 60.0
+  },
+  {
     "id": "gpt-4-0613",
     "provider": "openai",
     "display_name": "gpt-4-0613",
@@ -782,9 +818,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 150.0,
-    "output_cost_per_million": 600.0
+    "output_cost_per_million": 600.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "o1-pro",
@@ -795,9 +833,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 150.0,
-    "output_cost_per_million": 600.0
+    "output_cost_per_million": 600.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "o3-2025-04-16",
@@ -928,9 +968,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 20.0,
-    "output_cost_per_million": 80.0
+    "output_cost_per_million": 80.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "o3-pro-2025-06-10",
@@ -941,9 +983,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 20.0,
-    "output_cost_per_million": 80.0
+    "output_cost_per_million": 80.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5-chat-latest",
@@ -1062,9 +1106,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 15.0,
-    "output_cost_per_million": 120.0
+    "output_cost_per_million": 120.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5-pro",
@@ -1075,9 +1121,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 15.0,
-    "output_cost_per_million": 120.0
+    "output_cost_per_million": 120.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.1-chat-latest",
@@ -1184,9 +1232,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 21.0,
-    "output_cost_per_million": 168.0
+    "output_cost_per_million": 168.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.2-pro",
@@ -1197,9 +1247,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 21.0,
-    "output_cost_per_million": 168.0
+    "output_cost_per_million": 168.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.2-chat-latest",
@@ -1264,9 +1316,11 @@
     "supports_tools": true,
     "supports_vision": true,
     "supports_reasoning": true,
-    "auth_types": ["api_key"],
     "input_cost_per_million": 30.0,
-    "output_cost_per_million": 180.0
+    "output_cost_per_million": 180.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.4-pro-2026-03-05",
@@ -1276,7 +1330,9 @@
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false,
-    "auth_types": ["api_key"]
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.3-codex",
@@ -1289,6 +1345,38 @@
     "supports_reasoning": true,
     "input_cost_per_million": 1.75,
     "output_cost_per_million": 14.0
+  },
+  {
+    "id": "gpt-5.4-mini",
+    "provider": "openai",
+    "display_name": "gpt-5.4-mini",
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.4-nano-2026-03-17",
+    "provider": "openai",
+    "display_name": "gpt-5.4-nano-2026-03-17",
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.4-nano",
+    "provider": "openai",
+    "display_name": "gpt-5.4-nano",
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.4-mini-2026-03-17",
+    "provider": "openai",
+    "display_name": "gpt-5.4-mini-2026-03-17",
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
   },
   {
     "id": "mistral-medium-2505",
@@ -1729,6 +1817,33 @@
     "context_window": 32768,
     "supports_tools": true,
     "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "mistral-small-2603",
+    "provider": "mistral",
+    "display_name": "mistral-small-2603",
+    "context_window": 262144,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": false
+  },
+  {
+    "id": "mistral-vibe-cli-fast",
+    "provider": "mistral",
+    "display_name": "mistral-vibe-cli-fast",
+    "context_window": 262144,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": false
+  },
+  {
+    "id": "labs-leanstral-2603",
+    "provider": "mistral",
+    "display_name": "labs-leanstral-2603",
+    "context_window": 196608,
+    "supports_tools": true,
+    "supports_vision": true,
     "supports_reasoning": false
   }
 ]

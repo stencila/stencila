@@ -39,7 +39,8 @@ struct ModelInfo {
     id: String,
     provider: String,
     display_name: String,
-    context_window: u64,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    context_window: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     max_output: Option<u64>,
     #[serde(default)]
@@ -52,6 +53,8 @@ struct ModelInfo {
     input_cost_per_million: Option<f64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     output_cost_per_million: Option<f64>,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    auth_types: Vec<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     model_size: Option<String>,
 }
@@ -250,13 +253,14 @@ async fn fetch_anthropic_models(
                         id,
                         provider: "anthropic".into(),
                         display_name,
-                        context_window: 0,
+                        context_window: None,
                         max_output: None,
                         supports_tools: false,
                         supports_vision: false,
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        auth_types: Vec::new(),
                         model_size: None,
                     })
                 })
@@ -326,13 +330,14 @@ async fn fetch_openai_models(
                         id: id.clone(),
                         provider: "openai".into(),
                         display_name: id,
-                        context_window: 0,
+                        context_window: None,
                         max_output: None,
                         supports_tools: false,
                         supports_vision: false,
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        auth_types: Vec::new(),
                         model_size: None,
                     })
                 })
@@ -382,10 +387,7 @@ async fn fetch_mistral_models(
                         .and_then(|v| v.as_bool())
                         .unwrap_or(false);
 
-                    let context_window = m
-                        .get("max_context_length")
-                        .and_then(|v| v.as_u64())
-                        .unwrap_or(0);
+                    let context_window = m.get("max_context_length").and_then(|v| v.as_u64());
 
                     Some(ModelInfo {
                         id: id.clone(),
@@ -398,6 +400,7 @@ async fn fetch_mistral_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        auth_types: Vec::new(),
                         model_size: None,
                     })
                 })
@@ -432,13 +435,14 @@ async fn fetch_deepseek_models(
                         id: id.clone(),
                         provider: "deepseek".into(),
                         display_name: id,
-                        context_window: 0,
+                        context_window: None,
                         max_output: None,
                         supports_tools: false,
                         supports_vision: false,
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        auth_types: Vec::new(),
                         model_size: None,
                     })
                 })
@@ -489,10 +493,7 @@ async fn fetch_gemini_models(
                         .and_then(|n| n.as_str())
                         .unwrap_or(&id)
                         .to_string();
-                    let context_window = m
-                        .get("inputTokenLimit")
-                        .and_then(|n| n.as_u64())
-                        .unwrap_or(0);
+                    let context_window = m.get("inputTokenLimit").and_then(|n| n.as_u64());
                     let max_output = m.get("outputTokenLimit").and_then(|n| n.as_u64());
                     Some(ModelInfo {
                         id,
@@ -505,6 +506,7 @@ async fn fetch_gemini_models(
                         supports_reasoning: false,
                         input_cost_per_million: None,
                         output_cost_per_million: None,
+                        auth_types: Vec::new(),
                         model_size: None,
                     })
                 })
@@ -580,10 +582,10 @@ fn enrich_catalog(catalog: &mut [ModelInfo], metadata: &ModelsDevCatalog) {
         };
 
         if let Some(limit) = &entry.limit {
-            if model.context_window == 0
+            if model.context_window.is_none()
                 && let Some(v) = limit.context
             {
-                model.context_window = v;
+                model.context_window = Some(v);
             }
             if model.max_output.is_none() {
                 model.max_output = limit.output;
