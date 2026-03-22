@@ -64,6 +64,21 @@ pub trait CliProvider: Send + std::fmt::Debug {
 
     /// The CLI tool's session ID, if one has been established.
     fn session_id(&self) -> Option<&str>;
+
+    /// Return the provider's resume state as a JSON value, or `None` if
+    /// the provider has no resumable state (e.g. no session established yet,
+    /// or the provider does not support resumption).
+    fn resume_state(&self) -> Option<serde_json::Value> {
+        None
+    }
+
+    /// Restore resume state previously obtained from [`resume_state()`].
+    ///
+    /// The default implementation is a no-op. Providers that support
+    /// resumption override this to re-import the session/conversation ID.
+    fn set_resume_state(&mut self, _state: serde_json::Value) -> AgentResult<()> {
+        Ok(())
+    }
 }
 
 // ---------------------------------------------------------------------------

@@ -607,6 +607,19 @@ impl super::CliProvider for CodexCliProvider {
     fn session_id(&self) -> Option<&str> {
         self.codex_session_id.as_deref()
     }
+
+    fn resume_state(&self) -> Option<serde_json::Value> {
+        self.codex_conversation_id
+            .as_ref()
+            .map(|id| serde_json::json!({"conversation_id": id}))
+    }
+
+    fn set_resume_state(&mut self, state: serde_json::Value) -> AgentResult<()> {
+        if let Some(id) = state.get("conversation_id").and_then(|v| v.as_str()) {
+            self.codex_conversation_id = Some(id.to_string());
+        }
+        Ok(())
+    }
 }
 
 /// Parse a version string (possibly prefixed, e.g. "codex v0.42.1") and

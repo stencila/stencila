@@ -2313,11 +2313,35 @@ pub fn hydrate_api_session(
     );
 
     // Restore persisted state: overwrite the empty history and zero total_turns
-    // that `new()` initialised.
-    session.history = turns;
+    // that `new()` initialised. The session starts in `Idle` (from `new()`);
+    // `normalize_turns_for_hydration` handles incomplete turns from sessions
+    // that were persisted while `Processing`.
+    session.history = normalize_turns_for_hydration(record.state, turns);
     session.total_turns = u32::try_from(record.total_turns).unwrap_or(u32::MAX);
 
     (session, receiver)
+}
+
+/// If the session was persisted while `Processing`, the final assistant turn
+/// may be incomplete (empty or whitespace-only content with no tool calls).
+/// Drop it so the hydrated session can cleanly re-submit.
+fn normalize_turns_for_hydration(persisted_state: SessionState, mut turns: Vec<Turn>) -> Vec<Turn> {
+    if persisted_state != SessionState::Processing {
+        return turns;
+    }
+
+    if let Some(Turn::Assistant {
+        content,
+        tool_calls,
+        ..
+    }) = turns.last()
+        && content.trim().is_empty()
+        && tool_calls.is_empty()
+    {
+        turns.pop();
+    }
+
+    turns
 }
 
 #[cfg(test)]

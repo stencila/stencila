@@ -248,6 +248,19 @@ impl super::CliProvider for ClaudeCliProvider {
     fn session_id(&self) -> Option<&str> {
         self.cli_session_id.as_deref()
     }
+
+    fn resume_state(&self) -> Option<serde_json::Value> {
+        self.cli_session_id
+            .as_ref()
+            .map(|id| serde_json::json!({"session_id": id}))
+    }
+
+    fn set_resume_state(&mut self, state: serde_json::Value) -> AgentResult<()> {
+        if let Some(id) = state.get("session_id").and_then(|v| v.as_str()) {
+            self.cli_session_id = Some(id.to_string());
+        }
+        Ok(())
+    }
 }
 
 /// Process a single streaming JSON event from Claude CLI.
