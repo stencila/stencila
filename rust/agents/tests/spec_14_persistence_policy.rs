@@ -67,8 +67,10 @@ fn make_broken_store() -> Arc<AgentSessionStore> {
         conn.execute_batch(m.sql).expect("apply migration");
     }
     // Drop the sessions table so writes fail
-    conn.execute_batch("DROP TABLE IF EXISTS agent_session_turns; DROP TABLE IF EXISTS agent_sessions;")
-        .expect("drop tables");
+    conn.execute_batch(
+        "DROP TABLE IF EXISTS agent_session_turns; DROP TABLE IF EXISTS agent_sessions;",
+    )
+    .expect("drop tables");
     let conn = Arc::new(Mutex::new(conn));
     Arc::new(AgentSessionStore::new(conn))
 }
@@ -535,7 +537,10 @@ async fn api_session_best_effort_persists_when_db_is_healthy() {
     );
 
     session.set_persistence(store.clone(), SessionPersistence::BestEffort);
-    session.submit("Hello!").await.expect("submit should succeed");
+    session
+        .submit("Hello!")
+        .await
+        .expect("submit should succeed");
 
     // Even with BestEffort, the session should be persisted when the DB is healthy
     let record = store

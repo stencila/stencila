@@ -36,6 +36,12 @@ pub enum Resumability {
     None,
 }
 
+impl std::fmt::Display for Resumability {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(resumability_to_str(self))
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct SessionRecord {
     pub session_id: String,

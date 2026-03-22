@@ -7,6 +7,7 @@ use stencila_models3::types::content::ContentPart;
 use stencila_models3::types::tool::ToolCall;
 use stencila_models3::types::tool::ToolResult;
 use stencila_models3::types::usage::Usage;
+use strum::Display;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -388,10 +389,11 @@ impl SessionConfig {
 // ---------------------------------------------------------------------------
 
 /// Lifecycle state of an agent session.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Display, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
 pub enum SessionState {
     /// Waiting for user input.
+    #[default]
     Idle,
     /// Running the agentic loop.
     Processing,
@@ -399,12 +401,6 @@ pub enum SessionState {
     AwaitingInput,
     /// Session terminated (normal or error).
     Closed,
-}
-
-impl Default for SessionState {
-    fn default() -> Self {
-        Self::Idle
-    }
 }
 
 // ---------------------------------------------------------------------------

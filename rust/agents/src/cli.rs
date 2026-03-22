@@ -22,7 +22,9 @@ use stencila_schema::{Node, NodeType};
 use crate::{
     convenience::{CreateAgentOptions, create_agent, create_session},
     definition::{self, AgentSource},
-    types::{EventKind, SessionConfig},
+    migrations::AGENT_MIGRATIONS,
+    store::{AgentSessionStore, ListSessionsFilter, SessionRecord},
+    types::{EventKind, SessionConfig, Turn},
     validate,
 };
 
@@ -103,6 +105,7 @@ enum Command {
     Validate(Validate),
     Resolve(Resolve),
     Run(Run),
+    Sessions(Sessions),
 }
 
 impl Cli {
@@ -119,6 +122,7 @@ impl Cli {
             Command::Validate(validate) => validate.run().await?,
             Command::Resolve(resolve) => resolve.run().await?,
             Command::Run(run) => run.run().await?,
+            Command::Sessions(sessions) => sessions.run().await?,
         }
 
         Ok(())
@@ -930,6 +934,205 @@ impl Run {
 
         Ok(())
     }
+}
+
+// ---------------------------------------------------------------------------
+// Sessions subcommand group
+// ---------------------------------------------------------------------------
+
+/// Manage agent sessions
+#[derive(Debug, Args)]
+pub struct Sessions {
+    #[command(subcommand)]
+    command: SessionsCommand,
+}
+
+#[derive(Debug, Subcommand)]
+enum SessionsCommand {
+    /// List agent sessions
+    List(SessionsList),
+    /// Show details of a specific session
+    Show(SessionsShow),
+}
+
+#[derive(Debug, Args)]
+struct SessionsList {
+    /// Only show resumable sessions
+    #[arg(long)]
+    resumable: bool,
+}
+
+#[derive(Debug, Args)]
+struct SessionsShow {
+    /// The session ID to show
+    session_id: String,
+}
+
+impl Sessions {
+    async fn run(self) -> Result<()> {
+        match self.command {
+            SessionsCommand::List(list) => list.run().await,
+            SessionsCommand::Show(show) => show.run().await,
+        }
+    }
+}
+
+impl SessionsList {
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        let (store, _db) = open_workspace_db_for_agents(&cwd)?;
+        let filter = filter_sessions_for_list(self.resumable);
+        let sessions = store
+            .list_sessions(&filter)
+            .map_err(|e| eyre::eyre!("Failed to list sessions: {e}"))?;
+
+        if sessions.is_empty() {
+            message!("No sessions found.");
+            return Ok(());
+        }
+
+        let mut table = Tabulated::new();
+        table.set_header([
+            "ID",
+            "Agent",
+            "Backend",
+            "State",
+            "Resumable",
+            "Turns",
+            "Updated",
+        ]);
+
+        for session in &sessions {
+            let row = format_session_list_row(session);
+            table.add_row([
+                Cell::new(&row.id).add_attribute(Attribute::Bold),
+                Cell::new(&row.agent_name),
+                Cell::new(&row.backend),
+                Cell::new(&row.state),
+                Cell::new(&row.resumability),
+                Cell::new(&row.total_turns),
+                Cell::new(&row.updated_at),
+            ]);
+        }
+
+        table.to_stdout();
+        Ok(())
+    }
+}
+
+impl SessionsShow {
+    #[allow(clippy::print_stdout)]
+    async fn run(self) -> Result<()> {
+        let cwd = std::env::current_dir()?;
+        let (store, _db) = open_workspace_db_for_agents(&cwd)?;
+
+        let record = store
+            .get_session(&self.session_id)
+            .map_err(|e| eyre::eyre!("Failed to get session: {e}"))?
+            .ok_or_else(|| eyre::eyre!("Session '{}' not found", self.session_id))?;
+
+        let turns = store
+            .get_turns(&self.session_id)
+            .map_err(|e| eyre::eyre!("Failed to get turns: {e}"))?;
+
+        let detail = format_session_detail(&record, &turns);
+        println!("{detail}");
+        Ok(())
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Session formatting and filtering helpers (public for testing)
+// ---------------------------------------------------------------------------
+
+pub struct SessionListRow {
+    pub id: String,
+    pub agent_name: String,
+    pub backend: String,
+    pub state: String,
+    pub resumability: String,
+    pub total_turns: String,
+    pub updated_at: String,
+}
+
+pub fn format_session_list_row(record: &SessionRecord) -> SessionListRow {
+    let truncate_len = 8;
+    let id = record
+        .session_id
+        .get(..truncate_len)
+        .unwrap_or(&record.session_id)
+        .to_string();
+
+    SessionListRow {
+        id,
+        agent_name: record.agent_name.clone(),
+        backend: record.backend_kind.clone(),
+        state: record.state.to_string(),
+        resumability: record.resumability.to_string(),
+        total_turns: record.total_turns.to_string(),
+        updated_at: record.updated_at.clone(),
+    }
+}
+
+pub fn format_session_detail(record: &SessionRecord, turns: &[Turn]) -> String {
+    use std::fmt::Write;
+
+    let mut out = String::new();
+
+    let _ = writeln!(out, "Session:      {}", record.session_id);
+    let _ = writeln!(out, "Agent:        {}", record.agent_name);
+    let _ = writeln!(out, "Provider:     {}", record.provider_name);
+    let _ = writeln!(out, "Model:        {}", record.model_name);
+    let _ = writeln!(out, "Backend:      {}", record.backend_kind);
+    let _ = writeln!(out, "State:        {}", record.state);
+    let _ = writeln!(out, "Resumability: {}", record.resumability);
+    let _ = writeln!(out, "Total Turns:  {}", record.total_turns);
+    let _ = writeln!(out, "Created:      {}", record.created_at);
+    let _ = write!(out, "Updated:      {}", record.updated_at);
+
+    if !turns.is_empty() {
+        let _ = write!(out, "\n\nConversation:");
+        for turn in turns {
+            match turn {
+                Turn::User { content, .. } => {
+                    let _ = write!(out, "\n  [user] {content}");
+                }
+                Turn::Assistant { content, .. } => {
+                    let _ = write!(out, "\n  [assistant] {content}");
+                }
+                Turn::ToolResults { results, .. } => {
+                    let _ = write!(out, "\n  [tool-results] ({} results)", results.len());
+                }
+                Turn::System { content, .. } => {
+                    let _ = write!(out, "\n  [system] {content}");
+                }
+                Turn::Steering { content, .. } => {
+                    let _ = write!(out, "\n  [steering] {content}");
+                }
+            }
+        }
+    }
+
+    out
+}
+
+pub fn filter_sessions_for_list(resumable: bool) -> ListSessionsFilter {
+    ListSessionsFilter {
+        resumable: if resumable { Some(true) } else { None },
+        ..Default::default()
+    }
+}
+
+pub fn open_workspace_db_for_agents(
+    workspace_root: &Path,
+) -> Result<(AgentSessionStore, stencila_db::WorkspaceDb)> {
+    let db_path = workspace_root.join(".stencila").join("db.sqlite3");
+    let db = stencila_db::WorkspaceDb::open(&db_path)
+        .map_err(|e| eyre::eyre!("Failed to open workspace DB: {e}"))?;
+    db.migrate("agents", AGENT_MIGRATIONS)
+        .map_err(|e| eyre::eyre!("Failed to apply agent migrations: {e}"))?;
+    let store = AgentSessionStore::new(db.connection().clone());
+    Ok((store, db))
 }
 
 // ---------------------------------------------------------------------------
