@@ -450,7 +450,7 @@ digraph batch_analysis {
   Analyze [prompt="Analyze $fan_out.item and produce a summary"]
   Analyze -> FanInResults
 
-  FanInResults [shape=tripleoctagon, label="Merge results"]
+  FanInResults [label="Merge results"]
   FanInResults -> Report
 
   Report [prompt="Compile all analysis summaries into a final report"]

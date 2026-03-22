@@ -46,7 +46,7 @@ digraph agent_creation_topdown {
   CreateSkill [workflow="skill-creation-iterative", prompt-ref="#create-skill-prompt"]
   CreateSkill -> FanInSkills
 
-  FanInSkills [shape=tripleoctagon, label="Collect created skills"]
+  FanInSkills [label="Collect created skills"]
   FanInSkills -> CreateAgent
 
   CreateAgent [agent="agent-creator", prompt-ref="#create-agent-prompt"]
