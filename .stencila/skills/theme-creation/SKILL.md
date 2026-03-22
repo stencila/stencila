@@ -17,7 +17,10 @@ keywords:
   - site branding
   - navigation theming
   - logo styling
-allowed-tools: read_file write_file apply_patch glob grep shell
+  - dark mode
+  - font-face
+  - self-hosted fonts
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
 ---
 
 ## Overview
@@ -36,8 +39,12 @@ Use the localized references in this skill directory instead of `site/docs/theme
 
 Also use the theme CLI as a live source of truth when available:
 
+- `stencila themes` or `stencila themes list` to list all available themes (workspace, user, and builtin) with their type and location
+- `stencila themes show [NAME]` to display the resolved CSS of a theme (omit the name for the default resolved theme); add `--verbose` to also show resolved CSS variable values
+- `stencila themes new [NAME]` to scaffold a new theme — omit the name for a workspace `theme.css`, or provide a name for a user theme; use `--force` to overwrite
 - `stencila themes tokens` to list builtin tokens, optionally filtered by `--scope` (`semantic`, `node`, `site`, `plot`, `print`) and `--family`, with `--as json|yaml|toml` for machine-readable output
 - `stencila themes validate <FILE>` to check that a CSS theme parses and that custom properties correspond to known builtin design tokens; use `--strict` when unknown tokens should fail validation
+- `stencila themes remove <NAME>` to remove a user theme; use `--force` to skip the confirmation prompt
 
 Stencila themes are token-first. Prefer semantic tokens as the stable public API, use module-specific tokens only when needed, and add custom CSS rules only where tokens are insufficient.
 
@@ -52,6 +59,16 @@ Stencila themes are token-first. Prefer semantic tokens as the stable public API
 - Use the localized references to explain how token families are applied, cross-target constraints, and theme architecture; use the CLI for comprehensive current inventories.
 - If a needed exact name is not localized here and you cannot verify it with `stencila themes tokens`, describe the token family and intended effect instead of guessing.
 - Do not invent missing asset files; ask for them or use a clearly marked placeholder path only when the user needs a concrete implementation.
+
+## Dark mode
+
+Many tokens have `*-dark` variants (e.g., `--text-color-primary-dark`, `--surface-background-dark`, `--plot-background-dark`). The base theme applies these automatically via `prefers-color-scheme: dark`. When creating a theme:
+
+- Override the light-mode token for both light and dark if the value is suitable for both schemes.
+- Override the `*-dark` variant explicitly when light and dark values need to differ (e.g., `--color-accent` and `--color-accent-dark`).
+- Check dark variants for plot, surface, and text tokens especially — colors that work on a light background often need adjustment for dark backgrounds.
+- Use `stencila themes tokens --scope semantic` or `--scope plot` to see which tokens have dark variants.
+- Dark variants are only relevant for web and HTML-derived outputs; non-web targets such as DOCX and email do not use dark mode.
 
 ## Starting template
 
@@ -70,7 +87,23 @@ Stencila always loads `base.css` implicitly before any theme CSS — both when r
 }
 ```
 
-If the theme needs custom web fonts, add `@import url(...)` for the font provider (e.g., Google Fonts) before the `:root` block. Then add only the module-specific tokens or focused selectors needed for the user’s goal.
+If the theme needs custom web fonts, add `@import url(...)` for the font provider (e.g., Google Fonts) before the `:root` block. For self-hosted fonts, use `@font-face` rules before `:root` instead:
+
+```css
+@font-face {
+  font-family: "Custom Font";
+  src: url("./fonts/custom-font.woff2") format("woff2");
+  font-weight: normal;
+  font-display: swap;
+}
+
+:root {
+  --font-family-serif: "Custom Font", var(--font-family-serif);
+  --text-font-family: var(--font-family-serif);
+}
+```
+
+Then add only the module-specific tokens or focused selectors needed for the user’s goal.
 
 ## Steps
 
@@ -96,11 +129,14 @@ If the theme needs custom web fonts, add `@import url(...)` for the font provide
 
 3. Inspect the existing theme context when implementation is requested.
    - If files are available, look for an existing `theme.css` and related assets before generating new CSS.
+   - Use `stencila themes show` to see the current default resolved theme CSS, or `stencila themes show <NAME>` for a specific theme. Add `--verbose` to also see resolved variable values — this is especially useful for understanding what values are inherited from the base theme.
+   - Use `stencila themes list` to see all available themes (workspace, user, and builtin) and their locations.
    - Reuse the current token vocabulary, selectors, and import style when updating a theme.
    - Patch requested selectors or token blocks in place when possible instead of rewriting the full file.
    - If fonts, logos, icons, or other assets are referenced, use existing workspace asset paths when available.
    - Keep Stencila resolution order in mind when explaining placement: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then builtin `stencila.css`.
    - If the user refers to a named theme, remember that named themes are resolved from user themes first, then builtin themes.
+   - Use `stencila themes new` to scaffold a workspace `theme.css` template, or `stencila themes new <NAME>` for a named user theme, when starting from scratch.
 
 4. Start from the semantic foundation.
    - Use [`references/semantic-and-font-tokens.md`](references/semantic-and-font-tokens.md) for semantic starting points, stable font patterns, and guidance on how semantic tokens are applied.

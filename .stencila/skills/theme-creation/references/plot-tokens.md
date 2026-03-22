@@ -23,9 +23,16 @@ Only `--plot-*` tokens transfer to Python and R kernels. General document tokens
 Use the CLI inventory to confirm exact values and related tokens around:
 
 - `--plot-theme`
-  - `custom` applies the plot token system
-  - `none` disables plot theming
-  - named presets can be merged before custom overrides are extracted
+  - `custom` applies the plot token system (default)
+  - `none` disables plot theming for web, Python, and R
+  - named presets are merged before custom overrides are extracted
+
+Available plot presets:
+
+- `bold` — stronger visual emphasis with thicker lines and bolder grid
+- `light` — lighter, more minimal plot styling
+
+Set `--plot-theme` to a preset name to load that preset's CSS, then layer your own `--plot-*` overrides on top. The preset is inserted before the theme's `:root` block, so theme-level tokens always win.
 
 ## Major plot token families
 

@@ -61,6 +61,17 @@ Example:
 3. Use this reference for authoring patterns that the token list does not show, such as fallback-stack extension and the preference for semantic tokens as the stable public API.
 4. Move to module-specific scopes only when semantic tokens are not enough.
 
+## Dark mode variants
+
+Many semantic tokens have `*-dark` variants that are applied automatically via `prefers-color-scheme: dark`. Key dark-variant tokens include:
+
+- `--text-color-primary-dark`
+- `--color-accent-dark`
+- `--surface-background-dark`
+- `--surface-elevated-dark`
+
+Override `*-dark` variants explicitly when the light-mode value does not work well on a dark background. If a value is suitable for both schemes, overriding only the light-mode token is sufficient. Use `stencila themes tokens --scope semantic` to see which tokens have dark variants.
+
 ## Authoring rules
 
 - Define `@font-face` or external `@import` font declarations before overriding the related font tokens.
