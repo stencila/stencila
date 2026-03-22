@@ -152,6 +152,14 @@ fn resolve_commit_attribution() -> stencila_config::CommitAttribution {
         .unwrap_or_default()
 }
 
+/// Resolve the configured global provider preference list from `stencila.toml`.
+fn resolve_configured_model_providers() -> Option<Vec<String>> {
+    stencila_config::get()
+        .ok()
+        .and_then(|config| config.models)
+        .and_then(|models| models.providers)
+}
+
 /// Shared preamble: resolve name, load agent definition, build session config.
 async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, SessionConfig)> {
     let resolved_name = if name == crate::DEFAULT_AGENT_NAME {
@@ -285,7 +293,8 @@ async fn create_session_full(
     let effective_providers = overrides
         .and_then(|o| o.provider.as_deref())
         .map(|p| vec![p.to_string()])
-        .or_else(|| agent.inner.providers.clone());
+        .or_else(|| agent.inner.providers.clone())
+        .or_else(resolve_configured_model_providers);
     let effective_model_size = overrides
         .and_then(|o| o.model_size.as_deref())
         .or(agent.inner.model_size.as_deref());

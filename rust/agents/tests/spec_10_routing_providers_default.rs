@@ -104,6 +104,31 @@ fn providers_path_selects_first_with_credentials() -> AgentResult<()> {
     Ok(())
 }
 
+#[test]
+fn model_size_uses_configured_provider_preferences_when_supplied() -> AgentResult<()> {
+    let client = client_with_providers(&["openai", "anthropic"]);
+    let configured_providers = vec!["openai".to_string(), "anthropic".to_string()];
+
+    let decision =
+        route_session_explained(None, Some(&configured_providers), Some("large"), &client)?;
+
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "openai".into(),
+            model: "gpt-5.4-pro".into(),
+        }
+    );
+    assert_eq!(
+        decision.selection_mechanism,
+        SelectionMechanism::ModelSize {
+            size: "large".to_string(),
+        }
+    );
+
+    Ok(())
+}
+
 // ── Test (b): nothing specified → default behavior ───────────────────────
 
 #[test]

@@ -26,6 +26,27 @@ use crate::{
     validate,
 };
 
+/// Resolve the configured global provider preference list from `stencila.toml`.
+///
+/// This helper is duplicated in the CLI module, rather than reusing the
+/// similarly named function in `convenience.rs`, because `agents resolve`
+/// needs to load configuration relative to the specific current working
+/// directory already resolved for this command.
+///
+/// The `convenience.rs` helper uses `stencila_config::get()`, which is fine
+/// for normal session creation, but the CLI resolution path already has the
+/// command-local `cwd` in hand and should use `load_and_validate(cwd)` so the
+/// displayed resolution result is derived from the same workspace context that
+/// the command is inspecting. Keeping this helper local also avoids widening
+/// visibility of an otherwise internal convenience-layer function just for CLI
+/// reporting.
+fn resolve_configured_model_providers(cwd: &Path) -> Option<Vec<String>> {
+    stencila_config::load_and_validate(cwd)
+        .ok()
+        .and_then(|config| config.models)
+        .and_then(|models| models.providers)
+}
+
 /// Manage agent definitions
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
@@ -639,9 +660,15 @@ impl Resolve {
             tracing::warn!("No API client configured; showing CLI fallback route");
         }
 
+        let effective_providers = agent
+            .inner
+            .providers
+            .clone()
+            .or_else(|| resolve_configured_model_providers(&cwd));
+
         let decision = routing::route_session_explained(
             agent.inner.models.as_deref(),
-            agent.inner.providers.as_deref(),
+            effective_providers.as_deref(),
             agent.inner.model_size.as_deref(),
             client_ref,
         )
