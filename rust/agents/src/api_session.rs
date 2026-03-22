@@ -2274,6 +2274,52 @@ fn append_guard_warning(output: ToolOutput, warning_text: &str) -> ToolOutput {
     }
 }
 
+// ---------------------------------------------------------------------------
+// Session hydration from persisted store
+// ---------------------------------------------------------------------------
+
+/// Reconstruct a live [`ApiSession`] from a persisted [`SessionRecord`] and
+/// turn history.
+///
+/// The hydrated session starts in [`SessionState::Idle`] regardless of the
+/// persisted state, preserves the original session ID, history, and
+/// `total_turns`, and is ready for new [`submit()`](ApiSession::submit) calls.
+///
+/// Callers that need persistence on the hydrated session should call
+/// [`set_persistence()`](ApiSession::set_persistence) after hydration.
+pub fn hydrate_api_session(
+    profile: Box<dyn ProviderProfile>,
+    execution_env: Arc<dyn ExecutionEnvironment>,
+    client: Arc<dyn LlmClient>,
+    system_prompt: String,
+    record: &crate::store::SessionRecord,
+    turns: Vec<Turn>,
+) -> (ApiSession, EventReceiver) {
+    let config = SessionConfig::default();
+
+    let init = ApiSessionInit {
+        session_id: Some(record.session_id.clone()),
+        ..Default::default()
+    };
+
+    let (mut session, receiver) = ApiSession::new(
+        profile,
+        execution_env,
+        client,
+        config,
+        system_prompt,
+        0,
+        init,
+    );
+
+    // Restore persisted state: overwrite the empty history and zero total_turns
+    // that `new()` initialised.
+    session.history = turns;
+    session.total_turns = u32::try_from(record.total_turns).unwrap_or(u32::MAX);
+
+    (session, receiver)
+}
+
 #[cfg(test)]
 mod guard_wiring_tests {
     use super::*;

@@ -381,6 +381,35 @@ impl AgentSessionStore {
 
         Ok(())
     }
+
+    // -- Resume queries -----------------------------------------------------
+
+    pub fn find_latest_resumable_standalone(
+        &self,
+    ) -> Result<Option<SessionRecord>, rusqlite::Error> {
+        let conn = self.lock_conn();
+
+        let sql = format!(
+            "SELECT {SESSION_COLUMNS} FROM agent_sessions
+             WHERE resumability = ?1
+               AND state != ?2
+               AND workflow_run_id IS NULL
+             ORDER BY updated_at DESC, session_id DESC
+             LIMIT 1"
+        );
+
+        let mut stmt = conn.prepare(&sql)?;
+        let mut rows = stmt.query(params![
+            resumability_to_str(&Resumability::Full),
+            state_to_str(SessionState::Closed),
+        ])?;
+
+        if let Some(row) = rows.next()? {
+            Ok(Some(record_from_row(row)?))
+        } else {
+            Ok(None)
+        }
+    }
 }
 
 // ---------------------------------------------------------------------------
