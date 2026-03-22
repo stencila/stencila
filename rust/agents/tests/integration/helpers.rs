@@ -59,12 +59,14 @@ pub fn available_providers<'a>(names: &'a [&'a str]) -> Vec<&'a str> {
 
 /// Return the model ID to use for a given provider in integration tests.
 ///
-/// Uses affordable, fast models to keep costs and latency low.
+/// Uses affordable, fast models to keep costs and latency low. Uses aliases so
+/// that latest of each model is used without having to update this function
+/// regularly.
 pub fn test_model(provider: &str) -> &'static str {
     match provider {
-        "openai" => "gpt-4.1-mini",
-        "anthropic" => "claude-sonnet-4-5-20250929",
-        "gemini" => "gemini-2.0-flash",
+        "anthropic" => "claude-haiku",
+        "gemini" => "gemini-flash",
+        "openai" => "gpt-nano",
         _ => "unknown",
     }
 }
