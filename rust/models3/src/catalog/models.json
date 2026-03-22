@@ -945,7 +945,10 @@
     "supports_vision": true,
     "supports_reasoning": false,
     "input_cost_per_million": 0.1,
-    "output_cost_per_million": 0.4
+    "output_cost_per_million": 0.4,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-4.1-nano",
@@ -957,7 +960,10 @@
     "supports_vision": true,
     "supports_reasoning": false,
     "input_cost_per_million": 0.1,
-    "output_cost_per_million": 0.4
+    "output_cost_per_million": 0.4,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "o3-pro",
@@ -1059,7 +1065,10 @@
     "supports_vision": true,
     "supports_reasoning": true,
     "input_cost_per_million": 0.05,
-    "output_cost_per_million": 0.4
+    "output_cost_per_million": 0.4,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5-nano",
@@ -1071,7 +1080,10 @@
     "supports_vision": true,
     "supports_reasoning": true,
     "input_cost_per_million": 0.05,
-    "output_cost_per_million": 0.4
+    "output_cost_per_million": 0.4,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-audio",
@@ -1365,7 +1377,10 @@
     "context_window": 0,
     "supports_tools": false,
     "supports_vision": false,
-    "supports_reasoning": false
+    "supports_reasoning": false,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.4-nano",
@@ -1377,7 +1392,10 @@
     "supports_vision": true,
     "supports_reasoning": true,
     "input_cost_per_million": 0.2,
-    "output_cost_per_million": 1.25
+    "output_cost_per_million": 1.25,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "gpt-5.4-mini-2026-03-17",
