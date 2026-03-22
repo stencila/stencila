@@ -670,7 +670,8 @@ pub(crate) fn classify_model_size(provider: &str, id: &str, info: &ModelInfo) ->
             _ => None,
         },
         parse::ParsedId::Gpt(p) => match p.variant.as_deref() {
-            Some("mini" | "nano") => Some(ModelSize::Small),
+            Some("mini") => Some(ModelSize::Medium),
+            Some("nano") => Some(ModelSize::Small),
             _ => Some(ModelSize::Large),
         },
         parse::ParsedId::OSeries(p) => match p.variant.as_deref() {
@@ -1108,10 +1109,22 @@ mod tests {
     }
 
     #[test]
-    fn classify_gpt_4_1_mini_is_small() -> Result<(), Box<dyn std::error::Error>> {
+    fn classify_gpt_4_1_mini_is_medium() -> Result<(), Box<dyn std::error::Error>> {
         let info = get_model_info("gpt-4.1-mini")?.ok_or("gpt-4.1-mini not in catalog")?;
         let size = classify_model_size(&info.provider, &info.id, &info);
-        assert_eq!(size, Some(ModelSize::Small), "gpt-4.1-mini should be Small");
+        assert_eq!(
+            size,
+            Some(ModelSize::Medium),
+            "gpt-4.1-mini should be Medium"
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn classify_gpt_4_1_nano_is_small() -> Result<(), Box<dyn std::error::Error>> {
+        let info = get_model_info("gpt-4.1-nano")?.ok_or("gpt-4.1-nano not in catalog")?;
+        let size = classify_model_size(&info.provider, &info.id, &info);
+        assert_eq!(size, Some(ModelSize::Small), "gpt-4.1-nano should be Small");
         Ok(())
     }
 
