@@ -122,19 +122,12 @@ impl CommandsState {
             }
         }
 
-        if self.candidates.is_empty()
-            || (self.candidates.len() == 1 && self.is_exact_single_match(trimmed))
-        {
+        if self.candidates.is_empty() {
             self.dismiss();
         } else {
             self.visible = true;
             self.selected = self.selected.min(self.candidates.len().saturating_sub(1));
         }
-    }
-
-    /// Check if there's exactly one candidate that exactly matches the input.
-    fn is_exact_single_match(&self, input: &str) -> bool {
-        self.candidates.len() == 1 && self.candidates[0].name() == input
     }
 
     /// All top-level candidates in display order (built-in + CLI commands
@@ -345,11 +338,13 @@ mod tests {
     }
 
     #[test]
-    fn hides_on_exact_single_match() {
+    fn shows_on_exact_single_match() {
         let mut state = CommandsState::new();
         state.update("/quit");
-        // /quit is the only match and is exact — hide popup
-        assert!(!state.is_visible());
+        // /quit is the only match and is exact — still show popup
+        assert!(state.is_visible());
+        assert_eq!(state.candidates().len(), 1);
+        assert_eq!(state.candidates()[0].name(), "/quit");
     }
 
     #[test]
