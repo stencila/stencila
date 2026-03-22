@@ -4,6 +4,7 @@ use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 use stencila_db::rusqlite::{self, Connection, params};
 
+use crate::error::{AgentError, AgentResult};
 use crate::types::{SessionState, Turn, now_timestamp};
 
 // ---------------------------------------------------------------------------
@@ -476,4 +477,95 @@ fn resumability_from_str(s: &str) -> Resumability {
         "Full" => Resumability::Full,
         _ => Resumability::None,
     }
+}
+
+// ---------------------------------------------------------------------------
+// Resume validation
+// ---------------------------------------------------------------------------
+
+/// Validate that a session can be resumed by `caller_holder`, and load it.
+///
+/// When `session_id` is `None`, the latest resumable standalone session is
+/// selected automatically. When `Some`, that specific session is loaded and
+/// checked.
+///
+/// Validates:
+/// - The session exists
+/// - The session is not closed
+/// - The session is not workflow-owned
+/// - The session is resumable
+/// - No other process holds an active (non-expired) lease
+///
+/// On success returns the [`SessionRecord`] and its persisted turn history.
+pub fn validate_session_for_resume(
+    store: &AgentSessionStore,
+    session_id: Option<&str>,
+    caller_holder: &str,
+) -> AgentResult<(SessionRecord, Vec<Turn>)> {
+    let db_err = |e: rusqlite::Error| AgentError::Io {
+        message: format!("database error: {e}"),
+    };
+
+    let record = match session_id {
+        Some(id) => {
+            store
+                .get_session(id)
+                .map_err(db_err)?
+                .ok_or_else(|| AgentError::InvalidState {
+                    expected: "existing session".into(),
+                    actual: format!("session '{id}' not found"),
+                })?
+        }
+        None => store
+            .find_latest_resumable_standalone()
+            .map_err(db_err)?
+            .ok_or_else(|| AgentError::InvalidState {
+                expected: "resumable session".into(),
+                actual: "no resumable sessions found".into(),
+            })?,
+    };
+
+    // Reject closed sessions
+    if record.state == SessionState::Closed {
+        return Err(AgentError::InvalidState {
+            expected: "non-closed session".into(),
+            actual: "session is closed".into(),
+        });
+    }
+
+    // Reject workflow-owned sessions
+    if record.workflow_run_id.is_some() {
+        return Err(AgentError::InvalidState {
+            expected: "standalone session".into(),
+            actual: "session is owned by a workflow".into(),
+        });
+    }
+
+    // Reject non-resumable sessions
+    if record.resumability != Resumability::Full {
+        return Err(AgentError::InvalidState {
+            expected: "resumable session".into(),
+            actual: "session is not resumable".into(),
+        });
+    }
+
+    // Check lease conflict: reject if a different holder has a non-expired lease
+    if let Some(ref holder) = record.lease_holder
+        && holder != caller_holder
+    {
+        let lease_active = record
+            .lease_expires_at
+            .as_ref()
+            .is_some_and(|exp| exp > &now_timestamp());
+        if lease_active {
+            return Err(AgentError::LeaseConflict {
+                holder: holder.clone(),
+                session_id: record.session_id.clone(),
+            });
+        }
+    }
+
+    let turns = store.get_turns(&record.session_id).map_err(db_err)?;
+
+    Ok((record, turns))
 }

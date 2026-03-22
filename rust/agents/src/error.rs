@@ -90,6 +90,11 @@ pub enum AgentError {
     #[error("context length exceeded: {message}")]
     ContextLengthExceeded { message: String },
 
+    // --- Resume errors ---
+    /// Another process holds an active lease on the session.
+    #[error("lease conflict: session {session_id} is held by {holder}")]
+    LeaseConflict { holder: String, session_id: String },
+
     // --- Wrapper ---
     /// An error from the underlying LLM SDK.
     #[error("model api error: {0}")]
@@ -124,6 +129,7 @@ impl AgentError {
             | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
             | Self::ContextLengthExceeded { .. }
+            | Self::LeaseConflict { .. }
             | Self::Sdk(_) => false,
         }
     }
@@ -157,7 +163,8 @@ impl AgentError {
             | Self::SessionClosed
             | Self::InvalidState { .. }
             | Self::TurnLimitExceeded { .. }
-            | Self::ContextLengthExceeded { .. } => true,
+            | Self::ContextLengthExceeded { .. }
+            | Self::LeaseConflict { .. } => true,
 
             Self::Sdk(sdk_err) => !sdk_err.is_retryable(),
 
@@ -206,7 +213,9 @@ impl AgentError {
 
             // Turn limit and invalid-state are returned before processing;
             // the session stays Idle and should NOT be reset.
-            Self::TurnLimitExceeded { .. } | Self::InvalidState { .. } => false,
+            Self::TurnLimitExceeded { .. }
+            | Self::InvalidState { .. }
+            | Self::LeaseConflict { .. } => false,
 
             // Tool-level errors are handled internally; session stays Idle.
             Self::FileNotFound { .. }
@@ -244,6 +253,7 @@ impl AgentError {
             Self::InvalidState { .. } => "INVALID_STATE",
             Self::TurnLimitExceeded { .. } => "TURN_LIMIT_EXCEEDED",
             Self::ContextLengthExceeded { .. } => "CONTEXT_LENGTH_EXCEEDED",
+            Self::LeaseConflict { .. } => "LEASE_CONFLICT",
             Self::Sdk(_) => "SDK_ERROR",
         }
     }

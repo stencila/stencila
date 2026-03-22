@@ -82,6 +82,7 @@ impl GeminiCliProvider {
             | AgentError::InvalidState { .. }
             | AgentError::TurnLimitExceeded { .. }
             | AgentError::ContextLengthExceeded { .. }
+            | AgentError::LeaseConflict { .. }
             | AgentError::Sdk(_) => false,
         }
     }
