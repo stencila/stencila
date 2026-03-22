@@ -117,5 +117,8 @@ pub mod convenience;
 /// Database migrations for the `"agents"` domain.
 pub mod migrations;
 
+/// Agent session persistence store.
+pub mod store;
+
 /// Tool guard framework: friction layer between agent tool calls and execution.
 pub mod tool_guard;

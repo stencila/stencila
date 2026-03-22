@@ -38,6 +38,28 @@ pub struct SessionOverrides {
     pub model_size: Option<String>,
 }
 
+/// Options for [`create_session_with_options`].
+///
+/// All fields default to `None` or `0`, which produces the same behavior
+/// as calling [`create_session`] directly.
+#[derive(Default)]
+pub struct CreateSessionOptions {
+    /// Optional interviewer for `ask_user` tool registration.
+    pub interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+    /// Model/provider/reasoning overrides.
+    pub overrides: Option<SessionOverrides>,
+    /// Session persistence mode.
+    pub persistence: Option<crate::store::SessionPersistence>,
+    /// Explicit session ID (generated if `None`).
+    pub session_id: Option<String>,
+    /// Pre-existing conversation history to seed the session.
+    pub history: Option<Vec<crate::types::Turn>>,
+    /// Starting turn counter (0 = fresh session).
+    pub total_turns: u32,
+    /// Optional session store for checkpoint persistence.
+    pub store: Option<Arc<crate::store::AgentSessionStore>>,
+}
+
 /// Options for [`create_agent`].
 #[derive(Default)]
 pub struct CreateAgentOptions<'a> {
@@ -226,7 +248,7 @@ async fn load_agent_and_config(name: &str) -> AgentResult<(AgentInstance, Sessio
 pub async fn create_session(
     name: &str,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    create_session_impl(name, None).await
+    create_session_with_options(name, CreateSessionOptions::default()).await
 }
 
 /// Like [`create_session`], but additionally registers the `ask_user` tool
@@ -239,7 +261,14 @@ pub async fn create_session_with_interviewer(
     name: &str,
     interviewer: Arc<dyn stencila_interviews::interviewer::Interviewer>,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    create_session_impl(name, Some(interviewer)).await
+    create_session_with_options(
+        name,
+        CreateSessionOptions {
+            interviewer: Some(interviewer),
+            ..Default::default()
+        },
+    )
+    .await
 }
 
 /// Like [`create_session_with_interviewer`], but additionally applies
@@ -253,14 +282,26 @@ pub async fn create_session_with_overrides(
     interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
     overrides: &SessionOverrides,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    create_session_full(name, interviewer, Some(overrides)).await
+    create_session_with_options(
+        name,
+        CreateSessionOptions {
+            interviewer,
+            overrides: Some(overrides.clone()),
+            ..Default::default()
+        },
+    )
+    .await
 }
 
-async fn create_session_impl(
+/// Create an agent session from a named agent definition with full options.
+///
+/// This is the most flexible entry point — all other `create_session*`
+/// functions delegate to this one.
+pub async fn create_session_with_options(
     name: &str,
-    interviewer: Option<Arc<dyn stencila_interviews::interviewer::Interviewer>>,
+    options: CreateSessionOptions,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    create_session_full(name, interviewer, None).await
+    create_session_full(name, options.interviewer, options.overrides.as_ref()).await
 }
 
 async fn create_session_full(

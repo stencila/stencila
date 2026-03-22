@@ -150,6 +150,8 @@ pub struct CliSession {
     abort_signal: Option<AbortSignal>,
     total_turns: u32,
     session_id: String,
+    persistence_store: Option<std::sync::Arc<crate::store::AgentSessionStore>>,
+    persistence_mode: Option<crate::store::SessionPersistence>,
 }
 
 impl std::fmt::Debug for CliSession {
@@ -181,9 +183,91 @@ impl CliSession {
             abort_signal: None,
             total_turns: 0,
             session_id,
+            persistence_store: None,
+            persistence_mode: None,
         };
 
         (session, receiver)
+    }
+
+    /// Wire checkpoint persistence into this session.
+    ///
+    /// Immediately inserts a session record into the store (creation checkpoint).
+    /// Errors during the creation checkpoint are logged but swallowed regardless
+    /// of the persistence policy.
+    pub fn set_persistence(
+        &mut self,
+        store: std::sync::Arc<crate::store::AgentSessionStore>,
+        persistence: crate::store::SessionPersistence,
+    ) {
+        self.persistence_store = Some(store);
+        self.persistence_mode = Some(persistence);
+        if let Err(e) = self.checkpoint() {
+            tracing::warn!("creation checkpoint failed (swallowed): {e}");
+        }
+    }
+
+    /// Write the current session state to the persistence store.
+    fn checkpoint(&self) -> AgentResult<()> {
+        let Some(ref store) = self.persistence_store else {
+            return Ok(());
+        };
+        if matches!(
+            self.persistence_mode,
+            None | Some(crate::store::SessionPersistence::Ephemeral)
+        ) {
+            return Ok(());
+        }
+
+        let resumability =
+            if self.provider.supports_resume() && self.provider.session_id().is_some() {
+                crate::store::Resumability::Full
+            } else {
+                crate::store::Resumability::None
+            };
+
+        let now = crate::types::now_timestamp();
+        let record = crate::store::SessionRecord {
+            session_id: self.session_id.clone(),
+            backend_kind: "cli".to_string(),
+            agent_name: String::new(),
+            provider_name: self.provider.id().to_string(),
+            model_name: String::new(),
+            state: self.state,
+            total_turns: i64::from(self.total_turns),
+            resumability,
+            created_at: now.clone(),
+            updated_at: now,
+            workflow_run_id: None,
+            workflow_thread_id: None,
+            workflow_node_id: None,
+            provider_resume_state: self.provider.session_id().map(|id| id.to_string()),
+            config_snapshot: None,
+            system_prompt: None,
+            lease_holder: None,
+            lease_expires_at: None,
+        };
+
+        store
+            .upsert_checkpoint(&record, &self.history)
+            .map_err(|e| AgentError::Io {
+                message: format!("checkpoint write failed: {e}"),
+            })
+    }
+
+    /// Handle the result of a checkpoint call according to the persistence policy.
+    fn handle_checkpoint_result(&self, result: AgentResult<()>) -> AgentResult<()> {
+        match result {
+            Ok(()) => Ok(()),
+            Err(e) => match self.persistence_mode {
+                Some(crate::store::SessionPersistence::Required) => Err(e),
+                Some(crate::store::SessionPersistence::BestEffort) => {
+                    tracing::warn!("checkpoint failed (best-effort): {e}");
+                    Ok(())
+                }
+                _ => Ok(()),
+            },
+        }
     }
 
     /// Submit user input to the CLI provider.
@@ -261,7 +345,8 @@ impl CliSession {
                         self.state = SessionState::Idle;
                     }
                 }
-                Ok(())
+                let cp = self.checkpoint();
+                self.handle_checkpoint_result(cp)
             }
             Err(e) => {
                 self.events.emit_error(e.code(), e.to_string());
@@ -276,6 +361,9 @@ impl CliSession {
         if self.state != SessionState::Closed {
             self.provider.close();
             self.state = SessionState::Closed;
+            if let Err(e) = self.checkpoint() {
+                tracing::warn!("close checkpoint failed (swallowed): {e}");
+            }
             self.events.emit_session_end(self.state);
         }
     }

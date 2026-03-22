@@ -200,6 +200,11 @@ pub struct ApiSession {
     /// not a practical concern.
     image_attachments: HashMap<String, ImageAttachment>,
 
+    /// Session store for checkpoint persistence.
+    persistence_store: Option<Arc<crate::store::AgentSessionStore>>,
+    /// Session persistence mode.
+    persistence_mode: Option<crate::store::SessionPersistence>,
+
     /// Tool guard policy for this session. Shared via `Arc` with child sessions.
     tool_guard: Option<Arc<ToolGuard>>,
     /// Per-session guard context for audit attribution.
@@ -365,6 +370,8 @@ impl ApiSession {
             tool_call_signatures: VecDeque::new(),
             subagent_manager,
             image_attachments: HashMap::new(),
+            persistence_store: None,
+            persistence_mode: None,
             tool_guard,
             guard_context,
             #[cfg(any(feature = "mcp", feature = "codemode"))]
@@ -420,7 +427,8 @@ impl ApiSession {
             });
         }
         self.state = SessionState::AwaitingInput;
-        Ok(())
+        let cp = self.checkpoint();
+        self.handle_checkpoint_result(cp)
     }
 
     /// Queue a steering message to be injected after the current tool round.
@@ -456,6 +464,9 @@ impl ApiSession {
             }
 
             self.state = SessionState::Closed;
+            if let Err(e) = self.checkpoint() {
+                tracing::warn!("close checkpoint failed (swallowed): {e}");
+            }
             self.events.emit_session_end(self.state);
         }
     }
@@ -463,6 +474,105 @@ impl ApiSession {
     /// Set an abort signal for cancellation.
     pub fn set_abort_signal(&mut self, signal: AbortSignal) {
         self.abort_signal = Some(signal);
+    }
+
+    /// Wire checkpoint persistence into this session.
+    ///
+    /// Immediately inserts a session record into the store (creation checkpoint).
+    /// Errors during the creation checkpoint are logged but swallowed regardless
+    /// of the persistence policy. Use [`set_persistence_checked`] when the caller
+    /// needs to observe creation-checkpoint failures.
+    pub fn set_persistence(
+        &mut self,
+        store: Arc<crate::store::AgentSessionStore>,
+        persistence: crate::store::SessionPersistence,
+    ) {
+        self.persistence_store = Some(store);
+        self.persistence_mode = Some(persistence);
+        if let Err(e) = self.checkpoint() {
+            tracing::warn!("creation checkpoint failed (swallowed): {e}");
+        }
+    }
+
+    /// Like [`set_persistence`], but returns the creation-checkpoint result.
+    ///
+    /// With [`SessionPersistence::Required`] the caller can surface the error;
+    /// with [`SessionPersistence::BestEffort`] or [`SessionPersistence::Persistent`]
+    /// the caller may choose to ignore it.
+    pub fn set_persistence_checked(
+        &mut self,
+        store: Arc<crate::store::AgentSessionStore>,
+        persistence: crate::store::SessionPersistence,
+    ) -> AgentResult<()> {
+        self.persistence_store = Some(store);
+        self.persistence_mode = Some(persistence);
+        self.checkpoint()
+    }
+
+    /// Write the current session state to the persistence store.
+    ///
+    /// Returns `Ok(())` when no store is configured or the mode is
+    /// [`Ephemeral`](crate::store::SessionPersistence::Ephemeral).
+    fn checkpoint(&self) -> AgentResult<()> {
+        let Some(ref store) = self.persistence_store else {
+            return Ok(());
+        };
+        if matches!(
+            self.persistence_mode,
+            None | Some(crate::store::SessionPersistence::Ephemeral)
+        ) {
+            return Ok(());
+        }
+
+        let now = crate::types::now_timestamp();
+        let record = crate::store::SessionRecord {
+            session_id: self.session_id().to_string(),
+            backend_kind: "api".to_string(),
+            agent_name: String::new(),
+            provider_name: self.profile.id().to_string(),
+            model_name: self.profile.model().to_string(),
+            state: self.state,
+            total_turns: i64::from(self.total_turns),
+            resumability: crate::store::Resumability::Full,
+            created_at: now.clone(),
+            updated_at: now,
+            workflow_run_id: None,
+            workflow_thread_id: None,
+            workflow_node_id: None,
+            provider_resume_state: None,
+            config_snapshot: None,
+            system_prompt: None,
+            lease_holder: None,
+            lease_expires_at: None,
+        };
+
+        store
+            .upsert_checkpoint(&record, &self.history)
+            .map_err(|e| AgentError::Io {
+                message: format!("checkpoint write failed: {e}"),
+            })
+    }
+
+    /// Handle the result of a checkpoint call according to the persistence policy.
+    ///
+    /// - [`BestEffort`](crate::store::SessionPersistence::BestEffort): log a warning and return `Ok(())`
+    /// - [`Required`](crate::store::SessionPersistence::Required): propagate the error
+    /// - [`Persistent`](crate::store::SessionPersistence::Persistent): swallow (legacy behaviour)
+    fn handle_checkpoint_result(&self, result: AgentResult<()>) -> AgentResult<()> {
+        match result {
+            Ok(()) => Ok(()),
+            Err(e) => match self.persistence_mode {
+                Some(crate::store::SessionPersistence::Required) => Err(e),
+                Some(crate::store::SessionPersistence::BestEffort) => {
+                    tracing::warn!("checkpoint failed (best-effort): {e}");
+                    Ok(())
+                }
+                _ => {
+                    // Persistent / Ephemeral / None — swallow (legacy)
+                    Ok(())
+                }
+            },
+        }
     }
 
     // -- Getters --
@@ -954,7 +1064,8 @@ impl ApiSession {
         } else {
             SessionState::Idle
         };
-        Ok(())
+        let cp = self.checkpoint();
+        self.handle_checkpoint_result(cp)
     }
 
     /// Check whether the last assistant turn looks like a question to the user.
