@@ -101,6 +101,8 @@ pub enum ProviderSource {
     AgentExplicit,
     /// Inferred from the model name via catalog or heuristics.
     InferredFromModel,
+    /// Selected from the model catalog based on model size preference.
+    CatalogModelSize,
     /// Selected as the first available configured API provider.
     DefaultConfig,
     /// Fell back to a CLI tool because no API providers were available.
@@ -112,6 +114,7 @@ impl fmt::Display for ProviderSource {
         match self {
             Self::AgentExplicit => write!(f, "provider from agent definition"),
             Self::InferredFromModel => write!(f, "provider inferred from model"),
+            Self::CatalogModelSize => write!(f, "provider selected by model size from catalog"),
             Self::DefaultConfig => write!(f, "default configured provider"),
             Self::CliDefault => write!(f, "CLI fallback (no API providers)"),
         }
@@ -123,6 +126,8 @@ impl fmt::Display for ProviderSource {
 pub enum ModelSource {
     /// Explicitly set in the agent definition.
     AgentExplicit,
+    /// Selected from the model catalog based on model size preference.
+    CatalogModelSize,
     /// Default alias for the resolved provider.
     DefaultAlias,
     /// CLI tool's own default (no model passed).
@@ -185,6 +190,7 @@ impl fmt::Display for ModelSource {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Self::AgentExplicit => write!(f, "from agent definition"),
+            Self::CatalogModelSize => write!(f, "selected by model size from catalog"),
             Self::DefaultAlias => write!(f, "default alias for provider"),
             Self::CliDefault => write!(f, "CLI default"),
             Self::Fallback => write!(f, "auto-selected fallback"),
@@ -330,10 +336,9 @@ pub fn route_session_explained(
     // Priority 1: Explicit model list
     if let Some(model_list) = models
         && !model_list.is_empty()
+        && let Some(decision) = route_via_models_path(model_list, client)?
     {
-        if let Some(decision) = route_via_models_path(model_list, client)? {
-            return Ok(decision);
-        }
+        return Ok(decision);
     }
 
     // Priority 2: Model size preference
@@ -539,11 +544,11 @@ fn route_via_model_size_path(
                     provider: candidate.provider.clone(),
                     model,
                 },
-                provider_source: ProviderSource::DefaultConfig,
+                provider_source: ProviderSource::CatalogModelSize,
                 model_source: if fallback_used {
                     ModelSource::Fallback
                 } else {
-                    ModelSource::AgentExplicit
+                    ModelSource::CatalogModelSize
                 },
                 alias_resolution: None,
                 fallback_used,
@@ -637,11 +642,7 @@ fn route_via_providers_path(
                 "None of the preferred providers are configured: {}. \
                  Tip: add 'any' to the providers list to allow fallback to \
                  other configured providers.",
-                providers
-                    .iter()
-                    .cloned()
-                    .collect::<Vec<_>>()
-                    .join(", ")
+                providers.to_vec().join(", ")
             ),
         },
     ))
