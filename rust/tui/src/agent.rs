@@ -499,7 +499,16 @@ async fn agent_task(
             let interviewer: Arc<dyn Interviewer> =
                 Arc::new(TuiInterviewer::new(interview_tx.clone()));
             match create_session_with_interviewer(&name, interviewer).await {
-                Ok((.., s, er)) => {
+                Ok((.., mut s, er)) => {
+                    // Wire session persistence so agent sessions are recorded
+                    if let Ok(cwd) = std::env::current_dir()
+                        && let Ok(store) = stencila_agents::store::AgentSessionStore::open(&cwd)
+                    {
+                        s.set_agent_name(&name).set_persistence(
+                            Arc::new(store),
+                            stencila_agents::store::SessionPersistence::BestEffort,
+                        );
+                    }
                     session = Some(s);
                     event_rx = Some(er);
                 }

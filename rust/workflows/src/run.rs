@@ -18,6 +18,10 @@ use chrono::{DateTime, TimeDelta, Utc};
 use chrono_humanize::{Accuracy, HumanTime, Tense};
 use eyre::Result;
 use indexmap::IndexMap;
+use stencila_agents::convenience::{
+    create_session, create_session_with_interviewer, create_session_with_overrides,
+};
+use stencila_agents::session::AgentSession;
 use stencila_agents::types::Turn;
 use stencila_db::rusqlite::Connection;
 
@@ -249,6 +253,12 @@ pub(crate) async fn run_workflow_with_options_and_parent(
 
     let workspace_db = stencila_db::WorkspaceDb::open(&effective_db_path)
         .map_err(|e| eyre::eyre!("Failed to open workspace database: {e}"))?;
+
+    // Ensure agent session tables exist so checkpoint persistence works.
+    if let Err(e) = workspace_db.migrate("agents", stencila_agents::migrations::AGENT_MIGRATIONS) {
+        tracing::warn!("Failed to apply agent session migrations: {e}");
+    }
+
     let db_conn_for_parent = workspace_db.connection().clone();
     if let Some(parent) = &parent_run {
         let conn = db_conn_for_parent
@@ -721,6 +731,7 @@ pub async fn resume_workflow_with_options(
                 stencila_attractor::sqlite_backend::WORKFLOW_MIGRATIONS,
             ),
             ("interviews", stencila_interviews::INTERVIEW_MIGRATIONS),
+            ("agents", stencila_agents::migrations::AGENT_MIGRATIONS),
         ])
         .map_err(|e| eyre::eyre!("Failed to apply workflow migrations: {e}"))?;
 
@@ -1059,7 +1070,7 @@ async fn resolve_agent_references(
 ///
 /// For each node execution, looks up the `agent` attribute to determine which
 /// agent to run. Creates an agent session via
-/// [`stencila_agents::convenience::create_session`], submits the prompt, and
+/// [`create_session`], submits the prompt, and
 /// streams `StageSessionEvent` events back through the emitter while accumulating
 /// the full response text.
 ///
@@ -1210,14 +1221,11 @@ impl CodergenBackend for AgentCodergenBackend {
             (session, event_rx, false)
         } else {
             let (_agent, session, event_rx) = if has_overrides {
-                stencila_agents::convenience::create_session_with_overrides(
-                    agent_name, node_iv, &overrides,
-                )
-                .await
+                create_session_with_overrides(agent_name, node_iv, &overrides).await
             } else if let Some(iv) = node_iv {
-                stencila_agents::convenience::create_session_with_interviewer(agent_name, iv).await
+                create_session_with_interviewer(agent_name, iv).await
             } else {
-                stencila_agents::convenience::create_session(agent_name).await
+                create_session(agent_name).await
             }
             .map_err(|e| stencila_attractor::AttractorError::AgentFailed {
                 node_id: node.id.clone(),
@@ -1226,7 +1234,23 @@ impl CodergenBackend for AgentCodergenBackend {
             (session, event_rx, true)
         };
 
-        let is_cli_session = matches!(session, stencila_agents::session::AgentSession::Cli(_));
+        // Wire session persistence so agent sessions are recorded in the workspace DB.
+        if is_new_session && let Some(ref conn) = self.db_conn {
+            let store = Arc::new(stencila_agents::store::AgentSessionStore::new(conn.clone()));
+            session
+                .set_agent_name(agent_name)
+                .set_workflow_attribution(stencila_agents::store::WorkflowAttribution {
+                    run_id: self.run_id.clone(),
+                    thread_id: thread_id.clone(),
+                    node_id: Some(node.id.clone()),
+                })
+                .set_persistence(
+                    store,
+                    stencila_agents::store::SessionPersistence::BestEffort,
+                );
+        }
+
+        let is_cli_session = matches!(session, AgentSession::Cli(_));
 
         // Register workflow-context tools if we have a DB connection.
         //
@@ -1288,7 +1312,7 @@ impl CodergenBackend for AgentCodergenBackend {
         let preferred_label: Arc<Mutex<Option<String>>> = Arc::new(Mutex::new(None));
 
         let routing_tool_available = if !outgoing_labels.is_empty() {
-            if let stencila_agents::session::AgentSession::Api(api_session) = &mut session {
+            if let AgentSession::Api(api_session) = &mut session {
                 let tool = crate::tools::workflow_set_route::registered_tool(
                     outgoing_labels.clone(),
                     preferred_label.clone(),
@@ -1769,7 +1793,7 @@ fn save_snapshot_for_dir(
     }
 }
 
-fn aggregate_usage(session: &stencila_agents::session::AgentSession) -> (i64, i64) {
+fn aggregate_usage(session: &AgentSession) -> (i64, i64) {
     session
         .history()
         .iter()

@@ -5,6 +5,7 @@
 use std::{
     path::{Path, PathBuf},
     process::exit,
+    sync::Arc,
 };
 
 use clap::{Args, Parser, Subcommand};
@@ -20,10 +21,12 @@ use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
 use crate::{
-    convenience::{CreateAgentOptions, create_agent, create_session},
+    convenience::{
+        CreateAgentOptions, CreateSessionOptions, create_agent, create_session_with_options,
+    },
     definition::{self, AgentSource},
     migrations::AGENT_MIGRATIONS,
-    store::{AgentSessionStore, ListSessionsFilter, SessionRecord},
+    store::{AgentSessionStore, ListSessionsFilter, SessionPersistence, SessionRecord},
     types::{EventKind, SessionConfig, Turn},
     validate,
 };
@@ -834,8 +837,22 @@ impl Run {
             return Ok(());
         }
 
-        // Create session from agent definition and submit
-        let (_agent, mut session, mut event_rx) = create_session(&self.name).await?;
+        // Create session from agent definition and submit.
+        // Build a store so checkpoints are written to the workspace DB.
+        let cwd = std::env::current_dir()?;
+        let store = open_workspace_db_for_agents(&cwd)
+            .ok()
+            .map(|(s, _db)| Arc::new(s));
+
+        let (_agent, mut session, mut event_rx) = create_session_with_options(
+            &self.name,
+            CreateSessionOptions {
+                store,
+                persistence: Some(SessionPersistence::BestEffort),
+                ..Default::default()
+            },
+        )
+        .await?;
 
         let mut submit_fut = Box::pin(session.submit(&prompt));
         let mut submit_done = false;
@@ -991,11 +1008,18 @@ impl SessionsList {
             return Ok(());
         }
 
+        // Resolve workflow names for sessions that belong to a workflow run
+        let run_ids: Vec<&str> = sessions
+            .iter()
+            .filter_map(|s| s.workflow_run_id.as_deref())
+            .collect();
+        let workflow_names = store.resolve_workflow_names(&run_ids);
+
         let mut table = Tabulated::new();
         table.set_header([
             "ID",
             "Agent",
-            "Backend",
+            "Workflow",
             "State",
             "Resumable",
             "Turns",
@@ -1003,11 +1027,11 @@ impl SessionsList {
         ]);
 
         for session in &sessions {
-            let row = format_session_list_row(session);
+            let row = format_session_list_row(session, &workflow_names);
             table.add_row([
                 Cell::new(&row.id).add_attribute(Attribute::Bold),
                 Cell::new(&row.agent_name),
-                Cell::new(&row.backend),
+                Cell::new(&row.workflow),
                 Cell::new(&row.state),
                 Cell::new(&row.resumability),
                 Cell::new(&row.total_turns),
@@ -1027,12 +1051,12 @@ impl SessionsShow {
         let (store, _db) = open_workspace_db_for_agents(&cwd)?;
 
         let record = store
-            .get_session(&self.session_id)
-            .map_err(|e| eyre::eyre!("Failed to get session: {e}"))?
+            .get_session_by_prefix(&self.session_id)
+            .map_err(|e| eyre::eyre!("{e}"))?
             .ok_or_else(|| eyre::eyre!("Session '{}' not found", self.session_id))?;
 
         let turns = store
-            .get_turns(&self.session_id)
+            .get_turns(&record.session_id)
             .map_err(|e| eyre::eyre!("Failed to get turns: {e}"))?;
 
         let detail = format_session_detail(&record, &turns);
@@ -1042,20 +1066,25 @@ impl SessionsShow {
 }
 
 // ---------------------------------------------------------------------------
-// Session formatting and filtering helpers (public for testing)
+// Session formatting and filtering helpers
+//
+// Public because they are exercised by integration tests in `tests/`.
 // ---------------------------------------------------------------------------
 
 pub struct SessionListRow {
     pub id: String,
     pub agent_name: String,
-    pub backend: String,
+    pub workflow: String,
     pub state: String,
     pub resumability: String,
     pub total_turns: String,
     pub updated_at: String,
 }
 
-pub fn format_session_list_row(record: &SessionRecord) -> SessionListRow {
+pub fn format_session_list_row(
+    record: &SessionRecord,
+    workflow_names: &std::collections::HashMap<String, String>,
+) -> SessionListRow {
     let truncate_len = 8;
     let id = record
         .session_id
@@ -1063,10 +1092,16 @@ pub fn format_session_list_row(record: &SessionRecord) -> SessionListRow {
         .unwrap_or(&record.session_id)
         .to_string();
 
+    let workflow = record
+        .workflow_run_id
+        .as_ref()
+        .and_then(|run_id| workflow_names.get(run_id).cloned())
+        .unwrap_or_default();
+
     SessionListRow {
         id,
         agent_name: record.agent_name.clone(),
-        backend: record.backend_kind.clone(),
+        workflow,
         state: record.state.to_string(),
         resumability: record.resumability.to_string(),
         total_turns: record.total_turns.to_string(),

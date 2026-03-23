@@ -66,7 +66,7 @@ fn sample_record(session_id: &str) -> SessionRecord {
 // ===========================================================================
 
 /// `format_session_list_row` should return a struct/tuple with the columns
-/// needed for the sessions list table: truncated ID, agent name, backend,
+/// needed for the sessions list table: truncated ID, agent name, workflow,
 /// state, resumability, total turns, updated time.
 #[cfg(feature = "cli")]
 #[test]
@@ -75,8 +75,9 @@ fn format_session_list_row_includes_truncated_id() {
         session_id: "abcdef12-3456-7890-abcd-ef1234567890".to_string(),
         ..sample_record("ignored")
     };
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
 
     // Session ID should be truncated (first 8 chars or similar short form)
     assert!(
@@ -95,19 +96,32 @@ fn format_session_list_row_includes_truncated_id() {
 fn format_session_list_row_includes_agent_name() {
     let mut record = sample_record("sess-1");
     record.agent_name = "code-engineer".to_string();
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
     assert_eq!(row.agent_name, "code-engineer");
 }
 
 #[cfg(feature = "cli")]
 #[test]
-fn format_session_list_row_includes_backend_kind() {
+fn format_session_list_row_includes_workflow_name() {
     let mut record = sample_record("sess-1");
-    record.backend_kind = "cli".to_string();
+    record.workflow_run_id = Some("run-123".to_string());
+    let mut wf = std::collections::HashMap::new();
+    wf.insert("run-123".to_string(), "my-workflow".to_string());
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
-    assert_eq!(row.backend, "cli");
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
+    assert_eq!(row.workflow, "my-workflow");
+}
+
+#[cfg(feature = "cli")]
+#[test]
+fn format_session_list_row_workflow_empty_for_standalone() {
+    let record = sample_record("sess-1");
+    let wf = std::collections::HashMap::new();
+
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
+    assert_eq!(row.workflow, "");
 }
 
 #[cfg(feature = "cli")]
@@ -115,8 +129,9 @@ fn format_session_list_row_includes_backend_kind() {
 fn format_session_list_row_includes_state() {
     let mut record = sample_record("sess-1");
     record.state = SessionState::AwaitingInput;
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
     // State should be a human-readable string
     assert!(!row.state.is_empty(), "state column should not be empty");
 }
@@ -126,8 +141,9 @@ fn format_session_list_row_includes_state() {
 fn format_session_list_row_includes_resumability() {
     let mut record = sample_record("sess-1");
     record.resumability = Resumability::Full;
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
     assert!(
         !row.resumability.is_empty(),
         "resumability column should not be empty"
@@ -139,8 +155,9 @@ fn format_session_list_row_includes_resumability() {
 fn format_session_list_row_includes_total_turns() {
     let mut record = sample_record("sess-1");
     record.total_turns = 42;
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
     assert_eq!(row.total_turns, "42");
 }
 
@@ -149,8 +166,9 @@ fn format_session_list_row_includes_total_turns() {
 fn format_session_list_row_includes_updated_at() {
     let mut record = sample_record("sess-1");
     record.updated_at = "2025-07-01T12:34:56Z".to_string();
+    let wf = std::collections::HashMap::new();
 
-    let row = stencila_agents::cli::format_session_list_row(&record);
+    let row = stencila_agents::cli::format_session_list_row(&record, &wf);
     assert!(
         !row.updated_at.is_empty(),
         "updated_at column should not be empty"

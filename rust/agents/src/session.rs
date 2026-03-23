@@ -6,9 +6,12 @@
 //! etc.) are delegated through match arms so callers don't need to distinguish
 //! between the two.
 
+use std::sync::Arc;
+
 use crate::api_session::ApiSession;
 use crate::cli_providers::CliSession;
 use crate::error::AgentResult;
+use crate::store::{AgentSessionStore, SessionPersistence, WorkflowAttribution};
 use crate::types::{AbortSignal, SessionConfig, SessionState, Turn};
 
 /// Unified agent session that routes to either an API or CLI backend.
@@ -94,6 +97,41 @@ impl AgentSession {
             Self::Api(s) => s.total_turns(),
             Self::Cli(s) => s.total_turns(),
         }
+    }
+
+    /// Set workflow attribution metadata for checkpoint persistence records.
+    pub fn set_workflow_attribution(&mut self, attribution: WorkflowAttribution) -> &mut Self {
+        match self {
+            Self::Api(s) => s.set_workflow_attribution(attribution),
+            Self::Cli(s) => s.set_workflow_attribution(attribution),
+        };
+        self
+    }
+
+    /// Set the agent name recorded in checkpoint persistence records.
+    pub fn set_agent_name(&mut self, name: impl Into<String>) -> &mut Self {
+        let name = name.into();
+        match self {
+            Self::Api(s) => s.set_agent_name(name),
+            Self::Cli(s) => s.set_agent_name(name),
+        };
+        self
+    }
+
+    /// Wire checkpoint persistence into this session.
+    ///
+    /// Delegates to the backend-specific `set_persistence` method which
+    /// immediately inserts a creation checkpoint into the store.
+    pub fn set_persistence(
+        &mut self,
+        store: Arc<AgentSessionStore>,
+        persistence: SessionPersistence,
+    ) -> &mut Self {
+        match self {
+            Self::Api(s) => s.set_persistence(store, persistence),
+            Self::Cli(s) => s.set_persistence(store, persistence),
+        };
+        self
     }
 }
 

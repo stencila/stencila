@@ -15,8 +15,9 @@ use crate::profiles::{AnthropicProfile, DefaultProfile, GeminiProfile, OpenAiPro
 use crate::prompts::{build_commit_instructions, build_system_prompt};
 use crate::routing::{self, RoutingDecision, SessionRoute};
 use crate::session::AgentSession;
+use crate::store::SessionPersistence;
 use crate::tool_guard::{GuardContext, ToolGuard, TrustLevel};
-use crate::types::SessionConfig;
+use crate::types::{ReasoningEffort, SessionConfig};
 
 /// Overrides applied on top of the agent definition when creating a session.
 ///
@@ -301,7 +302,19 @@ pub async fn create_session_with_options(
     name: &str,
     options: CreateSessionOptions,
 ) -> AgentResult<(AgentInstance, AgentSession, EventReceiver)> {
-    create_session_full(name, options.interviewer, options.overrides.as_ref()).await
+    let (agent, mut session, event_rx) =
+        create_session_full(name, options.interviewer, options.overrides.as_ref()).await?;
+
+    if let Some(store) = options.store {
+        let persistence = options
+            .persistence
+            .unwrap_or(SessionPersistence::BestEffort);
+        session
+            .set_agent_name(&agent.name)
+            .set_persistence(store, persistence);
+    }
+
+    Ok((agent, session, event_rx))
 }
 
 async fn create_session_full(
@@ -315,10 +328,10 @@ async fn create_session_full(
     if let Some(ovr) = overrides {
         if let Some(ref effort) = ovr.reasoning_effort {
             config.reasoning_effort = Some(match effort.as_str() {
-                "low" => crate::types::ReasoningEffort::Low,
-                "medium" => crate::types::ReasoningEffort::Medium,
-                "high" => crate::types::ReasoningEffort::High,
-                other => crate::types::ReasoningEffort::Custom(other.to_string()),
+                "low" => ReasoningEffort::Low,
+                "medium" => ReasoningEffort::Medium,
+                "high" => ReasoningEffort::High,
+                other => ReasoningEffort::Custom(other.to_string()),
             });
         }
         if let Some(turns) = ovr.max_turns {

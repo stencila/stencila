@@ -65,6 +65,15 @@ pub struct SessionRecord {
     pub lease_expires_at: Option<String>,
 }
 
+/// Workflow attribution metadata for agent sessions created within a
+/// workflow pipeline.
+#[derive(Debug, Clone, Default)]
+pub struct WorkflowAttribution {
+    pub run_id: Option<String>,
+    pub thread_id: Option<String>,
+    pub node_id: Option<String>,
+}
+
 #[derive(Debug, Clone, Default)]
 pub struct ListSessionsFilter {
     pub resumable: Option<bool>,
@@ -99,6 +108,17 @@ impl AgentSessionStore {
     #[must_use]
     pub fn new(conn: Arc<Mutex<Connection>>) -> Self {
         Self { conn }
+    }
+
+    /// Open (or create) the workspace database at `workspace_root/.stencila/db.sqlite3`,
+    /// apply agent migrations, and return a ready-to-use store.
+    pub fn open(workspace_root: &std::path::Path) -> Result<Self, String> {
+        let db_path = workspace_root.join(".stencila").join("db.sqlite3");
+        let db = stencila_db::WorkspaceDb::open(&db_path)
+            .map_err(|e| format!("failed to open workspace DB: {e}"))?;
+        db.migrate("agents", crate::migrations::AGENT_MIGRATIONS)
+            .map_err(|e| format!("failed to apply agent migrations: {e}"))?;
+        Ok(Self::new(db.connection().clone()))
     }
 
     fn lock_conn(&self) -> std::sync::MutexGuard<'_, Connection> {
@@ -158,6 +178,41 @@ impl AgentSessionStore {
         } else {
             Ok(None)
         }
+    }
+
+    /// Look up a session by exact ID first, then by unique prefix.
+    ///
+    /// Returns `Ok(Some(record))` when exactly one session matches the
+    /// prefix, `Ok(None)` when no sessions match, or an error when the
+    /// prefix is ambiguous (matches more than one session).
+    pub fn get_session_by_prefix(&self, prefix: &str) -> AgentResult<Option<SessionRecord>> {
+        let db_err = |e: rusqlite::Error| AgentError::Io {
+            message: format!("database error: {e}"),
+        };
+
+        if let Some(record) = self.get_session(prefix).map_err(db_err)? {
+            return Ok(Some(record));
+        }
+
+        let conn = self.lock_conn();
+        let like_pattern = format!("{prefix}%");
+        let sql = format!("SELECT {SESSION_COLUMNS} FROM agent_sessions WHERE session_id LIKE ?1");
+        let mut stmt = conn.prepare(&sql).map_err(db_err)?;
+        let mut rows = stmt.query(params![like_pattern]).map_err(db_err)?;
+
+        let first = match rows.next().map_err(db_err)? {
+            Some(row) => record_from_row(row).map_err(db_err)?,
+            None => return Ok(None),
+        };
+
+        if rows.next().map_err(db_err)?.is_some() {
+            return Err(AgentError::InvalidState {
+                expected: "unique session prefix".into(),
+                actual: format!("ambiguous prefix '{prefix}' matches multiple sessions"),
+            });
+        }
+
+        Ok(Some(first))
     }
 
     pub fn checkpoint_turns(
@@ -411,6 +466,89 @@ impl AgentSessionStore {
             Ok(None)
         }
     }
+
+    /// Resolve workflow names for a set of run IDs.
+    ///
+    /// Queries the `workflow_runs` table (managed by the workflows crate)
+    /// and returns a map from `run_id` to `workflow_name`. Missing or
+    /// inaccessible rows are silently omitted.
+    pub fn resolve_workflow_names(
+        &self,
+        run_ids: &[&str],
+    ) -> std::collections::HashMap<String, String> {
+        let mut result = std::collections::HashMap::new();
+        if run_ids.is_empty() {
+            return result;
+        }
+
+        let conn = self.lock_conn();
+
+        for run_id in run_ids {
+            if let Ok(name) = conn.query_row(
+                "SELECT workflow_name FROM workflow_runs WHERE run_id = ?1",
+                params![run_id],
+                |row| row.get::<_, String>(0),
+            ) {
+                result.insert((*run_id).to_string(), name);
+            }
+        }
+
+        result
+    }
+}
+
+// ---------------------------------------------------------------------------
+// Shared persistence helpers
+// ---------------------------------------------------------------------------
+
+/// Check whether the persistence mode requires writing checkpoints.
+pub(crate) fn should_persist(mode: Option<&SessionPersistence>) -> bool {
+    !matches!(mode, None | Some(SessionPersistence::Ephemeral))
+}
+
+/// Handle a checkpoint result according to the persistence policy.
+///
+/// - [`Required`](SessionPersistence::Required): propagate the error
+/// - [`BestEffort`](SessionPersistence::BestEffort): log a warning and return `Ok(())`
+/// - Other modes: swallow the error silently
+pub(crate) fn handle_checkpoint_result(
+    mode: Option<&SessionPersistence>,
+    result: AgentResult<()>,
+) -> AgentResult<()> {
+    match result {
+        Ok(()) => Ok(()),
+        Err(e) => match mode {
+            Some(SessionPersistence::Required) => Err(e),
+            Some(SessionPersistence::BestEffort) => {
+                tracing::warn!("checkpoint failed (best-effort): {e}");
+                Ok(())
+            }
+            _ => Ok(()),
+        },
+    }
+}
+
+/// Write a checkpoint to the store, mapping database errors to [`AgentError::Io`].
+pub(crate) fn write_checkpoint(
+    store: &AgentSessionStore,
+    record: &SessionRecord,
+    history: &[Turn],
+) -> AgentResult<()> {
+    store
+        .upsert_checkpoint(record, history)
+        .map_err(|e| AgentError::Io {
+            message: format!("checkpoint write failed: {e}"),
+        })
+}
+
+/// Extract workflow attribution fields from an optional [`WorkflowAttribution`].
+pub(crate) fn workflow_fields(
+    attribution: Option<&WorkflowAttribution>,
+) -> (Option<String>, Option<String>, Option<String>) {
+    let run_id = attribution.and_then(|w| w.run_id.clone());
+    let thread_id = attribution.and_then(|w| w.thread_id.clone());
+    let node_id = attribution.and_then(|w| w.node_id.clone());
+    (run_id, thread_id, node_id)
 }
 
 // ---------------------------------------------------------------------------
