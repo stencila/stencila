@@ -38,13 +38,15 @@ pub fn client_from_env() -> SdkResult<Client> {
 
 /// Return the model ID to use for a given provider in integration tests.
 ///
-/// Uses affordable, fast models to keep costs and latency low.
+/// Uses affordable, fast models to keep costs and latency low. Uses aliases so
+/// that latest of each model is used without having to update this function
+/// regularly.
 pub fn test_model(provider: &str) -> &'static str {
     match provider {
-        "openai" => "gpt-4.1-mini",
-        "anthropic" => "claude-sonnet-4-5-20250929",
-        "gemini" => "gemini-2.0-flash",
-        "mistral" => "mistral-small-latest",
+        "anthropic" => "claude-haiku",
+        "gemini" => "gemini-flash",
+        "openai" => "gpt-nano",
+        "mistral" => "mistral-small",
         "deepseek" => "deepseek-chat",
         "ollama" => "llama3.2:1b",
         _ => "unknown",
@@ -52,12 +54,16 @@ pub fn test_model(provider: &str) -> &'static str {
 }
 
 /// Return a model with image-input support for vision acceptance tests.
+///
+/// Uses affordable, fast models with vision support. Uses aliases so
+/// that latest of each model is used without having to update this function
+/// regularly.
 pub fn vision_test_model(provider: &str) -> &'static str {
     match provider {
-        "openai" => "gpt-4o-mini",
-        "anthropic" => "claude-sonnet-4-5-20250929",
-        "gemini" => "gemini-2.0-flash",
-        "mistral" => "mistral-small-latest",
+        "anthropic" => "claude-haiku",
+        "gemini" => "gemini-flash",
+        "openai" => "gpt-nano",
+        "mistral" => "mistral-small",
         "deepseek" => "deepseek-chat",
         "ollama" => "llama3.2:1b",
         _ => "unknown",
