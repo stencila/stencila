@@ -2,8 +2,9 @@
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum ResumableKind {
     /// A workflow run that can be resumed.
-    Workflow,
-    // Future: AgentSession, etc.
+    WorkflowRun,
+    /// An agent session that can be resumed.
+    AgentSession,
 }
 
 /// A candidate in the resume picker popup.
@@ -15,10 +16,12 @@ pub struct ResumeCandidate {
     pub id: String,
     /// Name of the workflow or agent.
     pub name: String,
-    /// Goal or description.
-    pub goal: String,
+    /// Goal of workflow run or description of agent session.
+    pub description: String,
     /// Status string (e.g. "failed", "running").
     pub status: String,
+    /// ISO-8601 timestamp for sorting (most recent first).
+    pub sort_timestamp: String,
     /// Human-readable relative time (e.g. "3 minutes ago").
     pub time_ago: String,
 }
@@ -78,7 +81,7 @@ impl ResumeState {
                 .iter()
                 .filter(|c| {
                     c.name.to_ascii_lowercase().contains(&filter_lower)
-                        || c.goal.to_ascii_lowercase().contains(&filter_lower)
+                        || c.description.to_ascii_lowercase().contains(&filter_lower)
                         || c.status.to_ascii_lowercase().contains(&filter_lower)
                 })
                 .cloned()
@@ -133,19 +136,21 @@ mod tests {
     fn sample_candidates() -> Vec<ResumeCandidate> {
         vec![
             ResumeCandidate {
-                kind: ResumableKind::Workflow,
+                kind: ResumableKind::WorkflowRun,
                 id: "01926f3a-7b2c-7d4e-8f1a-9c3d5e7f0a1b".to_string(),
                 name: "code-review".to_string(),
-                goal: "Review the latest PR".to_string(),
+                description: "Review the latest PR".to_string(),
                 status: "failed".to_string(),
+                sort_timestamp: "2026-03-23T10:00:00Z".to_string(),
                 time_ago: "3 minutes ago".to_string(),
             },
             ResumeCandidate {
-                kind: ResumableKind::Workflow,
+                kind: ResumableKind::WorkflowRun,
                 id: "01926f3b-1234-5678-9abc-def012345678".to_string(),
                 name: "deploy".to_string(),
-                goal: "Deploy to staging".to_string(),
+                description: "Deploy to staging".to_string(),
                 status: "running".to_string(),
+                sort_timestamp: "2026-03-23T09:53:00Z".to_string(),
                 time_ago: "10 minutes ago".to_string(),
             },
         ]
@@ -284,7 +289,7 @@ mod tests {
         assert!(result.is_some());
         let candidate = result.expect("just checked");
         assert_eq!(candidate.name, "code-review");
-        assert_eq!(candidate.kind, ResumableKind::Workflow);
+        assert_eq!(candidate.kind, ResumableKind::WorkflowRun);
         assert!(!state.is_visible());
     }
 

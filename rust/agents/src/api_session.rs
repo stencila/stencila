@@ -594,6 +594,21 @@ impl ApiSession {
         crate::store::handle_checkpoint_result(self.persistence_mode.as_ref(), result)
     }
 
+    /// Restore persisted conversation history and turn counter into this
+    /// session, making it ready to continue where a previous session left off.
+    ///
+    /// Call this after [`set_persistence`] so that the next checkpoint writes
+    /// the merged history. Incomplete trailing assistant turns (from sessions
+    /// that were persisted mid-processing) are automatically dropped.
+    pub fn hydrate(&mut self, persisted_state: SessionState, turns: Vec<Turn>) {
+        self.history = normalize_turns_for_hydration(persisted_state, turns);
+        self.total_turns = self
+            .history
+            .iter()
+            .filter(|t| matches!(t, Turn::Assistant { .. }))
+            .count() as u32;
+    }
+
     // -- Getters --
 
     /// Current session state.

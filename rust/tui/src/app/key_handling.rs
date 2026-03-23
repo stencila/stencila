@@ -132,8 +132,11 @@ impl App {
                 if let Some(candidate) = self.resume_state.accept() {
                     self.input.clear();
                     match candidate.kind {
-                        ResumableKind::Workflow => {
-                            self.resume_workflow(candidate.id, &candidate.name);
+                        ResumableKind::WorkflowRun => {
+                            self.resume_workflow_run(candidate.id, &candidate.name);
+                        }
+                        ResumableKind::AgentSession => {
+                            self.resume_agent_session(&candidate.id, &candidate.name);
                         }
                     }
                 }

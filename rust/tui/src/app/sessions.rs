@@ -1,8 +1,73 @@
+use stencila_agents::store::AgentSessionStore;
+use stencila_agents::types::Turn;
+
+use crate::agent::{AgentHandle, ResponseSegment, ResumeData};
 use crate::autocomplete::agents::AgentDefinitionInfo;
 
-use super::{AgentMention, AgentSession, App, AppMessage, discover_agents};
+use super::{
+    AgentMention, AgentSession, App, AppMessage, ExchangeKind, ExchangeStatus, discover_agents,
+};
 
 impl App {
+    /// Resume a persisted agent session by re-hydrating the conversation
+    /// history and creating a session that continues from the checkpoint.
+    ///
+    /// Loads the persisted turn history from the workspace database,
+    /// replays user/assistant exchanges into the TUI message area, and
+    /// eagerly creates an [`AgentHandle`] seeded with the conversation so
+    /// subsequent submits pick up where the previous session left off.
+    pub(super) fn resume_agent_session(&mut self, session_id: &str, agent_name: &str) {
+        let short_id = &session_id[..session_id.len().min(8)];
+
+        // Try to load persisted session data from the workspace database.
+        let loaded = load_persisted_session(session_id);
+
+        let mut session = AgentSession::new(agent_name);
+        self.color_registry.color_for(agent_name);
+
+        if let Some((record, turns)) = loaded {
+            // Eagerly create the agent handle with resume data so the
+            // background task hydrates the underlying session on first submit.
+            let resume_data = ResumeData {
+                persisted_state: record.state,
+                turns: turns.clone(),
+            };
+            session.agent = AgentHandle::spawn_with_resume(agent_name, resume_data);
+
+            self.sessions.push(session);
+            self.active_session = self.sessions.len() - 1;
+            let session_idx = self.active_session;
+
+            // Replay the persisted conversation into TUI messages.
+            replay_turns_as_messages(&mut self.messages, &turns, session_idx);
+
+            self.messages.push(AppMessage::System {
+                content: format!(
+                    "Resumed agent '{agent_name}' (session {short_id}) with {} prior turns. \
+                     Send a message to continue.",
+                    turns
+                        .iter()
+                        .filter(|t| matches!(t, Turn::User { .. }))
+                        .count(),
+                ),
+            });
+        } else {
+            // Fallback: could not load persisted data — create a fresh session.
+            self.sessions.push(session);
+            self.active_session = self.sessions.len() - 1;
+
+            self.messages.push(AppMessage::System {
+                content: format!(
+                    "Resumed agent '{agent_name}' (session {short_id}). \
+                     Could not load conversation history; starting fresh.",
+                ),
+            });
+        }
+
+        self.input.clear();
+        self.input_scroll = 0;
+    }
+
     pub(super) fn create_session_from_definition(&mut self, info: &AgentDefinitionInfo) {
         let mut session = AgentSession::new(&info.name);
         session.definition = Some(info.clone());
@@ -145,6 +210,76 @@ impl App {
         // Switch back if needed
         if mention.switch_back && target_idx != original_session {
             self.active_session = original_session;
+        }
+    }
+}
+
+/// Load a persisted session record and its turn history from the workspace DB.
+///
+/// Returns `None` if the store cannot be opened or the session is not found.
+fn load_persisted_session(
+    session_id: &str,
+) -> Option<(stencila_agents::store::SessionRecord, Vec<Turn>)> {
+    let cwd = std::env::current_dir().ok()?;
+    let store = AgentSessionStore::open(&cwd).ok()?;
+    let record = store.get_session(session_id).ok()??;
+    let turns = store.get_turns(session_id).ok()?;
+    Some((record, turns))
+}
+
+/// Replay persisted conversation turns into the TUI message list.
+///
+/// Each user turn starts an exchange. All following assistant turns (which
+/// may be interleaved with tool-result turns in multi-step conversations)
+/// are collected and the *last* assistant text is used as the response.
+/// This mirrors the TUI's live behavior where intermediate tool-call rounds
+/// are collapsed and only the final assistant response is shown.
+fn replay_turns_as_messages(messages: &mut Vec<AppMessage>, turns: &[Turn], session_idx: usize) {
+    let mut i = 0;
+    while i < turns.len() {
+        match &turns[i] {
+            Turn::User { content, .. } => {
+                // Scan forward past assistant and tool-result turns to find
+                // the last assistant response before the next user turn.
+                let mut last_assistant_text: Option<String> = None;
+                let mut j = i + 1;
+                while j < turns.len() {
+                    match &turns[j] {
+                        Turn::Assistant { content, .. } => {
+                            last_assistant_text = Some(content.clone());
+                            j += 1;
+                        }
+                        Turn::ToolResults { .. } => {
+                            j += 1;
+                        }
+                        // Stop at the next user, system, or steering turn.
+                        _ => break,
+                    }
+                }
+
+                let response_segments = last_assistant_text
+                    .as_ref()
+                    .map(|text| vec![ResponseSegment::Text(text.clone())]);
+
+                messages.push(AppMessage::Exchange {
+                    kind: ExchangeKind::Agent,
+                    status: ExchangeStatus::Succeeded,
+                    request: content.clone(),
+                    response: last_assistant_text,
+                    response_segments,
+                    exit_code: None,
+                    agent_index: Some(session_idx),
+                    agent_name: None,
+                    handler_type: None,
+                });
+
+                // Advance past all consumed turns.
+                i = j;
+            }
+            // Skip non-user turns that aren't paired (tool results, system, etc.)
+            _ => {
+                i += 1;
+            }
         }
     }
 }

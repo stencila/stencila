@@ -72,6 +72,20 @@ impl AgentSession {
         }
     }
 
+    /// Restore persisted conversation history into this session.
+    ///
+    /// For API sessions, injects the turn history and recomputes the turn
+    /// counter so the session continues where it left off. CLI sessions
+    /// do not support hydration (they manage their own state externally).
+    pub fn hydrate(&mut self, persisted_state: crate::types::SessionState, turns: Vec<Turn>) {
+        match self {
+            Self::Api(s) => s.hydrate(persisted_state, turns),
+            Self::Cli(_) => {
+                tracing::warn!("hydrate is not supported for CLI sessions");
+            }
+        }
+    }
+
     /// Session configuration.
     #[must_use]
     pub fn config(&self) -> &SessionConfig {

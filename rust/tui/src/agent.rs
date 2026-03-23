@@ -423,6 +423,13 @@ enum AgentCommand {
     },
 }
 
+/// Data needed to resume a persisted agent session in the background task.
+#[derive(Clone)]
+pub(crate) struct ResumeData {
+    pub persisted_state: stencila_agents::types::SessionState,
+    pub turns: Vec<stencila_agents::types::Turn>,
+}
+
 /// Handle for submitting messages to the background agent task.
 ///
 /// Owns the sending half of the command channel. Dropping this handle
@@ -439,11 +446,23 @@ impl AgentHandle {
     /// submit. Returns `None` if no Tokio runtime is available (e.g. in
     /// synchronous tests).
     pub fn spawn(name: &str) -> Option<Self> {
-        // Check that a tokio runtime is available before spawning
+        Self::spawn_inner(name, None)
+    }
+
+    /// Spawn the background agent task with persisted session data for resume.
+    ///
+    /// The session is created lazily on the first submit, then hydrated
+    /// with the persisted turn history so the conversation continues where
+    /// it left off.
+    pub fn spawn_with_resume(name: &str, resume: ResumeData) -> Option<Self> {
+        Self::spawn_inner(name, Some(resume))
+    }
+
+    fn spawn_inner(name: &str, resume: Option<ResumeData>) -> Option<Self> {
         let _handle = tokio::runtime::Handle::try_current().ok()?;
         let (tx, rx) = mpsc::unbounded_channel();
         let (interview_tx, interview_rx) = mpsc::unbounded_channel::<PendingTuiInterview>();
-        tokio::spawn(agent_task(rx, name.to_string(), interview_tx));
+        tokio::spawn(agent_task(rx, name.to_string(), interview_tx, resume));
         Some(Self { tx, interview_rx })
     }
 
@@ -478,10 +497,14 @@ impl AgentHandle {
 /// Waits for `Submit` commands, runs `session.submit()`, and drains
 /// events into the shared `AgentProgress`. The session is created lazily
 /// on the first submit so that startup errors are surfaced to the user.
+///
+/// When `resume` is `Some`, the session is hydrated with persisted turn
+/// history after creation so the conversation continues where it left off.
 async fn agent_task(
     mut rx: mpsc::UnboundedReceiver<AgentCommand>,
     name: String,
     interview_tx: mpsc::UnboundedSender<PendingTuiInterview>,
+    resume: Option<ResumeData>,
 ) {
     // Session and event receiver are created lazily on first submit.
     let mut session = None;
@@ -500,6 +523,11 @@ async fn agent_task(
                 Arc::new(TuiInterviewer::new(interview_tx.clone()));
             match create_session_with_interviewer(&name, interviewer).await {
                 Ok((.., mut s, er)) => {
+                    // Hydrate with persisted conversation history when resuming
+                    if let Some(ref resume_data) = resume {
+                        s.hydrate(resume_data.persisted_state, resume_data.turns.clone());
+                    }
+
                     // Wire session persistence so agent sessions are recorded
                     if let Ok(cwd) = std::env::current_dir()
                         && let Ok(store) = stencila_agents::store::AgentSessionStore::open(&cwd)

@@ -1,7 +1,10 @@
 use std::fmt::Write;
 
+use stencila_agents::store::{AgentSessionStore, ListSessionsFilter};
+use stencila_agents::types::{SessionState, Turn};
 use strum::{Display, EnumMessage, EnumString};
 
+use crate::agent::truncate_for_display;
 use crate::app::{App, AppMessage, AppMode};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
 use crate::autocomplete::resume::{ResumableKind, ResumeCandidate};
@@ -113,6 +116,26 @@ impl SlashCommand {
             })
             .collect()
     }
+}
+
+fn session_resume_description(
+    store: &AgentSessionStore,
+    session: &stencila_agents::store::SessionRecord,
+) -> String {
+    let initial_prompt = store
+        .get_turns(&session.session_id)
+        .ok()
+        .and_then(|turns| {
+            turns.into_iter().find_map(|turn| match turn {
+                Turn::User { content, .. } => Some(content),
+                _ => None,
+            })
+        })
+        .map(|prompt| truncate_for_display(prompt.trim(), 60))
+        .filter(|prompt| !prompt.is_empty())
+        .unwrap_or_else(|| truncate_for_display(&session.model_name, 60));
+
+    format!("{initial_prompt} + {} turns", session.total_turns)
 }
 
 impl SlashCommand {
@@ -362,40 +385,77 @@ async fn execute_workflows(app: &mut App) {
 
 async fn execute_resume(app: &mut App) {
     let cwd = std::env::current_dir().unwrap_or_default();
-    let runs =
-        match stencila_workflows::list_runs(&cwd, 50, stencila_workflows::RunListFilter::Resumable)
-            .await
-        {
-            Ok(runs) => runs,
-            Err(error) => {
-                app.messages.push(AppMessage::System {
-                    content: format!("Failed to load resumable workflow runs: {error}"),
+
+    let mut candidates: Vec<ResumeCandidate> = Vec::new();
+
+    // Collect resumable workflow runs.
+    match stencila_workflows::list_runs(&cwd, 50, stencila_workflows::RunListFilter::Resumable)
+        .await
+    {
+        Ok(runs) => {
+            for run in runs {
+                let goal = if run.goal.chars().count() > 60 {
+                    let truncated: String = run.goal.chars().take(59).collect();
+                    format!("{truncated}…")
+                } else {
+                    run.goal
+                };
+                candidates.push(ResumeCandidate {
+                    kind: ResumableKind::WorkflowRun,
+                    id: run.run_id,
+                    name: run.workflow_name,
+                    description: goal,
+                    status: run.status,
+                    sort_timestamp: run.started_at.clone(),
+                    time_ago: stencila_workflows::humanize_timestamp(&run.started_at),
                 });
-                return;
             }
-        };
+        }
+        Err(error) => {
+            tracing::warn!("Failed to load resumable workflow runs: {error}");
+        }
+    }
 
-    let candidates: Vec<ResumeCandidate> = runs
-        .into_iter()
-        .map(|run| {
-            let goal = if run.goal.chars().count() > 60 {
-                let truncated: String = run.goal.chars().take(59).collect();
-                format!("{truncated}…")
-            } else {
-                run.goal
+    // Collect resumable standalone agent sessions.
+    match AgentSessionStore::open(&cwd) {
+        Ok(store) => {
+            let filter = ListSessionsFilter {
+                resumable: Some(true),
+                ..Default::default()
             };
-            ResumeCandidate {
-                kind: ResumableKind::Workflow,
-                id: run.run_id,
-                name: run.workflow_name,
-                goal,
-                status: run.status,
-                time_ago: stencila_workflows::humanize_timestamp(&run.started_at),
+            match store.list_sessions(&filter) {
+                Ok(sessions) => {
+                    for session in sessions {
+                        // Skip non-closed and workflow-owned sessions (those are resumed via workflows)
+                        if !matches!(session.state, SessionState::Closed) || session.workflow_run_id.is_some() {
+                            continue;
+                        }
+                        let status = format!("{}", session.state).to_ascii_lowercase();
+                        let description = session_resume_description(&store, &session);
+                        candidates.push(ResumeCandidate {
+                            kind: ResumableKind::AgentSession,
+                            id: session.session_id,
+                            name: session.agent_name,
+                            description,
+                            status,
+                            sort_timestamp: session.updated_at.clone(),
+                            time_ago: stencila_workflows::humanize_timestamp(&session.updated_at),
+                        });
+                    }
+                }
+                Err(e) => {
+                    tracing::warn!("Failed to list agent sessions: {e}");
+                }
             }
-        })
-        .collect();
+        }
+        Err(e) => {
+            tracing::warn!("Failed to open agent session store: {e}");
+        }
+    }
 
-    // Future: append agent session candidates here.
+    // Sort by timestamp descending so the most recent items appear first,
+    // regardless of whether they are workflow runs or agent sessions.
+    candidates.sort_by(|a, b| b.sort_timestamp.cmp(&a.sort_timestamp));
 
     if candidates.is_empty() {
         app.messages.push(AppMessage::System {

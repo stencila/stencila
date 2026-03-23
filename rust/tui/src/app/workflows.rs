@@ -96,7 +96,7 @@ impl App {
     ///
     /// Sets up workflow mode and immediately spawns the resumed run (no goal
     /// prompt — the original goal is restored by the workflow engine).
-    pub(super) fn resume_workflow(&mut self, run_id: String, workflow_name: &str) {
+    pub(super) fn resume_workflow_run(&mut self, run_id: String, workflow_name: &str) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
 

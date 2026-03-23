@@ -7,6 +7,7 @@ use ratatui::{
 
 use crate::app::App;
 use crate::autocomplete::agents::AgentCandidateKind;
+use crate::autocomplete::resume::ResumableKind;
 
 use super::common::{
     dim, popup_area, render_popup, selected_secondary_style, selected_style, unselected_style,
@@ -392,6 +393,14 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
         .map(|c| c.time_ago.len())
         .max()
         .unwrap_or(0);
+    let max_status_width = candidates
+        .iter()
+        .map(|c| match c.status.as_str() {
+            "fail" | "failed" => "failed".len(),
+            other => other.len(),
+        })
+        .max()
+        .unwrap_or(0);
     let max_name_width = candidates.iter().map(|c| c.name.len()).max().unwrap_or(0);
     let selected = app.resume_state.selected();
 
@@ -399,7 +408,15 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
         .iter()
         .enumerate()
         .map(|(i, candidate)| {
-            let time_col = format!(" {:<max_time_width$}  ", candidate.time_ago);
+            let kind_label = match candidate.kind {
+                ResumableKind::WorkflowRun => "workflow",
+                ResumableKind::AgentSession => "agent   ",
+            };
+            let kind_col = format!(" {kind_label}  ");
+            let time_col = format!(
+                "{:>max_time_width$}  ",
+                candidate.time_ago
+            );
             let status_label = match candidate.status.as_str() {
                 "fail" | "failed" => "failed",
                 other => other,
@@ -410,23 +427,25 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
                 "running" => Color::Yellow,
                 _ => Color::DarkGray,
             };
-            let status_col = format!("{status_label:>7}  ");
+            let status_col = format!("{status_label:<max_status_width$}  ");
             let name_col = format!("{:<max_name_width$}  ", candidate.name);
-            let goal = &candidate.goal;
+            let desc = &candidate.description;
 
             if i == selected {
                 Line::from(vec![
-                    Span::styled(time_col, dim()),
-                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(kind_col, selected_secondary_style()),
                     Span::styled(name_col, selected_style()),
-                    Span::styled(goal.to_string(), selected_secondary_style()),
+                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(time_col, selected_secondary_style()),
+                    Span::styled(desc.to_string(), selected_secondary_style()),
                 ])
             } else {
                 Line::from(vec![
-                    Span::styled(time_col, dim()),
-                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(kind_col, dim()),
                     Span::styled(name_col, unselected_style()),
-                    Span::styled(goal.to_string(), dim()),
+                    Span::styled(status_col, Style::new().fg(status_color)),
+                    Span::styled(time_col, dim()),
+                    Span::styled(desc.to_string(), dim()),
                 ])
             }
         })
