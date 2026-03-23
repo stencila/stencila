@@ -26,10 +26,10 @@ use crate::types::{EventKind, SessionEvent, now_timestamp};
 // ---------------------------------------------------------------------------
 
 /// Create an `(EventEmitter, EventReceiver)` pair with an auto-generated
-/// UUID v4 session ID.
+/// UUID v7 session ID.
 #[must_use]
 pub fn channel() -> (EventEmitter, EventReceiver) {
-    channel_with_id(uuid::Uuid::new_v4().to_string())
+    channel_with_id(uuid::Uuid::now_v7().to_string())
 }
 
 /// Create an `(EventEmitter, EventReceiver)` pair with a caller-supplied

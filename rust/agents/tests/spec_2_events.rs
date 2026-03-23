@@ -52,15 +52,15 @@ async fn channel_returns_emitter_and_receiver() -> Result<(), AgentError> {
     // Both sides share the same session ID.
     assert_eq!(emitter.session_id(), receiver.session_id());
 
-    // Session ID is a valid UUID v4.
+    // Session ID is a valid UUID v7.
     let id = emitter.session_id();
     let parsed = uuid::Uuid::parse_str(id).map_err(|e| AgentError::Io {
         message: format!("invalid UUID: {e}"),
     })?;
     assert_eq!(
         parsed.get_version(),
-        Some(uuid::Version::Random),
-        "expected UUID v4 (random)"
+        Some(uuid::Version::SortRand),
+        "expected UUID v7 (time-ordered)"
     );
 
     Ok(())

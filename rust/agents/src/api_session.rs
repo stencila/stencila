@@ -291,8 +291,8 @@ impl ApiSession {
     /// The optional fields in [`ApiSessionInit`] control MCP context,
     /// session ID, and tool guard configuration. When `session_id` is
     /// `Some`, that value is used as the session identifier for both
-    /// events and guard context attribution. When `None`, a random UUID
-    /// v4 is generated.
+    /// events and guard context attribution. When `None`, a time-ordered
+    /// UUID v7 is generated.
     ///
     /// Emits a `SESSION_START` event immediately.
     pub fn new(
