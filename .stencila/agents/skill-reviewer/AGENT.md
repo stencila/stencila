@@ -17,6 +17,12 @@ when-not-to-use:
 # once prevents repeated failures across every invocation.
 model-size: large
 reasoning-effort: high
+# Prefer OpenAI first for review tasks so creation and review phases can, where
+# possible, use different model families and provide a more independent critique.
+providers:
+  - openai
+  - anthropic
+  - any
 allowed-skills:
   - skill-review
 allowed-tools:

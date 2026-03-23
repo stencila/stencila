@@ -19,6 +19,12 @@ when-not-to-use:
 # error handling, mirroring the depth applied by workflow-reviewer.
 model-size: large
 reasoning-effort: high
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - workflow-creation
 allowed-tools:

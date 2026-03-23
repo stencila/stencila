@@ -24,6 +24,12 @@ when-not-to-use:
 # and clarity across multi-component specifications.
 model-size: large
 reasoning-effort: high
+# Prefer OpenAI first for review tasks so creation and review phases can, where
+# possible, use different model families and provide a more independent critique.
+providers:
+  - openai
+  - anthropic
+  - any
 allowed-skills:
   - software-design-review
 allowed-tools:

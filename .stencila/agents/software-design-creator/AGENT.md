@@ -21,6 +21,12 @@ when-not-to-use:
 # through every downstream artifact (plan, tests, implementation).
 model-size: large
 reasoning-effort: high
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - software-design-creation
 allowed-tools:

@@ -27,6 +27,12 @@ when-not-to-use:
 # feasibility, and coverage across complex delivery plans.
 model-size: large
 reasoning-effort: high
+# Prefer OpenAI first for review tasks so creation and review phases can, where
+# possible, use different model families and provide a more independent critique.
+providers:
+  - openai
+  - anthropic
+  - any
 allowed-skills:
   - software-plan-review
 allowed-tools:

@@ -25,6 +25,12 @@ when-not-to-use:
 # for the structured decomposition into slices, phases, and DoD criteria.
 model-size: large
 reasoning-effort: medium
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - software-plan-creation
 allowed-tools:

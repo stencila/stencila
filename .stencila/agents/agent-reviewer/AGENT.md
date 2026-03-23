@@ -16,6 +16,12 @@ when-not-to-use:
 # clarity, and consistency across metadata, tools, and instructions.
 model-size: medium
 reasoning-effort: high
+# Prefer OpenAI first for review tasks so creation and review phases can, where
+# possible, use different model families and provide a more independent critique.
+providers:
+  - openai
+  - anthropic
+  - any
 allowed-skills:
   - agent-review
 allowed-tools:

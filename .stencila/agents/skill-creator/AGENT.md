@@ -19,6 +19,12 @@ when-not-to-use:
 # clarity, mirroring the depth applied by skill-reviewer.
 model-size: large
 reasoning-effort: high
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - skill-creation
 allowed-tools:

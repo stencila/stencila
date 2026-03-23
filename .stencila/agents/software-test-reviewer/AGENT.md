@@ -25,6 +25,12 @@ when-not-to-use:
 model-size: large
 reasoning-effort: high
 trust-level: low
+# Prefer OpenAI first for review tasks so creation and review phases can, where
+# possible, use different model families and provide a more independent critique.
+providers:
+  - openai
+  - anthropic
+  - any
 allowed-skills:
   - software-test-review
 allowed-tools:

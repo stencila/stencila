@@ -18,6 +18,12 @@ when-not-to-use:
 # from broad context; medium reasoning fits the structured authoring task.
 model-size: large
 reasoning-effort: medium
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - agent-creation
 allowed-tools:

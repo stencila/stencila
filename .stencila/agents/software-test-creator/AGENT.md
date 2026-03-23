@@ -24,6 +24,12 @@ when-not-to-use:
 model-size: large
 reasoning-effort: high
 trust-level: medium
+# Prefer Anthropic first for creation tasks so review phases can, where possible,
+# use a different model family and provide a more independent critique.
+providers:
+  - anthropic
+  - openai
+  - any
 allowed-skills:
   - software-test-creation
 allowed-tools:
