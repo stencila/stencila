@@ -89,14 +89,17 @@ fn providers_path_selects_first_with_credentials() -> AgentResult<()> {
     // No models, no model_size — only providers specified
     let decision = route_session_explained(None, Some(&providers), None, &client)?;
 
-    // Should skip anthropic (no creds), select openai with its default model
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "openai".into(),
-            model: "gpt".into(),
+    // Should skip anthropic (no creds), select openai with resolved model
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "openai");
+            assert!(
+                model.starts_with("gpt-"),
+                "resolved model should start with 'gpt-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     assert_eq!(
         decision.selection_mechanism,
         SelectionMechanism::ProviderPreference,
@@ -112,13 +115,16 @@ fn providers_path_any_falls_through_to_default() -> AgentResult<()> {
     let decision = route_session_explained(None, Some(&providers), None, &client)?;
 
     assert_eq!(decision.selection_mechanism, SelectionMechanism::Default);
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "anthropic".into(),
-            model: "claude".into(),
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "anthropic");
+            assert!(
+                model.starts_with("claude-"),
+                "resolved model should start with 'claude-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     Ok(())
 }
 
@@ -173,13 +179,16 @@ fn default_path_with_api_key_selects_default_provider() -> AgentResult<()> {
     // Nothing specified — no models, no providers, no model_size
     let decision = route_session_explained(None, None, None, &client)?;
 
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "anthropic".into(),
-            model: "claude".into(),
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "anthropic");
+            assert!(
+                model.starts_with("claude-"),
+                "resolved model should start with 'claude-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     assert_eq!(decision.selection_mechanism, SelectionMechanism::Default);
     Ok(())
 }
@@ -234,14 +243,22 @@ fn session_overrides_model_produces_effective_models_routing() -> AgentResult<()
 
     let decision = route_session_explained(effective_models.as_deref(), None, None, &client)?;
 
-    // Should route to openai/gpt because the override replaced the model list
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "openai".into(),
-            model: "gpt".into(),
+    // Should route to openai with a concrete model ID (alias "gpt" is resolved)
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "openai");
+            // The "gpt" alias should be resolved to a concrete model ID
+            assert_ne!(
+                model, "gpt",
+                "alias should be resolved to a concrete model ID"
+            );
+            assert!(
+                model.starts_with("gpt-"),
+                "resolved model should start with 'gpt-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     Ok(())
 }
 
@@ -298,13 +315,16 @@ fn providers_path_first_provider_has_creds() -> AgentResult<()> {
 
     let decision = route_session_explained(None, Some(&providers), None, &client)?;
 
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "anthropic".into(),
-            model: "claude".into(),
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "anthropic");
+            assert!(
+                model.starts_with("claude-"),
+                "resolved model should start with 'claude-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     assert_eq!(
         decision.selection_mechanism,
         SelectionMechanism::ProviderPreference,

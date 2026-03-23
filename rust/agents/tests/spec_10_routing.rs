@@ -264,13 +264,21 @@ fn explicit_api_provider_with_auth_default_model() -> AgentResult<()> {
     let client = client_with_providers(&["openai"]);
 
     let decision = route_direct(Some("openai"), None, &client)?;
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "openai".into(),
-            model: "gpt".into(),
+    // The "gpt" alias should be resolved to a concrete model ID
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "openai");
+            assert_ne!(
+                model, "gpt",
+                "alias should be resolved to a concrete model ID"
+            );
+            assert!(
+                model.starts_with("gpt-"),
+                "resolved model should start with 'gpt-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
 
     Ok(())
 }
@@ -340,13 +348,21 @@ fn no_provider_no_model_with_api_key_routes_to_api() -> AgentResult<()> {
     let client = client_with_providers(&["anthropic"]);
 
     let decision = route_direct(None, None, &client)?;
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "anthropic".into(),
-            model: "claude".into(),
+    // The "claude" alias should be resolved to a concrete model ID
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "anthropic");
+            assert_ne!(
+                model, "claude",
+                "alias should be resolved to a concrete model ID"
+            );
+            assert!(
+                model.starts_with("claude-"),
+                "resolved model should start with 'claude-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
 
     Ok(())
 }

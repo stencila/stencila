@@ -416,7 +416,7 @@ fn route_via_models_path(
                 } else {
                     ModelSource::AgentExplicit
                 },
-                alias_resolution: resolve_alias_preview(model_id),
+                alias_resolution: resolve_model_alias(model_id),
                 fallback_used,
                 fallback_reason,
                 selection_mechanism: SelectionMechanism::ExplicitList {
@@ -759,7 +759,7 @@ pub fn route_direct(
         } else {
             ModelSource::CliDefault
         };
-        let alias_resolution = agent_model.and_then(resolve_alias_preview);
+        let alias_resolution = agent_model.and_then(resolve_model_alias);
         return Ok(RoutingDecision {
             route: SessionRoute::Cli {
                 provider: p.to_string(),
@@ -866,7 +866,7 @@ pub fn route_direct(
         }
     };
 
-    let alias_resolution = resolve_alias_preview(&model);
+    let alias_resolution = resolve_model_alias(&model);
 
     // 3. API auth available — use API
     if client.has_provider(&api_provider) {
@@ -926,18 +926,30 @@ pub fn route_direct(
     ))
 }
 
+/// Resolve a model identifier to a concrete, auth-compatible model ID.
+///
+/// If `model` is an alias (e.g. `"claude"`, `"gpt"`), it is first resolved
+/// to the concrete catalog ID (e.g. `"claude-opus-4-6"`, `"gpt-5.4-pro"`).
+/// The concrete ID is then checked against the provider's authentication
+/// type. When the model is incompatible with the current credentials, a
+/// same-family fallback is attempted.
+///
+/// Returns `(concrete_model_id, fallback_used, fallback_reason)`. The
+/// returned model ID is always fully resolved — never an alias — so that
+/// downstream consumers (profiles, session records, audit logs) record the
+/// actual model that will serve requests.
 fn resolve_auth_compatible_model(
     provider: &str,
     model: &str,
     client: &stencila_models3::client::Client,
 ) -> AgentResult<(String, bool, Option<String>)> {
     let auth_type = client.auth_type(provider);
-    let actual_model = resolve_alias_preview(model)
+    let actual_model = resolve_model_alias(model)
         .as_ref()
         .map_or_else(|| model.to_string(), |(_, concrete_id)| concrete_id.clone());
 
     if model_supports_auth_type(&actual_model, &auth_type) {
-        return Ok((model.to_string(), false, None));
+        return Ok((actual_model, false, None));
     }
 
     if let Some(fallback_model) =
@@ -963,11 +975,12 @@ fn resolve_auth_compatible_model(
     ))
 }
 
-/// Preview alias resolution without mutating any request.
+/// Resolve a model alias to its concrete catalog ID.
 ///
 /// Returns `Some((alias, concrete_id))` when the model name is an alias
-/// that maps to a different concrete model ID in the catalog.
-fn resolve_alias_preview(model: &str) -> Option<(String, String)> {
+/// that maps to a different concrete model ID in the catalog, or `None`
+/// when the name is already a concrete ID (or not found in the catalog).
+fn resolve_model_alias(model: &str) -> Option<(String, String)> {
     let info = stencila_models3::catalog::get_model_info(model).ok()??;
     if info.id != model {
         Some((model.to_string(), info.id))

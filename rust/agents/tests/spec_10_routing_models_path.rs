@@ -65,13 +65,20 @@ fn models_path_any_falls_through_to_providers() -> AgentResult<()> {
         decision.selection_mechanism,
         SelectionMechanism::ProviderPreference
     );
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "openai".into(),
-            model: "gpt".into(),
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "openai");
+            assert_ne!(
+                model, "gpt",
+                "alias should be resolved to a concrete model ID"
+            );
+            assert!(
+                model.starts_with("gpt-"),
+                "resolved model should start with 'gpt-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     Ok(())
 }
 

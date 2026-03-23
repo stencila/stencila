@@ -174,13 +174,20 @@ fn precedence_providers_beats_default_when_no_models_or_size() -> AgentResult<()
         decision.selection_mechanism,
         SelectionMechanism::ProviderPreference,
     );
-    assert_eq!(
-        decision.route,
-        SessionRoute::Api {
-            provider: "openai".into(),
-            model: "gpt".into(),
+    match &decision.route {
+        SessionRoute::Api { provider, model } => {
+            assert_eq!(provider, "openai");
+            assert_ne!(
+                model, "gpt",
+                "alias should be resolved to a concrete model ID"
+            );
+            assert!(
+                model.starts_with("gpt-"),
+                "resolved model should start with 'gpt-', got: {model}"
+            );
         }
-    );
+        other => panic!("expected Api route, got: {other:?}"),
+    }
     Ok(())
 }
 
