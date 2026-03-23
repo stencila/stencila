@@ -4,17 +4,17 @@
 //! Acceptance criteria tested:
 //!
 //! - AC-S2-1: Hydrating a session persisted with `Processing` state and an
-//!            incomplete final assistant turn normalizes state to `Idle` and
-//!            drops the incomplete turn.
+//!   incomplete final assistant turn normalizes state to `Idle` and
+//!   drops the incomplete turn.
 //! - AC-S2-2: Hydrating a session with `Idle` state and complete turns
-//!            preserves all turns (regression guard).
+//!   preserves all turns (regression guard).
 //! - AC-S3-1: `ClaudeCliProvider::resume_state()` returns the session
-//!            continuation ID; `set_resume_state()` re-imports it.
+//!   continuation ID; `set_resume_state()` re-imports it.
 //! - AC-S3-2: `CodexCliProvider::resume_state()` returns the conversation ID;
-//!            `set_resume_state()` re-imports it.
+//!   `set_resume_state()` re-imports it.
 //! - AC-S3-3: `GeminiCliProvider::resume_state()` returns `None`.
 //! - AC-S3-4: Default `CliProvider` trait `resume_state()` returns `None` and
-//!            `set_resume_state()` returns `Ok(())`.
+//!   `set_resume_state()` returns `Ok(())`.
 //!
 //! All tests use in-memory SQLite and mock clients / providers.
 
@@ -119,14 +119,6 @@ impl MockClient {
     fn with_text_response(text: &str) -> Self {
         Self {
             responses: Mutex::new(VecDeque::from(vec![Ok(text_response(text))])),
-        }
-    }
-
-    fn with_n_text_responses(text: &str, n: usize) -> Self {
-        Self {
-            responses: Mutex::new(VecDeque::from(
-                (0..n).map(|_| Ok(text_response(text))).collect::<Vec<_>>(),
-            )),
         }
     }
 }

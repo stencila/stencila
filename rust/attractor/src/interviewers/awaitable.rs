@@ -362,7 +362,6 @@ impl Interviewer for AwaitableInterviewer {
                 }
                 Ok(Err(error)) => Err(error),
                 Err(_) => {
-                    drop(poll);
                     interview.answers = timeout_answers;
                     Ok(())
                 }

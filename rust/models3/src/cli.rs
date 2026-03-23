@@ -129,6 +129,7 @@ pub static LIST_AFTER_LONG_HELP: &str = cstr!(
 );
 
 impl List {
+    #[allow(clippy::too_many_lines)]
     async fn run(self, auth: &AuthOptions) -> Result<()> {
         if self.live {
             let client = if auth.overrides.is_empty() {
@@ -678,7 +679,6 @@ fn ensure_provider_is_available(provider: &str, client: &crate::client::Client) 
 
     let configured = stencila_config::get()
         .ok()
-        .map(|config| config.clone())
         .or_else(|| {
             std::env::current_dir()
                 .ok()

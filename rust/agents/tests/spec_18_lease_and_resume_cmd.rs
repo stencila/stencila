@@ -4,11 +4,11 @@
 //! Acceptance criteria tested:
 //!
 //! - AC-S4-1: Acquire lease with holder "process-A", attempt resume from
-//!            "process-B" → explicit concurrency error returned.
+//!   "process-B" → explicit concurrency error returned.
 //! - AC-S4-2: Same holder can resume without conflict.
 //! - AC-S4-3: Expired lease allows resume from different holder.
 //! - AC-S5-1: `validate_session_for_resume` selects latest resumable
-//!            standalone session when no session-id is given.
+//!   standalone session when no session-id is given.
 //! - AC-S5-2: `validate_session_for_resume` rejects closed sessions.
 //! - AC-S5-3: `validate_session_for_resume` rejects workflow-owned sessions.
 //! - AC-S5-extra: Non-resumable and nonexistent sessions are rejected.
@@ -107,7 +107,7 @@ fn resume_with_active_lease_from_different_holder_returns_lease_conflict() {
     let result = validate_session_for_resume(&store, Some("sess-leased"), "process-B");
 
     assert!(result.is_err(), "should fail with lease conflict");
-    let err = result.unwrap_err();
+    let err = result.expect_err("should fail with lease conflict");
     match err {
         AgentError::LeaseConflict { holder, session_id } => {
             assert_eq!(holder, "process-A");
@@ -235,7 +235,9 @@ fn validate_resume_rejects_closed_session() {
     let result = validate_session_for_resume(&store, Some("sess-closed"), "process-X");
 
     assert!(result.is_err(), "should reject closed sessions");
-    let err_msg = result.unwrap_err().to_string();
+    let err_msg = result
+        .expect_err("should reject closed sessions")
+        .to_string();
     // Error message should mention "closed"
     assert!(
         err_msg.to_lowercase().contains("closed"),
@@ -261,7 +263,9 @@ fn validate_resume_rejects_workflow_owned_session() {
     let result = validate_session_for_resume(&store, Some("sess-wf-owned"), "process-X");
 
     assert!(result.is_err(), "should reject workflow-owned sessions");
-    let err_msg = result.unwrap_err().to_string();
+    let err_msg = result
+        .expect_err("should reject workflow-owned sessions")
+        .to_string();
     // Error message should mention "workflow"
     assert!(
         err_msg.to_lowercase().contains("workflow"),
@@ -299,7 +303,9 @@ fn validate_resume_rejects_nonexistent_session_id() {
     let result = validate_session_for_resume(&store, Some("does-not-exist"), "process-X");
 
     assert!(result.is_err(), "should fail for nonexistent session ID");
-    let err_msg = result.unwrap_err().to_string();
+    let err_msg = result
+        .expect_err("should fail for nonexistent session ID")
+        .to_string();
     assert!(
         err_msg.to_lowercase().contains("not found"),
         "error message should mention 'not found', got: {err_msg}"
