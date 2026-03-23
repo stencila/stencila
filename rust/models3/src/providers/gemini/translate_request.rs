@@ -405,19 +405,106 @@ fn translate_tool_definition(tool: &ToolDefinition) -> SdkResult<Value> {
     Ok(Value::Object(decl))
 }
 
-/// Recursively remove JSON Schema fields that Gemini does not support
-/// (e.g. `additionalProperties`).
+#[allow(clippy::doc_markdown)]
+/// Sanitize a JSON Schema value for the Gemini API.
+///
+/// Gemini uses a subset of the OpenAPI 3.0 Schema Object and rejects
+/// standard JSON Schema keywords it does not recognise (`$schema`,
+/// `$ref`, `$defs`/`definitions`, `additionalProperties`, `title`,
+/// `default`). This function:
+///
+/// 1. Collects `$defs` / `definitions` from the root so that `$ref`
+///    pointers can be resolved.
+/// 2. Recursively inlines every `$ref` with the referenced definition.
+/// 3. Strips keywords that Gemini does not accept.
 fn strip_unsupported_schema_fields(value: &mut Value) {
-    if let Some(obj) = value.as_object_mut() {
-        obj.remove("additionalProperties");
-        for v in obj.values_mut() {
-            strip_unsupported_schema_fields(v);
-        }
-    } else if let Some(arr) = value.as_array_mut() {
-        for v in arr.iter_mut() {
-            strip_unsupported_schema_fields(v);
-        }
+    // Collect definitions from the root before mutating.
+    let defs = collect_defs(value);
+
+    // Inline $ref pointers and strip unsupported keywords.
+    strip_recursive(value, &defs);
+}
+
+/// Collect the `$defs` (or `definitions`) map from the root schema value.
+fn collect_defs(root: &Value) -> Map<String, Value> {
+    if let Some(obj) = root.as_object()
+        && let Some(Value::Object(d)) = obj.get("$defs").or_else(|| obj.get("definitions"))
+    {
+        return d.clone();
     }
+    Map::new()
+}
+
+/// Fields that Gemini does not support in function-declaration schemas.
+const UNSUPPORTED_KEYS: &[&str] = &[
+    "$schema",
+    "$defs",
+    "definitions",
+    "additionalProperties",
+    "title",
+    "default",
+];
+
+fn strip_recursive(value: &mut Value, defs: &Map<String, Value>) {
+    match value {
+        Value::Object(obj) => {
+            // Resolve `$ref` — whether standalone or mixed with sibling keys
+            // like `description` or `default`. The resolved definition is
+            // merged in and the `$ref` key removed.
+            if let Some(ref_str) = obj.get("$ref").and_then(|v| v.as_str()).map(String::from)
+                && let Some(Value::Object(resolved)) = resolve_ref(&ref_str, defs)
+            {
+                obj.remove("$ref");
+                // Merge resolved fields; existing sibling keys (e.g.
+                // `description`) take precedence.
+                for (k, v) in resolved {
+                    obj.entry(k).or_insert(v);
+                }
+            }
+
+            // Convert `"type": ["string", "null"]` → `"type": "string"` +
+            // `"nullable": true`.  Gemini does not accept type-arrays.
+            if let Some(type_val) = obj.get("type")
+                && type_val.is_array()
+            {
+                let arr = type_val.as_array().expect("checked is_array");
+                let has_null = arr.iter().any(|v| v.as_str() == Some("null"));
+                let non_null: Vec<&Value> =
+                    arr.iter().filter(|v| v.as_str() != Some("null")).collect();
+                if non_null.len() == 1 {
+                    obj.insert("type".to_string(), non_null[0].clone());
+                }
+                if has_null {
+                    obj.insert("nullable".to_string(), Value::Bool(true));
+                }
+            }
+
+            // Remove unsupported keys.
+            for key in UNSUPPORTED_KEYS {
+                obj.remove(*key);
+            }
+
+            // Recurse into remaining values.
+            for v in obj.values_mut() {
+                strip_recursive(v, defs);
+            }
+        }
+        Value::Array(arr) => {
+            for v in arr.iter_mut() {
+                strip_recursive(v, defs);
+            }
+        }
+        _ => {}
+    }
+}
+
+/// Resolve a `$ref` string like `#/$defs/Foo` or `#/definitions/Foo`
+/// against the collected definitions map.
+fn resolve_ref(ref_str: &str, defs: &Map<String, Value>) -> Option<Value> {
+    let name = ref_str
+        .strip_prefix("#/$defs/")
+        .or_else(|| ref_str.strip_prefix("#/definitions/"))?;
+    defs.get(name).cloned()
 }
 
 fn translate_tool_choice(tool_choice: &ToolChoice) -> Value {
@@ -477,4 +564,280 @@ fn apply_provider_options(options: &Value, body: &mut Map<String, Value>) -> Sdk
     }
 
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use serde_json::json;
+
+    #[test]
+    fn strip_removes_schema_keyword() {
+        let mut schema = json!({
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "type": "object",
+            "properties": {
+                "name": { "type": "string" }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+        assert!(schema.get("$schema").is_none());
+        assert_eq!(schema["type"], "object");
+    }
+
+    #[test]
+    fn strip_removes_additional_properties() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "x": { "type": "integer", "additionalProperties": false }
+            },
+            "additionalProperties": false
+        });
+        strip_unsupported_schema_fields(&mut schema);
+        assert!(schema.get("additionalProperties").is_none());
+        assert!(
+            schema["properties"]["x"]
+                .get("additionalProperties")
+                .is_none()
+        );
+    }
+
+    #[test]
+    fn strip_inlines_ref_from_defs() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "item": { "$ref": "#/$defs/Item" }
+            },
+            "$defs": {
+                "Item": {
+                    "type": "object",
+                    "properties": {
+                        "label": { "type": "string" }
+                    }
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        // $defs should be removed
+        assert!(schema.get("$defs").is_none());
+
+        // $ref should be resolved inline
+        let item = &schema["properties"]["item"];
+        assert_eq!(item["type"], "object");
+        assert_eq!(item["properties"]["label"]["type"], "string");
+    }
+
+    #[test]
+    fn strip_inlines_ref_from_definitions() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "addr": { "$ref": "#/definitions/Address" }
+            },
+            "definitions": {
+                "Address": {
+                    "type": "object",
+                    "properties": {
+                        "city": { "type": "string" }
+                    }
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        assert!(schema.get("definitions").is_none());
+        assert_eq!(schema["properties"]["addr"]["type"], "object");
+    }
+
+    #[test]
+    fn strip_handles_nested_refs() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "items": {
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/Option" }
+                }
+            },
+            "$defs": {
+                "Option": {
+                    "type": "object",
+                    "properties": {
+                        "label": { "type": "string" }
+                    },
+                    "additionalProperties": false
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        let option_schema = &schema["properties"]["items"]["items"];
+        assert_eq!(option_schema["type"], "object");
+        assert!(option_schema.get("additionalProperties").is_none());
+    }
+
+    #[test]
+    fn strip_removes_title_and_default() {
+        let mut schema = json!({
+            "type": "object",
+            "title": "MySchema",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "default": "unnamed",
+                    "title": "Name"
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        assert!(schema.get("title").is_none());
+        assert!(schema["properties"]["name"].get("default").is_none());
+        assert!(schema["properties"]["name"].get("title").is_none());
+    }
+
+    #[test]
+    fn strip_converts_nullable_type_array() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": ["string", "null"]
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        let name = &schema["properties"]["name"];
+        assert_eq!(name["type"], "string");
+        assert_eq!(name["nullable"], true);
+    }
+
+    #[test]
+    fn strip_resolves_ref_with_sibling_keys() {
+        let mut schema = json!({
+            "type": "object",
+            "properties": {
+                "kind": {
+                    "description": "The kind of thing.",
+                    "$ref": "#/$defs/Kind",
+                    "default": "a"
+                }
+            },
+            "$defs": {
+                "Kind": {
+                    "type": "string",
+                    "enum": ["a", "b", "c"]
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        let kind = &schema["properties"]["kind"];
+        // $ref resolved: type and enum inlined
+        assert_eq!(kind["type"], "string");
+        assert!(kind.get("$ref").is_none());
+        // sibling description preserved
+        assert_eq!(kind["description"], "The kind of thing.");
+        // default stripped (unsupported by Gemini)
+        assert!(kind.get("default").is_none());
+    }
+
+    #[test]
+    fn strip_handles_actual_interview_spec_schema() {
+        // Mirrors the real schemars output for InterviewSpec
+        let mut schema = json!({
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "title": "InterviewSpec",
+            "type": "object",
+            "properties": {
+                "preamble": {
+                    "description": "Markdown preamble.",
+                    "type": ["string", "null"]
+                },
+                "questions": {
+                    "description": "Questions.",
+                    "type": "array",
+                    "items": { "$ref": "#/$defs/QuestionSpec" }
+                }
+            },
+            "required": ["questions"],
+            "$defs": {
+                "QuestionSpec": {
+                    "description": "A question.",
+                    "type": "object",
+                    "properties": {
+                        "question": { "type": "string" },
+                        "header": { "type": ["string", "null"] },
+                        "type": {
+                            "description": "Question type.",
+                            "$ref": "#/$defs/QuestionTypeSpec",
+                            "default": "freeform"
+                        },
+                        "options": {
+                            "type": "array",
+                            "items": { "$ref": "#/$defs/OptionSpec" }
+                        },
+                        "default": { "type": ["string", "null"] },
+                        "store": { "type": ["string", "null"] },
+                        "finish_if": { "type": ["string", "null"] },
+                        "show_if": { "type": ["string", "null"] }
+                    },
+                    "required": ["question"]
+                },
+                "QuestionTypeSpec": {
+                    "type": "string",
+                    "enum": ["yes-no", "confirm", "single-select", "multi-select", "freeform"]
+                },
+                "OptionSpec": {
+                    "type": "object",
+                    "properties": {
+                        "label": { "type": "string" },
+                        "description": { "type": ["string", "null"] }
+                    },
+                    "required": ["label"]
+                }
+            }
+        });
+        strip_unsupported_schema_fields(&mut schema);
+
+        // Root-level unsupported keys removed
+        assert!(schema.get("$schema").is_none());
+        assert!(schema.get("$defs").is_none());
+        assert!(schema.get("title").is_none());
+
+        // Nullable preamble converted
+        let preamble = &schema["properties"]["preamble"];
+        assert_eq!(preamble["type"], "string");
+        assert_eq!(preamble["nullable"], true);
+
+        // Questions items resolved from $ref
+        let q = &schema["properties"]["questions"]["items"];
+        assert_eq!(q["type"], "object");
+        assert!(q.get("$ref").is_none());
+
+        // Nullable fields inside question converted
+        assert_eq!(q["properties"]["header"]["type"], "string");
+        assert_eq!(q["properties"]["header"]["nullable"], true);
+        assert_eq!(q["properties"]["store"]["type"], "string");
+        assert_eq!(q["properties"]["finish_if"]["type"], "string");
+        assert_eq!(q["properties"]["show_if"]["type"], "string");
+
+        // type field: $ref resolved to enum, default stripped
+        let type_prop = &q["properties"]["type"];
+        assert_eq!(type_prop["type"], "string");
+        assert!(type_prop.get("$ref").is_none());
+        assert!(type_prop.get("default").is_none());
+        assert!(type_prop["enum"].is_array());
+
+        // Nested OptionSpec resolved
+        let opt = &q["properties"]["options"]["items"];
+        assert_eq!(opt["type"], "object");
+        assert!(opt.get("$ref").is_none());
+        assert_eq!(opt["properties"]["description"]["type"], "string");
+        assert_eq!(opt["properties"]["description"]["nullable"], true);
+    }
 }
