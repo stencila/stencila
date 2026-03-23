@@ -1,14 +1,25 @@
 ---
 name: theme-review
-description: Review an existing or proposed Stencila theme artifact for correctness, token usage, target coverage, portability, and maintainability. Use when asked to review a theme.css file, theme patch, theme plan, site or plot theme, check design tokens, assess PDF or DOCX behavior, or validate with stencila themes validate.
+description: Critically review an existing or proposed Stencila theme artifact for correctness, token usage, target coverage, cross-target portability, dark-mode handling, maintainability, and approval readiness. Use when asked to review, critique, assess, audit, or validate a theme.css file, theme patch, theme plan, site theme, document theme, plot theme, print or PDF theme, check design tokens, assess DOCX or email behavior, review dark mode support, or validate with stencila themes validate.
 keywords:
   - review theme.css
+  - critique theme
+  - audit theme
+  - assess theme
+  - review document theme
+  - review site theme
   - review pdf theme
   - review docx theme
   - review email theme
+  - review plot theme
   - review navigation theme
+  - review dark mode
   - design tokens
   - css custom properties
+  - theme validation
+  - cross-target portability
+  - token correctness
+  - theme approval
 allowed-tools: read_file glob grep shell
 ---
 
@@ -32,10 +43,22 @@ Use the local references in this skill directory when you need architecture or t
 
 Also use the theme CLI as the live source of truth when available:
 
-- `stencila themes tokens` to list builtin tokens, optionally filtered by `--scope` (`semantic`, `node`, `site`, `plot`, `print`) and `--family`
+- `stencila themes` or `stencila themes list` to list all available themes (workspace, user, and builtin) with their type and location
+- `stencila themes show [NAME]` to display the resolved CSS of a theme (omit the name for the default resolved theme); add `--verbose` to also show resolved CSS variable values — especially useful for understanding what values are inherited from the base theme
+- `stencila themes tokens` to list builtin tokens, optionally filtered by `--scope` (`semantic`, `node`, `site`, `plot`, `print`) and `--family`, with `--as json|yaml|toml` for machine-readable output
 - `stencila themes validate <FILE>` to check that a CSS theme parses and that custom properties correspond to known builtin design tokens; use `--strict` when unknown tokens should fail validation
 
 Stencila themes are token-first. In review, prefer semantic tokens as the stable public API, expect module-specific tokens only where needed, and flag broad custom CSS rules when tokens would be clearer, safer, or more portable.
+
+## Dark mode review
+
+Many tokens have `*-dark` variants (e.g., `--text-color-primary-dark`, `--surface-background-dark`, `--plot-background-dark`). The base theme applies these automatically via `prefers-color-scheme: dark`. When reviewing a theme:
+
+- Check whether the theme sets both light and `*-dark` variants when colors differ between schemes.
+- Flag cases where accent, surface, or text colors are set for light mode only but would look wrong on a dark background.
+- Check dark variants for plot, surface, and text tokens especially — colors that work on a light background often need adjustment for dark backgrounds.
+- Use `stencila themes tokens --scope semantic` or `--scope plot` to see which tokens have dark variants.
+- Dark variants are only relevant for web and HTML-derived outputs; non-web targets such as DOCX and email do not use dark mode. Flag claims of dark-mode DOCX or email support as incorrect.
 
 ## Review lens
 
@@ -64,6 +87,14 @@ Evaluate the artifact against these dimensions:
    - Should exact names be checked with `stencila themes tokens --scope ... --family ...`?
    - Is the artifact ready to approve, acceptable with minor issues, or not ready to approve?
 
+## Base theme loading
+
+Stencila automatically loads `base.css` before any theme CSS — both when rendering HTML (as a separate `<link>` tag) and when computing theme variables (base variables are merged before theme-specific ones). Users do not have `base.css` in their workspace.
+
+- Do not treat the absence of `@import url("./base.css")` as a problem.
+- Treat the **presence** of `@import url("./base.css")` in a workspace theme as a review finding — it is unnecessary and may cause issues.
+- Expect user themes to start directly with optional external font imports and `:root` overrides.
+
 ## Steps
 
 1. Identify the review input and desired output.
@@ -78,9 +109,12 @@ Evaluate the artifact against these dimensions:
 
 3. Inspect the existing context before judging changes.
    - If files are available, inspect the current `theme.css` and related assets before reviewing a proposed patch.
+   - Use `stencila themes show` to see the current default resolved theme CSS, or `stencila themes show <NAME>` for a specific theme. Add `--verbose` to also see resolved variable values — this is especially useful for understanding what values the theme inherits and what overrides actually change.
+   - Use `stencila themes list` to see all available themes (workspace, user, and builtin) and their locations.
    - Compare the requested changes against the existing token vocabulary, selectors, and import style.
    - When reviewing a patch, check whether it preserves unrelated styling and modifies only the relevant areas.
    - Keep Stencila resolution order in mind when commenting on file choice: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then builtin `stencila.css`.
+   - If the user refers to a named theme, remember that named themes are resolved from user themes first, then builtin themes.
 
 4. Check the semantic foundation first.
    - Use [`references/semantic-and-font-tokens.md`](references/semantic-and-font-tokens.md) to assess whether the artifact starts with stable semantic tokens before dropping to module-specific tokens or selectors.
@@ -108,13 +142,19 @@ Evaluate the artifact against these dimensions:
    - **Plot theme**: ensure explicit `--plot-*` tokens are used and call out non-transferable CSS.
    - **Print/PDF theme**: ensure exportable page tokens remain in top-level `:root` and review page-fit, margin, and header/footer assumptions.
 
-7. Flag cross-target risks explicitly.
+7. Check dark-mode handling.
+   - If the theme sets light-mode colors, check whether corresponding `*-dark` variants are defined when the values would not work on a dark background.
+   - Flag missing dark variants for accent, surface, text, and plot tokens when the theme is used on web targets.
+   - Do not require dark variants for tokens that are inherently scheme-neutral (e.g., content width, spacing, font families).
+   - If the theme claims dark-mode support for non-web targets, flag that as incorrect.
+
+8. Flag cross-target risks explicitly.
    - Note when tokens that should affect DOCX, email, PDF, and plots are not defined at top-level `:root`.
    - Flag reliance on `@media`, `@supports`, or browser-only selectors for values that the user expects to export across targets.
    - State plainly when parity is approximate rather than guaranteed.
    - If the artifact affects plots, ensure Python/R transfer is reviewed separately from web rendering.
 
-8. Separate findings by severity and evidence.
+9. Separate findings by severity and evidence.
    - Label issues as one of:
      - **Blocking**: likely incorrect, invalid, unverifiable, or materially misaligned with the request
      - **Important**: should be fixed for portability, maintainability, or likely target behavior
@@ -122,7 +162,7 @@ Evaluate the artifact against these dimensions:
    - For each finding, cite the relevant token, selector, file area, snippet, or target assumption.
    - Prefer concise, actionable review guidance over generic criticism.
 
-9. Produce the right review output.
+10. Produce the right review output.
    - For a quick review, provide a short verdict plus the top few findings.
    - For a full review, provide:
      1. theme type and targets reviewed
@@ -134,12 +174,12 @@ Evaluate the artifact against these dimensions:
      7. validation and verification commands
      8. final verdict or recommended next step
 
-10. Keep corrections secondary and explicitly requested.
+11. Keep corrections secondary and explicitly requested.
     - Primary mode is assess-and-report.
     - Only after completing the review, and only if the user explicitly asks, provide a minimal corrective example.
     - Keep any example tightly scoped to the findings you already reported.
 
-11. Recommend validation with target-specific checks.
+12. Recommend validation with target-specific checks.
     - When a concrete theme file path exists, recommend or run `stencila themes validate <FILE>` before concluding.
     - Use `stencila themes validate <FILE> --strict` when unknown tokens should fail review.
     - Use `stencila themes validate <FILE> --as json` when machine-readable validation results are useful.
@@ -258,3 +298,6 @@ Then assess whether the stated direction is specific enough to map to semantic t
 - If important exported tokens are placed inside `@media` or `@supports`, flag that as a portability issue.
 - If the theme references assets that are not present in the workspace, do not fabricate files; note the missing assets as a review dependency.
 - If the user asks for a corrected snippet or patch after the review, keep the fix scoped to the evidence-based findings already reported.
+- If the theme includes `@import url("./base.css")`, flag it as unnecessary — Stencila loads the base theme implicitly.
+- If the theme sets color tokens for light mode without corresponding `*-dark` variants, flag the dark-mode gap when the theme targets web outputs.
+- If the theme claims dark-mode support for DOCX or email, flag that as incorrect.
