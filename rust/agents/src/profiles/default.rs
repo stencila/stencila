@@ -66,6 +66,7 @@ pub struct DefaultProfile {
     model: String,
     context_window: u64,
     reasoning: bool,
+    vision: bool,
     registry: ToolRegistry,
 }
 
@@ -84,16 +85,17 @@ impl DefaultProfile {
         let model = model.into();
 
         // Try to pull capability info from the model catalog.
-        let catalog_info = stencila_models3::catalog::get_model_info(&model)
+        let info = stencila_models3::catalog::get_model_info(&model)
             .ok()
             .flatten();
 
-        let context_window = catalog_info.as_ref().map_or(128_000, |i| i.context_window);
-        let reasoning = catalog_info.as_ref().is_some_and(|i| i.supports_reasoning);
+        let context_window = info.as_ref().map_or(128_000, |i| i.context_window);
+        let reasoning = info.as_ref().is_some_and(|i| i.supports_reasoning);
+        let vision = info.as_ref().is_some_and(|i| i.supports_vision);
 
         let mut registry = ToolRegistry::new();
 
-        let tools: Vec<RegisteredTool> = vec![
+        registry.register_all(vec![
             RegisteredTool::new(read_file::definition(), read_file::executor()),
             RegisteredTool::new(write_file::definition(), write_file::executor()),
             RegisteredTool::new(edit_file::definition(), edit_file::executor()),
@@ -104,16 +106,14 @@ impl DefaultProfile {
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
             RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
-        ];
-        for tool in tools {
-            registry.register(tool)?;
-        }
+        ])?;
 
         Ok(Self {
             provider,
             model,
             context_window,
             reasoning,
+            vision,
             registry,
         })
     }
@@ -146,6 +146,10 @@ impl ProviderProfile for DefaultProfile {
 
     fn supports_streaming(&self) -> bool {
         true
+    }
+
+    fn supports_vision(&self) -> bool {
+        self.vision
     }
 
     fn supports_parallel_tool_calls(&self) -> bool {

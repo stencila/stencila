@@ -170,6 +170,21 @@ impl ToolRegistry {
         Ok(())
     }
 
+    /// Register multiple tools in order.
+    ///
+    /// This is a convenience wrapper around [`register()`](Self::register)
+    /// that accepts an iterator of tools. Registration stops at the first
+    /// validation error.
+    pub fn register_all(
+        &mut self,
+        tools: impl IntoIterator<Item = RegisteredTool>,
+    ) -> AgentResult<()> {
+        for tool in tools {
+            self.register(tool)?;
+        }
+        Ok(())
+    }
+
     /// Remove a tool by name. Returns `true` if the tool existed.
     pub fn unregister(&mut self, name: &str) -> bool {
         self.tools.shift_remove(name).is_some()

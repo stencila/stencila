@@ -149,6 +149,21 @@ struct ImageAttachment {
     media_type: String,
 }
 
+/// How images from tool results are injected into the message history.
+///
+/// Anthropic natively supports images inside tool-result messages, so they
+/// can be inlined. Other vision-capable providers (OpenAI, Gemini) do not,
+/// so images are collected and sent in a follow-up user message. Non-vision
+/// providers receive no images at all.
+enum ImageStrategy {
+    /// Embed images directly in the tool-result message (Anthropic).
+    Inline,
+    /// Collect images and emit them in a follow-up user message.
+    Deferred,
+    /// Do not include images (non-vision providers).
+    None,
+}
+
 /// Metrics collected during a single context compaction pass.
 #[derive(Debug, Clone, Copy)]
 struct CompactionStats {
@@ -182,6 +197,7 @@ pub struct ApiSession {
     followup_queue: VecDeque<String>,
     system_prompt: String,
     abort_signal: Option<AbortSignal>,
+
     /// Count of LLM request/response cycles across the entire session.
     ///
     /// Incremented once per assistant response (not per history entry).
@@ -191,10 +207,13 @@ pub struct ApiSession {
     /// counts as 1 turn regardless of how many tool results are generated.
     total_turns: u32,
     truncation_config: TruncationConfig,
+
     /// Bounded sliding window of tool-call signatures for loop detection.
     tool_call_signatures: VecDeque<String>,
+
     /// Manager for child agent sessions (spec 7.1).
     subagent_manager: SubAgentManager,
+
     /// Image attachments from tool results, keyed by tool_call_id.
     /// Provider-generated tool_call_ids are UUIDs, so collisions are
     /// not a practical concern.
@@ -1239,9 +1258,22 @@ impl ApiSession {
                     }
                 }
                 Turn::ToolResults { results, .. } => {
-                    let include_images = self.profile.id() == "anthropic";
+                    // Determine the image injection strategy for this provider:
+                    //  - Inline: provider supports images in tool results (Anthropic).
+                    //  - Deferred: other vision-capable providers receive images in
+                    //    a follow-up user message after all tool results.
+                    //  - None: non-vision providers receive no images at all.
+                    let image_strategy = if !self.profile.supports_vision() {
+                        ImageStrategy::None
+                    } else if self.profile.supports_image_in_tool_result() {
+                        ImageStrategy::Inline
+                    } else {
+                        ImageStrategy::Deferred
+                    };
+                    let mut deferred_image_parts: Vec<ContentPart> = Vec::new();
+
                     for result in results {
-                        if include_images
+                        if matches!(image_strategy, ImageStrategy::Inline)
                             && let Some(att) = self.image_attachments.get(&result.tool_call_id)
                         {
                             let mut msg = Message::new(
@@ -1259,11 +1291,25 @@ impl ApiSession {
                             messages.push(msg);
                             continue;
                         }
+                        if matches!(image_strategy, ImageStrategy::Deferred)
+                            && let Some(att) = self.image_attachments.get(&result.tool_call_id)
+                        {
+                            deferred_image_parts
+                                .push(ContentPart::image_data(att.data.clone(), &att.media_type));
+                        }
                         messages.push(Message::tool_result(
                             &result.tool_call_id,
                             result.content.clone(),
                             result.is_error,
                         ));
+                    }
+
+                    if !deferred_image_parts.is_empty() {
+                        let mut parts = vec![ContentPart::text(
+                            "The following images were produced by the preceding tool calls.",
+                        )];
+                        parts.extend(deferred_image_parts);
+                        messages.push(Message::new(Role::User, parts));
                     }
                 }
             }
@@ -1584,12 +1630,12 @@ impl ApiSession {
         }
     }
 
-    /// Store an image attachment only when the provider supports images in
-    /// tool results. Avoids accumulating dead weight for providers that
-    /// receive only the text fallback (OpenAI, Gemini).
+    /// Store an image attachment only when the provider supports vision
+    /// (images in tool results). Avoids accumulating dead weight for
+    /// providers that receive only the text fallback.
     fn store_attachment_if_supported(&mut self, attachment: Option<(String, ImageAttachment)>) {
         if let Some((id, img)) = attachment
-            && self.profile.id() == "anthropic"
+            && self.profile.supports_vision()
         {
             self.image_attachments.insert(id, img);
         }
@@ -2463,19 +2509,40 @@ mod guard_wiring_tests {
     #[derive(Debug)]
     struct TestProfile {
         registry: crate::registry::ToolRegistry,
+        vision: bool,
+        image_in_tool_result: bool,
+        provider_id: String,
     }
 
     impl TestProfile {
         fn new() -> Self {
             Self {
                 registry: crate::registry::ToolRegistry::new(),
+                vision: false,
+                image_in_tool_result: false,
+                provider_id: "test".into(),
             }
+        }
+
+        fn with_vision(mut self) -> Self {
+            self.vision = true;
+            self
+        }
+
+        fn with_image_in_tool_result(mut self) -> Self {
+            self.image_in_tool_result = true;
+            self
+        }
+
+        fn with_provider_id(mut self, id: impl Into<String>) -> Self {
+            self.provider_id = id.into();
+            self
         }
     }
 
     impl ProviderProfile for TestProfile {
         fn id(&self) -> &str {
-            "test"
+            &self.provider_id
         }
 
         fn model(&self) -> &str {
@@ -2502,8 +2569,16 @@ mod guard_wiring_tests {
             false
         }
 
+        fn supports_vision(&self) -> bool {
+            self.vision
+        }
+
         fn supports_parallel_tool_calls(&self) -> bool {
             false
+        }
+
+        fn supports_image_in_tool_result(&self) -> bool {
+            self.image_in_tool_result
         }
 
         fn context_window_size(&self) -> u64 {
@@ -2559,6 +2634,15 @@ mod guard_wiring_tests {
         }
     }
 
+    #[test]
+    fn test_profile_does_not_support_vision() {
+        let profile = TestProfile::new();
+        assert!(
+            !profile.supports_vision(),
+            "TestProfile mock should not support vision"
+        );
+    }
+
     #[tokio::test]
     async fn register_tool_extends_allowed_tools_and_request_tools() -> AgentResult<()> {
         let client = Arc::new(CapturingClient {
@@ -2598,5 +2682,219 @@ mod guard_wiring_tests {
         );
 
         Ok(())
+    }
+
+    /// Helper to create a session using a specific profile, with no tools.
+    fn session_with_profile(profile: Box<dyn ProviderProfile>) -> (ApiSession, EventReceiver) {
+        let client = Arc::new(CapturingClient {
+            requests: std::sync::Mutex::new(Vec::new()),
+        });
+        ApiSession::new(
+            profile,
+            Arc::new(NoopEnv),
+            client,
+            SessionConfig::default(),
+            "system".into(),
+            0,
+            ApiSessionInit::default(),
+        )
+    }
+
+    #[test]
+    fn store_attachment_stores_when_vision_supported() {
+        let (mut session, _rx) = session_with_profile(Box::new(TestProfile::new().with_vision()));
+
+        let attachment = Some((
+            "tc-123".to_string(),
+            ImageAttachment {
+                data: vec![0x89, 0x50, 0x4E, 0x47],
+                media_type: "image/png".to_string(),
+            },
+        ));
+        session.store_attachment_if_supported(attachment);
+
+        assert!(
+            session.image_attachments.contains_key("tc-123"),
+            "store_attachment_if_supported should store the attachment \
+             when the profile supports vision, regardless of provider id"
+        );
+    }
+
+    #[test]
+    fn store_attachment_discards_when_vision_not_supported() {
+        let (mut session, _rx) = session_with_profile(Box::new(TestProfile::new()));
+
+        let attachment = Some((
+            "tc-456".to_string(),
+            ImageAttachment {
+                data: vec![0x89, 0x50, 0x4E, 0x47],
+                media_type: "image/png".to_string(),
+            },
+        ));
+        session.store_attachment_if_supported(attachment);
+
+        assert!(
+            !session.image_attachments.contains_key("tc-456"),
+            "store_attachment_if_supported should discard the attachment \
+             when the profile does not support vision"
+        );
+    }
+
+    // -----------------------------------------------------------------------
+    // Phase 2: provider-aware image injection strategy tests
+    // -----------------------------------------------------------------------
+
+    /// Helper: set up a session with a tool-results turn that has an image
+    /// attachment, then return the messages produced by `convert_history_to_messages`.
+    fn messages_with_image_attachment(profile: Box<dyn ProviderProfile>) -> Vec<Message> {
+        use stencila_models3::types::tool::ToolResult;
+
+        let (mut session, _rx) = session_with_profile(profile);
+
+        session.image_attachments.insert(
+            "tc-img-99".to_string(),
+            ImageAttachment {
+                data: vec![0x89, 0x50, 0x4E, 0x47],
+                media_type: "image/png".to_string(),
+            },
+        );
+
+        session.history.push(Turn::tool_results(vec![ToolResult {
+            tool_call_id: "tc-img-99".to_string(),
+            content: serde_json::Value::String("screenshot captured".into()),
+            is_error: false,
+        }]));
+
+        session.convert_history_to_messages()
+    }
+
+    /// Whether any content part in a message is an image.
+    fn has_image_part(msg: &Message) -> bool {
+        msg.content
+            .iter()
+            .any(|part| matches!(part, ContentPart::Image { .. }))
+    }
+
+    /// Assert that a vision-capable non-Anthropic profile defers images to a
+    /// follow-up user message rather than inlining them in tool results.
+    fn assert_deferred_image_injection(profile: Box<dyn ProviderProfile>) {
+        use stencila_models3::types::role::Role;
+
+        let provider = profile.id().to_string();
+        let messages = messages_with_image_attachment(profile);
+
+        // Tool-result messages must NOT contain inline image data.
+        let tool_msgs: Vec<&Message> = messages.iter().filter(|m| m.role == Role::Tool).collect();
+        assert!(
+            !tool_msgs.is_empty(),
+            "should have at least one Tool message"
+        );
+        for tool_msg in &tool_msgs {
+            assert!(
+                !has_image_part(tool_msg),
+                "{provider} profile should NOT have inline image in tool-result message; \
+                 images should be deferred to a follow-up user message"
+            );
+        }
+
+        // A follow-up User message must contain the deferred image.
+        let has_deferred = messages
+            .iter()
+            .skip_while(|m| m.role != Role::Tool)
+            .filter(|m| m.role == Role::User)
+            .any(has_image_part);
+        assert!(
+            has_deferred,
+            "{provider} vision profile should emit a follow-up User message \
+             containing deferred image data after the tool results"
+        );
+    }
+
+    #[test]
+    fn deferred_image_injection_for_openai_like_profile() {
+        assert_deferred_image_injection(Box::new(
+            TestProfile::new().with_vision().with_provider_id("openai"),
+        ));
+    }
+
+    #[test]
+    fn deferred_image_injection_for_gemini_like_profile() {
+        assert_deferred_image_injection(Box::new(
+            TestProfile::new().with_vision().with_provider_id("gemini"),
+        ));
+    }
+
+    #[test]
+    fn deferred_image_injection_for_default_vision_profile() {
+        let profile = TestProfile::new().with_vision();
+        assert_ne!(
+            profile.id(),
+            "anthropic",
+            "default test profile should not be anthropic"
+        );
+        assert_deferred_image_injection(Box::new(profile));
+    }
+
+    #[test]
+    fn anthropic_inline_image_injection_preserved() {
+        use stencila_models3::types::role::Role;
+
+        let profile = TestProfile::new()
+            .with_vision()
+            .with_image_in_tool_result()
+            .with_provider_id("anthropic");
+        let messages = messages_with_image_attachment(Box::new(profile));
+
+        // Tool-result messages must contain inline image data.
+        let tool_msgs: Vec<&Message> = messages.iter().filter(|m| m.role == Role::Tool).collect();
+        assert!(
+            !tool_msgs.is_empty(),
+            "should have at least one Tool message"
+        );
+        assert!(
+            tool_msgs.iter().any(|m| has_image_part(m)),
+            "Anthropic profile should have inline image data in tool-result message"
+        );
+
+        // No follow-up User message with image data should be emitted.
+        let has_deferred = messages
+            .iter()
+            .skip_while(|m| m.role != Role::Tool)
+            .filter(|m| m.role == Role::User)
+            .any(has_image_part);
+        assert!(
+            !has_deferred,
+            "Anthropic profile should NOT emit a follow-up User message with image data; \
+             images should remain inline in tool results"
+        );
+    }
+
+    #[test]
+    fn non_vision_profile_excludes_all_images() {
+        use stencila_models3::types::role::Role;
+
+        let messages = messages_with_image_attachment(Box::new(TestProfile::new()));
+
+        // No message should contain image data.
+        for (i, msg) in messages.iter().enumerate() {
+            assert!(
+                !has_image_part(msg),
+                "non-vision profile should have no image data in any message, \
+                 but found image in message {i} (role={:?})",
+                msg.role
+            );
+        }
+
+        // No follow-up User message should be injected.
+        let user_after_tool: Vec<&Message> = messages
+            .iter()
+            .skip_while(|m| m.role != Role::Tool)
+            .filter(|m| m.role == Role::User)
+            .collect();
+        assert!(
+            user_after_tool.is_empty(),
+            "non-vision profile should not inject any follow-up User messages \
+             after tool results"
+        );
     }
 }

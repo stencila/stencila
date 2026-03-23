@@ -15,7 +15,7 @@ use serde_json::{Value, json};
 use stencila_agents::error::{AgentError, AgentResult};
 use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::profile::ProviderProfile;
-use stencila_agents::profiles::{AnthropicProfile, GeminiProfile, OpenAiProfile};
+use stencila_agents::profiles::{AnthropicProfile, DefaultProfile, GeminiProfile, OpenAiProfile};
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
 use stencila_models3::types::tool::ToolDefinition;
@@ -778,5 +778,75 @@ fn tools_method_matches_registry_definitions() -> AgentResult<()> {
         assert_eq!(a.name, b.name);
         assert_eq!(a.description, b.description);
     }
+    Ok(())
+}
+
+// =========================================================================
+// Vision capability flag (supports_vision)
+// =========================================================================
+
+#[test]
+fn anthropic_supports_vision() -> AgentResult<()> {
+    let profile = AnthropicProfile::new("claude-opus-4-6", 600_000)?;
+    assert!(
+        profile.supports_vision(),
+        "Anthropic profile should support vision"
+    );
+    Ok(())
+}
+
+#[test]
+fn openai_supports_vision() -> AgentResult<()> {
+    let profile = OpenAiProfile::new("gpt-5.2-codex", 600_000)?;
+    assert!(
+        profile.supports_vision(),
+        "OpenAI profile should support vision"
+    );
+    Ok(())
+}
+
+#[test]
+fn gemini_supports_vision() -> AgentResult<()> {
+    let profile = GeminiProfile::new("gemini-3-flash", 600_000)?;
+    assert!(
+        profile.supports_vision(),
+        "Gemini profile should support vision"
+    );
+    Ok(())
+}
+
+#[test]
+fn default_profile_supports_vision_for_known_vision_model() -> AgentResult<()> {
+    // claude-opus-4-6 is in the model catalog with supports_vision=true
+    let profile = DefaultProfile::new("anthropic", "claude-opus-4-6", 600_000)?;
+    assert!(
+        profile.supports_vision(),
+        "DefaultProfile with a known vision-capable model should return true"
+    );
+    Ok(())
+}
+
+#[test]
+fn default_profile_no_vision_for_known_non_vision_model() -> AgentResult<()> {
+    // gpt-4 is in the model catalog with supports_vision=false.
+    // This test intentionally validates against current catalog metadata.
+    // If gpt-4 gains vision support in the catalog, update or replace this
+    // with another non-vision model.
+    let profile = DefaultProfile::new("openai", "gpt-4", 600_000)?;
+    assert!(
+        !profile.supports_vision(),
+        "DefaultProfile with a known non-vision model should return false"
+    );
+    Ok(())
+}
+
+#[test]
+fn default_profile_no_vision_for_unknown_model() -> AgentResult<()> {
+    // A model not in the catalog should default to false
+    let profile = DefaultProfile::new("unknown-provider", "nonexistent-model-xyz", 600_000)?;
+    assert!(
+        !profile.supports_vision(),
+        "DefaultProfile with an unknown model should default to false"
+    );
     Ok(())
 }

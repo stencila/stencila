@@ -90,7 +90,7 @@ pub async fn build_pre_run_tool_context(
 /// These tools are common to all provider profiles:
 /// `read_file`, `write_file`, `edit_file`, `shell`, `grep`, `glob`, `web_fetch`.
 pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    let tools: Vec<RegisteredTool> = vec![
+    registry.register_all(vec![
         RegisteredTool::new(read_file::definition(), read_file::executor()),
         RegisteredTool::new(write_file::definition(), write_file::executor()),
         RegisteredTool::new(edit_file::definition(), edit_file::executor()),
@@ -98,11 +98,7 @@ pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
         RegisteredTool::new(grep::definition(), grep::executor()),
         RegisteredTool::new(glob::definition(), glob::executor()),
         RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
-    ];
-    for tool in tools {
-        registry.register(tool)?;
-    }
-    Ok(())
+    ])
 }
 
 /// Register the delegation tools: `list_agents`, `list_workflows`, `delegate`.
@@ -111,15 +107,11 @@ pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
 /// registered separately from core tools so that only agents whose
 /// `allowedTools` includes them will see them.
 pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    let tools: Vec<RegisteredTool> = vec![
+    registry.register_all(vec![
         RegisteredTool::new(list_agents::definition(), list_agents::executor()),
         RegisteredTool::new(list_workflows::definition(), list_workflows::executor()),
         RegisteredTool::new(delegate::definition(), delegate::executor()),
-    ];
-    for tool in tools {
-        registry.register(tool)?;
-    }
-    Ok(())
+    ])
 }
 
 /// Register the 2 Gemini-specific tools (spec 3.6).
@@ -127,14 +119,10 @@ pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()>
 /// These tools are added on top of the core set for Gemini profiles:
 /// `read_many_files`, `list_dir`.
 pub fn register_gemini_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    let tools: Vec<RegisteredTool> = vec![
+    registry.register_all(vec![
         RegisteredTool::new(read_many_files::definition(), read_many_files::executor()),
         RegisteredTool::new(list_dir::definition(), list_dir::executor()),
-    ];
-    for tool in tools {
-        registry.register(tool)?;
-    }
-    Ok(())
+    ])
 }
 
 /// Register the 1 OpenAI-specific tool (spec Appendix A).

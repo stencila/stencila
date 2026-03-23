@@ -251,6 +251,9 @@ impl ProviderProfile for TestProfile {
     fn supports_parallel_tool_calls(&self) -> bool {
         false
     }
+    fn supports_vision(&self) -> bool {
+        false
+    }
     fn context_window_size(&self) -> u64 {
         200_000
     }

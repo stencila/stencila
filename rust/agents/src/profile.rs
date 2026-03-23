@@ -96,8 +96,29 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     /// Whether the model supports streaming responses.
     fn supports_streaming(&self) -> bool;
 
+    /// Whether the model accepts image inputs (vision capability).
+    ///
+    /// First-class profiles (Anthropic, OpenAI, Gemini) return `true`
+    /// unconditionally. The [`DefaultProfile`](crate::profiles::DefaultProfile)
+    /// looks up `supports_vision` from the model catalog and defaults to
+    /// `false` when the model is not found.
+    fn supports_vision(&self) -> bool;
+
     /// Whether the model supports parallel tool calls in a single response.
     fn supports_parallel_tool_calls(&self) -> bool;
+
+    /// Whether the provider accepts images inside tool-result messages.
+    ///
+    /// When `true`, image attachments are inlined directly in the tool-result
+    /// message (the Anthropic pattern). When `false` (the default), images are
+    /// collected and sent in a follow-up user message after all tool results.
+    ///
+    /// Only meaningful when [`supports_vision()`](Self::supports_vision)
+    /// also returns `true`; non-vision providers never receive images
+    /// regardless of this flag.
+    fn supports_image_in_tool_result(&self) -> bool {
+        false
+    }
 
     /// The model's context window size in tokens.
     fn context_window_size(&self) -> u64;

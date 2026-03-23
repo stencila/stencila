@@ -90,7 +90,7 @@ impl OpenAiProfile {
         let mut registry = ToolRegistry::new();
 
         // Register tools in the order listed in spec 3.4.
-        let tools: Vec<RegisteredTool> = vec![
+        registry.register_all(vec![
             RegisteredTool::new(read_file::definition(), read_file::executor()),
             RegisteredTool::new(apply_patch::definition(), apply_patch::executor()),
             RegisteredTool::new(write_file::definition(), write_file::executor()),
@@ -101,10 +101,7 @@ impl OpenAiProfile {
             RegisteredTool::new(grep::definition(), grep::executor()),
             RegisteredTool::new(glob::definition(), glob::executor()),
             RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
-        ];
-        for tool in tools {
-            registry.register(tool)?;
-        }
+        ])?;
 
         Ok(Self {
             model: model.into(),
@@ -139,6 +136,10 @@ impl ProviderProfile for OpenAiProfile {
     }
 
     fn supports_streaming(&self) -> bool {
+        true
+    }
+
+    fn supports_vision(&self) -> bool {
         true
     }
 

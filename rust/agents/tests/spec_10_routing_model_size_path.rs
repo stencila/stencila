@@ -14,7 +14,9 @@ use futures::future::BoxFuture;
 use futures::stream::BoxStream;
 
 use stencila_agents::error::AgentResult;
-use stencila_agents::routing::{SelectionMechanism, parse_model_size, route_session_explained};
+use stencila_agents::routing::{
+    ModelSource, ProviderSource, SelectionMechanism, parse_model_size, route_session_explained,
+};
 use stencila_models3::catalog::ModelSize;
 use stencila_models3::error::SdkError;
 use stencila_models3::provider::ProviderAdapter;
@@ -138,6 +140,18 @@ fn model_size_small_with_anthropic_provider_selects_haiku() -> AgentResult<()> {
             size: "small".to_string(),
         }
     );
+
+    // provider and model sources should reflect catalog-driven selection
+    assert_eq!(
+        decision.provider_source,
+        ProviderSource::CatalogModelSize,
+        "model_size path should report CatalogModelSize provider source"
+    );
+    assert_eq!(
+        decision.model_source,
+        ModelSource::CatalogModelSize,
+        "model_size path should report CatalogModelSize model source"
+    );
     Ok(())
 }
 
@@ -174,6 +188,18 @@ fn model_size_medium_no_provider_filter_selects_medium_model() -> AgentResult<()
         SelectionMechanism::ModelSize {
             size: "medium".to_string(),
         }
+    );
+
+    // provider and model sources should reflect catalog-driven selection
+    assert_eq!(
+        decision.provider_source,
+        ProviderSource::CatalogModelSize,
+        "model_size path should report CatalogModelSize provider source"
+    );
+    assert_eq!(
+        decision.model_source,
+        ModelSource::CatalogModelSize,
+        "model_size path should report CatalogModelSize model source"
     );
     Ok(())
 }
