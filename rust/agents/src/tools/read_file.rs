@@ -12,9 +12,10 @@ use super::required_str;
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "read_file".into(),
-        description: "Read the contents of a file. Output includes line numbers formatted \
-            as `{line_number} | {content}`. Use offset and limit to read specific \
-            portions of large files."
+        description: "Read the contents of a file. For text files, output includes line \
+            numbers formatted as `{line_number} | {content}`. Use offset and limit to \
+            read specific portions of large text files. For image files (PNG, JPEG, GIF, \
+            WebP, SVG), the image content is returned directly for visual inspection."
             .into(),
         parameters: json!({
             "type": "object",
