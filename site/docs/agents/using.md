@@ -92,6 +92,8 @@ Add `--why` for extended details including provider priority, credential sources
 stencila agents resolve code-engineer --why
 ```
 
+If an agent uses `any` in `models` or `providers`, the explanation also helps you see when routing fell through to the next stage. For example, an agent with `models: [mistral-large-latest, any]` may show that the preferred model was skipped and selection continued via `model-size`, `providers`, or the default provider.
+
 ## The Default Agent
 
 When no agent name is specified (e.g. in the TUI), Stencila uses the "default" agent. The default is resolved in this order:

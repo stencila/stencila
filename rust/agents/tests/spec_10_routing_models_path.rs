@@ -37,6 +37,44 @@ impl StubAdapter {
     }
 }
 
+#[test]
+fn models_path_any_falls_through_to_model_size() -> AgentResult<()> {
+    let client = client_with_providers(&["anthropic"]);
+    let models = vec!["mistral-large-latest".to_string(), "any".to_string()];
+
+    let decision = route_session_explained(Some(&models), None, Some("small"), &client)?;
+
+    assert_eq!(
+        decision.selection_mechanism,
+        SelectionMechanism::ModelSize {
+            size: "small".to_string(),
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn models_path_any_falls_through_to_providers() -> AgentResult<()> {
+    let client = client_with_providers(&["openai"]);
+    let models = vec!["mistral-large-latest".to_string(), "any".to_string()];
+    let providers = vec!["openai".to_string()];
+
+    let decision = route_session_explained(Some(&models), Some(&providers), None, &client)?;
+
+    assert_eq!(
+        decision.selection_mechanism,
+        SelectionMechanism::ProviderPreference
+    );
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "openai".into(),
+            model: "gpt".into(),
+        }
+    );
+    Ok(())
+}
+
 impl ProviderAdapter for StubAdapter {
     fn name(&self) -> &str {
         &self.0
@@ -440,6 +478,10 @@ fn models_path_all_unavailable_returns_error() -> AgentResult<()> {
     assert!(
         err_msg.contains("mistral") || err_msg.contains("no") || err_msg.contains("unavailable"),
         "error should be descriptive: {err_msg}"
+    );
+    assert!(
+        err_msg.contains("add 'any'"),
+        "error should suggest using 'any': {err_msg}"
     );
     Ok(())
 }

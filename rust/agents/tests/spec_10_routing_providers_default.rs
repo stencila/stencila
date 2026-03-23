@@ -105,6 +105,41 @@ fn providers_path_selects_first_with_credentials() -> AgentResult<()> {
 }
 
 #[test]
+fn providers_path_any_falls_through_to_default() -> AgentResult<()> {
+    let client = client_with_providers(&["anthropic"]);
+    let providers = vec!["mistral".to_string(), "any".to_string()];
+
+    let decision = route_session_explained(None, Some(&providers), None, &client)?;
+
+    assert_eq!(decision.selection_mechanism, SelectionMechanism::Default);
+    assert_eq!(
+        decision.route,
+        SessionRoute::Api {
+            provider: "anthropic".into(),
+            model: "claude".into(),
+        }
+    );
+    Ok(())
+}
+
+#[test]
+fn providers_path_without_any_remains_closed_set() -> AgentResult<()> {
+    let client = client_with_providers(&["anthropic"]);
+    let providers = vec!["mistral".to_string()];
+
+    let result = route_session_explained(None, Some(&providers), None, &client);
+    assert!(result.is_err());
+
+    let err_msg = result.expect_err("should be an error").to_string();
+    assert!(
+        err_msg.contains("add 'any'"),
+        "error should suggest using 'any': {err_msg}"
+    );
+
+    Ok(())
+}
+
+#[test]
 fn model_size_uses_configured_provider_preferences_when_supplied() -> AgentResult<()> {
     let client = client_with_providers(&["openai", "anthropic"]);
     let configured_providers = vec!["openai".to_string(), "anthropic".to_string()];

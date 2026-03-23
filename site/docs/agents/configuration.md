@@ -68,27 +68,41 @@ when-not-to-use:
   - when the task is refactoring rather than review
 ```
 
-## Model and Provider
+## Models and Providers
 
-### `model`
+### `models`
 
-**Type:** `string`
+**Type:** `string[]`
 
-Model identifier, e.g. `claude-sonnet-4-5`, `gpt-5.2-codex`. When not specified, the default model for the provider is used. Model aliases (e.g. `claude`, `gpt`, `gemini`) resolve to the latest model for that provider.
+Ordered list of preferred model identifiers. Stencila tries each model in order until one can be routed with the currently configured credentials. If all listed models fail, routing normally stops with an error.
 
-```yaml
-model: claude-sonnet-4-5
-```
-
-### `provider`
-
-**Type:** `string`
-
-Provider identifier: `anthropic`, `openai`, `gemini` (or `google`), `mistral`, `deepseek`. For CLI-backed sessions, use the CLI variant: `claude-cli`, `codex-cli`, `gemini-cli`. When not specified, the provider is inferred from the model name or the first available provider is used.
+You can include the special value `any` in the list to allow fallback to the next routing stage instead of failing immediately. In practice this means Stencila will try the named models first, and if none can be used, it will continue with `model-size`, then `providers`, then defaults.
 
 ```yaml
-provider: anthropic
+models:
+  - claude-sonnet-4-5
+  - gpt-5.2-codex
+  - any
 ```
+
+Use `models` when you want ordered preferences across specific model IDs. Use singular `model` when you only need one explicit model.
+
+### `providers`
+
+**Type:** `string[]`
+
+Ordered list of preferred providers. Stencila tries providers in order and uses the default model for the first one with valid credentials.
+
+You can include the special value `any` in the list to allow fallback to the default provider-selection behavior if none of the named providers are available.
+
+```yaml
+providers:
+  - anthropic
+  - openai
+  - any
+```
+
+Use `providers` when you want ordered provider preferences without pinning the agent to a specific model.
 
 ### `model-size`
 

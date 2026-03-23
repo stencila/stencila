@@ -320,7 +320,10 @@ pub fn route_session_explained(
     client: &stencila_models3::client::Client,
 ) -> AgentResult<RoutingDecision> {
     // Single model+provider pair — use the direct routing path.
-    if let (Some([model]), Some([provider])) = (models, providers) {
+    if let (Some([model]), Some([provider])) = (models, providers)
+        && !model.eq_ignore_ascii_case("any")
+        && !provider.eq_ignore_ascii_case("any")
+    {
         return route_direct(Some(provider), Some(model), client);
     }
 
@@ -328,7 +331,9 @@ pub fn route_session_explained(
     if let Some(model_list) = models
         && !model_list.is_empty()
     {
-        return route_via_models_path(model_list, client);
+        if let Some(decision) = route_via_models_path(model_list, client)? {
+            return Ok(decision);
+        }
     }
 
     // Priority 2: Model size preference
@@ -362,10 +367,17 @@ pub fn route_session_explained(
 fn route_via_models_path(
     model_list: &[String],
     client: &stencila_models3::client::Client,
-) -> AgentResult<RoutingDecision> {
+) -> AgentResult<Option<RoutingDecision>> {
     let mut skipped = Vec::new();
+    let allow_fallback = model_list
+        .iter()
+        .any(|model_id| model_id.eq_ignore_ascii_case("any"));
 
     for (index, model_id) in model_list.iter().enumerate() {
+        if model_id.eq_ignore_ascii_case("any") {
+            continue;
+        }
+
         let provider = match resolve_catalog_model(model_id) {
             Ok((provider, _resolved_model)) => provider,
             Err(SkipReason::NotInCatalog { .. }) => match infer_provider(model_id, client) {
@@ -391,7 +403,7 @@ fn route_via_models_path(
         if client.has_provider(&provider) {
             let (model, fallback_used, fallback_reason) =
                 resolve_auth_compatible_model(&provider, model_id, client)?;
-            return Ok(RoutingDecision {
+            return Ok(Some(RoutingDecision {
                 route: SessionRoute::Api { provider, model },
                 provider_source: ProviderSource::AgentExplicit,
                 model_source: if fallback_used {
@@ -407,7 +419,7 @@ fn route_via_models_path(
                     id: model_id.clone(),
                 },
                 skipped,
-            });
+            }));
         }
 
         // No credentials for this provider — record skip and continue
@@ -425,7 +437,7 @@ fn route_via_models_path(
         if let SkipReason::NoCredentials { ref provider } = skipped_model.reason
             && let Some(cli) = api_to_cli(provider)
         {
-            return Ok(RoutingDecision {
+            return Ok(Some(RoutingDecision {
                 route: SessionRoute::Cli {
                     provider: cli.to_string(),
                     model: Some(skipped_model.model.clone()),
@@ -446,18 +458,28 @@ fn route_via_models_path(
                     id: skipped_model.model.clone(),
                 },
                 skipped: skipped.clone(),
-            });
+            }));
         }
     }
 
+    if allow_fallback {
+        return Ok(None);
+    }
+
     // Build a descriptive error
-    let model_names: Vec<&str> = model_list.iter().map(String::as_str).collect();
+    let model_names: Vec<&str> = model_list
+        .iter()
+        .filter(|model| !model.eq_ignore_ascii_case("any"))
+        .map(String::as_str)
+        .collect();
     Err(AgentError::Sdk(
         stencila_models3::error::SdkError::Configuration {
             message: format!(
                 "No available provider for model(s): {}. \
                  None of the listed models have API credentials configured \
-                 and no CLI fallback is available.",
+                 and no CLI fallback is available. \
+                 Tip: add 'any' to the models list to allow fallback to \
+                 modelSize, providers, or defaults.",
                 model_names.join(", ")
             ),
         },
@@ -545,7 +567,14 @@ fn route_via_providers_path(
     provider_list: &[String],
     client: &stencila_models3::client::Client,
 ) -> AgentResult<Option<RoutingDecision>> {
-    let providers = canonicalize_provider_list(provider_list);
+    let allow_fallback = provider_list
+        .iter()
+        .any(|provider| provider.eq_ignore_ascii_case("any"));
+    let providers = provider_list
+        .iter()
+        .filter(|provider| !provider.eq_ignore_ascii_case("any"))
+        .map(|provider| canonical_provider(provider).to_string())
+        .collect::<Vec<_>>();
 
     for provider in &providers {
         if !client.has_provider(provider) {
@@ -598,11 +627,21 @@ fn route_via_providers_path(
         }
     }
 
+    if allow_fallback {
+        return Ok(None);
+    }
+
     Err(AgentError::Sdk(
         stencila_models3::error::SdkError::Configuration {
             message: format!(
-                "None of the preferred providers are configured: {}",
-                providers.join(", ")
+                "None of the preferred providers are configured: {}. \
+                 Tip: add 'any' to the providers list to allow fallback to \
+                 other configured providers.",
+                providers
+                    .iter()
+                    .cloned()
+                    .collect::<Vec<_>>()
+                    .join(", ")
             ),
         },
     ))

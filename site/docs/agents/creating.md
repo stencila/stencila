@@ -119,6 +119,19 @@ providers:
 model-size: medium
 ```
 
+Both `models` and `providers` also support the special value `any` as a fallback marker:
+
+```yaml
+models:
+  - mistral-large-latest
+  - any
+providers:
+  - anthropic
+  - any
+```
+
+This lets you express preferences without making routing fail if those exact models or providers are unavailable. For example, `models: [mistral-large-latest, any]` means “try this model first, but if it is not available with the current credentials, continue with `model-size`, `providers`, or the default routing behavior”. Likewise, `providers: [anthropic, any]` means “prefer Anthropic, but fall back to any other configured provider if needed”.
+
 The singular `model` and `provider` keys still work for backward compatibility:
 
 ```yaml
@@ -131,12 +144,25 @@ provider: anthropic
 - If only `providers` or `provider` is set, the default model for the first available provider is used.
 - If `model-size` is set, Stencila selects the best available model in that size tier, optionally constrained by `providers`.
 - If neither is set, the first available provider with valid credentials is used.
+- Add `any` to the end of a `models` or `providers` list to allow fallback to the next routing stage instead of returning an error.
 
 Use `model-size` when you want to express a broad tradeoff such as “use a small, fast, cheap model” without hard-coding a specific model ID. Stencila treats model size as a cross-provider classification, grouping provider models into broad tiers such as `small`, `medium`, and `large`.
 
 These tiers are a Stencila abstraction, not a provider-standard guarantee. A `small` model from one provider is not expected to be exactly equivalent to a `small` model from another provider; the classification is intended to normalize rough cost, latency, and capability tradeoffs across providers.
 
 If you combine `model-size` with `providers`, the provider list constrains which providers Stencila can choose from, and `model-size` selects the preferred tier within those providers.
+
+`any` is most useful in combination with these fields. For example, this configuration prefers a specific model, then any small model, then any configured provider:
+
+```yaml
+models:
+  - gpt-5.2-codex
+  - any
+model-size: small
+providers:
+  - openai
+  - any
+```
 
 For example:
 
