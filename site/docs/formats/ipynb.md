@@ -1,11 +1,11 @@
 ---
 title: IPYNB
-description: Jupyter Notebook Format
+description: Jupyter Notebook format
 ---
 
 # Introduction
 
-The [Jupyter Notebook Format](https://nbformat.readthedocs.io/en/latest/) (previously known the IPython Notebook (IPYNB) format), is a JSON-based format that integrates code, visualizations, equations, and narrative text in a single document. It is designed to support reproducible computational workflows by allowing users to execute code in real time while interweaving multimedia content and explanatory text.
+The [Jupyter Notebook format](https://nbformat.readthedocs.io/en/latest/) (`.ipynb`, originally the IPython Notebook format) is a JSON-based format that integrates code, visualizations, equations, and narrative text in a single document. It is widely used for reproducible computational workflows, data science, and interactive computing.
 
 # Usage
 
@@ -20,9 +20,10 @@ stencila convert doc.smd doc.ipynb
 
 # Implementation
 
-Stencila supports bi-directional conversion between Stencila documents and `ipynb` files powered by the [`nbformat`](https://crates.io/crates/nbformat) Rust crate.
+Stencila supports bi-directional conversion between Stencila documents and `.ipynb` files powered by the [`nbformat`](https://crates.io/crates/nbformat) Rust crate.
 
-# Notes
+# Limitations
 
-- Jupyter notebooks focus on code cells and outputs; some Stencila-specific features may not round-trip.
-- Output rendering is dependent on notebook tooling.
+- Jupyter notebooks organize content into cells (code, markdown, raw). Stencila node types that don't fit this cell model may not round-trip cleanly.
+- Notebook outputs (e.g. rich display objects, widget state) are preserved during import but may not be fully reproduced on export without re-execution.
+- Notebook-level metadata (e.g. kernel specification) is mapped where possible, but custom metadata fields may be dropped.

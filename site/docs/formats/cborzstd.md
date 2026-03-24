@@ -1,13 +1,13 @@
 ---
-title: CBOR+ZStd
-description: Concise Binary Object Representation with ZStandard Compression
+title: CBOR+Zstd
+description: Concise Binary Object Representation with Zstandard compression
 ---
 
 # Introduction
 
-This format combines [Concise Binary Object Representation (CBOR)](../cbor) and [ZStandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm.
+This format combines [CBOR (Concise Binary Object Representation)](../cbor) with [Zstandard](http://facebook.github.io/zstd/), a fast lossless compression algorithm developed by Facebook.
 
-Stencila provides support for CBOR+ZStd as a more compact alternative to [JSON](../json) or [CBOR](../cbor) for storing documents. It may be preferred over those formats for storing very large documents. Also consider [JSON+Zip](../jsonzip) which may provide similar levels of compression, but which is more portable.
+Stencila supports CBOR+Zstd as the most compact storage option for documents. It is best suited for very large documents where file size matters. Also consider [JSON+Zip](../jsonzip) which offers similar compression ratios with broader tool compatibility.
 
 # Usage
 
@@ -19,9 +19,9 @@ stencila convert doc.smd doc.cbor.zstd
 
 # Implementation
 
-Stencila supports lossless, bi-directional conversion between Stencila documents and CBOR+ZStd powered by the Rust crates [`ciborium`](https://crates.io/crates/ciborium) and [`zstd`](https://crates.io/crates/zstd).
+Stencila supports lossless, bi-directional conversion between Stencila documents and CBOR+Zstd powered by the Rust crates [`ciborium`](https://crates.io/crates/ciborium) and [`zstd`](https://crates.io/crates/zstd).
 
-# Notes
+# Limitations
 
-- CBOR+ZStd is a compressed variant of CBOR for smaller files.
-- Round-tripping is lossless for supported nodes.
+- CBOR+Zstd files are not human-readable or inspectable without decompression.
+- Requires Stencila or compatible tooling to decompress and deserialize. For a more portable compressed format, consider [JSON+Zip](../jsonzip).

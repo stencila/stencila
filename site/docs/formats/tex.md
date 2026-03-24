@@ -5,7 +5,9 @@ description: Plain TeX format
 
 # Introduction
 
-TeX is the underlying typesetting system used by LaTeX and related formats.
+[TeX](https://tug.org/) is the underlying typesetting system created by Donald Knuth that LaTeX and other macro packages build upon. Stencila supports the `.tex` file extension for documents that use TeX conventions.
+
+In practice, most TeX files use LaTeX macros. The distinction in Stencila is primarily about file extension: `.tex` files are handled identically to [LaTeX](../latex) files by the same codec.
 
 # Usage
 
@@ -17,9 +19,9 @@ stencila convert doc.smd doc.tex
 
 # Implementation
 
-TeX support is implemented in the Rust crate [`codec-latex`](https://github.com/stencila/stencila/blob/main/rust/codec-latex).
+TeX support is provided by the same Rust crate as LaTeX: [`codec-latex`](https://github.com/stencila/stencila/blob/main/rust/codec-latex). See the [LaTeX](../latex) documentation for full implementation details.
 
-# Notes
+# Limitations
 
-- TeX conversion is lossy for Stencila nodes without TeX equivalents.
-- TeX output focuses on typesetting rather than document semantics.
+- The same limitations as [LaTeX](../latex) apply.
+- Plain TeX primitives without LaTeX abstractions are not specifically handled; the codec assumes LaTeX-style markup.

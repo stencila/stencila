@@ -1,11 +1,11 @@
 ---
 title: Quarto Markdown
-description: An extended flavor of Markdown tailored for technical and scientific publishing
+description: An extended flavor of Markdown for technical and scientific publishing
 ---
 
 # Introduction
 
-[Quarto Markdown](https://quarto.org/docs/authoring/markdown-basics.html) is an extended version of Markdown tailored for technical and scientific publishing, enabling reproducible research and literate programming. It builds on the simplicity of standard Markdown by incorporating advanced features like code execution, citations, cross-references, and customizable output formats.
+[Quarto Markdown](https://quarto.org/docs/authoring/markdown-basics.html) is an extended Markdown format developed by Posit (formerly RStudio) for technical and scientific publishing. It supports code execution in R, Python, Julia, and Observable, along with features like citations, cross-references, and multi-format output. Quarto builds on Pandoc's Markdown extensions.
 
 # Usage
 
@@ -20,9 +20,11 @@ stencila convert doc.smd doc.qmd
 
 # Implementation
 
-Stencila supports bi-directional conversion between Stencila documents and Quarto Markdown. See our [CommonMark](../md) documentation for implementation details.
+Stencila supports bi-directional conversion between Stencila documents and Quarto Markdown. Quarto-specific YAML metadata and code chunk options are mapped to Stencila Schema properties where equivalents exist. The underlying Markdown parser and encoder are shared with [CommonMark](../md) and other flavors; see the [CommonMark](../md) documentation for implementation details.
 
-# Notes
+# Limitations
 
-- Quarto Markdown is a flavored format; some Stencila nodes may be lossy when round-tripping.
-- Quarto-specific metadata and extensions map where possible.
+- Quarto-specific features such as Quarto shortcodes, project-level configuration, and Quarto-specific YAML options may not be fully mapped.
+- Stencila node types without Quarto Markdown equivalents are lost during export.
+- Stencila does not execute Quarto code chunks natively. Use Stencila's own kernels or Quarto CLI for execution.
+- Conversion fidelity may differ from what the Quarto CLI produces due to differences in Markdown parsing.

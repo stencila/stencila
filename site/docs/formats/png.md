@@ -5,7 +5,7 @@ description: Portable Network Graphics
 
 # Introduction
 
-PNG is a lossless image format commonly used for screenshots and graphics. Stencila can render documents or nodes to PNG for sharing and embedding.
+PNG (Portable Network Graphics) is a lossless image format widely used for screenshots, graphics, and web images. Stencila can render documents or individual nodes to PNG for sharing, embedding, or use as static previews.
 
 # Usage
 
@@ -17,9 +17,11 @@ stencila convert doc.smd doc.png
 
 # Implementation
 
-PNG output is implemented in the Rust crate [`codec-png`](https://github.com/stencila/stencila/blob/main/rust/codec-png).
+PNG encoding is implemented in the Rust crate [`codec-png`](https://github.com/stencila/stencila/blob/main/rust/codec-png). By default, nodes are encoded to LaTeX and then rendered to a PNG image. Image resizing and optimization options are also supported for use cases like email embedding.
 
-# Notes
+# Limitations
 
-- PNG output is one-way and does not preserve document structure.
-- Rendering relies on HTML and LaTeX conversions behind the scenes.
+- PNG is encode-only. Stencila cannot reconstruct document structure from PNG images.
+- Rendering relies on a LaTeX installation being available.
+- The output is a flat image with no selectable text or document structure.
+- Very long documents may produce extremely tall images.

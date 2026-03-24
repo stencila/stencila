@@ -1,13 +1,13 @@
 ---
 title: Koenig JSON
-description: Format for integrating with the Koenig editor
+description: Serialization format for the Ghost CMS editor
 ---
 
 # Introduction
 
-[Koenig](https://github.com/TryGhost/Koenig) is an editor developed by, and used within, the [Ghost](https://ghost.org) content management system. Koenig is based on the [Lexical](https://lexical.dev) editor framework and this format simply extends [Lexical JSON](../lexical) to accommodate some of the customizations of the Koenig document schema.
+[Koenig](https://github.com/TryGhost/Koenig) is the editor developed by and used within the [Ghost](https://ghost.org) content management system. Koenig is built on the [Lexical](https://lexical.dev) editor framework and extends [Lexical JSON](../lexical) with additional card types for Ghost-specific content such as image galleries, embedded content, and email CTAs.
 
-Stencila supports conversion to/from Koenig JSON to support publishing Stencila documents to Ghost.
+Stencila supports conversion to/from Koenig JSON to enable publishing Stencila documents to Ghost.
 
 # Usage
 
@@ -19,9 +19,10 @@ stencila convert doc.smd doc.koenig
 
 # Implementation
 
-Stencila supports bi-directional conversion between Stencila documents and Koenig JSON. This is built on top of [`serde_json`](https://crates.io/crates/serde_json) with transformer functions to map between Lexical/Koenig node types and Stencila node types.
+Stencila supports bi-directional conversion between Stencila documents and Koenig JSON, implemented in the Rust crate [`codec-lexical`](https://github.com/stencila/stencila/blob/main/rust/codec-lexical). The codec builds on the Lexical JSON codec with additional transformer functions for Koenig-specific card types.
 
-# Notes
+# Limitations
 
-- Koenig JSON targets Ghost publishing workflows.
-- Conversion is lossy for features that have no Lexical/Koenig representation.
+- Stencila node types that have no Lexical or Koenig card representation are lost during export.
+- Ghost-specific card types (e.g. product cards, signup forms, email content cards) may not fully map to Stencila nodes during import.
+- Koenig's content model is simpler than Stencila's; complex document structures are flattened.

@@ -1,11 +1,11 @@
 ---
 title: MyST Markdown
-description: An extended flavor of Markdown for technical, scientific communication and publication
+description: An extended flavor of Markdown for technical and scientific communication
 ---
 
 # Introduction
 
-[MyST Markdown](https://mystmd.org/) is an extended flavor of Markdown that supports additional syntax features like directives and roles, familiar to users of [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html). It is designed to enhance the expressiveness of standard Markdown for technical documentation while retaining Markdown's simplicity and readability.
+[MyST Markdown](https://mystmd.org/) (Markedly Structured Text) is an extended Markdown flavor that adds directives and roles inspired by [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html). It is designed for technical documentation and scientific publishing, offering features like admonitions, cross-references, figures with captions, and math blocks within a Markdown-based syntax.
 
 # Usage
 
@@ -20,9 +20,11 @@ stencila convert doc.smd doc.myst
 
 # Implementation
 
-Stencila supports bi-directional conversion between Stencila documents and MyST Markdown. See our [CommonMark](../md) documentation for implementation details.
+Stencila supports bi-directional conversion between Stencila documents and MyST Markdown. MyST directives and roles are mapped to Stencila Schema node types where equivalents exist. The underlying Markdown parser and encoder are shared with [CommonMark](../md) and other Markdown flavors; see the [CommonMark](../md) documentation for implementation details.
 
-# Notes
+# Limitations
 
-- MyST is a Markdown flavor; some Stencila nodes may be lossy when round-tripping.
-- MyST directives and roles map to Stencila extensions where possible.
+- Not all MyST directives and roles have Stencila equivalents; unsupported directives may be imported as raw content or dropped.
+- Stencila node types without MyST equivalents are lost when encoding to MyST.
+- MyST-specific features like substitutions, glossaries, and some Sphinx extensions are not supported.
+- MyST Markdown rendered by Stencila may differ in behavior from MyST rendered by the official MyST parser.

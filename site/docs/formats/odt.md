@@ -1,11 +1,11 @@
 ---
 title: ODT
-description: Open Document Text
+description: OpenDocument Text
 ---
 
 # Introduction
 
-The [Open Document Text (ODT)](https://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1-html/OpenDocument-v1.1.html) format is convenient when you want to pass documents to and from word processors.
+[OpenDocument Text (ODT)](https://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1-html/OpenDocument-v1.1.html) is an open standard document format used by LibreOffice, Apache OpenOffice, and other word processors. Stencila supports ODT as a way to exchange documents with open-source word processing tools.
 
 # Usage
 
@@ -23,9 +23,10 @@ stencila convert doc.smd doc.odt
 
 # Implementation
 
-Stencila provides lossy bidirectional conversion to ODT powered by [Pandoc](https://pandoc.org/). To convert documents to/from ODT, you will need to have Pandoc installed. See the [`pandoc`](../pandoc) format for more details.
+Stencila provides bi-directional conversion to ODT powered by [Pandoc](https://pandoc.org/) via the [Pandoc JSON](../pandoc) intermediate format. See the [Pandoc format](../pandoc) documentation for more details on the intermediate representation.
 
-# Notes
+# Limitations
 
-- ODT conversion is lossy for complex layout and word-processor-specific features.
-- Pandoc governs most of the ODT mapping behavior.
+- Pandoc must be installed separately; it is not bundled with Stencila.
+- Conversion is lossy for Stencila node types that have no ODT/Pandoc equivalent (e.g. executable code chunks, parameters).
+- ODT-specific formatting such as master pages, complex table styles, and embedded OLE objects are not preserved during import.

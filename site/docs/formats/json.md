@@ -5,7 +5,9 @@ description: JavaScript Object Notation
 
 # Introduction
 
-[JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. Stencila uses JSON as the default storage format for documents.
+[JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format defined by [ECMA-404](https://ecma-international.org/publications-and-standards/standards/ecma-404/) and widely used for structured data storage and transmission. JSON's simplicity and broad language support make it a common choice for APIs, configuration files, and data exchange.
+
+Stencila uses JSON as the default storage format for documents. Conversion is lossless — all Stencila Schema node types and properties are preserved through round-trips.
 
 # Usage
 
@@ -36,7 +38,7 @@ For example,
 
 Stencila supports lossless, bi-directional conversion between Stencila documents and JSON powered by [`serde_json`](https://crates.io/crates/serde_json).
 
-# Notes
+# Limitations
 
-- Stencila targets the JSON Data Interchange Standard (ECMA-404).
-- JSON is the default storage format for Stencila documents.
+- JSON files for complex documents can be large. For smaller files, consider [CBOR](../cbor), [CBOR+Zstd](../cborzstd), or [JSON+Zip](../jsonzip).
+- JSON lacks support for comments. For a lossless format that supports comments, use [JSON5](../json5).

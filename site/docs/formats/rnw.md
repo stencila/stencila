@@ -1,11 +1,11 @@
 ---
 title: R+LaTeX
-description: Sweave/knitr Rnw format
+description: Sweave/knitr Rnw format for literate programming
 ---
 
 # Introduction
 
-Rnw files combine LaTeX with embedded R code chunks for literate programming workflows.
+Rnw (R NoWeb) files combine LaTeX markup with embedded R code chunks, following the [Sweave](https://leisch.usgs.gov/Sweave/) and [knitr](https://yihui.org/knitr/) literate programming conventions. This format is commonly used in R-based reproducible research workflows.
 
 # Usage
 
@@ -19,7 +19,8 @@ stencila convert doc.smd doc.rnw
 
 Rnw support is implemented in the Rust crate [`codec-rnw`](https://github.com/stencila/stencila/blob/main/rust/codec-rnw).
 
-# Notes
+# Limitations
 
-- Rnw conversion is lossy for nodes without LaTeX or R chunk equivalents.
-- The format targets R-focused literate programming workflows.
+- Conversion is lossy for Stencila node types that have no LaTeX or R code chunk equivalent.
+- Complex knitr chunk options may not be fully mapped to Stencila code chunk properties.
+- Stencila does not process Sweave/knitr directives natively; R code chunks are represented as Stencila code chunks.

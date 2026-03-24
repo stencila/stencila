@@ -1,13 +1,13 @@
 ---
 title: JSON+Zip
-description: JavaScript Object Notation with Zip Archive
+description: JavaScript Object Notation with Zip archive compression
 ---
 
 # Introduction
 
-This format combines [JavaScript Object Notation (JSON)](../json) and the [Zip](<https://en.wikipedia.org/wiki/ZIP_(file_format)>), compressed archive file format.
+This format combines [JSON](../json) with the [Zip](https://en.wikipedia.org/wiki/ZIP_(file_format)) compressed archive format.
 
-Stencila provides support for JSON+Zip as a more compact alternative to [JSON](../json) for storing large documents. Also consider [CBOR+Zstd](../cborzstd) which may provide better levels of compression.
+Stencila supports JSON+Zip as a portable compressed alternative to [JSON](../json) for storing large documents. The JSON content inside the archive can be inspected with standard Zip tools, making it more portable than [CBOR+Zstd](../cborzstd), though CBOR+Zstd may achieve better compression ratios.
 
 # Usage
 
@@ -21,7 +21,7 @@ stencila convert doc.smd doc.json.zip
 
 Stencila supports lossless, bi-directional conversion between Stencila documents and JSON+Zip powered by the Rust crates [`serde_json`](https://crates.io/crates/serde_json) and [`zip`](https://crates.io/crates/zip).
 
-# Notes
+# Limitations
 
-- JSON+Zip is useful when document size is a primary concern.
-- Round-tripping is lossless for supported nodes.
+- Compression adds overhead for small documents where the Zip metadata may negate size savings.
+- The archive contains a single JSON file. It does not bundle external assets such as images.
