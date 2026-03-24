@@ -33,6 +33,7 @@ impl DomCodec for StyledInline {
         context.push_slot_fn("span", "content", |context| {
             if let Some(class) = &self.options.class_list {
                 context.push_attr("class", class);
+                context.push_attr_boolean("un-cloak");
             };
             self.content.to_dom(context)
         });

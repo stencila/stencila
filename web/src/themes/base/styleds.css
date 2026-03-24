@@ -32,3 +32,20 @@ stencila-styled-block {
 stencila-styled-inline {
     display: inline;
 }
+
+stencila-styled-block > [slot="content"],
+stencila-styled-inline > [slot="content"] {
+    transition: opacity var(--transition-duration-slow, 240ms) ease;
+}
+
+stencila-styled-block > [slot="content"][un-cloak],
+stencila-styled-inline > [slot="content"][un-cloak] {
+    opacity: 0 !important;
+    pointer-events: none;
+    user-select: none;
+}
+
+stencila-styled-block > [slot="content"].stencila-unocss-uncloaking,
+stencila-styled-inline > [slot="content"].stencila-unocss-uncloaking {
+    opacity: 1;
+}

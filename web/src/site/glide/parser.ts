@@ -8,6 +8,21 @@
 import type { CacheEntry } from './types'
 
 /**
+ * Remove transient UnoCSS cloaking attributes from a parsed subtree.
+ *
+ * These attributes are only needed for the initial server-rendered paint.
+ * Glide cache entries should store display-ready HTML so revisiting a page
+ * from cache does not reintroduce hidden content.
+ */
+function stripUnoCloak(root: ParentNode): void {
+  root
+    .querySelectorAll(
+      'stencila-styled-block > [slot="content"][un-cloak], stencila-styled-inline > [slot="content"][un-cloak]'
+    )
+    .forEach((element) => element.removeAttribute('un-cloak'))
+}
+
+/**
  * Parse fetched HTML and extract content for caching/display
  *
  * @param html - Raw HTML string from fetch response
@@ -17,6 +32,8 @@ import type { CacheEntry } from './types'
 export function parseHTML(html: string, contentSelector: string): CacheEntry | null {
   const parser = new DOMParser()
   const doc = parser.parseFromString(html, 'text/html')
+
+  stripUnoCloak(doc)
 
   // Extract title
   const title = doc.title || ''

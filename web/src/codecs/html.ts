@@ -854,6 +854,7 @@ const MANUAL_ENCODERS: Partial<
 
     context.pushSlot('div', 'content', encodeNodes(node.content, ancestors), {
       class: node.classList,
+      'un-cloak': node.classList && node.classList.length > 0 ? '' : undefined,
     })
 
     context.exitNode()
@@ -882,6 +883,7 @@ const MANUAL_ENCODERS: Partial<
 
     context.pushSlot('span', 'content', encodeNodes(node.content, ancestors), {
       class: node.classList,
+      'un-cloak': node.classList && node.classList.length > 0 ? '' : undefined,
     })
 
     context.exitNode()
