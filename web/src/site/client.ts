@@ -1,3 +1,5 @@
+import { reload, reloadStyles } from './glide'
+
 /**
  * Initialize the site client for live reload in preview mode
  *
@@ -24,7 +26,8 @@ interface SiteMessage {
  * WebSocket client for site preview live reload
  *
  * Connects to the server's site watching endpoint and triggers
- * a page reload when source files or config changes.
+ * smooth content updates using the glide navigation module instead
+ * of full page reloads, avoiding flash of unstyled content.
  */
 class SiteClient {
   /**
@@ -84,17 +87,19 @@ class SiteClient {
       try {
         const message: SiteMessage = JSON.parse(event.data)
 
-        if (message.type === 'ConfigChange') {
-          console.debug('🔄 SiteClient config changed, reloading...')
-          window.location.reload()
-        } else if (message.type === 'SiteChange') {
-          console.debug('🔄 SiteClient files changed:', message.paths)
-          window.location.reload()
-        } else if (message.type === 'ThemeChange') {
-          console.debug('🔄 SiteClient theme changed, reloading...')
-          window.location.reload()
-        } else if (message.type === 'Error') {
-          console.error('❌ SiteClient error:', message.message)
+        switch (message.type) {
+          case 'ConfigChange':
+          case 'SiteChange':
+            console.debug(`🔄 SiteClient ${message.type}:`, message.paths ?? '')
+            void reload()
+            break
+          case 'ThemeChange':
+            console.debug('🎨 SiteClient theme changed, reloading styles...')
+            reloadStyles()
+            break
+          case 'Error':
+            console.error('❌ SiteClient error:', message.message)
+            break
         }
       } catch (e) {
         console.error('❌ SiteClient failed to parse message:', e)

@@ -256,6 +256,186 @@ export function rehydrateComponents(url: string, mainElement: Element): void {
   }
 }
 
+/**
+ * Coerce an unknown thrown value into an Error instance
+ */
+function toError(error: unknown): Error {
+  return error instanceof Error ? error : new Error(String(error))
+}
+
+/**
+ * Update the module-level page tracking state
+ *
+ * Called after every successful content swap so that hash-only popstate
+ * detection and scroll-position bookkeeping stay consistent.
+ */
+function setCurrentPage(url: string): void {
+  lastNormalizedUrl = normalizeUrl(url)
+  lastFullUrl = url
+}
+
+/**
+ * Fetch a page and parse it into a cache entry, optionally using
+ * the glide cache for lookups and storage.
+ *
+ * When `invalidateCache` is true the existing cache entry (if any)
+ * is deleted before the fetch so the caller always gets fresh content.
+ */
+async function fetchEntry(
+  url: string,
+  invalidateCache = false
+): Promise<{ entry: CacheEntry; cacheKey: string; fromCache: boolean }> {
+  const cache = getPageCache()
+  const cacheKey = normalizeUrl(url)
+
+  if (invalidateCache) {
+    cache.delete(cacheKey)
+  }
+
+  // Try the cache first (unless we just invalidated it)
+  const cached = !invalidateCache && config.cacheSize > 0
+    ? cache.get(cacheKey)
+    : undefined
+
+  if (cached) {
+    return { entry: cached, cacheKey, fromCache: true }
+  }
+
+  const response = await fetch(url, {
+    headers: { 'X-Stencila-Glide': '1' },
+  })
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch: ${response.status}`)
+  }
+
+  const html = await response.text()
+  const entry = parseHTML(html, config.contentSelector)
+
+  if (!entry) {
+    throw new Error('Failed to parse page content')
+  }
+
+  if (config.cacheSize > 0) {
+    cache.set(cacheKey, entry)
+  }
+
+  return { entry, cacheKey, fromCache: false }
+}
+
+/**
+ * Swap page content, rehydrate UI components, and dispatch post-swap
+ * lifecycle events.
+ */
+async function applyEntry(
+  url: string,
+  entry: CacheEntry,
+  scrollTarget: ScrollTarget,
+  detailWithCache: GlideEventDetail
+): Promise<void> {
+  await swapContent(entry, config.contentSelector, scrollTarget)
+
+  const mainElement = document.querySelector(config.contentSelector)
+  if (mainElement) {
+    rehydrateComponents(url, mainElement)
+  }
+
+  dispatch(GlideEvents.AFTER_SWAP, detailWithCache)
+  setCurrentPage(url)
+  dispatch(GlideEvents.END, detailWithCache)
+}
+
+/**
+ * Run `fn` while the `isNavigating` guard is held.
+ *
+ * The guard is always released — even if `fn` throws — unless
+ * `fn` triggers a hard navigation (e.g. `window.location.href = …`),
+ * in which case the page is going away anyway.
+ */
+async function withNavigationGuard<T>(fn: () => Promise<T>): Promise<T | false> {
+  if (isNavigating) {
+    return false
+  }
+  isNavigating = true
+  try {
+    return await fn()
+  } finally {
+    isNavigating = false
+  }
+}
+
+/**
+ * Reload the current page content without a full page refresh
+ *
+ * Re-fetches the current URL from the server, invalidates the glide cache
+ * entry, and swaps content using View Transitions for a smooth update.
+ * Preserves the current scroll position and dispatches glide lifecycle
+ * events so that other code (loading indicators, analytics, etc.) can
+ * observe the update.
+ */
+export async function reload(): Promise<boolean> {
+  const url = window.location.href
+  const detail: GlideEventDetail = { url, trigger: 'programmatic' }
+
+  const result = await withNavigationGuard(async () => {
+    dispatch(GlideEvents.START, detail)
+
+    let entry: CacheEntry
+    let fromCache: boolean
+    try {
+      ;({ entry, fromCache } = await fetchEntry(url, true))
+    } catch (error) {
+      dispatch(GlideEvents.ERROR, { ...detail, error: toError(error) })
+      console.warn('Glide reload failed, falling back to full reload:', error)
+      window.location.reload()
+      return false
+    }
+
+    const detailWithCache = { ...detail, fromCache }
+    if (!dispatch(GlideEvents.BEFORE_SWAP, detailWithCache, true)) {
+      return false
+    }
+
+    saveScrollPosition(url)
+    await applyEntry(url, entry, { type: 'restore', url }, detailWithCache)
+
+    return true
+  })
+
+  return result === false ? false : result
+}
+
+/**
+ * Reload all stylesheets without a full page refresh
+ *
+ * Appends a cache-busting query parameter to each local stylesheet's href,
+ * causing the browser to re-fetch the CSS while keeping the DOM intact.
+ * A single timestamp is used for all links so that co-dependent stylesheets
+ * are fetched from the same build.
+ */
+export function reloadStyles(): void {
+  const links = document.querySelectorAll<HTMLLinkElement>(
+    'link[rel="stylesheet"]'
+  )
+  const cacheBust = String(Date.now())
+
+  for (const link of links) {
+    const href = link.getAttribute('href')
+    if (!href) continue
+
+    // Only reload same-origin stylesheets
+    try {
+      const url = new URL(href, window.location.origin)
+      if (url.origin !== window.location.origin) continue
+
+      url.searchParams.set('_t', cacheBust)
+      link.setAttribute('href', url.href)
+    } catch {
+      console.debug('⚠️ Skipping malformed stylesheet URL:', href)
+    }
+  }
+}
+
 /** Options for navigate() */
 interface NavigateOptions {
   /** Skip pushing to history (used for popstate) */
@@ -270,11 +450,6 @@ export async function navigate(
   trigger: NavTrigger = 'programmatic',
   options: NavigateOptions = {}
 ): Promise<boolean> {
-  // Prevent concurrent navigations
-  if (isNavigating) {
-    return false
-  }
-
   // Skip if navigating to current page (but allow hash changes)
   const targetUrl = new URL(url, window.location.origin)
   const currentUrl = new URL(window.location.href)
@@ -302,51 +477,25 @@ export async function navigate(
     }
   }
 
-  isNavigating = true
-
   const detail: GlideEventDetail = { url, trigger }
 
-  try {
-    // Dispatch start event
+  const result = await withNavigationGuard(async () => {
     dispatch(GlideEvents.START, detail)
 
-    // Check cache first (normalize URL to exclude hash)
-    const cache = getPageCache()
-    const cacheKey = normalizeUrl(url)
-    let entry = config.cacheSize > 0 ? cache.get(cacheKey) : undefined
-    let fromCache = false
-
-    if (entry) {
-      fromCache = true
-    } else {
-      // Fetch the page
-      const response = await fetch(url, {
-        headers: {
-          'X-Stencila-Glide': '1',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`Failed to fetch: ${response.status}`)
-      }
-
-      const html = await response.text()
-      entry = parseHTML(html, config.contentSelector)
-
-      if (!entry) {
-        throw new Error('Failed to parse page content')
-      }
-
-      // Cache the result
-      if (config.cacheSize > 0) {
-        cache.set(cacheKey, entry)
-      }
+    let entry: CacheEntry
+    let fromCache: boolean
+    try {
+      ;({ entry, fromCache } = await fetchEntry(url))
+    } catch (error) {
+      dispatch(GlideEvents.ERROR, { ...detail, error: toError(error) })
+      // Fallback to full page load
+      window.location.href = url
+      return false
     }
 
     // Dispatch before-swap event (cancelable)
     const detailWithCache = { ...detail, fromCache }
     if (!dispatch(GlideEvents.BEFORE_SWAP, detailWithCache, true)) {
-      isNavigating = false
       return false
     }
 
@@ -364,40 +513,12 @@ export async function navigate(
           ? { type: 'hash', hash }
           : { type: 'top' }
 
-    // Perform the swap (includes scroll and sidebar handling for smooth transition)
-    await swapContent(entry, config.contentSelector, scrollTarget)
+    await applyEntry(url, entry, scrollTarget, detailWithCache)
 
-    // Rehydrate components (TOC, nav tree)
-    const mainElement = document.querySelector(config.contentSelector)
-    if (mainElement) {
-      rehydrateComponents(url, mainElement)
-    }
-
-    // Dispatch after-swap event
-    dispatch(GlideEvents.AFTER_SWAP, detailWithCache)
-
-    // Track current page for hash-only popstate detection
-    lastNormalizedUrl = normalizeUrl(url)
-    lastFullUrl = url
-
-    // Dispatch end event
-    dispatch(GlideEvents.END, detailWithCache)
-
-    isNavigating = false
     return true
-  } catch (error) {
-    isNavigating = false
+  })
 
-    // Dispatch error event
-    dispatch(GlideEvents.ERROR, {
-      ...detail,
-      error: error instanceof Error ? error : new Error(String(error)),
-    })
-
-    // Fallback to full page load
-    window.location.href = url
-    return false
-  }
+  return result === false ? false : result
 }
 
 /**
@@ -482,29 +603,24 @@ function handlePopstate(_event: PopStateEvent): void {
   const entry = config.cacheSize > 0 ? cache.get(cacheKey) : undefined
 
   if (entry) {
-    // Use cached content for instant back/forward
+    // Use cached content for instant back/forward, guarded to
+    // prevent concurrent navigations during the async swap.
     const detail: GlideEventDetail = { url, trigger: 'popstate', fromCache: true }
+    isNavigating = true
+
     dispatch(GlideEvents.START, detail)
 
     if (dispatch(GlideEvents.BEFORE_SWAP, detail, true)) {
-      // Restore scroll position and sidebars as part of the swap for smooth transition
-      swapContent(entry, config.contentSelector, { type: 'restore', url })
-        .then(() => {
-          // Rehydrate components (TOC, nav tree)
-          const mainElement = document.querySelector(config.contentSelector)
-          if (mainElement) {
-            rehydrateComponents(url, mainElement)
-          }
-
-          dispatch(GlideEvents.AFTER_SWAP, detail)
-          lastNormalizedUrl = cacheKey
-          lastFullUrl = url
-          dispatch(GlideEvents.END, detail)
-        })
+      applyEntry(url, entry, { type: 'restore', url }, detail)
         .catch(() => {
           // Fallback on error
           window.location.reload()
         })
+        .finally(() => {
+          isNavigating = false
+        })
+    } else {
+      isNavigating = false
     }
   } else {
     // No cache, fetch without pushing to history
