@@ -9992,6 +9992,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-codec-oxa"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "serde_json",
+ "stencila-codec",
+ "tokio",
+]
+
+[[package]]
 name = "stencila-codec-pandoc"
 version = "0.0.0"
 dependencies = [
@@ -10232,6 +10242,7 @@ dependencies = [
  "stencila-codec-odt",
  "stencila-codec-openalex",
  "stencila-codec-openrxiv",
+ "stencila-codec-oxa",
  "stencila-codec-pandoc",
  "stencila-codec-pdf",
  "stencila-codec-pmc",

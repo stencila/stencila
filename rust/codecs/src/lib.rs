@@ -58,6 +58,7 @@ use stencila_codec_meca::MecaCodec;
 use stencila_codec_odt::OdtCodec;
 use stencila_codec_openalex::OpenAlexCodec;
 use stencila_codec_openrxiv::OpenRxivCodec;
+use stencila_codec_oxa::OxaCodec;
 use stencila_codec_pandoc::PandocCodec;
 use stencila_codec_pdf::PdfCodec;
 use stencila_codec_pmc::PmcCodec;
@@ -105,6 +106,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         //Box::new(PolarsCodec),
         Box::new(RnwCodec),
         Box::new(OdtCodec),
+        Box::new(OxaCodec),
         Box::new(PandocCodec),
         Box::new(PmcCodec),
         Box::new(PdfCodec),

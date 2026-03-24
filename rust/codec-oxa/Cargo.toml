@@ -1,0 +1,15 @@
+[package]
+name = "stencila-codec-oxa"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+serde_json = { workspace = true }
+stencila-codec = { path = "../codec" }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+tokio = { workspace = true }
+
+[lints]
+workspace = true
