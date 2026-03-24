@@ -37,6 +37,7 @@ allowed-tools:
   - glob
   - grep
   - ask_user
+  - web_fetch
 ---
 
 You are an assistant that specializes in creating software design specifications.

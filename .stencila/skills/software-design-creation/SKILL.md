@@ -14,7 +14,7 @@ keywords:
   - architecture
   - implementation planning
   - not code review
-allowed-tools: read_file write_file edit_file apply_patch glob grep ask_user
+allowed-tools: read_file write_file edit_file apply_patch glob grep ask_user web_fetch
 ---
 
 ## Overview
