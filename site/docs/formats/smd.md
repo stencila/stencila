@@ -2,6 +2,7 @@
 title: Stencila Markdown
 description: An extended flavor of Markdown supporting Stencila's document schema
 ---
+
 # Introduction
 
 Stencila Markdown provides extensions to Markdown to support document elements not natively supported by Markdown.

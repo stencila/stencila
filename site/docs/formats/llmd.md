@@ -2,6 +2,7 @@
 title: LLM Markdown
 description: A Markdown flavor optimized for language models
 ---
+
 # Introduction
 
 LLM Markdown is a Markdown flavor designed for passing content to language models. It favors plain text and reduces syntax that can confuse model inputs.

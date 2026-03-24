@@ -2,6 +2,7 @@
 title: ODT
 description: Open Document Text
 ---
+
 # Introduction
 
 The [Open Document Text (ODT)](https://docs.oasis-open.org/office/v1.1/OS/OpenDocument-v1.1-html/OpenDocument-v1.1.html) format is convenient when you want to pass documents to and from word processors.

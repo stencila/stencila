@@ -2,6 +2,7 @@
 title: Meca
 description: Manuscript Exchange Common Approach package
 ---
+
 # Introduction
 
 [MECA](https://www.niso.org/standards-committees/meca) is a package format for exchanging manuscripts and related files in scholarly publishing workflows.

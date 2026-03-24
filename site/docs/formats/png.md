@@ -2,6 +2,7 @@
 title: PNG
 description: Portable Network Graphics
 ---
+
 # Introduction
 
 PNG is a lossless image format commonly used for screenshots and graphics. Stencila can render documents or nodes to PNG for sharing and embedding.

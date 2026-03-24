@@ -2,6 +2,7 @@
 title: JSON5
 description: A more human readable flavor of JSON
 ---
+
 # Introduction
 
 [JSON5](https://json5.org/) is an extension of the JSON (JavaScript Object Notation) format that incorporates additional features for enhanced readability and flexibility. It maintains compatibility with standard JSON while introducing human-friendly syntax elements such as comments, trailing commas, and relaxed quoting rules.

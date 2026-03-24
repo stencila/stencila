@@ -2,6 +2,7 @@
 title: Citation File Format
 description: Citation metadata for software and research artifacts
 ---
+
 # Introduction
 
 The [Citation File Format (CFF)](https://citation-file-format.github.io/) is a YAML-based format for sharing citation metadata with software repositories and research outputs.

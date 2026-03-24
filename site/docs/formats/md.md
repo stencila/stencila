@@ -2,6 +2,7 @@
 title: Markdown
 description: A lightweight markup language
 ---
+
 # Introduction
 
 Markdown is a lightweight markup language widely used for formatting plain text documents. It provides a simple and human-readable way to structure text and add basic styling, such as headers, lists, links, and emphasis. Markdown's benefits include ease of use, and compatibility with various web and documentation platforms.

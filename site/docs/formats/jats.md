@@ -2,6 +2,7 @@
 title: JATS
 description: Journal Article Tag Suite
 ---
+
 # Introduction
 
 The [JATS (Journal Article Tag Suite)](https://jats.nlm.nih.gov/) is an XML format that can be used to tag and describe scientific articles. It was developed by the NIH and has been adopted by several journals as a de facto standard for describing journal articles.

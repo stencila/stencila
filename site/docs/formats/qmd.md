@@ -2,6 +2,7 @@
 title: Quarto Markdown
 description: An extended flavor of Markdown tailored for technical and scientific publishing
 ---
+
 # Introduction
 
 [Quarto Markdown](https://quarto.org/docs/authoring/markdown-basics.html) is an extended version of Markdown tailored for technical and scientific publishing, enabling reproducible research and literate programming. It builds on the simplicity of standard Markdown by incorporating advanced features like code execution, citations, cross-references, and customizable output formats.

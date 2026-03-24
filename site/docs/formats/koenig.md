@@ -2,6 +2,7 @@
 title: Koenig JSON
 description: Format for integrating with the Koenig editor
 ---
+
 # Introduction
 
 [Koenig](https://github.com/TryGhost/Koenig) is an editor developed by, and used within, the [Ghost](https://ghost.org) content management system. Koenig is based on the [Lexical](https://lexical.dev) editor framework and this format simply extends [Lexical JSON](../lexical) to accommodate some of the customizations of the Koenig document schema.

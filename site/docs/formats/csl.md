@@ -2,6 +2,7 @@
 title: CSL-JSON
 description: Citation Style Language in JSON form
 ---
+
 # Introduction
 
 [CSL-JSON](https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html) is a JSON serialization of Citation Style Language data, commonly used for bibliographic entries and citations.

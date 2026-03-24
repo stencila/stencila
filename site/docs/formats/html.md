@@ -2,6 +2,7 @@
 title: HTML
 description: HyperText Markup Language
 ---
+
 # Introduction
 
 HTML (HyperText Markup Language) is the standard markup language used to structure and display content on the web.

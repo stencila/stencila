@@ -2,6 +2,7 @@
 title: DOCX
 description: Microsoft Word DOCX Format
 ---
+
 # Introduction
 
 [DOCX](https://learn.microsoft.com/en-us/openspecs/office_standards/ms-docx/d683fa62-8042-4360-a824-b79045a6aabd) is a popular file format for representing word processing documents. Although originally developed for Microsoft Word, many other word processors, tools, and workflows support DOCX.

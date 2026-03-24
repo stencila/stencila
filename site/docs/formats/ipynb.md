@@ -2,6 +2,7 @@
 title: IPYNB
 description: Jupyter Notebook Format
 ---
+
 # Introduction
 
 The [Jupyter Notebook Format](https://nbformat.readthedocs.io/en/latest/) (previously known the IPython Notebook (IPYNB) format), is a JSON-based format that integrates code, visualizations, equations, and narrative text in a single document. It is designed to support reproducible computational workflows by allowing users to execute code in real time while interweaving multimedia content and explanatory text.

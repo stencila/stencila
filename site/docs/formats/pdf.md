@@ -2,6 +2,7 @@
 title: PDF
 description: Portable Document Format
 ---
+
 # Introduction
 
 [Portable Document Format (PDF)](https://pdfa.org/resource/pdf-specification-archive/) is an output format that can be used to render documents suitable for publication or sharing.

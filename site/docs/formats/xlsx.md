@@ -2,6 +2,7 @@
 title: Microsoft Excel
 description: Spreadsheet format (.xlsx)
 ---
+
 # Introduction
 
 Microsoft Excel's XLSX format is a widely used spreadsheet format for tabular data.

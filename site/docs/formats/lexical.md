@@ -2,6 +2,7 @@
 title: Lexical JSON
 description: Format for integrating with Lexical-based editors
 ---
+
 # Introduction
 
 Facebook's [Lexical](https://lexical.dev) editor is a modern, extensible text editor framework designed for building interactive web applications with rich text capabilities. [Lexical JSON](https://lexical.dev/docs/concepts/serialization) is a serialization format for documents written using Lexical.

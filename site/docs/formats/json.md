@@ -2,6 +2,7 @@
 title: JSON
 description: JavaScript Object Notation
 ---
+
 # Introduction
 
 [JavaScript Object Notation (JSON)](https://www.json.org/) is a lightweight data interchange format widely used for structured data storage and transmission. JSON's simplicity, flexibility, and compatibility with various programming languages make it a popular choice for APIs, configuration files, and data exchange between applications. Stencila uses JSON as the default storage format for documents.

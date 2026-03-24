@@ -2,6 +2,7 @@
 title: Plain Text
 description: A simple plain text representation of documents
 ---
+
 # Introduction
 
 Stencila provides support for conversion of documents to plain text. This format is intentionally lossy and only useful when you explicitly want a plain text representation of a document (i.e. lacking structure such as headings and links).

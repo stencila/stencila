@@ -2,6 +2,7 @@
 title: PubMed Central OA Package
 description: PubMed Central Open Access package
 ---
+
 # Introduction
 
 PubMed Central Open Access (PMCOA) packages bundle JATS XML with associated assets for scholarly articles.

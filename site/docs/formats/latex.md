@@ -2,6 +2,7 @@
 title: LaTeX
 description: A typesetting system for technical documents
 ---
+
 # Introduction
 
 [LaTeX](https://www.latex-project.org/) is a document preparation system widely used for scientific and technical writing.

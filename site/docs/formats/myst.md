@@ -2,6 +2,7 @@
 title: MyST Markdown
 description: An extended flavor of Markdown for technical, scientific communication and publication
 ---
+
 # Introduction
 
 [MyST Markdown](https://mystmd.org/) is an extended flavor of Markdown that supports additional syntax features like directives and roles, familiar to users of [reStructuredText](https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html). It is designed to enhance the expressiveness of standard Markdown for technical documentation while retaining Markdown's simplicity and readability.

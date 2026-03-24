@@ -2,6 +2,7 @@
 title: OpenDocument Spreadsheet
 description: OpenDocument Spreadsheet format (.ods)
 ---
+
 # Introduction
 
 OpenDocument Spreadsheet (ODS) is an open standard spreadsheet format used by LibreOffice and other tools.

@@ -2,6 +2,7 @@
 title: TeX
 description: Plain TeX format
 ---
+
 # Introduction
 
 TeX is the underlying typesetting system used by LaTeX and related formats.

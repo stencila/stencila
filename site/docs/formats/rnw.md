@@ -2,6 +2,7 @@
 title: R+LaTeX
 description: Sweave/knitr Rnw format
 ---
+
 # Introduction
 
 Rnw files combine LaTeX with embedded R code chunks for literate programming workflows.

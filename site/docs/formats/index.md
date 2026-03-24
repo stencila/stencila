@@ -2,6 +2,7 @@
 title: Formats
 description: Formats supported by Stencila codecs
 ---
+
 # Introduction
 
 Stencila supports a range of document and data formats via codecs. Each codec converts to and from the Stencila schema, enabling bidirectional conversion between formats where supported.

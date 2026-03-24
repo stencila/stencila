@@ -2,6 +2,7 @@
 title: Microsoft Excel (XLS)
 description: Legacy spreadsheet format (.xls)
 ---
+
 # Introduction
 
 XLS is the legacy Microsoft Excel binary format for spreadsheets.

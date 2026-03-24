@@ -2,6 +2,7 @@
 title: CBOR
 description: Concise Binary Object Representation
 ---
+
 # Introduction
 
 The [CBOR (Concise Binary Object Representation)](https://cbor.io/) format is a binary serialization format suitable when speed and storage efficiency are important. It follows the data model of JSON closely, and like JSON, it enables data interchange without needing a formally specified schema. For further details about CBOR, see [RFC 8949](https://www.rfc-editor.org/rfc/rfc8949.html) and other [CBOR specs](https://cbor.io/spec.html).

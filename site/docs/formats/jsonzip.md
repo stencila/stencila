@@ -2,6 +2,7 @@
 title: JSON+Zip
 description: JavaScript Object Notation with Zip Archive
 ---
+
 # Introduction
 
 This format combines [JavaScript Object Notation (JSON)](../json) and the [Zip](<https://en.wikipedia.org/wiki/ZIP_(file_format)>), compressed archive file format.

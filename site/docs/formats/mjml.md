@@ -2,6 +2,7 @@
 title: MJML
 description: Markup for responsive email templates
 ---
+
 # Introduction
 
 [MJML](https://mjml.io/) is a markup language for responsive email templates. Stencila can emit MJML as an intermediate format for email rendering.

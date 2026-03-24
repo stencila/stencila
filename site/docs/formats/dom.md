@@ -2,6 +2,7 @@
 title: DOM HTML
 description: A verbose HTML representation of Stencila nodes
 ---
+
 # Introduction
 
 DOM HTML is an internal HTML representation used by Stencila for rendering and previewing documents. It uses custom elements for Stencila node types and aims to preserve structure.

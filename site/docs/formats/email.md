@@ -2,6 +2,7 @@
 title: Email HTML
 description: HTML optimized for email clients
 ---
+
 # Introduction
 
 Email HTML is a specialized HTML output optimized for email clients. Stencila generates this format via MJML to maximize compatibility.
