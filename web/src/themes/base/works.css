@@ -250,6 +250,45 @@ stencila-workflow {
     }
 }
 
+/* Main Width Override
+ *
+ * When main-width="none" on stencila-layout, remove all max-width
+ * constraints so authors have full-width control via styled blocks.
+ * Uses CSS custom property overrides so existing element rules cascade
+ * naturally without re-enumerating selectors.
+ */
+stencila-layout[main-width="none"] {
+    --content-width: none;
+    --content-breakout-width: none;
+    --work-content-max-width: none;
+    --work-title-max-width: none;
+    --work-abstract-max-width: none;
+    --table-max-width: none;
+    --datatable-max-width: none;
+    --figure-max-width: none;
+    --image-block-max-width: none;
+    --code-chunk-max-width: none;
+    --code-block-max-width: none;
+    --code-block-min-width: 0;
+    --quote-block-max-width: none;
+}
+
+/* Main Title Override
+ *
+ * When main-title="false" on stencila-layout, hide the document title
+ * slot. The HTML <title> element is unaffected (preserving SEO).
+ */
+stencila-layout[main-title="false"] {
+    stencila-article,
+    stencila-skill,
+    stencila-agent,
+    stencila-workflow {
+        >[slot="title"] {
+            display: none;
+        }
+    }
+}
+
 /* Responsive Application - Mobile Breakpoint (640px) */
 @media (max-width: 640px) {
     :root {

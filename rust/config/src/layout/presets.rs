@@ -11,6 +11,7 @@ use crate::RowConfig;
 
 use super::components::ComponentSpec;
 use super::config::LayoutConfig;
+use super::main::{ContentPadding, ContentWidth, MainConfig};
 use super::regions::{RegionConfig, RegionSpec};
 
 /// Named layout presets for common documentation patterns
@@ -89,6 +90,11 @@ impl LayoutPreset {
         // region would cause it to be inherited rather than disabled.
         match self {
             Self::Landing => LayoutConfig {
+                main: Some(MainConfig {
+                    width: Some(ContentWidth::None),
+                    padding: Some(ContentPadding::None),
+                    title: Some(false),
+                }),
                 header,
                 left_sidebar: Some(RegionSpec::Enabled(false)),
                 top: Some(RegionSpec::Enabled(false)),

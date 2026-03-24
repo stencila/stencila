@@ -506,6 +506,23 @@ stencila-layout[header] .sidebar-overlay {
 }
 
 
+/* Main Padding Override
+ *
+ * When main-padding="none" on stencila-layout, remove padding from the
+ * main content area for full-bleed content.
+ */
+stencila-layout[main-padding="none"] #main-content {
+    padding: 0;
+}
+
+stencila-layout[main-padding="none"] stencila-top {
+    padding: 0;
+}
+
+stencila-layout[main-padding="none"] stencila-bottom {
+    padding: 0;
+}
+
 /* =================================
  * Responsive - Sidebar Collapse (1024px)
  *

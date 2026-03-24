@@ -56,10 +56,11 @@ use crate::workspace::WorkspaceConfig;
 pub use {
     agents::{AgentsConfig, CommitAttribution},
     layout::{
-        ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
-        EditOnService, EditSourceStyle, LayoutConfig, LayoutOverride, LayoutPreset, NavGroupsIcons,
-        NavMenuDropdownStyle, NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeIcons,
-        PrevNextStyle, RegionConfig, RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
+        ColorModeStyle, ComponentConfig, ComponentSpec, ContentPadding, ContentWidth,
+        CopyMarkdownStyle, CustomSocialLink, EditOnService, EditSourceStyle, LayoutConfig,
+        LayoutOverride, LayoutPreset, MainConfig, NavGroupsIcons, NavMenuDropdownStyle,
+        NavMenuGroups, NavMenuIcons, NavMenuTrigger, NavTreeIcons, PrevNextStyle, RegionConfig,
+        RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
     mcp::{McpConfig, McpServerEntry, McpTransportConfig},
     models::{KNOWN_MODEL_PROVIDERS, ModelsConfig},

@@ -34,6 +34,12 @@ Presets provide sensible defaults that can be extended with explicit config.
 | `landing` | Landing page: no sidebars, centered content |
 | `api` | API reference: nav-tree left (flat), no right sidebar |
 
+# `main`
+
+**Type:** [`MainConfig`](main.md) (optional)
+
+Main content area configuration
+
 # `header`
 
 **Type:** [`RegionConfig`](header.md) (optional)

@@ -7,6 +7,7 @@ use schemars::JsonSchema;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+use super::main::MainConfig;
 use super::presets::LayoutPreset;
 use super::regions::{RegionSpec, ResponsiveConfig};
 
@@ -65,6 +66,9 @@ pub struct LayoutOverride {
     /// Global explicit config is then merged on top, followed by any explicit
     /// region overrides in this override.
     pub preset: Option<LayoutPreset>,
+
+    /// Main content area configuration override
+    pub main: Option<MainConfig>,
 
     /// Header region override
     pub header: Option<RegionSpec>,

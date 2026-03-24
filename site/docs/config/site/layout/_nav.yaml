@@ -4,6 +4,7 @@ items:
   - "header"
   - "left-sidebar"
   - "top"
+  - "main"
   - "bottom"
   - "right-sidebar"
   - "footer"

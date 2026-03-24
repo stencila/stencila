@@ -9,10 +9,11 @@ use std::{
 };
 
 use stencila_config::{
-    ColorModeStyle, ComponentConfig, ComponentSpec, CopyMarkdownStyle, CustomSocialLink,
-    EditOnService, EditSourceStyle, LayoutConfig, LogoConfig, NavItem, PrevNextStyle, RegionSpec,
-    RowConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition, SiteConfig, SiteFormat,
-    SiteRemoteFormat, SiteRemotesConfig, SiteReviewsConfig, SiteUploadsConfig, SocialLinksStyle,
+    ColorModeStyle, ComponentConfig, ComponentSpec, ContentPadding, ContentWidth,
+    CopyMarkdownStyle, CustomSocialLink, EditOnService, EditSourceStyle, LayoutConfig, LogoConfig,
+    MainConfig, NavItem, PrevNextStyle, RegionSpec, RowConfig, SiteActionsDirection,
+    SiteActionsMode, SiteActionsPosition, SiteConfig, SiteFormat, SiteRemoteFormat,
+    SiteRemotesConfig, SiteReviewsConfig, SiteUploadsConfig, SocialLinksStyle,
 };
 
 use crate::{
@@ -109,6 +110,9 @@ pub(crate) fn render_layout(
     // Build responsive configuration attributes
     let responsive_attrs = build_responsive_attributes(&resolved);
 
+    // Build content formatting attributes
+    let content_attrs = build_content_attributes(&resolved);
+
     // Render unified site actions zone (reviews, uploads, etc.)
     // Returns tuple of (site_actions_html, enabled_actions_attr)
     let (site_actions, actions_enabled) = render_site_actions(&context);
@@ -122,7 +126,7 @@ pub(crate) fn render_layout(
     };
 
     format!(
-        r##"<stencila-layout{regions_enabled}{responsive_attrs}>
+        r##"<stencila-layout{regions_enabled}{responsive_attrs}{content_attrs}>
   <a href="#main-content" class="skip-link">Skip to content</a>
   {header}
   <div class="layout-body">
@@ -264,6 +268,47 @@ fn build_responsive_attributes(config: &LayoutConfig) -> String {
         && responsive.collapsible == Some(false)
     {
         attrs.push_str(" right-sidebar-collapsible=\"false\"");
+    }
+
+    attrs
+}
+
+/// Build content formatting attributes for the layout element
+///
+/// Reads the `main` config and emits attributes:
+/// - `main-width`: When set to "none" or a custom value
+/// - `main-padding`: When set to "none" or a custom value
+/// - `main-title`: When explicitly set to false
+fn build_content_attributes(config: &LayoutConfig) -> String {
+    let Some(ref main) = config.main else {
+        return String::new();
+    };
+
+    build_main_attributes(main)
+}
+
+/// Build HTML attributes from a `MainConfig`
+fn build_main_attributes(main: &MainConfig) -> String {
+    let mut attrs = String::new();
+
+    if let Some(ref width) = main.width {
+        let value = match width {
+            ContentWidth::None => "none",
+            ContentWidth::Custom(v) => v,
+        };
+        attrs.push_str(&format!(r#" main-width="{value}""#));
+    }
+
+    if let Some(ref padding) = main.padding {
+        let value = match padding {
+            ContentPadding::None => "none",
+            ContentPadding::Custom(v) => v,
+        };
+        attrs.push_str(&format!(r#" main-padding="{value}""#));
+    }
+
+    if let Some(false) = main.title {
+        attrs.push_str(r#" main-title="false""#);
     }
 
     attrs

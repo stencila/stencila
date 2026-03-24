@@ -121,6 +121,33 @@ function swapSidebars(entry: CacheEntry, contentSelector: string): void {
 }
 
 /**
+ * Update main content area attributes on the layout element
+ *
+ * These attributes control CSS custom property overrides for content
+ * width, padding, and title visibility. They need to be synced
+ * when navigating between pages with different layout configurations.
+ */
+function updateLayoutAttributes(entry: CacheEntry): void {
+  const layout = document.querySelector('stencila-layout')
+  if (!layout) {
+    return
+  }
+
+  // Helper to set or remove an attribute
+  const sync = (attr: string, value?: string) => {
+    if (value) {
+      layout.setAttribute(attr, value)
+    } else {
+      layout.removeAttribute(attr)
+    }
+  }
+
+  sync('main-width', entry.mainWidth)
+  sync('main-padding', entry.mainPadding)
+  sync('main-title', entry.mainTitle)
+}
+
+/**
  * Perform the DOM swap with optional View Transition
  *
  * For 'restore' and 'top' scroll targets, scrolling happens during the
@@ -146,6 +173,9 @@ async function swapContent(
 
     // Swap sidebars (create/update/remove as needed)
     swapSidebars(entry, contentSelector)
+
+    // Update content formatting attributes on layout element
+    updateLayoutAttributes(entry)
 
     // Handle scroll for restore/top as part of the transition
     // Hash scrolling is done after transition for reliable positioning
@@ -710,11 +740,15 @@ export function initSiteGlide(): () => void {
     if (mainElement) {
       const leftSidebar = document.querySelector('stencila-left-sidebar')
       const rightSidebar = document.querySelector('stencila-right-sidebar')
+      const layoutEl = document.querySelector('stencila-layout')
       getPageCache().set(normalizeUrl(window.location.href), {
         title: document.title,
         mainHTML: mainElement.innerHTML,
         leftSidebarHTML: leftSidebar?.innerHTML,
         rightSidebarHTML: rightSidebar?.innerHTML,
+        mainWidth: layoutEl?.getAttribute('main-width') ?? undefined,
+        mainPadding: layoutEl?.getAttribute('main-padding') ?? undefined,
+        mainTitle: layoutEl?.getAttribute('main-title') ?? undefined,
         timestamp: Date.now(),
       })
     }

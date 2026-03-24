@@ -21,6 +21,15 @@ export interface CacheEntry {
   /** Right sidebar HTML (undefined = no sidebar on this page) */
   rightSidebarHTML?: string
 
+  /** Main width attribute value (e.g. "none", "80ch") for CSS targeting */
+  mainWidth?: string
+
+  /** Main padding attribute value (e.g. "none", "3rem") for CSS targeting */
+  mainPadding?: string
+
+  /** Main title attribute value ("false" when title should be hidden) */
+  mainTitle?: string
+
   /** Meta description content (optional) */
   metaDescription?: string
 

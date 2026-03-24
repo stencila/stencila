@@ -14,6 +14,7 @@ use super::components::{
     BUILTIN_COMPONENT_TYPES, ComponentConfig, ComponentSpec, components_map,
     is_builtin_component_type,
 };
+use super::main::{MainConfig, merge_main};
 use super::overrides::LayoutOverride;
 use super::presets::LayoutPreset;
 use super::regions::{RegionSpec, ResponsiveConfig, merge_region, resolve_region};
@@ -41,6 +42,20 @@ pub struct LayoutConfig {
     ///
     /// Presets provide sensible defaults that can be extended with explicit config.
     pub preset: Option<LayoutPreset>,
+
+    /// Main content area configuration
+    ///
+    /// Controls formatting of the main content area including content width,
+    /// padding, and title visibility. These properties are orthogonal to the
+    /// structural layout (regions, sidebars, etc.).
+    ///
+    /// ```toml
+    /// [site.layout.main]
+    /// width = "none"
+    /// padding = "none"
+    /// title = false
+    /// ```
+    pub main: Option<MainConfig>,
 
     /// Header region configuration
     ///
@@ -303,6 +318,7 @@ impl LayoutConfig {
         Self {
             preset: self.preset,
             components: components.clone(),
+            main: merge_main(&base.main, &self.main),
             header: resolve_region(merge_region(&base.header, &self.header), &components),
             left_sidebar: resolve_region(
                 merge_region(&base.left_sidebar, &self.left_sidebar),
@@ -353,6 +369,7 @@ impl LayoutConfig {
                 let preset_defaults = preset.defaults();
                 // Layer global explicit config on top of preset defaults
                 LayoutConfig {
+                    main: merge_main(&preset_defaults.main, &self.main),
                     header: merge_region(&preset_defaults.header, &self.header),
                     left_sidebar: merge_region(&preset_defaults.left_sidebar, &self.left_sidebar),
                     top: merge_region(&preset_defaults.top, &self.top),
@@ -374,6 +391,7 @@ impl LayoutConfig {
         Self {
             // Use override preset if specified, otherwise keep base preset
             preset: override_config.preset.or(base.preset),
+            main: merge_main(&region_base.main, &override_config.main),
             // Keep merged components from base
             components: base.components.clone(),
             header: resolve_region(

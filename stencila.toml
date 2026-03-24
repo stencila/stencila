@@ -8,8 +8,8 @@ root = "site"
 exclude = ["tests/excluded.smd"]
 search = true
 reviews = true
-uploads = true
-remotes = true
+#uploads = true
+#remotes = true
 
 [site.labels]
 cli = "CLI"

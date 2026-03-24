@@ -34,6 +34,12 @@ export function parseHTML(html: string, contentSelector: string): CacheEntry | n
   const leftSidebarHTML = leftSidebar?.innerHTML
   const rightSidebarHTML = rightSidebar?.innerHTML
 
+  // Extract main content area attributes from layout element
+  const layout = doc.querySelector('stencila-layout')
+  const mainWidth = layout?.getAttribute('main-width') ?? undefined
+  const mainPadding = layout?.getAttribute('main-padding') ?? undefined
+  const mainTitle = layout?.getAttribute('main-title') ?? undefined
+
   // Extract meta description (optional)
   const metaDesc = doc.querySelector('meta[name="description"]')
   const metaDescription = metaDesc?.getAttribute('content') ?? undefined
@@ -47,6 +53,9 @@ export function parseHTML(html: string, contentSelector: string): CacheEntry | n
     mainHTML,
     leftSidebarHTML,
     rightSidebarHTML,
+    mainWidth,
+    mainPadding,
+    mainTitle,
     metaDescription,
     canonical,
     timestamp: Date.now(),

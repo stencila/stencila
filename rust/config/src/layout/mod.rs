@@ -23,6 +23,7 @@
 
 mod components;
 mod config;
+mod main;
 mod overrides;
 mod presets;
 mod regions;
@@ -34,6 +35,7 @@ pub use components::{
     SocialLinksStyle,
 };
 pub use config::LayoutConfig;
+pub use main::{ContentPadding, ContentWidth, MainConfig};
 pub use overrides::LayoutOverride;
 pub use presets::LayoutPreset;
 pub use regions::{RegionConfig, RegionSpec, RowConfig};
