@@ -181,6 +181,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "ExecutionTag",
                 "Form",
                 "Grant",
+                "Icon",
                 "InlinesBlock",
                 "InstructionBlock",
                 "InstructionInline",

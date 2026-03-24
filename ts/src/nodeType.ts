@@ -68,6 +68,7 @@ export type NodeType =
   | "Function"
   | "Grant"
   | "Heading"
+  | "Icon"
   | "IfBlock"
   | "IfBlockClause"
   | "ImageObject"
@@ -213,6 +214,7 @@ export const NodeTypeList = [
   "Function",
   "Grant",
   "Heading",
+  "Icon",
   "IfBlock",
   "IfBlockClause",
   "ImageObject",

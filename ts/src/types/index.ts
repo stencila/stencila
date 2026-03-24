@@ -89,6 +89,7 @@ export * from "./GrantOrMonetaryGrant.js";
 export * from "./Heading.js";
 export * from "./Hint.js";
 export * from "./HorizontalAlignment.js";
+export * from "./Icon.js";
 export * from "./IfBlock.js";
 export * from "./IfBlockClause.js";
 export * from "./ImageObject.js";

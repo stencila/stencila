@@ -114,6 +114,9 @@
           "@id": "stencila:Function"
         },
         {
+          "@id": "stencila:Icon"
+        },
+        {
           "@id": "stencila:Parameter"
         },
         {
@@ -739,6 +742,9 @@
         },
         {
           "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Icon"
         },
         {
           "@id": "stencila:Island"

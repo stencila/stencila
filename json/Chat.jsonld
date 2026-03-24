@@ -114,6 +114,9 @@
           "@id": "stencila:Function"
         },
         {
+          "@id": "stencila:Icon"
+        },
+        {
           "@id": "stencila:Parameter"
         },
         {

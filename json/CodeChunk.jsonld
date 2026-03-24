@@ -478,6 +478,9 @@
           "@id": "stencila:Heading"
         },
         {
+          "@id": "stencila:Icon"
+        },
+        {
           "@id": "stencila:Island"
         },
         {

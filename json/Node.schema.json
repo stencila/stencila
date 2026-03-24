@@ -204,6 +204,9 @@
       "$ref": "Heading.schema.json"
     },
     {
+      "$ref": "Icon.schema.json"
+    },
+    {
       "$ref": "IfBlock.schema.json"
     },
     {

@@ -39,6 +39,7 @@ mod figure;
 mod file;
 mod for_block;
 mod heading;
+mod icon;
 mod if_block;
 mod if_block_clause;
 mod include_block;

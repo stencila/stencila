@@ -115,6 +115,15 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Icon` nodes in inline content.",
+          "skip": true
+        }
+      },
+      "$ref": "Icon.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `InstructionInline` nodes in inline content.",
           "skip": true
         },

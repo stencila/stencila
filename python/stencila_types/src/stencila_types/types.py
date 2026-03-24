@@ -2210,6 +2210,27 @@ class Heading(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Icon(Entity):
+    """
+    An icon, typically rendered using an icon font.
+    """
+
+    type: Literal["Icon"] = "Icon"
+
+    name: str
+    """The name of the icon e.g. "clock" or "lucide:clock"."""
+
+    label: str | None = None
+    """An accessible text label for the icon."""
+
+    decorative: bool | None = None
+    """Whether the icon is purely decorative."""
+
+    style: str | None = None
+    """Tailwind utility classes to apply to the icon."""
+
+
+@dataclass(kw_only=True, repr=False)
 class IfBlock(Executable):
     """
     Show and execute alternative content conditional upon an executed expression.
@@ -3657,6 +3678,7 @@ Inline = Union[
     Duration,
     Emphasis,
     ImageObject,
+    Icon,
     InstructionInline,
     Link,
     MathInline,
@@ -3767,6 +3789,7 @@ Node = Union[
     Function,
     Grant,
     Heading,
+    Icon,
     IfBlock,
     IfBlockClause,
     ImageObject,
@@ -3989,6 +4012,7 @@ TYPES = [
     Form,
     Function,
     Heading,
+    Icon,
     IfBlock,
     IfBlockClause,
     ImageObject,

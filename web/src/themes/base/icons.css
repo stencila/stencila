@@ -1,7 +1,7 @@
-/* Site Icon Defaults
+/* Icons
  *
- * Base sizing tokens for icons used throughout the site layout.
- * Individual components can override these with their own tokens.
+ * Base sizing tokens for Stencila icon nodes and icons used throughout the site
+ * layout. Individual components can override these with their own tokens.
  *
  * Design tokens:
  * - --layout-icon-size: Default size for icons in layout components
@@ -9,4 +9,9 @@
 
 :root {
     --layout-icon-size: var(--text-font-size);
+}
+
+stencila-icon {
+    display: inline-block;
+    vertical-align: middle;
 }

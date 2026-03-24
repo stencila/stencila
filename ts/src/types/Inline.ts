@@ -13,6 +13,7 @@ import { type Date } from "./Date.js";
 import { type DateTime } from "./DateTime.js";
 import { type Duration } from "./Duration.js";
 import { type Emphasis } from "./Emphasis.js";
+import { type Icon } from "./Icon.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type InstructionInline } from "./InstructionInline.js";
 import { type Integer } from "./Integer.js";
@@ -52,6 +53,7 @@ export type Inline =
   Duration |
   Emphasis |
   ImageObject |
+  Icon |
   InstructionInline |
   Link |
   MathInline |
@@ -97,6 +99,7 @@ export function inline(other: Inline): Inline {
     case "Duration":
     case "Emphasis":
     case "ImageObject":
+    case "Icon":
     case "InstructionInline":
     case "Link":
     case "MathInline":

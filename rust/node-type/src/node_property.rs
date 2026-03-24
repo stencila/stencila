@@ -73,6 +73,7 @@ pub enum NodeProperty {
     DatePublished,
     DateReceived,
     DateStart,
+    Decorative,
     Default,
     DefaultFidelity,
     DefaultMaxRetry,

@@ -1,0 +1,75 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Icon.schema.json",
+  "@id": "stencila:Icon",
+  "title": "Icon",
+  "nick": "ico",
+  "extends": [
+    "Entity"
+  ],
+  "category": "prose",
+  "description": "An icon, typically rendered using an icon font.",
+  "dom": {
+    "derive": false
+  },
+  "markdown": {
+    "derive": false
+  },
+  "required": [
+    "type",
+    "name"
+  ],
+  "core": [
+    "id",
+    "label",
+    "decorative",
+    "style"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the icon e.g. \"clock\" or \"lucide:clock\".",
+      "$comment": "Defaults to the \"lucide\" set if no set prefix is given (e.g. \"clock\" is\nequivalent to \"lucide:clock\"). Other icon sets can be used with an\nexplicit prefix (e.g. \"bi:alarm\").\n",
+      "type": "string"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "An accessible text label for the icon.",
+      "$comment": "Rendered as `aria-label` on the DOM element so screen readers can announce the icon's meaning.",
+      "type": "string"
+    },
+    "decorative": {
+      "@id": "stencila:decorative",
+      "description": "Whether the icon is purely decorative.",
+      "$comment": "When true, the DOM element gets `aria-hidden=\"true\"` so assistive technology skips it.",
+      "type": "boolean"
+    },
+    "style": {
+      "@id": "stencila:style",
+      "description": "Tailwind utility classes to apply to the icon.",
+      "$comment": "Used to style the icon when it is rendered in the DOM.",
+      "type": "string"
+    }
+  }
+}

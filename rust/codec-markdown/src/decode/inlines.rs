@@ -16,8 +16,8 @@ use stencila_codec::{
     stencila_schema::{
         AudioObject, BooleanValidator, Button, Citation, CitationGroup, CitationMode,
         CodeExpression, CodeInline, Cord, DateTimeValidator, DateValidator, DurationValidator,
-        Emphasis, EnumValidator, ImageObject, Inline, IntegerValidator, Link, MathInline, Node,
-        NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline,
+        Emphasis, EnumValidator, Icon, ImageObject, Inline, IntegerValidator, Link, MathInline,
+        Node, NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline,
         Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text,
         TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
     },
@@ -27,7 +27,7 @@ use stencila_codec_text_trait::to_text;
 use super::{
     Context,
     shared::{
-        attrs, attrs_list, name, node_to_option_date, node_to_option_datetime,
+        attrs, attrs_list, name, node_to_from_str, node_to_option_date, node_to_option_datetime,
         node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
         node_to_option_timestamp, node_to_string, take_until_unbalanced,
     },
@@ -474,6 +474,7 @@ pub(super) fn inlines(input: &str, format: &Format) -> Vec<(Inline, Range<usize>
         citation_narrative,
         parameter,
         button,
+        icon,
         styled_inline,
         quote,
         strikeout,
@@ -961,6 +962,55 @@ fn button(input: &mut Located<&str>) -> ModalResult<Inline> {
         .parse_next(input)
 }
 
+/// Parse `%[name]` or `%[name]{attrs}` into an `Icon` node
+fn icon(input: &mut Located<&str>) -> ModalResult<Inline> {
+    let icon_name: &str = delimited("%[", take_until(1.., ']'), ']').parse_next(input)?;
+
+    let name = icon_name.trim();
+    if name.is_empty() {
+        return winnow::combinator::fail.parse_next(input);
+    }
+
+    let mut style = None;
+    let mut label = None;
+    let mut decorative = None;
+
+    if let Ok(options) = attrs.parse_next(input) {
+        for (key, value) in options {
+            match key {
+                "style" => {
+                    style = value.map(node_to_string);
+                }
+                "label" => {
+                    label = value.map(node_to_string);
+                }
+                "decorative" => {
+                    decorative = value.and_then(node_to_from_str::<bool>);
+                }
+                _ => {
+                    if value.is_none() {
+                        match &mut style {
+                            Some(style) => {
+                                style.push(' ');
+                                style.push_str(&key)
+                            }
+                            None => style = Some(key.into()),
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    Ok(Inline::Icon(Icon {
+        name: name.to_string(),
+        style,
+        label,
+        decorative,
+        ..Default::default()
+    }))
+}
+
 /// Parse a [`StyledInline`].
 fn styled_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     (
@@ -1135,7 +1185,7 @@ fn html_tag(input: &mut Located<&str>) -> ModalResult<Inline> {
 /// Will greedily take as many characters as possible, excluding those that appear at the
 /// start of other inline parsers e.g. '$', '['
 fn string(input: &mut Located<&str>) -> ModalResult<Inline> {
-    const CHARS: &str = "~@#$^&[]{`<>";
+    const CHARS: &str = "~@#$^&%[]{`<>";
     take_while(1.., |chr: char| !CHARS.contains(chr))
         .map(|val: &str| Inline::Text(Text::new(val.into())))
         .parse_next(input)
@@ -1476,5 +1526,275 @@ mod tests {
         let inlines = decode_para_inlines("{unknown}`value`", Format::Myst);
         assert_eq!(inlines.len(), 1);
         assert!(matches!(&inlines[0], Inline::Text(..)));
+    }
+
+    // --- Icon parsing: basic %[name] syntax ---
+
+    #[test]
+    fn test_icon_basic_parse() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let res = inlines("%[mdi:home]", &Format::default());
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, .. }) if name == "mdi:home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_parse_tabler() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let res = inlines("%[tabler:alert-circle]", &Format::default());
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, .. }) if name == "tabler:alert-circle"
+        ));
+    }
+
+    #[test]
+    fn test_icon_parse_surrounded_by_text() {
+        let res = inlines("before %[mdi:home] after", &Format::default());
+        assert_eq!(res.len(), 3);
+        assert_eq!(to_text(&res[0].0), "before ");
+        assert!(matches!(&res[1].0, Inline::Icon(..)));
+        assert_eq!(to_text(&res[2].0), " after");
+    }
+
+    #[test]
+    fn test_icon_empty_name_not_parsed() {
+        let res = inlines("%[]", &Format::default());
+        // Should NOT produce an Icon — falls through to text
+        assert!(
+            !res.iter()
+                .any(|(inline, _)| matches!(inline, Inline::Icon(..)))
+        );
+    }
+
+    #[test]
+    fn test_icon_whitespace_only_name_not_parsed() {
+        let res = inlines("%[  ]", &Format::default());
+        // Should NOT produce an Icon — falls through to text
+        assert!(
+            !res.iter()
+                .any(|(inline, _)| matches!(inline, Inline::Icon(..)))
+        );
+    }
+
+    #[test]
+    fn test_icon_leading_trailing_whitespace_trimmed() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let res = inlines("%[ mdi:home ]", &Format::default());
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, .. }) if name == "mdi:home"
+        ));
+    }
+
+    // --- Icon parsing: extended %[name]{attrs} syntax ---
+
+    #[test]
+    fn test_icon_with_label_attr() {
+        use stencila_codec::stencila_schema::Icon;
+
+        // Per the design contract (delivery plan line 67): when label is present and
+        // decorative is not explicitly set, the parser sets decorative to Some(false).
+        let res = inlines(r#"%[mdi:home]{label="Home"}"#, &Format::default());
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+                if name == "mdi:home" && label == "Home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_with_decorative_attr() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let res = inlines("%[mdi:home]{decorative=false}", &Format::default());
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, decorative: Some(false), .. })
+                if name == "mdi:home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_with_label_and_decorative_attrs() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let res = inlines(
+            r#"%[mdi:home]{label="Home" decorative=false}"#,
+            &Format::default(),
+        );
+        assert_eq!(res.len(), 1);
+        assert!(matches!(
+            &res[0].0,
+            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+                if name == "mdi:home" && label == "Home"
+        ));
+    }
+
+    // --- Icon parsing: negative / edge-case tests for attrs ---
+
+    #[test]
+    fn test_icon_malformed_attrs_falls_through() {
+        // Unterminated attrs block — the icon name should still parse but the
+        // trailing `{label=...` should be separate text, or the whole thing
+        // falls through. Either way, no panic and no malformed Icon.
+        let res = inlines(r#"%[mdi:home]{label="Home"#, &Format::default());
+        // Should not produce an Icon with a valid label from malformed attrs
+        for (inline, _) in &res {
+            if let Inline::Icon(icon) = inline {
+                // If an Icon was parsed (just the name part), that's fine,
+                // but it should NOT have extracted a label from malformed attrs
+                assert!(icon.label.is_none());
+            }
+        }
+    }
+
+    // --- Icon parsing via full decode pipeline ---
+
+    #[test]
+    fn test_icon_basic_via_decode() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let inlines = decode_para_inlines("%[mdi:home]", Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(
+            &inlines[0],
+            Inline::Icon(Icon { name, .. }) if name == "mdi:home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_surrounded_via_decode() {
+        let inlines = decode_para_inlines("before %[mdi:home] after", Format::Smd);
+        assert_eq!(inlines.len(), 3);
+        assert!(matches!(&inlines[0], Inline::Text(t) if t.value.as_str() == "before "));
+        assert!(matches!(&inlines[1], Inline::Icon(..)));
+        assert!(matches!(&inlines[2], Inline::Text(t) if t.value.as_str() == " after"));
+    }
+
+    #[test]
+    fn test_icon_with_label_via_decode() {
+        use stencila_codec::stencila_schema::Icon;
+
+        // Per design contract: label present without explicit decorative → decorative=Some(false)
+        let inlines = decode_para_inlines(r#"%[mdi:home]{label="Home"}"#, Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(
+            &inlines[0],
+            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+                if name == "mdi:home" && label == "Home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_with_combined_attrs_via_decode() {
+        use stencila_codec::stencila_schema::Icon;
+
+        let inlines =
+            decode_para_inlines(r#"%[mdi:home]{label="Home" decorative=false}"#, Format::Smd);
+        assert_eq!(inlines.len(), 1);
+        assert!(matches!(
+            &inlines[0],
+            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+                if name == "mdi:home" && label == "Home"
+        ));
+    }
+
+    // --- Icon serialization round-trip ---
+
+    #[test]
+    fn test_icon_round_trip_basic() {
+        use stencila_codec::stencila_schema::Icon;
+
+        // Decode → encode → decode should produce identical Icon
+        let inlines1 = decode_para_inlines("%[mdi:home]", Format::Smd);
+        assert_eq!(inlines1.len(), 1);
+        assert!(matches!(&inlines1[0], Inline::Icon(..)));
+
+        // Encode back to markdown
+        use stencila_codec_markdown_trait::to_markdown;
+        let md = to_markdown(&inlines1[0]);
+        assert_eq!(md, "%[mdi:home]");
+
+        // Decode again and compare
+        let inlines2 = decode_para_inlines(&md, Format::Smd);
+        assert_eq!(inlines2.len(), 1);
+        assert!(matches!(
+            &inlines2[0],
+            Inline::Icon(Icon { name, .. }) if name == "mdi:home"
+        ));
+    }
+
+    #[test]
+    fn test_icon_round_trip_with_label() {
+        let inlines1 = decode_para_inlines(r#"%[mdi:home]{label="Home"}"#, Format::Smd);
+        assert_eq!(inlines1.len(), 1);
+
+        // Extract the decoded Icon for comparison
+        let icon1 = match &inlines1[0] {
+            Inline::Icon(icon) => icon,
+            other => panic!("Expected Inline::Icon, got: {other:?}"),
+        };
+        assert_eq!(icon1.name, "mdi:home");
+        assert_eq!(icon1.label.as_deref(), Some("Home"));
+        assert_eq!(icon1.decorative, Some(false));
+
+        // Encode back to markdown — must produce valid %[name]{attrs} syntax
+        use stencila_codec_markdown_trait::to_markdown;
+        let md = to_markdown(&inlines1[0]);
+        assert!(
+            md.starts_with("%[mdi:home]"),
+            "Encoded markdown should start with icon syntax, got: {md}"
+        );
+        assert!(
+            md.contains(r#"label="Home""#),
+            "Encoded markdown should contain label attr, got: {md}"
+        );
+
+        // Decode again and verify semantic equality
+        let inlines2 = decode_para_inlines(&md, Format::Smd);
+        assert_eq!(inlines2.len(), 1);
+        let icon2 = match &inlines2[0] {
+            Inline::Icon(icon) => icon,
+            other => panic!("Expected Inline::Icon after round-trip, got: {other:?}"),
+        };
+        assert_eq!(icon2.name, icon1.name);
+        assert_eq!(icon2.label, icon1.label);
+        assert_eq!(icon2.decorative, icon1.decorative);
+    }
+
+    #[test]
+    fn test_icon_round_trip_with_combined_attrs() {
+        let inlines1 =
+            decode_para_inlines(r#"%[mdi:home]{label="Home" decorative=false}"#, Format::Smd);
+        assert_eq!(inlines1.len(), 1);
+
+        let icon1 = match &inlines1[0] {
+            Inline::Icon(icon) => icon,
+            other => panic!("Expected Inline::Icon, got: {other:?}"),
+        };
+
+        use stencila_codec_markdown_trait::to_markdown;
+        let md = to_markdown(&inlines1[0]);
+
+        let inlines2 = decode_para_inlines(&md, Format::Smd);
+        assert_eq!(inlines2.len(), 1);
+        let icon2 = match &inlines2[0] {
+            Inline::Icon(icon) => icon,
+            other => panic!("Expected Inline::Icon after round-trip, got: {other:?}"),
+        };
+        assert_eq!(icon2.name, icon1.name);
+        assert_eq!(icon2.label, icon1.label);
+        assert_eq!(icon2.decorative, icon1.decorative);
     }
 }

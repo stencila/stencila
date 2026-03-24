@@ -80,6 +80,12 @@ anyOf:
 
   - $ref: ImageObject
 
+  - $ref: Icon
+    proptest:
+      min:
+        description: Do not generate `Icon` nodes in inline content.
+        skip: true
+
   - $ref: InstructionInline
     proptest:
       min:

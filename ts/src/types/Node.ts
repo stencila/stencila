@@ -64,6 +64,7 @@ import { type Form } from "./Form.js";
 import { type Function } from "./Function.js";
 import { type Grant } from "./Grant.js";
 import { type Heading } from "./Heading.js";
+import { type Icon } from "./Icon.js";
 import { type IfBlock } from "./IfBlock.js";
 import { type IfBlockClause } from "./IfBlockClause.js";
 import { type ImageObject } from "./ImageObject.js";
@@ -213,6 +214,7 @@ export type Node =
   Function |
   Grant |
   Heading |
+  Icon |
   IfBlock |
   IfBlockClause |
   ImageObject |
@@ -358,6 +360,7 @@ export function node(other: Node): Node {
     case "Function":
     case "Grant":
     case "Heading":
+    case "Icon":
     case "IfBlock":
     case "IfBlockClause":
     case "ImageObject":

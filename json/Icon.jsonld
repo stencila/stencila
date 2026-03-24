@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/DatatableColumn",
-  "name": "DatatableColumn",
+  "@id": "https://stencila.org/Icon",
+  "name": "Icon",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,19 +9,19 @@
   },
   "@graph": [
     {
-      "@id": "stencila:DatatableColumn",
+      "@id": "stencila:Icon",
       "@type": "rdfs:Class",
-      "rdfs:label": "DatatableColumn",
-      "rdfs:comment": "A column of data within a `Datatable`.",
+      "rdfs:label": "Icon",
+      "rdfs:comment": "An icon, typically rendered using an icon font.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }
     },
     {
-      "@id": "stencila:name",
+      "@id": "schema:name",
       "@type": "rdfs:Property",
       "rdfs:label": "name",
-      "rdfs:comment": "The name of the column.",
+      "rdfs:comment": "The name of the icon e.g. \"clock\" or \"lucide:clock\".",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"
@@ -74,40 +74,79 @@
       }
     },
     {
-      "@id": "stencila:values",
+      "@id": "stencila:label",
       "@type": "rdfs:Property",
-      "rdfs:label": "values",
-      "rdfs:comment": "The data values of the column.",
+      "rdfs:label": "label",
+      "rdfs:comment": "An accessible text label for the icon.",
       "schema:domainIncludes": [
         {
-          "@id": "stencila:DatatableColumn"
+          "@id": "schema:Claim"
         },
         {
-          "@id": "stencila:EnumValidator"
+          "@id": "schema:Table"
         },
         {
-          "@id": "stencila:ObjectHint"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "stencila:Primitive"
-      }
-    },
-    {
-      "@id": "stencila:validator",
-      "@type": "rdfs:Property",
-      "rdfs:label": "validator",
-      "rdfs:comment": "The validator to use to validate data in the column.",
-      "schema:domainIncludes": [
+          "@id": "stencila:Button"
+        },
         {
-          "@id": "stencila:DatatableColumn"
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Datatable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Island"
+        },
+        {
+          "@id": "stencila:MathBlock"
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
-        "@id": "stencila:ArrayValidator"
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:decorative",
+      "@type": "rdfs:Property",
+      "rdfs:label": "decorative",
+      "rdfs:comment": "Whether the icon is purely decorative.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Icon"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:style",
+      "@type": "rdfs:Property",
+      "rdfs:label": "style",
+      "rdfs:comment": "Tailwind utility classes to apply to the icon.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Island"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
       }
     }
   ]

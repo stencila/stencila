@@ -219,12 +219,19 @@ pub(super) fn attrs_list<'s>(
 pub(super) fn attr<'s>(input: &mut Located<&'s str>) -> ModalResult<(&'s str, Option<Node>)> {
     alt((
         separated_pair(
-            name,
+            alt((
+                take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '-'),
+                name,
+            )),
             (multispace0, '=', multispace0),
             alt((primitive_node, unquoted_string_node)),
         )
         .map(|(name, value)| (name, Some(value))),
-        name.map(|name| (name, None)),
+        alt((
+            take_while(1.., |c: char| c.is_ascii_alphanumeric() || c == '-'),
+            name,
+        ))
+        .map(|name| (name, None)),
     ))
     .parse_next(input)
 }

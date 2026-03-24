@@ -75,6 +75,7 @@ pub enum NodeType {
     Function,
     Grant,
     Heading,
+    Icon,
     IfBlock,
     IfBlockClause,
     ImageObject,
@@ -172,7 +173,7 @@ impl NodeType {
     /// Is the node type an inline content type?
     pub fn is_inline(&self) -> bool {
         use NodeType::*;
-        matches!(self, Annotation|AudioObject|Button|Citation|CitationGroup|CodeExpression|CodeInline|Date|DateTime|Duration|Emphasis|ImageObject|InstructionInline|Link|MathInline|MediaObject|Note|Parameter|QuoteInline|Sentence|StyledInline|Strikeout|Strong|Subscript|SuggestionInline|Superscript|Text|Time|Timestamp|Underline|VideoObject|Null|Boolean|Integer|UnsignedInteger|Number)
+        matches!(self, Annotation|AudioObject|Button|Citation|CitationGroup|CodeExpression|CodeInline|Date|DateTime|Duration|Emphasis|ImageObject|Icon|InstructionInline|Link|MathInline|MediaObject|Note|Parameter|QuoteInline|Sentence|StyledInline|Strikeout|Strong|Subscript|SuggestionInline|Superscript|Text|Time|Timestamp|Underline|VideoObject|Null|Boolean|Integer|UnsignedInteger|Number)
     }
 
     /// Is the node type a primitive type?
@@ -252,6 +253,7 @@ impl TryFrom<&NodeId> for NodeType {
             "fun" => Function,
             "gra" => Grant,
             "hea" => Heading,
+            "ico" => Icon,
             "ifb" => IfBlock,
             "ibc" => IfBlockClause,
             "img" => ImageObject,

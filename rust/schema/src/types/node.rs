@@ -65,6 +65,7 @@ use super::form::Form;
 use super::function::Function;
 use super::grant::Grant;
 use super::heading::Heading;
+use super::icon::Icon;
 use super::if_block::IfBlock;
 use super::if_block_clause::IfBlockClause;
 use super::image_object::ImageObject;
@@ -284,6 +285,8 @@ pub enum Node {
     Grant(Grant),
 
     Heading(Heading),
+
+    Icon(Icon),
 
     IfBlock(IfBlock),
 

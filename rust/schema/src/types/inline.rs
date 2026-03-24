@@ -14,6 +14,7 @@ use super::date::Date;
 use super::date_time::DateTime;
 use super::duration::Duration;
 use super::emphasis::Emphasis;
+use super::icon::Icon;
 use super::image_object::ImageObject;
 use super::instruction_inline::InstructionInline;
 use super::integer::Integer;
@@ -92,6 +93,12 @@ pub enum Inline {
     Emphasis(Emphasis),
 
     ImageObject(ImageObject),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Icon(Icon),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

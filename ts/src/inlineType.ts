@@ -13,6 +13,7 @@ export type InlineType =
   | "Duration"
   | "Emphasis"
   | "ImageObject"
+  | "Icon"
   | "InstructionInline"
   | "Link"
   | "MathInline"
@@ -51,6 +52,7 @@ export const InlineTypeList = [
   "Duration",
   "Emphasis",
   "ImageObject",
+  "Icon",
   "InstructionInline",
   "Link",
   "MathInline",

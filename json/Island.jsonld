@@ -226,6 +226,9 @@
           "@id": "stencila:Heading"
         },
         {
+          "@id": "stencila:Icon"
+        },
+        {
           "@id": "stencila:Island"
         },
         {
@@ -291,9 +294,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "style",
       "rdfs:comment": "The style to apply to the island.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Island"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Island"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
