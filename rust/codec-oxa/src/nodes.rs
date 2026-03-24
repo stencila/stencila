@@ -6,7 +6,7 @@ use stencila_codec::{
 
 use crate::{
     blocks::{decode_block, encode_block},
-    inlines::encode_inline,
+    inlines::{decode_inline, encode_inline_children},
 };
 
 pub fn encode_document(node: &Node) -> Result<Value> {
@@ -22,8 +22,7 @@ pub fn encode_document(node: &Node) -> Result<Value> {
     });
 
     if let Some(title) = &article.title {
-        let title_inlines: Vec<Value> = title.iter().map(encode_inline).collect();
-        doc["title"] = Value::Array(title_inlines);
+        doc["title"] = encode_inline_children(title);
     }
 
     Ok(doc)
@@ -65,7 +64,7 @@ fn decode_title(obj: &Map<String, Value>, article: &mut Article) -> Result<()> {
             let inlines: Vec<Inline> = arr
                 .iter()
                 .filter_map(|v| v.as_object())
-                .map(crate::inlines::decode_inline)
+                .map(decode_inline)
                 .collect::<Result<Vec<_>>>()?;
             if !inlines.is_empty() {
                 article.title = Some(inlines);

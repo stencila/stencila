@@ -4,16 +4,15 @@ use stencila_codec::{
     stencila_schema::{CodeInline, Emphasis, Inline, Strong, Subscript, Superscript, Text},
 };
 
-fn encode_inline_container(oxa_type: &str, content: &[Inline]) -> Value {
-    let children: Vec<Value> = content.iter().map(encode_inline).collect();
-    json!({
-        "type": oxa_type,
-        "children": children,
-    })
-}
-
 pub(crate) fn encode_inline_children(content: &[Inline]) -> Value {
     Value::Array(content.iter().map(encode_inline).collect())
+}
+
+fn encode_inline_container(oxa_type: &str, content: &[Inline]) -> Value {
+    json!({
+        "type": oxa_type,
+        "children": encode_inline_children(content),
+    })
 }
 
 pub fn encode_inline(inline: &Inline) -> Value {

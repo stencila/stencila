@@ -6631,6 +6631,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d211803b9b6b570f68772237e415a029d5a50c65d382910b879fb19d3271f94d"
 
 [[package]]
+name = "oxa-types"
+version = "0.2.0"
+source = "git+https://github.com/oxa-dev/oxa?rev=89bdc4db98e07666dd966cd67631f608f87b95d1#89bdc4db98e07666dd966cd67631f608f87b95d1"
+dependencies = [
+ "monostate 0.1.18",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "p256"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9995,6 +10005,7 @@ dependencies = [
 name = "stencila-codec-oxa"
 version = "0.0.0"
 dependencies = [
+ "oxa-types",
  "pretty_assertions",
  "serde_json",
  "stencila-codec",
