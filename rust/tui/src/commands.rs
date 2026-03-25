@@ -427,7 +427,9 @@ async fn execute_resume(app: &mut App) {
                 Ok(sessions) => {
                     for session in sessions {
                         // Skip non-closed and workflow-owned sessions (those are resumed via workflows)
-                        if !matches!(session.state, SessionState::Closed) || session.workflow_run_id.is_some() {
+                        if !matches!(session.state, SessionState::Closed)
+                            || session.workflow_run_id.is_some()
+                        {
                             continue;
                         }
                         let status = format!("{}", session.state).to_ascii_lowercase();

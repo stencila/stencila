@@ -413,10 +413,7 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
                 ResumableKind::AgentSession => "agent   ",
             };
             let kind_col = format!(" {kind_label}  ");
-            let time_col = format!(
-                "{:>max_time_width$}  ",
-                candidate.time_ago
-            );
+            let time_col = format!("{:>max_time_width$}  ", candidate.time_ago);
             let status_label = match candidate.status.as_str() {
                 "fail" | "failed" => "failed",
                 other => other,

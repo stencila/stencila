@@ -992,7 +992,7 @@ fn icon(input: &mut Located<&str>) -> ModalResult<Inline> {
                         match &mut style {
                             Some(style) => {
                                 style.push(' ');
-                                style.push_str(&key)
+                                style.push_str(key)
                             }
                             None => style = Some(key.into()),
                         }

@@ -10,7 +10,7 @@ impl DomCodec for Icon {
 
         if let Some(style) = &self.style {
             class.push(' ');
-            class.push_str(&style);
+            class.push_str(style);
         }
 
         context
