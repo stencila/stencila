@@ -4,6 +4,9 @@ expression: value
 ---
 {
   "type": "CodeChunk",
+  "children": [
+    2
+  ],
   "data": {
     "code": "print('hello')",
     "programmingLanguage": "python",
@@ -17,9 +20,6 @@ expression: value
           }
         ]
       }
-    ],
-    "outputs": [
-      2
     ]
   }
 }

@@ -58,6 +58,28 @@ fn child_properties(node_type: NodeType) -> &'static [&'static str] {
     }
 }
 
+/// Returns the property name that should be mapped to `children` in the OXA
+/// output. For types with only one child property this is that property. For
+/// types with multiple child properties, this picks the most semantically
+/// appropriate one — `content` when present, otherwise a type-specific primary
+/// (e.g. `rows` for Table, `outputs` for CodeChunk). Remaining child
+/// properties are placed into `data`.
+fn primary_child_property(node_type: NodeType) -> Option<&'static str> {
+    use NodeType::*;
+    match node_type {
+        // Types with multiple child properties — pick the primary one
+        CodeChunk => Some("outputs"),
+        Figure => Some("content"),
+        ForBlock => Some("content"),
+        Table => Some("rows"),
+        _ => {
+            // Single-child types: use whatever child_properties returns
+            let children = child_properties(node_type);
+            children.first().copied()
+        }
+    }
+}
+
 /// Properties to skip during generic encoding.
 const SKIP_PROPERTIES: &[&str] = &["type", "uid", "options"];
 
@@ -151,22 +173,20 @@ where
     let mut result = Map::new();
     result.insert("type".into(), Value::String(node_type.to_string()));
 
-    if children.len() == 1 {
-        if let Some((_, children_value)) = walked_values.into_iter().next() {
-            result.insert("children".into(), children_value);
-        }
-        if !data.is_empty() {
-            result.insert("data".into(), Value::Object(data));
-        }
-    } else {
-        for &name in children {
-            if let Some(val) = walked_values.remove(name) {
-                data.insert(name.into(), val);
-            }
-        }
-        if !data.is_empty() {
-            result.insert("data".into(), Value::Object(data));
-        }
+    let primary = primary_child_property(node_type);
+
+    // The primary child property becomes `children`; all other walked
+    // properties go into `data`.
+    if let Some(primary_name) = primary
+        && let Some(val) = walked_values.remove(primary_name)
+    {
+        result.insert("children".into(), val);
+    }
+    for (name, val) in walked_values {
+        data.insert(name, val);
+    }
+    if !data.is_empty() {
+        result.insert("data".into(), Value::Object(data));
     }
 
     Value::Object(result)

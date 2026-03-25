@@ -8,11 +8,18 @@
 //! There are exactly 6 snapshot tests, one per required structural pattern:
 //!
 //! 1. **List** — single walked property (`items`) → `children`
-//! 2. **ForBlock** — multiple walked properties (`content`, `otherwise`, `iterations`) → named arrays in `data`
-//! 3. **Table** — nested intermediate structs (TableRow, TableCell) with their own walked properties
-//! 4. **CodeChunk** — multiple walked properties (`caption`, `outputs`) together
+//! 2. **ForBlock** — primary walked property (`content`) → `children`; others (`otherwise`, `iterations`) → `data`
+//! 3. **Table** — primary walked property (`rows`) → `children`; nested intermediate structs (TableRow, TableCell)
+//! 4. **CodeChunk** — primary walked property (`outputs`) → `children`; `caption` → `data`
 //! 5. **IfBlock** — IfBlockClause intermediate struct handling
 //! 6. **MathBlock** — no walked properties → `data` only
+//!
+//! Each node type with walked properties has a *primary* child property that
+//! maps to `children` in the OXA output; any remaining walked properties go
+//! into `data`. For types with a single walked property, that property is
+//! the primary. For types with multiple walked properties, the primary is
+//! chosen explicitly (e.g. `content` for ForBlock, `rows` for Table,
+//! `outputs` for CodeChunk).
 //!
 //! NOTE on walked properties: The Rust `#[walk]` attribute is the source of
 //! truth. Properties named `content` default to walked even if not annotated
@@ -78,14 +85,15 @@ async fn snapshot_list() -> Result<()> {
 }
 
 // ===========================================================================
-// Snapshot 2: ForBlock — multiple walked properties → named arrays in data
+// Snapshot 2: ForBlock — primary child `content` → children, rest → data
 // ===========================================================================
 
 /// A ForBlock with all three walked properties populated.
 ///
 /// Encoding rules:
 /// - ForBlock has 3 walked properties (`content`, `otherwise`, `iterations`)
-/// - With multiple walked properties, each becomes a named array in `data`
+/// - `content` is the primary child → becomes `children`
+/// - `otherwise` and `iterations` are secondary → go into `data`
 /// - Non-walked scalars (`variable`, `code`) also go into `data`
 #[tokio::test]
 async fn snapshot_for_block() -> Result<()> {
@@ -120,8 +128,9 @@ async fn snapshot_for_block() -> Result<()> {
 /// A Table with header and data rows.
 ///
 /// Encoding rules:
-/// - Table has multiple walked properties (`caption`, `rows`, `notes`, etc.)
-///   → each becomes a named array in `data`
+/// - Table has multiple walked properties (`caption`, `rows`, `notes`)
+/// - `rows` is the primary child → becomes `children`
+/// - `caption` and `notes` are secondary → go into `data`
 /// - TableRow has 1 walked property (`cells`) → cells become `children`
 /// - TableCell has 1 walked property (`content`) → content becomes `children`
 /// - Non-walked scalars of each struct go into their respective `data`
@@ -139,14 +148,15 @@ async fn snapshot_table() -> Result<()> {
 }
 
 // ===========================================================================
-// Snapshot 4: CodeChunk — multiple walked properties (caption + outputs)
+// Snapshot 4: CodeChunk — primary child `outputs` → children, caption → data
 // ===========================================================================
 
 /// A CodeChunk with both caption and outputs populated.
 ///
 /// Encoding rules:
 /// - CodeChunk has 2 walked properties (`caption`, `outputs`)
-/// - With multiple walked properties, each becomes a named array in `data`
+/// - `outputs` is the primary child → becomes `children`
+/// - `caption` is secondary → goes into `data`
 /// - Non-walked scalars (`code`, `programmingLanguage`) also go into `data`
 #[tokio::test]
 async fn snapshot_code_chunk() -> Result<()> {

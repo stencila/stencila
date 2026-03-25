@@ -4,89 +4,87 @@ expression: value
 ---
 {
   "type": "Table",
-  "data": {
-    "rows": [
-      {
-        "type": "TableRow",
-        "children": [
-          {
-            "type": "TableCell",
-            "children": [
-              {
-                "type": "Paragraph",
-                "children": [
-                  {
-                    "type": "Text",
-                    "value": "Header A"
-                  }
-                ]
-              }
-            ],
-            "data": {
-              "cellType": "Header"
+  "children": [
+    {
+      "type": "TableRow",
+      "children": [
+        {
+          "type": "TableCell",
+          "children": [
+            {
+              "type": "Paragraph",
+              "children": [
+                {
+                  "type": "Text",
+                  "value": "Header A"
+                }
+              ]
             }
-          },
-          {
-            "type": "TableCell",
-            "children": [
-              {
-                "type": "Paragraph",
-                "children": [
-                  {
-                    "type": "Text",
-                    "value": "Header B"
-                  }
-                ]
-              }
-            ],
-            "data": {
-              "cellType": "Header"
-            }
+          ],
+          "data": {
+            "cellType": "Header"
           }
-        ],
-        "data": {
-          "rowType": "HeaderRow"
+        },
+        {
+          "type": "TableCell",
+          "children": [
+            {
+              "type": "Paragraph",
+              "children": [
+                {
+                  "type": "Text",
+                  "value": "Header B"
+                }
+              ]
+            }
+          ],
+          "data": {
+            "cellType": "Header"
+          }
         }
-      },
-      {
-        "type": "TableRow",
-        "children": [
-          {
-            "type": "TableCell",
-            "children": [
-              {
-                "type": "Paragraph",
-                "children": [
-                  {
-                    "type": "Text",
-                    "value": "Cell 1"
-                  }
-                ]
-              }
-            ],
-            "data": {
-              "cellType": "Data"
-            }
-          },
-          {
-            "type": "TableCell",
-            "children": [
-              {
-                "type": "Paragraph",
-                "children": [
-                  {
-                    "type": "Text",
-                    "value": "Cell 2"
-                  }
-                ]
-              }
-            ],
-            "data": {
-              "cellType": "Data"
-            }
-          }
-        ]
+      ],
+      "data": {
+        "rowType": "HeaderRow"
       }
-    ]
-  }
+    },
+    {
+      "type": "TableRow",
+      "children": [
+        {
+          "type": "TableCell",
+          "children": [
+            {
+              "type": "Paragraph",
+              "children": [
+                {
+                  "type": "Text",
+                  "value": "Cell 1"
+                }
+              ]
+            }
+          ],
+          "data": {
+            "cellType": "Data"
+          }
+        },
+        {
+          "type": "TableCell",
+          "children": [
+            {
+              "type": "Paragraph",
+              "children": [
+                {
+                  "type": "Text",
+                  "value": "Cell 2"
+                }
+              ]
+            }
+          ],
+          "data": {
+            "cellType": "Data"
+          }
+        }
+      ]
+    }
+  ]
 }

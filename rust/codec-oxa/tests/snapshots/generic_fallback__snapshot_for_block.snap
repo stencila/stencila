@@ -4,31 +4,20 @@ expression: value
 ---
 {
   "type": "ForBlock",
+  "children": [
+    {
+      "type": "Paragraph",
+      "children": [
+        {
+          "type": "Text",
+          "value": "Has items"
+        }
+      ]
+    }
+  ],
   "data": {
     "code": "collection",
     "variable": "x",
-    "content": [
-      {
-        "type": "Paragraph",
-        "children": [
-          {
-            "type": "Text",
-            "value": "Has items"
-          }
-        ]
-      }
-    ],
-    "otherwise": [
-      {
-        "type": "Paragraph",
-        "children": [
-          {
-            "type": "Text",
-            "value": "No items"
-          }
-        ]
-      }
-    ],
     "iterations": [
       {
         "type": "Section",
@@ -55,6 +44,17 @@ expression: value
                 "value": "Iteration 2"
               }
             ]
+          }
+        ]
+      }
+    ],
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "children": [
+          {
+            "type": "Text",
+            "value": "No items"
           }
         ]
       }
