@@ -37,7 +37,8 @@ stencila skills list --source claude
 
 | Value      | Description                                           |
 | ---------- | ----------------------------------------------------- |
-| `stencila` | `.stencila/skills/` — base layer, always loaded first |
-| `claude`   | `.claude/skills/` — Anthropic provider                |
-| `codex`    | `.codex/skills/` — OpenAI provider                    |
-| `gemini`   | `.gemini/skills/` — Google Gemini provider            |
+| `builtin`  | Builtin Stencila skills                               |
+| `stencila` | Skill from the workspace's `.stencila/skills/` folder |
+| `claude`   | Skill from the workspace's `.claude/skills/` folder   |
+| `codex`    | Skill from the workspace's `.codex/skills/` folder    |
+| `gemini`   | Skill from the workspace's `.gemini/skills/` folder   |

@@ -1,10 +1,10 @@
 # Auto-generated navigation
 
 items:
+  - "main"
   - "header"
   - "left-sidebar"
   - "top"
-  - "main"
   - "bottom"
   - "right-sidebar"
   - "footer"

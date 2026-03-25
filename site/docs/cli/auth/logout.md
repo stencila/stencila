@@ -23,6 +23,6 @@ stencila auth logout copilot
 
 # Arguments
 
-| Name         | Description                                                                               |
-| ------------ | ----------------------------------------------------------------------------------------- |
-| `<PROVIDER>` | The provider to logout from. Possible values: `anthropic`, `copilot`, `gemini`, `openai`. |
+| Name         | Description                                                                                |
+| ------------ | ------------------------------------------------------------------------------------------ |
+| `<PROVIDER>` | The provider to logout from. Possible values: `anthropic`, `copilot`, `gemini`, `open-ai`. |

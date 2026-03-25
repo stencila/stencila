@@ -101,6 +101,8 @@ items:
           - "show"
           - "new"
           - "remove"
+          - "validate"
+          - "tokens"
       - name: "secrets"
         children:
           - "list"

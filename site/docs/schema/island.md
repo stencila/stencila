@@ -12,6 +12,7 @@ The `Island` type has these properties:
 | `id`                 | The identifier for this item.                              | [`String`](./string.md)        | [`Entity`](./entity.md) |
 | `content`            | The content within the section.                            | [`Block`](./block.md)*         | -                       |
 | `isAutomatic`        | Whether the island is automatically generated.             | [`Boolean`](./boolean.md)      | -                       |
+| `isContinuation`     | Whether the island is a continuation of a previous island. | [`Boolean`](./boolean.md)      | -                       |
 | `labelType`          | The type of the label for the island.                      | [`LabelType`](./label-type.md) | -                       |
 | `label`              | A short label for the chunk.                               | [`String`](./string.md)        | -                       |
 | `labelAutomatically` | Whether the label should be automatically updated.         | [`Boolean`](./boolean.md)      | -                       |

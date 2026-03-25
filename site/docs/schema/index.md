@@ -120,6 +120,7 @@ includes the full set of properties and constraints.
 - [`DefinedTerm`](./defined-term.md) - A word, name, acronym, phrase, etc. with a formal definition.
 - [`Emphasis`](./emphasis.md) - Emphasized content.
 - [`Heading`](./heading.md) - A heading.
+- [`Icon`](./icon.md) - An icon, typically rendered using an icon font.
 - [`Inline`](./inline.md) - Union type for valid inline content.
 - [`InlinesBlock`](./inlines-block.md) - A block containing inlines with no other semantics.
 - [`Link`](./link.md) - A hyperlink to other pages, sections within the same document, resources, or any URL.

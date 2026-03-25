@@ -42,4 +42,5 @@ stencila agents list --source cli
 | ----------- | ------------------------------------------- |
 | `workspace` | `.stencila/agents/` in the workspace        |
 | `user`      | `~/.config/stencila/agents/` (user-level)   |
+| `builtin`   | Embedded in the binary                      |
 | `cli`       | Auto-detected from a CLI tool found on PATH |

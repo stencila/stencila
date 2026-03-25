@@ -34,8 +34,10 @@ stencila workflows run code-review --dry-run
 
 # Options
 
-| Name            | Description                                                                            |
-| --------------- | -------------------------------------------------------------------------------------- |
-| `-g, --goal`    | Override the pipeline goal.                                                            |
-| `-v, --verbose` | Show detailed output with prompts and responses. Possible values: `true`, `false`.     |
-| `--dry-run`     | Show workflow config and pipeline without executing. Possible values: `true`, `false`. |
+| Name                   | Description                                                                            |
+| ---------------------- | -------------------------------------------------------------------------------------- |
+| `-g, --goal`           | Override the pipeline goal.                                                            |
+| `-v, --verbose`        | Show detailed output with prompts and responses. Possible values: `true`, `false`.     |
+| `--dry-run`            | Show workflow config and pipeline without executing. Possible values: `true`, `false`. |
+| `--auto-approve`       | Auto-approve all human gates immediately. Possible values: `true`, `false`.            |
+| `--auto-approve-after` | Auto-approve human gates after a duration.                                             |

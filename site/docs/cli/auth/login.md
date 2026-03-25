@@ -29,6 +29,6 @@ stencila auth login openai
 
 # Arguments
 
-| Name         | Description                                                                            |
-| ------------ | -------------------------------------------------------------------------------------- |
-| `<PROVIDER>` | The provider to login to. Possible values: `anthropic`, `copilot`, `gemini`, `openai`. |
+| Name         | Description                                                                             |
+| ------------ | --------------------------------------------------------------------------------------- |
+| `<PROVIDER>` | The provider to login to. Possible values: `anthropic`, `copilot`, `gemini`, `open-ai`. |

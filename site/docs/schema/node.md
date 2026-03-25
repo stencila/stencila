@@ -74,6 +74,7 @@ The `Node` type has these members:
 - [`Function`](./function.md)
 - [`Grant`](./grant.md)
 - [`Heading`](./heading.md)
+- [`Icon`](./icon.md)
 - [`IfBlock`](./if-block.md)
 - [`IfBlockClause`](./if-block-clause.md)
 - [`ImageObject`](./image-object.md)

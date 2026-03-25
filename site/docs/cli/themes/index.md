@@ -31,13 +31,21 @@ stencila themes new my-theme
 
 # Remove a user theme
 stencila themes remove my-theme
+
+# Validate a custom theme file
+stencila themes validate theme.css
+
+# List design tokens available to use in themes
+stencila themes tokens
 ```
 
 # Subcommands
 
-| Command               | Description                 |
-| --------------------- | --------------------------- |
-| [`list`](list.md)     | List the available themes   |
-| [`show`](show.md)     | Show the resolved theme CSS |
-| [`new`](new.md)       | Create a new theme          |
-| [`remove`](remove.md) | Remove a user theme         |
+| Command                   | Description                 |
+| ------------------------- | --------------------------- |
+| [`list`](list.md)         | List the available themes   |
+| [`show`](show.md)         | Show the resolved theme CSS |
+| [`new`](new.md)           | Create a new theme          |
+| [`remove`](remove.md)     | Remove a user theme         |
+| [`validate`](validate.md) | Validate a theme file       |
+| [`tokens`](tokens.md)     | List builtin theme tokens   |

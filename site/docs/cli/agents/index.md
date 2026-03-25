@@ -41,11 +41,12 @@ stencila agents run code-engineer "Hello" --dry-run
 
 # Subcommands
 
-| Command                   | Description                               |
-| ------------------------- | ----------------------------------------- |
-| [`list`](list.md)         | List available agents                     |
-| [`show`](show.md)         | Show an agent                             |
-| [`create`](create.md)     | Create a new agent                        |
-| [`validate`](validate.md) | Validate an agent                         |
-| [`resolve`](resolve.md)   | Show how an agent session would be routed |
-| [`run`](run.md)           | Run an agent with a prompt                |
+| Command                         | Description                               |
+| ------------------------------- | ----------------------------------------- |
+| [`list`](list.md)               | List available agents                     |
+| [`show`](show.md)               | Show an agent                             |
+| [`create`](create.md)           | Create a new agent                        |
+| [`validate`](validate.md)       | Validate an agent                         |
+| [`resolve`](resolve.md)         | Show how an agent session would be routed |
+| [`run`](run.md)                 | Run an agent with a prompt                |
+| [`sessions`](sessions/index.md) | Manage agent sessions                     |

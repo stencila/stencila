@@ -19,6 +19,7 @@ The `Inline` type has these members:
 - [`Duration`](./duration.md)
 - [`Emphasis`](./emphasis.md)
 - [`ImageObject`](./image-object.md)
+- [`Icon`](./icon.md)
 - [`InstructionInline`](./instruction-inline.md)
 - [`Link`](./link.md)
 - [`MathInline`](./math-inline.md)
@@ -76,6 +77,7 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 |                     | High+      | Generate `DateTime` nodes in inline content.                                                                                                                                                      | Default for level                                |
 | `Duration`          | Min+       | Do not generate `Duration` nodes in inline content.                                                                                                                                               | -                                                |
 |                     | High+      | Generate `Duration` nodes in inline content.                                                                                                                                                      | Default for level                                |
+| `Icon`              | Min+       | Do not generate `Icon` nodes in inline content.                                                                                                                                                   | -                                                |
 | `InstructionInline` | Min+       | Do not generate `InstructionInline` nodes in inline content.                                                                                                                                      | -                                                |
 |                     | Max        | Generate `InstructionInline` nodes in inline content.                                                                                                                                             | Default for level                                |
 | `MediaObject`       | Min+       | Do not generate `MediaObject` nodes in inline content.                                                                                                                                            | -                                                |

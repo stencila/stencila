@@ -63,6 +63,7 @@ items:
       - "defined-term"
       - "emphasis"
       - "heading"
+      - "icon"
       - "inline"
       - "inlines-block"
       - "link"
