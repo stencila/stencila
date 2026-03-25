@@ -10,7 +10,7 @@ export default defineConfig({
     outDir: '../vscode/out/web',
     emptyOutDir: true,
     sourcemap: false,
-    target: 'es2015',
+    target: 'es2020',
     rollupOptions: {
       input: {
         'views/vscode': resolve(__dirname, 'src/views/vscode.ts'),

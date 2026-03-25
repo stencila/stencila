@@ -12,7 +12,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     sourcemap: true,
-    target: 'es2015',
+    target: 'es2020',
     rollupOptions: {
       input: {
         'views/dynamic': resolve(__dirname, 'src/views/dynamic.ts'),
