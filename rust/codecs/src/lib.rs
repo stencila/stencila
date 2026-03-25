@@ -32,6 +32,7 @@ use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
 
 use stencila_codec_arxiv::ArxivCodec;
+use stencila_codec_atproto::AtProtoCodec;
 use stencila_codec_biblio::decode::text_to_reference;
 use stencila_codec_cbor::CborCodec;
 use stencila_codec_cff::CffCodec;
@@ -80,6 +81,7 @@ pub mod cli;
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
     vec![
+        Box::new(AtProtoCodec) as Box<dyn Codec>,
         Box::new(CborCodec) as Box<dyn Codec>,
         Box::new(CffCodec),
         Box::new(CslCodec),

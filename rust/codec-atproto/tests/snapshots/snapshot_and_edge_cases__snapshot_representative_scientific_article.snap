@@ -1,0 +1,135 @@
+---
+source: rust/codec-atproto/tests/snapshot_and_edge_cases.rs
+assertion_line: 118
+expression: value
+---
+{
+  "title": {
+    "text": "A Study of Quantum Effects",
+    "facets": [
+      {
+        "index": {
+          "byteStart": 11,
+          "byteEnd": 18
+        },
+        "features": [
+          {
+            "$type": "pub.oxa.richtext.facet#emphasis"
+          },
+          {
+            "$type": "pub.leaflet.richtext.facet#italic"
+          }
+        ]
+      }
+    ]
+  },
+  "blocks": [
+    {
+      "text": "Introduction",
+      "$type": "pub.oxa.blocks.defs#heading",
+      "level": 2
+    },
+    {
+      "text": "We study quantum effects, see here.",
+      "facets": [
+        {
+          "index": {
+            "byteStart": 9,
+            "byteEnd": 16
+          },
+          "features": [
+            {
+              "$type": "pub.oxa.richtext.facet#strong"
+            },
+            {
+              "$type": "pub.leaflet.richtext.facet#bold"
+            }
+          ]
+        },
+        {
+          "index": {
+            "byteStart": 30,
+            "byteEnd": 34
+          },
+          "features": [
+            {
+              "$type": "pub.oxa.richtext.facet#link",
+              "uri": "https://example.com"
+            },
+            {
+              "$type": "pub.leaflet.richtext.facet#link",
+              "uri": "https://example.com"
+            },
+            {
+              "$type": "app.bsky.richtext.facet#link",
+              "uri": "https://example.com"
+            }
+          ]
+        }
+      ],
+      "$type": "pub.oxa.blocks.defs#paragraph"
+    },
+    {
+      "$type": "pub.oxa.blocks.defs#code",
+      "value": "import numpy as np",
+      "language": "python"
+    },
+    {
+      "$type": "pub.oxa.blocks.defs#math",
+      "tex": "E = mc^2"
+    },
+    {
+      "$type": "pub.oxa.blocks.defs#thematicBreak"
+    },
+    {
+      "text": "To be or not to be.",
+      "$type": "pub.oxa.blocks.defs#blockquote"
+    },
+    {
+      "$type": "pub.oxa.blocks.defs#orderedList",
+      "startIndex": 1,
+      "children": [
+        {
+          "text": "First item"
+        },
+        {
+          "text": "Second item",
+          "children": [
+            {
+              "text": "Nested child"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "$type": "pub.oxa.blocks.defs#unorderedList",
+      "children": [
+        {
+          "text": "Bullet one"
+        },
+        {
+          "text": "Bullet two"
+        }
+      ]
+    },
+    {
+      "text": "🎉 Résumé: H2O 你好",
+      "facets": [
+        {
+          "index": {
+            "byteStart": 16,
+            "byteEnd": 17
+          },
+          "features": [
+            {
+              "$type": "pub.oxa.richtext.facet#subscript"
+            }
+          ]
+        }
+      ],
+      "$type": "pub.oxa.blocks.defs#paragraph"
+    }
+  ],
+  "createdAt": "[createdAt]"
+}

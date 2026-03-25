@@ -75,6 +75,7 @@ pub enum Format {
     Tailwind,
     Css,
     // Data serialization formats
+    AtProtoJson,
     Json,
     JsonZip,
     Json5,
@@ -144,6 +145,7 @@ impl Format {
         match self {
             Aac => "AAC",
             Arrow => "Apache Arrow",
+            AtProtoJson => "AT Protocol JSON",
             AsciiMath => "AsciiMath",
             Avi => "AVI",
             Bash => "Bash",
@@ -367,6 +369,7 @@ impl Format {
         match name.to_lowercase().trim() {
             "aac" => Aac,
             "arrow" => Arrow,
+            "atprotojson" | "atproto.json" => AtProtoJson,
             "asciimath" => AsciiMath,
             "avi" => Avi,
             "bash" => Bash,
@@ -464,6 +467,7 @@ impl Format {
         // Catch "double extensions" here
         let path_string = path.to_string_lossy();
         for (end, format) in [
+            (".atproto.json", AtProtoJson),
             (".cbor.zstd", CborZstd),
             (".dom.html", Dom),
             (".email.html", Email),
@@ -556,6 +560,7 @@ impl Format {
         // crate for no other reason that adding a dependency. That may be reviewed in the future.
         use Format::*;
         match self {
+            AtProtoJson => "application/json".to_string(),
             Cbor => "application/cbor".to_string(),
             CborZstd => "application/cbor+zstd".to_string(),
             Json => "application/json".to_string(),
@@ -615,6 +620,7 @@ impl Display for Format {
         f.write_str(match self {
             Aac => "aac",
             Arrow => "arrow",
+            AtProtoJson => "atproto.json",
             AsciiMath => "asciimath",
             Avi => "avi",
             Bash => "bash",
