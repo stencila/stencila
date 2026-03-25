@@ -1,4 +1,4 @@
-use std::{env, sync::OnceLock, time::Duration};
+use std::{env, sync::OnceLock};
 
 use cached::proc_macro::cached;
 use eyre::{Result, bail, eyre};

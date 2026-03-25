@@ -4,7 +4,6 @@ use std::{
     fmt::{Display, Formatter},
     path::{Path, PathBuf},
     sync::{Arc, LazyLock, OnceLock},
-    time::Duration,
 };
 
 use cached::proc_macro::cached;

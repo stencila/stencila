@@ -1,10 +1,11 @@
+use std::sync::Arc;
+
 use cached::proc_macro::cached;
 use inflector::Inflector;
 use itertools::Itertools;
 use reqwest::Client;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
-use std::{sync::Arc, time::Duration};
 use stencila_node_media::embed_image;
 
 use stencila_model::{
