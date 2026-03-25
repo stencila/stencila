@@ -18,7 +18,7 @@ use stencila_codec::{
     eyre::{self, Result},
     stencila_schema::{
         Block, Inline, Node,
-        shortcuts::{art, p, t},
+        shortcuts::{art, li, p, t, ul},
     },
 };
 use stencila_codec_oxa::OxaCodec;
@@ -534,13 +534,7 @@ async fn decode_no_losses_for_known_types() -> Result<()> {
 async fn encode_loss_generic_block() -> Result<()> {
     let codec = OxaCodec;
     // A List is not directly mapped — it uses the generic fallback
-    let doc = art([Block::List(stencila_codec::stencila_schema::List {
-        items: vec![stencila_codec::stencila_schema::ListItem {
-            content: vec![p([t("item")])],
-            ..Default::default()
-        }],
-        ..Default::default()
-    })]);
+    let doc = art([ul([li([t("item")])])]);
 
     let (_json_str, info) = codec.to_string(&doc, None).await?;
 

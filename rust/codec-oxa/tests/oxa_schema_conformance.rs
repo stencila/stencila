@@ -10,7 +10,7 @@ use stencila_codec::{
     Codec,
     eyre::{OptionExt, Result},
     stencila_schema::{
-        Article, Block, Inline, Node,
+        Article, Inline, Node,
         shortcuts::{art, cb, ci, em, h, p, stg, sub, sup, t, tb},
     },
 };
@@ -45,14 +45,8 @@ async fn article_to_oxa_document() -> Result<()> {
 #[tokio::test]
 async fn article_with_title_to_oxa_document() -> Result<()> {
     let doc = Node::Article(Article {
-        title: Some(vec![Inline::Text(
-            stencila_codec::stencila_schema::Text::new("My Title".into()),
-        )]),
-        content: vec![Block::Paragraph(
-            stencila_codec::stencila_schema::Paragraph::new(vec![Inline::Text(
-                stencila_codec::stencila_schema::Text::new("Body".into()),
-            )]),
-        )],
+        title: Some(vec![t("My Title")]),
+        content: vec![p([t("Body")])],
         ..Default::default()
     });
 
@@ -173,12 +167,7 @@ async fn thematic_break_to_oxa_thematic_break() -> Result<()> {
 /// Helper: encode an article with a paragraph containing the given inlines,
 /// then extract the first inline JSON value from the paragraph's children.
 async fn encode_inline_to_value(inlines: Vec<Inline>) -> Result<Value> {
-    let doc = Node::Article(Article {
-        content: vec![Block::Paragraph(
-            stencila_codec::stencila_schema::Paragraph::new(inlines),
-        )],
-        ..Default::default()
-    });
+    let doc = art([p(inlines)]);
     let value = encode_to_value(&doc).await?;
 
     let inline_value = value["children"]
@@ -198,10 +187,7 @@ async fn encode_inline_to_value(inlines: Vec<Inline>) -> Result<Value> {
 /// Encoded Text JSON deserializes into oxa_types::Text
 #[tokio::test]
 async fn text_to_oxa_text() -> Result<()> {
-    let inline_value = encode_inline_to_value(vec![Inline::Text(
-        stencila_codec::stencila_schema::Text::new("hello".into()),
-    )])
-    .await?;
+    let inline_value = encode_inline_to_value(vec![t("hello")]).await?;
 
     let oxa_text: oxa_types::Text = serde_json::from_value(inline_value)?;
     assert_eq!(oxa_text.value, "hello");

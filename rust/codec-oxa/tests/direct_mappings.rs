@@ -7,7 +7,7 @@ use stencila_codec::{
     Codec,
     eyre::{self, OptionExt, Result},
     stencila_schema::{
-        Article, Block, Inline, Node,
+        Article, Inline, Node,
         shortcuts::{art, cb, ci, em, h, p, stg, sub, sup, t, tb},
     },
 };
@@ -289,14 +289,8 @@ async fn encode_article_with_title() -> Result<()> {
     let codec = OxaCodec;
 
     let doc = Node::Article(Article {
-        title: Some(vec![Inline::Text(
-            stencila_codec::stencila_schema::Text::new("My Document Title".into()),
-        )]),
-        content: vec![Block::Paragraph(
-            stencila_codec::stencila_schema::Paragraph::new(vec![Inline::Text(
-                stencila_codec::stencila_schema::Text::new("Body text".into()),
-            )]),
-        )],
+        title: Some(vec![t("My Document Title")]),
+        content: vec![p([t("Body text")])],
         ..Default::default()
     });
 
