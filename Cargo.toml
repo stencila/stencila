@@ -15,12 +15,12 @@ base64 = "0.22.1"
 bytes = "1.11.1"
 brotli = "8.0.2"
 bs58 = "0.5.1"
-cached = { version = "0.56.0", features = ["async"] }
+cached = { version = "0.59.0", features = ["async"] }
 chrono = { version = "0.4.44", features = ["serde"] }
 chrono-humanize = "0.2.3"
-clap = { version = "4.5.60", features = ["derive", "color", "env", "wrap_help"] }
+clap = { version = "4.6.0", features = ["derive", "color", "env", "wrap_help"] }
 darling = "0.23.0"
-dialoguer = { version = "0.12" }
+dialoguer = "0.12.0"
 derive_more = { version = "2.1.1", features = ["display", "deref", "deref_mut", "into_iterator"] }
 directories = "6.0.0"
 eyre = "0.6.12"
@@ -33,13 +33,13 @@ headless_chrome = { version = "1.0.21", features = ["rustls"] }
 http = "1.4.0"
 http-cache-semantics = { version = "3.0.0", features = ["reqwest", "serde"] }
 keyring = { version = "3.6.3", features = ["apple-native", "windows-native", "sync-secret-service", "vendored"] }
-jsonschema = "0.44.1"
+jsonschema = "0.45.0"
 indexmap = { version = "2.13.0", features = ["serde"] }
-image = { version = "0.25.9", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
+image = { version = "0.25.10", default-features = false, features = ["png", "jpeg", "gif", "tiff"] }
 indicatif = "0.18.4"
 insta = { version = "1.46.3", features = ["json", "yaml", "redactions"] }
 itertools = "0.14.0"
-lightningcss = "1.0.0-alpha.70"
+lightningcss = "1.0.0-alpha.71"
 lru = "0.16.3"
 mime = "0.3.17"
 mime_guess = "2.0.5"
@@ -50,14 +50,14 @@ pathdiff = "0.2.3"
 percent-encoding = "2.3.2"
 pretty_assertions = "1.4.1"
 proc-macro2 = "1.0.106"
-proptest = "1.10.0"
+proptest = "1.11.0"
 proptest-derive = "0.8.0"
 quick-xml = "0.37.5"
-quote = "1.0.44"
+quote = "1.0.45"
 rand = "0.10.0"
 regex = "1.12.3"
 reqwest = { version = "0.13.2", default-features = false, features = ["json", "multipart", "query", "rustls", "stream"] }
-rusqlite = { version = "0.38.0", features = ["bundled", "session"] }
+rusqlite = { version = "0.39.0", features = ["bundled", "session"] }
 roxmltree = "0.21.1"
 rust-embed = { version = "8.11.0", features = ["interpolate-folder-path", "include-exclude"] }
 schemars = { version = "1.2.1", features = ["indexmap2", "url2"] }
@@ -65,36 +65,36 @@ seahash = "4.1.0"
 semver = { version = "1.0.27", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive", "rc"] }
 serde_json = { version = "1.0.149", features = ["preserve_order"] }
-serde_with = "3.17.0"
+serde_with = "3.18.0"
 serde_yaml = "0.9.34"
 sha2 = "0.10"
 similar = { version = "2.7.0", features = ["serde", "unicode"] }
 smart-default = "0.7.1"
 strsim = "0.11.1"
-smol_str = "0.3.5"
+smol_str = "0.3.6"
 strum = { version = "0.28.0", features = ["derive"] }
 syn = "2.0.117"
-tar = "0.4.44"
-tempfile = "3.26.0"
+tar = "0.4.45"
+tempfile = "3.27.0"
 test-log = { version = "0.2.19", default-features = false, features = ["trace"] }
 textwrap = { version = "0.16.2", features = ["terminal_size"] }
 thiserror = "2.0.18"
 time = { version = "0.3.47", features = ["formatting"] }
 tl = "0.7.8"
-tokio = { version = "1.49.0", features = ["full", "tracing"] }
-toml = "1.0.3"
-toml_edit = "0.25.3"
+tokio = { version = "1.50.0", features = ["full", "tracing"] }
+toml = "1.1.0"
+toml_edit = "0.25.8"
 tracing = { version = "0.1.44", features = ["log"] }
 tracing-error = "0.2.1"
-tracing-subscriber = { version = "0.3.22", features = ["env-filter", "json"] }
+tracing-subscriber = { version = "0.3.23", features = ["env-filter", "json"] }
 unicode-width = "0.2.2"
 url = { version = "2.5.8", features = ["serde"] }
-uuid = { version = "1.21.0", features = ["v4", "v7"] }
+uuid = { version = "1.22.0", features = ["v4", "v7"] }
 walkdir = "2.5.0"
-webbrowser = "1.1.0"
-which = "8.0.0"
-winnow = "0.7.14"
-zip = { version = "8.1.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
+webbrowser = "1.2.0"
+which = "8.0.2"
+winnow = "0.7.15"
+zip = { version = "8.4.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
 zstd = "0.13.3"
 
 [workspace.lints.rust]
