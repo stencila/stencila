@@ -1,9 +1,3 @@
 {
-  "1113515": "Dev dependency rollup via wrangler",
-  "1114591": "Dev dependency undici via wrangler -> miniflare",
-  "1114593": "Dev dependency undici via wrangler -> miniflare",
-  "1114637": "Dev dependency undici via wrangler -> miniflare",
-  "1114639": "Dev dependency undici via wrangler -> miniflare",
-  "1114641": "Dev dependency undici via wrangler -> miniflare",
-  "1114643": "Dev dependency undici via wrangler -> miniflare"
+  "1113515": "Dev dependency rollup via wrangler"
 }
