@@ -1,3 +1,57 @@
+# [2.14.0](https://github.com/stencila/stencila/compare/v2.13.0...v2.14.0) (2026-03-25)
+
+
+### Features
+
+* **Terminal UI:** A new terminal-based user interface (`stencila tui`) for interactive AI-assisted development. Includes multi-agent chat sessions with inline Markdown rendering, word wrapping, and thinking indicators. Supports shell mode (Ctrl+S or `!` prefix), file and command autocomplete with fish-style ghost text, `#agent-name` inline mentions for quick agent switching, interview-based interactions with keyboard navigation, workflow mode with stage-by-stage progress display, CLI slash commands with ANSI rendering, and input history with prefix-filtered navigation.
+
+* **Skills:** A skills system that decouples reusable AI task definitions from workflow orchestration. Skills are detected from multiple sources and can be assigned to single-skill agents. Includes built-in skills for software planning, design, implementation, test creation, test execution, test review, code review, refactoring, theme creation, theme review, and workflow/agent/skill creation and review.
+
+* **Agents:** A comprehensive AI agent framework with configurable agents for software development tasks. Agents have tool access (file read/write, grep, shell execution, web fetch), tool guards for security (shell, file, and web guards with audit logging), context budget controls with proactive compaction, and provider-aware model routing with multi-model sizing. Includes built-in agents for management, software planning, design, implementation, testing, refactoring, and code review. Agent sessions support persistence with checkpoint save/resume, soft-abort, and automatic retry with exponential backoff for transient LLM errors. Supports CLI-based agent providers (Claude Code, Codex) alongside API-based providers.
+
+* **Workflows:** A workflow engine powered by the new `attractor` crate for orchestrating multi-step AI pipelines defined as DOT graphs. Features include human-in-the-loop gates with auto-approve timeouts, dynamic parallel fan-out, session pooling with turn limits, SQLite-backed state persistence for pause/resume, shell and prompt handlers with variable expansion, and workflow composition via child workflows. Ships with built-in workflows for software delivery (TDD), iterative design, planning, refactoring, skill/agent/workflow creation, and theme creation with creator-reviewer patterns. Includes `workflows run`, `workflows runs`, and `workflows resume` CLI commands.
+
+* **Interviews:** A structured interview framework for gathering user input during agent sessions and workflow execution. Supports multi-question interviews with conditional logic (`show_if`, `finish_if`), multiple question types (text, select, multiselect), durable persistence of pending interviews, and configurable timeouts with auto-approve. Available through CLI, TUI, and WebSocket interfaces.
+
+* **MCP:** Add Model Context Protocol (MCP) support with HTTP and stdio transports, a live server connection pool, and CLI commands for managing MCP servers (`mcp add`, `mcp remove`, `mcp codemode`). Agents can use MCP tools with per-agent `allowedMcpServers` filtering.
+
+* **Codemode:** Generate TypeScript declarations from MCP tool schemas, enabling type-safe tool usage in code execution contexts.
+
+* **Models:** A new unified LLM client (`models3` crate) implementing a multi-provider architecture with support for OpenAI (including Responses API), Anthropic, Google Gemini, Mistral, DeepSeek, and Ollama. Features include streaming with SSE parsing, reasoning/thinking token support, automatic retry with exponential backoff, model catalog with computed aliases, model size classification, and auth-type-aware routing with CLI provider fallback. Adds `models list` with `--live` flag, aliases column, and model size display.
+
+* **OXA codec:** Add a new codec for encoding and decoding documents in the OXA format, with direct type mapping, generic fallback encoding for unmapped block types, and encoding/decoding loss tracking.
+
+* **AT Protocol codec:** Add support for encoding documents to AT Protocol (Bluesky) JSON format.
+
+* **Schema:** Add `Icon` node type with Markdown support. Add `Agent`, `Skill`, and `Workflow` schema types. Add `isContinuation` property to `Island` for LaTeX `\ContinuedFloat` support.
+
+* **Sites:** Add main content layout configuration and use glide content swap for live reload instead of full page refresh. Add `site.labels` for custom navigation labels.
+
+* **Markdown codec:** Decode mermaid, graphviz, and dot code blocks as executable `CodeChunk` nodes. Preserve code block IDs in Markdown output.
+
+* **CLI:** Add `db init` command for local database initialization. Add workspace database sync with history and safety commands. Add installer script for unreleased main CLI builds.
+
+* **Auth:** Add OAuth crate for direct OAuth flows. Support Claude Code and Codex CLI credential detection for seamless authentication with API providers.
+
+
+### Bug Fixes
+
+* **Agents:** Fix context-length error classification with automatic history compaction. Preserve thinking blocks in multi-turn reasoning conversations. Fix tool call argument display, `apply_patch` execution, `edit_file` round-trip newline preservation, and scoped grep path parsing. Prevent empty text content blocks in Anthropic requests and handle malformed tool-call arguments gracefully.
+
+* **Models:** Fix OpenAI tool use translation, interleaved streamed tool-call deltas, and Responses API `call_id` handling. Salvage JSON from garbled tool-call arguments in reasoning models. Preserve Gemini `thoughtSignature` for multi-turn tool calling and fix early `finishReason` in Gemini streams. Use idle timeout instead of wall-clock timeout for streaming with a 300s default. Strip unsupported schema fields from Gemini tool parameters.
+
+* **TUI:** Fix scroll behavior during streaming, input line wrapping, multiline input with Shift+Enter, and Unicode width calculation for word wrapping. Improve Markdown table rendering with horizontal borders and styled cell content. Fix agent session recovery on closed-session errors and soft-abort to keep sessions usable.
+
+* **Workflows:** Fix thread reuse, goal passing to child workflows, context writability, and parallel fan-in detection. Handle cancelled workflow runs as resumable. Prevent SQLite deadlocks during resume and artifact storage.
+
+* **LaTeX codec:** Support biblatex citation commands, extract equation labels for refs, and skip auto-wrapping islands inside manual island environments.
+
+* **Markdown codec:** Parse dollar signs inside backticks as code rather than math delimiters.
+
+* **Web:** Preserve styled content across glide navigation. Fix module declarations and root attribute ordering in HTML codec.
+
+
+
 # [2.13.0](https://github.com/stencila/stencila/compare/v2.12.0...v2.13.0) (2026-02-02)
 
 

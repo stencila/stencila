@@ -1,5 +1,11 @@
 # Change Log
 
+## 2.14.0 2026-03-25
+
+- Based on Stencila CLI [v2.14.0](https://github.com/stencila/stencila/releases/tag/v2.14.0) which introduces a new terminal UI for interactive AI-assisted development with multi-agent chat, workflow orchestration, and shell integration. Adds a comprehensive agent framework with built-in agents for software planning, design, implementation, testing, refactoring, and code review — backed by a unified LLM client supporting OpenAI, Anthropic, Gemini, Mistral, DeepSeek, and Ollama. Includes a workflow engine for multi-step AI pipelines with human-in-the-loop gates, a skills system for reusable task definitions, MCP (Model Context Protocol) support, and new OXA and AT Protocol codecs. Also adds an Icon node type, improved live reload with glide content swap, and executable mermaid/graphviz code blocks in Markdown
+
+
+
 ## 2.13.0 2026-02-02
 
 - Based on Stencila CLI [v2.13.0](https://github.com/stencila/stencila/releases/tag/v2.13.0) which introduces a comprehensive site layout system with navigation menus, sidebar trees, table-of-contents, and glide navigation for smooth page transitions. Adds full-text site search with fuzzy matching and quoted phrase support, site review comments with shareable URLs, and access control configuration. Also includes a new email codec, design tokens for heading numbering and colors, and the ability to pull Google Docs and Microsoft 365 documents not created by Stencila. Performance improvements include parallel document rendering and optimized caching for large sites
