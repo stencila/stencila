@@ -1,0 +1,45 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "IfBlock",
+  "children": [
+    {
+      "type": "IfBlockClause",
+      "children": [
+        {
+          "type": "Paragraph",
+          "children": [
+            {
+              "type": "Text",
+              "value": "Positive"
+            }
+          ]
+        }
+      ],
+      "data": {
+        "code": "x > 0",
+        "programmingLanguage": "python"
+      }
+    },
+    {
+      "type": "IfBlockClause",
+      "children": [
+        {
+          "type": "Paragraph",
+          "children": [
+            {
+              "type": "Text",
+              "value": "Default"
+            }
+          ]
+        }
+      ],
+      "data": {
+        "code": "true",
+        "programmingLanguage": "python"
+      }
+    }
+  ]
+}

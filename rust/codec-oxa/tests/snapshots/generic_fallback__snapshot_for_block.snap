@@ -1,0 +1,63 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "ForBlock",
+  "data": {
+    "code": "collection",
+    "variable": "x",
+    "content": [
+      {
+        "type": "Paragraph",
+        "children": [
+          {
+            "type": "Text",
+            "value": "Has items"
+          }
+        ]
+      }
+    ],
+    "otherwise": [
+      {
+        "type": "Paragraph",
+        "children": [
+          {
+            "type": "Text",
+            "value": "No items"
+          }
+        ]
+      }
+    ],
+    "iterations": [
+      {
+        "type": "Section",
+        "children": [
+          {
+            "type": "Paragraph",
+            "children": [
+              {
+                "type": "Text",
+                "value": "Iteration 1"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Section",
+        "children": [
+          {
+            "type": "Paragraph",
+            "children": [
+              {
+                "type": "Text",
+                "value": "Iteration 2"
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

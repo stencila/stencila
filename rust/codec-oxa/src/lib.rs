@@ -6,6 +6,7 @@ use stencila_codec::{
 };
 
 mod blocks;
+mod generic;
 mod inlines;
 mod nodes;
 

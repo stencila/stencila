@@ -1,0 +1,11 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "MathBlock",
+  "data": {
+    "code": "E = mc^2",
+    "mathLanguage": "tex"
+  }
+}

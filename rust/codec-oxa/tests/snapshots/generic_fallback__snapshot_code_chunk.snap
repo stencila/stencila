@@ -1,0 +1,25 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "CodeChunk",
+  "data": {
+    "code": "print('hello')",
+    "programmingLanguage": "python",
+    "caption": [
+      {
+        "type": "Paragraph",
+        "children": [
+          {
+            "type": "Text",
+            "value": "A code example"
+          }
+        ]
+      }
+    ],
+    "outputs": [
+      2
+    ]
+  }
+}

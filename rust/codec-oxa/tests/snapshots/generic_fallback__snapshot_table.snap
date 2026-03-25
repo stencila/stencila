@@ -1,0 +1,92 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "Table",
+  "data": {
+    "rows": [
+      {
+        "type": "TableRow",
+        "children": [
+          {
+            "type": "TableCell",
+            "children": [
+              {
+                "type": "Paragraph",
+                "children": [
+                  {
+                    "type": "Text",
+                    "value": "Header A"
+                  }
+                ]
+              }
+            ],
+            "data": {
+              "cellType": "Header"
+            }
+          },
+          {
+            "type": "TableCell",
+            "children": [
+              {
+                "type": "Paragraph",
+                "children": [
+                  {
+                    "type": "Text",
+                    "value": "Header B"
+                  }
+                ]
+              }
+            ],
+            "data": {
+              "cellType": "Header"
+            }
+          }
+        ],
+        "data": {
+          "rowType": "HeaderRow"
+        }
+      },
+      {
+        "type": "TableRow",
+        "children": [
+          {
+            "type": "TableCell",
+            "children": [
+              {
+                "type": "Paragraph",
+                "children": [
+                  {
+                    "type": "Text",
+                    "value": "Cell 1"
+                  }
+                ]
+              }
+            ],
+            "data": {
+              "cellType": "Data"
+            }
+          },
+          {
+            "type": "TableCell",
+            "children": [
+              {
+                "type": "Paragraph",
+                "children": [
+                  {
+                    "type": "Text",
+                    "value": "Cell 2"
+                  }
+                ]
+              }
+            ],
+            "data": {
+              "cellType": "Data"
+            }
+          }
+        ]
+      }
+    ]
+  }
+}

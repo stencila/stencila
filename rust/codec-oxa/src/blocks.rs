@@ -34,10 +34,7 @@ pub fn encode_block(block: &Block) -> Value {
         Block::ThematicBreak(_) => json!({
             "type": "ThematicBreak",
         }),
-        _ => json!({
-            "type": "Paragraph",
-            "children": [],
-        }),
+        _ => crate::generic::encode_block_generic(block),
     }
 }
 

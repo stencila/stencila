@@ -1,0 +1,40 @@
+---
+source: rust/codec-oxa/tests/generic_fallback.rs
+expression: value
+---
+{
+  "type": "List",
+  "children": [
+    {
+      "type": "ListItem",
+      "children": [
+        {
+          "type": "Paragraph",
+          "children": [
+            {
+              "type": "Text",
+              "value": "Item one"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "ListItem",
+      "children": [
+        {
+          "type": "Paragraph",
+          "children": [
+            {
+              "type": "Text",
+              "value": "Item two"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "data": {
+    "order": "Unordered"
+  }
+}

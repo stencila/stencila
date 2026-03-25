@@ -4,10 +4,12 @@ version = "0.0.0"
 edition = "2024"
 
 [dependencies]
+serde = { workspace = true }
 serde_json = { workspace = true }
 stencila-codec = { path = "../codec" }
 
 [dev-dependencies]
+insta = { workspace = true }
 oxa-types = { git = "https://github.com/oxa-dev/oxa", rev = "89bdc4db98e07666dd966cd67631f608f87b95d1", package = "oxa-types" }
 pretty_assertions = { workspace = true }
 serde_json = { workspace = true }

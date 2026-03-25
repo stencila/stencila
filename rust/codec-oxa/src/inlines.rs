@@ -33,10 +33,7 @@ pub fn encode_inline(inline: &Inline) -> Value {
         Inline::Superscript(Superscript { content, .. }) => {
             encode_inline_container("Superscript", content)
         }
-        _ => json!({
-            "type": "Text",
-            "value": "",
-        }),
+        _ => crate::generic::encode_inline_generic(inline),
     }
 }
 

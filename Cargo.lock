@@ -10005,8 +10005,10 @@ dependencies = [
 name = "stencila-codec-oxa"
 version = "0.0.0"
 dependencies = [
+ "insta",
  "oxa-types",
  "pretty_assertions",
+ "serde",
  "serde_json",
  "stencila-codec",
  "tokio",
@@ -11796,6 +11798,7 @@ name = "stencila-skills"
 version = "2.13.0"
 dependencies = [
  "clap",
+ "derive_more 2.1.1",
  "eyre",
  "glob",
  "regex",
@@ -11808,6 +11811,7 @@ dependencies = [
  "stencila-dirs",
  "stencila-schema",
  "stencila-version",
+ "strum 0.28.0",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
