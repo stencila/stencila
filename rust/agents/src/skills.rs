@@ -159,7 +159,7 @@ pub fn executor(
 
             let working_path = Path::new(env.working_directory());
 
-            let skill = stencila_skills::get_from(working_path, name, &sources)
+            let skill = stencila_skills::get_by_name(working_path, name, &sources)
                 .await
                 .map_err(|_| AgentError::ValidationError {
                     reason: format!("skill not found: {name}"),

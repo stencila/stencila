@@ -1734,7 +1734,7 @@ async fn capture_definition_snapshots(
                     continue;
                 }
 
-                match stencila_skills::get_from(
+                match stencila_skills::get_by_name(
                     &cwd,
                     skill_name,
                     &stencila_skills::SkillSource::all(),

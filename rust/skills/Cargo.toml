@@ -7,21 +7,22 @@ version.workspace = true
 cli = ["clap", "stencila-cli-utils"]
 
 [dependencies]
+derive_more = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
 regex = { workspace = true }
 rust-embed = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
-thiserror = { workspace = true }
-tokio = { workspace = true }
-tracing = { workspace = true }
-
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }
 stencila-version = { path = "../version" }
+strum = { workspace = true }
+thiserror = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
 
 # Optional CLI dependencies
 clap = { workspace = true, optional = true }

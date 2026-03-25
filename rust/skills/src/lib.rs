@@ -2,10 +2,12 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::OnceLock;
 
+use derive_more::{Deref, DerefMut};
 use eyre::{OptionExt, Result, bail};
 use glob::glob;
 use rust_embed::RustEmbed;
-use serde::{Deserialize, Serialize, Serializer, ser::SerializeStruct};
+use serde::Serialize;
+use strum::{Display, EnumIter, IntoEnumIterator};
 use tokio::fs::read_to_string;
 
 use stencila_codecs::{DecodeOptions, Format};
@@ -28,44 +30,42 @@ const SKILLS_SUBDIR: &str = "skills";
 /// Each variant corresponds to a dot-directory that may contain a `skills/`
 /// subdirectory. Sources listed later in [`SkillSource::all`] take precedence
 /// when names conflict (last wins).
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Display, Default, Clone, Copy, PartialEq, Eq, Hash, Serialize, EnumIter)]
 #[cfg_attr(feature = "cli", derive(clap::ValueEnum))]
+#[serde(rename_all = "lowercase")]
+#[strum(serialize_all = "lowercase")]
 pub enum SkillSource {
-    /// `.stencila/skills/` — base layer, always loaded first
+    /// Builtin Stencila skills
+    #[default]
+    Builtin,
+    /// Skill from the workspace's `.stencila/skills/` folder
     Stencila,
-    /// `.claude/skills/` — Anthropic provider
+    /// Skill from the workspace's `.claude/skills/` folder
     Claude,
-    /// `.codex/skills/` — OpenAI provider
+    /// Skill from the workspace's `.codex/skills/` folder
     Codex,
-    /// `.gemini/skills/` — Google Gemini provider
+    /// Skill from the workspace's `.gemini/skills/` folder
     Gemini,
 }
 
-impl std::fmt::Display for SkillSource {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::Stencila => f.write_str("stencila"),
-            Self::Claude => f.write_str("claude"),
-            Self::Codex => f.write_str("codex"),
-            Self::Gemini => f.write_str("gemini"),
-        }
-    }
-}
-
 impl SkillSource {
-    /// The dot-directory name for this source (e.g. `.stencila`, `.claude`).
-    pub fn dir_name(&self) -> &'static str {
-        match self {
-            Self::Stencila => ".stencila",
-            Self::Claude => ".claude",
-            Self::Codex => ".codex",
-            Self::Gemini => ".gemini",
-        }
+    /// Get a vector of all known skill sources
+    pub fn all() -> Vec<Self> {
+        Self::iter().collect()
     }
 
-    /// All sources in precedence order (Stencila first, provider-specific after).
-    pub fn all() -> Vec<Self> {
-        vec![Self::Stencila, Self::Claude, Self::Codex, Self::Gemini]
+    /// The dot-directory name for this source, if it has one.
+    ///
+    /// Returns `None` for `Builtin` since builtins are not loaded from a
+    /// dot-directory on disk.
+    fn dot_dir_name(&self) -> Option<&'static str> {
+        match self {
+            Self::Builtin => None,
+            Self::Stencila => Some(".stencila"),
+            Self::Claude => Some(".claude"),
+            Self::Codex => Some(".codex"),
+            Self::Gemini => Some(".gemini"),
+        }
     }
 
     /// Sources for a given provider ID, with Stencila as the base layer.
@@ -84,14 +84,35 @@ impl SkillSource {
     }
 }
 
+/// Resolve workspace sources to `(SkillSource, PathBuf)` pairs.
+///
+/// Finds the closest dot-directory for each non-builtin source and returns
+/// the corresponding `skills/` subdirectory path. The returned order matches
+/// the input order, which determines precedence (last wins).
+fn source_skill_dirs(cwd: &Path, sources: &[SkillSource]) -> Vec<(SkillSource, PathBuf)> {
+    sources
+        .iter()
+        .filter_map(|&source| {
+            let dot_dir_name = source.dot_dir_name()?;
+            let dot_dir = stencila_dirs::closest_dot_dir(cwd, dot_dir_name)?;
+            Some((source, dot_dir.join(SKILLS_SUBDIR)))
+        })
+        .collect()
+}
+
 /// An instance of a skill loaded from disk
 ///
 /// Wraps a [`Skill`] with its file path and home directory.
-#[derive(Default, Clone, Deserialize)]
+#[derive(Default, Clone, Deref, DerefMut, Serialize)]
 #[serde(default)]
 pub struct SkillInstance {
+    #[deref]
+    #[deref_mut]
     #[serde(flatten)]
     pub inner: Skill,
+
+    /// Which source this skill was loaded from
+    source: SkillSource,
 
     /// Path to the SKILL.md file
     path: PathBuf,
@@ -99,47 +120,10 @@ pub struct SkillInstance {
     /// Home directory of the skill (parent of SKILL.md)
     #[serde(skip)]
     home: PathBuf,
-
-    /// Which source this skill was loaded from
-    #[serde(skip)]
-    source: Option<SkillSource>,
-}
-
-impl std::ops::Deref for SkillInstance {
-    type Target = Skill;
-
-    fn deref(&self) -> &Self::Target {
-        &self.inner
-    }
-}
-
-impl std::ops::DerefMut for SkillInstance {
-    fn deref_mut(&mut self) -> &mut Self::Target {
-        &mut self.inner
-    }
-}
-
-/// Custom serialization for display purposes
-impl Serialize for SkillInstance {
-    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-    where
-        S: Serializer,
-    {
-        let mut state = serializer.serialize_struct("SkillInstance", 6)?;
-
-        state.serialize_field("name", &self.inner.name)?;
-        state.serialize_field("description", &self.inner.description)?;
-        state.serialize_field("licenses", &self.inner.options.licenses)?;
-        state.serialize_field("compatibility", &self.inner.compatibility)?;
-        state.serialize_field("source", &self.source.map(|s| s.to_string()))?;
-        state.serialize_field("path", &self.path)?;
-
-        state.end()
-    }
 }
 
 impl SkillInstance {
-    fn new(inner: Skill, path: PathBuf) -> Result<Self> {
+    fn new(inner: Skill, source: SkillSource, path: PathBuf) -> Result<Self> {
         let path = path.canonicalize()?;
 
         let home = path
@@ -151,14 +135,8 @@ impl SkillInstance {
             inner,
             path,
             home,
-            source: None,
+            source,
         })
-    }
-
-    /// Return a copy with the source set.
-    fn with_source(mut self, source: SkillSource) -> Self {
-        self.source = Some(source);
-        self
     }
 
     /// Get the path to the SKILL.md file
@@ -172,7 +150,7 @@ impl SkillInstance {
     }
 
     /// Which source directory this skill was loaded from
-    pub fn source(&self) -> Option<SkillSource> {
+    pub fn source(&self) -> SkillSource {
         self.source
     }
 }
@@ -200,12 +178,9 @@ pub async fn discover(cwd: &Path, sources: &[SkillSource]) -> Vec<SkillInstance>
     }
 
     // Workspace and provider sources (overwrite builtins)
-    for &source in sources {
-        if let Some(dot_dir) = stencila_dirs::closest_dot_dir(cwd, source.dir_name()) {
-            let skills_dir = dot_dir.join(SKILLS_SUBDIR);
-            for skill in list(&skills_dir).await {
-                by_name.insert(skill.name.clone(), skill.with_source(source));
-            }
+    for (source, skills_dir) in source_skill_dirs(cwd, sources) {
+        for skill in list_in_dir(&skills_dir, source).await {
+            by_name.insert(skill.name.clone(), skill);
         }
     }
     let mut skills: Vec<SkillInstance> = by_name.into_values().collect();
@@ -214,7 +189,7 @@ pub async fn discover(cwd: &Path, sources: &[SkillSource]) -> Vec<SkillInstance>
 }
 
 /// Find a skill by name across builtin and workspace sources (last wins).
-pub async fn get_from(cwd: &Path, name: &str, sources: &[SkillSource]) -> Result<SkillInstance> {
+pub async fn get_by_name(cwd: &Path, name: &str, sources: &[SkillSource]) -> Result<SkillInstance> {
     let mut found: Option<SkillInstance> = None;
 
     // Check builtins first (lowest precedence)
@@ -223,80 +198,17 @@ pub async fn get_from(cwd: &Path, name: &str, sources: &[SkillSource]) -> Result
     }
 
     // Check workspace and provider sources (overwrite builtins)
-    for &source in sources {
-        if let Some(dot_dir) = stencila_dirs::closest_dot_dir(cwd, source.dir_name()) {
-            let skills_dir = dot_dir.join(SKILLS_SUBDIR);
-            if let Ok(skill) = get(&skills_dir, name).await {
-                found = Some(skill.with_source(source));
-            }
+    for (source, skills_dir) in source_skill_dirs(cwd, sources) {
+        let path = skills_dir.join(name).join("SKILL.md");
+        if let Ok(skill) = load_skill(&path, source).await {
+            found = Some(skill);
         }
     }
     found.ok_or_else(|| eyre::eyre!("Unable to find skill with name `{name}`"))
 }
 
-/// List all skills in the workspace closest to the current directory
-///
-/// Discovers skills from all sources (Stencila + all providers).
-pub async fn list_current() -> Vec<SkillInstance> {
-    let cwd = match std::env::current_dir() {
-        Ok(cwd) => cwd,
-        Err(error) => {
-            tracing::error!("Unable to get current directory: {error}");
-            return Vec::new();
-        }
-    };
-
-    discover(&cwd, &SkillSource::all()).await
-}
-
-/// List all skills found in a skills directory
-pub async fn list(skills_dir: &Path) -> Vec<SkillInstance> {
-    if !skills_dir.exists() {
-        return Vec::new();
-    }
-
-    match list_dir(skills_dir).await {
-        Ok(skills) => skills,
-        Err(error) => {
-            tracing::error!(
-                "While listing skills in `{}`: {error}",
-                skills_dir.display()
-            );
-            Vec::new()
-        }
-    }
-}
-
-/// Get a skill by name from a skills directory
-pub async fn get(skills_dir: &Path, name: &str) -> Result<SkillInstance> {
-    list(skills_dir)
-        .await
-        .into_iter()
-        .find(|skill| skill.name == name)
-        .ok_or_else(|| eyre::eyre!("Unable to find skill with name `{name}`"))
-}
-
-/// List skills in a directory
-///
-/// Globs for `*/SKILL.md` files (one level deep), decodes each as a Skill.
-async fn list_dir(skills_dir: &Path) -> Result<Vec<SkillInstance>> {
-    tracing::trace!("Attempting to read skills from `{}`", skills_dir.display());
-
-    let mut skills = vec![];
-    for path in glob(&format!("{}/*/SKILL.md", skills_dir.display()))?.flatten() {
-        match load_skill(&path).await {
-            Ok(instance) => skills.push(instance),
-            Err(error) => {
-                tracing::warn!("Skipping `{}`: {error}", path.display());
-            }
-        }
-    }
-
-    Ok(skills)
-}
-
-/// Load a single skill from a SKILL.md path
-async fn load_skill(path: &Path) -> Result<SkillInstance> {
+/// Load a single skill from a SKILL.md path.
+async fn load_skill(path: &Path, source: SkillSource) -> Result<SkillInstance> {
     let content = read_to_string(path).await?;
 
     let node = stencila_codecs::from_str(
@@ -310,7 +222,7 @@ async fn load_skill(path: &Path) -> Result<SkillInstance> {
     .await?;
 
     if let Node::Skill(skill) = node {
-        SkillInstance::new(skill, path.to_path_buf())
+        SkillInstance::new(skill, source, path.to_path_buf())
     } else {
         bail!(
             "Expected `{}` to be a `Skill`, got a `{}`",
@@ -318,6 +230,40 @@ async fn load_skill(path: &Path) -> Result<SkillInstance> {
             node.to_string()
         )
     }
+}
+
+/// List all skills found in a skills directory.
+async fn list_in_dir(skills_dir: &Path, source: SkillSource) -> Vec<SkillInstance> {
+    if !skills_dir.exists() {
+        return Vec::new();
+    }
+
+    tracing::trace!("Attempting to read skills from `{}`", skills_dir.display());
+
+    match list_dir(skills_dir, source).await {
+        Ok(skills) => skills,
+        Err(error) => {
+            tracing::error!(
+                "While listing skills in `{}`: {error}",
+                skills_dir.display()
+            );
+            Vec::new()
+        }
+    }
+}
+
+/// Glob for `*/SKILL.md` files in a directory and load each one.
+async fn list_dir(skills_dir: &Path, source: SkillSource) -> Result<Vec<SkillInstance>> {
+    let mut skills = vec![];
+    for path in glob(&format!("{}/*/SKILL.md", skills_dir.display()))?.flatten() {
+        match load_skill(&path, source).await {
+            Ok(instance) => skills.push(instance),
+            Err(error) => {
+                tracing::warn!("Skipping `{}`: {error}", path.display());
+            }
+        }
+    }
+    Ok(skills)
 }
 
 /// Builtin skills embedded from the repo's `.stencila/skills/` directory.
@@ -336,11 +282,11 @@ static BUILTIN_SKILLS: OnceLock<Vec<SkillInstance>> = OnceLock::new();
 /// Writes embedded files to a cache directory and loads them using the
 /// standard `list_dir` logic so that file-based operations (e.g. loading
 /// skill content from disk) work correctly.
-pub async fn list_builtin() -> Vec<SkillInstance> {
+async fn list_builtin() -> Vec<SkillInstance> {
     // In debug mode, load directly from the repo
     if cfg!(debug_assertions) {
         let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.stencila/skills");
-        return list(&dir).await;
+        return list_in_dir(&dir, SkillSource::Builtin).await;
     }
 
     if let Some(skills) = BUILTIN_SKILLS.get() {
@@ -348,7 +294,7 @@ pub async fn list_builtin() -> Vec<SkillInstance> {
     }
 
     let skills = match initialize_builtin().await {
-        Ok(dir) => list(&dir).await,
+        Ok(dir) => list_in_dir(&dir, SkillSource::Builtin).await,
         Err(error) => {
             tracing::error!("While initializing builtin skills: {error}");
             Vec::new()
@@ -383,16 +329,6 @@ mod tests {
     // -- SkillSource unit tests --
 
     #[test]
-    fn skill_source_all_returns_four_variants() {
-        let all = SkillSource::all();
-        assert_eq!(all.len(), 4);
-        assert_eq!(all[0], SkillSource::Stencila);
-        assert_eq!(all[1], SkillSource::Claude);
-        assert_eq!(all[2], SkillSource::Codex);
-        assert_eq!(all[3], SkillSource::Gemini);
-    }
-
-    #[test]
     fn skill_source_for_provider_anthropic() {
         let sources = SkillSource::for_provider("anthropic");
         assert_eq!(sources, vec![SkillSource::Stencila, SkillSource::Claude]);
@@ -414,14 +350,6 @@ mod tests {
     fn skill_source_for_provider_unknown() {
         let sources = SkillSource::for_provider("unknown");
         assert_eq!(sources, vec![SkillSource::Stencila]);
-    }
-
-    #[test]
-    fn skill_source_dir_names() {
-        assert_eq!(SkillSource::Stencila.dir_name(), ".stencila");
-        assert_eq!(SkillSource::Claude.dir_name(), ".claude");
-        assert_eq!(SkillSource::Codex.dir_name(), ".codex");
-        assert_eq!(SkillSource::Gemini.dir_name(), ".gemini");
     }
 
     // -- Helper to create a skill directory under a given dot-dir --
@@ -450,7 +378,7 @@ mod tests {
             shared.inner.description, "from claude",
             "claude source should override stencila"
         );
-        assert_eq!(shared.source(), Some(SkillSource::Claude));
+        assert_eq!(shared.source(), SkillSource::Claude);
     }
 
     #[tokio::test]
@@ -462,9 +390,9 @@ mod tests {
         let skills = discover(tmp.path(), &[SkillSource::Stencila, SkillSource::Claude]).await;
 
         let alpha = skills.iter().find(|s| s.name == "alpha").expect("alpha");
-        assert_eq!(alpha.source(), Some(SkillSource::Stencila));
+        assert_eq!(alpha.source(), SkillSource::Stencila);
         let beta = skills.iter().find(|s| s.name == "beta").expect("beta");
-        assert_eq!(beta.source(), Some(SkillSource::Claude));
+        assert_eq!(beta.source(), SkillSource::Claude);
     }
 
     #[tokio::test]
@@ -475,14 +403,14 @@ mod tests {
         assert!(!skills.is_empty(), "should include builtin skills");
     }
 
-    // -- get_from() tests --
+    // -- get_by_name() tests --
 
     #[tokio::test]
-    async fn get_from_finds_skill_across_sources() {
+    async fn get_by_name_finds_skill_across_sources() {
         let tmp = tempfile::tempdir().expect("tempdir");
         create_skill(tmp.path(), ".claude", "my-skill", "a claude skill");
 
-        let skill = get_from(
+        let skill = get_by_name(
             tmp.path(),
             "my-skill",
             &[SkillSource::Stencila, SkillSource::Claude],
@@ -494,12 +422,12 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn get_from_last_wins() {
+    async fn get_by_name_last_wins() {
         let tmp = tempfile::tempdir().expect("tempdir");
         create_skill(tmp.path(), ".stencila", "shared", "from stencila");
         create_skill(tmp.path(), ".codex", "shared", "from codex");
 
-        let skill = get_from(
+        let skill = get_by_name(
             tmp.path(),
             "shared",
             &[SkillSource::Stencila, SkillSource::Codex],
@@ -511,13 +439,13 @@ mod tests {
             skill.inner.description, "from codex",
             "codex source should override stencila"
         );
-        assert_eq!(skill.source(), Some(SkillSource::Codex));
+        assert_eq!(skill.source(), SkillSource::Codex);
     }
 
     #[tokio::test]
-    async fn get_from_returns_error_when_not_found() {
+    async fn get_by_name_returns_error_when_not_found() {
         let tmp = tempfile::tempdir().expect("tempdir");
-        let result = get_from(tmp.path(), "nonexistent", &SkillSource::all()).await;
+        let result = get_by_name(tmp.path(), "nonexistent", &SkillSource::all()).await;
         assert!(result.is_err());
     }
 }

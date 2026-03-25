@@ -11,6 +11,8 @@ use stencila_cli_utils::{
 use stencila_codecs::{DecodeOptions, EncodeOptions, Format};
 use stencila_schema::{Node, NodeType};
 
+use crate::SkillSource;
+
 /// Manage agent skills
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
@@ -75,7 +77,7 @@ struct List {
 
     /// Filter by source (may be repeated)
     #[arg(long, short, value_enum)]
-    source: Vec<super::SkillSource>,
+    source: Vec<SkillSource>,
 }
 
 pub static LIST_AFTER_LONG_HELP: &str = cstr!(
@@ -95,7 +97,7 @@ impl List {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
         let sources = if self.source.is_empty() {
-            super::SkillSource::all()
+            SkillSource::all()
         } else {
             self.source
         };
@@ -124,11 +126,11 @@ impl List {
                 .unwrap_or_default();
 
             let source_cell = match skill.source() {
-                Some(super::SkillSource::Stencila) => Cell::new("stencila").fg(Color::Blue),
-                Some(super::SkillSource::Claude) => Cell::new("claude").fg(Color::Green),
-                Some(super::SkillSource::Codex) => Cell::new("codex").fg(Color::Yellow),
-                Some(super::SkillSource::Gemini) => Cell::new("gemini").fg(Color::Cyan),
-                None => Cell::new("-").fg(Color::DarkGrey),
+                SkillSource::Builtin => Cell::new("builtin").fg(Color::Blue),
+                SkillSource::Stencila => Cell::new("stencila").fg(Color::Blue),
+                SkillSource::Claude => Cell::new("claude").fg(Color::Green),
+                SkillSource::Codex => Cell::new("codex").fg(Color::Yellow),
+                SkillSource::Gemini => Cell::new("gemini").fg(Color::Cyan),
             };
 
             table.add_row([
@@ -234,7 +236,7 @@ pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
 impl Show {
     async fn run(self) -> Result<()> {
         let cwd = std::env::current_dir()?;
-        let skill = super::get_from(&cwd, &self.name, &super::SkillSource::all()).await?;
+        let skill = super::get_by_name(&cwd, &self.name, &SkillSource::all()).await?;
 
         let content = stencila_codecs::to_string(
             &Node::Skill(skill.inner),
@@ -307,7 +309,7 @@ impl Validate {
 
         // Otherwise, treat as a skill name — look up across all sources
         let cwd = std::env::current_dir()?;
-        let skill = super::get_from(&cwd, &self.target, &super::SkillSource::all()).await?;
+        let skill = super::get_by_name(&cwd, &self.target, &SkillSource::all()).await?;
         let skill_path = skill.path().to_path_buf();
         let dir_name = skill_path
             .parent()
