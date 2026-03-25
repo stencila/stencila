@@ -11,12 +11,6 @@
   "engines": {
     "node": ">=18"
   },
-  "overrides": {
-    "minimatch": "^10.2.1",
-    "depcheck": {
-      "minimatch": "^7.4.6"
-    }
-  },
   "devDependencies": {
     "@arethetypeswrong/cli": "0.18.2",
     "@cloudflare/workers-types": "4.20260317.1",
