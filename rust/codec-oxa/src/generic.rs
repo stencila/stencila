@@ -3,7 +3,7 @@ use std::collections::BTreeMap;
 use serde::Serialize;
 use serde_json::{Map, Value};
 use stencila_codec::{
-    NodeType,
+    Losses, NodeType,
     stencila_schema::{
         Admonition, Block, CodeChunk, Figure, ForBlock, IfBlock, IfBlockClause, Inline, List,
         ListItem, Node, QuoteBlock, Section, Table, TableCell, TableCellType, TableRow,
@@ -106,29 +106,27 @@ fn normalize_value(value: &Value) -> Value {
             )
         }
         Value::Array(arr) => Value::Array(arr.iter().map(normalize_value).collect()),
-        Value::String(s) => {
-            // Map known enum variants to OXA names
-            let mapped = match s.as_str() {
-                "HeaderCell" => "Header",
-                "DataCell" => "Data",
-                _ => s.as_str(),
-            };
-            Value::String(mapped.to_string())
-        }
+        Value::String(s) => match s.as_str() {
+            "HeaderCell" => Value::String("Header".into()),
+            "DataCell" => Value::String("Data".into()),
+            _ => value.clone(),
+        },
         other => other.clone(),
     }
 }
 
 /// Encode a Block using the generic fallback strategy.
-pub fn encode_block_generic(block: &Block) -> Value {
+pub fn encode_block_generic(block: &Block, losses: &mut Losses) -> Value {
+    losses.add("encode:generic");
     let raw = to_value(block);
     encode_generic_value(block.node_type(), &raw, |prop_name, prop_value| {
-        encode_walked_block_property(prop_name, prop_value, block)
+        encode_walked_block_property(prop_name, prop_value, block, losses)
     })
 }
 
 /// Encode an Inline using the generic fallback strategy.
-pub fn encode_inline_generic(inline: &Inline) -> Value {
+pub fn encode_inline_generic(inline: &Inline, losses: &mut Losses) -> Value {
+    losses.add("encode:generic");
     let raw = to_value(inline);
     encode_generic_value(inline.node_type(), &raw, |_prop_name, raw_value| {
         raw_value.clone()
@@ -136,9 +134,9 @@ pub fn encode_inline_generic(inline: &Inline) -> Value {
 }
 
 /// Core generic encoding logic.
-fn encode_generic_value<F>(node_type: NodeType, raw: &Value, encode_walked: F) -> Value
+fn encode_generic_value<F>(node_type: NodeType, raw: &Value, mut encode_walked: F) -> Value
 where
-    F: Fn(&str, &Value) -> Value,
+    F: FnMut(&str, &Value) -> Value,
 {
     let obj = match raw.as_object() {
         Some(o) => o,
@@ -192,21 +190,21 @@ where
     Value::Object(result)
 }
 
-/// Encode a struct whose single child property is `content` (a `Vec<Block>`).
-fn encode_with_block_content(node_type: NodeType, content: &[Block], raw: &Value) -> Value {
-    encode_generic_value(node_type, raw, |prop_name, raw_value| {
+/// Encode any `Serialize` struct whose primary child property is `content` (a `Vec<Block>`).
+fn encode_content_bearing(
+    node_type: NodeType,
+    content: &[Block],
+    value: &impl Serialize,
+    losses: &mut Losses,
+) -> Value {
+    let raw = to_value(value);
+    encode_generic_value(node_type, &raw, |prop_name, raw_value| {
         if prop_name == "content" {
-            Value::Array(content.iter().map(encode_block).collect())
+            Value::Array(content.iter().map(|b| encode_block(b, losses)).collect())
         } else {
             raw_value.clone()
         }
     })
-}
-
-/// Encode any `Serialize` struct whose single child property is `content` (a `Vec<Block>`).
-fn encode_content_bearing(node_type: NodeType, content: &[Block], value: &impl Serialize) -> Value {
-    let raw = to_value(value);
-    encode_with_block_content(node_type, content, &raw)
 }
 
 /// Insert a key-value pair into the `data` object of a generic-encoded result,
@@ -242,19 +240,33 @@ impl<'a> ChildItems<'a> {
     }
 }
 
-fn encode_walked_block_property(prop_name: &str, raw_value: &Value, block: &Block) -> Value {
+fn encode_walked_block_property(
+    prop_name: &str,
+    raw_value: &Value,
+    block: &Block,
+    losses: &mut Losses,
+) -> Value {
     if !raw_value.is_array() {
         return raw_value.clone();
     }
 
     let items = get_block_child_items(prop_name, block);
     match items {
-        ChildItems::Blocks(blocks) => Value::Array(blocks.iter().map(encode_block).collect()),
-        ChildItems::IfBlockClauses(clauses) => {
-            Value::Array(clauses.iter().map(encode_if_block_clause).collect())
+        ChildItems::Blocks(blocks) => {
+            Value::Array(blocks.iter().map(|b| encode_block(b, losses)).collect())
         }
-        ChildItems::ListItems(items) => Value::Array(items.iter().map(encode_list_item).collect()),
-        ChildItems::TableRows(rows) => Value::Array(rows.iter().map(encode_table_row).collect()),
+        ChildItems::IfBlockClauses(clauses) => Value::Array(
+            clauses
+                .iter()
+                .map(|c| encode_if_block_clause(c, losses))
+                .collect(),
+        ),
+        ChildItems::ListItems(items) => {
+            Value::Array(items.iter().map(|i| encode_list_item(i, losses)).collect())
+        }
+        ChildItems::TableRows(rows) => {
+            Value::Array(rows.iter().map(|r| encode_table_row(r, losses)).collect())
+        }
         ChildItems::Nodes(nodes) => Value::Array(nodes.iter().map(to_value).collect()),
         ChildItems::None => raw_value.clone(),
     }
@@ -315,19 +327,24 @@ fn get_block_child_items<'a>(prop_name: &str, block: &'a Block) -> ChildItems<'a
     }
 }
 
-fn encode_if_block_clause(clause: &IfBlockClause) -> Value {
-    encode_content_bearing(NodeType::IfBlockClause, &clause.content, clause)
+fn encode_if_block_clause(clause: &IfBlockClause, losses: &mut Losses) -> Value {
+    encode_content_bearing(NodeType::IfBlockClause, &clause.content, clause, losses)
 }
 
-fn encode_list_item(item: &ListItem) -> Value {
-    encode_content_bearing(NodeType::ListItem, &item.content, item)
+fn encode_list_item(item: &ListItem, losses: &mut Losses) -> Value {
+    encode_content_bearing(NodeType::ListItem, &item.content, item, losses)
 }
 
-fn encode_table_row(row: &TableRow) -> Value {
+fn encode_table_row(row: &TableRow, losses: &mut Losses) -> Value {
     let raw = to_value(row);
     let mut result = encode_generic_value(NodeType::TableRow, &raw, |prop_name, raw_value| {
         if prop_name == "cells" {
-            Value::Array(row.cells.iter().map(encode_table_cell).collect())
+            Value::Array(
+                row.cells
+                    .iter()
+                    .map(|c| encode_table_cell(c, losses))
+                    .collect(),
+            )
         } else {
             raw_value.clone()
         }
@@ -347,8 +364,8 @@ fn encode_table_row(row: &TableRow) -> Value {
     result
 }
 
-fn encode_table_cell(cell: &TableCell) -> Value {
-    let mut result = encode_content_bearing(NodeType::TableCell, &cell.content, cell);
+fn encode_table_cell(cell: &TableCell, losses: &mut Losses) -> Value {
+    let mut result = encode_content_bearing(NodeType::TableCell, &cell.content, cell, losses);
 
     if cell.cell_type.is_none() {
         insert_into_data(&mut result, "cellType", Value::String("Data".into()));

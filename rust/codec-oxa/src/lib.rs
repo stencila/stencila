@@ -1,5 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, async_trait,
     eyre::{self, Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -7,6 +7,7 @@ use stencila_codec::{
 
 mod blocks;
 mod generic;
+mod helpers;
 mod inlines;
 mod nodes;
 
@@ -66,18 +67,32 @@ pub fn decode(content: &str, _options: Option<DecodeOptions>) -> Result<(Node, D
         bail!("Expected root type \"Document\" but got \"{type_str}\"");
     }
 
-    let node = nodes::decode_document(obj)?;
+    let mut losses = Losses::none();
+    let node = nodes::decode_document(obj, &mut losses)?;
 
-    Ok((node, DecodeInfo::none()))
+    Ok((
+        node,
+        DecodeInfo {
+            losses,
+            ..DecodeInfo::none()
+        },
+    ))
 }
 
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
-    let value = nodes::encode_document(node)?;
+    let mut losses = Losses::none();
+    let value = nodes::encode_document(node, &mut losses)?;
 
     let json = match options.and_then(|options| options.compact) {
         Some(true) => serde_json::to_string(&value)?,
         Some(false) | None => serde_json::to_string_pretty(&value)?,
     };
 
-    Ok((json, EncodeInfo::none()))
+    Ok((
+        json,
+        EncodeInfo {
+            losses,
+            ..EncodeInfo::none()
+        },
+    ))
 }

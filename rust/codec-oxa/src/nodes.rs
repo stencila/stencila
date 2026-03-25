@@ -1,5 +1,6 @@
 use serde_json::{Map, Value, json};
 use stencila_codec::{
+    Losses,
     eyre::{Result, bail},
     stencila_schema::{Article, Inline, Node, Text},
 };
@@ -9,12 +10,16 @@ use crate::{
     inlines::{decode_inline, encode_inline_children},
 };
 
-pub fn encode_document(node: &Node) -> Result<Value> {
+pub fn encode_document(node: &Node, losses: &mut Losses) -> Result<Value> {
     let Node::Article(article) = node else {
         bail!("OXA codec only supports encoding Article nodes");
     };
 
-    let children: Vec<Value> = article.content.iter().map(encode_block).collect();
+    let children: Vec<Value> = article
+        .content
+        .iter()
+        .map(|b| encode_block(b, losses))
+        .collect();
 
     let mut doc = json!({
         "type": "Document",
@@ -22,20 +27,20 @@ pub fn encode_document(node: &Node) -> Result<Value> {
     });
 
     if let Some(title) = &article.title {
-        doc["title"] = encode_inline_children(title);
+        doc["title"] = encode_inline_children(title, losses);
     }
 
     Ok(doc)
 }
 
-pub fn decode_document(obj: &Map<String, Value>) -> Result<Node> {
+pub fn decode_document(obj: &Map<String, Value>, losses: &mut Losses) -> Result<Node> {
     let content = obj
         .get("children")
         .and_then(|v| v.as_array())
         .map(|arr| {
             arr.iter()
                 .filter_map(|v| v.as_object())
-                .map(decode_block)
+                .map(|o| decode_block(o, losses))
                 .collect::<Result<Vec<_>>>()
         })
         .unwrap_or_else(|| Ok(Vec::new()))?;
@@ -45,13 +50,17 @@ pub fn decode_document(obj: &Map<String, Value>) -> Result<Node> {
         ..Default::default()
     };
 
-    decode_title(obj, &mut article)?;
+    decode_title(obj, &mut article, losses)?;
     decode_metadata(obj, &mut article);
 
     Ok(Node::Article(article))
 }
 
-fn decode_title(obj: &Map<String, Value>, article: &mut Article) -> Result<()> {
+fn decode_title(
+    obj: &Map<String, Value>,
+    article: &mut Article,
+    losses: &mut Losses,
+) -> Result<()> {
     let Some(title_value) = obj.get("title") else {
         return Ok(());
     };
@@ -64,7 +73,7 @@ fn decode_title(obj: &Map<String, Value>, article: &mut Article) -> Result<()> {
             let inlines: Vec<Inline> = arr
                 .iter()
                 .filter_map(|v| v.as_object())
-                .map(decode_inline)
+                .map(|o| decode_inline(o, losses))
                 .collect::<Result<Vec<_>>>()?;
             if !inlines.is_empty() {
                 article.title = Some(inlines);
