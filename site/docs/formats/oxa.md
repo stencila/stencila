@@ -15,6 +15,13 @@ For Stencila types that do not yet have a direct OXA equivalent, the codec encod
 
 # Usage
 
+> [!warning] Under development
+>
+> This codec is still under active development. The JSON it produces should be
+> considered provisional, and the exact encoding may change in future releases
+> as support evolves — particularly while the OXA lexicon and related AT
+> Protocol conventions are still being developed.
+
 Use the `.oxa` file extension, or the `--to oxa` or `--from oxa` options, when converting to/from OXA JSON e.g.
 
 ```sh
