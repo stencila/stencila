@@ -72,7 +72,7 @@ pub fn decode_block(obj: &Map<String, Value>, losses: &mut Losses) -> Result<Blo
         "ThematicBreak" => Ok(Block::ThematicBreak(ThematicBreak::new())),
         _ => {
             // Unknown block type → RawBlock with verbatim JSON
-            losses.add("decode:unknown_block_to_raw");
+            losses.add("unknown_block_to_raw");
             let content = serde_json::to_string(&Value::Object(obj.clone()))?;
             Ok(Block::RawBlock(RawBlock::new(
                 "application/vnd.oxa+json".to_string(),

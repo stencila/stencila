@@ -306,8 +306,8 @@ async fn convert_encode_losses_propagated() -> Result<()> {
     )
     .await?;
 
-    let loss_json = serde_json::to_value(&encode_info.losses)
-        .expect("Losses should be serializable");
+    let loss_json =
+        serde_json::to_value(&encode_info.losses).expect("Losses should be serializable");
     assert!(
         loss_json
             .as_object()
@@ -351,8 +351,8 @@ async fn convert_decode_losses_propagated() -> Result<()> {
     )
     .await?;
 
-    let loss_json = serde_json::to_value(&decode_info.losses)
-        .expect("Losses should be serializable");
+    let loss_json =
+        serde_json::to_value(&decode_info.losses).expect("Losses should be serializable");
     let loss_obj = loss_json
         .as_object()
         .expect("Losses should serialize to a JSON object");

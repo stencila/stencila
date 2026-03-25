@@ -6,10 +6,10 @@
 //! - Unknown OXA inline types decode to `Text` with recursive text extraction
 //!   and a loss recorded
 //! - OXA `classes` values are dropped on decode with a
-//!   `decode:oxa_classes_dropped` loss entry
+//!   `oxa_classes_dropped` loss entry
 //! - All loss categories from the design are populated where applicable:
-//!   `encode:generic`, `decode:unknown_block_to_raw`,
-//!   `decode:unknown_inline_to_text`, `decode:oxa_classes_dropped`
+//!   `generic`, `unknown_block_to_raw`,
+//!   `unknown_inline_to_text`, `oxa_classes_dropped`
 
 use pretty_assertions::assert_eq;
 use serde_json::Value;
@@ -364,8 +364,8 @@ async fn decode_block_with_classes_dropped() -> Result<()> {
 
     // The classes should be silently dropped — verify via losses
     assert!(
-        losses_contains(&info.losses, "decode:oxa_classes_dropped"),
-        "Losses should contain 'decode:oxa_classes_dropped' entry, got: {:?}",
+        losses_contains(&info.losses, "oxa_classes_dropped"),
+        "Losses should contain 'oxa_classes_dropped' entry, got: {:?}",
         losses_to_value(&info.losses)
     );
 
@@ -410,8 +410,8 @@ async fn decode_inline_with_classes_dropped() -> Result<()> {
 
     // Classes should be recorded as lost
     assert!(
-        losses_contains(&info.losses, "decode:oxa_classes_dropped"),
-        "Losses should contain 'decode:oxa_classes_dropped' when classes are present on inlines"
+        losses_contains(&info.losses, "oxa_classes_dropped"),
+        "Losses should contain 'oxa_classes_dropped' when classes are present on inlines"
     );
 
     Ok(())
@@ -421,7 +421,7 @@ async fn decode_inline_with_classes_dropped() -> Result<()> {
 // Loss tracking: decode losses
 // ===========================================================================
 
-/// Decoding an unknown block should record a decode:unknown_block_to_raw loss
+/// Decoding an unknown block should record a unknown_block_to_raw loss
 #[tokio::test]
 async fn decode_loss_unknown_block_to_raw() -> Result<()> {
     let codec = OxaCodec;
@@ -435,15 +435,15 @@ async fn decode_loss_unknown_block_to_raw() -> Result<()> {
     let (_node, info) = codec.from_str(oxa_json, None).await?;
 
     assert!(
-        losses_contains(&info.losses, "decode:unknown_block_to_raw"),
-        "Decoding unknown block should record 'decode:unknown_block_to_raw' loss, got: {:?}",
+        losses_contains(&info.losses, "unknown_block_to_raw"),
+        "Decoding unknown block should record 'unknown_block_to_raw' loss, got: {:?}",
         losses_to_value(&info.losses)
     );
 
     Ok(())
 }
 
-/// Decoding an unknown inline should record a decode:unknown_inline_to_text loss
+/// Decoding an unknown inline should record a unknown_inline_to_text loss
 #[tokio::test]
 async fn decode_loss_unknown_inline_to_text() -> Result<()> {
     let codec = OxaCodec;
@@ -465,15 +465,15 @@ async fn decode_loss_unknown_inline_to_text() -> Result<()> {
     let (_node, info) = codec.from_str(oxa_json, None).await?;
 
     assert!(
-        losses_contains(&info.losses, "decode:unknown_inline_to_text"),
-        "Decoding unknown inline should record 'decode:unknown_inline_to_text' loss, got: {:?}",
+        losses_contains(&info.losses, "unknown_inline_to_text"),
+        "Decoding unknown inline should record 'unknown_inline_to_text' loss, got: {:?}",
         losses_to_value(&info.losses)
     );
 
     Ok(())
 }
 
-/// Decoding a document with classes should record decode:oxa_classes_dropped
+/// Decoding a document with classes should record oxa_classes_dropped
 #[tokio::test]
 async fn decode_loss_classes_dropped() -> Result<()> {
     let codec = OxaCodec;
@@ -492,8 +492,8 @@ async fn decode_loss_classes_dropped() -> Result<()> {
     let (_node, info) = codec.from_str(oxa_json, None).await?;
 
     assert!(
-        losses_contains(&info.losses, "decode:oxa_classes_dropped"),
-        "Decoding nodes with classes should record 'decode:oxa_classes_dropped' loss, got: {:?}",
+        losses_contains(&info.losses, "oxa_classes_dropped"),
+        "Decoding nodes with classes should record 'oxa_classes_dropped' loss, got: {:?}",
         losses_to_value(&info.losses)
     );
 
@@ -529,7 +529,7 @@ async fn decode_no_losses_for_known_types() -> Result<()> {
 // Loss tracking: encode losses
 // ===========================================================================
 
-/// Encoding a non-directly-mapped block type should record an encode:generic loss
+/// Encoding a non-directly-mapped block type should record an generic loss
 #[tokio::test]
 async fn encode_loss_generic_block() -> Result<()> {
     let codec = OxaCodec;
@@ -545,8 +545,8 @@ async fn encode_loss_generic_block() -> Result<()> {
     let (_json_str, info) = codec.to_string(&doc, None).await?;
 
     assert!(
-        losses_contains(&info.losses, "encode:generic"),
-        "Encoding non-directly-mapped block should record 'encode:generic' loss, got: {:?}",
+        losses_contains(&info.losses, "generic"),
+        "Encoding non-directly-mapped block should record 'generic' loss, got: {:?}",
         losses_to_value(&info.losses)
     );
 
@@ -608,15 +608,15 @@ async fn decode_combined_losses() -> Result<()> {
     let loss_value = losses_to_value(&info.losses);
 
     assert!(
-        losses_contains(&info.losses, "decode:unknown_block_to_raw"),
+        losses_contains(&info.losses, "unknown_block_to_raw"),
         "Should have unknown_block_to_raw loss, got: {loss_value:?}"
     );
     assert!(
-        losses_contains(&info.losses, "decode:unknown_inline_to_text"),
+        losses_contains(&info.losses, "unknown_inline_to_text"),
         "Should have unknown_inline_to_text loss, got: {loss_value:?}"
     );
     assert!(
-        losses_contains(&info.losses, "decode:oxa_classes_dropped"),
+        losses_contains(&info.losses, "oxa_classes_dropped"),
         "Should have oxa_classes_dropped loss, got: {loss_value:?}"
     );
 

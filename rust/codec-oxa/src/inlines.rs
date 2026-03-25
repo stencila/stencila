@@ -72,7 +72,7 @@ pub fn decode_inline(obj: &Map<String, Value>, losses: &mut Losses) -> Result<In
         }
         _ => {
             // Unknown inline type → Text with recursive text extraction
-            losses.add("decode:unknown_inline_to_text");
+            losses.add("unknown_inline_to_text");
             let text = extract_text_recursive(obj);
             Ok(Inline::Text(Text::new(text.into())))
         }

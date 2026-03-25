@@ -11,6 +11,6 @@ pub(crate) fn record_classes_loss(obj: &Map<String, Value>, losses: &mut Losses)
         .and_then(|v| v.as_array())
         .is_some_and(|a| !a.is_empty())
     {
-        losses.add("decode:oxa_classes_dropped");
+        losses.add("oxa_classes_dropped");
     }
 }

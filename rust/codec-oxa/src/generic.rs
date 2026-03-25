@@ -117,7 +117,7 @@ fn normalize_value(value: &Value) -> Value {
 
 /// Encode a Block using the generic fallback strategy.
 pub fn encode_block_generic(block: &Block, losses: &mut Losses) -> Value {
-    losses.add("encode:generic");
+    losses.add("generic");
     let raw = to_value(block);
     encode_generic_value(block.node_type(), &raw, |prop_name, prop_value| {
         encode_walked_block_property(prop_name, prop_value, block, losses)
@@ -126,7 +126,7 @@ pub fn encode_block_generic(block: &Block, losses: &mut Losses) -> Value {
 
 /// Encode an Inline using the generic fallback strategy.
 pub fn encode_inline_generic(inline: &Inline, losses: &mut Losses) -> Value {
-    losses.add("encode:generic");
+    losses.add("generic");
     let raw = to_value(inline);
     encode_generic_value(inline.node_type(), &raw, |_prop_name, raw_value| {
         raw_value.clone()
