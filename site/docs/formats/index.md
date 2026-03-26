@@ -19,6 +19,7 @@ Stencila uses property testing to exercise codec round-trips and detect regressi
 
 | Format | Default extension | Docs |
 | --- | --- | --- |
+| AT Protocol JSON | `atproto.json` | [AT Protocol JSON](atproto) |
 | CBOR | `cbor` | [CBOR](cbor) |
 | CBOR+Zstd | `czst` | [CBOR+Zstd](cborzstd) |
 | CSL-JSON | `csl` | [CSL-JSON](csl) |
@@ -47,6 +48,7 @@ Stencila uses property testing to exercise codec round-trips and detect regressi
 | MyST Markdown | `myst` | [MyST Markdown](myst) |
 | OpenDocument Spreadsheet | `ods` | [OpenDocument Spreadsheet](ods) |
 | OpenDocument Text | `odt` | [OpenDocument Text](odt) |
+| OXA JSON | `oxa` | [OXA JSON](oxa) |
 | PDF | `pdf` | [PDF](pdf) |
 | PNG | `png` | [PNG](png) |
 | Pandoc AST | `pandoc` | [Pandoc AST](pandoc) |

@@ -73,6 +73,7 @@ items:
 
   - label: "Interoperability"
     children:
+      - { name: "atproto", label: "AT Protocol JSON" }
       - { name: "oxa", label: "OXA JSON" }
       - { name: "pandoc", label: "Pandoc JSON" }
       - { name: "lexical", label: "Lexical JSON" }
