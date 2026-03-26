@@ -95,8 +95,6 @@ jobs:
         include:
           - os: ubuntu-latest
             target: linux-x64-gnu
-          - os: buildjet-8vcpu-ubuntu-2204-arm
-            target: linux-arm64-gnu
           - os: macos-latest
             target: darwin-x64
           - os: macos-latest-xlarge
