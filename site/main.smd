@@ -1,1 +1,174 @@
-Hello world!
+---
+title: Stencila
+description: Documents with intelligence
+---
+
+::: style text-center py-16 px-6 max-w-4xl mx-auto
+
+    # Documents with intelligence
+
+    ::: style text-xl text-gray-600 dark:text-gray-400 mt-4 mb-8 max-w-2xl mx-auto
+    
+        Stencila is a platform for creating and publishing dynamic, data-driven documents. Author executable content in Markdown, harness AI agents and workflows, and publish as beautiful, interactive articles.
+
+    :::
+
+    ::: style text-sm text-gray-500 dark:text-gray-500 mt-4
+    
+        ```sh
+curl -LsSf https://stencila.io/install.sh | bash
+        ```
+
+    :::
+
+:::
+
+::: style py-16 px-6 max-w-5xl mx-auto
+
+    ::: style grid grid-cols-1 md:grid-cols-3 gap-8 mt-8
+    
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            ### %[sparkles] Skills
+
+            Reusable instruction sets for AI agents, loaded on demand. Skills follow the open [Agent Skills Specification](https://agentskills.io/specification) for portable, context-efficient guidance.
+
+            [Learn about Skills →](docs/skills/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            ### %[bot] Agents
+
+            Pair large language models with research-focused tools in a programmable agentic loop. Agents read files, run commands, search the web, and iterate until the task is done.
+
+            [Learn about Agents →](docs/agents/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            ### %[git-branch] Workflows
+
+            Orchestrate multi-stage AI tasks as directed graphs. Chain agents into pipelines with branching, retries, parallel execution, and human-in-the-loop gates.
+
+            [Learn about Workflows →](docs/workflows/)
+
+        :::
+
+    :::
+
+:::
+
+::: style py-16 px-6 max-w-5xl mx-auto
+
+    ## Author in Markdown, Publish Anywhere
+
+    ::: style text-lg text-gray-600 dark:text-gray-400 max-w-3xl mb-8
+    
+        Write in Stencila Markdown with executable code, math, citations, and AI instructions — then convert to any output format.
+
+    :::
+
+    ::: style grid grid-cols-1 md:grid-cols-2 gap-8
+    
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[arrow-left-right] Formats
+
+            Import from and export to Markdown, Jupyter Notebooks, LaTeX, JATS, Word, PDF, HTML, and many more. Conversion goes through a canonical schema so any format can talk to any other.
+
+            [Browse Formats →](docs/formats/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[terminal] Execution Kernels
+
+            Run code chunks in Python, R, Node.js, Bash, SQL, and more — directly inside your documents. Outputs render inline alongside your prose.
+
+            [Browse Kernels →](docs/cli/kernels/)
+
+        :::
+
+    :::
+
+:::
+
+::: style py-16 px-6 max-w-5xl mx-auto
+
+    ## Themeable & Publishable
+
+    ::: style text-lg text-gray-600 dark:text-gray-400 max-w-3xl mb-8
+    
+        Control every visual detail with a token-based design system. Publish to the web, PDF, Word, email, and more — all from the same source document.
+
+    :::
+
+    ::: style grid grid-cols-1 md:grid-cols-3 gap-8
+    
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[palette] Design Tokens
+
+            A comprehensive set of CSS custom properties for typography, colors, spacing, plots, and every document node type. Theme once, render everywhere.
+
+            [Theme Tokens →](docs/themes/tokens/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[globe] Sites
+
+            Publish collections of documents as fully searchable, navigable websites with configurable layouts, sidebars, and search.
+
+            [Site Config →](docs/config/site/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[layers] Multi-Target Output
+
+            Render to web, PDF, Word, and email from a single theme. Plot tokens carry across to Plotly, Vega-Lite, and ECharts for consistent data visualization.
+
+            [Output Targets →](docs/themes/targets/)
+
+        :::
+
+    :::
+
+:::
+
+::: style py-16 px-6 max-w-5xl mx-auto
+
+    ## Safe by Design
+
+    ::: style grid grid-cols-1 md:grid-cols-2 gap-8 mt-8
+    
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[shield-check] Tool Guards
+
+            Every agent tool call passes through a guard before execution. Guards inspect commands, file paths, and URLs, returning Allow, Warn, or Deny verdicts based on configurable trust levels. Destructive operations like `git push --force` are blocked even inside sandboxes.
+
+            [Tool Guards →](docs/agents/tools/)
+
+        :::
+
+        ::: style p-6 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900
+        
+            #### %[database] Workspace Database
+
+            Every document change is tracked in a local SQLite database with full version history, branching, and sync. Audit logs capture all agent tool call verdicts for post-hoc review.
+
+            [Database Docs →](docs/db/)
+
+        :::
+
+    :::
+
+:::
