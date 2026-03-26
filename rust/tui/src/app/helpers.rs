@@ -16,6 +16,11 @@ impl App {
     }
 
     /// Re-filter all autocomplete states based on current input.
+    ///
+    /// Expensive candidate lists (agents, workflows, responses) are only
+    /// gathered when the input contains a trigger character that could make
+    /// the respective popup visible, avoiding filesystem I/O on every
+    /// keystroke.
     pub(super) fn refresh_autocomplete(&mut self) {
         if self.active_interview.is_some() {
             self.history_state.dismiss();
@@ -35,14 +40,40 @@ impl App {
         self.commands_state.update(self.input.text());
         self.files_state
             .update(self.input.text(), self.input.cursor());
+
         let input = self.input.text().to_string();
         let cursor = self.input.cursor();
-        let exchanges = self.response_candidates();
-        self.responses_state.update(&input, cursor, &exchanges);
-        let agents = self.mention_candidates();
-        self.mentions_state.update(&input, cursor, &agents);
-        let workflows = App::workflow_candidates();
-        self.workflows_state.update(&input, cursor, &workflows);
+
+        // Only build response candidates when the input contains `$`
+        // (the trigger character), avoiding an allocation-heavy scan of
+        // all messages on every keystroke.
+        if input.contains('$') {
+            let exchanges = self.response_candidates();
+            self.responses_state.update(&input, cursor, &exchanges);
+        } else {
+            self.responses_state.dismiss();
+        }
+
+        // Only discover agents when the input starts with `#` (the
+        // mention trigger). `discover_agents()` blocks the thread and
+        // does filesystem I/O, so skipping it for normal typing is a
+        // large win.
+        if input.starts_with('#') {
+            let agents = self.mention_candidates();
+            self.mentions_state.update(&input, cursor, &agents);
+        } else {
+            self.mentions_state.dismiss();
+        }
+
+        // Only discover workflows when the input starts with `~` (the
+        // tilde trigger). `discover_workflows()` also blocks on I/O.
+        if input.starts_with('~') {
+            let workflows = App::workflow_candidates();
+            self.workflows_state.update(&input, cursor, &workflows);
+        } else if self.workflows_state.is_tilde_mode() {
+            // Tilde was deleted — dismiss tilde-mode popup
+            self.workflows_state.dismiss();
+        }
     }
 
     /// Navigate to the previous (older) history entry, filtered by current mode.

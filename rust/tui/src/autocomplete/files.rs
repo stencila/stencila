@@ -58,6 +58,10 @@ pub struct FilesState {
     token_range: std::ops::Range<usize>,
     /// Directory prefix for path completion (e.g., `./src/`), prepended on accept.
     path_dir_prefix: String,
+    /// Cache of directory listings for path completion mode, keyed by the
+    /// resolved directory path. Avoids hitting the filesystem on every
+    /// keystroke when the user is filtering within the same directory.
+    cached_dir_listings: std::collections::HashMap<PathBuf, Vec<FileCandidate>>,
 }
 
 /// Maximum number of candidates to display.
@@ -80,6 +84,7 @@ impl FilesState {
             cached_files: None,
             token_range: 0..0,
             path_dir_prefix: String::new(),
+            cached_dir_listings: std::collections::HashMap::new(),
         }
     }
 
@@ -238,15 +243,19 @@ impl FilesState {
         self.path_dir_prefix = dir_part.to_string();
 
         let resolved_dir = resolve_dir(dir_part);
-        let all = scan_directory(&resolved_dir);
+        let all = self
+            .cached_dir_listings
+            .entry(resolved_dir.clone())
+            .or_insert_with(|| scan_directory(&resolved_dir));
 
         let prefix_lower = file_prefix.to_lowercase();
         self.candidates = all
-            .into_iter()
+            .iter()
             .filter(|f| {
                 prefix_lower.is_empty() || f.display.to_lowercase().starts_with(&prefix_lower)
             })
             .take(MAX_DISPLAY)
+            .cloned()
             .collect();
 
         self.apply_visibility();
