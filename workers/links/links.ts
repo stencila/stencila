@@ -9,6 +9,8 @@ import type { Entity, Node, NodeType } from "../../ts/src";
 import { decode as decodeJzb64 } from "../../web/src/codecs/jzb64";
 import { encode as encodeHtml } from "../../web/src/codecs/html";
 
+const WEB_BASE_URL = "https://stencila.dev/web";
+
 export default {
   async fetch(request: Request): Promise<Response> {
     try {
@@ -119,8 +121,9 @@ function nodeHtml(
     ...node,
   });
 
-  const logo = "https://stencila.io/web/logo.png";
+  const logo = `${WEB_BASE_URL}/logo.png`;
   const webVersion = "dev";
+  const webBase = `${WEB_BASE_URL}/${webVersion}`;
 
   let body = "";
   if (!nodeType) {
@@ -158,12 +161,12 @@ function nodeHtml(
       <meta name="twitter:description" content="${description}">
       <meta name="twitter:image" content="${logo}">
       
-      <link rel="icon" type="image/png" href="https://stencila.io/web/${webVersion}/images/favicon.png" />
+      <link rel="icon" type="image/png" href="${webBase}/images/favicon.png" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;1,100;1,200;1,300;1,400;1,500;1,600;1,700&family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet" />
-      <link rel="stylesheet" type="text/css" href="https://stencila.io/web/${webVersion}/themes/default.css" />
-      <link rel="stylesheet" type="text/css" href="https://stencila.io/web/${webVersion}/views/dynamic.css" />
-      <script type="module" src="https://stencila.io/web/${webVersion}/views/dynamic.js"></script>
+      <link rel="stylesheet" type="text/css" href="${webBase}/themes/default.css" />
+      <link rel="stylesheet" type="text/css" href="${webBase}/views/dynamic.css" />
+      <script type="module" src="${webBase}/views/dynamic.js"></script>
 
       <script type="application/ld+json">${jsonld}</script>
 
@@ -266,7 +269,7 @@ function fileLinkHtml(
   repo: string | null,
   commit: string | null
 ): string {
-  const webVersion = "dev";
+  const webBase = `${WEB_BASE_URL}/dev`;
 
   let body = `<div class="file-link">
     <h1>File Link</h1>
@@ -293,7 +296,7 @@ function fileLinkHtml(
       <meta charset="UTF-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>File Link - ${escapeHtml(file)}</title>
-      <link rel="icon" type="image/png" href="https://stencila.io/web/${webVersion}/images/favicon.png" />
+      <link rel="icon" type="image/png" href="${webBase}/images/favicon.png" />
       <link rel="preconnect" href="https://fonts.googleapis.com" />
       <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
       <style>

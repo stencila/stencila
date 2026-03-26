@@ -4,7 +4,7 @@
  * Serves static assets (JS, CSS, fonts, images, etc.) from versioned folders
  * in the `web-dist` R2 bucket with proper content types and optimizations.
  * 
- * Serves requests to https://stencila.io/web/*
+ * Serves requests to https://stencila.dev/web/*
  */
 import { Request, R2Bucket, R2ObjectBody } from "@cloudflare/workers-types";
 

@@ -16,7 +16,7 @@ pub fn web_static_path_versioned() -> String {
 
 /// Get the production CDN base URL for web assets
 pub fn web_base_cdn() -> String {
-    ["https://stencila.io/web/v", STENCILA_VERSION].concat()
+    ["https://stencila.dev/web/v", STENCILA_VERSION].concat()
 }
 
 /// Get the localhost base URL for web assets (for preview/development)
