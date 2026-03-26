@@ -1,5 +1,10 @@
 # Change Log
 
+## 2.14.1 2026-03-27
+
+- Based on Stencila CLI [v2.14.1](https://github.com/stencila/stencila/releases/tag/v2.14.1) which adds a `--dev` flag for testing unreleased web assets on pushed sites, site redirect support, and fixes for site logo rendering in dark mode, web asset URL migration to stencila.dev, and a Windows compilation fix in the TUI. Also drops macOS Intel builds for the CLI and VSCode extension.
+
+
 ## 2.14.0 2026-03-25
 
 - Based on Stencila CLI [v2.14.0](https://github.com/stencila/stencila/releases/tag/v2.14.0) which introduces a new terminal UI for interactive AI-assisted development with multi-agent chat, workflow orchestration, and shell integration. Adds a comprehensive agent framework with built-in agents for software planning, design, implementation, testing, refactoring, and code review — backed by a unified LLM client supporting OpenAI, Anthropic, Gemini, Mistral, DeepSeek, and Ollama. Includes a workflow engine for multi-step AI pipelines with human-in-the-loop gates, a skills system for reusable task definitions, MCP (Model Context Protocol) support, and new OXA and AT Protocol codecs. Also adds an Icon node type, improved live reload with glide content swap, and executable mermaid/graphviz code blocks in Markdown

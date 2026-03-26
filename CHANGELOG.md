@@ -1,3 +1,22 @@
+# [2.14.1](https://github.com/stencila/stencila/compare/v2.14.0...v2.14.1) (2026-03-27)
+
+
+### Features
+
+* **Sites & Web:** Fix site logo rendering by replacing the CSS background-image approach with native `<picture>`/`<source>` elements, resolving issues with image paths being resolved against the CDN origin instead of the document origin. Dark mode and viewport breakpoints are now handled natively, with a JS fallback only for explicit color scheme overrides. Fix dark mode `dark:` variant not working due to a class-vs-attribute selector mismatch with the `data-color-scheme` attribute. Use consistent card colors on the landing page, fixing harsh appearance in dark mode.
+
+* **Web:** Raise the Vite build target to ES2020 to support BigInt literals used by dependencies, and update web dependencies. Migrate web asset URLs from stencila.io to stencila.dev.
+
+* **Sites:** Add a `--dev` flag to `stencila site push` for testing unreleased web asset changes on pushed sites without cutting a versioned release. Add and document site redirects with per-directory `_redirect.json` support, status code guidance, and precedence rules.
+
+* **TUI:** Fix a type inference ambiguity on Windows caused by conflicting `FromIterator` implementations, which prevented compilation on Windows CI.
+
+* **Docker:** Fixes to the Dockerfile.
+
+* **Markdown codec:** Correct icon tests to expect `None` for unset `decorative` field, aligning with codebase conventions for `Option<bool>` schema fields.
+
+
+
 # [2.14.0](https://github.com/stencila/stencila/compare/v2.13.0...v2.14.0) (2026-03-25)
 
 
