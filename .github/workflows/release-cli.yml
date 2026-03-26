@@ -80,11 +80,6 @@ jobs:
             runner: ubuntu-24.04
             target: x86_64-unknown-linux-gnu
             ext: tar.gz
-          # Important: use same MacOS version used in `test-rust.yaml`
-          - platform: macos-intel
-            runner: macos-15
-            target: x86_64-apple-darwin
-            ext: tar.gz
           - platform: macos-arm
             runner: macos-15
             target: aarch64-apple-darwin
