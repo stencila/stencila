@@ -76,7 +76,7 @@ pub struct LogoConfig {
     /// Logo for mobile breakpoint (< 640px)
     pub mobile: Option<String>,
 
-    /// Logo for tablet breakpoint (640px - 768px)
+    /// Logo for tablet breakpoint (640px - 767px)
     pub tablet: Option<String>,
 
     /// Logo for dark mode (desktop)
@@ -91,7 +91,7 @@ pub struct LogoConfig {
     /// Link target when logo is clicked (default: "/")
     pub link: Option<String>,
 
-    /// Alt text for accessibility (used as aria-label on the link)
+    /// Alt text for accessibility (used as alt on the logo image)
     pub alt: Option<String>,
 }
 

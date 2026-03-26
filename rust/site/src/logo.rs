@@ -189,56 +189,127 @@ pub fn merge_logo_config(target: &mut LogoConfig, source: &LogoConfig) {
 
 /// Render a resolved logo configuration to HTML
 ///
-/// Generates a `<stencila-logo>` custom element with CSS custom properties
-/// for each logo variant. The CSS handles responsive switching and dark mode.
+/// Generates a `<stencila-logo>` custom element wrapping an `<a>` that
+/// contains a `<picture>` with `<source>` elements for responsive and
+/// dark-mode variants.
+///
+/// `<picture>` handles system dark mode preference and viewport breakpoints
+/// natively with zero JS. A companion JS component only intervenes when the
+/// user explicitly overrides the system preference via `data-color-scheme`,
+/// which is the one case `<picture>` media queries cannot express.
+///
+/// The variant paths are also placed as attributes on `<stencila-logo>` so
+/// the JS component can read them for the override case.
 ///
 /// Example output:
 /// ```html
-/// <stencila-logo style="--logo: url('/logo.svg'); --logo-dark: url('/logo-dark.svg');">
-///   <a href="/" aria-label="Company Logo"></a>
+/// <stencila-logo default="/logo.svg" dark="/logo-dark.svg">
+///   <a href="/">
+///     <picture>
+///       <source media="(prefers-color-scheme: dark)" srcset="/logo-dark.svg">
+///       <img src="/logo.svg" alt="Company Logo">
+///     </picture>
+///   </a>
 /// </stencila-logo>
 /// ```
 pub fn render_logo(config: &LogoConfig) -> String {
-    let mut style_parts = Vec::new();
+    let mut attrs = Vec::new();
 
-    // Add CSS custom properties for each variant that exists
     if let Some(ref path) = config.default {
-        style_parts.push(format!("--logo: url('{}')", make_absolute(path)));
+        attrs.push(format!("default=\"{}\"", html_escape(&make_absolute(path))));
     }
     if let Some(ref path) = config.mobile {
-        style_parts.push(format!("--logo-mobile: url('{}')", make_absolute(path)));
+        attrs.push(format!("mobile=\"{}\"", html_escape(&make_absolute(path))));
     }
     if let Some(ref path) = config.tablet {
-        style_parts.push(format!("--logo-tablet: url('{}')", make_absolute(path)));
+        attrs.push(format!("tablet=\"{}\"", html_escape(&make_absolute(path))));
     }
     if let Some(ref path) = config.dark {
-        style_parts.push(format!("--logo-dark: url('{}')", make_absolute(path)));
+        attrs.push(format!("dark=\"{}\"", html_escape(&make_absolute(path))));
     }
     if let Some(ref path) = config.dark_mobile {
-        style_parts.push(format!(
-            "--logo-dark-mobile: url('{}')",
-            make_absolute(path)
+        attrs.push(format!(
+            "dark-mobile=\"{}\"",
+            html_escape(&make_absolute(path))
         ));
     }
     if let Some(ref path) = config.dark_tablet {
-        style_parts.push(format!(
-            "--logo-dark-tablet: url('{}')",
-            make_absolute(path)
+        attrs.push(format!(
+            "dark-tablet=\"{}\"",
+            html_escape(&make_absolute(path))
         ));
     }
 
-    let style = if style_parts.is_empty() {
+    let logo_attrs = if attrs.is_empty() {
         String::new()
     } else {
-        format!(" style=\"{}\"", style_parts.join("; "))
+        format!(" {}", attrs.join(" "))
     };
 
+    // Build <source> elements for <picture> (most specific first)
+    let mut sources = Vec::new();
+
+    // Dark mode + mobile
+    if let Some(ref path) = config.dark_mobile {
+        sources.push(format!(
+            "<source media=\"(prefers-color-scheme: dark) and (max-width: 639px)\" srcset=\"{}\">",
+            html_escape(&make_absolute(path))
+        ));
+    }
+    // Dark mode + tablet
+    if let Some(ref path) = config.dark_tablet {
+        sources.push(format!(
+            "<source media=\"(prefers-color-scheme: dark) and (min-width: 640px) and (max-width: 767px)\" srcset=\"{}\">",
+            html_escape(&make_absolute(path))
+        ));
+    }
+    // Dark mode (desktop)
+    if let Some(ref path) = config.dark {
+        sources.push(format!(
+            "<source media=\"(prefers-color-scheme: dark)\" srcset=\"{}\">",
+            html_escape(&make_absolute(path))
+        ));
+    }
+    // Light mode mobile
+    if let Some(ref path) = config.mobile {
+        sources.push(format!(
+            "<source media=\"(max-width: 639px)\" srcset=\"{}\">",
+            html_escape(&make_absolute(path))
+        ));
+    }
+    // Light mode tablet
+    if let Some(ref path) = config.tablet {
+        sources.push(format!(
+            "<source media=\"(min-width: 640px) and (max-width: 767px)\" srcset=\"{}\">",
+            html_escape(&make_absolute(path))
+        ));
+    }
+
+    let sources_html = sources.join("");
+
     let link = html_escape(config.link.as_deref().unwrap_or("/"));
-    let aria_label = config.alt.as_deref().unwrap_or("Home");
-    let aria_label_escaped = html_escape(aria_label);
+    let alt = html_escape(config.alt.as_deref().unwrap_or("Home"));
+
+    // The <img> src is the default logo, falling back through variants so we
+    // never emit an empty src (which can trigger spurious requests in browsers).
+    let fallback_path = config
+        .default
+        .as_ref()
+        .or(config.mobile.as_ref())
+        .or(config.tablet.as_ref())
+        .or(config.dark.as_ref())
+        .or(config.dark_mobile.as_ref())
+        .or(config.dark_tablet.as_ref());
+    let img_src = fallback_path
+        .map(|p| html_escape(&make_absolute(p)))
+        .unwrap_or_default();
 
     format!(
-        "<stencila-logo{style}><a href=\"{link}\" aria-label=\"{aria_label_escaped}\"></a></stencila-logo>"
+        "<stencila-logo{logo_attrs}>\
+         <a href=\"{link}\">\
+         <picture>{sources_html}<img src=\"{img_src}\" alt=\"{alt}\"></picture>\
+         </a>\
+         </stencila-logo>"
     )
 }
 
@@ -325,9 +396,12 @@ mod tests {
         let html = render_logo(&config);
 
         assert!(html.contains("stencila-logo"));
-        assert!(html.contains("--logo: url('/logo.svg')"));
+        assert!(html.contains("default=\"/logo.svg\""));
         assert!(html.contains("href=\"/\""));
-        assert!(html.contains("aria-label=\"My Logo\""));
+        // Uses <picture> with <img> for native rendering
+        assert!(html.contains("<img src=\"/logo.svg\" alt=\"My Logo\">"));
+        // No <source> elements when only default is set
+        assert!(!html.contains("<source"));
     }
 
     #[test]
@@ -340,9 +414,21 @@ mod tests {
         };
         let html = render_logo(&config);
 
-        assert!(html.contains("--logo: url('/logo.svg')"));
-        assert!(html.contains("--logo-dark: url('/logo-dark.svg')"));
-        assert!(html.contains("--logo-mobile: url('/logo-mobile.svg')"));
+        // Attributes on custom element for JS
+        assert!(html.contains("default=\"/logo.svg\""));
+        assert!(html.contains("dark=\"/logo-dark.svg\""));
+        assert!(html.contains("mobile=\"/logo-mobile.svg\""));
+
+        // <source> elements for native <picture> handling
+        assert!(
+            html.contains(
+                "<source media=\"(prefers-color-scheme: dark)\" srcset=\"/logo-dark.svg\">"
+            )
+        );
+        assert!(html.contains("<source media=\"(max-width: 639px)\" srcset=\"/logo-mobile.svg\">"));
+
+        // Fallback <img>
+        assert!(html.contains("<img src=\"/logo.svg\" alt=\"Home\">"));
     }
 
     #[test]
