@@ -86,7 +86,12 @@ function initUnoRuntime() {
   initUnocssRuntime({
     defaults: {
       presets: [
-        presetWind4(),
+        presetWind4({
+          dark: {
+            dark: '[data-color-scheme="dark"]',
+            light: '[data-color-scheme="light"]',
+          },
+        }),
         presetIcons({
           // Bundled icon sets loaded async on first request for icon from that set
           // These will be served from Stencila's embedded server (e.g. when previewing
