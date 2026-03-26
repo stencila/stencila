@@ -3,6 +3,9 @@
 # Although the folders for SDKs are not used in the build they need
 # to be included here because they are configured in the root `Cargo.toml`.
 *
+!.stencila/agents
+!.stencila/skills
+!.stencila/workflows
 !Cargo.*
 !package*.json
 !prompts

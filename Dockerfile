@@ -24,7 +24,7 @@ COPY . /build
 COPY --from=web /build/web/dist /build/web/dist
 
 # Build the binary
-RUN apt-get update && apt-get install cmake -y
+RUN apt-get update && apt-get install cmake libclang-dev -y
 RUN cargo build --bin stencila --release
 
 
