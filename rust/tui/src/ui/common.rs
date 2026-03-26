@@ -630,7 +630,12 @@ fn apply_sgr(style: &mut Style, params: &str) {
         return;
     }
 
-    let codes: Vec<u8> = params.split(';').filter_map(|s| s.parse().ok()).collect();
+    // Turbofish needed: `encode_unicode` adds `FromIterator<Utf8Char> for Vec<u8>`,
+    // making inference of the `parse` return type ambiguous on Windows CI.
+    let codes: Vec<u8> = params
+        .split(';')
+        .filter_map(|s| s.parse::<u8>().ok())
+        .collect();
     let mut i = 0;
     while i < codes.len() {
         match codes[i] {
