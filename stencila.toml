@@ -7,7 +7,7 @@ author = "Stencila"
 root = "site"
 exclude = ["tests/excluded.smd"]
 search = true
-reviews = true
+#reviews = true
 #uploads = true
 #remotes = true
 
@@ -28,7 +28,11 @@ x = "stencila"
 "/tests/" = "team"
 
 [site.routes]
-"/tests/redirect" = { redirect = "https://github.com/stencila/stencila", status = 302 }
+# Redirects for previously deployed stencila.io routes
+"/install.sh" = { redirect = "https://raw.githubusercontent.com/stencila/stencila/main/install.sh", status = 301 }
+"/web/*" = { redirect = "https://stencila.dev/web/{splat}", status = 301 }
+# Test routes
+"/tests/redirect" = { redirect = "https://github.com/stencila/stencila" }
 "/tests/file/" = "tests/file.myst"
 "/tests/spread/{environ}/{region}/" = { file = "tests/spread.smd", arguments = { environ = ["earth", "sea", "sky"], region = ["north", "south"] } }
 
