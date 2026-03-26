@@ -19,6 +19,14 @@ pub fn web_base_cdn() -> String {
     ["https://stencila.dev/web/v", STENCILA_VERSION].concat()
 }
 
+/// Get the development CDN base URL for web assets
+///
+/// Points to the mutable `dev` distribution, published ad-hoc via
+/// the `release-web.yml` workflow with `VERSION=dev`.
+pub fn web_base_cdn_dev() -> String {
+    "https://stencila.dev/web/dev".to_string()
+}
+
 /// Get the localhost base URL for web assets (for preview/development)
 pub fn web_base_localhost(port: u16) -> String {
     ["http://localhost:", &port.to_string(), WEB_STATIC_PATH_DEV].concat()

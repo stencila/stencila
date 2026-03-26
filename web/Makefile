@@ -49,14 +49,26 @@ build: install
 	npm run build
 
 # Publish the distribution (requires rclone and relevant secrets)
+# When VERSION=dev, use rclone sync (mutable, overwrites existing files).
+# For tagged releases, use rclone copy --immutable (fails if files already exist).
 publish: build
+ifeq ($(VERSION),dev)
 	RCLONE_CONFIG_R2_TYPE=s3 \
 	RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
 	RCLONE_CONFIG_R2_ENV_AUTH=false \
 	RCLONE_CONFIG_R2_ENDPOINT=https://$(CF_ACCOUNT_ID).r2.cloudflarestorage.com \
 	RCLONE_CONFIG_R2_ACCESS_KEY_ID=$(R2_ACCESS_KEY_ID) \
 	RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$(R2_SECRET_ACCESS_KEY) \
-	rclone copy dist R2:web-dist/$(VERSION)  --immutable --checksum --progress
+	rclone sync dist R2:web-dist/dev --checksum --progress
+else
+	RCLONE_CONFIG_R2_TYPE=s3 \
+	RCLONE_CONFIG_R2_PROVIDER=Cloudflare \
+	RCLONE_CONFIG_R2_ENV_AUTH=false \
+	RCLONE_CONFIG_R2_ENDPOINT=https://$(CF_ACCOUNT_ID).r2.cloudflarestorage.com \
+	RCLONE_CONFIG_R2_ACCESS_KEY_ID=$(R2_ACCESS_KEY_ID) \
+	RCLONE_CONFIG_R2_SECRET_ACCESS_KEY=$(R2_SECRET_ACCESS_KEY) \
+	rclone copy dist R2:web-dist/$(VERSION) --immutable --checksum --progress
+endif
 
 # Clean up development artifacts
 clean:

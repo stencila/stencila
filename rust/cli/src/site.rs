@@ -1105,6 +1105,14 @@ pub struct Push {
     /// Force push without checking etags
     #[arg(long, short)]
     pub force: bool,
+
+    /// Use the development web distribution instead of the versioned release
+    ///
+    /// Renders the site with web assets from the mutable `dev` CDN path
+    /// (`https://stencila.dev/web/dev`) instead of the version-pinned path.
+    /// Intended for maintainers testing unreleased web distribution changes.
+    #[arg(long)]
+    pub dev: bool,
 }
 
 pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
@@ -1120,6 +1128,9 @@ pub static PUSH_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Force push (ignore unchanged files)</dim>
   <b>stencila site push</> <c>--force</>
+
+  <dim># Push using the development web distribution (for maintainers)</dim>
+  <b>stencila site push</> <c>--dev</>
 "
 );
 
@@ -1161,6 +1172,15 @@ impl Push {
         // Set up progress channel
         let (tx, mut rx) = mpsc::channel::<PushProgress>(100);
 
+        // Resolve the web asset base URL
+        let web_base = if self.dev {
+            let url = stencila_web_dist::web_base_cdn_dev();
+            message!("🔧 Using development web distribution: {}", url);
+            Some(url)
+        } else {
+            None
+        };
+
         message!("☁️ Pushing directory `{}` to workspace site", path_display);
 
         // Track start time for elapsed reporting
@@ -1180,6 +1200,7 @@ impl Push {
             None, // path_filter
             None, // source_files
             self.force,
+            web_base.as_deref(),
             Some(tx),
             |doc_path, arguments: HashMap<String, String>| async move {
                 let doc = Document::open(&doc_path, None).await?;

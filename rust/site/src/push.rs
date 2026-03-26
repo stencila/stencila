@@ -90,6 +90,7 @@ pub enum PushProgress {
 /// * `path_filter` - Optional filter by source file path prefix
 /// * `source_files` - Optional list of exact source file paths to push
 /// * `force` - Force upload all files even if unchanged
+/// * `web_base` - Optional override for the web asset base URL (e.g. the dev CDN)
 /// * `progress` - Optional channel for progress events
 /// * `decode_document_fn` - Async function to decode a document from a path
 ///
@@ -105,6 +106,7 @@ pub async fn push<F, Fut>(
     path_filter: Option<&str>,
     source_files: Option<&[PathBuf]>,
     force: bool,
+    web_base: Option<&str>,
     progress: Option<mpsc::Sender<PushProgress>>,
     decode_document_fn: F,
 ) -> Result<PushResult>
@@ -174,14 +176,18 @@ where
         }
     });
 
+    // Resolve web asset base URL: use explicit override if provided,
+    // otherwise fall back to the production CDN URL for the current version.
+    let resolved_web_base = web_base
+        .map(String::from)
+        .unwrap_or_else(web_base_cdn);
+
     // Phase 1: Render to temp directory
     let render_result = render::render(
         path,
         temp_dir.path(),
         &base_url,
-        // Use explicit production CDN URL for web assets to ensure push never
-        // accidentally uses localhost URLs (even if STENCILA_DEV_LOCALHOST is set)
-        Some(&web_base_cdn()),
+        Some(&resolved_web_base),
         route_filter,
         path_filter,
         source_files,

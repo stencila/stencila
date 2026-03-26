@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       tag:
-        description: The tag to create the release for e.g. v2.1.0
+        description: "The tag to create the release for (e.g. v2.1.0) or 'dev' for a mutable development build"
         type: string
         required: true
 
@@ -22,7 +22,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.tag }}
+          ref: ${{ inputs.tag == 'dev' && github.ref || inputs.tag }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4

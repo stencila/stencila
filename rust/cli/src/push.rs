@@ -666,6 +666,7 @@ impl Cli {
         let push = site::Push {
             path: PathBuf::from("."),
             force: false,
+            dev: false,
         };
         push.run().await
     }
