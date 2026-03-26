@@ -91,17 +91,14 @@ jobs:
         run: mkdir -p dist
 
       - uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
           name: dist-x86_64-unknown-linux-gnu
           path: dist
       - uses: actions/download-artifact@v4
-        with:
-          name: dist-aarch64-apple-darwin
-          path: dist
-      - uses: actions/download-artifact@v4
         continue-on-error: true
         with:
-          name: dist-x86_64-apple-darwin
+          name: dist-aarch64-apple-darwin
           path: dist
       - uses: actions/download-artifact@v4
         continue-on-error: true
