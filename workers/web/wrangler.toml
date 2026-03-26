@@ -3,6 +3,8 @@ compatibility_date = "2023-10-16"
 
 main = "web.ts"
 
+routes = [{ pattern = "stencila.dev/web/*", zone_name = "stencila.dev" }]
+
 observability = { enabled = true }
 send_metrics = false
 
