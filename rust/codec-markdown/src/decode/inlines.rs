@@ -1601,13 +1601,11 @@ mod tests {
     fn test_icon_with_label_attr() {
         use stencila_codec::stencila_schema::Icon;
 
-        // Per the design contract (delivery plan line 67): when label is present and
-        // decorative is not explicitly set, the parser sets decorative to Some(false).
         let res = inlines(r#"%[mdi:home]{label="Home"}"#, &Format::default());
         assert_eq!(res.len(), 1);
         assert!(matches!(
             &res[0].0,
-            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+            Inline::Icon(Icon { name, label: Some(label), decorative: None, .. })
                 if name == "mdi:home" && label == "Home"
         ));
     }
@@ -1686,12 +1684,11 @@ mod tests {
     fn test_icon_with_label_via_decode() {
         use stencila_codec::stencila_schema::Icon;
 
-        // Per design contract: label present without explicit decorative → decorative=Some(false)
         let inlines = decode_para_inlines(r#"%[mdi:home]{label="Home"}"#, Format::Smd);
         assert_eq!(inlines.len(), 1);
         assert!(matches!(
             &inlines[0],
-            Inline::Icon(Icon { name, label: Some(label), decorative: Some(false), .. })
+            Inline::Icon(Icon { name, label: Some(label), decorative: None, .. })
                 if name == "mdi:home" && label == "Home"
         ));
     }
@@ -1747,7 +1744,7 @@ mod tests {
         };
         assert_eq!(icon1.name, "mdi:home");
         assert_eq!(icon1.label.as_deref(), Some("Home"));
-        assert_eq!(icon1.decorative, Some(false));
+        assert_eq!(icon1.decorative, None);
 
         // Encode back to markdown — must produce valid %[name]{attrs} syntax
         use stencila_codec_markdown_trait::to_markdown;
