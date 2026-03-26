@@ -1,3 +1,5 @@
+use std::time::{Duration, Instant};
+
 use ratatui::style::Color;
 
 use crate::autocomplete::{
@@ -12,6 +14,11 @@ use super::{
     App, AppMessage, ExchangeKind, ExchangeStatus, discover_agents, discover_workflows,
     truncate_preview,
 };
+
+/// How long cached agent/workflow discovery results remain valid before
+/// re-scanning the filesystem. Keeps autocomplete snappy on repeated
+/// keystrokes while still picking up newly created definitions.
+const DISCOVERY_CACHE_TTL: Duration = Duration::from_secs(5);
 
 impl App {
     /// Build response candidates from existing exchanges.
@@ -70,7 +77,10 @@ impl App {
     }
 
     /// Build mention candidates from existing sessions and discovered agents.
-    pub fn mention_candidates(&self) -> Vec<MentionCandidate> {
+    ///
+    /// Discovery results are cached with a TTL to avoid repeated filesystem
+    /// I/O on every keystroke while the `#` trigger is active.
+    pub fn mention_candidates(&mut self) -> Vec<MentionCandidate> {
         let mut candidates: Vec<MentionCandidate> = self
             .sessions
             .iter()
@@ -83,46 +93,74 @@ impl App {
             })
             .collect();
 
-        // Discovered agent definitions not yet in sessions
+        // Refresh discovery cache if missing or stale
+        let now = Instant::now();
+        let needs_refresh = self
+            .cached_agents
+            .as_ref()
+            .is_none_or(|(ts, _)| now.duration_since(*ts) > DISCOVERY_CACHE_TTL);
+        if needs_refresh {
+            self.cached_agents = Some((now, discover_agents()));
+        }
+
+        // Build candidates from cached discovery results
         let session_names: Vec<&str> = self.sessions.iter().map(|s| s.name.as_str()).collect();
-        let definitions = discover_agents();
-        for def in definitions {
-            if session_names.contains(&def.name.as_str()) {
-                continue;
-            }
-            candidates.push(MentionCandidate {
-                name: def.name.clone(),
-                color: self
-                    .color_registry
-                    .get(&def.name)
-                    .unwrap_or(Color::DarkGray),
-                definition: Some(AgentDefinitionInfo {
+        if let Some((_, ref definitions)) = self.cached_agents {
+            for def in definitions {
+                if session_names.contains(&def.name.as_str()) {
+                    continue;
+                }
+                candidates.push(MentionCandidate {
                     name: def.name.clone(),
-                    description: def.description.clone(),
-                    model: def.models.as_ref().and_then(|v| v.first().cloned()),
-                    provider: def.providers.as_ref().and_then(|v| v.first().cloned()),
-                    source: def.source().map(|s| s.to_string()).unwrap_or_default(),
-                }),
-            });
+                    color: self
+                        .color_registry
+                        .get(&def.name)
+                        .unwrap_or(Color::DarkGray),
+                    definition: Some(AgentDefinitionInfo {
+                        name: def.name.clone(),
+                        description: def.description.clone(),
+                        model: def.models.as_ref().and_then(|v| v.first().cloned()),
+                        provider: def.providers.as_ref().and_then(|v| v.first().cloned()),
+                        source: def.source().map(|s| s.to_string()).unwrap_or_default(),
+                    }),
+                });
+            }
         }
 
         candidates
     }
 
     /// Build workflow candidates from discovered workflow definitions.
-    pub fn workflow_candidates() -> Vec<WorkflowCandidate> {
-        discover_workflows()
-            .into_iter()
-            .map(|def| WorkflowCandidate {
-                name: def.name.clone(),
-                info: WorkflowDefinitionInfo {
-                    name: def.name.clone(),
-                    description: def.description.clone(),
-                    goal: def.goal.clone(),
-                    goal_hint: def.goal_hint.clone(),
-                },
+    ///
+    /// Discovery results are cached with a TTL to avoid repeated filesystem
+    /// I/O on every keystroke while the `~` trigger is active.
+    pub fn workflow_candidates(&mut self) -> Vec<WorkflowCandidate> {
+        // Refresh discovery cache if missing or stale
+        let now = Instant::now();
+        let needs_refresh = self
+            .cached_workflows
+            .as_ref()
+            .is_none_or(|(ts, _)| now.duration_since(*ts) > DISCOVERY_CACHE_TTL);
+        if needs_refresh {
+            self.cached_workflows = Some((now, discover_workflows()));
+        }
+
+        self.cached_workflows
+            .as_ref()
+            .map(|(_, defs)| {
+                defs.iter()
+                    .map(|def| WorkflowCandidate {
+                        name: def.name.clone(),
+                        info: WorkflowDefinitionInfo {
+                            name: def.name.clone(),
+                            description: def.description.clone(),
+                            goal: def.goal.clone(),
+                            goal_hint: def.goal_hint.clone(),
+                        },
+                    })
+                    .collect()
             })
-            .collect()
+            .unwrap_or_default()
     }
 
     /// Build cancel candidates from running exchanges.

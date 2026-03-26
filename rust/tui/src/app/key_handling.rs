@@ -591,7 +591,7 @@ impl App {
                 self.input.delete_char_before();
                 let input = self.input.text().to_string();
                 let cursor = self.input.cursor();
-                let workflows = App::workflow_candidates();
+                let workflows = self.workflow_candidates();
                 self.workflows_state.update(&input, cursor, &workflows);
             }
             (modifier, KeyCode::Char(c))
@@ -601,7 +601,7 @@ impl App {
                 self.input.insert_char(c);
                 let input = self.input.text().to_string();
                 let cursor = self.input.cursor();
-                let workflows = App::workflow_candidates();
+                let workflows = self.workflow_candidates();
                 self.workflows_state.update(&input, cursor, &workflows);
             }
             _ => return false,

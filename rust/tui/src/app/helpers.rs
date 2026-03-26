@@ -55,9 +55,7 @@ impl App {
         }
 
         // Only discover agents when the input starts with `#` (the
-        // mention trigger). `discover_agents()` blocks the thread and
-        // does filesystem I/O, so skipping it for normal typing is a
-        // large win.
+        // mention trigger). Discovery results are cached with a TTL.
         if input.starts_with('#') {
             let agents = self.mention_candidates();
             self.mentions_state.update(&input, cursor, &agents);
@@ -66,9 +64,9 @@ impl App {
         }
 
         // Only discover workflows when the input starts with `~` (the
-        // tilde trigger). `discover_workflows()` also blocks on I/O.
+        // tilde trigger). Discovery results are cached with a TTL.
         if input.starts_with('~') {
-            let workflows = App::workflow_candidates();
+            let workflows = self.workflow_candidates();
             self.workflows_state.update(&input, cursor, &workflows);
         } else if self.workflows_state.is_tilde_mode() {
             // Tilde was deleted — dismiss tilde-mode popup

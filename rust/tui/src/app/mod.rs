@@ -7,13 +7,14 @@ mod sessions;
 mod submission;
 mod workflows;
 
+use std::collections::{HashMap, VecDeque};
+use std::sync::{Arc, Mutex};
+use std::time::Instant;
+
 use crossterm::event::{Event, MouseEventKind};
 use ratatui::style::Color;
 use strum::Display;
 use tokio::{sync::mpsc, task::JoinHandle};
-
-use std::collections::{HashMap, VecDeque};
-use std::sync::{Arc, Mutex};
 
 use stencila_attractor::interviewer::{Answer, Interview};
 
@@ -457,6 +458,13 @@ pub struct App {
     /// Agent mention autocomplete popup state (triggered by `#`).
     pub mentions_state: MentionsState,
 
+    /// Cached agent discovery results with timestamp, avoiding repeated
+    /// filesystem I/O on every keystroke while `#` is the first character.
+    cached_agents: Option<(Instant, Vec<stencila_agents::definition::AgentInstance>)>,
+    /// Cached workflow discovery results with timestamp, avoiding repeated
+    /// filesystem I/O on every keystroke while `~` is the first character.
+    cached_workflows: Option<(Instant, Vec<stencila_workflows::WorkflowInstance>)>,
+
     /// Stored paste contents keyed by paste number. Large pastes are inserted
     /// as `[Paste #N: preview…]` tokens in the input buffer; the full text is
     /// kept here and expanded at submit time (same pattern as response refs).
@@ -581,6 +589,8 @@ impl App {
             workflows_state: WorkflowsState::new(),
             resume_state: ResumeState::new(),
             mentions_state: MentionsState::new(),
+            cached_agents: None,
+            cached_workflows: None,
             pastes: std::collections::HashMap::new(),
             paste_counter: 0,
             input_scroll: 0,
