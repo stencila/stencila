@@ -66,14 +66,27 @@ struct FileToUpload {
     compress: bool,
 }
 
-/// Determine if a file should be compressed based on its extension.
+/// Determine if a file should be compressed based on its extension and name.
 ///
 /// Returns true for text-based and other compressible formats,
-/// false for already-compressed media files.
+/// false for already-compressed media files and underscore-prefixed JSON
+/// metadata files (e.g. `_redirect.json`, `_redirects.json`, `_access.json`)
+/// which must be served uncompressed by the cloud worker.
 fn should_compress(path: &Path) -> bool {
     let Some(ext) = path.extension().and_then(|e| e.to_str()) else {
         return false;
     };
+
+    // Underscore-prefixed JSON files are metadata consumed directly by the
+    // cloud worker and must not be compressed
+    if ext.eq_ignore_ascii_case("json")
+        && path
+            .file_name()
+            .and_then(|n| n.to_str())
+            .is_some_and(|n| n.starts_with('_'))
+    {
+        return false;
+    }
 
     // Extensions that should NOT be compressed (already compressed or binary)
     let skip_extensions = [
@@ -395,6 +408,16 @@ mod tests {
         // Non-compressible file types (other binary)
         assert!(!should_compress(Path::new("doc.pdf")));
         assert!(!should_compress(Path::new("module.wasm")));
+
+        // Underscore-prefixed JSON metadata files (not compressed)
+        assert!(!should_compress(Path::new("_redirect.json")));
+        assert!(!should_compress(Path::new("_redirects.json")));
+        assert!(!should_compress(Path::new("_access.json")));
+        assert!(!should_compress(Path::new("_nav.json")));
+        assert!(!should_compress(Path::new("old-docs/_redirect.json")));
+
+        // Regular JSON files are still compressed
+        assert!(should_compress(Path::new("config.json")));
 
         // No extension - should not compress
         assert!(!should_compress(Path::new("Makefile")));

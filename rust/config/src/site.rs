@@ -1063,12 +1063,12 @@ pub struct RouteRedirect {
     ///
     /// Determines the type of redirect. Common values:
     /// - 301 - Moved Permanently (permanent redirect)
-    /// - 302 - Found (temporary redirect, default)
+    /// - 302 - Found (temporary redirect)
     /// - 303 - See Other
     /// - 307 - Temporary Redirect
     /// - 308 - Permanent Redirect
     ///
-    /// If not specified, defaults to 302 (temporary redirect).
+    /// If not specified, defaults to 307 (temporary redirect) when rendered for Stencila Sites.
     pub status: Option<RedirectStatus>,
 }
 

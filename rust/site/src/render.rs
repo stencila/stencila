@@ -202,7 +202,8 @@ where
     let mut auto_index_routes_all: Vec<RouteEntry> = Vec::new();
     let mut auto_index_routes_render: Vec<RouteEntry> = Vec::new();
     let mut static_files: Vec<PathBuf> = Vec::new();
-    let mut redirects: Vec<(String, String, RedirectStatus)> = Vec::new();
+    let mut config_redirects: Vec<(String, String, RedirectStatus)> = Vec::new();
+    let mut user_redirects_to_render: Vec<(String, String, RedirectStatus)> = Vec::new();
 
     for entry in all_routes {
         match entry.route_type {
@@ -237,14 +238,17 @@ where
         }
     }
 
-    // Discover user-defined redirect files (these take precedence over config)
+    // Discover user-defined redirect files (per-directory _redirect.json)
+    // These are written as per-directory files and take precedence on the cloud worker
     let user_redirects = discover_user_redirects(&site_root, &config).await?;
     let user_redirect_routes: HashSet<String> = user_redirects
         .iter()
         .map(|(route, _, _)| route.clone())
         .collect();
+    user_redirects_to_render.extend(user_redirects);
 
-    // Add site-level redirects from config (skipping routes with user-defined redirects)
+    // Collect site-level redirects from config into root-level _redirects.json
+    // These support splat and placeholder patterns on the cloud worker
     if let Some(site) = &config.site
         && let Some(routes) = &site.routes
     {
@@ -254,20 +258,15 @@ where
                 let normalized_route = normalize_route(route_path);
                 // Skip if user has defined a redirect for this route
                 if !user_redirect_routes.contains(&normalized_route) {
-                    redirects.push((
+                    config_redirects.push((
                         route_path.clone(),
                         redirect_config.redirect.clone(),
-                        redirect_config
-                            .status
-                            .unwrap_or(RedirectStatus::TemporaryRedirect),
+                        redirect_config.status.unwrap_or(RedirectStatus::Found),
                     ));
                 }
             }
         }
     }
-
-    // Add user-defined redirects
-    redirects.extend(user_redirects);
 
     send_progress!(RenderProgress::FilesFound {
         documents: document_routes_render.len() + auto_index_routes_render.len(),
@@ -550,9 +549,15 @@ where
         }
     }
 
-    // Write redirect files
-    for (route, target, status) in &redirects {
+    // Write per-directory _redirect.json files for user-defined redirects
+    for (route, target, status) in &user_redirects_to_render {
         render_redirect_route(route, target, status, &output_dir).await?;
+    }
+
+    // Write root-level _redirects.json for config-defined redirects
+    // This file supports splat and placeholder pattern matching on the cloud worker
+    if !config_redirects.is_empty() {
+        render_redirects_file(&config_redirects, &output_dir).await?;
     }
 
     // Copy static files in parallel (preserving relative paths)
@@ -643,8 +648,9 @@ where
             .map(|d| (d.source_path.clone(), d.route.clone()))
             .collect(),
         documents_failed: docs_failed,
-        redirects: redirects
+        redirects: config_redirects
             .iter()
+            .chain(user_redirects_to_render.iter())
             .map(|(r, t, _)| (r.clone(), t.clone()))
             .collect(),
         static_files: copied_files,
@@ -1139,6 +1145,33 @@ async fn render_redirect_route(
     Ok(())
 }
 
+/// Render a root-level `_redirects.json` file from config-defined redirects
+///
+/// This file is a JSON array of redirect rules that Stencila Sites
+/// evaluates with pattern matching (splats and placeholders).
+/// See the site-redirects spec for the `_redirects.json` format.
+async fn render_redirects_file(
+    redirects: &[(String, String, RedirectStatus)],
+    output_dir: &Path,
+) -> Result<()> {
+    let rules: Vec<serde_json::Value> = redirects
+        .iter()
+        .map(|(from, to, status)| {
+            json!({
+                "from": from,
+                "to": to,
+                "status": u16::from(*status)
+            })
+        })
+        .collect();
+
+    let content = serde_json::to_string_pretty(&rules)?;
+    let path = output_dir.join("_redirects.json");
+    write(&path, content).await?;
+
+    Ok(())
+}
+
 /// Normalize a path to use forward slashes for storage paths.
 ///
 /// On Windows, `Path::to_string_lossy()` produces backslashes which are
@@ -1290,6 +1323,70 @@ mod tests {
         let routes: Vec<_> = redirects.iter().map(|(r, _, _)| r.as_str()).collect();
         assert!(routes.contains(&"/"));
         assert!(!routes.iter().any(|r| r.contains("excluded")));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_render_redirects_file() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+        let redirects = vec![
+            (
+                "/blog/*".to_string(),
+                "https://blog.example.com/{splat}".to_string(),
+                RedirectStatus::MovedPermanently,
+            ),
+            (
+                "/docs/{lang}/{page}".to_string(),
+                "/documentation/{lang}/{page}".to_string(),
+                RedirectStatus::Found,
+            ),
+            (
+                "/old-page".to_string(),
+                "/new-page".to_string(),
+                RedirectStatus::TemporaryRedirect,
+            ),
+        ];
+
+        render_redirects_file(&redirects, temp_dir.path()).await?;
+
+        let content = fs::read_to_string(temp_dir.path().join("_redirects.json"))?;
+        let rules: Vec<serde_json::Value> = serde_json::from_str(&content)?;
+
+        assert_eq!(rules.len(), 3);
+
+        assert_eq!(rules[0]["from"], "/blog/*");
+        assert_eq!(rules[0]["to"], "https://blog.example.com/{splat}");
+        assert_eq!(rules[0]["status"], 301);
+
+        assert_eq!(rules[1]["from"], "/docs/{lang}/{page}");
+        assert_eq!(rules[1]["to"], "/documentation/{lang}/{page}");
+        assert_eq!(rules[1]["status"], 302);
+
+        assert_eq!(rules[2]["from"], "/old-page");
+        assert_eq!(rules[2]["to"], "/new-page");
+        assert_eq!(rules[2]["status"], 307);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_render_redirect_route_per_directory() -> Result<()> {
+        let temp_dir = TempDir::new()?;
+
+        render_redirect_route(
+            "/old-docs/",
+            "/docs/",
+            &RedirectStatus::MovedPermanently,
+            temp_dir.path(),
+        )
+        .await?;
+
+        let content = fs::read_to_string(temp_dir.path().join("old-docs/_redirect.json"))?;
+        let parsed: serde_json::Value = serde_json::from_str(&content)?;
+
+        assert_eq!(parsed["location"], "/docs/");
+        assert_eq!(parsed["status"], 301);
+
         Ok(())
     }
 }

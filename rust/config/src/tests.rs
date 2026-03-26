@@ -763,7 +763,7 @@ fn test_config_routes_redirect() -> Result<()> {
     assert_eq!(redirect.redirect, "/new/");
     assert_eq!(redirect.status, Some(RedirectStatus::MovedPermanently));
 
-    // Check the redirect without status (defaults to 302)
+    // Check the redirect without status (site rendering defaults it to 307)
     let target = routes.get("/external/").expect("Expected /external/ route");
     let redirect = target.redirect().expect("Expected redirect");
     assert_eq!(redirect.redirect, "https://example.com");
