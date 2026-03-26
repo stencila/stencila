@@ -654,7 +654,7 @@
           ]
         },
         "tablet": {
-          "description": "Logo for tablet breakpoint (640px - 768px)",
+          "description": "Logo for tablet breakpoint (640px - 767px)",
           "type": [
             "string",
             "null"
@@ -689,7 +689,7 @@
           ]
         },
         "alt": {
-          "description": "Alt text for accessibility (used as aria-label on the link)",
+          "description": "Alt text for accessibility (used as alt on the logo image)",
           "type": [
             "string",
             "null"
@@ -944,7 +944,7 @@
           "type": "string"
         },
         "status": {
-          "description": "HTTP status code for the redirect\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect, default)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nIf not specified, defaults to 302 (temporary redirect).",
+          "description": "HTTP status code for the redirect\n\nDetermines the type of redirect. Common values:\n- 301 - Moved Permanently (permanent redirect)\n- 302 - Found (temporary redirect)\n- 303 - See Other\n- 307 - Temporary Redirect\n- 308 - Permanent Redirect\n\nIf not specified, defaults to 307 (temporary redirect) when rendered for Stencila Sites.",
           "anyOf": [
             {
               "$ref": "#/definitions/RedirectStatus"
@@ -1337,7 +1337,7 @@
               ]
             },
             "tablet": {
-              "description": "Logo for tablet breakpoint (640px - 768px)",
+              "description": "Logo for tablet breakpoint (640px - 767px)",
               "type": [
                 "string",
                 "null"
@@ -1372,7 +1372,7 @@
               ]
             },
             "alt": {
-              "description": "Alt text for accessibility (used as aria-label on the link)",
+              "description": "Alt text for accessibility (used as alt on the logo image)",
               "type": [
                 "string",
                 "null"

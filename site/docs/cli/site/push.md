@@ -25,6 +25,9 @@ stencila site push ./site/report.md
 
 # Force push (ignore unchanged files)
 stencila site push --force
+
+# Push using the development web distribution (for maintainers)
+stencila site push --dev
 ```
 
 # Arguments
@@ -35,6 +38,7 @@ stencila site push --force
 
 # Options
 
-| Name          | Description                                                          |
-| ------------- | -------------------------------------------------------------------- |
-| `-f, --force` | Force push without checking etags. Possible values: `true`, `false`. |
+| Name          | Description                                                                                              |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| `-f, --force` | Force push without checking etags. Possible values: `true`, `false`.                                     |
+| `--dev`       | Use the development web distribution instead of the versioned release. Possible values: `true`, `false`. |

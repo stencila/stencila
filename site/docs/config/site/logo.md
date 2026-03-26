@@ -37,7 +37,7 @@ Logo for mobile breakpoint (< 640px)
 
 **Type:** `string` (optional)
 
-Logo for tablet breakpoint (640px - 768px)
+Logo for tablet breakpoint (640px - 767px)
 
 # `dark`
 
@@ -67,7 +67,7 @@ Link target when logo is clicked (default: "/")
 
 **Type:** `string` (optional)
 
-Alt text for accessibility (used as aria-label on the link)
+Alt text for accessibility (used as alt on the logo image)
 
 
 ***
