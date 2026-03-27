@@ -46,7 +46,7 @@ use itertools::Itertools;
 use stencila_codec_utils::is_in_container;
 use stencila_themes::LengthConversion;
 use stencila_tools::{install_sync, is_installable, is_installed};
-use stencila_web_dist::{Web, web_base_cdn, web_base_localhost_default};
+use stencila_web_dist::{Web, web_base_cdn, web_static_path_dev};
 
 /// Duration in seconds to keep browser open for inspection during development.
 /// Set to 0 for normal operation (headless mode).
@@ -1047,9 +1047,11 @@ fn get_content_bounds(tab: &Arc<Tab>, padding: u32) -> Result<Option<Page::Viewp
 
 /// Wraps HTML with so that any necessary CSS and Javascript is available
 fn wrap_html(html: &str) -> String {
-    // Use local or production web assets based on STENCILA_DEV_LOCALHOST env var
+    // Use a same-origin relative path for dev assets so local HTML rendered via
+    // 127.0.0.1 or localhost does not hardcode a different origin for JS/CSS
+    // fetches. Fall back to the production CDN otherwise.
     let web_base = if cfg!(debug_assertions) && use_localhost() {
-        web_base_localhost_default()
+        web_static_path_dev()
     } else {
         web_base_cdn()
     };

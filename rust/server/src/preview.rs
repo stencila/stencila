@@ -5,7 +5,7 @@ use std::{
 
 use eyre::Result;
 use stencila_document::{Document, ExecuteOptions};
-use stencila_web_dist::web_base_localhost;
+use stencila_web_dist::web_static_path_dev;
 use tokio::sync::{broadcast, mpsc, oneshot};
 
 use crate::{ServeOptions, SiteMessage, get_server_token, serve};
@@ -79,7 +79,9 @@ pub async fn render_site(
     progress: Option<mpsc::Sender<stencila_site::RenderProgress>>,
 ) -> Result<()> {
     let base_url = format!("http://localhost:{port}");
-    let web_base = web_base_localhost(port);
+    // Use a same-origin relative path for dev assets so previews opened at
+    // either 127.0.0.1 or localhost do not trigger cross-origin asset fetches.
+    let web_base = web_static_path_dev();
 
     stencila_site::render(
         source,

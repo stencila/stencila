@@ -27,16 +27,6 @@ pub fn web_base_cdn_dev() -> String {
     "https://stencila.dev/web/dev".to_string()
 }
 
-/// Get the localhost base URL for web assets (for preview/development)
-pub fn web_base_localhost(port: u16) -> String {
-    ["http://localhost:", &port.to_string(), WEB_STATIC_PATH_DEV].concat()
-}
-
-/// Get the default localhost base URL (port 9000)
-pub fn web_base_localhost_default() -> String {
-    web_base_localhost(9000)
-}
-
 /// Web interface distribution bundled into binary
 ///
 /// During development these are served directly from the folder but are

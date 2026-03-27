@@ -17,7 +17,7 @@ use stencila_codec_dom_trait::{
 use stencila_codec_text_trait::to_text;
 use stencila_node_media::{collect_media, embed_media, extract_media};
 use stencila_themes::{Theme, ThemeType};
-use stencila_web_dist::{web_base_cdn, web_base_localhost_default};
+use stencila_web_dist::{web_base_cdn, web_static_path_dev};
 
 // Re-export to_dom
 pub use stencila_codec_dom_trait::to_dom;
@@ -196,13 +196,15 @@ pub async fn encode(
         let extra_head = (!extra_head.is_empty()).then_some(extra_head);
 
         // Use web_base from options if provided, otherwise fall back to
-        // localhost (if STENCILA_DEV_LOCALHOST env var is set) or production CDN
+        // same-origin dev assets (if STENCILA_DEV_LOCALHOST env var is set)
+        // so pages opened at either 127.0.0.1 or localhost do not hardcode a
+        // different origin for JS/CSS fetches, or the production CDN.
         let web_base = options
             .as_ref()
             .and_then(|opts| opts.web_base.clone())
             .unwrap_or_else(|| {
                 if cfg!(debug_assertions) && use_localhost() {
-                    web_base_localhost_default()
+                    web_static_path_dev()
                 } else {
                     web_base_cdn()
                 }
