@@ -1,6 +1,6 @@
 ---
 name: software-slice-selection
-description: Mark the just-completed slice or slice batch (if any), update the completed slices list, select the next unfinished execution unit from a delivery plan based on phase ordering and dependency constraints, and report whether more slices remain. Combines completion tracking with next-work selection in a single step. Reads plans from .stencila/plans/, parses phase and slice structure, validates package references against the codebase, and can normalize overly narrow plan slices by combining adjacent compatible slices into one execution unit.
+description: Mark the just-completed slice or slice batch (if any), update the completed slices list, select the next unfinished execution unit from a delivery plan based on phase ordering and dependency constraints, and report whether more slices remain. Determines slice exhaustion, not full plan completion — does not verify plan-level Definition of Done items. Combines completion tracking with next-work selection in a single step. Reads plans from .stencila/plans/, parses phase and slice structure, validates package references against the codebase, and can normalize overly narrow plan slices by combining adjacent compatible slices into one execution unit.
 keywords:
   - slice selection
   - delivery plan
@@ -22,7 +22,9 @@ allowed-tools: read_file glob grep
 
 ## Overview
 
-Mark the just-completed slice or slice batch (if any), update the completed slices list, and select the next unfinished execution unit from a software delivery plan stored in `.stencila/plans/`. Given a just-finished slice name and a list of already-completed slices, append the finished slice or slices, identify the next unit of work to execute based on phase ordering and dependency constraints, validate its package references against the codebase, and report the unit details along with the updated completed list. If all slices are complete, report that instead.
+Mark the just-completed slice or slice batch (if any), update the completed slices list, and select the next unfinished execution unit from a software delivery plan stored in `.stencila/plans/`. Given a just-finished slice name and a list of already-completed slices, append the finished slice or slices, identify the next unit of work to execute based on phase ordering and dependency constraints, validate its package references against the codebase, and report the unit details along with the updated completed list. If all slices are complete, report that no slices remain.
+
+This skill determines **slice exhaustion** — whether there are more execution slices to select — not full plan completion. Many plans include a `## Definition of Done` section with plan-level closure checks (e.g., all tests passing, linting clean, generated types updated, documentation complete). This skill does not evaluate those checks. When all slices have been selected and completed, the skill reports that no slices remain, but the caller must verify Definition of Done items separately before treating the plan as finished.
 
 This skill reads a plan file, parses its structure, tracks completions, and determines what comes next. It does not write code, create tests, modify the plan, or manage any external state beyond reporting its findings. It also acts as a normalizer of planning granularity: plan-authored slices are advisory, and the selected execution unit may consist of one slice or several adjacent compatible slices when that would reduce workflow overhead without creating an unmanageably broad TDD loop.
 
@@ -41,12 +43,12 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 | Output                   | Description                                                                      |
 |--------------------------|----------------------------------------------------------------------------------|
 | Updated completed slices | The completed slices list with the just-finished slice or slices appended (if provided) |
-| Selected slice name      | The selected execution unit name or identifier, or a signal that all slices are complete |
+| Selected slice name      | The selected execution unit name or identifier, or a signal that no slices remain |
 | Included slices          | The underlying plan slice identifiers covered by the selected execution unit |
 | Scope                    | A concise description of what the selected execution unit covers |
 | Acceptance criteria      | The criteria for the selected execution unit |
 | Packages                 | The packages, crates, modules, or directories involved |
-| Status                   | Whether an execution unit was selected (more work) or all slices are complete (no more work)|
+| Status                   | Whether an execution unit was selected (more slices remain) or no slices remain (slice exhaustion, but not necessarily plan-level Definition of Done)|
 
 ## Steps
 
@@ -71,6 +73,7 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
    - Record the name, scope, acceptance criteria, and relevant packages for each slice
    - Note dependency ordering — slices within a phase are ordered sequentially, and phases are ordered so earlier phases complete before later ones
    - A "slice" is typically a TDD slice defined in a phase's Testing section (e.g., "Slice 1: write failing test for X..."), but if the plan uses numbered tasks without explicit TDD slices, treat each task as a slice
+   - Note whether the plan contains a `## Definition of Done` section. Record its presence for use in the final reporting step, but do not convert Definition of Done items into slices
 
 4. Determine which slices are already completed:
    - Use the updated completed slices list from step 1 (may be a comma-separated string, a JSON array, or empty/absent meaning none completed)
@@ -109,8 +112,10 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 8. All slices complete:
    - If no unfinished slices remain, report:
      - **Updated completed slices**: the full list
-     - That all plan slices have been completed
-   - **Status**: all work is complete
+     - That all execution slices have been completed and no slices remain for selection
+     - If the plan contains a `## Definition of Done` section, include a note: "All execution slices are complete. The plan includes a Definition of Done section — verify those plan-level completion checks separately before treating the plan as finished."
+     - If the plan does not contain a `## Definition of Done` section, include a note: "All execution slices are complete. Verify any plan-level completion criteria separately before treating the plan as finished."
+   - **Status**: all slices are complete
    - Stop
 
 ## Output Format
@@ -119,21 +124,22 @@ Always end your response with a structured report using exactly these labeled fi
 
 ```
 Updated completed slices: <comma-separated list, or "(none)" if empty>
-Slice name: <selected slice identifier, or "ALL COMPLETE" if no slices remain>
-Included slices: <comma-separated list of exact plan slice identifiers included in the selected execution unit; use "(none)" only when Slice name is "ALL COMPLETE">
+Slice name: <selected slice identifier, or "ALL SLICES COMPLETE" if no slices remain>
+Included slices: <comma-separated list of exact plan slice identifiers included in the selected execution unit; use "(none)" only when Slice name is "ALL SLICES COMPLETE">
 Scope: <concise scope description>
 Acceptance criteria: <the criteria for this slice>
 Packages: <comma-separated list of packages, crates, or directories>
-Status: <"more work remains" or "all work is complete">
+Status: <"more work remains" or "all slices are complete">
 ```
 
-When all slices are complete, omit the Scope, Acceptance criteria, and Packages fields and set `Included slices` to `(none)`:
+When all slices are complete, omit the Scope, Acceptance criteria, and Packages fields and set `Included slices` to `(none)`. Include a Definition of Done note if the plan has one:
 
 ```
 Updated completed slices: Phase 1 / Slice 1, Phase 1 / Slice 2
-Slice name: ALL COMPLETE
+Slice name: ALL SLICES COMPLETE
 Included slices: (none)
-Status: all work is complete
+Status: all slices are complete
+Note: All execution slices are complete. The plan includes a Definition of Done section — verify those plan-level completion checks separately before treating the plan as finished.
 ```
 
 Narrative explanation or warnings (e.g. stale package references) may precede the structured block, but the block itself must always appear last and use the exact field labels above.
@@ -215,15 +221,16 @@ Action:
 - Report slice details
 - Status: more work remains
 
-### Example 5: Mark final completion — all slices done
+### Example 5: Mark final completion — no slices remain
 
-Just-completed slice: "Phase 2 / Slice 2". Completed slices: "Phase 1 / Slice 1, Phase 1 / Slice 2, Phase 1 / Slice 3, Phase 2 / Slice 1".
+Just-completed slice: "Phase 2 / Slice 2". Completed slices: "Phase 1 / Slice 1, Phase 1 / Slice 2, Phase 1 / Slice 3, Phase 2 / Slice 1". The plan contains a `## Definition of Done` section.
 
 Action:
 - Append "Phase 2 / Slice 2" to completed list
 - Updated completed slices: "Phase 1 / Slice 1, Phase 1 / Slice 2, Phase 1 / Slice 3, Phase 2 / Slice 1, Phase 2 / Slice 2"
 - No remaining slices
-- Status: all work is complete
+- Note: All execution slices are complete. The plan includes a Definition of Done section — verify those plan-level completion checks separately before treating the plan as finished.
+- Status: all slices are complete
 
 ## Edge Cases
 
