@@ -74,6 +74,13 @@ pub struct CaptureOptions {
     pub selector: Option<String>,
 }
 
+/// Screenshot capture bytes plus capture metadata.
+pub struct CaptureResult {
+    pub bytes: Vec<u8>,
+    pub matched_elements: Option<usize>,
+    pub full_page_content_height: Option<u32>,
+}
+
 /// Create a browser instance with optimized options
 fn create_browser() -> Result<Browser> {
     let args: Vec<&OsStr> = [
@@ -391,18 +398,28 @@ impl BrowserSession {
         &mut self,
         options: &CaptureOptions,
         viewport: &ViewportConfig,
-    ) -> Result<Vec<u8>> {
-        let screenshot_data = if let Some(selector) = &options.selector {
+    ) -> Result<CaptureResult> {
+        let (screenshot_data, full_page_content_height) = if let Some(selector) = &options.selector
+        {
             // Element-specific screenshot
+            let matched_elements = self
+                .tab
+                .find_elements(selector)
+                .map_err(|error| eyre!("Failed to query selector {selector}: {error}"))?
+                .len();
             let element = self
                 .tab
                 .wait_for_element(selector)
                 .map_err(|error| eyre!("Failed to find selector {selector}: {error}"))?;
-            element
-                .capture_screenshot(
-                    headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-                )
-                .map_err(|error| eyre!("Failed to capture element screenshot: {error}"))?
+            return Ok(CaptureResult {
+                bytes: element
+                    .capture_screenshot(
+                        headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                    )
+                    .map_err(|error| eyre!("Failed to capture element screenshot: {error}"))?,
+                matched_elements: Some(matched_elements),
+                full_page_content_height: None,
+            });
         } else if options.full_page {
             // For full-page screenshots, we need to get the actual content height
             // and adjust the viewport accordingly to capture everything
@@ -488,20 +505,27 @@ impl BrowserSession {
                     eyre!("Failed to restore viewport after full page capture: {error}")
                 })?;
 
-            data
+            (data, Some(content_height))
         } else {
             // Viewport-only screenshot
-            self.tab
-                .capture_screenshot(
-                    headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-                    None,
-                    None,
-                    false,
-                )
-                .map_err(|error| eyre!("Failed to capture viewport screenshot: {error}"))?
+            (
+                self.tab
+                    .capture_screenshot(
+                        headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                        None,
+                        None,
+                        false,
+                    )
+                    .map_err(|error| eyre!("Failed to capture viewport screenshot: {error}"))?,
+                None,
+            )
         };
 
-        Ok(screenshot_data)
+        Ok(CaptureResult {
+            bytes: screenshot_data,
+            matched_elements: None,
+            full_page_content_height,
+        })
     }
 
     /// Close the browser session cleanly

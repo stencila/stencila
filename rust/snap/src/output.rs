@@ -7,6 +7,15 @@ use serde_with::skip_serializing_none;
 
 use crate::{assertions::AssertionResults, devices::ViewportConfig, measure::MeasureResult};
 
+/// How the screenshot was captured.
+#[derive(Debug, Clone, Copy, Serialize, Deserialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum CaptureMode {
+    Viewport,
+    FullPage,
+    Element,
+}
+
 /// Information about screenshot resizing performed after capture.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ScreenshotResize {
@@ -45,11 +54,14 @@ pub struct SnapOutput {
     /// Target information (selector, full_page)
     pub target: TargetInfo,
 
+    /// Information about screenshot capture semantics
+    pub capture: Option<CaptureInfo>,
+
     /// Measurement results (if collected)
     pub measure: Option<MeasureResult>,
 
     /// Resolved CSS custom property (token) values (if `--tokens` used)
-    pub tokens: Option<BTreeMap<String, String>>,
+    pub tokens: Option<TokenOutput>,
 
     /// Color palette extracted from the page (if `--palette` used)
     pub palette: Option<Vec<PaletteEntry>>,
@@ -88,6 +100,52 @@ pub struct TargetInfo {
 
     /// Whether full page was captured
     pub full_page: bool,
+
+    /// Concrete selectors measured during this run
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub measured_selectors: Vec<String>,
+
+    /// Measurement preset that was selected, if any
+    pub measure_preset: Option<String>,
+}
+
+/// Screenshot capture metadata.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct CaptureInfo {
+    /// How the screenshot was captured
+    pub mode: CaptureMode,
+
+    /// Whether the selector controlled screenshot capture
+    pub used_selector_for_capture: bool,
+
+    /// The selector used for capture, if any
+    pub selector: Option<String>,
+
+    /// How many elements the selector matched
+    pub matched_elements: Option<usize>,
+
+    /// Full-page document height used during capture
+    pub full_page_content_height: Option<u32>,
+
+    /// Capture-specific diagnostics
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub diagnostics: Vec<String>,
+}
+
+/// Token extraction output, including grouping and applied filters.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct TokenOutput {
+    /// Filtered token values keyed by CSS custom property name
+    pub values: BTreeMap<String, String>,
+
+    /// Tokens grouped by family prefix
+    #[serde(skip_serializing_if = "BTreeMap::is_empty", default)]
+    pub groups: BTreeMap<String, BTreeMap<String, String>>,
+
+    /// Prefix filters that were applied
+    pub prefixes: Option<Vec<String>>,
 }
 
 /// A color entry in the extracted palette
@@ -109,6 +167,9 @@ pub struct DeviceSnapResult {
 
     /// Measurement results
     pub measure: Option<MeasureResult>,
+
+    /// Information about screenshot capture semantics
+    pub capture: Option<CaptureInfo>,
 
     /// Screenshot PNG bytes (if captured)
     #[serde(skip)]

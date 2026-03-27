@@ -50,7 +50,8 @@ pub struct Cli {
     /// CSS selector to capture or measure
     ///
     /// If specified, screenshots will be cropped to this element and
-    /// measurements will focus on it. Overrides the --measure preset selectors.
+    /// measurements will focus on it. Overrides the --measure preset selectors
+    /// and takes precedence over --full for capture mode.
     #[arg(long)]
     selector: Option<String>,
 
@@ -142,15 +143,28 @@ pub struct Cli {
     ///   document - document content selectors (stencila-article, headings, etc.)
     ///   site     - site chrome selectors (layout, header, nav, logo, sidebar, footer)
     ///   all      - both document and site selectors
+    ///   header   - header and top-bar selectors
+    ///   nav      - navigation and breadcrumb selectors
+    ///   main     - main content selectors
+    ///   footer   - footer selectors
+    ///   theme    - combined theme review selectors across key regions
     #[arg(long, value_enum, num_args = 0..=1, default_missing_value = "auto")]
     measure: Option<MeasurePresetArg>,
 
     /// Extract resolved CSS custom property (theme token) values
     ///
     /// Reads all --* custom properties from stylesheets and returns their
-    /// computed values. Useful for verifying theme token resolution.
+    /// computed values, grouped by token family. Useful for verifying theme
+    /// token resolution and narrowing output with --token-prefix.
     #[arg(long)]
     tokens: bool,
+
+    /// Filter extracted tokens by CSS custom property prefix
+    ///
+    /// Accepts values with or without the leading `--`. Can be repeated or
+    /// provided as a comma-separated list, e.g. `--token-prefix color,font`.
+    #[arg(long, value_delimiter = ',', requires = "tokens")]
+    token_prefix: Vec<String>,
 
     /// Extract the page's color palette
     ///
@@ -186,6 +200,16 @@ enum MeasurePresetArg {
     Site,
     /// Both document and site selectors
     All,
+    /// Header and top-bar selectors
+    Header,
+    /// Navigation and breadcrumb selectors
+    Nav,
+    /// Main content selectors
+    Main,
+    /// Footer selectors
+    Footer,
+    /// Combined theme review selectors
+    Theme,
 }
 
 #[derive(Debug, Clone, Copy, clap::ValueEnum)]
@@ -208,6 +232,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Snap a specific site route with site chrome measurements</dim>
   <b>stencila snap</> <g>/docs/guide/</> <c>--measure</> <g>site</>
+
+  <dim># Measure theme-critical regions with grouped color tokens</dim>
+  <b>stencila snap</> <c>--measure</> <g>theme</> <c>--tokens</> <c>--token-prefix</> <g>color</>
 
   <dim># Snap a document file directly</dim>
   <b>stencila snap</> <g>./my-doc.md</> <c>--shot</> <g>doc.png</>
@@ -280,6 +307,11 @@ impl Cli {
             Some(MeasurePresetArg::Document) => MeasureMode::Preset(MeasurePreset::Document),
             Some(MeasurePresetArg::Site) => MeasureMode::Preset(MeasurePreset::Site),
             Some(MeasurePresetArg::All) => MeasureMode::Preset(MeasurePreset::All),
+            Some(MeasurePresetArg::Header) => MeasureMode::Preset(MeasurePreset::Header),
+            Some(MeasurePresetArg::Nav) => MeasureMode::Preset(MeasurePreset::Nav),
+            Some(MeasurePresetArg::Main) => MeasureMode::Preset(MeasurePreset::Main),
+            Some(MeasurePresetArg::Footer) => MeasureMode::Preset(MeasurePreset::Footer),
+            Some(MeasurePresetArg::Theme) => MeasureMode::Preset(MeasurePreset::Theme),
         };
 
         // Save shot path before moving fields into SnapOptions
@@ -303,6 +335,7 @@ impl Cli {
             },
             measure,
             tokens: self.tokens,
+            token_prefixes: self.token_prefix,
             palette: self.palette,
             assertions: self.assertions,
             screenshot_resize: ScreenshotResizePolicy {

@@ -26,7 +26,7 @@ pub fn definition() -> ToolDefinition {
             "properties": {
                 "route": {
                     "type": "string",
-                    "description": "Route on the running Stencila server (e.g. \"/\" or \"/docs/guide/\"). Defaults to \"/\"."
+                    "description": "Route on the running Stencila server or a document path on disk. Defaults to \"/\"."
                 },
                 "screenshot": {
                     "type": "boolean",
@@ -35,7 +35,7 @@ pub fn definition() -> ToolDefinition {
                 },
                 "selector": {
                     "type": "string",
-                    "description": "CSS selector to capture or measure a specific element."
+                    "description": "CSS selector to capture or measure a specific element. Takes precedence over full-page capture."
                 },
                 "full_page": {
                     "type": "boolean",
@@ -81,12 +81,17 @@ pub fn definition() -> ToolDefinition {
                 "measure": {
                     "type": "string",
                     "description": "Measurement preset determining which selectors to measure.",
-                    "enum": ["auto", "document", "site", "all"]
+                    "enum": ["auto", "document", "site", "all", "header", "nav", "main", "footer", "theme"]
                 },
                 "tokens": {
                     "type": "boolean",
-                    "description": "Extract resolved CSS custom property (theme token) values.",
+                    "description": "Extract resolved CSS custom property (theme token) values, grouped by token family.",
                     "default": false
+                },
+                "token_prefix": {
+                    "type": "array",
+                    "items": { "type": "string" },
+                    "description": "Optional CSS custom property prefixes to filter token output, e.g. [\"color\", \"font\"]. Requires 'tokens'."
                 },
                 "palette": {
                     "type": "boolean",
@@ -145,6 +150,15 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
     let light = args.get("light").and_then(Value::as_bool).unwrap_or(false);
     let print_media = args.get("print").and_then(Value::as_bool).unwrap_or(false);
     let tokens = args.get("tokens").and_then(Value::as_bool).unwrap_or(false);
+    let token_prefixes: Vec<String> = args
+        .get("token_prefix")
+        .and_then(Value::as_array)
+        .map(|arr| {
+            arr.iter()
+                .filter_map(|v| v.as_str().map(String::from))
+                .collect()
+        })
+        .unwrap_or_default();
     let palette = args
         .get("palette")
         .and_then(Value::as_bool)
@@ -161,6 +175,12 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
             reason: "'print' is incompatible with 'dark' and 'light' \
                      (print mode uses system color scheme)"
                 .into(),
+        });
+    }
+
+    if !tokens && !token_prefixes.is_empty() {
+        return Err(AgentError::ValidationError {
+            reason: "'token_prefix' requires 'tokens' to be enabled".into(),
         });
     }
 
@@ -205,6 +225,11 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         Some("document") => MeasureMode::Preset(MeasurePreset::Document),
         Some("site") => MeasureMode::Preset(MeasurePreset::Site),
         Some("all") => MeasureMode::Preset(MeasurePreset::All),
+        Some("header") => MeasureMode::Preset(MeasurePreset::Header),
+        Some("nav") => MeasureMode::Preset(MeasurePreset::Nav),
+        Some("main") => MeasureMode::Preset(MeasurePreset::Main),
+        Some("footer") => MeasureMode::Preset(MeasurePreset::Footer),
+        Some("theme") => MeasureMode::Preset(MeasurePreset::Theme),
         _ => MeasureMode::Off,
     };
 
@@ -275,6 +300,7 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         },
         measure,
         tokens,
+        token_prefixes,
         palette,
         assertions,
         screenshot_resize: ScreenshotResizePolicy {

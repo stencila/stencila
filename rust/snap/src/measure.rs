@@ -6,6 +6,14 @@ use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
+use crate::devices::ViewportConfig;
+
+/// Context for deriving post-measurement diagnostics.
+#[derive(Debug, Clone, Copy, Default)]
+pub struct MeasurementContext {
+    pub viewport_only_capture: bool,
+}
+
 /// Measurement preset determining which selectors to measure
 #[derive(Debug, Clone, Copy, ValueEnum)]
 pub enum MeasurePreset {
@@ -15,6 +23,16 @@ pub enum MeasurePreset {
     Site,
     /// Both document and site selectors
     All,
+    /// Header-focused selectors
+    Header,
+    /// Navigation-focused selectors
+    Nav,
+    /// Main content selectors
+    Main,
+    /// Footer-focused selectors
+    Footer,
+    /// Theme review selectors spanning key regions
+    Theme,
 }
 
 /// Return default selectors for document content measurement
@@ -55,6 +73,65 @@ pub fn site_selectors() -> Vec<String> {
     .collect()
 }
 
+/// Return header selectors
+pub fn header_selectors() -> Vec<String> {
+    ["stencila-layout > header", "header", ".site-header"]
+        .iter()
+        .map(|s| (*s).to_string())
+        .collect()
+}
+
+/// Return navigation selectors
+pub fn nav_selectors() -> Vec<String> {
+    [
+        "stencila-nav-tree",
+        "stencila-nav-menu",
+        "stencila-breadcrumbs",
+        "nav",
+        "[role=\"navigation\"]",
+    ]
+    .iter()
+    .map(|s| (*s).to_string())
+    .collect()
+}
+
+/// Return main content selectors
+pub fn main_selectors() -> Vec<String> {
+    [
+        "main#main-content",
+        ".layout-main",
+        "main",
+        "stencila-article",
+    ]
+    .iter()
+    .map(|s| (*s).to_string())
+    .collect()
+}
+
+/// Return footer selectors
+pub fn footer_selectors() -> Vec<String> {
+    ["stencila-layout > footer", "footer", ".site-footer"]
+        .iter()
+        .map(|s| (*s).to_string())
+        .collect()
+}
+
+/// Return theme review selectors
+pub fn theme_selectors() -> Vec<String> {
+    let mut selectors = Vec::new();
+    selectors.extend(header_selectors());
+    selectors.extend(nav_selectors());
+    selectors.extend(main_selectors());
+    selectors.extend(footer_selectors());
+    selectors.extend([
+        "stencila-heading[level=\"1\"]".to_string(),
+        "stencila-paragraph".to_string(),
+        "stencila-code-block".to_string(),
+        "stencila-table".to_string(),
+    ]);
+    selectors
+}
+
 /// Build the selector list for a given preset
 pub fn selectors_for_preset(preset: MeasurePreset) -> Vec<String> {
     match preset {
@@ -65,6 +142,11 @@ pub fn selectors_for_preset(preset: MeasurePreset) -> Vec<String> {
             all.extend(site_selectors());
             all
         }
+        MeasurePreset::Header => header_selectors(),
+        MeasurePreset::Nav => nav_selectors(),
+        MeasurePreset::Main => main_selectors(),
+        MeasurePreset::Footer => footer_selectors(),
+        MeasurePreset::Theme => theme_selectors(),
     }
 }
 
@@ -87,14 +169,49 @@ pub struct MeasureResult {
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
     pub text: HashMap<String, String>,
 
+    /// Concise theme-oriented summaries by selector
+    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    pub summaries: HashMap<String, StyleSummary>,
+
+    /// Contrast checks by selector
+    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    pub contrast: HashMap<String, ContrastCheck>,
+
+    /// Diagnostics and warnings
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub diagnostics: Vec<String>,
+
     /// Diagnostic errors and warnings
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub errors: Vec<String>,
 }
 
-/// Common CSS properties
+/// Concise summary of selector styles and likely issues.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StyleSummary {
+    pub summary: String,
+
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub issues: Vec<String>,
+}
+
+/// Contrast evaluation for a selector.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct ContrastCheck {
+    pub ratio: Option<f64>,
+    pub normal_text_aa: Option<bool>,
+    pub large_text_aa: Option<bool>,
+    pub foreground: Option<String>,
+    pub background: Option<String>,
+    pub reason: Option<String>,
+}
+
+/// Common CSS properties
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CssProperties {
     // Spacing
@@ -188,6 +305,14 @@ pub struct CssProperties {
     pub z_index: Option<String>,
 
     pub overflow: Option<String>,
+
+    pub overflow_x: Option<String>,
+
+    pub overflow_y: Option<String>,
+
+    pub min_height: Option<String>,
+
+    pub max_width: Option<String>,
 
     // Flexbox
     pub gap: Option<String>,
@@ -320,6 +445,10 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
             left: cs.left,
             zIndex: cs.zIndex,
             overflow: cs.overflow,
+            overflowX: cs.overflowX,
+            overflowY: cs.overflowY,
+            minHeight: cs.minHeight,
+            maxWidth: cs.maxWidth,
             // Flexbox
             gap: cs.gap,
             justifyContent: cs.justifyContent,
@@ -421,6 +550,258 @@ pub fn parse_measurements(json: &str) -> eyre::Result<MeasureResult> {
     Ok(serde_json::from_str(json)?)
 }
 
+/// Add concise summaries, diagnostics, and contrast checks to measurements.
+pub fn enrich_measurements(
+    measurements: &mut MeasureResult,
+    viewport: &ViewportConfig,
+    context: MeasurementContext,
+) {
+    let selectors: Vec<String> = measurements.counts.keys().cloned().collect();
+
+    for selector in selectors {
+        let count = measurements
+            .counts
+            .get(&selector)
+            .copied()
+            .unwrap_or_default();
+        if count == 0 {
+            measurements
+                .diagnostics
+                .push(format!("Selector `{selector}` matched no elements."));
+            continue;
+        }
+
+        let css = measurements.css.get(&selector);
+        let box_info = measurements.box_info.get(&selector);
+        let text = measurements
+            .text
+            .get(&selector)
+            .map(|value| value.trim())
+            .unwrap_or_default();
+
+        let mut issues = Vec::new();
+
+        if let Some(css) = css {
+            if css.display.as_deref() == Some("none") {
+                issues.push("display is none".to_string());
+            }
+            if css.visibility.as_deref() == Some("hidden") {
+                issues.push("visibility is hidden".to_string());
+            }
+            if css.opacity.as_deref() == Some("0") {
+                issues.push("opacity is 0".to_string());
+            }
+            if !text.is_empty() && css.color_hex.is_none() {
+                issues.push("text is present but text color could not be resolved".to_string());
+            }
+            if !text.is_empty()
+                && css.color_hex.is_some()
+                && css.color_hex == css.background_color_hex
+            {
+                issues.push("text and background resolve to the same color".to_string());
+            }
+            if let Some(font_family) = &css.font_family {
+                let lower = font_family.to_lowercase();
+                if ["serif", "sans-serif", "monospace"]
+                    .iter()
+                    .any(|generic| lower.trim() == *generic)
+                {
+                    issues.push("font family appears to be a generic fallback".to_string());
+                }
+            }
+        }
+
+        if let Some(box_info) = box_info {
+            if box_info.width <= 1.0 || box_info.height <= 1.0 {
+                issues.push("element has near-zero dimensions".to_string());
+            }
+            if context.viewport_only_capture && box_info.y >= viewport.height as f64 {
+                issues.push("element is below the initial viewport".to_string());
+            }
+            if context.viewport_only_capture && box_info.y + box_info.height <= 0.0 {
+                issues.push("element is above the initial viewport".to_string());
+            }
+        }
+
+        if !issues.is_empty() {
+            measurements
+                .diagnostics
+                .push(format!("Selector `{selector}`: {}.", issues.join("; ")));
+        }
+
+        let summary = build_style_summary(css, box_info, text, &issues);
+        measurements.summaries.insert(selector.clone(), summary);
+
+        let contrast = build_contrast_check(css);
+        if let Some(contrast) = &contrast
+            && contrast.normal_text_aa == Some(false)
+        {
+            measurements.diagnostics.push(format!(
+                "Selector `{selector}` has contrast ratio {:.2}, below WCAG AA for normal text.",
+                contrast.ratio.unwrap_or_default()
+            ));
+        }
+        if let Some(contrast) = contrast {
+            measurements.contrast.insert(selector, contrast);
+        }
+    }
+}
+
+fn build_style_summary(
+    css: Option<&CssProperties>,
+    box_info: Option<&BoxInfo>,
+    text: &str,
+    issues: &[String],
+) -> StyleSummary {
+    let mut parts = Vec::new();
+
+    if let Some(box_info) = box_info {
+        parts.push(format!(
+            "box {:.0}x{:.0}px",
+            box_info.width, box_info.height
+        ));
+    }
+
+    if let Some(css) = css {
+        let mut typography = Vec::new();
+        if let Some(font_size) = &css.font_size {
+            typography.push(font_size.clone());
+        }
+        if let Some(line_height) = &css.line_height {
+            typography.push(format!("lh {line_height}"));
+        }
+        if let Some(font_family) = &css.font_family {
+            typography.push(font_family.clone());
+        }
+        if !typography.is_empty() {
+            parts.push(format!("font {}", typography.join(" / ")));
+        }
+
+        if css.color_hex.is_some() || css.background_color_hex.is_some() {
+            parts.push(format!(
+                "colors {} on {}",
+                css.color_hex.as_deref().unwrap_or("unknown"),
+                css.background_color_hex.as_deref().unwrap_or("transparent")
+            ));
+        }
+
+        let mut visibility = Vec::new();
+        if let Some(display) = &css.display {
+            visibility.push(display.clone());
+        }
+        if let Some(visibility_value) = &css.visibility {
+            visibility.push(visibility_value.clone());
+        }
+        if let Some(opacity) = &css.opacity {
+            visibility.push(format!("opacity {opacity}"));
+        }
+        if !visibility.is_empty() {
+            parts.push(format!("visibility {}", visibility.join(", ")));
+        }
+    }
+
+    if !text.is_empty() {
+        parts.push(format!("text {} chars", text.chars().count()));
+    }
+
+    StyleSummary {
+        summary: parts.join("; "),
+        issues: issues.to_vec(),
+    }
+}
+
+fn build_contrast_check(css: Option<&CssProperties>) -> Option<ContrastCheck> {
+    let css = css?;
+
+    if css
+        .background_image
+        .as_deref()
+        .is_some_and(|value| value != "none")
+    {
+        return Some(ContrastCheck {
+            ratio: None,
+            normal_text_aa: None,
+            large_text_aa: None,
+            foreground: css.color_hex.clone(),
+            background: css.background_color_hex.clone(),
+            reason: Some("background image prevents a reliable solid-color contrast check".into()),
+        });
+    }
+
+    let Some(foreground) = css.color_hex.as_deref().and_then(parse_hex_color) else {
+        return Some(ContrastCheck {
+            ratio: None,
+            normal_text_aa: None,
+            large_text_aa: None,
+            foreground: css.color_hex.clone(),
+            background: css.background_color_hex.clone(),
+            reason: Some("foreground color is unavailable or non-solid".into()),
+        });
+    };
+
+    let Some(background) = css
+        .background_color_hex
+        .as_deref()
+        .and_then(parse_hex_color)
+    else {
+        return Some(ContrastCheck {
+            ratio: None,
+            normal_text_aa: None,
+            large_text_aa: None,
+            foreground: css.color_hex.clone(),
+            background: css.background_color_hex.clone(),
+            reason: Some("background color is unavailable or non-solid".into()),
+        });
+    };
+
+    let ratio = contrast_ratio(foreground, background);
+
+    Some(ContrastCheck {
+        ratio: Some((ratio * 100.0).round() / 100.0),
+        normal_text_aa: Some(ratio >= 4.5),
+        large_text_aa: Some(ratio >= 3.0),
+        foreground: css.color_hex.clone(),
+        background: css.background_color_hex.clone(),
+        reason: None,
+    })
+}
+
+fn parse_hex_color(value: &str) -> Option<(u8, u8, u8)> {
+    if value.len() != 7 || !value.starts_with('#') {
+        return None;
+    }
+
+    let r = u8::from_str_radix(&value[1..3], 16).ok()?;
+    let g = u8::from_str_radix(&value[3..5], 16).ok()?;
+    let b = u8::from_str_radix(&value[5..7], 16).ok()?;
+
+    Some((r, g, b))
+}
+
+fn contrast_ratio(foreground: (u8, u8, u8), background: (u8, u8, u8)) -> f64 {
+    let fg = relative_luminance(foreground);
+    let bg = relative_luminance(background);
+
+    if fg > bg {
+        (fg + 0.05) / (bg + 0.05)
+    } else {
+        (bg + 0.05) / (fg + 0.05)
+    }
+}
+
+fn relative_luminance((r, g, b): (u8, u8, u8)) -> f64 {
+    let convert = |value: u8| {
+        let channel = value as f64 / 255.0;
+        if channel <= 0.03928 {
+            channel / 12.92
+        } else {
+            ((channel + 0.055) / 1.055).powf(2.4)
+        }
+    };
+
+    0.2126 * convert(r) + 0.7152 * convert(g) + 0.0722 * convert(b)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -485,5 +866,93 @@ mod tests {
         assert!(all.contains(&"stencila-article".to_string()));
         assert!(all.contains(&"stencila-layout".to_string()));
         assert_eq!(all.len(), doc.len() + site.len());
+
+        let theme = selectors_for_preset(MeasurePreset::Theme);
+        assert!(theme.contains(&"header".to_string()));
+        assert!(theme.contains(&"main".to_string()));
+        assert!(theme.contains(&"footer".to_string()));
+    }
+
+    #[test]
+    fn test_enrich_measurements_adds_summary_and_contrast() {
+        let mut result = MeasureResult {
+            css: HashMap::from([(
+                ".title".to_string(),
+                CssProperties {
+                    font_size: Some("28px".into()),
+                    line_height: Some("36px".into()),
+                    color_hex: Some("#000000".into()),
+                    background_color_hex: Some("#ffffff".into()),
+                    display: Some("block".into()),
+                    visibility: Some("visible".into()),
+                    opacity: Some("1".into()),
+                    ..Default::default()
+                },
+            )]),
+            box_info: HashMap::from([(
+                ".title".to_string(),
+                BoxInfo {
+                    x: 0.0,
+                    y: 0.0,
+                    width: 640.0,
+                    height: 48.0,
+                },
+            )]),
+            counts: HashMap::from([(".title".to_string(), 1)]),
+            text: HashMap::from([(".title".to_string(), "Hello".to_string())]),
+            summaries: HashMap::new(),
+            contrast: HashMap::new(),
+            diagnostics: Vec::new(),
+            errors: Vec::new(),
+        };
+
+        enrich_measurements(
+            &mut result,
+            &ViewportConfig::default(),
+            MeasurementContext {
+                viewport_only_capture: true,
+            },
+        );
+
+        assert!(result.summaries.contains_key(".title"));
+        assert_eq!(result.contrast[".title"].normal_text_aa, Some(true));
+    }
+
+    #[test]
+    fn test_enrich_measurements_skips_viewport_position_diagnostics_when_not_viewport_only() {
+        let mut result = MeasureResult {
+            css: HashMap::new(),
+            box_info: HashMap::from([(
+                ".footer".to_string(),
+                BoxInfo {
+                    x: 0.0,
+                    y: 2000.0,
+                    width: 640.0,
+                    height: 48.0,
+                },
+            )]),
+            counts: HashMap::from([(".footer".to_string(), 1)]),
+            text: HashMap::new(),
+            summaries: HashMap::new(),
+            contrast: HashMap::new(),
+            diagnostics: Vec::new(),
+            errors: Vec::new(),
+        };
+
+        enrich_measurements(
+            &mut result,
+            &ViewportConfig::default(),
+            MeasurementContext {
+                viewport_only_capture: false,
+            },
+        );
+
+        assert!(result.diagnostics.is_empty());
+    }
+
+    #[test]
+    fn test_parse_hex_color_rejects_alpha() {
+        assert_eq!(parse_hex_color("#ffffff"), Some((255, 255, 255)));
+        assert_eq!(parse_hex_color("#ffffffff"), None);
     }
 }

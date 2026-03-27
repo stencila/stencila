@@ -24,11 +24,11 @@ pub use measure::MeasurePreset;
 use std::{collections::BTreeMap, path::PathBuf, time::Instant};
 
 use assertions::{Assertion, AssertionResults};
-use browser::{BrowserSession, CaptureOptions};
+use browser::{BrowserSession, CaptureOptions, CaptureResult};
 use image::{
     GenericImageView, ImageFormat, ImageReader, codecs::png::PngEncoder, imageops::FilterType,
 };
-use measure::selectors_for_preset;
+use measure::{MeasurementContext, enrich_measurements, selectors_for_preset};
 
 /// Whether and how to measure
 #[derive(Debug)]
@@ -40,11 +40,15 @@ pub enum MeasureMode {
     /// Use a specific preset
     Preset(MeasurePreset),
 }
-use output::{DeviceSnapResult, SnapOutput, TargetInfo, Timings};
+use output::{
+    CaptureInfo, CaptureMode, DeviceSnapResult, SnapOutput, TargetInfo, Timings, TokenOutput,
+};
 use server::ServerInfo;
 
 const MAX_SCREENSHOT_DIMENSION: u32 = 8_000;
 const OPTIMIZED_SCREENSHOT_DIMENSION: u32 = 4_096;
+const LONG_PAGE_WARNING_HEIGHT: u32 = 12_000;
+const SMALL_RESIZE_SCALE_WARNING: f64 = 0.5;
 
 /// Screenshot resizing strategy.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -139,6 +143,9 @@ pub struct SnapOptions {
     /// Extract resolved CSS custom property values
     pub tokens: bool,
 
+    /// Filter extracted tokens to matching prefixes
+    pub token_prefixes: Vec<String>,
+
     /// Extract the page's color palette
     pub palette: bool,
 
@@ -197,6 +204,105 @@ fn resize_screenshot_if_needed(
             note,
         }),
     ))
+}
+
+fn measure_preset_name(preset: MeasurePreset) -> String {
+    match preset {
+        MeasurePreset::Document => "document",
+        MeasurePreset::Site => "site",
+        MeasurePreset::All => "all",
+        MeasurePreset::Header => "header",
+        MeasurePreset::Nav => "nav",
+        MeasurePreset::Main => "main",
+        MeasurePreset::Footer => "footer",
+        MeasurePreset::Theme => "theme",
+    }
+    .to_string()
+}
+
+fn normalize_token_prefix(prefix: &str) -> String {
+    if prefix.starts_with("--") {
+        prefix.to_string()
+    } else {
+        format!("--{prefix}")
+    }
+}
+
+fn filter_and_group_tokens(tokens: BTreeMap<String, String>, prefixes: &[String]) -> TokenOutput {
+    let normalized_prefixes: Vec<String> = prefixes
+        .iter()
+        .map(|prefix| normalize_token_prefix(prefix))
+        .collect();
+
+    let values: BTreeMap<String, String> = tokens
+        .into_iter()
+        .filter(|(name, _)| {
+            normalized_prefixes.is_empty()
+                || normalized_prefixes
+                    .iter()
+                    .any(|prefix| name.starts_with(prefix))
+        })
+        .collect();
+
+    let mut groups: BTreeMap<String, BTreeMap<String, String>> = BTreeMap::new();
+    for (name, value) in &values {
+        let family = name
+            .trim_start_matches('-')
+            .split('-')
+            .next()
+            .filter(|family| !family.is_empty())
+            .unwrap_or("other")
+            .to_string();
+        groups
+            .entry(family)
+            .or_default()
+            .insert(name.clone(), value.clone());
+    }
+
+    TokenOutput {
+        values,
+        groups,
+        prefixes: (!normalized_prefixes.is_empty()).then_some(normalized_prefixes),
+    }
+}
+
+fn build_capture_info(
+    mode: CaptureMode,
+    selector: Option<&String>,
+    matched_elements: Option<usize>,
+    full_page_content_height: Option<u32>,
+    screenshot_resize: Option<&output::ScreenshotResize>,
+) -> CaptureInfo {
+    let mut diagnostics = Vec::new();
+
+    if let Some(content_height) = full_page_content_height
+        && content_height > LONG_PAGE_WARNING_HEIGHT
+    {
+        diagnostics.push(format!(
+            "Full-page content height is {content_height}px; the resulting image may be difficult to review without region-focused captures."
+        ));
+    }
+
+    if let Some(resize) = screenshot_resize {
+        let width_scale = resize.resized_width as f64 / resize.original_width as f64;
+        let height_scale = resize.resized_height as f64 / resize.original_height as f64;
+        let scale = width_scale.min(height_scale);
+        if scale < SMALL_RESIZE_SCALE_WARNING {
+            diagnostics.push(format!(
+                "Screenshot was downscaled to {:.0}% of its original size, which may reduce readability for typography and spacing review.",
+                scale * 100.0
+            ));
+        }
+    }
+
+    CaptureInfo {
+        mode,
+        used_selector_for_capture: matches!(mode, CaptureMode::Element),
+        selector: selector.cloned(),
+        matched_elements,
+        full_page_content_height,
+        diagnostics,
+    }
 }
 
 /// Main entry point for snap operation
@@ -266,6 +372,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     };
 
     // Build selector list
+    let selector_overrides_preset = options.selector.is_some();
     let selectors = if let Some(sel) = &options.selector {
         // Explicit selector overrides preset
         vec![sel.clone()]
@@ -277,14 +384,27 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
     // Measure (if selectors are non-empty)
     let measurements = if !selectors.is_empty() {
-        Some(browser.inject_and_measure(&selectors).await?)
+        let mut measurements = browser.inject_and_measure(&selectors).await?;
+        enrich_measurements(
+            &mut measurements,
+            &viewport,
+            MeasurementContext {
+                viewport_only_capture: options.screenshot
+                    && options.selector.is_none()
+                    && !options.full_page,
+            },
+        );
+        Some(measurements)
     } else {
         None
     };
 
     // Extract tokens (if requested)
     let tokens = if options.tokens {
-        Some(browser.inject_tokens().await?)
+        Some(filter_and_group_tokens(
+            browser.inject_tokens().await?,
+            &options.token_prefixes,
+        ))
     } else {
         None
     };
@@ -314,7 +434,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     };
 
     // Capture screenshot bytes (if requested)
-    let screenshot_bytes = if options.screenshot {
+    let raw_capture = if options.screenshot {
         let capture_opts = CaptureOptions {
             full_page: options.full_page,
             selector: options.selector.clone(),
@@ -324,11 +444,42 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None
     };
 
-    let (screenshot_bytes, screenshot_resize) = if let Some(bytes) = screenshot_bytes {
-        let (bytes, resize) = resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
-        (Some(bytes), resize)
+    let (screenshot_bytes, screenshot_resize, matched_elements, full_page_content_height) =
+        if let Some(CaptureResult {
+            bytes,
+            matched_elements,
+            full_page_content_height,
+        }) = raw_capture
+        {
+            let (bytes, resize) = resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
+            (
+                Some(bytes),
+                resize,
+                matched_elements,
+                full_page_content_height,
+            )
+        } else {
+            (None, None, None, None)
+        };
+
+    let capture = if options.screenshot {
+        let mode = if options.selector.is_some() {
+            CaptureMode::Element
+        } else if options.full_page {
+            CaptureMode::FullPage
+        } else {
+            CaptureMode::Viewport
+        };
+
+        Some(build_capture_info(
+            mode,
+            options.selector.as_ref(),
+            matched_elements,
+            full_page_content_height,
+            screenshot_resize.as_ref(),
+        ))
     } else {
-        (None, None)
+        None
     };
 
     // Multi-device batch (if --devices specified)
@@ -350,13 +501,23 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
             // Measure with same selectors
             let device_measure = if !selectors.is_empty() {
-                Some(browser.inject_and_measure(&selectors).await?)
+                let mut measurements = browser.inject_and_measure(&selectors).await?;
+                enrich_measurements(
+                    &mut measurements,
+                    &device_viewport,
+                    MeasurementContext {
+                        viewport_only_capture: options.screenshot
+                            && options.selector.is_none()
+                            && !options.full_page,
+                    },
+                );
+                Some(measurements)
             } else {
                 None
             };
 
             // Capture device screenshot bytes (if requested)
-            let device_screenshot = if options.screenshot {
+            let device_capture = if options.screenshot {
                 let capture_opts = CaptureOptions {
                     full_page: options.full_page,
                     selector: options.selector.clone(),
@@ -370,14 +531,46 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                 None
             };
 
-            let (device_screenshot, device_screenshot_resize) =
-                if let Some(bytes) = device_screenshot {
-                    let (bytes, resize) =
-                        resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
-                    (Some(bytes), resize)
-                } else {
-                    (None, None)
-                };
+            let (
+                device_screenshot,
+                device_screenshot_resize,
+                device_matched_elements,
+                device_full_page_content_height,
+            ) = if let Some(CaptureResult {
+                bytes,
+                matched_elements,
+                full_page_content_height,
+            }) = device_capture
+            {
+                let (bytes, resize) =
+                    resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
+                (
+                    Some(bytes),
+                    resize,
+                    matched_elements,
+                    full_page_content_height,
+                )
+            } else {
+                (None, None, None, None)
+            };
+
+            let device_capture = if options.screenshot {
+                Some(build_capture_info(
+                    if options.selector.is_some() {
+                        CaptureMode::Element
+                    } else if options.full_page {
+                        CaptureMode::FullPage
+                    } else {
+                        CaptureMode::Viewport
+                    },
+                    options.selector.as_ref(),
+                    device_matched_elements,
+                    device_full_page_content_height,
+                    device_screenshot_resize.as_ref(),
+                ))
+            } else {
+                None
+            };
 
             let device_name = format!("{device:?}").to_lowercase();
             device_results.insert(
@@ -385,6 +578,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                 DeviceSnapResult {
                     viewport: device_viewport,
                     measure: device_measure,
+                    capture: device_capture,
                     screenshot: device_screenshot,
                     screenshot_resize: device_screenshot_resize,
                 },
@@ -409,7 +603,14 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         target: TargetInfo {
             selector: options.selector,
             full_page: options.full_page,
+            measured_selectors: selectors,
+            measure_preset: if !selector_overrides_preset {
+                resolved_preset.map(measure_preset_name)
+            } else {
+                None
+            },
         },
+        capture,
         measure: measurements,
         tokens,
         palette,
@@ -488,5 +689,19 @@ mod tests {
         assert_eq!(resized, png);
 
         Ok(())
+    }
+
+    #[test]
+    fn build_capture_info_preserves_selector_match_count_without_measurements() {
+        let capture = build_capture_info(
+            CaptureMode::Element,
+            Some(&".title".to_string()),
+            Some(3),
+            None,
+            None,
+        );
+
+        assert_eq!(capture.matched_elements, Some(3));
+        assert!(capture.used_selector_for_capture);
     }
 }
