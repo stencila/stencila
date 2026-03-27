@@ -46,6 +46,16 @@ use crate::{
     statics, themes, workflows,
 };
 
+/// The mode a server is running in
+#[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
+pub enum ServerMode {
+    /// Serving documents dynamically (e.g. `stencila serve`)
+    #[default]
+    DocumentPreview,
+    /// Serving a pre-rendered static site (e.g. `stencila site preview`)
+    SitePreview,
+}
+
 /// Server runtime information written to disk for discovery
 #[derive(Debug, Serialize, Deserialize)]
 pub struct ServerInfo {
@@ -63,11 +73,15 @@ pub struct ServerInfo {
 
     /// Unix timestamp when server started
     pub started_at: u64,
+
+    /// The mode the server is running in
+    #[serde(default)]
+    pub mode: ServerMode,
 }
 
 impl ServerInfo {
     /// Create ServerInfo for current server
-    fn new(port: u16, token: Option<String>, directory: PathBuf) -> Self {
+    fn new(port: u16, token: Option<String>, directory: PathBuf, mode: ServerMode) -> Self {
         Self {
             pid: process::id(),
             port,
@@ -77,6 +91,7 @@ impl ServerInfo {
                 .duration_since(SystemTime::UNIX_EPOCH)
                 .map(|d| d.as_secs())
                 .unwrap_or(0),
+            mode,
         }
     }
 
@@ -342,7 +357,12 @@ pub async fn serve(
     let (internal_shutdown_sender, mut internal_shutdown_receiver) = mpsc::channel(10);
 
     // Create ServerInfo with the actual port that was bound
-    let server_info = ServerInfo::new(current_port, server_token.clone(), dir.clone());
+    let mode = if static_dir.is_some() {
+        ServerMode::SitePreview
+    } else {
+        ServerMode::DocumentPreview
+    };
+    let server_info = ServerInfo::new(current_port, server_token.clone(), dir.clone(), mode);
 
     let state = ServerState {
         dir,

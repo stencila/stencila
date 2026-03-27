@@ -10,7 +10,8 @@ use tokio::fs;
 
 use crate::{
     devices::ViewportConfig,
-    measure::{MEASUREMENT_SCRIPT, MeasureResult, parse_measurements},
+    measure::{MEASUREMENT_SCRIPT, MeasureResult, PALETTE_SCRIPT, TOKENS_SCRIPT, parse_measurements},
+    output::PaletteEntry,
 };
 
 /// Wait condition for page load events
@@ -102,7 +103,6 @@ fn create_browser() -> Result<Browser> {
 
 /// Browser session for navigation and measurement
 pub struct BrowserSession {
-    #[allow(dead_code)]
     browser: Browser,
     tab: Arc<Tab>,
 }
@@ -241,14 +241,14 @@ impl BrowserSession {
         Ok(())
     }
 
-    /// Inject measurement script and collect results
-    pub async fn inject_and_measure(&mut self, selector: Option<&str>) -> Result<MeasureResult> {
-        let selector_arg = selector
-            .map(|s| format!("'{}'", s))
-            .unwrap_or_else(|| "null".to_string());
+    /// Inject measurement script and collect results for the given selectors
+    pub async fn inject_and_measure(&mut self, selectors: &[String]) -> Result<MeasureResult> {
+        // Build a JSON array of selectors to pass to the measurement script
+        let selectors_json = serde_json::to_string(selectors)
+            .map_err(|error| eyre!("Failed to serialize selectors: {error}"))?;
 
         // Wrap in JSON.stringify so Chrome returns a serialized string instead of an object reference
-        let script = format!("JSON.stringify(({MEASUREMENT_SCRIPT})({selector_arg}))");
+        let script = format!("JSON.stringify(({MEASUREMENT_SCRIPT})({selectors_json}))");
 
         let result = self
             .tab
@@ -272,6 +272,119 @@ impl BrowserSession {
             .ok_or_else(|| eyre!("Expected string value from JSON.stringify"))?;
 
         parse_measurements(json_str)
+    }
+
+    /// Inject token extraction script and return resolved CSS custom property values
+    pub async fn inject_tokens(
+        &mut self,
+    ) -> Result<std::collections::HashMap<String, String>> {
+        let script = format!("JSON.stringify({TOKENS_SCRIPT})");
+
+        let result = self
+            .tab
+            .evaluate(&script, false)
+            .map_err(|error| eyre!("Failed to evaluate tokens script: {error}"))?;
+
+        let value = result
+            .value
+            .ok_or_else(|| eyre!("Tokens script returned no value"))?;
+
+        let json_str = value
+            .as_str()
+            .ok_or_else(|| eyre!("Expected string value from JSON.stringify"))?;
+
+        Ok(serde_json::from_str(json_str)?)
+    }
+
+    /// Inject palette extraction script and return the page's color palette
+    pub async fn inject_palette(&mut self) -> Result<Vec<PaletteEntry>> {
+        let script = format!("JSON.stringify({PALETTE_SCRIPT})");
+
+        let result = self
+            .tab
+            .evaluate(&script, false)
+            .map_err(|error| eyre!("Failed to evaluate palette script: {error}"))?;
+
+        let value = result
+            .value
+            .ok_or_else(|| eyre!("Palette script returned no value"))?;
+
+        let json_str = value
+            .as_str()
+            .ok_or_else(|| eyre!("Expected string value from JSON.stringify"))?;
+
+        Ok(serde_json::from_str(json_str)?)
+    }
+
+    /// Resize the viewport and update media emulation to match the given configuration
+    ///
+    /// Used for multi-device batch snapping to reuse the same browser session.
+    /// Updates both device metrics and emulated media (color scheme) so that
+    /// flags like `--dark` are applied consistently across all device viewports.
+    pub fn resize_viewport(&mut self, viewport: &ViewportConfig, print_media: bool) -> Result<()> {
+        self.tab
+            .set_bounds(headless_chrome::types::Bounds::Normal {
+                left: None,
+                top: None,
+                width: Some(viewport.width as f64),
+                height: Some(viewport.height as f64),
+            })
+            .map_err(|error| eyre!("Failed to set bounds: {error}"))?;
+
+        self.tab
+            .call_method(
+                headless_chrome::protocol::cdp::Emulation::SetDeviceMetricsOverride {
+                    width: viewport.width,
+                    height: viewport.height,
+                    device_scale_factor: viewport.dpr as f64,
+                    mobile: false,
+                    scale: None,
+                    screen_width: None,
+                    screen_height: None,
+                    position_x: None,
+                    position_y: None,
+                    dont_set_visible_size: None,
+                    screen_orientation: None,
+                    viewport: None,
+                    display_feature: None,
+                    device_posture: None,
+                },
+            )
+            .map_err(|error| eyre!("Failed to set device metrics: {error}"))?;
+
+        // Update emulated media (color scheme and/or print) to match
+        let needs_media_emulation = print_media || viewport.color_scheme != ColorScheme::System;
+        if needs_media_emulation {
+            let media = if print_media {
+                Some("print".to_string())
+            } else {
+                None
+            };
+
+            let features = if viewport.color_scheme != ColorScheme::System {
+                let color_value = match viewport.color_scheme {
+                    ColorScheme::Light => "light",
+                    ColorScheme::Dark => "dark",
+                    ColorScheme::System => unreachable!(),
+                };
+                Some(vec![
+                    headless_chrome::protocol::cdp::Emulation::MediaFeature {
+                        name: "prefers-color-scheme".to_string(),
+                        value: color_value.to_string(),
+                    },
+                ])
+            } else {
+                None
+            };
+
+            self.tab
+                .call_method(
+                    headless_chrome::protocol::cdp::Emulation::SetEmulatedMedia { media, features },
+                )
+                .map_err(|error| eyre!("Failed to set emulated media on resize: {error}"))?;
+        }
+
+        Ok(())
     }
 
     /// Capture screenshot
@@ -341,15 +454,40 @@ impl BrowserSession {
             // Small delay to let the viewport adjustment take effect
             sleep(Duration::from_millis(100));
 
-            // Now capture the full page
-            self.tab
+            // Capture the full page
+            let data = self.tab
                 .capture_screenshot(
                     headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
                     None,
                     None,
                     true,
                 )
-                .map_err(|error| eyre!("Failed to capture full page screenshot: {error}"))?
+                .map_err(|error| eyre!("Failed to capture full page screenshot: {error}"))?;
+
+            // Restore the original viewport height to avoid leaking temporary
+            // full-page dimensions into later operations (e.g., --devices loop)
+            self.tab
+                .call_method(
+                    headless_chrome::protocol::cdp::Emulation::SetDeviceMetricsOverride {
+                        width: viewport.width,
+                        height: viewport.height,
+                        device_scale_factor: viewport.dpr as f64,
+                        mobile: false,
+                        scale: None,
+                        screen_width: None,
+                        screen_height: None,
+                        position_x: None,
+                        position_y: None,
+                        dont_set_visible_size: None,
+                        screen_orientation: None,
+                        viewport: None,
+                        display_feature: None,
+                        device_posture: None,
+                    },
+                )
+                .map_err(|error| eyre!("Failed to restore viewport after full page capture: {error}"))?;
+
+            data
         } else {
             // Viewport-only screenshot
             self.tab
@@ -368,5 +506,14 @@ impl BrowserSession {
         fs::write(path, screenshot_data).await?;
 
         Ok(())
+    }
+
+    /// Close the browser session cleanly
+    ///
+    /// Closes the tab before dropping the browser so Chrome can clean
+    /// up its profile directory without "directory not empty" warnings.
+    pub fn close(self) {
+        let _ = self.tab.close(true);
+        drop(self.browser);
     }
 }

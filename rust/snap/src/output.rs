@@ -1,9 +1,11 @@
 //! Output structures for snap results
 
+use std::{collections::HashMap, path::PathBuf};
+
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{assertions::AssertionResults, measure::MeasureResult};
+use crate::{assertions::AssertionResults, devices::ViewportConfig, measure::MeasureResult};
 
 /// Main output structure for snap operation
 #[skip_serializing_none]
@@ -21,8 +23,17 @@ pub struct SnapOutput {
     /// Measurement results (if collected)
     pub measure: Option<MeasureResult>,
 
+    /// Resolved CSS custom property (token) values (if `--tokens` used)
+    pub tokens: Option<HashMap<String, String>>,
+
+    /// Color palette extracted from the page (if `--palette` used)
+    pub palette: Option<Vec<PaletteEntry>>,
+
     /// Assertion evaluation results
     pub assertions: AssertionResults,
+
+    /// Per-device results when `--devices` is used
+    pub devices: Option<HashMap<String, DeviceSnapResult>>,
 
     /// Timing information
     pub timings: Timings,
@@ -44,6 +55,30 @@ pub struct TargetInfo {
 
     /// Whether full page was captured
     pub full_page: bool,
+}
+
+/// A color entry in the extracted palette
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct PaletteEntry {
+    /// Hex color value (e.g., "#1f2937")
+    pub hex: String,
+
+    /// Number of elements using this color
+    pub count: usize,
+}
+
+/// Per-device snap result for multi-device batch mode
+#[skip_serializing_none]
+#[derive(Debug, Serialize, Deserialize)]
+pub struct DeviceSnapResult {
+    /// Viewport configuration used
+    pub viewport: ViewportConfig,
+
+    /// Measurement results
+    pub measure: Option<MeasureResult>,
+
+    /// Screenshot path (if captured)
+    pub screenshot: Option<PathBuf>,
 }
 
 /// Timing information

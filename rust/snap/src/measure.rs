@@ -2,8 +2,71 @@
 
 use std::collections::HashMap;
 
+use clap::ValueEnum;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
+
+/// Measurement preset determining which selectors to measure
+#[derive(Debug, Clone, Copy, ValueEnum)]
+pub enum MeasurePreset {
+    /// Document content selectors (stencila-article, headings, etc.)
+    Document,
+    /// Site chrome selectors (layout, header, nav, logo, sidebar, footer)
+    Site,
+    /// Both document and site selectors
+    All,
+}
+
+/// Return default selectors for document content measurement
+pub fn document_selectors() -> Vec<String> {
+    [
+        "stencila-article",
+        "stencila-paragraph",
+        "stencila-heading[level=\"1\"]",
+        "stencila-heading[level=\"2\"]",
+        "stencila-heading[level=\"3\"]",
+        "stencila-code-block",
+        "stencila-list",
+        "stencila-figure",
+        "stencila-table",
+    ]
+    .iter()
+    .map(|s| (*s).to_string())
+    .collect()
+}
+
+/// Return default selectors for site chrome measurement
+pub fn site_selectors() -> Vec<String> {
+    [
+        "stencila-layout",
+        "stencila-layout > header",
+        "stencila-layout > .layout-body > .left-sidebar",
+        "stencila-layout > .layout-body > .right-sidebar",
+        "stencila-layout > footer",
+        "stencila-nav-tree",
+        "stencila-nav-menu",
+        "stencila-breadcrumbs",
+        "stencila-logo",
+        "main#main-content",
+        ".layout-main",
+    ]
+    .iter()
+    .map(|s| (*s).to_string())
+    .collect()
+}
+
+/// Build the selector list for a given preset
+pub fn selectors_for_preset(preset: MeasurePreset) -> Vec<String> {
+    match preset {
+        MeasurePreset::Document => document_selectors(),
+        MeasurePreset::Site => site_selectors(),
+        MeasurePreset::All => {
+            let mut all = document_selectors();
+            all.extend(site_selectors());
+            all
+        }
+    }
+}
 
 /// Result of measurements collected from the browser
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -154,10 +217,10 @@ pub struct BoxInfo {
 
 /// JavaScript code to inject for measurement
 ///
-/// This function collects computed styles, bounding boxes, counts, and text content
-/// for specified selectors and returns them as JSON
+/// This function accepts a JSON array of selectors and collects computed styles,
+/// bounding boxes, counts, and text content for each, returning them as JSON
 pub const MEASUREMENT_SCRIPT: &str = r#"
-(function(selector) {
+(function(selectors) {
     // Helper function to convert rgb()/rgba() to hex
     function rgbToHex(rgb) {
         if (!rgb || rgb === 'transparent') return null;
@@ -193,30 +256,12 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
         errors: []
     };
 
-    // If selector provided, measure just that element
-    // Otherwise measure common Stencila elements that appear in most documents
-    const selectors = selector ? [selector] : [
-        'stencila-article',
-        'stencila-paragraph',
-        'stencila-heading[level="1"]',
-        'stencila-heading[level="2"]',
-        'stencila-heading[level="3"]',
-        'stencila-code-block',
-        'stencila-list',
-        'stencila-figure',
-        'stencila-table'
-    ];
-
     for (const sel of selectors) {
         // Count elements
         const elements = document.querySelectorAll(sel);
         result.counts[sel] = elements.length;
 
         if (elements.length === 0) {
-            if (selector) {
-                // Only report error for user-specified selectors
-                result.errors.push(`Selector '${sel}' matched 0 elements`);
-            }
             continue;
         }
 
@@ -304,6 +349,73 @@ pub const MEASUREMENT_SCRIPT: &str = r#"
 })
 "#;
 
+/// JavaScript code to extract resolved CSS custom property (token) values
+///
+/// Reads all `--*` custom properties from stylesheets and returns their
+/// computed values from `:root`
+pub const TOKENS_SCRIPT: &str = r#"
+(function() {
+    const root = document.documentElement;
+    const styles = getComputedStyle(root);
+    const tokens = {};
+    for (const sheet of document.styleSheets) {
+        try {
+            for (const rule of sheet.cssRules) {
+                if (rule.style) {
+                    for (let i = 0; i < rule.style.length; i++) {
+                        const prop = rule.style[i];
+                        if (prop.startsWith('--')) {
+                            tokens[prop] = styles.getPropertyValue(prop).trim();
+                        }
+                    }
+                }
+            }
+        } catch (e) { /* cross-origin sheet, skip */ }
+    }
+    return tokens;
+})()
+"#;
+
+/// JavaScript code to extract the page's color palette
+///
+/// Samples computed color, backgroundColor, and borderColor from all visible
+/// elements, deduplicates, and returns sorted by usage count
+pub const PALETTE_SCRIPT: &str = r#"
+(function() {
+    function rgbToHex(rgb) {
+        if (!rgb || rgb === 'transparent') return null;
+        const match = rgb.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/);
+        if (!match) return null;
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const a = match[4] !== undefined ? parseFloat(match[4]) : 1;
+        if (a === 0) return null;
+        const hex = '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        if (a < 1) {
+            const alphaHex = Math.round(a * 255).toString(16).padStart(2, '0');
+            return hex + alphaHex;
+        }
+        return hex;
+    }
+
+    const colors = {};
+    const elements = document.querySelectorAll('*');
+    for (const el of elements) {
+        if (el.offsetWidth === 0 && el.offsetHeight === 0) continue;
+        const cs = getComputedStyle(el);
+        for (const prop of ['color', 'backgroundColor', 'borderColor']) {
+            const val = cs[prop];
+            const hex = rgbToHex(val);
+            if (hex) colors[hex] = (colors[hex] || 0) + 1;
+        }
+    }
+    return Object.entries(colors)
+        .sort((a, b) => b[1] - a[1])
+        .map(([hex, count]) => ({ hex, count }));
+})()
+"#;
+
 /// Parse measurement results from browser
 pub fn parse_measurements(json: &str) -> eyre::Result<MeasureResult> {
     Ok(serde_json::from_str(json)?)
@@ -357,5 +469,21 @@ mod tests {
         let title_css = result.css.get(".title").expect("Title CSS not found");
         assert_eq!(title_css.color_hex.as_deref(), Some("#000000"));
         assert_eq!(title_css.background_color_hex.as_deref(), Some("#ffffff"));
+    }
+
+    #[test]
+    fn test_selectors_for_preset() {
+        let doc = selectors_for_preset(MeasurePreset::Document);
+        assert!(doc.contains(&"stencila-article".to_string()));
+        assert!(!doc.contains(&"stencila-layout".to_string()));
+
+        let site = selectors_for_preset(MeasurePreset::Site);
+        assert!(site.contains(&"stencila-layout".to_string()));
+        assert!(!site.contains(&"stencila-article".to_string()));
+
+        let all = selectors_for_preset(MeasurePreset::All);
+        assert!(all.contains(&"stencila-article".to_string()));
+        assert!(all.contains(&"stencila-layout".to_string()));
+        assert_eq!(all.len(), doc.len() + site.len());
     }
 }

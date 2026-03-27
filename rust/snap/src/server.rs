@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use tokio::sync::oneshot;
 
 use stencila_dirs::{DirType, get_app_dir};
+use stencila_server::ServerMode;
 
 /// Server runtime information (matches rust/server/src/server.rs)
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -30,6 +31,10 @@ pub struct ServerInfo {
 
     /// Unix timestamp when server started
     pub started_at: u64,
+
+    /// The mode the server is running in
+    #[serde(default)]
+    pub mode: ServerMode,
 }
 
 /// Handle to a running server with shutdown control
@@ -114,20 +119,13 @@ impl Drop for ServerHandle {
 impl ServerInfo {
     /// Discover an active server for the given path, starting one if none exists
     ///
-    /// Searches the runtime directory for server info files, filters by:
-    /// - Valid PID (process still running)
-    /// - Matching directory (path must be within server's served directory)
-    /// - Sorted by most recent (started_at)
-    ///
-    /// If no suitable server is found, starts a new server in the background.
-    ///
-    /// Returns a `ServerHandle` which provides server information and shutdown control.
-    /// For existing servers (not started by this call), the handle will not support
-    /// graceful shutdown as we don't have control over those processes.
+    /// When `prefer_site` is true, site preview servers are preferred over
+    /// document servers (and vice versa). Falls back to any available server
+    /// if the preferred type is not found.
     #[tracing::instrument]
-    pub async fn discover(path: Option<&Path>) -> Result<ServerHandle> {
+    pub async fn discover(path: Option<&Path>, prefer_site: bool) -> Result<ServerHandle> {
         // Try to find an existing server
-        if let Ok(server_info) = Self::find_existing(path) {
+        if let Ok(server_info) = Self::find_existing(path, prefer_site) {
             return Ok(ServerHandle::for_existing(server_info));
         }
 
@@ -137,7 +135,7 @@ impl ServerInfo {
 
     /// Find an existing running server
     #[tracing::instrument]
-    fn find_existing(path: Option<&Path>) -> Result<Self> {
+    fn find_existing(path: Option<&Path>, prefer_site: bool) -> Result<Self> {
         let servers_dir = get_app_dir(DirType::Servers, false)?;
 
         if !servers_dir.exists() {
@@ -184,8 +182,19 @@ impl ServerInfo {
             }
         }
 
-        // Sort by most recent
-        servers.sort_by_key(|s| std::cmp::Reverse(s.started_at));
+        // Sort by preference: preferred mode first, then most recent
+        let preferred_mode = if prefer_site {
+            ServerMode::SitePreview
+        } else {
+            ServerMode::DocumentPreview
+        };
+        servers.sort_by(|a, b| {
+            let a_preferred = a.mode == preferred_mode;
+            let b_preferred = b.mode == preferred_mode;
+            b_preferred
+                .cmp(&a_preferred)
+                .then_with(|| b.started_at.cmp(&a.started_at))
+        });
 
         Ok(servers[0].clone())
     }
@@ -243,7 +252,7 @@ impl ServerInfo {
             }
 
             // Try to find the newly started server
-            if let Ok(server) = Self::find_existing(path) {
+            if let Ok(server) = Self::find_existing(path, false) {
                 break server;
             }
 
@@ -254,9 +263,12 @@ impl ServerInfo {
         Ok(ServerHandle::new(info, shutdown_sender, task_handle))
     }
 
-    /// Resolve a path to a URL with authentication
+    /// Resolve a file path to a URL with authentication
     ///
-    /// Converts a file path (relative or absolute) to a server URL with auth token
+    /// Converts a file path (relative or absolute) to a server URL with auth token.
+    /// Passes the auth token as a query parameter directly on the target URL
+    /// (rather than going through /~login redirect) so headless Chrome lands
+    /// on the actual page immediately.
     #[tracing::instrument]
     pub fn resolve_url(&self, path: Option<PathBuf>) -> Result<String> {
         // Default to current directory if no path specified
@@ -281,14 +293,32 @@ impl ServerInfo {
             .ok_or_else(|| eyre::eyre!("Path contains invalid UTF-8"))?
             .replace('\\', "/");
 
-        // Construct URL with auth token
+        // Construct URL with auth token as query parameter
         if let Some(token) = &self.token {
             Ok(format!(
-                "http://127.0.0.1:{}/~login?sst={}&next=/{}",
-                self.port, token, url_path
+                "http://127.0.0.1:{}/{}?sst={}",
+                self.port, url_path, token
             ))
         } else {
             Ok(format!("http://127.0.0.1:{}/{}", self.port, url_path))
+        }
+    }
+
+    /// Resolve a site route to a URL with authentication
+    ///
+    /// Takes a route like "/docs/guide/" and constructs the full server URL.
+    /// Passes the auth token as a query parameter directly on the target URL
+    /// (rather than going through /~login redirect) so headless Chrome lands
+    /// on the actual page immediately.
+    pub fn resolve_route(&self, route: &str) -> String {
+        if let Some(token) = &self.token {
+            let separator = if route.contains('?') { '&' } else { '?' };
+            format!(
+                "http://127.0.0.1:{}{route}{separator}sst={token}",
+                self.port
+            )
+        } else {
+            format!("http://127.0.0.1:{}{}", self.port, route)
         }
     }
 }
@@ -335,5 +365,58 @@ mod tests {
 
         // Test with unlikely PID (probably not running)
         assert!(!is_process_running(999999));
+    }
+
+    #[test]
+    fn test_resolve_route() {
+        let info = ServerInfo {
+            pid: 1234,
+            port: 9000,
+            token: Some("sst_testtoken".to_string()),
+            directory: PathBuf::from("/tmp/test"),
+            started_at: 0,
+            mode: ServerMode::SitePreview,
+        };
+
+        assert_eq!(
+            info.resolve_route("/docs/guide/"),
+            "http://127.0.0.1:9000/docs/guide/?sst=sst_testtoken"
+        );
+
+        // Route with existing query string
+        assert_eq!(
+            info.resolve_route("/search?q=test"),
+            "http://127.0.0.1:9000/search?q=test&sst=sst_testtoken"
+        );
+
+        let info_no_token = ServerInfo {
+            token: None,
+            ..info
+        };
+        assert_eq!(
+            info_no_token.resolve_route("/docs/guide/"),
+            "http://127.0.0.1:9000/docs/guide/"
+        );
+    }
+
+    #[test]
+    fn test_server_mode_serde() {
+        // Test that ServerMode deserializes with default when missing
+        let json = r#"{"pid":1,"port":9000,"token":null,"directory":"/tmp","started_at":0}"#;
+        let info: ServerInfo = serde_json::from_str(json).unwrap();
+        assert_eq!(info.mode, ServerMode::DocumentPreview);
+
+        // Test round-trip
+        let json_with_mode = serde_json::to_string(&ServerInfo {
+            pid: 1,
+            port: 9000,
+            token: None,
+            directory: PathBuf::from("/tmp"),
+            started_at: 0,
+            mode: ServerMode::SitePreview,
+        })
+        .unwrap();
+        let info: ServerInfo = serde_json::from_str(&json_with_mode).unwrap();
+        assert_eq!(info.mode, ServerMode::SitePreview);
     }
 }

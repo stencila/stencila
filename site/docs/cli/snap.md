@@ -5,75 +5,68 @@ description: Capture screenshots and measurements of documents served by Stencil
 
 Capture screenshots and measurements of documents served by Stencila
 
-The `snap` command allows programmatic screenshotting and measurement of documents served by Stencila. It can be used to:
+The `snap` command allows programmatic screenshotting and measurement of pages served by Stencila. It can be used to:
 
-- Iterate on themes and styled elements and verify changes - Capture screenshots for documentation or CI - Assert computed CSS properties and layout metrics - Measure page elements for automated testing
+- Iterate on themes and styled elements and verify changes - Capture screenshots for documentation or CI - Assert computed CSS properties and layout metrics - Measure page elements for automated testing - Extract resolved CSS custom property (theme token) values - Extract the page's color palette - Batch-measure across multiple device viewports
 
 # Usage
 
 ```sh
-stencila snap [OPTIONS] [PATH] [OUTPUT]
+stencila snap [OPTIONS] [ROUTE_OR_PATH]
 ```
 
 # Examples
 
 ```bash
-# Start server in background
-stencila serve --sync in &
+# Snap site root (default route /)
+stencila snap --shot homepage.png
 
-# Capture viewport screenshot (default)
-stencila snap snaps/viewport.png
+# Extract resolved theme token values
+stencila snap --tokens
 
-# Capture full scrollable page
-stencila snap --full snaps/full.png
+# Extract color palette
+stencila snap --palette
 
-# Verify computed padding for title
-stencila snap --assert "css([slot=title]).paddingTop>=24px"
+# Snap a specific site route with site chrome measurements
+stencila snap /docs/guide/ --measure site
+
+# Snap a document file directly
+stencila snap ./my-doc.md --shot doc.png
+
+# Measure at multiple viewports in one call
+stencila snap --devices mobile,tablet,laptop --measure
+
+# Assert site chrome properties
+stencila snap --assert "exists(stencila-logo)==true"
+
+# Full page dark mode screenshot
+stencila snap --dark --full --shot dark-full.png
+
+# Combined: tokens + palette + measurements for theme review
+stencila snap --tokens --palette --measure all
+
+# Verify theme token on header
+stencila snap --assert "css(stencila-layout > header).backgroundColorHex==#1a1a2e"
 
 # Capture mobile viewport of specific element
-stencila snap --device mobile --selector "stencila-article [slot=title]" snaps/mobile.png
-
-# Capture full mobile page
-stencila snap --device mobile --full snaps/mobile-full.png
-
-# Force light or dark mode
-stencila snap --light snaps/light.png
-stencila snap --dark snaps/dark.png
-
-# Preview with PDF/print styles (A4 width)
-stencila snap --print snaps/print-preview.png
-
-# Multiple assertions without screenshot
-stencila snap \
---assert "css([slot=title]).fontSize>=28px" \
---assert "count(section)==5" \
---measure
-
-# Use custom viewport and wait conditions
-stencila snap \
---width 1920 --height 1080 \
---wait-until networkidle \
---delay 500 \
-snaps/desktop.png
-
-# Capture specific document path
-stencila snap docs/guide.md snaps/guide.png
+stencila snap --device mobile --selector "stencila-article [slot=title]" --shot mobile.png
 ```
 
 # Arguments
 
-| Name       | Description                    |
-| ---------- | ------------------------------ |
-| `[PATH]`   | Path to document or directory. |
-| `[OUTPUT]` | Output screenshot path (.png). |
+| Name              | Description            |
+| ----------------- | ---------------------- |
+| `[ROUTE_OR_PATH]` | Route or path to snap. |
 
 # Options
 
 | Name           | Description                                                                                    |
 | -------------- | ---------------------------------------------------------------------------------------------- |
+| `--shot`       | Screenshot output path (.png).                                                                 |
 | `--selector`   | CSS selector to capture or measure.                                                            |
 | `--full`       | Capture full scrollable page. Possible values: `true`, `false`.                                |
 | `--device`     | Device preset.                                                                                 |
+| `--devices`    | Measure at multiple device presets in one invocation.                                          |
 | `--width`      | Viewport width in pixels.                                                                      |
 | `--height`     | Viewport height in pixels.                                                                     |
 | `--dpr`        | Device pixel ratio.                                                                            |
@@ -83,11 +76,22 @@ stencila snap docs/guide.md snaps/guide.png
 | `--wait-until` | When to capture: load, domcontentloaded, networkidle. Default value: `network-idle`.           |
 | `--wait-for`   | Wait for CSS selector to exist before capturing.                                               |
 | `--delay`      | Additional delay in milliseconds after page is ready.                                          |
-| `--measure`    | Collect computed CSS and layout metrics. Possible values: `true`, `false`.                     |
+| `--measure`    | Collect computed CSS and layout metrics.                                                       |
+| `--tokens`     | Extract resolved CSS custom property (theme token) values. Possible values: `true`, `false`.   |
+| `--palette`    | Extract the page's color palette. Possible values: `true`, `false`.                            |
 | `--assert`     | Assert measurement conditions.                                                                 |
 | `--url`        | Override URL (instead of discovering server).                                                  |
 
-**Possible values of `--device`**
+**Possible values of `--measure`**
+
+| Value      | Description                                                      |
+| ---------- | ---------------------------------------------------------------- |
+| `auto`     | Auto-select based on target type (route → site, path → document) |
+| `document` | Document content selectors                                       |
+| `site`     | Site chrome selectors                                            |
+| `all`      | Both document and site selectors                                 |
+
+**Possible values of `--device`, `--devices`**
 
 | Value              | Description                         |
 | ------------------ | ----------------------------------- |

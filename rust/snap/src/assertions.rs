@@ -219,10 +219,19 @@ pub struct AssertionResult {
 }
 
 /// Collection of assertion results
-#[derive(Debug, Default, Serialize, Deserialize)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct AssertionResults {
     pub passed: bool,
     pub failures: Vec<AssertionResult>,
+}
+
+impl Default for AssertionResults {
+    fn default() -> Self {
+        Self {
+            passed: true,
+            failures: vec![],
+        }
+    }
 }
 
 impl AssertionResults {

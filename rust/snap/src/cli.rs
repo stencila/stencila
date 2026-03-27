@@ -8,11 +8,12 @@ use eyre::Result;
 use stencila_cli_utils::{Code, ToStdout, color_print::cstr};
 use stencila_format::Format;
 
-use crate::{SnapOptions, snap};
+use crate::{MeasureMode, SnapOptions, snap};
 
 use super::{
     browser::{ColorScheme, WaitConfig, WaitUntil},
     devices::{DevicePreset, ViewportConfig},
+    measure::MeasurePreset,
 };
 
 const ASSERTION_FAILED: i32 = 12;
@@ -21,31 +22,35 @@ const BROWSER_FAILURE: i32 = 40;
 /// Capture screenshots and measurements of documents served by Stencila
 ///
 /// The `snap` command allows programmatic screenshotting and measurement of
-/// documents served by Stencila. It can be used to:
+/// pages served by Stencila. It can be used to:
 ///
 /// - Iterate on themes and styled elements and verify changes
 /// - Capture screenshots for documentation or CI
 /// - Assert computed CSS properties and layout metrics
 /// - Measure page elements for automated testing
+/// - Extract resolved CSS custom property (theme token) values
+/// - Extract the page's color palette
+/// - Batch-measure across multiple device viewports
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
-    /// Path to document or directory
+    /// Route or path to snap
     ///
-    /// If not specified, will use the current directory. The path should be
-    /// within the directory being served by a running Stencila server.
-    path: Option<PathBuf>,
+    /// If this value exists as a file on disk, it is treated as a document
+    /// path and served directly. Otherwise it is treated as a site route
+    /// (e.g., "/" or "/docs/guide/"). Defaults to "/" (site root) when omitted.
+    route_or_path: Option<String>,
 
-    /// Output screenshot path (.png)
+    /// Screenshot output path (.png)
     ///
-    /// If specified, a screenshot will be captured. If not specified, only
-    /// measurements and assertions will be performed (no screenshot).
-    output: Option<PathBuf>,
+    /// If specified, a screenshot will be captured and saved to this path.
+    #[arg(long)]
+    shot: Option<PathBuf>,
 
     /// CSS selector to capture or measure
     ///
     /// If specified, screenshots will be cropped to this element and
-    /// measurements will focus on it.
+    /// measurements will focus on it. Overrides the --measure preset selectors.
     #[arg(long)]
     selector: Option<String>,
 
@@ -58,10 +63,18 @@ pub struct Cli {
 
     /// Device preset
     ///
-    /// Use a predefined viewport configuration: laptop, desktop, iphone-15,
-    /// ipad, ipad-landscape
+    /// Use a predefined viewport configuration: laptop, desktop, mobile,
+    /// tablet, tablet-landscape
     #[arg(long, value_enum)]
     device: Option<DevicePreset>,
+
+    /// Measure at multiple device presets in one invocation
+    ///
+    /// Comma-separated list of device presets. Results are keyed by device
+    /// name in the output. When combined with --shot, screenshots are named
+    /// {stem}-{device}.png.
+    #[arg(long, value_delimiter = ',')]
+    devices: Option<Vec<DevicePreset>>,
 
     /// Viewport width in pixels
     ///
@@ -113,8 +126,30 @@ pub struct Cli {
     delay: Option<u64>,
 
     /// Collect computed CSS and layout metrics
+    ///
+    /// When used without a value, auto-selects the preset based on the target:
+    /// "site" for routes, "document" for file paths.
+    ///
+    /// Presets:
+    ///   document - document content selectors (stencila-article, headings, etc.)
+    ///   site     - site chrome selectors (layout, header, nav, logo, sidebar, footer)
+    ///   all      - both document and site selectors
+    #[arg(long, value_enum, num_args = 0..=1, default_missing_value = "auto")]
+    measure: Option<MeasurePresetArg>,
+
+    /// Extract resolved CSS custom property (theme token) values
+    ///
+    /// Reads all --* custom properties from stylesheets and returns their
+    /// computed values. Useful for verifying theme token resolution.
     #[arg(long)]
-    measure: bool,
+    tokens: bool,
+
+    /// Extract the page's color palette
+    ///
+    /// Samples computed color, background-color, and border-color from all
+    /// visible elements and returns unique hex values sorted by usage count.
+    #[arg(long)]
+    palette: bool,
 
     /// Assert measurement conditions
     ///
@@ -132,48 +167,53 @@ pub struct Cli {
     url: Option<String>,
 }
 
+/// CLI argument for --measure that supports "auto" as default missing value
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+enum MeasurePresetArg {
+    /// Auto-select based on target type (route → site, path → document)
+    Auto,
+    /// Document content selectors
+    Document,
+    /// Site chrome selectors
+    Site,
+    /// Both document and site selectors
+    All,
+}
+
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     r#"<bold><b>Examples</b></bold>
-  <dim># Start server in background</dim>
-  <b>stencila serve</> <c>--sync</> <g>in</> &
+  <dim># Snap site root (default route /)</dim>
+  <b>stencila snap</> <c>--shot</> <g>homepage.png</>
 
-  <dim># Capture viewport screenshot (default)</dim>
-  <b>stencila snap</> <g>snaps/viewport.png</>
+  <dim># Extract resolved theme token values</dim>
+  <b>stencila snap</> <c>--tokens</>
 
-  <dim># Capture full scrollable page</dim>
-  <b>stencila snap</> <c>--full</> <g>snaps/full.png</>
+  <dim># Extract color palette</dim>
+  <b>stencila snap</> <c>--palette</>
 
-  <dim># Verify computed padding for title</dim>
-  <b>stencila snap</> <c>--assert</> <y>"css([slot=title]).paddingTop>=24px"</>
+  <dim># Snap a specific site route with site chrome measurements</dim>
+  <b>stencila snap</> <g>/docs/guide/</> <c>--measure</> <g>site</>
+
+  <dim># Snap a document file directly</dim>
+  <b>stencila snap</> <g>./my-doc.md</> <c>--shot</> <g>doc.png</>
+
+  <dim># Measure at multiple viewports in one call</dim>
+  <b>stencila snap</> <c>--devices</> <g>mobile,tablet,laptop</> <c>--measure</>
+
+  <dim># Assert site chrome properties</dim>
+  <b>stencila snap</> <c>--assert</> <y>"exists(stencila-logo)==true"</>
+
+  <dim># Full page dark mode screenshot</dim>
+  <b>stencila snap</> <c>--dark</> <c>--full</> <c>--shot</> <g>dark-full.png</>
+
+  <dim># Combined: tokens + palette + measurements for theme review</dim>
+  <b>stencila snap</> <c>--tokens</> <c>--palette</> <c>--measure</> <g>all</>
+
+  <dim># Verify theme token on header</dim>
+  <b>stencila snap</> <c>--assert</> <y>"css(stencila-layout > header).backgroundColorHex==#1a1a2e"</>
 
   <dim># Capture mobile viewport of specific element</dim>
-  <b>stencila snap</> <c>--device</> <g>mobile</> <c>--selector</> <y>"stencila-article [slot=title]"</> <g>snaps/mobile.png</>
-
-  <dim># Capture full mobile page</dim>
-  <b>stencila snap</> <c>--device</> <g>mobile</> <c>--full</> <g>snaps/mobile-full.png</>
-
-  <dim># Force light or dark mode</dim>
-  <b>stencila snap</> <c>--light</> <g>snaps/light.png</>
-  <b>stencila snap</> <c>--dark</> <g>snaps/dark.png</>
-
-  <dim># Preview with PDF/print styles (A4 width)</dim>
-  <b>stencila snap</> <c>--print</> <g>snaps/print-preview.png</>
-
-  <dim># Multiple assertions without screenshot</dim>
-  <b>stencila snap</> \
-    <c>--assert</> <y>"css([slot=title]).fontSize>=28px"</> \
-    <c>--assert</> <y>"count(section)==5"</> \
-    <c>--measure</>
-
-  <dim># Use custom viewport and wait conditions</dim>
-  <b>stencila snap</> \
-    <c>--width</> <g>1920</> <c>--height</> <g>1080</> \
-    <c>--wait-until</> <g>networkidle</> \
-    <c>--delay</> <g>500</> \
-    <g>snaps/desktop.png</>
-
-  <dim># Capture specific document path</dim>
-  <b>stencila snap</> <g>docs/guide.md</> <g>snaps/guide.png</>
+  <b>stencila snap</> <c>--device</> <g>mobile</> <c>--selector</> <y>"stencila-article [slot=title]"</> <c>--shot</> <g>mobile.png</>
 "#
 );
 
@@ -215,13 +255,23 @@ impl Cli {
             None
         };
 
+        // Convert --measure arg to MeasureMode
+        let measure = match self.measure {
+            None => MeasureMode::Off,
+            Some(MeasurePresetArg::Auto) => MeasureMode::Auto,
+            Some(MeasurePresetArg::Document) => MeasureMode::Preset(MeasurePreset::Document),
+            Some(MeasurePresetArg::Site) => MeasureMode::Preset(MeasurePreset::Site),
+            Some(MeasurePresetArg::All) => MeasureMode::Preset(MeasurePreset::All),
+        };
+
         let options = SnapOptions {
-            path: self.path,
+            route_or_path: self.route_or_path,
             url: self.url,
-            output: self.output,
+            shot: self.shot,
             selector: self.selector,
             full_page: self.full,
             device: self.device,
+            devices: self.devices,
             viewport,
             color_scheme,
             print_media: self.print,
@@ -230,7 +280,9 @@ impl Cli {
                 wait_for: self.wait_for,
                 delay: self.delay,
             },
-            measure: self.measure,
+            measure,
+            tokens: self.tokens,
+            palette: self.palette,
             assertions: self.assertions,
         };
 
