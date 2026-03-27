@@ -198,14 +198,13 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Tab) => {
                 if let Some(name) = self.commands_state.accept() {
                     self.input.set_text(&name);
-                    // Re-trigger autocomplete to support drill-down into
-                    // CLI command children (e.g. "/skills " → show subcommands)
-                    self.commands_state.update(self.input.text());
-                    // If the accepted command is a leaf with required args,
-                    // show usage hint as ghost text.
-                    if !self.commands_state.is_visible()
-                        && let Some(hint) = self.cli_usage_hint_for_input()
-                    {
+                    if name.ends_with(' ') {
+                        // Re-trigger autocomplete to support drill-down into
+                        // CLI command children (e.g. "/skills " → show subcommands)
+                        self.commands_state.update(self.input.text());
+                    } else if let Some(hint) = self.cli_usage_hint_for_input() {
+                        // Leaf command with required args — show usage hint
+                        // as ghost text.
                         self.command_usage_hint = Some(format!(" {hint}"));
                     }
                 }

@@ -147,19 +147,25 @@ impl App {
         let text = self.input.text();
         let at_end = self.input.cursor() == text.len();
 
-        if text.is_empty() || !at_end || !self.input.is_single_line() || self.any_popup_visible() {
+        // Command usage hint takes priority over popups and history ghost
+        // text.  It persists until the input text actually changes (see
+        // `handle_key`), so we must not clear it when a popup happens to
+        // be visible (e.g. exact-match commands keep the popup open).
+        if text.is_empty() || !at_end || !self.input.is_single_line() {
             self.ghost_suggestion = None;
             self.ghost_is_truncated = false;
             self.command_usage_hint = None;
             return;
         }
 
-        // Command usage hint takes priority over history ghost text.
-        // Use as_ref/clone so the hint persists across refresh cycles;
-        // it is cleared only when the input text actually changes
-        // (see `clear_command_usage_hint`).
         if let Some(hint) = self.command_usage_hint.clone() {
             self.ghost_suggestion = Some(hint);
+            self.ghost_is_truncated = false;
+            return;
+        }
+
+        if self.any_popup_visible() {
+            self.ghost_suggestion = None;
             self.ghost_is_truncated = false;
             return;
         }
