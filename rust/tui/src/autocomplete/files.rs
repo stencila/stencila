@@ -1,4 +1,5 @@
 use std::path::{Path, PathBuf};
+use std::time::{Duration, Instant};
 
 /// A file candidate shown in the autocomplete popup.
 #[derive(Debug, Clone)]
@@ -53,15 +54,16 @@ pub struct FilesState {
     /// Currently selected index within `candidates`.
     selected: usize,
     /// Lazily populated cache of all attachable files and directories (for `@` search).
-    cached_files: Option<Vec<FileCandidate>>,
+    /// Includes a timestamp so the cache can be refreshed after [`AT_SEARCH_CACHE_TTL`].
+    cached_files: Option<(Instant, Vec<FileCandidate>)>,
     /// Byte range in the input buffer that the current token occupies.
     token_range: std::ops::Range<usize>,
     /// Directory prefix for path completion (e.g., `./src/`), prepended on accept.
     path_dir_prefix: String,
     /// Cache of directory listings for path completion mode, keyed by the
-    /// resolved directory path. Avoids hitting the filesystem on every
-    /// keystroke when the user is filtering within the same directory.
-    cached_dir_listings: std::collections::HashMap<PathBuf, Vec<FileCandidate>>,
+    /// resolved directory path. Each entry includes a timestamp so stale
+    /// listings are refreshed after [`PATH_COMPLETION_CACHE_TTL`].
+    cached_dir_listings: std::collections::HashMap<PathBuf, (Instant, Vec<FileCandidate>)>,
 }
 
 /// Maximum number of candidates to display.
@@ -71,7 +73,21 @@ const MAX_DISPLAY: usize = 20;
 const MAX_WALK_DEPTH: usize = 8;
 
 /// Maximum number of entries to collect during a walk.
-const MAX_WALK_ENTRIES: usize = 5000;
+const MAX_WALK_ENTRIES: usize = 10000;
+
+/// How long the `@` search file-tree cache remains valid before re-scanning.
+///
+/// The `@` search walks the entire project tree (up to [`MAX_WALK_ENTRIES`])
+/// which is expensive on large repos, so a longer TTL avoids repeated full
+/// walks while still picking up new files within a reasonable window.
+const AT_SEARCH_CACHE_TTL: Duration = Duration::from_secs(15);
+
+/// How long a single directory listing cache entry remains valid before
+/// re-scanning.
+///
+/// Path completion (`./`, `../`, `~/`) lists a single directory at a time
+/// which is cheap, so a shorter TTL keeps results fresh.
+const PATH_COMPLETION_CACHE_TTL: Duration = Duration::from_secs(5);
 
 impl FilesState {
     /// Create a new hidden file autocomplete state.
@@ -128,8 +144,9 @@ impl FilesState {
 
     /// Hide the popup and reset state.
     ///
-    /// The file cache is intentionally preserved across dismiss/reopen cycles
-    /// to avoid repeated full tree walks on large repos.
+    /// The file caches are intentionally preserved across dismiss/reopen
+    /// cycles to avoid repeated filesystem I/O. They are refreshed
+    /// automatically when their TTL expires.
     pub fn dismiss(&mut self) {
         self.visible = false;
         self.candidates.clear();
@@ -176,9 +193,14 @@ impl FilesState {
         self.token_range = token_start..token_end(input, cursor);
         self.path_dir_prefix.clear();
 
-        // Lazily build the file cache
-        if self.cached_files.is_none() {
-            self.cached_files = Some(scan_attachable_files());
+        // Refresh the file cache if missing or stale
+        let now = Instant::now();
+        let needs_refresh = self
+            .cached_files
+            .as_ref()
+            .is_none_or(|(ts, _)| now.duration_since(*ts) > AT_SEARCH_CACHE_TTL);
+        if needs_refresh {
+            self.cached_files = Some((now, scan_attachable_files()));
         }
 
         // Check if query contains a directory prefix (e.g., "src/main")
@@ -194,7 +216,7 @@ impl FilesState {
         self.candidates = self
             .cached_files
             .as_ref()
-            .map(|files| {
+            .map(|(_, files)| {
                 files
                     .iter()
                     .filter(|f| {
@@ -243,10 +265,19 @@ impl FilesState {
         self.path_dir_prefix = dir_part.to_string();
 
         let resolved_dir = resolve_dir(dir_part);
-        let all = self
+        let now = Instant::now();
+        let needs_refresh = self
             .cached_dir_listings
-            .entry(resolved_dir.clone())
-            .or_insert_with(|| scan_directory(&resolved_dir));
+            .get(&resolved_dir)
+            .is_none_or(|(ts, _)| now.duration_since(*ts) > PATH_COMPLETION_CACHE_TTL);
+        if needs_refresh {
+            self.cached_dir_listings
+                .insert(resolved_dir.clone(), (now, scan_directory(&resolved_dir)));
+        }
+        let (_, all) = self
+            .cached_dir_listings
+            .get(&resolved_dir)
+            .expect("entry was just inserted or confirmed present");
 
         let prefix_lower = file_prefix.to_lowercase();
         self.candidates = all
@@ -1092,11 +1123,14 @@ mod tests {
     #[test]
     fn cache_preserved_on_dismiss() {
         let mut state = FilesState::new();
-        state.cached_files = Some(vec![FileCandidate {
-            display: "test.rs".to_string(),
-            path: "test.rs".to_string(),
-            is_dir: false,
-        }]);
+        state.cached_files = Some((
+            Instant::now(),
+            vec![FileCandidate {
+                display: "test.rs".to_string(),
+                path: "test.rs".to_string(),
+                is_dir: false,
+            }],
+        ));
 
         state.dismiss();
         assert!(state.cached_files.is_some());
@@ -1116,38 +1150,41 @@ mod tests {
     #[test]
     fn at_mode_dir_prefix_filters_direct_children() {
         let mut state = FilesState::new();
-        state.cached_files = Some(vec![
-            FileCandidate {
-                display: "src/".to_string(),
-                path: "src/".to_string(),
-                is_dir: true,
-            },
-            FileCandidate {
-                display: "main.rs".to_string(),
-                path: "src/main.rs".to_string(),
-                is_dir: false,
-            },
-            FileCandidate {
-                display: "lib.rs".to_string(),
-                path: "src/lib.rs".to_string(),
-                is_dir: false,
-            },
-            FileCandidate {
-                display: "models/".to_string(),
-                path: "src/models/".to_string(),
-                is_dir: true,
-            },
-            FileCandidate {
-                display: "mod.rs".to_string(),
-                path: "src/models/mod.rs".to_string(),
-                is_dir: false,
-            },
-            FileCandidate {
-                display: "README.md".to_string(),
-                path: "README.md".to_string(),
-                is_dir: false,
-            },
-        ]);
+        state.cached_files = Some((
+            Instant::now(),
+            vec![
+                FileCandidate {
+                    display: "src/".to_string(),
+                    path: "src/".to_string(),
+                    is_dir: true,
+                },
+                FileCandidate {
+                    display: "main.rs".to_string(),
+                    path: "src/main.rs".to_string(),
+                    is_dir: false,
+                },
+                FileCandidate {
+                    display: "lib.rs".to_string(),
+                    path: "src/lib.rs".to_string(),
+                    is_dir: false,
+                },
+                FileCandidate {
+                    display: "models/".to_string(),
+                    path: "src/models/".to_string(),
+                    is_dir: true,
+                },
+                FileCandidate {
+                    display: "mod.rs".to_string(),
+                    path: "src/models/mod.rs".to_string(),
+                    is_dir: false,
+                },
+                FileCandidate {
+                    display: "README.md".to_string(),
+                    path: "README.md".to_string(),
+                    is_dir: false,
+                },
+            ],
+        ));
 
         // Query "src/" should show direct children of src/ only
         state.update_at_mode("@src/", 0, "src/", 5);
@@ -1169,18 +1206,21 @@ mod tests {
     #[test]
     fn at_mode_dir_prefix_with_name_filter() {
         let mut state = FilesState::new();
-        state.cached_files = Some(vec![
-            FileCandidate {
-                display: "main.rs".to_string(),
-                path: "src/main.rs".to_string(),
-                is_dir: false,
-            },
-            FileCandidate {
-                display: "lib.rs".to_string(),
-                path: "src/lib.rs".to_string(),
-                is_dir: false,
-            },
-        ]);
+        state.cached_files = Some((
+            Instant::now(),
+            vec![
+                FileCandidate {
+                    display: "main.rs".to_string(),
+                    path: "src/main.rs".to_string(),
+                    is_dir: false,
+                },
+                FileCandidate {
+                    display: "lib.rs".to_string(),
+                    path: "src/lib.rs".to_string(),
+                    is_dir: false,
+                },
+            ],
+        ));
 
         // Query "src/main" should show only files matching "main"
         state.update_at_mode("@src/main", 0, "src/main", 9);
@@ -1208,23 +1248,26 @@ mod tests {
     #[test]
     fn at_mode_can_match_dotted_directory_children() {
         let mut state = FilesState::new();
-        state.cached_files = Some(vec![
-            FileCandidate {
-                display: ".github/".to_string(),
-                path: ".github/".to_string(),
-                is_dir: true,
-            },
-            FileCandidate {
-                display: "workflows/".to_string(),
-                path: ".github/workflows/".to_string(),
-                is_dir: true,
-            },
-            FileCandidate {
-                display: "ci.yml".to_string(),
-                path: ".github/workflows/ci.yml".to_string(),
-                is_dir: false,
-            },
-        ]);
+        state.cached_files = Some((
+            Instant::now(),
+            vec![
+                FileCandidate {
+                    display: ".github/".to_string(),
+                    path: ".github/".to_string(),
+                    is_dir: true,
+                },
+                FileCandidate {
+                    display: "workflows/".to_string(),
+                    path: ".github/workflows/".to_string(),
+                    is_dir: true,
+                },
+                FileCandidate {
+                    display: "ci.yml".to_string(),
+                    path: ".github/workflows/ci.yml".to_string(),
+                    is_dir: false,
+                },
+            ],
+        ));
 
         state.update_at_mode("@.github/", 0, ".github/", 9);
 
