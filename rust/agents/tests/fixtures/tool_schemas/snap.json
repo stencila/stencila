@@ -87,6 +87,17 @@
       "delay": {
         "type": "integer",
         "description": "Additional delay in milliseconds after page is ready."
+      },
+      "resize": {
+        "type": "string",
+        "description": "Screenshot resize mode. 'auto' resizes only when needed for hard image limits, 'optimize' downscales more aggressively to reduce payload size, and 'never' preserves the original capture. The tool defaults to 'optimize' to keep screenshot payloads smaller for model token usage.",
+        "enum": ["never", "auto", "optimize"],
+        "default": "optimize"
+      },
+      "max_image_dimension": {
+        "type": "integer",
+        "description": "Maximum screenshot dimension in pixels after resize. Used with 'auto' or 'optimize'. Defaults to 4096 for this tool when omitted so screenshots stay smaller for model token usage.",
+        "minimum": 1
       }
     },
     "additionalProperties": false

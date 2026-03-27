@@ -7,7 +7,8 @@
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
 use stencila_snap::{
-    ColorScheme, DevicePreset, MeasureMode, MeasurePreset, SnapOptions, ViewportConfig, WaitConfig,
+    ColorScheme, DevicePreset, MeasureMode, MeasurePreset, ScreenshotResizeMode,
+    ScreenshotResizePolicy, SnapOptions, ViewportConfig, WaitConfig,
 };
 
 use crate::error::{AgentError, AgentResult};
@@ -104,6 +105,17 @@ pub fn definition() -> ToolDefinition {
                 "delay": {
                     "type": "integer",
                     "description": "Additional delay in milliseconds after page is ready."
+                },
+                "resize": {
+                    "type": "string",
+                    "description": "Screenshot resize mode. 'auto' resizes only when needed for hard image limits, 'optimize' downscales more aggressively to reduce payload size, and 'never' preserves the original capture. The tool defaults to 'optimize' to keep screenshot payloads smaller for model token usage.",
+                    "enum": ["never", "auto", "optimize"],
+                    "default": "optimize"
+                },
+                "max_image_dimension": {
+                    "type": "integer",
+                    "description": "Maximum screenshot dimension in pixels after resize. Used with 'auto' or 'optimize'. Defaults to 4096 for this tool when omitted so screenshots stay smaller for model token usage.",
+                    "minimum": 1
                 }
             },
             "additionalProperties": false
@@ -206,6 +218,20 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         })
         .unwrap_or_default();
 
+    let screenshot_resize_mode = match args.get("resize").and_then(Value::as_str) {
+        Some("never") => ScreenshotResizeMode::Never,
+        Some("auto") => ScreenshotResizeMode::Auto,
+        Some("optimize") => ScreenshotResizeMode::Optimize,
+        None => ScreenshotResizeMode::Optimize,
+        Some(other) => {
+            return Err(AgentError::ValidationError {
+                reason: format!(
+                    "unknown resize mode: {other:?}. Valid values: never, auto, optimize"
+                ),
+            });
+        }
+    };
+
     let devices: Option<Vec<DevicePreset>> = args
         .get("devices")
         .and_then(Value::as_array)
@@ -251,6 +277,16 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         tokens,
         palette,
         assertions,
+        screenshot_resize: ScreenshotResizePolicy {
+            // Default to optimize with a smaller maximum dimension for the tool
+            // so image attachments use fewer tokens when sent to models.
+            mode: screenshot_resize_mode,
+            max_dimension: args
+                .get("max_image_dimension")
+                .and_then(Value::as_u64)
+                .map(|value| value as u32)
+                .or(Some(4096)),
+        },
     };
 
     let result = stencila_snap::snap(options)

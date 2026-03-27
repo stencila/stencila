@@ -8,7 +8,7 @@ use eyre::Result;
 use stencila_cli_utils::{Code, ToStdout, color_print::cstr};
 use stencila_format::Format;
 
-use crate::{MeasureMode, SnapOptions, snap};
+use crate::{MeasureMode, ScreenshotResizeMode, ScreenshotResizePolicy, SnapOptions, snap};
 
 use super::{
     browser::{ColorScheme, WaitConfig, WaitUntil},
@@ -93,6 +93,14 @@ pub struct Cli {
     /// Overrides device preset DPR if both are specified
     #[arg(long)]
     dpr: Option<f32>,
+
+    /// Screenshot resize mode: never, auto, optimize
+    #[arg(long, value_enum, default_value = "auto")]
+    resize: ScreenshotResizeModeArg,
+
+    /// Maximum screenshot dimension in pixels after resize
+    #[arg(long)]
+    max_image_dimension: Option<u32>,
 
     /// Use light color scheme
     #[arg(long, conflicts_with_all = ["dark", "print"])]
@@ -180,6 +188,13 @@ enum MeasurePresetArg {
     All,
 }
 
+#[derive(Debug, Clone, Copy, clap::ValueEnum)]
+enum ScreenshotResizeModeArg {
+    Never,
+    Auto,
+    Optimize,
+}
+
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     r#"<bold><b>Examples</b></bold>
   <dim># Snap site root (default route /)</dim>
@@ -214,6 +229,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Capture mobile viewport of specific element</dim>
   <b>stencila snap</> <c>--device</> <g>mobile</> <c>--selector</> <y>"stencila-article [slot=title]"</> <c>--shot</> <g>mobile.png</>
+
+  <dim># Optimize screenshot size for lower image payload cost</dim>
+  <b>stencila snap</> <c>--shot</> <g>page.png</> <c>--resize</> <g>optimize</> <c>--max-image-dimension</> <g>4096</>
 "#
 );
 
@@ -287,6 +305,14 @@ impl Cli {
             tokens: self.tokens,
             palette: self.palette,
             assertions: self.assertions,
+            screenshot_resize: ScreenshotResizePolicy {
+                mode: match self.resize {
+                    ScreenshotResizeModeArg::Never => ScreenshotResizeMode::Never,
+                    ScreenshotResizeModeArg::Auto => ScreenshotResizeMode::Auto,
+                    ScreenshotResizeModeArg::Optimize => ScreenshotResizeMode::Optimize,
+                },
+                max_dimension: self.max_image_dimension,
+            },
         };
 
         // Call snap crate

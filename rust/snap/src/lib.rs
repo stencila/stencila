@@ -25,6 +25,9 @@ use std::{collections::HashMap, path::PathBuf, time::Instant};
 
 use assertions::{Assertion, AssertionResults};
 use browser::{BrowserSession, CaptureOptions};
+use image::{
+    GenericImageView, ImageFormat, ImageReader, codecs::png::PngEncoder, imageops::FilterType,
+};
 use measure::selectors_for_preset;
 
 /// Whether and how to measure
@@ -39,6 +42,52 @@ pub enum MeasureMode {
 }
 use output::{DeviceSnapResult, SnapOutput, TargetInfo, Timings};
 use server::ServerInfo;
+
+const MAX_SCREENSHOT_DIMENSION: u32 = 8_000;
+const OPTIMIZED_SCREENSHOT_DIMENSION: u32 = 4_096;
+
+/// Screenshot resizing strategy.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ScreenshotResizeMode {
+    /// Preserve the captured image exactly as returned by the browser.
+    Never,
+    /// Resize only when the image exceeds the provider-safe hard limit.
+    Auto,
+    /// Resize to the configured max dimension even below hard limits.
+    Optimize,
+}
+
+/// Screenshot resize configuration.
+#[derive(Debug, Clone, Copy)]
+pub struct ScreenshotResizePolicy {
+    /// Strategy used to decide whether to resize.
+    pub mode: ScreenshotResizeMode,
+    /// Maximum allowed output dimension after resizing.
+    pub max_dimension: Option<u32>,
+}
+
+impl Default for ScreenshotResizePolicy {
+    fn default() -> Self {
+        Self {
+            mode: ScreenshotResizeMode::Auto,
+            max_dimension: None,
+        }
+    }
+}
+
+impl ScreenshotResizePolicy {
+    fn resolved_max_dimension(self) -> Option<u32> {
+        match self.mode {
+            ScreenshotResizeMode::Never => None,
+            ScreenshotResizeMode::Auto => {
+                Some(self.max_dimension.unwrap_or(MAX_SCREENSHOT_DIMENSION))
+            }
+            ScreenshotResizeMode::Optimize => {
+                Some(self.max_dimension.unwrap_or(OPTIMIZED_SCREENSHOT_DIMENSION))
+            }
+        }
+    }
+}
 
 /// Resolved target: either a site route or a filesystem path
 enum ResolvedTarget {
@@ -95,6 +144,59 @@ pub struct SnapOptions {
 
     /// Assertions to evaluate
     pub assertions: Vec<String>,
+
+    /// Screenshot resize policy applied after capture.
+    pub screenshot_resize: ScreenshotResizePolicy,
+}
+
+fn resize_screenshot_if_needed(
+    bytes: Vec<u8>,
+    policy: ScreenshotResizePolicy,
+) -> eyre::Result<(Vec<u8>, Option<output::ScreenshotResize>)> {
+    let Some(max_dimension) = policy.resolved_max_dimension() else {
+        return Ok((bytes, None));
+    };
+
+    let reader = ImageReader::with_format(std::io::Cursor::new(&bytes), ImageFormat::Png);
+    let image = reader.decode()?;
+    let (width, height) = image.dimensions();
+    let largest_dimension = width.max(height);
+
+    if largest_dimension <= max_dimension {
+        return Ok((bytes, None));
+    }
+
+    let scale = max_dimension as f64 / largest_dimension as f64;
+    let resized_width = ((width as f64 * scale).round() as u32).max(1);
+    let resized_height = ((height as f64 * scale).round() as u32).max(1);
+    let resized = image.resize(resized_width, resized_height, FilterType::Lanczos3);
+
+    let mut output = Vec::new();
+    let encoder = PngEncoder::new(&mut output);
+    resized.write_with_encoder(encoder)?;
+
+    let mode = match policy.mode {
+        ScreenshotResizeMode::Never => "never",
+        ScreenshotResizeMode::Auto => "auto",
+        ScreenshotResizeMode::Optimize => "optimize",
+    };
+
+    let note = format!(
+        "Screenshot was downscaled from {width}x{height} to {resized_width}x{resized_height} using {mode} mode with max dimension {max_dimension}px."
+    );
+
+    Ok((
+        output,
+        Some(output::ScreenshotResize {
+            original_width: width,
+            original_height: height,
+            resized_width,
+            resized_height,
+            mode: mode.to_string(),
+            max_dimension,
+            note,
+        }),
+    ))
 }
 
 /// Main entry point for snap operation
@@ -222,6 +324,13 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None
     };
 
+    let (screenshot_bytes, screenshot_resize) = if let Some(bytes) = screenshot_bytes {
+        let (bytes, resize) = resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
+        (Some(bytes), resize)
+    } else {
+        (None, None)
+    };
+
     // Multi-device batch (if --devices specified)
     let devices_result = if let Some(device_presets) = &options.devices {
         let mut device_results = HashMap::new();
@@ -261,6 +370,15 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                 None
             };
 
+            let (device_screenshot, device_screenshot_resize) =
+                if let Some(bytes) = device_screenshot {
+                    let (bytes, resize) =
+                        resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
+                    (Some(bytes), resize)
+                } else {
+                    (None, None)
+                };
+
             let device_name = format!("{device:?}").to_lowercase();
             device_results.insert(
                 device_name,
@@ -268,6 +386,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                     viewport: device_viewport,
                     measure: device_measure,
                     screenshot: device_screenshot,
+                    screenshot_resize: device_screenshot_resize,
                 },
             );
         }
@@ -296,9 +415,78 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         palette,
         assertions: assertion_results,
         screenshot: screenshot_bytes,
+        screenshot_resize,
         devices: devices_result,
         timings: Timings {
             total_ms: elapsed.as_millis() as u64,
         },
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use image::{ColorType, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
+
+    fn png_bytes(width: u32, height: u32) -> eyre::Result<Vec<u8>> {
+        let mut bytes = Vec::new();
+        let image =
+            ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(width, height, Rgb([255, 255, 255]));
+        PngEncoder::new(&mut bytes).write_image(
+            image.as_raw(),
+            width,
+            height,
+            ColorType::Rgb8.into(),
+        )?;
+        Ok(bytes)
+    }
+
+    #[test]
+    fn auto_resize_downscales_when_over_hard_limit() -> eyre::Result<()> {
+        let png = png_bytes(8_100, 2_000)?;
+        let (resized, meta) = resize_screenshot_if_needed(png, ScreenshotResizePolicy::default())?;
+        let meta = meta.expect("expected resize metadata");
+
+        assert_eq!(meta.original_width, 8_100);
+        assert_eq!(meta.resized_width, 8_000);
+        assert!(!resized.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn optimize_resize_downscales_below_hard_limit() -> eyre::Result<()> {
+        let png = png_bytes(5_000, 2_500)?;
+        let (resized, meta) = resize_screenshot_if_needed(
+            png,
+            ScreenshotResizePolicy {
+                mode: ScreenshotResizeMode::Optimize,
+                max_dimension: Some(4_096),
+            },
+        )?;
+        let meta = meta.expect("expected resize metadata");
+
+        assert_eq!(meta.original_width, 5_000);
+        assert_eq!(meta.resized_width, 4_096);
+        assert!(!resized.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn never_resize_preserves_image() -> eyre::Result<()> {
+        let png = png_bytes(8_100, 2_000)?;
+        let (resized, meta) = resize_screenshot_if_needed(
+            png.clone(),
+            ScreenshotResizePolicy {
+                mode: ScreenshotResizeMode::Never,
+                max_dimension: None,
+            },
+        )?;
+
+        assert!(meta.is_none());
+        assert_eq!(resized, png);
+
+        Ok(())
+    }
 }

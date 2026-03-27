@@ -1254,3 +1254,16 @@ async fn snap_screenshot_defaults_to_true() {
         "expected non-validation error (snap requires a running server), got: {result:?}"
     );
 }
+
+#[tokio::test]
+async fn snap_invalid_resize_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"resize": "largest"}), &env).await;
+
+    assert!(matches!(
+        result,
+        Err(AgentError::ValidationError { ref reason })
+            if reason.contains("unknown resize mode")
+    ));
+}

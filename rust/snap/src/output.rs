@@ -7,6 +7,31 @@ use serde_with::skip_serializing_none;
 
 use crate::{assertions::AssertionResults, devices::ViewportConfig, measure::MeasureResult};
 
+/// Information about screenshot resizing performed after capture.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct ScreenshotResize {
+    /// Width before resizing.
+    pub original_width: u32,
+
+    /// Height before resizing.
+    pub original_height: u32,
+
+    /// Width after resizing.
+    pub resized_width: u32,
+
+    /// Height after resizing.
+    pub resized_height: u32,
+
+    /// Resize mode that was applied.
+    pub mode: String,
+
+    /// Maximum dimension target used for the resize.
+    pub max_dimension: u32,
+
+    /// Human-readable note describing the resize.
+    pub note: String,
+}
+
 /// Main output structure for snap operation
 #[skip_serializing_none]
 #[derive(Debug, Serialize, Deserialize)]
@@ -36,6 +61,9 @@ pub struct SnapOutput {
     /// because JSON output should not contain large binary blobs.
     #[serde(skip)]
     pub screenshot: Option<Vec<u8>>,
+
+    /// Metadata about screenshot resizing, when applied.
+    pub screenshot_resize: Option<ScreenshotResize>,
 
     /// Per-device results when `--devices` is used
     pub devices: Option<HashMap<String, DeviceSnapResult>>,
@@ -85,6 +113,9 @@ pub struct DeviceSnapResult {
     /// Screenshot PNG bytes (if captured)
     #[serde(skip)]
     pub screenshot: Option<Vec<u8>>,
+
+    /// Metadata about screenshot resizing, when applied.
+    pub screenshot_resize: Option<ScreenshotResize>,
 }
 
 /// Timing information

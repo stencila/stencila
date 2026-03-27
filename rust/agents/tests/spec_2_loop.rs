@@ -112,7 +112,8 @@ impl MockExecEnv {
         use image::{ColorType, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
 
         let mut bytes = Vec::new();
-        let image = ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(width, height, Rgb([255, 255, 255]));
+        let image =
+            ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(width, height, Rgb([255, 255, 255]));
         PngEncoder::new(&mut bytes)
             .write_image(image.as_raw(), width, height, ColorType::Rgb8.into())
             .map_err(|error| AgentError::Io {
