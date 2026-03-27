@@ -264,10 +264,13 @@ impl Cli {
             Some(MeasurePresetArg::All) => MeasureMode::Preset(MeasurePreset::All),
         };
 
+        // Save shot path before moving fields into SnapOptions
+        let shot_path = self.shot.clone();
+
         let options = SnapOptions {
             route_or_path: self.route_or_path,
             url: self.url,
-            shot: self.shot,
+            screenshot: shot_path.is_some(),
             selector: self.selector,
             full_page: self.full,
             device: self.device,
@@ -288,6 +291,42 @@ impl Cli {
 
         // Call snap crate
         let result = snap(options).await?;
+
+        // Write primary screenshot to disk if --shot was specified
+        if let Some(shot_path) = &shot_path
+            && let Some(ref screenshot_data) = result.screenshot
+        {
+            if let Some(dir) = shot_path.parent() {
+                tokio::fs::create_dir_all(dir).await?;
+            }
+            tokio::fs::write(shot_path, screenshot_data).await?;
+        }
+
+        // Write per-device screenshots to disk if --shot and --devices were specified
+        if let Some(shot_path) = &shot_path
+            && let Some(ref devices) = result.devices
+        {
+            let stem = shot_path
+                .file_stem()
+                .and_then(|s| s.to_str())
+                .unwrap_or("snap");
+            let ext = shot_path
+                .extension()
+                .and_then(|s| s.to_str())
+                .unwrap_or("png");
+            for (device_name, device_result) in devices {
+                if let Some(ref data) = device_result.screenshot {
+                    let device_path = shot_path
+                        .parent()
+                        .unwrap_or(std::path::Path::new("."))
+                        .join(format!("{stem}-{device_name}.{ext}"));
+                    if let Some(dir) = device_path.parent() {
+                        tokio::fs::create_dir_all(dir).await?;
+                    }
+                    tokio::fs::write(&device_path, data).await?;
+                }
+            }
+        }
 
         // Output JSON to stdout
         Code::new(Format::Json, &result.to_json()?).to_stdout();

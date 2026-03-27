@@ -1,6 +1,6 @@
 //! Output structures for snap results
 
-use std::{collections::HashMap, path::PathBuf};
+use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -31,6 +31,11 @@ pub struct SnapOutput {
 
     /// Assertion evaluation results
     pub assertions: AssertionResults,
+
+    /// Screenshot PNG bytes (if captured). Skipped during serialization
+    /// because JSON output should not contain large binary blobs.
+    #[serde(skip)]
+    pub screenshot: Option<Vec<u8>>,
 
     /// Per-device results when `--devices` is used
     pub devices: Option<HashMap<String, DeviceSnapResult>>,
@@ -77,8 +82,9 @@ pub struct DeviceSnapResult {
     /// Measurement results
     pub measure: Option<MeasureResult>,
 
-    /// Screenshot path (if captured)
-    pub screenshot: Option<PathBuf>,
+    /// Screenshot PNG bytes (if captured)
+    #[serde(skip)]
+    pub screenshot: Option<Vec<u8>>,
 }
 
 /// Timing information

@@ -1,16 +1,17 @@
 //! Browser automation using headless Chrome
 
-use std::{ffi::OsStr, path::Path, sync::Arc, thread::sleep, time::Duration};
+use std::{ffi::OsStr, sync::Arc, thread::sleep, time::Duration};
 
 use clap::ValueEnum;
 use eyre::{Result, eyre};
 use headless_chrome::{Browser, LaunchOptionsBuilder, Tab};
 use serde::{Deserialize, Serialize};
-use tokio::fs;
 
 use crate::{
     devices::ViewportConfig,
-    measure::{MEASUREMENT_SCRIPT, MeasureResult, PALETTE_SCRIPT, TOKENS_SCRIPT, parse_measurements},
+    measure::{
+        MEASUREMENT_SCRIPT, MeasureResult, PALETTE_SCRIPT, TOKENS_SCRIPT, parse_measurements,
+    },
     output::PaletteEntry,
 };
 
@@ -275,9 +276,7 @@ impl BrowserSession {
     }
 
     /// Inject token extraction script and return resolved CSS custom property values
-    pub async fn inject_tokens(
-        &mut self,
-    ) -> Result<std::collections::HashMap<String, String>> {
+    pub async fn inject_tokens(&mut self) -> Result<std::collections::HashMap<String, String>> {
         let script = format!("JSON.stringify({TOKENS_SCRIPT})");
 
         let result = self
@@ -387,13 +386,12 @@ impl BrowserSession {
         Ok(())
     }
 
-    /// Capture screenshot
+    /// Capture screenshot and return the PNG bytes
     pub async fn capture_screenshot(
         &mut self,
         options: &CaptureOptions,
-        path: &Path,
         viewport: &ViewportConfig,
-    ) -> Result<()> {
+    ) -> Result<Vec<u8>> {
         let screenshot_data = if let Some(selector) = &options.selector {
             // Element-specific screenshot
             let element = self
@@ -455,7 +453,8 @@ impl BrowserSession {
             sleep(Duration::from_millis(100));
 
             // Capture the full page
-            let data = self.tab
+            let data = self
+                .tab
                 .capture_screenshot(
                     headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
                     None,
@@ -485,7 +484,9 @@ impl BrowserSession {
                         device_posture: None,
                     },
                 )
-                .map_err(|error| eyre!("Failed to restore viewport after full page capture: {error}"))?;
+                .map_err(|error| {
+                    eyre!("Failed to restore viewport after full page capture: {error}")
+                })?;
 
             data
         } else {
@@ -500,12 +501,7 @@ impl BrowserSession {
                 .map_err(|error| eyre!("Failed to capture viewport screenshot: {error}"))?
         };
 
-        if let Some(dir) = path.parent() {
-            fs::create_dir_all(dir).await?;
-        }
-        fs::write(path, screenshot_data).await?;
-
-        Ok(())
+        Ok(screenshot_data)
     }
 
     /// Close the browser session cleanly

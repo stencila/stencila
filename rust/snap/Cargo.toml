@@ -15,7 +15,6 @@ serde_with = { workspace = true }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-format = { path = "../format" }
 stencila-dirs = { path = "../dirs" }
-stencila-server = { path = "../server" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 

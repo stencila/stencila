@@ -17,16 +17,19 @@ mod measure;
 pub mod output;
 mod server;
 
+pub use browser::{ColorScheme, WaitConfig, WaitUntil};
+pub use devices::{DevicePreset, ViewportConfig};
+pub use measure::MeasurePreset;
+
 use std::{collections::HashMap, path::PathBuf, time::Instant};
 
 use assertions::{Assertion, AssertionResults};
-use browser::{BrowserSession, CaptureOptions, ColorScheme, WaitConfig};
-use devices::{DevicePreset, ViewportConfig};
-use measure::{MeasurePreset, selectors_for_preset};
+use browser::{BrowserSession, CaptureOptions};
+use measure::selectors_for_preset;
 
 /// Whether and how to measure
 #[derive(Debug)]
-enum MeasureMode {
+pub enum MeasureMode {
     /// No measurement
     Off,
     /// Auto-select preset based on target type
@@ -47,55 +50,55 @@ enum ResolvedTarget {
 
 /// Options for the snap operation
 #[derive(Debug)]
-struct SnapOptions {
+pub struct SnapOptions {
     /// Route or path (unified positional arg). Defaults to "/" when None.
-    route_or_path: Option<String>,
+    pub route_or_path: Option<String>,
 
     /// Override URL (instead of discovering server)
-    url: Option<String>,
+    pub url: Option<String>,
 
-    /// Output screenshot path (.png)
-    shot: Option<PathBuf>,
+    /// Whether to capture a screenshot and return the PNG bytes in the output
+    pub screenshot: bool,
 
     /// CSS selector to capture or measure
-    selector: Option<String>,
+    pub selector: Option<String>,
 
     /// Capture full scrollable page
-    full_page: bool,
+    pub full_page: bool,
 
     /// Single device preset
-    device: Option<DevicePreset>,
+    pub device: Option<DevicePreset>,
 
     /// Multiple device presets for batch mode
-    devices: Option<Vec<DevicePreset>>,
+    pub devices: Option<Vec<DevicePreset>>,
 
     /// Custom viewport configuration
-    viewport: Option<ViewportConfig>,
+    pub viewport: Option<ViewportConfig>,
 
     /// Color scheme override
-    color_scheme: Option<ColorScheme>,
+    pub color_scheme: Option<ColorScheme>,
 
     /// Emulate print media
-    print_media: bool,
+    pub print_media: bool,
 
     /// Wait configuration
-    wait_config: WaitConfig,
+    pub wait_config: WaitConfig,
 
     /// Measurement mode
-    measure: MeasureMode,
+    pub measure: MeasureMode,
 
     /// Extract resolved CSS custom property values
-    tokens: bool,
+    pub tokens: bool,
 
     /// Extract the page's color palette
-    palette: bool,
+    pub palette: bool,
 
     /// Assertions to evaluate
-    assertions: Vec<String>,
+    pub assertions: Vec<String>,
 }
 
 /// Main entry point for snap operation
-async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
+pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     let start = Instant::now();
 
     // Resolve the target: route or file path
@@ -112,19 +115,17 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     };
 
     // Discover server and resolve URL
-    let (url, server_handle) = if let Some(url) = options.url {
-        (url, None)
+    let url = if let Some(url) = options.url {
+        url
     } else {
         match &target {
             ResolvedTarget::Route(route) => {
                 let server = ServerInfo::discover(None, true).await?;
-                let url = server.info.resolve_route(route);
-                (url, Some(server))
+                server.resolve_route(route)
             }
             ResolvedTarget::Path(path) => {
                 let server = ServerInfo::discover(Some(path), false).await?;
-                let url = server.info.resolve_url(Some(path.clone()))?;
-                (url, Some(server))
+                server.resolve_url(Some(path.clone()))?
             }
         }
     };
@@ -151,23 +152,11 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         .navigate_and_wait(&url, &options.wait_config, options.print_media)
         .await?;
 
-    // Resolve effective measure mode (auto → concrete preset, assertions → implicit)
-    let effective_measure = match &options.measure {
-        MeasureMode::Off if !options.assertions.is_empty() => {
-            // Assertions implicitly enable measurement with auto preset
-            MeasureMode::Auto
-        }
-        other => match other {
-            MeasureMode::Auto => MeasureMode::Auto,
-            MeasureMode::Preset(p) => MeasureMode::Preset(*p),
-            MeasureMode::Off => MeasureMode::Off,
-        },
-    };
-
-    // Resolve auto to a concrete preset based on target type
-    let resolved_preset = match &effective_measure {
-        MeasureMode::Off => None,
-        MeasureMode::Auto => Some(match &target {
+    // Resolve measure mode to a concrete preset.
+    // Assertions implicitly enable measurement when mode is Off.
+    let resolved_preset = match &options.measure {
+        MeasureMode::Off if options.assertions.is_empty() => None,
+        MeasureMode::Off | MeasureMode::Auto => Some(match &target {
             ResolvedTarget::Route(_) => MeasurePreset::Site,
             ResolvedTarget::Path(_) => MeasurePreset::Document,
         }),
@@ -222,16 +211,16 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         AssertionResults::default()
     };
 
-    // Capture screenshot (if --shot specified)
-    if let Some(shot_path) = &options.shot {
+    // Capture screenshot bytes (if requested)
+    let screenshot_bytes = if options.screenshot {
         let capture_opts = CaptureOptions {
             full_page: options.full_page,
             selector: options.selector.clone(),
         };
-        browser
-            .capture_screenshot(&capture_opts, shot_path, &viewport)
-            .await?;
-    }
+        Some(browser.capture_screenshot(&capture_opts, &viewport).await?)
+    } else {
+        None
+    };
 
     // Multi-device batch (if --devices specified)
     let devices_result = if let Some(device_presets) = &options.devices {
@@ -257,31 +246,17 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                 None
             };
 
-            // Screenshot if --shot specified, append device name
-            let device_screenshot = if let Some(shot_path) = &options.shot {
-                let stem = shot_path
-                    .file_stem()
-                    .and_then(|s| s.to_str())
-                    .unwrap_or("snap");
-                let ext = shot_path
-                    .extension()
-                    .and_then(|s| s.to_str())
-                    .unwrap_or("png");
-                let device_name = format!("{device:?}").to_lowercase();
-                let device_path = shot_path
-                    .parent()
-                    .unwrap_or(std::path::Path::new("."))
-                    .join(format!("{stem}-{device_name}.{ext}"));
-
+            // Capture device screenshot bytes (if requested)
+            let device_screenshot = if options.screenshot {
                 let capture_opts = CaptureOptions {
                     full_page: options.full_page,
                     selector: options.selector.clone(),
                 };
-                browser
-                    .capture_screenshot(&capture_opts, &device_path, &device_viewport)
-                    .await?;
-
-                Some(device_path)
+                Some(
+                    browser
+                        .capture_screenshot(&capture_opts, &device_viewport)
+                        .await?,
+                )
             } else {
                 None
             };
@@ -309,13 +284,6 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     let elapsed = start.elapsed();
     let ok = assertion_results.passed;
 
-    // Gracefully shutdown the server
-    if let Some(server) = server_handle
-        && server.is_in_process()
-    {
-        server.shutdown().await?;
-    }
-
     Ok(SnapOutput {
         ok,
         url,
@@ -327,6 +295,7 @@ async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         tokens,
         palette,
         assertions: assertion_results,
+        screenshot: screenshot_bytes,
         devices: devices_result,
         timings: Timings {
             total_ms: elapsed.as_millis() as u64,

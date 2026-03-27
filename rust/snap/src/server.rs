@@ -1,20 +1,35 @@
 //! Server discovery and URL resolution
+//!
+//! This module discovers running Stencila servers by reading their info files
+//! from disk. It does not depend on `stencila-server` — the server mode field
+//! is a plain string matched against well-known values. This avoids a cyclic
+//! dependency (snap → server → attractor → agents → snap) and allows the
+//! `stencila-agents` crate to use snap as a library.
+//!
+//! If no running server is found, `discover()` returns an error asking the
+//! user to start one. The server crate serializes `ServerMode` with serde's
+//! default enum representation, so the values on the wire are
+//! `"DocumentPreview"` and `"SitePreview"`.
 
 use std::{
-    env::current_dir,
     fs,
     path::{Path, PathBuf},
-    time::Duration,
 };
 
-use eyre::{OptionExt, Result, bail, eyre};
+use eyre::{Result, bail};
 use serde::{Deserialize, Serialize};
-use tokio::sync::oneshot;
 
 use stencila_dirs::{DirType, get_app_dir};
-use stencila_server::ServerMode;
+
+/// Well-known server mode value for site preview servers
+const MODE_SITE_PREVIEW: &str = "SitePreview";
+/// Well-known server mode value for document preview servers
+const MODE_DOCUMENT_PREVIEW: &str = "DocumentPreview";
 
 /// Server runtime information (matches rust/server/src/server.rs)
+///
+/// The `mode` field is a plain string to avoid importing from `stencila-server`.
+/// See the module-level docs for the rationale.
 #[derive(Debug, Serialize, Deserialize, Clone)]
 pub struct ServerInfo {
     /// Process ID of the server
@@ -32,114 +47,30 @@ pub struct ServerInfo {
     /// Unix timestamp when server started
     pub started_at: u64,
 
-    /// The mode the server is running in
+    /// The mode the server is running in (e.g. "DocumentPreview", "SitePreview")
     #[serde(default)]
-    pub mode: ServerMode,
-}
-
-/// Handle to a running server with shutdown control
-pub struct ServerHandle {
-    /// Server runtime information
-    pub info: ServerInfo,
-
-    /// Sender to trigger graceful shutdown (None for existing servers)
-    shutdown_sender: Option<oneshot::Sender<()>>,
-
-    /// Handle to the server task (None for existing servers)
-    task_handle: Option<tokio::task::JoinHandle<Result<()>>>,
-}
-
-impl ServerHandle {
-    /// Create a handle for a newly started server
-    fn new(
-        info: ServerInfo,
-        shutdown_tx: oneshot::Sender<()>,
-        task_handle: tokio::task::JoinHandle<Result<()>>,
-    ) -> Self {
-        Self {
-            info,
-            shutdown_sender: Some(shutdown_tx),
-            task_handle: Some(task_handle),
-        }
-    }
-
-    /// Create a handle for an existing server (discovered, not started by us)
-    fn for_existing(info: ServerInfo) -> Self {
-        Self {
-            info,
-            shutdown_sender: None,
-            task_handle: None,
-        }
-    }
-
-    /// Whether the server was started by this process
-    pub fn is_in_process(&self) -> bool {
-        self.shutdown_sender.is_some()
-    }
-
-    /// Trigger graceful shutdown and wait for completion
-    ///
-    /// Returns Ok(()) if shutdown was successful, or an error if:
-    /// - This is a handle to an existing server (not started by us)
-    /// - The shutdown signal couldn't be sent
-    /// - The server task failed
-    pub async fn shutdown(mut self) -> Result<()> {
-        let shutdown_sender = self
-            .shutdown_sender
-            .take()
-            .ok_or_eyre("Cannot shutdown existing server (not started by this handle)")?;
-
-        let task_handle = self
-            .task_handle
-            .take()
-            .ok_or_eyre("No task handle available")?;
-
-        // Send shutdown signal
-        shutdown_sender
-            .send(())
-            .map_err(|_| eyre!("Failed to send shutdown signal"))?;
-
-        // Wait for server to finish
-        task_handle.await??;
-
-        Ok(())
-    }
-}
-
-impl Drop for ServerHandle {
-    fn drop(&mut self) {
-        // Send shutdown signal when handle is dropped
-        // Note: We don't wait for completion here as Drop can't be async
-        if let Some(shutdown_tx) = self.shutdown_sender.take() {
-            let _ = shutdown_tx.send(());
-        }
-    }
+    pub mode: String,
 }
 
 impl ServerInfo {
-    /// Discover an active server for the given path, starting one if none exists
+    /// Discover an active server for the given path
     ///
     /// When `prefer_site` is true, site preview servers are preferred over
     /// document servers (and vice versa). Falls back to any available server
     /// if the preferred type is not found.
+    ///
+    /// Returns an error if no running server is found — callers should ensure
+    /// a server is running (e.g. via `stencila serve` or `stencila site preview`)
+    /// before invoking snap.
     #[tracing::instrument]
-    pub async fn discover(path: Option<&Path>, prefer_site: bool) -> Result<ServerHandle> {
-        // Try to find an existing server
-        if let Ok(server_info) = Self::find_existing(path, prefer_site) {
-            return Ok(ServerHandle::for_existing(server_info));
-        }
-
-        // No suitable server found, start a new one
-        Self::start_new(path).await
-    }
-
-    /// Find an existing running server
-    #[tracing::instrument]
-    fn find_existing(path: Option<&Path>, prefer_site: bool) -> Result<Self> {
+    pub async fn discover(path: Option<&Path>, prefer_site: bool) -> Result<Self> {
         let servers_dir = get_app_dir(DirType::Servers, false)?;
 
         if !servers_dir.exists() {
-            bail!("No running servers found (no servers directory)");
+            bail!(
+                "No running Stencila server found (no servers directory). \
+                 Start one with `stencila serve` or `stencila site preview`."
+            );
         }
 
         // Read all server info files
@@ -166,7 +97,10 @@ impl ServerInfo {
         }
 
         if servers.is_empty() {
-            bail!("No running servers found");
+            bail!(
+                "No running Stencila server found. \
+                 Start one with `stencila serve` or `stencila site preview`."
+            );
         }
 
         // Filter by directory if path provided
@@ -184,9 +118,9 @@ impl ServerInfo {
 
         // Sort by preference: preferred mode first, then most recent
         let preferred_mode = if prefer_site {
-            ServerMode::SitePreview
+            MODE_SITE_PREVIEW
         } else {
-            ServerMode::DocumentPreview
+            MODE_DOCUMENT_PREVIEW
         };
         servers.sort_by(|a, b| {
             let a_preferred = a.mode == preferred_mode;
@@ -197,70 +131,6 @@ impl ServerInfo {
         });
 
         Ok(servers[0].clone())
-    }
-
-    /// Start a new server in the background
-    #[tracing::instrument]
-    async fn start_new(path: Option<&Path>) -> Result<ServerHandle> {
-        use stencila_server::{ServeOptions, get_server_token};
-
-        // Determine the directory to serve
-        let dir = if let Some(path) = path {
-            let path = path.canonicalize()?;
-            if path.is_dir() {
-                path
-            } else {
-                path.parent()
-                    .ok_or_eyre("File has no parent")?
-                    .to_path_buf()
-            }
-        } else {
-            current_dir()?
-        };
-
-        // Get (or generate) an access token
-        let server_token = get_server_token();
-
-        tracing::debug!("Starting server in dir: {}", dir.display());
-
-        // Create shutdown channel for graceful shutdown control
-        let (shutdown_sender, shutdown_receiver) = oneshot::channel();
-
-        // Spawn server in background
-        let options = ServeOptions {
-            dir,
-            server_token: Some(server_token.clone()),
-            no_startup_message: true,
-            shutdown_receiver: Some(shutdown_receiver),
-            ..Default::default()
-        };
-        let task_handle = tokio::spawn(async move {
-            if let Err(error) = stencila_server::serve(options).await {
-                tracing::error!("Background server failed: {error}");
-                return Err(error);
-            }
-            Ok(())
-        });
-
-        // Wait for server info file to be written
-        let timeout = Duration::from_secs(10);
-        let start = std::time::Instant::now();
-
-        let info = loop {
-            if start.elapsed() > timeout {
-                bail!("Timeout waiting for server to start");
-            }
-
-            // Try to find the newly started server
-            if let Ok(server) = Self::find_existing(path, false) {
-                break server;
-            }
-
-            // Wait a bit before retrying
-            tokio::time::sleep(Duration::from_millis(100)).await;
-        };
-
-        Ok(ServerHandle::new(info, shutdown_sender, task_handle))
     }
 
     /// Resolve a file path to a URL with authentication
@@ -335,7 +205,6 @@ fn is_process_running(pid: u32) -> bool {
 fn is_process_running(pid: u32) -> bool {
     use std::process::Command;
 
-    // Use tasklist to check if process exists
     Command::new("tasklist")
         .args(&["/FI", &format!("PID eq {}", pid), "/NH"])
         .output()
@@ -349,7 +218,6 @@ fn is_process_running(pid: u32) -> bool {
 /// Fallback for other platforms
 #[cfg(not(any(target_family = "unix", target_family = "windows")))]
 fn is_process_running(_pid: u32) -> bool {
-    // Conservative approach: assume process might be running
     true
 }
 
@@ -375,7 +243,7 @@ mod tests {
             token: Some("sst_testtoken".to_string()),
             directory: PathBuf::from("/tmp/test"),
             started_at: 0,
-            mode: ServerMode::SitePreview,
+            mode: MODE_SITE_PREVIEW.to_string(),
         };
 
         assert_eq!(
@@ -401,22 +269,23 @@ mod tests {
 
     #[test]
     fn test_server_mode_serde() {
-        // Test that ServerMode deserializes with default when missing
+        // Test that mode defaults to empty string when missing from JSON
         let json = r#"{"pid":1,"port":9000,"token":null,"directory":"/tmp","started_at":0}"#;
-        let info: ServerInfo = serde_json::from_str(json).unwrap();
-        assert_eq!(info.mode, ServerMode::DocumentPreview);
+        let info: ServerInfo = serde_json::from_str(json).expect("should parse without mode");
+        assert_eq!(info.mode, "");
 
-        // Test round-trip
+        // Test round-trip with explicit mode
         let json_with_mode = serde_json::to_string(&ServerInfo {
             pid: 1,
             port: 9000,
             token: None,
             directory: PathBuf::from("/tmp"),
             started_at: 0,
-            mode: ServerMode::SitePreview,
+            mode: MODE_SITE_PREVIEW.to_string(),
         })
-        .unwrap();
-        let info: ServerInfo = serde_json::from_str(&json_with_mode).unwrap();
-        assert_eq!(info.mode, ServerMode::SitePreview);
+        .expect("should serialize");
+        let info: ServerInfo =
+            serde_json::from_str(&json_with_mode).expect("should parse with mode");
+        assert_eq!(info.mode, MODE_SITE_PREVIEW);
     }
 }
