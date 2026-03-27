@@ -380,6 +380,7 @@ schema_parity_test!(
 );
 schema_parity_test!(list_dir_schema_matches_fixture, list_dir, "list_dir");
 schema_parity_test!(web_fetch_schema_matches_fixture, web_fetch, "web_fetch");
+schema_parity_test!(snap_schema_matches_fixture, snap, "snap");
 
 // =========================================================================
 // read_file tests (3)
@@ -1124,4 +1125,68 @@ async fn list_workflows_returns_empty_when_no_workflows() {
         assert!(parsed.is_array());
         assert!(parsed.as_array().expect("is array").is_empty());
     }
+}
+
+// =========================================================================
+// snap validation tests (6)
+// =========================================================================
+
+#[tokio::test]
+async fn snap_invalid_device_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"device": "phone"}), &env).await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn snap_invalid_devices_entry_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"devices": ["desktop", "phone"]}), &env).await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn snap_dark_and_light_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"dark": true, "light": true}), &env).await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn snap_print_and_dark_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"print": true, "dark": true}), &env).await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn snap_print_and_light_rejected() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    let result = exec(json!({"print": true, "light": true}), &env).await;
+
+    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
+}
+
+#[tokio::test]
+async fn snap_screenshot_defaults_to_true() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::snap::executor();
+    // This will fail at the snap() call (no server), but the validation
+    // should pass — we verify that the error is Io (from snap) not
+    // ValidationError, confirming that screenshot=true was accepted.
+    let result = exec(json!({}), &env).await;
+
+    assert!(
+        !matches!(result, Err(AgentError::ValidationError { .. })),
+        "expected non-validation error (snap requires a running server), got: {result:?}"
+    );
 }

@@ -1,0 +1,94 @@
+{
+  "name": "snap",
+  "description": "Capture a screenshot and/or collect measurements of a page served by Stencila. Returns JSON measurement data as text and, when screenshot is enabled, the PNG image for visual inspection.",
+  "parameters": {
+    "type": "object",
+    "properties": {
+      "route": {
+        "type": "string",
+        "description": "Route on the running Stencila server (e.g. \"/\" or \"/docs/guide/\"). Defaults to \"/\"."
+      },
+      "screenshot": {
+        "type": "boolean",
+        "description": "Whether to capture a screenshot. Defaults to true.",
+        "default": true
+      },
+      "selector": {
+        "type": "string",
+        "description": "CSS selector to capture or measure a specific element."
+      },
+      "full_page": {
+        "type": "boolean",
+        "description": "Capture the full scrollable page instead of just the viewport.",
+        "default": false
+      },
+      "device": {
+        "type": "string",
+        "description": "Device preset for viewport dimensions.",
+        "enum": ["laptop", "desktop", "mobile", "tablet", "tablet-landscape"]
+      },
+      "devices": {
+        "type": "array",
+        "items": {
+          "type": "string",
+          "enum": ["laptop", "desktop", "mobile", "tablet", "tablet-landscape"]
+        },
+        "description": "Multiple device presets for batch measurement."
+      },
+      "width": {
+        "type": "integer",
+        "description": "Custom viewport width in pixels."
+      },
+      "height": {
+        "type": "integer",
+        "description": "Custom viewport height in pixels."
+      },
+      "dark": {
+        "type": "boolean",
+        "description": "Force dark color scheme. Mutually exclusive with 'light' and 'print'.",
+        "default": false
+      },
+      "light": {
+        "type": "boolean",
+        "description": "Force light color scheme. Mutually exclusive with 'dark' and 'print'.",
+        "default": false
+      },
+      "print": {
+        "type": "boolean",
+        "description": "Emulate print media (A4 dimensions). Incompatible with 'dark' and 'light'.",
+        "default": false
+      },
+      "measure": {
+        "type": "string",
+        "description": "Measurement preset determining which selectors to measure.",
+        "enum": ["auto", "document", "site", "all"]
+      },
+      "tokens": {
+        "type": "boolean",
+        "description": "Extract resolved CSS custom property (theme token) values.",
+        "default": false
+      },
+      "palette": {
+        "type": "boolean",
+        "description": "Extract the page's color palette.",
+        "default": false
+      },
+      "assert": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Assertion expressions to evaluate (e.g. \"css(.title).fontSize>=28px\")."
+      },
+      "wait_for": {
+        "type": "string",
+        "description": "Wait for a CSS selector to exist before capturing."
+      },
+      "delay": {
+        "type": "integer",
+        "description": "Additional delay in milliseconds after page is ready."
+      }
+    },
+    "additionalProperties": false
+  }
+}

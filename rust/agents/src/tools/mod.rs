@@ -17,6 +17,7 @@ pub mod list_workflows;
 pub mod read_file;
 pub mod read_many_files;
 pub mod shell;
+pub mod snap;
 pub mod web_fetch;
 pub mod write_file;
 
