@@ -84,12 +84,12 @@ fn openai_profile_tool_names() -> AgentResult<()> {
         names,
         vec![
             "read_file",
-            "apply_patch",
             "write_file",
             "shell",
             "grep",
             "glob",
-            "web_fetch"
+            "web_fetch",
+            "apply_patch",
         ]
     );
     Ok(())
@@ -113,12 +113,12 @@ fn openai_profile_tools_returns_definitions() -> AgentResult<()> {
         tool_names,
         vec![
             "read_file",
-            "apply_patch",
             "write_file",
             "shell",
             "grep",
             "glob",
-            "web_fetch"
+            "web_fetch",
+            "apply_patch",
         ]
     );
     Ok(())
@@ -159,11 +159,11 @@ fn anthropic_profile_tool_names() -> AgentResult<()> {
         vec![
             "read_file",
             "write_file",
-            "edit_file",
             "shell",
             "grep",
             "glob",
-            "web_fetch"
+            "web_fetch",
+            "edit_file",
         ]
     );
     Ok(())
@@ -211,14 +211,14 @@ fn gemini_profile_tool_names() -> AgentResult<()> {
         names,
         vec![
             "read_file",
-            "read_many_files",
             "write_file",
-            "edit_file",
             "shell",
             "grep",
             "glob",
+            "web_fetch",
+            "edit_file",
+            "read_many_files",
             "list_dir",
-            "web_fetch"
         ]
     );
     Ok(())

@@ -965,13 +965,29 @@ async fn list_dir_not_found() {
 }
 
 // =========================================================================
-// Registration tests (2)
+// Registration tests
 // =========================================================================
 
 #[test]
-fn register_core_tools_adds_seven() -> AgentResult<()> {
+fn register_base_tools_adds_six() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
-    tools::register_core_tools(&mut registry)?;
+    tools::register_base_tools(&mut registry, 10_000, 600_000)?;
+
+    assert_eq!(registry.len(), 6);
+    let names = registry.names();
+    assert!(names.contains(&"read_file"));
+    assert!(names.contains(&"write_file"));
+    assert!(names.contains(&"shell"));
+    assert!(names.contains(&"grep"));
+    assert!(names.contains(&"glob"));
+    assert!(names.contains(&"web_fetch"));
+    Ok(())
+}
+
+#[test]
+fn register_anthropic_tools_adds_seven() -> AgentResult<()> {
+    let mut registry = ToolRegistry::new();
+    tools::register_anthropic_tools(&mut registry, 120_000, 600_000)?;
 
     assert_eq!(registry.len(), 7);
     let names = registry.names();
@@ -986,7 +1002,57 @@ fn register_core_tools_adds_seven() -> AgentResult<()> {
 }
 
 #[test]
-fn register_delegation_tools_adds_four() -> AgentResult<()> {
+fn register_openai_tools_adds_seven() -> AgentResult<()> {
+    let mut registry = ToolRegistry::new();
+    tools::register_openai_tools(&mut registry, 10_000, 600_000)?;
+
+    assert_eq!(registry.len(), 7);
+    let names = registry.names();
+    assert!(names.contains(&"read_file"));
+    assert!(names.contains(&"write_file"));
+    assert!(names.contains(&"apply_patch"));
+    assert!(names.contains(&"shell"));
+    assert!(names.contains(&"grep"));
+    assert!(names.contains(&"glob"));
+    assert!(names.contains(&"web_fetch"));
+    // edit_file should NOT be present for OpenAI
+    assert!(!names.contains(&"edit_file"));
+    Ok(())
+}
+
+#[test]
+fn register_gemini_tools_adds_nine() -> AgentResult<()> {
+    let mut registry = ToolRegistry::new();
+    tools::register_gemini_tools(&mut registry, 10_000, 600_000)?;
+
+    assert_eq!(registry.len(), 9);
+    let names = registry.names();
+    assert!(names.contains(&"read_file"));
+    assert!(names.contains(&"write_file"));
+    assert!(names.contains(&"edit_file"));
+    assert!(names.contains(&"shell"));
+    assert!(names.contains(&"grep"));
+    assert!(names.contains(&"glob"));
+    assert!(names.contains(&"web_fetch"));
+    assert!(names.contains(&"read_many_files"));
+    assert!(names.contains(&"list_dir"));
+    Ok(())
+}
+
+#[test]
+fn register_default_tools_matches_anthropic() -> AgentResult<()> {
+    let mut anthropic = ToolRegistry::new();
+    tools::register_anthropic_tools(&mut anthropic, 10_000, 600_000)?;
+
+    let mut default = ToolRegistry::new();
+    tools::register_default_tools(&mut default, 10_000, 600_000)?;
+
+    assert_eq!(anthropic.names(), default.names());
+    Ok(())
+}
+
+#[test]
+fn register_delegation_tools_adds_three() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_delegation_tools(&mut registry)?;
 
@@ -999,14 +1065,12 @@ fn register_delegation_tools_adds_four() -> AgentResult<()> {
 }
 
 #[test]
-fn register_gemini_tools_adds_two_more() -> AgentResult<()> {
+fn register_optional_tools_adds_snap() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
-    tools::register_core_tools(&mut registry)?;
-    tools::register_gemini_tools(&mut registry)?;
+    tools::register_optional_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 9);
-    assert!(registry.names().contains(&"read_many_files"));
-    assert!(registry.names().contains(&"list_dir"));
+    assert_eq!(registry.len(), 1);
+    assert!(registry.names().contains(&"snap"));
     Ok(())
 }
 

@@ -1,9 +1,11 @@
-//! Core tool implementations (spec 3.3, 3.6, Appendix A).
+//! Tool implementations and registration functions.
 //!
 //! Each submodule exposes `definition() -> ToolDefinition` and
 //! `executor() -> ToolExecutorFn`. Registration functions group tools
-//! into the shared core set, Gemini-specific extensions, and
-//! OpenAI-specific extensions.
+//! into provider-specific sets (`register_anthropic_tools`,
+//! `register_openai_tools`, `register_gemini_tools`,
+//! `register_default_tools`), optional tools (`register_optional_tools`),
+//! and delegation tools (`register_delegation_tools`).
 
 pub mod apply_patch;
 pub mod ask_user;
@@ -86,20 +88,99 @@ pub async fn build_pre_run_tool_context(
     lines.join("\n")
 }
 
-/// Register the shared core tools (spec 3.3).
+/// Register the base tools shared by every provider profile.
 ///
-/// These tools are common to all provider profiles:
-/// `read_file`, `write_file`, `edit_file`, `shell`, `grep`, `glob`, `web_fetch`.
-pub fn register_core_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
+/// These 6 tools appear in every profile's tool set: `read_file`,
+/// `write_file`, `shell`, `grep`, `glob`, `web_fetch`. The editing tool
+/// (`edit_file` vs `apply_patch`) differs by provider and is registered
+/// by the provider-specific function.
+///
+/// `default_shell_timeout_ms` and `max_shell_timeout_ms` configure the
+/// shell tool's per-call timeout and hard ceiling respectively.
+pub fn register_base_tools(
+    registry: &mut ToolRegistry,
+    default_shell_timeout_ms: u64,
+    max_shell_timeout_ms: u64,
+) -> AgentResult<()> {
     registry.register_all(vec![
         RegisteredTool::new(read_file::definition(), read_file::executor()),
         RegisteredTool::new(write_file::definition(), write_file::executor()),
-        RegisteredTool::new(edit_file::definition(), edit_file::executor()),
-        RegisteredTool::new(shell::definition(), shell::executor()),
+        RegisteredTool::new(
+            shell::definition(),
+            shell::executor_with_timeout(default_shell_timeout_ms, max_shell_timeout_ms),
+        ),
         RegisteredTool::new(grep::definition(), grep::executor()),
         RegisteredTool::new(glob::definition(), glob::executor()),
         RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
     ])
+}
+
+/// Register the Anthropic tool set (spec 3.5): base + `edit_file`.
+pub fn register_anthropic_tools(
+    registry: &mut ToolRegistry,
+    default_shell_timeout_ms: u64,
+    max_shell_timeout_ms: u64,
+) -> AgentResult<()> {
+    register_base_tools(registry, default_shell_timeout_ms, max_shell_timeout_ms)?;
+    registry.register(RegisteredTool::new(
+        edit_file::definition(),
+        edit_file::executor(),
+    ))
+}
+
+/// Register the OpenAI tool set (spec 3.4): base + `apply_patch`.
+pub fn register_openai_tools(
+    registry: &mut ToolRegistry,
+    default_shell_timeout_ms: u64,
+    max_shell_timeout_ms: u64,
+) -> AgentResult<()> {
+    register_base_tools(registry, default_shell_timeout_ms, max_shell_timeout_ms)?;
+    registry.register(RegisteredTool::new(
+        apply_patch::definition(),
+        apply_patch::executor(),
+    ))
+}
+
+/// Register the Gemini tool set (spec 3.6): base + `edit_file` +
+/// `read_many_files` + `list_dir`.
+pub fn register_gemini_tools(
+    registry: &mut ToolRegistry,
+    default_shell_timeout_ms: u64,
+    max_shell_timeout_ms: u64,
+) -> AgentResult<()> {
+    register_base_tools(registry, default_shell_timeout_ms, max_shell_timeout_ms)?;
+    registry.register_all(vec![
+        RegisteredTool::new(edit_file::definition(), edit_file::executor()),
+        RegisteredTool::new(read_many_files::definition(), read_many_files::executor()),
+        RegisteredTool::new(list_dir::definition(), list_dir::executor()),
+    ])
+}
+
+/// Register the default tool set: base + `edit_file`.
+///
+/// Used for providers without a dedicated profile. Identical to the
+/// Anthropic set but kept as a separate entry point for clarity.
+pub fn register_default_tools(
+    registry: &mut ToolRegistry,
+    default_shell_timeout_ms: u64,
+    max_shell_timeout_ms: u64,
+) -> AgentResult<()> {
+    register_anthropic_tools(registry, default_shell_timeout_ms, max_shell_timeout_ms)
+}
+
+/// Register optional tools that are not part of any provider's default set.
+///
+/// These tools are available to any agent that lists them in `allowed-tools`
+/// but are not included in the core set for any provider profile. The
+/// `allowed-tools` filter in request building ensures only agents that opt
+/// in will see them.
+///
+/// Currently includes: `snap`.
+pub fn register_optional_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
+    registry.register_all(vec![RegisteredTool::new(
+        snap::definition(),
+        snap::executor(),
+    )])
 }
 
 /// Register the delegation tools: `list_agents`, `list_workflows`, `delegate`.
@@ -113,29 +194,6 @@ pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()>
         RegisteredTool::new(list_workflows::definition(), list_workflows::executor()),
         RegisteredTool::new(delegate::definition(), delegate::executor()),
     ])
-}
-
-/// Register the 2 Gemini-specific tools (spec 3.6).
-///
-/// These tools are added on top of the core set for Gemini profiles:
-/// `read_many_files`, `list_dir`.
-pub fn register_gemini_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    registry.register_all(vec![
-        RegisteredTool::new(read_many_files::definition(), read_many_files::executor()),
-        RegisteredTool::new(list_dir::definition(), list_dir::executor()),
-    ])
-}
-
-/// Register the 1 OpenAI-specific tool (spec Appendix A).
-///
-/// This tool is added on top of the core set for OpenAI profiles:
-/// `apply_patch`.
-pub fn register_openai_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    registry.register(RegisteredTool::new(
-        apply_patch::definition(),
-        apply_patch::executor(),
-    ))?;
-    Ok(())
 }
 
 /// Strip line-number prefixes from `FileContent::Text` output.

@@ -13,8 +13,7 @@ use serde_json::Value;
 
 use crate::error::AgentResult;
 use crate::profile::ProviderProfile;
-use crate::registry::{RegisteredTool, ToolRegistry};
-use crate::tools::{apply_patch, glob, grep, read_file, shell, web_fetch, write_file};
+use crate::registry::ToolRegistry;
 
 /// Default shell timeout for OpenAI: 10 seconds.
 const DEFAULT_SHELL_TIMEOUT_MS: u64 = 10_000;
@@ -88,20 +87,11 @@ impl OpenAiProfile {
     /// Returns an error if tool registration fails (e.g. invalid definition).
     pub fn new(model: impl Into<String>, max_command_timeout_ms: u64) -> AgentResult<Self> {
         let mut registry = ToolRegistry::new();
-
-        // Register tools in the order listed in spec 3.4.
-        registry.register_all(vec![
-            RegisteredTool::new(read_file::definition(), read_file::executor()),
-            RegisteredTool::new(apply_patch::definition(), apply_patch::executor()),
-            RegisteredTool::new(write_file::definition(), write_file::executor()),
-            RegisteredTool::new(
-                shell::definition(),
-                shell::executor_with_timeout(DEFAULT_SHELL_TIMEOUT_MS, max_command_timeout_ms),
-            ),
-            RegisteredTool::new(grep::definition(), grep::executor()),
-            RegisteredTool::new(glob::definition(), glob::executor()),
-            RegisteredTool::new(web_fetch::definition(), web_fetch::executor()),
-        ])?;
+        crate::tools::register_openai_tools(
+            &mut registry,
+            DEFAULT_SHELL_TIMEOUT_MS,
+            max_command_timeout_ms,
+        )?;
 
         Ok(Self {
             model: model.into(),

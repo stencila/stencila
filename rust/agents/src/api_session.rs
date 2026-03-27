@@ -341,6 +341,13 @@ impl ApiSession {
             tracing::warn!("failed to register ask_user tool: {e}");
         }
 
+        // Register optional tools (e.g. snap) so agents that list them in
+        // allowed-tools can use them. The allowed-tools filter in
+        // `build_request` ensures only agents that opt in will see them.
+        if let Err(e) = crate::tools::register_optional_tools(profile.tool_registry_mut()) {
+            tracing::warn!("failed to register optional tools: {e}");
+        }
+
         #[allow(unused_mut)]
         let mut subagent_manager = SubAgentManager::new(
             Arc::clone(&execution_env),

@@ -1439,17 +1439,13 @@ async fn normalization_does_not_over_match_different_quote_styles() {
 // Registration Test
 // =========================================================================
 
-/// NOTE: This test asserts the current OpenAI tool set (core + apply_patch).
-/// When Phase 7a profiles are implemented, the OpenAI profile may replace
-/// `edit_file` with `apply_patch` (spec §3.3 line 586), changing the count.
+/// The OpenAI tool set includes base tools + `apply_patch` (not `edit_file`).
 #[test]
-fn register_openai_tools_adds_one() -> AgentResult<()> {
+fn register_openai_tools_includes_apply_patch() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
-    tools::register_core_tools(&mut registry)?;
-    let before = registry.len();
-    tools::register_openai_tools(&mut registry)?;
+    tools::register_openai_tools(&mut registry, 10_000, 600_000)?;
 
-    assert_eq!(registry.len(), before + 1);
     assert!(registry.names().contains(&"apply_patch"));
+    assert!(!registry.names().contains(&"edit_file"));
     Ok(())
 }
