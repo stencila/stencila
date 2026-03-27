@@ -9211,6 +9211,7 @@ dependencies = [
  "http",
  "http-cache-semantics",
  "ignore",
+ "image",
  "indexmap 2.13.0",
  "jsonschema 0.45.0",
  "libc",

@@ -21,6 +21,7 @@ use std::time::Duration;
 
 use async_trait::async_trait;
 use futures::StreamExt;
+use image::ImageReader;
 use serde_json::Value;
 use stencila_interviews::interviewer::Interviewer;
 use stencila_models3::api::accumulator::StreamAccumulator;
@@ -147,6 +148,24 @@ impl LlmClient for Models3Client {
 struct ImageAttachment {
     data: Vec<u8>,
     media_type: String,
+}
+
+const MAX_IMAGE_DIMENSION: u32 = 8_000;
+
+impl ImageAttachment {
+    fn exceeds_max_dimensions(&self) -> AgentResult<bool> {
+        let format = image::guess_format(&self.data).map_err(|error| AgentError::Io {
+            message: format!("failed to detect image format: {error}"),
+        })?;
+
+        let (width, height) = ImageReader::with_format(std::io::Cursor::new(&self.data), format)
+            .into_dimensions()
+            .map_err(|error| AgentError::Io {
+                message: format!("failed to read image dimensions: {error}"),
+            })?;
+
+        Ok(width > MAX_IMAGE_DIMENSION || height > MAX_IMAGE_DIMENSION)
+    }
 }
 
 /// How images from tool results are injected into the message history.
@@ -2292,7 +2311,25 @@ async fn execute_tool(
             let attachment = match output {
                 ToolOutput::ImageWithText {
                     data, media_type, ..
-                } => Some((tool_call.id.clone(), ImageAttachment { data, media_type })),
+                } => {
+                    let attachment = ImageAttachment { data, media_type };
+                    match attachment.exceeds_max_dimensions() {
+                        Ok(true) => None,
+                        Ok(false) => Some((tool_call.id.clone(), attachment)),
+                        Err(error) => {
+                            let error_msg = error.to_string();
+                            events.emit_tool_call_end_error(&tool_call.id, &error_msg);
+                            return (
+                                ToolResult {
+                                    tool_call_id: tool_call.id.clone(),
+                                    content: Value::String(error_msg),
+                                    is_error: true,
+                                },
+                                None,
+                            );
+                        }
+                    }
+                }
                 ToolOutput::Text(_) => None,
             };
 
@@ -2654,6 +2691,56 @@ mod guard_wiring_tests {
             }
             _ => panic!("expected ImageWithText variant"),
         }
+    }
+
+    #[test]
+    fn image_attachment_accepts_small_png_dimensions() -> AgentResult<()> {
+        let png = {
+            use image::{ColorType, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
+
+            let mut bytes = Vec::new();
+            let image =
+                ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(8_000, 8_000, Rgb([255, 255, 255]));
+            PngEncoder::new(&mut bytes)
+                .write_image(image.as_raw(), 8_000, 8_000, ColorType::Rgb8.into())
+                .map_err(|error| AgentError::Io {
+                    message: format!("failed to encode test png: {error}"),
+                })?;
+            bytes
+        };
+
+        let attachment = ImageAttachment {
+            data: png,
+            media_type: "image/png".into(),
+        };
+
+        assert!(!attachment.exceeds_max_dimensions()?);
+        Ok(())
+    }
+
+    #[test]
+    fn image_attachment_rejects_large_png_dimensions() -> AgentResult<()> {
+        let png = {
+            use image::{ColorType, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
+
+            let mut bytes = Vec::new();
+            let image =
+                ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(8_001, 8_000, Rgb([255, 255, 255]));
+            PngEncoder::new(&mut bytes)
+                .write_image(image.as_raw(), 8_001, 8_000, ColorType::Rgb8.into())
+                .map_err(|error| AgentError::Io {
+                    message: format!("failed to encode test png: {error}"),
+                })?;
+            bytes
+        };
+
+        let attachment = ImageAttachment {
+            data: png,
+            media_type: "image/png".into(),
+        };
+
+        assert!(attachment.exceeds_max_dimensions()?);
+        Ok(())
     }
 
     #[test]

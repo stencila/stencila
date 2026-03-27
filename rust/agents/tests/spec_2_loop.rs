@@ -107,6 +107,20 @@ impl MockExecEnv {
         self.image_mode = true;
         self
     }
+
+    fn png_bytes(width: u32, height: u32) -> AgentResult<Vec<u8>> {
+        use image::{ColorType, ImageBuffer, ImageEncoder, Rgb, codecs::png::PngEncoder};
+
+        let mut bytes = Vec::new();
+        let image = ImageBuffer::<Rgb<u8>, Vec<u8>>::from_pixel(width, height, Rgb([255, 255, 255]));
+        PngEncoder::new(&mut bytes)
+            .write_image(image.as_raw(), width, height, ColorType::Rgb8.into())
+            .map_err(|error| AgentError::Io {
+                message: format!("failed to encode test png: {error}"),
+            })?;
+
+        Ok(bytes)
+    }
 }
 
 #[async_trait]
@@ -119,7 +133,7 @@ impl ExecutionEnvironment for MockExecEnv {
     ) -> AgentResult<FileContent> {
         if self.image_mode {
             Ok(FileContent::Image {
-                data: vec![0x89, 0x50, 0x4E, 0x47],
+                data: Self::png_bytes(1, 1)?,
                 media_type: "image/png".into(),
             })
         } else {

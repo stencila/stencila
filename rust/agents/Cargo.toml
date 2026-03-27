@@ -20,6 +20,7 @@ glob = { workspace = true }
 http = { workspace = true }
 http-cache-semantics = { workspace = true }
 ignore = { workspace = true }
+image = { workspace = true }
 indexmap = { workspace = true }
 jsonschema = { workspace = true }
 regex = { workspace = true }
