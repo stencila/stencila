@@ -1,6 +1,6 @@
 //! Output structures for snap results
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -49,7 +49,7 @@ pub struct SnapOutput {
     pub measure: Option<MeasureResult>,
 
     /// Resolved CSS custom property (token) values (if `--tokens` used)
-    pub tokens: Option<HashMap<String, String>>,
+    pub tokens: Option<BTreeMap<String, String>>,
 
     /// Color palette extracted from the page (if `--palette` used)
     pub palette: Option<Vec<PaletteEntry>>,
@@ -66,7 +66,7 @@ pub struct SnapOutput {
     pub screenshot_resize: Option<ScreenshotResize>,
 
     /// Per-device results when `--devices` is used
-    pub devices: Option<HashMap<String, DeviceSnapResult>>,
+    pub devices: Option<BTreeMap<String, DeviceSnapResult>>,
 
     /// Timing information
     pub timings: Timings,

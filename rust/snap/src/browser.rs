@@ -1,6 +1,6 @@
 //! Browser automation using headless Chrome
 
-use std::{ffi::OsStr, sync::Arc, thread::sleep, time::Duration};
+use std::{collections::BTreeMap, ffi::OsStr, sync::Arc, thread::sleep, time::Duration};
 
 use clap::ValueEnum;
 use eyre::{Result, eyre};
@@ -276,7 +276,7 @@ impl BrowserSession {
     }
 
     /// Inject token extraction script and return resolved CSS custom property values
-    pub async fn inject_tokens(&mut self) -> Result<std::collections::HashMap<String, String>> {
+    pub async fn inject_tokens(&mut self) -> Result<BTreeMap<String, String>> {
         let script = format!("JSON.stringify({TOKENS_SCRIPT})");
 
         let result = self

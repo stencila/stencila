@@ -21,7 +21,7 @@ pub use browser::{ColorScheme, WaitConfig, WaitUntil};
 pub use devices::{DevicePreset, ViewportConfig};
 pub use measure::MeasurePreset;
 
-use std::{collections::HashMap, path::PathBuf, time::Instant};
+use std::{collections::BTreeMap, path::PathBuf, time::Instant};
 
 use assertions::{Assertion, AssertionResults};
 use browser::{BrowserSession, CaptureOptions};
@@ -333,7 +333,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
     // Multi-device batch (if --devices specified)
     let devices_result = if let Some(device_presets) = &options.devices {
-        let mut device_results = HashMap::new();
+        let mut device_results = BTreeMap::new();
 
         for device in device_presets {
             let mut device_viewport = device.viewport();
