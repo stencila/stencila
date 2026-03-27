@@ -1,6 +1,6 @@
 ---
 name: software-delivery-tdd
-description: Execute a software delivery plan using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, iterative review, and human approval after each completed slice or combined slice batch
+description: Execute a software delivery plan using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, human approval after each slice, and a bounded delivery closeout phase with final human review once all slices are complete
 goal-hint: Which delivery plan should be executed? Provide the plan content or reference the plan file path
 keywords:
   - tdd
@@ -29,13 +29,17 @@ The workflow processes a delivery plan in successive execution units during a si
 
 4. **Refactor phase** — the `software-code-refactorer` agent improves code quality; the `software-test-executor` agent executes the relevant tests to verify no regressions; if tests fail the loop sends control back to the refactorer
 
-5. **Human review** — a structured interview lets the human accept the execution unit, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-unit selection
+5. **Slice human review** — a structured interview lets the human accept the execution unit, accept and commit it, or send it back to the Red phase with revision notes; choosing "Accept and Commit" routes through a CommitSlice agent that stages and commits the changes before continuing; on acceptance (with or without commit), control returns to SelectSlice which handles both completion tracking and next-unit selection
+
+6. **Delivery completion** — once `SelectSlice` reports that all execution slices are complete, the `software-delivery-completer` agent checks the delivery plan's Definition of Done and other plan-level completion criteria, performs any minor closeout work needed, and produces a final completion report
+
+7. **Final human review** — a structured interview lets the human accept the delivery, accept and commit the closeout changes, or request a limited closeout pass for minor follow-up items; choosing "Accept and Commit" routes through a CommitCompletion agent that stages and commits the closeout work; choosing "Closeout" loops back to the delivery completer with notes on what to address. This closeout loop is intentionally bounded: if substantial unfinished work remains, the completer should report that clearly rather than beginning a new large implementation cycle
 
 Test execution uses a `software-test-executor` agent instead of a static shell script, allowing it to inspect the project structure, determine the appropriate test framework, and run only the tests relevant to the current slice rather than the full test suite.
 
-All agent nodes use `fidelity="full"` with explicit `thread-id` values so that each agent's LLM session is reused across iterations. This avoids the startup cost of re-reading files, re-discovering codebase conventions, and re-parsing the delivery plan on every loop. Each agent role gets its own thread (`slice-selector`, `test-creator`, `test-executor`, `test-reviewer`, `implementor`, `refactorer`), with the three test-executor nodes sharing a single `test-executor` thread since they perform the same job in different phases. The one-shot `CommitSlice` node uses the default fidelity since it has no iteration overhead. A graph-wide `max-session-turns` default of 10 caps context growth on lightweight nodes, while heavy-context nodes (`CreateTests`, `Implement`, `Refactor`) override this to 5 since they read and write many files per turn and accumulate context faster.
+All agent nodes use `fidelity="full"` with explicit `thread-id` values so that each agent's LLM session is reused across iterations. This avoids the startup cost of re-reading files, re-discovering codebase conventions, and re-parsing the delivery plan on every loop. Each agent role gets its own thread (`slice-selector`, `test-creator`, `test-executor`, `test-reviewer`, `implementor`, `refactorer`, `delivery-completer`), with the three test-executor nodes sharing a single `test-executor` thread since they perform the same job in different phases. The one-shot `CommitSlice` and `CommitCompletion` nodes use the default fidelity since they have no iteration overhead. A graph-wide `max-session-turns` default of 10 caps context growth on lightweight nodes, while heavy-context nodes (`CreateTests`, `Implement`, `Refactor`, `CompleteDelivery`) override this to 5 since they read and write many files per turn and accumulate context faster.
 
-Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, and completed slice tracking. The existing context keys are retained even when the selected work corresponds to several combined plan slices: in that case `current_slice`, `slice.scope`, `slice.acceptance_criteria`, and `slice.packages` describe the selected execution unit, while `completed_slices` continues to track the underlying plan slice identifiers. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
+Stages share state via `workflow_set_context` / `workflow_get_context` and `workflow_get_output` rather than prompt interpolation — context keys hold the active slice details, scoped test metadata, completed slice tracking, and final closeout feedback. The existing context keys are retained even when the selected work corresponds to several combined plan slices: in that case `current_slice`, `slice.scope`, `slice.acceptance_criteria`, and `slice.packages` describe the selected execution unit, while `completed_slices` continues to track the underlying plan slice identifiers. This keeps prompts concise across many iterations. Revision loops rely on `workflow_get_output` as the feedback channel: the test-reviewer's output text is the feedback that the test-creator reads on the next iteration, and failed test-execution output is the feedback that the implementor and refactorer read. The existing slice loop continues to use `human.feedback` for per-slice revision notes. The delivery closeout loop uses separate `completion.*` context keys so final completion feedback does not get mixed with slice-level revision feedback. Labeled edges provide structured routing via `workflow_set_route` for all agent-driven branch decisions.
 
 ```dot
 digraph software_delivery_tdd {
@@ -50,8 +54,8 @@ digraph software_delivery_tdd {
     fidelity="full",
     thread-id="slice-selector"
   ]
-  SelectSlice -> CreateTests  [label="Continue"]
-  SelectSlice -> End          [label="Done"]
+  SelectSlice -> CreateTests       [label="Continue"]
+  SelectSlice -> CompleteDelivery  [label="Done"]
 
   subgraph red_phase {
     node [class="red-phase"]
@@ -124,20 +128,40 @@ digraph software_delivery_tdd {
       fidelity="full",
       thread-id="test-executor"
     ]
-    RunTestsRefactor -> HumanReview  [label="Pass"]
+    RunTestsRefactor -> SliceHumanReview  [label="Pass"]
     RunTestsRefactor -> Refactor     [label="Fail"]
   }
 
-  HumanReview [interview-ref="#slice-review"]
-  HumanReview -> SelectSlice  [label="Accept"]
-  HumanReview -> CommitSlice  [label="Accept and Commit"]
-  HumanReview -> CreateTests  [label="Revise"]
+  SliceHumanReview [interview-ref="#slice-review"]
+  SliceHumanReview -> CommitSlice  [label="Accept and Commit"]
+  SliceHumanReview -> SelectSlice  [label="Accept"]
+  SliceHumanReview -> CreateTests  [label="Revise"]
 
   CommitSlice [
     agent="general",
     prompt-ref="#commit-slice-prompt"
   ]
   CommitSlice -> SelectSlice
+
+  CompleteDelivery [
+    agent="software-delivery-completer",
+    prompt-ref="#complete-delivery-prompt",
+    fidelity="full",
+    thread-id="delivery-completer",
+    max-session-turns="5"
+  ]
+  CompleteDelivery -> FinalHumanReview
+
+  FinalHumanReview [interview-ref="#delivery-completion-review"]
+  FinalHumanReview -> CommitCompletion [label="Accept and Commit"]
+  FinalHumanReview -> End              [label="Accept"]
+  FinalHumanReview -> CompleteDelivery [label="Closeout"]
+
+  CommitCompletion [
+    agent="general",
+    prompt-ref="#commit-completion-prompt"
+  ]
+  CommitCompletion -> End
 }
 ```
 
@@ -147,7 +171,7 @@ Mark the just-completed slice or slice batch (if any) and select the next unfini
 The delivery plan goal is: $goal
 
 Note on "current_slice": this key serves a dual role. When entering SelectSlice after
-HumanReview acceptance it holds the most recently completed execution unit name. After
+SliceHumanReview acceptance it holds the most recently completed execution unit name. After
 SelectSlice stores a newly selected execution unit it holds the next unit to work on. On the
 first invocation it is empty. The selected unit may represent one plan slice or a combined
 batch of adjacent compatible plan slices.
@@ -359,4 +383,80 @@ Step 3 — commit:
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue to the next slice regardless.
+```
+
+```text #complete-delivery-prompt
+Complete the delivery after all execution slices have finished.
+
+The delivery plan goal is: $goal
+
+Step 1 — read workflow state:
+  Use workflow_get_context to read:
+  - key "current_slice" — the most recently completed execution unit
+  - key "completed_slices" — the completed plan slice identifiers
+  - key "completion.feedback" — any final-review follow-up notes from a prior closeout pass
+
+  Use workflow_get_output to inspect the most recent workflow output when helpful.
+
+Step 2 — inspect the plan, perform bounded closeout work, verify, and report:
+  Treat $goal as the delivery plan content, or as a reference to the delivery plan file when
+  that is how the workflow was invoked. Follow your agent instructions to inspect the plan,
+  perform any minor closeout work, run verification, and produce a structured completion report.
+
+  If completion.feedback contains notes from a prior closeout pass, address those specific
+  items in this iteration.
+```
+
+```yaml #delivery-completion-review
+preamble: |
+  All execution slices are complete. The delivery completer has checked the delivery plan's
+  Definition of Done and other plan-level completion criteria, and has performed any minor
+  closeout work it could.
+
+  Please review the final completion report and the repository state before deciding how to finish.
+
+  Use "Closeout" only for small remaining wrap-up items such as documentation touch-ups,
+  verification gaps, generated artifacts, formatting or lint fixes, or other limited
+  plan-completion tasks. If substantial feature work is still missing, the delivery plan
+  likely needs to be extended or revisited outside this closeout loop.
+
+questions:
+  - header: Final Decision
+    question: What should happen next for final delivery closeout?
+    type: single-select
+    options:
+      - label: Accept and Commit
+      - label: Accept
+      - label: Closeout
+    store: completion.decision
+
+  - header: Closeout Notes
+    question: What minor closeout items should be addressed?
+    type: freeform
+    store: completion.feedback
+    show-if: "completion.decision == Closeout"
+```
+
+```text #commit-completion-prompt
+Commit the final delivery closeout changes.
+
+Plan goal: $goal
+
+Step 1 — review uncommitted changes:
+  Use the shell tool to inspect `git status` and `git diff --stat`.
+
+Step 2 — stage closeout-related files:
+  Stage the files that are part of final delivery completion work. These may include
+  documentation, generated artifacts, configuration, tests, or small code changes
+  produced during closeout. Avoid staging unrelated changes.
+
+Step 3 — commit:
+  Compose a commit message based on the final delivery completion work and the actual
+  changes staged. Inspect the repository's recent commit history (`git log --oneline -20`)
+  to infer the project's commit message conventions and follow them. Also check for any
+  commit message instructions in the system prompt or prior context and apply those.
+  Run `git commit` with the composed message.
+
+If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
+workflow completion.
 ```
