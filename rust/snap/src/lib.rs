@@ -106,7 +106,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None => ResolvedTarget::Route("/".to_string()),
         Some(value) => {
             let as_path = PathBuf::from(value);
-            if as_path.exists() {
+            if as_path.is_file() {
                 ResolvedTarget::Path(as_path)
             } else {
                 ResolvedTarget::Route(value.clone())
