@@ -30,8 +30,8 @@ pub fn definition() -> ToolDefinition {
                 },
                 "screenshot": {
                     "type": "boolean",
-                    "description": "Whether to capture a screenshot. Defaults to true.",
-                    "default": true
+                    "description": "Whether to capture a screenshot. Defaults to false.",
+                    "default": false
                 },
                 "selector": {
                     "type": "string",
@@ -105,13 +105,13 @@ pub fn definition() -> ToolDefinition {
                 },
                 "resize": {
                     "type": "string",
-                    "description": "Screenshot resize mode. 'auto' resizes only when needed for hard image limits, 'optimize' downscales more aggressively to reduce payload size, and 'never' preserves the original capture. The tool defaults to 'optimize' to keep screenshot payloads smaller for model token usage.",
+                    "description": "Screenshot resize mode. 'auto' resizes only when the image exceeds hard provider limits (8000px), 'optimize' downscales more aggressively to reduce payload size, and 'never' preserves the original capture.",
                     "enum": ["never", "auto", "optimize"],
-                    "default": "optimize"
+                    "default": "auto"
                 },
                 "max_image_dimension": {
                     "type": "integer",
-                    "description": "Maximum screenshot dimension in pixels after resize. Used with 'auto' or 'optimize'. Defaults to 4096 for this tool when omitted so screenshots stay smaller for model token usage.",
+                    "description": "Maximum screenshot dimension in pixels after resize. Used with 'auto' (default 8000px) or 'optimize' (default 4096px).",
                     "minimum": 1
                 }
             },
@@ -133,7 +133,7 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
     let screenshot = args
         .get("screenshot")
         .and_then(Value::as_bool)
-        .unwrap_or(true);
+        .unwrap_or(false);
     let full_page = args
         .get("full_page")
         .and_then(Value::as_bool)
@@ -256,7 +256,7 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         Some("never") => ScreenshotResizeMode::Never,
         Some("auto") => ScreenshotResizeMode::Auto,
         Some("optimize") => ScreenshotResizeMode::Optimize,
-        None => ScreenshotResizeMode::Optimize,
+        None => ScreenshotResizeMode::Auto,
         Some(other) => {
             return Err(AgentError::ValidationError {
                 reason: format!(
@@ -297,14 +297,11 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         palette,
         assertions,
         screenshot_resize: ScreenshotResizePolicy {
-            // Default to optimize with a smaller maximum dimension for the tool
-            // so image attachments use fewer tokens when sent to models.
             mode: screenshot_resize_mode,
             max_dimension: args
                 .get("max_image_dimension")
                 .and_then(Value::as_u64)
-                .map(|value| value as u32)
-                .or(Some(4096)),
+                .map(|value| value as u32),
         },
     };
 
