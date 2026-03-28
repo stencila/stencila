@@ -35,6 +35,7 @@ pub enum Operator {
     GreaterThanOrEqual,
     LessThan,
     LessThanOrEqual,
+    Contains,
 }
 
 /// Value types for assertions
@@ -204,6 +205,7 @@ impl fmt::Display for Operator {
             Self::GreaterThanOrEqual => write!(f, ">="),
             Self::LessThan => write!(f, "<"),
             Self::LessThanOrEqual => write!(f, "<="),
+            Self::Contains => write!(f, "~="),
         }
     }
 }
@@ -291,6 +293,8 @@ fn parse_operator_value(input: &str) -> Result<(Operator, Value)> {
         (Operator::Equals, rest)
     } else if let Some(rest) = input.strip_prefix("!=") {
         (Operator::NotEquals, rest)
+    } else if let Some(rest) = input.strip_prefix("~=") {
+        (Operator::Contains, rest)
     } else if let Some(rest) = input.strip_prefix('>') {
         (Operator::GreaterThan, rest)
     } else if let Some(rest) = input.strip_prefix('<') {
@@ -408,11 +412,13 @@ fn evaluate_comparison(actual: &str, operator: &Operator, expected: &Value) -> b
                 Operator::GreaterThanOrEqual => actual_num >= *expected_num,
                 Operator::LessThan => actual_num < *expected_num,
                 Operator::LessThanOrEqual => actual_num <= *expected_num,
+                Operator::Contains => false,
             }
         }
         Value::String(expected_str) => match operator {
             Operator::Equals => actual == expected_str,
             Operator::NotEquals => actual != expected_str,
+            Operator::Contains => actual.contains(expected_str.as_str()),
             _ => false,
         },
         Value::Boolean(expected_bool) => {
@@ -463,6 +469,31 @@ mod tests {
             "20px",
             &Operator::GreaterThan,
             &Value::Number(24.0)
+        ));
+    }
+
+    #[test]
+    fn test_parse_contains_assertion() {
+        let assertion = Assertion::parse("css(stencila-heading).fontFamily~=Source Serif")
+            .expect("Failed to parse contains assertion");
+        assert_eq!(assertion.domain, "css");
+        assert_eq!(assertion.selector, "stencila-heading");
+        assert_eq!(assertion.property, Some("fontFamily".to_string()));
+        assert!(matches!(assertion.operator, Operator::Contains));
+        assert!(matches!(assertion.value, Value::String(ref s) if s == "Source Serif"));
+    }
+
+    #[test]
+    fn test_evaluate_contains_comparison() {
+        assert!(evaluate_comparison(
+            "\"Source Serif 4\", Georgia, serif",
+            &Operator::Contains,
+            &Value::String("Source Serif".to_string())
+        ));
+        assert!(!evaluate_comparison(
+            "\"Source Serif 4\", Georgia, serif",
+            &Operator::Contains,
+            &Value::String("Roboto".to_string())
         ));
     }
 }

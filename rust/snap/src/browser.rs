@@ -410,8 +410,18 @@ impl BrowserSession {
             let matched_elements = self
                 .tab
                 .find_elements(selector)
-                .map_err(|error| eyre!("Failed to query selector {selector}: {error}"))?
-                .len();
+                .map(|elems| elems.len())
+                .unwrap_or(0);
+
+            // When the selector matches no elements, return empty bytes so
+            // the caller can surface a diagnostic instead of hard-erroring.
+            if matched_elements == 0 {
+                return Ok(CaptureResult {
+                    bytes: vec![],
+                    matched_elements: Some(0),
+                    full_page_content_height: None,
+                });
+            }
 
             // Scroll the element into view and then use
             // getBoundingClientRect() via JS to get its viewport position.

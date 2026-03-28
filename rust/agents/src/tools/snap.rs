@@ -101,7 +101,7 @@ pub fn definition() -> ToolDefinition {
                 "assert": {
                     "type": "array",
                     "items": { "type": "string" },
-                    "description": "Assertion expressions to evaluate (e.g. \"css(.title).fontSize>=28px\")."
+                    "description": "Assertion expressions to evaluate (e.g. \"css(stencila-paragraph).fontSize>=16px\")."
                 },
                 "wait_for": {
                     "type": "string",
@@ -184,6 +184,20 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         });
     }
 
+    if tokens && token_prefixes.is_empty() {
+        return Err(AgentError::ValidationError {
+            reason: "'tokens' requires at least one 'token_prefix' to avoid \
+                     flooding the context with hundreds of token values"
+                .into(),
+        });
+    }
+
+    if args.get("device").is_some() && args.get("devices").is_some() {
+        return Err(AgentError::ValidationError {
+            reason: "'device' and 'devices' are mutually exclusive".into(),
+        });
+    }
+
     let color_scheme = if dark {
         ColorScheme::Dark
     } else if light {
@@ -200,18 +214,20 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
             dpr: 1.0,
             color_scheme: ColorScheme::System,
         })
-    } else if let (Some(w), Some(h)) = (
-        args.get("width").and_then(Value::as_u64),
-        args.get("height").and_then(Value::as_u64),
-    ) {
-        Some(ViewportConfig {
-            width: w as u32,
-            height: h as u32,
-            dpr: 1.0,
-            color_scheme,
-        })
     } else {
-        None
+        let custom_width = args.get("width").and_then(Value::as_u64).map(|v| v as u32);
+        let custom_height = args.get("height").and_then(Value::as_u64).map(|v| v as u32);
+        if let Some(w) = custom_width.or(custom_height.map(|_| 1920)) {
+            let h = custom_height.unwrap_or(1080);
+            Some(ViewportConfig {
+                width: w,
+                height: h,
+                dpr: 1.0,
+                color_scheme,
+            })
+        } else {
+            None
+        }
     };
 
     let effective_color_scheme = if viewport.is_some() || color_scheme != ColorScheme::System {
@@ -230,7 +246,14 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         Some("main") => MeasureMode::Preset(MeasurePreset::Main),
         Some("footer") => MeasureMode::Preset(MeasurePreset::Footer),
         Some("theme") => MeasureMode::Preset(MeasurePreset::Theme),
-        _ => MeasureMode::Off,
+        None => MeasureMode::Off,
+        Some(other) => {
+            return Err(AgentError::ValidationError {
+                reason: format!(
+                    "unknown measure preset: {other:?}. Valid values: auto, document, site, all, header, nav, main, footer, theme"
+                ),
+            });
+        }
     };
 
     let assertions: Vec<String> = args

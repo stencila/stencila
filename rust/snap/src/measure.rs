@@ -150,16 +150,21 @@ pub fn selectors_for_preset(preset: MeasurePreset) -> Vec<String> {
     }
 }
 
-/// Result of measurements collected from the browser
+/// Result of measurements collected from the browser.
+///
+/// Field order is chosen so that concise, high-value data (summaries,
+/// contrast, counts, diagnostics) is serialized before the verbose
+/// per-property maps (css, box_info). This avoids truncation hiding
+/// the most useful sections when output is large.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MeasureResult {
-    /// Computed CSS properties by selector
+    /// Concise theme-oriented summaries by selector
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub css: HashMap<String, CssProperties>,
+    pub summaries: HashMap<String, StyleSummary>,
 
-    /// Bounding box information by selector
+    /// Contrast checks by selector
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub box_info: HashMap<String, BoxInfo>,
+    pub contrast: HashMap<String, ContrastCheck>,
 
     /// Element counts by selector
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
@@ -169,14 +174,6 @@ pub struct MeasureResult {
     #[serde(skip_serializing_if = "HashMap::is_empty", default)]
     pub text: HashMap<String, String>,
 
-    /// Concise theme-oriented summaries by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub summaries: HashMap<String, StyleSummary>,
-
-    /// Contrast checks by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
-    pub contrast: HashMap<String, ContrastCheck>,
-
     /// Diagnostics and warnings
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub diagnostics: Vec<String>,
@@ -184,6 +181,14 @@ pub struct MeasureResult {
     /// Diagnostic errors and warnings
     #[serde(skip_serializing_if = "Vec::is_empty", default)]
     pub errors: Vec<String>,
+
+    /// Computed CSS properties by selector
+    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    pub css: HashMap<String, CssProperties>,
+
+    /// Bounding box information by selector
+    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    pub box_info: HashMap<String, BoxInfo>,
 }
 
 /// Concise summary of selector styles and likely issues.

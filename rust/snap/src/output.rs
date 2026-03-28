@@ -98,6 +98,11 @@ pub struct TargetInfo {
     /// CSS selector (if specific element targeted)
     pub selector: Option<String>,
 
+    /// How many elements the explicit selector matched (from measurements).
+    /// Present even when `screenshot` is false, so agents can check element
+    /// existence without requesting a screenshot.
+    pub selector_matched: Option<usize>,
+
     /// Whether full page was captured
     pub full_page: bool,
 

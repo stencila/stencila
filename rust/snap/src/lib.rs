@@ -47,6 +47,7 @@ use server::ServerInfo;
 
 const MAX_SCREENSHOT_DIMENSION: u32 = 8_000;
 const OPTIMIZED_SCREENSHOT_DIMENSION: u32 = 4_096;
+const MIN_SCREENSHOT_WIDTH: u32 = 600;
 const LONG_PAGE_WARNING_HEIGHT: u32 = 12_000;
 const SMALL_RESIZE_SCALE_WARNING: f64 = 0.5;
 
@@ -174,8 +175,19 @@ fn resize_screenshot_if_needed(
     }
 
     let scale = max_dimension as f64 / largest_dimension as f64;
-    let resized_width = ((width as f64 * scale).round() as u32).max(1);
-    let resized_height = ((height as f64 * scale).round() as u32).max(1);
+    let mut resized_width = ((width as f64 * scale).round() as u32).max(1);
+    let mut resized_height = ((height as f64 * scale).round() as u32).max(1);
+
+    // Enforce a minimum width floor so that text remains legible.
+    // When the width would be crushed below the floor (common for very tall
+    // mobile full-page captures), re-derive height from the width floor
+    // instead, accepting a taller image.
+    if resized_width < MIN_SCREENSHOT_WIDTH && width >= MIN_SCREENSHOT_WIDTH {
+        let width_scale = MIN_SCREENSHOT_WIDTH as f64 / width as f64;
+        resized_width = MIN_SCREENSHOT_WIDTH;
+        resized_height = ((height as f64 * width_scale).round() as u32).max(1);
+    }
+
     let resized = image.resize(resized_width, resized_height, FilterType::Lanczos3);
 
     let mut output = Vec::new();
@@ -281,6 +293,22 @@ fn build_capture_info(
         diagnostics.push(format!(
             "Full-page content height is {content_height}px; the resulting image may be difficult to review without region-focused captures."
         ));
+    }
+
+    if let Some(count) = matched_elements
+        && count > 1
+        && matches!(mode, CaptureMode::Element)
+    {
+        diagnostics.push(format!(
+            "Selector matched {count} elements; only the first was used for the screenshot. Use a more specific selector for unambiguous captures."
+        ));
+    }
+
+    if let Some(count) = matched_elements
+        && count == 0
+        && matches!(mode, CaptureMode::Element)
+    {
+        diagnostics.push("Selector matched no elements; screenshot was skipped.".to_string());
     }
 
     if let Some(resize) = screenshot_resize {
@@ -401,14 +429,23 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         vec![]
     };
 
-    // Parse assertions once up front so that parse errors are reported
-    // immediately and the parsed values can be reused for both selector
-    // collection and later evaluation.
-    let parsed_assertions: Vec<Assertion> = options
-        .assertions
-        .iter()
-        .map(|s| Assertion::parse(s))
-        .collect::<eyre::Result<Vec<_>>>()?;
+    // Parse assertions individually so that a single bad syntax does not
+    // abort the entire snap. Parse failures are collected and reported as
+    // assertion failures in the output.
+    let mut parsed_assertions: Vec<Assertion> = Vec::new();
+    let mut assertion_parse_failures: Vec<assertions::AssertionResult> = Vec::new();
+    for raw in &options.assertions {
+        match Assertion::parse(raw) {
+            Ok(assertion) => parsed_assertions.push(assertion),
+            Err(error) => assertion_parse_failures.push(assertions::AssertionResult {
+                assertion: raw.clone(),
+                passed: false,
+                expected: String::new(),
+                actual: String::new(),
+                message: format!("Failed to parse assertion: {error}"),
+            }),
+        }
+    }
 
     // Ensure assertion selectors are measured even if they aren't in the preset
     for assertion in &parsed_assertions {
@@ -451,13 +488,25 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None
     };
 
-    // Evaluate assertions using the already-parsed values
-    let assertion_results = if !parsed_assertions.is_empty() {
-        let measurements = measurements
-            .as_ref()
-            .ok_or_else(|| eyre::eyre!("Measurements required for assertions but not collected"))?;
+    // Evaluate assertions using the already-parsed values, then merge in
+    // any parse failures so they appear in the output.
+    let assertion_results = if !parsed_assertions.is_empty() || !assertion_parse_failures.is_empty()
+    {
+        let mut results = if !parsed_assertions.is_empty() {
+            let measurements = measurements.as_ref().ok_or_else(|| {
+                eyre::eyre!("Measurements required for assertions but not collected")
+            })?;
+            AssertionResults::evaluate(&parsed_assertions, measurements)?
+        } else {
+            AssertionResults::default()
+        };
 
-        AssertionResults::evaluate(&parsed_assertions, measurements)?
+        if !assertion_parse_failures.is_empty() {
+            results.failures.extend(assertion_parse_failures);
+            results.passed = false;
+        }
+
+        results
     } else {
         AssertionResults::default()
     };
@@ -480,13 +529,19 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
             full_page_content_height,
         }) = raw_capture
         {
-            let (bytes, resize) = resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
-            (
-                Some(bytes),
-                resize,
-                matched_elements,
-                full_page_content_height,
-            )
+            if bytes.is_empty() {
+                // Selector matched no elements — treat as no screenshot
+                (None, None, matched_elements, full_page_content_height)
+            } else {
+                let (bytes, resize) =
+                    resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
+                (
+                    Some(bytes),
+                    resize,
+                    matched_elements,
+                    full_page_content_height,
+                )
+            }
         } else {
             (None, None, None, None)
         };
@@ -630,6 +685,11 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         ok,
         url,
         target: TargetInfo {
+            selector_matched: selector.as_ref().and_then(|sel| {
+                measurements
+                    .as_ref()
+                    .and_then(|m| m.counts.get(sel).copied())
+            }),
             selector,
             full_page: options.full_page,
             measured_selectors: selectors,
@@ -732,6 +792,30 @@ mod tests {
 
         assert_eq!(capture.matched_elements, Some(3));
         assert!(capture.used_selector_for_capture);
+    }
+
+    #[test]
+    fn optimize_resize_enforces_minimum_width_floor() -> eyre::Result<()> {
+        // Simulate a tall mobile full-page capture (1170x23718) that would
+        // normally be crushed to ~202px wide at max_dimension=4096.
+        let png = png_bytes(1170, 23718)?;
+        let (_, meta) = resize_screenshot_if_needed(
+            png,
+            ScreenshotResizePolicy {
+                mode: ScreenshotResizeMode::Optimize,
+                max_dimension: Some(4_096),
+            },
+        )?;
+        let meta = meta.expect("expected resize metadata");
+
+        // Width should be clamped to the MIN_SCREENSHOT_WIDTH floor
+        assert_eq!(meta.resized_width, MIN_SCREENSHOT_WIDTH);
+        // Height should be proportionally derived from the width scale
+        let expected_height =
+            ((23718.0 * (MIN_SCREENSHOT_WIDTH as f64 / 1170.0)).round() as u32).max(1);
+        assert_eq!(meta.resized_height, expected_height);
+
+        Ok(())
     }
 
     #[test]
