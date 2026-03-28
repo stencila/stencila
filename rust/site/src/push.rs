@@ -178,9 +178,7 @@ where
 
     // Resolve web asset base URL: use explicit override if provided,
     // otherwise fall back to the production CDN URL for the current version.
-    let resolved_web_base = web_base
-        .map(String::from)
-        .unwrap_or_else(web_base_cdn);
+    let resolved_web_base = web_base.map(String::from).unwrap_or_else(web_base_cdn);
 
     // Phase 1: Render to temp directory
     let render_result = render::render(

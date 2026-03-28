@@ -31,6 +31,9 @@ pub use upload::{UploadProgress, UploadResult, upload};
 mod push;
 pub use push::{PushProgress, PushResult, push};
 
+mod specimen;
+pub use specimen::{SPECIMEN_ROUTE, specimen_node};
+
 mod watch;
 pub use watch::{SiteChangeEvent, watch};
 
