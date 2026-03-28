@@ -27,16 +27,16 @@
  */
 
 :root {
-    /* Reference Spacing - Inherits automatic responsive behavior from semantic token */
-    --reference-spacing: var(--content-spacing);
+    /* Reference Spacing - More compact layout for bibliographies */
+    --reference-spacing: calc(var(--content-spacing) * 0.5);
 
-    /* Reference Typography - Colors automatically inherit dark mode from text colors */
+    /* Reference Typography - Hanging indent and compact line height for reference lists */
     --reference-font-size: var(--text-font-size);
-    --reference-line-height: var(--text-line-height);
+    --reference-line-height: var(--line-height-snug);
     --reference-text-align: left;
-    --reference-text-indent: 0;
-    --reference-padding-left: 0;
-    --reference-hyphens: none;
+    --reference-text-indent: -1.25em;
+    --reference-padding-left: 1.25em;
+    --reference-hyphens: auto;
     --reference-orphans: 2;
     --reference-widows: 2;
     --reference-text-wrap: auto;

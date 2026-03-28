@@ -134,10 +134,10 @@
     --color-purple-950: #3b0764;
 
     /* Primitive Font Stacks */
-    --font-family-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'Bitstream Charter', Charter, Georgia, Cambria, 'Times New Roman', Times, serif;
-    --font-family-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-    --font-family-mono: ui-monospace, 'Cascadia Code', SFMono-Regular, 'SF Mono', Menlo, Monaco, 'Roboto Mono', Consolas, 'Courier New', monospace;
-    --font-family-math: 'Cambria Math', 'STIX Two Math', 'Latin Modern Math', 'Times New Roman', serif;
+    --font-family-serif: ui-serif, 'Iowan Old Style', 'Palatino Linotype', Palatino, 'URW Palladio L', Charter, 'Bitstream Charter', 'Sitka Text', Georgia, Cambria, 'Times New Roman', Times, serif;
+    --font-family-sans: ui-sans-serif, system-ui, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-family-mono: ui-monospace, 'Cascadia Code', 'SF Mono', SFMono-Regular, Menlo, Monaco, Consolas, 'DejaVu Sans Mono', 'Liberation Mono', 'Roboto Mono', 'Courier New', monospace;
+    --font-family-math: 'STIX Two Math', 'Cambria Math', 'Latin Modern Math', math, 'STIX Two Text', 'Times New Roman', serif;
 
     /* Typography Scale
      *

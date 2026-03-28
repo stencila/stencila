@@ -1,7 +1,7 @@
 /**
  * Available CSS themes for the document
  */
-export type Theme = 'stencila' | 'tufte' | 'latex' | 'workspace' | 'user'
+export type Theme = 'base' | 'tufte' | 'latex' | 'workspace' | 'user'
 
 /**
  * Utility functions for theme management
@@ -11,7 +11,7 @@ export class ThemeManager {
     try {
       // First check if there's a saved preference
       const saved = localStorage.getItem('stencila-theme-preference') as Theme
-      if (saved && ['stencila', 'tufte', 'latex', 'workspace', 'user'].includes(saved)) {
+      if (saved && ['base', 'tufte', 'latex', 'workspace', 'user'].includes(saved)) {
         return saved
       }
 
@@ -25,14 +25,14 @@ export class ThemeManager {
       } else if (initialThemeType === 'builtin') {
         // For builtin themes, get the actual theme name
         const themeName = document.querySelector('meta[name="stencila-initial-theme-name"]')?.getAttribute('content')
-        if (themeName && ['stencila', 'tufte', 'latex'].includes(themeName)) {
+        if (themeName && ['base', 'tufte', 'latex'].includes(themeName)) {
           return themeName as Theme
         }
       }
 
-      return 'stencila'
+      return 'base'
     } catch {
-      return 'stencila'
+      return 'base'
     }
   }
 
@@ -43,6 +43,16 @@ export class ThemeManager {
     if (!themeLink) {
       console.warn('Theme link element not found')
       return false
+    }
+
+    // Handle base theme (no override — just base.css)
+    if (theme === 'base') {
+      themeLink.disabled = true
+      if (themeStyle) {
+        themeStyle.disabled = true
+      }
+      window.dispatchEvent(new CustomEvent('stencila-theme-changed'))
+      return true
     }
 
     // Handle custom themes (workspace/user)

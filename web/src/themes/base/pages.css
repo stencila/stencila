@@ -34,18 +34,18 @@
     --page-margin-color: var(--text-color-secondary);
     --page-margin-padding: 0;
 
-    /* Page Margin Box Content - Set these to control margin content */
-    --page-top-left-content: none;
+    /* Page Margin Box Content - Document metadata in headers/footers */
+    --page-top-left-content: var(--document-authors);
     --page-top-center-content: none;
-    --page-top-right-content: none;
-    --page-bottom-left-content: none;
+    --page-top-right-content: var(--document-title);
+    --page-bottom-left-content: var(--document-doi);
     --page-bottom-center-content: none;
     --page-bottom-right-content: none;
 
-    /* First Page Margin Box Content - Defaults to regular margin content */
-    --page1-top-left-content: var(--page-top-left-content);
-    --page1-top-center-content: var(--page-top-center-content);
-    --page1-top-right-content: var(--page-top-right-content);
+    /* First Page Margin Box Content - No top margin content on first page */
+    --page1-top-left-content: '';
+    --page1-top-center-content: '';
+    --page1-top-right-content: '';
     --page1-bottom-left-content: var(--page-bottom-left-content);
     --page1-bottom-center-content: var(--page-bottom-center-content);
     --page1-bottom-right-content: var(--page-bottom-right-content);
@@ -56,7 +56,7 @@
     --page-border-style: solid;
     --page-border-color: var(--border-color-default);
     --page-border-narrow: initial;
-    --page-border-wide: initial;
+    --page-border-wide: 1px;
     --page-border-full: initial;
 
     /* Level 2: Horizontal border tokens (apply to both top and bottom) */
@@ -94,11 +94,12 @@
     --page1-horizontal-border-wide: var(--page1-border-wide);
     --page1-horizontal-border-full: var(--page1-border-full);
 
-    /* Level 3: Specific first page border tokens (individual top/bottom overrides) */
+    /* Level 3: Specific first page border tokens (individual top/bottom overrides)
+     * Top border is suppressed on first page since there is no header content */
     --page1-top-border-style: var(--page1-horizontal-border-style);
     --page1-top-border-color: var(--page1-horizontal-border-color);
     --page1-top-border-narrow: var(--page1-horizontal-border-narrow);
-    --page1-top-border-wide: var(--page1-horizontal-border-wide);
+    --page1-top-border-wide: initial;
     --page1-top-border-full: var(--page1-horizontal-border-full);
     --page1-bottom-border-style: var(--page1-horizontal-border-style);
     --page1-bottom-border-color: var(--page1-horizontal-border-color);
@@ -159,6 +160,12 @@
         line-height: var(--page-margin-line-height);
         padding: var(--page-margin-padding);
         border-bottom: var(--page-top-border-wide, var(--page-top-border-full, 0)) var(--page-top-border-style) var(--page-top-border-color);
+
+        /* Prevent long titles from wrapping and/or extending beyond top-right margin */
+        white-space: nowrap;
+        width: 100%;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 
     @top-right-corner {

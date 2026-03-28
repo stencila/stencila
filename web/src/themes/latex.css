@@ -294,6 +294,11 @@
     /* Typography - serif for plot text matching document */
     --plot-font-family: var(--font-family-serif);
 
+    /* Headings
+     *
+     * LaTeX uses serif headings matching body text */
+    --heading-font-family: var(--font-family-serif);
+
     /* Page Headers and Footers
      *
      * LaTeX article class convention: no headers, centered page number in

@@ -65,9 +65,9 @@
     --table-max-width-mobile: var(--content-breakout-width-mobile);
     --table-max-width-print: 100%;
 
-    /* Vertical spacing tokens - vertical separation from surrounding content */
-    --table-spacing-top: var(--content-spacing);
-    --table-spacing-bottom: var(--content-spacing);
+    /* Vertical spacing tokens - greater vertical separation from surrounding content */
+    --table-spacing-top: calc(var(--content-spacing) * 2);
+    --table-spacing-bottom: calc(var(--content-spacing) * 2);
 
     /* Caption typography - inherits from caption tokens */
     --table-caption-font-family: var(--caption-font-family);
@@ -84,12 +84,12 @@
     --table-label-color: var(--label-color);
 
     /* Notes typography - independent from caption tokens */
-    --table-notes-font-family: var(--text-font-family);
+    --table-notes-font-family: var(--font-family-sans);
     --table-notes-font-size: calc(var(--text-font-size) * 0.80);
     --table-notes-color: var(--text-color-secondary);
     --table-notes-spacing-top: calc(var(--content-spacing) * 0.5);
     --table-notes-line-height: var(--line-height-normal);
-    --table-notes-align: left;
+    --table-notes-align: justify;
 
     /* Table borders - granular control for theme authors */
     --table-border-radius: var(--border-radius-default);
@@ -159,7 +159,7 @@
     --table-row-striped-print: transparent;
 
     /* Cell styling */
-    --table-cell-font-family: var(--text-font-family);
+    --table-cell-font-family: var(--font-family-sans);
     --table-cell-font-size: calc(var(--text-font-size) * 0.85);
     --table-cell-line-height: var(--line-height-normal);
     --table-cell-line-height-mobile: var(--line-height-tight);

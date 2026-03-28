@@ -20,7 +20,6 @@ export default defineConfig({
         site: resolve(__dirname, 'src/site.ts'),
         'themes/init': resolve(__dirname, 'src/themes/init.js'),
         'themes/base': resolve(__dirname, 'src/themes/_base.ts'),
-        'themes/stencila': resolve(__dirname, 'src/themes/_stencila.ts'),
         'themes/latex': resolve(__dirname, 'src/themes/_latex.ts'),
         'themes/tufte': resolve(__dirname, 'src/themes/_tufte.ts'),
       },

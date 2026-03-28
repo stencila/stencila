@@ -46,7 +46,6 @@ export function fixCssPaths(outDir: string): Plugin {
   // Map CSS basename → target directory based on entry point names
   const cssPathMap: Record<string, string> = {
     'base.css': 'themes',
-    'stencila.css': 'themes',
     'latex.css': 'themes',
     'tufte.css': 'themes',
     'dynamic.css': 'views',

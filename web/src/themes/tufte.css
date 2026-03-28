@@ -299,6 +299,11 @@
     /* Typography - Serif for plot text with increased sizes for clarity */
     --plot-font-family: var(--font-family-serif);
 
+    /* Headings
+     *
+     * Tufte uses serif headings matching body text for cohesive appearance */
+    --heading-font-family: var(--font-family-serif);
+
     /* Page Headers and Footers
      *
      * Following Tufte's understated approach: simple centered page numbers in

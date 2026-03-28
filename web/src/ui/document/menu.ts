@@ -49,7 +49,7 @@ export class DocumentMenu extends LitElement {
   protected colorScheme: ColorScheme = 'light'
 
   @state()
-  protected theme: Theme = 'stencila'
+  protected theme: Theme = 'base'
 
   @state()
   protected open: boolean = false
@@ -272,6 +272,15 @@ export class DocumentMenu extends LitElement {
           }
           return ''
         })()}
+        <sl-menu-item
+          type="checkbox"
+          ?checked=${this.theme === 'base'}
+          @click=${() => this.changeTheme('base')}
+          class="ml-2"
+        >
+          <stencila-ui-icon name="palette" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">Base</span>
+        </sl-menu-item>
         <sl-menu-item
           type="checkbox"
           ?checked=${this.theme === 'stencila'}

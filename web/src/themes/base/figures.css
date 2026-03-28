@@ -44,9 +44,9 @@
     --figure-max-width-mobile: var(--content-breakout-width-mobile);
     --figure-max-width-print: 100%;
 
-    /* Spacing tokens - vertical separation from surrounding content */
-    --figure-spacing-top: var(--content-spacing);
-    --figure-spacing-bottom: var(--content-spacing);
+    /* Spacing tokens - greater vertical separation from surrounding content */
+    --figure-spacing-top: calc(var(--content-spacing) * 2);
+    --figure-spacing-bottom: calc(var(--content-spacing) * 2);
 
     /* Container styling - optional visual isolation */
     --figure-background: transparent;

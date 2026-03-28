@@ -36,7 +36,7 @@
     --heading-spacing-top-5: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
     --heading-spacing-top-6: calc(var(--heading-spacing-top) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio) * var(--heading-spacing-ratio));
 
-    --heading-font-family: var(--font-family-serif);
+    --heading-font-family: var(--font-family-sans);
 
     /* Heading size system: base size for h1, ratio for subsequent levels
      * Each level = previous level × ratio

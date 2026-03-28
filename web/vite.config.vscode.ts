@@ -15,7 +15,6 @@ export default defineConfig({
       input: {
         'views/vscode': resolve(__dirname, 'src/views/vscode.ts'),
         'themes/base': resolve(__dirname, 'src/themes/_base.ts'),
-        'themes/stencila': resolve(__dirname, 'src/themes/_stencila.ts'),
         'themes/latex': resolve(__dirname, 'src/themes/_latex.ts'),
         'themes/tufte': resolve(__dirname, 'src/themes/_tufte.ts'),
       },
