@@ -1241,3 +1241,148 @@ pub(crate) fn render_group_access_attr(
     let derived_route = format!("/{}/", label_to_segment(label));
     render_access_attr_if_more_restrictive(&derived_route, inherited_level, access_config)
 }
+
+/// Filter the specimen route out of navigation items
+///
+/// The specimen page (`/_specimen/`) should appear in the routes set
+/// (so breadcrumb/link logic works) but must NOT appear in nav-tree or nav-menu.
+pub(crate) fn filter_specimen_from_nav(items: &[NavItem]) -> Vec<NavItem> {
+    use crate::specimen::SPECIMEN_ROUTE;
+
+    fn is_specimen(route: &str) -> bool {
+        route == SPECIMEN_ROUTE
+    }
+
+    items
+        .iter()
+        .filter_map(|item| match item {
+            NavItem::Route(r) if is_specimen(r) => None,
+            NavItem::Route(_) => Some(item.clone()),
+            NavItem::Link { route, .. } if is_specimen(route) => None,
+            NavItem::Link { .. } => Some(item.clone()),
+            NavItem::Group {
+                id,
+                label,
+                route,
+                children,
+                icon,
+                section_title,
+            } => {
+                if route.as_deref().is_some_and(is_specimen) {
+                    return None;
+                }
+                let filtered_children = filter_specimen_from_nav(children);
+                Some(NavItem::Group {
+                    id: id.clone(),
+                    label: label.clone(),
+                    route: route.clone(),
+                    children: filtered_children,
+                    icon: icon.clone(),
+                    section_title: section_title.clone(),
+                })
+            }
+        })
+        .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::specimen::SPECIMEN_ROUTE;
+
+    fn nav_contains_route(items: &[NavItem], target: &str) -> bool {
+        for item in items {
+            match item {
+                NavItem::Route(r) if r == target => return true,
+                NavItem::Link { route, .. } if route == target => return true,
+                NavItem::Group {
+                    route, children, ..
+                } => {
+                    if route.as_deref() == Some(target) {
+                        return true;
+                    }
+                    if nav_contains_route(children, target) {
+                        return true;
+                    }
+                }
+                _ => {}
+            }
+        }
+        false
+    }
+
+    #[test]
+    fn test_filter_specimen_from_nav_removes_specimen_route() {
+        let nav_items = vec![
+            NavItem::Route("/".to_string()),
+            NavItem::Route("/docs/".to_string()),
+            NavItem::Route(SPECIMEN_ROUTE.to_string()),
+        ];
+
+        let filtered = filter_specimen_from_nav(&nav_items);
+
+        assert!(
+            !nav_contains_route(&filtered, SPECIMEN_ROUTE),
+            "/_specimen/ should be removed from flat nav items"
+        );
+        assert_eq!(filtered.len(), 2, "non-specimen items should be preserved");
+    }
+
+    #[test]
+    fn test_filter_specimen_from_nav_removes_nested_specimen() {
+        let nav_items = vec![
+            NavItem::Route("/".to_string()),
+            NavItem::Group {
+                id: None,
+                label: "Docs".to_string(),
+                route: Some("/docs/".to_string()),
+                children: vec![
+                    NavItem::Route("/docs/guide/".to_string()),
+                    NavItem::Route(SPECIMEN_ROUTE.to_string()),
+                ],
+                icon: None,
+                section_title: None,
+            },
+        ];
+
+        let filtered = filter_specimen_from_nav(&nav_items);
+
+        assert!(
+            !nav_contains_route(&filtered, SPECIMEN_ROUTE),
+            "/_specimen/ should be removed even when nested inside a group"
+        );
+        // The group and its other child should remain
+        assert_eq!(filtered.len(), 2, "root items should be preserved");
+        if let NavItem::Group { children, .. } = &filtered[1] {
+            assert_eq!(
+                children.len(),
+                1,
+                "group should have 1 child after specimen is removed"
+            );
+        } else {
+            panic!("expected Group nav item");
+        }
+    }
+
+    #[test]
+    fn test_filter_specimen_from_nav_preserves_non_specimen_items() {
+        let nav_items = vec![
+            NavItem::Route("/".to_string()),
+            NavItem::Link {
+                id: None,
+                label: "About".to_string(),
+                route: "/about/".to_string(),
+                icon: None,
+                description: None,
+            },
+        ];
+
+        let filtered = filter_specimen_from_nav(&nav_items);
+
+        assert_eq!(
+            filtered.len(),
+            2,
+            "all items should be preserved when no specimen route present"
+        );
+    }
+}

@@ -42,3 +42,6 @@ preset = "landing"
 [[site.layout.overrides]]
 routes = ["/docs/**"]
 preset = "docs"
+
+[site.specimen.layout]
+preset = "docs"

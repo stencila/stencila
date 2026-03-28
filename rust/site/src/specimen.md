@@ -1,21 +1,77 @@
 ---
 title: Specimen
+description: A stable, deterministic content surface for theme review and visual QA.
 ---
 
-## Typography
+This page renders representative examples of every major content type in Stencila documents. It provides a canonical target for `stencila snap`, theme authors, and automated review agents. Each section exercises specific theme token families — look for the italic notes below each heading.
 
-This is a paragraph demonstrating **bold text**, *italic text*, and `inline code`.
-It also includes [a link](/) and ~~strikethrough~~ text.
+# Typography
 
-Another paragraph with a soft line break
-and continued text on the next line.
+Exercises: `heading-*`, `paragraph-*`, `link-*`, `text-*`, `font-family-*` tokens
 
-## Code
+This is a standard paragraph demonstrating **bold text**, *italic text*, `inline code`, [a hyperlink](/), ~~strikethrough~~, and a subscript H~2~O along with a superscript x^2^. Paragraphs are the most common content block and their spacing, line height, and text alignment are controlled by the `paragraph-*` token family.
+
+A second paragraph follows to demonstrate inter-paragraph spacing. Good vertical rhythm between paragraphs is essential for readability, especially in long-form documents. The gap between these two paragraphs is governed by `--paragraph-spacing`.
+
+A third paragraph with a soft line break
+continues here on the next line, demonstrating how text reflows within a single paragraph block.
+
+# Headings
+
+Exercises: `heading-*` scale and weight progression tokens
+
+## Heading Level 2
+
+### Heading Level 3
+
+#### Heading Level 4
+
+##### Heading Level 5
+
+###### Heading Level 6
+
+# Lists
+
+Exercises: `list-*` tokens including marker styles, indentation, and nested spacing
+
+- First unordered item with enough text to potentially wrap to a second line on narrower viewports
+- Second unordered item
+  - Nested item demonstrating indentation
+  - Another nested item
+    - Deeply nested item
+- Third unordered item
+
+1. First ordered item
+2. Second ordered item with enough text to demonstrate how numbered lists handle line wrapping and alignment of continuation text
+3. Third ordered item
+   1. Nested ordered item
+   2. Another nested ordered item
+
+# Blockquotes
+
+Exercises: `quote-*` tokens for border, background, and typography
+
+> This is a blockquote demonstrating the left border accent, background tint, and typography adjustments. Blockquotes are commonly used for pull quotes, testimonials, and highlighted passages.
+>
+> A second paragraph within the same blockquote tests multi-paragraph spacing inside the quote container.
+
+# Code
+
+Exercises: `code-*`, `code-font-family` tokens
+
+Inline code like `fibonacci(10)` uses the `code-*` inline tokens for background, padding, and font size. Code blocks below exercise the block-level tokens and syntax highlighting.
 
 ```python
 def greet(name: str) -> str:
     """Return a greeting message."""
     return f"Hello, {name}!"
+
+class DataProcessor:
+    def __init__(self, threshold: float = 0.5):
+        self.threshold = threshold
+
+    def process(self, values: list[float]) -> list[float]:
+        return [v for v in values if v > self.threshold]
 ```
 
 ```javascript
@@ -23,46 +79,125 @@ function fibonacci(n) {
   if (n <= 1) return n;
   return fibonacci(n - 1) + fibonacci(n - 2);
 }
+
+const results = Array.from({ length: 10 }, (_, i) => fibonacci(i));
+console.log("Fibonacci sequence:", results.join(", "));
 ```
 
-## Lists
+```r
+# Linear regression analysis
+model <- lm(mpg ~ wt + hp, data = mtcars)
+summary(model)
 
-- First unordered item
-- Second unordered item
-  - Nested item
-- Third unordered item
-
-1. First ordered item
-2. Second ordered item
-3. Third ordered item
-
-## Blockquotes
-
-> This is a blockquote with a single paragraph of text.
-> It can span multiple lines.
-
-## Tables
-
-| Column A | Column B | Column C |
-|----------|----------|----------|
-| Cell 1   | Cell 2   | Cell 3   |
-| Cell 4   | Cell 5   | Cell 6   |
-
-## Admonitions
-
-> [!NOTE]
-> This is an informational note admonition.
-
-## Figures
-
-::: figure
-
-![Placeholder figure](placeholder.png)
-
-:::
+predict(model, newdata = data.frame(wt = 3.0, hp = 150))
+```
 
 ## Math
 
+Exercises: `math-*`, `math-font-family` tokens for block and inline expressions
+
+The quadratic formula $x = \frac{-b \pm \sqrt{b^2 - 4ac}}{2a}$ appears inline within this paragraph, demonstrating how math integrates with surrounding text flow.
+
 $$
-E = mc^2
+\int_0^\infty e^{-x^2} \, dx = \frac{\sqrt{\pi}}{2}
 $$
+
+$$
+\nabla \times \mathbf{E} = -\frac{\partial \mathbf{B}}{\partial t}
+$$
+
+
+## Images
+
+Exercises: `image-*` tokens for layout, titles, and captions
+
+![A standalone image demonstrating block-level image layout and responsive width constraints](https://placehold.co/680x320/7c3aed/e9d5ff?text=Image+Object)
+
+
+## Tables
+
+Exercises: `table-*` tokens including headers, borders, striping, captions, and notes
+
+| Element   | Symbol | Atomic Number | Category       |
+| :-------- | :----: | ------------: | :------------- |
+| Hydrogen  |   H    |             1 | Nonmetal       |
+| Helium    |   He   |             2 | Noble gas      |
+| Lithium   |   Li   |             3 | Alkali metal   |
+| Carbon    |   C    |             6 | Nonmetal       |
+| Nitrogen  |   N    |             7 | Nonmetal       |
+| Oxygen    |   O    |             8 | Nonmetal       |
+
+Another table with caption and notes:
+
+::: table Table 1
+
+Selected physical properties of common solvents used in organic chemistry. Boiling points measured at standard atmospheric pressure.
+
+| Solvent       | Formula           | Boiling Point (°C) | Density (g/mL) | Polarity |
+| :------------ | :---------------- | ------------------: | --------------: | :------- |
+| Water         | H₂O               |               100.0 |           0.997 | High     |
+| Ethanol       | C₂H₅OH            |                78.4 |           0.789 | High     |
+| Acetone       | (CH₃)₂CO          |                56.1 |           0.784 | Medium   |
+| Dichloromethane | CH₂Cl₂          |                39.6 |           1.327 | Medium   |
+| Hexane        | C₆H₁₄             |                69.0 |           0.659 | Low      |
+
+Data sourced from CRC Handbook of Chemistry and Physics. All measurements at 25 °C unless noted otherwise.
+
+:::
+
+
+## Figures
+
+Exercises: `figure-*` tokens including container styling, captions, labels, and content layout
+
+::: figure
+
+An example figure with a single-paragraph caption describing the placeholder image content. Figure captions use the `--figure-caption-*` token family.
+
+![Placeholder figure](https://placehold.co/680x400/2568ef/ddd?text=Figure+Content)
+
+:::
+
+::: figure Figure 1
+
+Comparison of signal amplitude across three experimental conditions. The labeled figure demonstrates the `--figure-label-*` tokens for the automatic "Figure 1" prefix. A second caption paragraph tests multi-paragraph caption spacing within the figure container.
+
+![Labeled figure](https://placehold.co/680x400/166534/d1fae5?text=Figure+1)
+
+:::
+
+
+## Admonitions
+
+Exercises: `admonition-*` tokens including type-specific colors, borders, icons, and disclosure
+
+> [!NOTE]
+> This is an informational note. Notes are used for supplementary information that adds context without interrupting the main flow of the document.
+
+> [!TIP]
+> A helpful tip for the reader. Tips suggest best practices or shortcuts that improve the reader's experience.
+
+> [!IMPORTANT]
+> Important information that the reader should not overlook. This admonition type uses a distinct color to convey significance.
+
+> [!WARNING]
+> A warning about potential pitfalls. Warnings alert the reader to common mistakes or risky actions that could cause problems.
+
+> [!DANGER]
+> A danger alert for critical risks. This is the strongest admonition type and signals that the reader must take immediate care.
+
+> [!NOTE]- Collapsible Admonition (Initially Expanded)
+> This admonition uses the disclosure toggle. The chevron icon, its rotation animation, and open/closed state are controlled by the `--admonition-chevron-*` tokens.
+
+> [!TIP]+ Collapsed Admonition (Initially Collapsed)
+> This content is hidden by default and revealed when the reader clicks the toggle. It demonstrates the folded state for admonitions with lengthy supplementary content.
+
+## Thematic Breaks
+
+Exercises: `thematic-break-*` tokens for border style, width, color, and spacing
+
+Content before the thematic break.
+
+---
+
+Content after the thematic break demonstrates the vertical spacing and visual weight of horizontal rules.
