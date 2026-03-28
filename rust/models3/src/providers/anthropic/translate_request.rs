@@ -330,11 +330,29 @@ fn translate_document(document: &crate::types::content::DocumentData) -> SdkResu
 }
 
 fn translate_tool_result(tool_result: &crate::types::content::ToolResultData) -> Value {
-    let content_value = if let Some(s) = tool_result.content.as_str() {
-        Value::String(s.to_string())
+    let text_value = if let Some(s) = tool_result.content.as_str() {
+        s.to_string()
     } else {
-        Value::String(tool_result.content.to_string())
+        tool_result.content.to_string()
     };
+
+    // When the tool result carries image data, use Anthropic's array content
+    // format so the image is nested inside the tool_result block (required by
+    // the Messages API — bare image blocks cannot be siblings of tool_result
+    // blocks in the same user message).
+    let content_value = if let (Some(data), Some(media_type)) =
+        (&tool_result.image_data, &tool_result.image_media_type)
+    {
+        use base64::Engine;
+        let encoded = base64::engine::general_purpose::STANDARD.encode(data);
+        json!([
+            {"type": "text", "text": text_value},
+            {"type": "image", "source": {"type": "base64", "media_type": media_type, "data": encoded}}
+        ])
+    } else {
+        Value::String(text_value)
+    };
+
     let mut block = json!({
         "type": "tool_result",
         "tool_use_id": tool_result.tool_call_id,

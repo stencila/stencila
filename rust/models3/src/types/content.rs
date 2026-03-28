@@ -94,6 +94,29 @@ impl ContentPart {
         }
     }
 
+    /// Create a tool result content part with an attached image.
+    ///
+    /// Providers that support images in tool results (e.g. Anthropic) will
+    /// nest the image inside the tool-result block. Other providers ignore
+    /// the image data and fall back to the text content.
+    pub fn tool_result_with_image(
+        tool_call_id: impl Into<String>,
+        content: serde_json::Value,
+        is_error: bool,
+        image_data: Vec<u8>,
+        image_media_type: impl Into<String>,
+    ) -> Self {
+        Self::ToolResult {
+            tool_result: ToolResultData {
+                tool_call_id: tool_call_id.into(),
+                content,
+                is_error,
+                image_data: Some(image_data),
+                image_media_type: Some(image_media_type.into()),
+            },
+        }
+    }
+
     /// Extract the text from this content part, if it is a text part.
     #[must_use]
     pub fn as_text(&self) -> Option<&str> {

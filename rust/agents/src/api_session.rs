@@ -1319,14 +1319,13 @@ impl ApiSession {
                         {
                             let mut msg = Message::new(
                                 Role::Tool,
-                                vec![
-                                    ContentPart::tool_result(
-                                        &result.tool_call_id,
-                                        result.content.clone(),
-                                        result.is_error,
-                                    ),
-                                    ContentPart::image_data(att.data.clone(), &att.media_type),
-                                ],
+                                vec![ContentPart::tool_result_with_image(
+                                    &result.tool_call_id,
+                                    result.content.clone(),
+                                    result.is_error,
+                                    att.data.clone(),
+                                    &att.media_type,
+                                )],
                             );
                             msg.tool_call_id = Some(result.tool_call_id.clone());
                             messages.push(msg);
@@ -2884,6 +2883,18 @@ mod guard_wiring_tests {
             .any(|part| matches!(part, ContentPart::Image { .. }))
     }
 
+    /// Whether any tool result content part carries embedded image data.
+    fn has_tool_result_image(msg: &Message) -> bool {
+        msg.content.iter().any(|part| {
+            matches!(
+                part,
+                ContentPart::ToolResult {
+                    tool_result
+                } if tool_result.image_data.is_some()
+            )
+        })
+    }
+
     /// Assert that a vision-capable non-Anthropic profile defers images to a
     /// follow-up user message rather than inlining them in tool results.
     fn assert_deferred_image_injection(profile: Box<dyn ProviderProfile>) {
@@ -2954,15 +2965,23 @@ mod guard_wiring_tests {
             .with_provider_id("anthropic");
         let messages = messages_with_image_attachment(Box::new(profile));
 
-        // Tool-result messages must contain inline image data.
+        // Tool-result messages must carry image data embedded in the ToolResult
+        // content part (not as a sibling Image part), so the Anthropic
+        // translator can nest the image inside the tool_result block.
         let tool_msgs: Vec<&Message> = messages.iter().filter(|m| m.role == Role::Tool).collect();
         assert!(
             !tool_msgs.is_empty(),
             "should have at least one Tool message"
         );
         assert!(
-            tool_msgs.iter().any(|m| has_image_part(m)),
-            "Anthropic profile should have inline image data in tool-result message"
+            tool_msgs.iter().any(|m| has_tool_result_image(m)),
+            "Anthropic profile should have image data embedded in ToolResult content part"
+        );
+        // The image must NOT be a sibling Image content part (that would
+        // cause an Anthropic API error).
+        assert!(
+            !tool_msgs.iter().any(|m| has_image_part(m)),
+            "Anthropic profile should NOT have a sibling Image content part in tool messages"
         );
 
         // No follow-up User message with image data should be emitted.

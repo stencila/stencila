@@ -1690,6 +1690,91 @@ fn anthropic_request_translation_beta_features_alias() -> Result<(), Box<dyn std
     Ok(())
 }
 
+#[test]
+fn anthropic_request_translation_tool_result_with_image() -> Result<(), Box<dyn std::error::Error>>
+{
+    let request = Request::new(
+        "claude-sonnet-4-5-20250929",
+        vec![
+            Message::user("Take a screenshot"),
+            Message::new(
+                Role::Assistant,
+                vec![ContentPart::tool_call(
+                    "tc-1",
+                    "snap",
+                    serde_json::json!({}),
+                )],
+            ),
+            Message::new(
+                Role::Tool,
+                vec![ContentPart::tool_result_with_image(
+                    "tc-1",
+                    serde_json::Value::String("screenshot captured".into()),
+                    false,
+                    vec![0x89, 0x50, 0x4E, 0x47],
+                    "image/png",
+                )],
+            ),
+        ],
+    );
+
+    let translated = anthropic::translate_request::translate_request(&request, false, None)?;
+
+    let messages = translated
+        .body
+        .get("messages")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("messages should be array")?;
+
+    // Find the user message containing the tool_result (Anthropic maps Tool → user)
+    let tool_result_msg = messages
+        .iter()
+        .filter(|m| m.get("role").and_then(|r| r.as_str()) == Some("user"))
+        .find(|m| {
+            m.get("content")
+                .and_then(|c| c.as_array())
+                .is_some_and(|arr| {
+                    arr.iter()
+                        .any(|b| b.get("type").and_then(|t| t.as_str()) == Some("tool_result"))
+                })
+        })
+        .ok_or("should have a user message with tool_result")?;
+
+    let content = tool_result_msg
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("content should be array")?;
+
+    // The tool_result block should have an array content with text + image nested inside
+    let tool_result_block = content
+        .iter()
+        .find(|b| b.get("type").and_then(|t| t.as_str()) == Some("tool_result"))
+        .ok_or("should have a tool_result block")?;
+
+    let inner_content = tool_result_block
+        .get("content")
+        .and_then(serde_json::Value::as_array)
+        .ok_or("tool_result content should be an array when image is present")?;
+
+    assert_eq!(inner_content.len(), 2, "should have text + image");
+    assert_eq!(inner_content[0]["type"], "text");
+    assert_eq!(inner_content[0]["text"], "screenshot captured");
+    assert_eq!(inner_content[1]["type"], "image");
+    assert_eq!(inner_content[1]["source"]["type"], "base64");
+    assert_eq!(inner_content[1]["source"]["media_type"], "image/png");
+
+    // There must NOT be a bare image block as a sibling of the tool_result
+    let has_bare_image = content
+        .iter()
+        .any(|b| b.get("type").and_then(|t| t.as_str()) == Some("image"));
+    assert!(
+        !has_bare_image,
+        "image must be nested inside tool_result, not a sibling"
+    );
+
+    Ok(())
+}
+
 // ──────────────── Gemini adapter tests ────────────────
 
 #[test]

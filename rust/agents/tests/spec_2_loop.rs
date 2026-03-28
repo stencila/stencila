@@ -3316,7 +3316,25 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
     );
 
     let second_req = &requests[1];
-    let has_image = second_req.messages.iter().any(|msg| {
+    // With the inline strategy, the image data is embedded inside the
+    // ToolResult content part (not as a sibling Image part) so the
+    // Anthropic translator can nest it inside the tool_result block.
+    let has_image_in_tool_result = second_req.messages.iter().any(|msg| {
+        msg.role == Role::Tool
+            && msg.content.iter().any(|part| {
+                matches!(
+                    part,
+                    ContentPart::ToolResult { tool_result }
+                        if tool_result.image_data.is_some()
+                )
+            })
+    });
+    assert!(
+        has_image_in_tool_result,
+        "Anthropic tool result should have image data embedded in the ToolResult content part"
+    );
+    // The image must NOT appear as a sibling Image content part.
+    let has_sibling_image = second_req.messages.iter().any(|msg| {
         msg.role == Role::Tool
             && msg
                 .content
@@ -3324,8 +3342,8 @@ async fn anthropic_image_tool_result_includes_image_in_message() -> AgentResult<
                 .any(|part| matches!(part, ContentPart::Image { .. }))
     });
     assert!(
-        has_image,
-        "Anthropic tool result message should include an Image content part"
+        !has_sibling_image,
+        "Anthropic tool result should NOT have a sibling Image content part"
     );
 
     Ok(())
