@@ -778,6 +778,52 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
                 format!("Get artifact `{id}`")
             }
         }
+        "snap" => {
+            let bool_arg = |key: &str| -> bool {
+                obj.and_then(|o| o.get(key))
+                    .and_then(Value::as_bool)
+                    .unwrap_or(false)
+            };
+            let route = str_arg("route").unwrap_or_else(|| "/".to_string());
+            let mut label = format!("Snap {route}");
+            if let Some(device) = str_arg("device") {
+                let _ = write!(label, " ({device})");
+            }
+            if let Some(selector) = str_arg("selector") {
+                let _ = write!(label, " [{}]", truncate_for_display(&selector, 30));
+            }
+            let mut flags = Vec::new();
+            if bool_arg("full_page") {
+                flags.push("full page");
+            }
+            if bool_arg("dark") {
+                flags.push("dark");
+            }
+            if bool_arg("light") {
+                flags.push("light");
+            }
+            if bool_arg("print") {
+                flags.push("print");
+            }
+            if let Some(measure) = str_arg("measure") {
+                flags.push(match measure.as_str() {
+                    "auto" => "measure: auto",
+                    "document" => "measure: document",
+                    "site" => "measure: site",
+                    "all" => "measure: all",
+                    "header" => "measure: header",
+                    "nav" => "measure: nav",
+                    "main" => "measure: main",
+                    "footer" => "measure: footer",
+                    "theme" => "measure: theme",
+                    _ => "measure",
+                });
+            }
+            if !flags.is_empty() {
+                let _ = write!(label, ", {}", flags.join(", "));
+            }
+            label
+        }
         "list_agents" => "List agents".to_string(),
         "list_workflows" => "List workflows".to_string(),
         "delegate" => {
@@ -1262,6 +1308,45 @@ mod tests {
             format_tool_start("workflow_get_run", &Value::Null),
             "Get workflow run"
         );
+    }
+
+    #[test]
+    fn format_snap_route_only() {
+        let args = serde_json::json!({"route": "/about"});
+        assert_eq!(format_tool_start("snap", &args), "Snap /about");
+    }
+
+    #[test]
+    fn format_snap_default_route() {
+        let args = serde_json::json!({});
+        assert_eq!(format_tool_start("snap", &args), "Snap /");
+    }
+
+    #[test]
+    fn format_snap_full_page_dark() {
+        let args = serde_json::json!({"route": "/", "full_page": true, "dark": true});
+        assert_eq!(format_tool_start("snap", &args), "Snap /, full page, dark");
+    }
+
+    #[test]
+    fn format_snap_device_and_selector() {
+        let args = serde_json::json!({"route": "/docs", "device": "mobile", "selector": "header"});
+        assert_eq!(
+            format_tool_start("snap", &args),
+            "Snap /docs (mobile) [header]"
+        );
+    }
+
+    #[test]
+    fn format_snap_measure() {
+        let args = serde_json::json!({"route": "/", "measure": "theme", "screenshot": false});
+        assert_eq!(format_tool_start("snap", &args), "Snap /, measure: theme");
+    }
+
+    #[test]
+    fn format_snap_boolean_false_omitted() {
+        let args = serde_json::json!({"route": "/", "full_page": false, "dark": false});
+        assert_eq!(format_tool_start("snap", &args), "Snap /");
     }
 
     #[test]
