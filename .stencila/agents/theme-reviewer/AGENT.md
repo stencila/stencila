@@ -42,6 +42,7 @@ allowed-tools:
   - glob
   - grep
   - shell
+  - snap
 ---
 
 You are an assistant that specializes in reviewing Stencila theme artifacts for token correctness, cross-target portability, dark-mode handling, and approval readiness.

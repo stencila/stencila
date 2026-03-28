@@ -20,7 +20,7 @@ keywords:
   - dark mode
   - font-face
   - self-hosted fonts
-allowed-tools: read_file write_file edit_file apply_patch glob grep shell ask_user
+allowed-tools: read_file write_file edit_file apply_patch glob grep shell snap ask_user
 ---
 
 ## Overview
@@ -36,6 +36,7 @@ Use the localized references in this skill directory instead of `site/docs/theme
 - [`references/plot-tokens.md`](references/plot-tokens.md) for plot theming tokens
 - [`references/site-token-families.md`](references/site-token-families.md) for site-theme component families and verified exact site token names
 - [`references/cli-commands.md`](references/cli-commands.md) for token discovery and validation commands
+- [`references/snap-tool.md`](references/snap-tool.md) for visual verification with the `snap` tool and the `/_specimen` route
 
 Also use the theme CLI as a live source of truth when available:
 
@@ -45,6 +46,52 @@ Also use the theme CLI as a live source of truth when available:
 - `stencila themes tokens` to list builtin tokens, optionally filtered by `--scope` (`semantic`, `node`, `site`, `plot`, `print`) and `--family`, with `--as json|yaml|toml` for machine-readable output
 - `stencila themes validate <FILE>` to check that a CSS theme parses and that custom properties correspond to known builtin design tokens; use `--strict` when unknown tokens should fail validation
 - `stencila themes remove <NAME>` to remove a user theme; use `--force` to skip the confirmation prompt
+
+## Visual verification with `snap` and `/_specimen`
+
+Use the `snap` tool throughout theme creation to visually verify how changes render. You can snap any page served by Stencila — including the user's own documents and site pages — but the `/_specimen` route is the canonical target for theme visual QA. It is a stable, deterministic page that renders representative examples of every major content type — typography, headings, lists, blockquotes, code blocks, math, images, tables, figures, admonitions, and thematic breaks — so it exercises all token families in one page. See [`references/snap-tool.md`](references/snap-tool.md) for the full parameter reference.
+
+### When to snap
+
+- **Before starting**: snap `/_specimen` to see the current baseline appearance and token values before making any changes.
+- **After each significant change**: snap again to confirm the change looks correct and has no unintended side-effects on other content types.
+- **At the end**: snap the final result across devices and color schemes for a comprehensive check.
+
+### Key snap parameters for theme work
+
+| Parameter | Use for |
+|---|---|
+| `route: "/_specimen"` | Target the specimen page — exercises all major content types in one page |
+| `measure: "theme"` | Collect measurements using the theme-oriented selector preset |
+| `tokens: true` | Extract resolved CSS custom property values to verify token overrides took effect. **Always combine with `token_prefix`** — without a prefix filter the output includes hundreds of tokens and is likely to be truncated |
+| `token_prefix: ["color", "font"]` | Filter token output to specific families (requires `tokens: true`). Always provide this when using `tokens` to keep results focused and avoid truncation |
+| `palette: true` | Extract the page's color palette to check color harmony |
+| `dark: true` or `light: true` | Force a color scheme to verify light and dark variants |
+| `device: "mobile"` | Test responsive behavior at a specific viewport (also `"tablet"`, `"laptop"`, `"desktop"`) |
+| `devices: ["mobile", "laptop", "desktop"]` | Batch measurement across multiple viewports |
+| `full_page: true` | Capture the full scrollable page instead of just the viewport |
+| `selector: "stencila-table"` | Focus on a specific element type |
+| `assert: ["css(.title).fontSize>=28px"]` | Assert specific CSS property values |
+
+### Typical snap workflow during theme creation
+
+1. Baseline snap: `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — see what you are starting from. Always use `token_prefix` to avoid truncation.
+2. After setting semantic tokens: `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — verify the foundation.
+3. After adding module tokens: `snap(route: "/_specimen", selector: "stencila-code-chunk")` — spot-check specific node types. Use `tokens: true, token_prefix: ["code"]` to verify code-specific tokens.
+4. Dark mode check: `snap(route: "/_specimen", full_page: true, dark: true)` — verify dark variants.
+5. Responsive check: `snap(route: "/_specimen", full_page: true, devices: ["mobile", "laptop", "desktop"])` — verify layout across viewports.
+6. Color harmony: `snap(route: "/_specimen", palette: true)` — review the overall color palette.
+
+You can also snap the user's actual document route (e.g., `route: "/"` or `route: "/my-doc"`) alongside `/_specimen` to verify the theme looks correct on real content too.
+
+### When snap is unavailable
+
+If `snap` cannot be run — for example, no Stencila server is running, the `/_specimen` route is not available, or the theme is not yet renderable — do not fabricate visual findings. Instead:
+
+- State that visual verification is **pending** and explain why (e.g., "no running Stencila instance" or "theme not yet applied to a served route").
+- Continue with CLI validation (`stencila themes validate`) and token verification (`stencila themes tokens`) as the primary quality checks.
+- Include a concrete recommendation for which `snap` commands to run once the environment is available.
+- Never claim snap-based findings unless `snap` was actually executed and returned results.
 
 Stencila themes are token-first. Prefer semantic tokens as the stable public API, use module-specific tokens only when needed, and add custom CSS rules only where tokens are insufficient.
 
@@ -200,6 +247,12 @@ Then add only the module-specific tokens or focused selectors needed for the use
 10. Validate with target-specific checks.
     - When implementation is requested and you have a concrete theme file path, recommend or run `stencila themes validate <FILE>` before finishing.
     - Use `stencila themes validate <FILE> --strict` when the user wants unknown tokens treated as errors.
+    - Use `snap` to visually verify the rendered result on the specimen page and the user's actual content:
+      - `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — verify content types render correctly and key token overrides took effect. Adjust the prefix list to match the token families you changed.
+      - `snap(route: "/_specimen", dark: true, full_page: true)` — verify dark-mode appearance if dark variants were set.
+      - `snap(route: "/_specimen", devices: ["mobile", "laptop", "desktop"])` — verify responsive behavior across viewports.
+      - `snap(route: "/_specimen", palette: true)` — verify color harmony.
+      - Also snap the user's actual document or site route to confirm the theme works on real content.
     - State plainly that Stencila translates themes across targets, but not every web CSS rule or module maps unchanged to PDF, DOCX, email, Python, or R.
     - Recommend concrete checks for each required target:
       - HTML or site preview for screen behavior, responsive layout, and site chrome styling
@@ -223,7 +276,7 @@ When useful, structure the response like this:
 8. Validation checklist
 9. Final artifact or advisory output
 
-See [`references/cli-commands.md`](references/cli-commands.md) for a focused command catalog.
+See [`references/cli-commands.md`](references/cli-commands.md) for CLI commands and [`references/snap-tool.md`](references/snap-tool.md) for visual verification.
 
 ## Examples
 
@@ -285,6 +338,30 @@ Notes:
 - The exact page token names shown here are verified example tokens; when working live, re-check with `stencila themes tokens --scope print` if exact names matter.
 - Keep the page tokens at top-level `:root` so they can be exported to print/PDF flows.
 - This is a document theme, so use only a focused table override instead of broad selector rewrites.
+
+Input: Create a minimal document theme with teal accents and verify it renders correctly.
+
+Output:
+
+```css
+:root {
+  --text-font-family: "Inter", Arial, sans-serif;
+  --text-color-primary: #1f2937;
+  --color-accent: #0f766e;
+  --surface-background: #fafafa;
+  --content-width: 70ch;
+  --border-color-default: #d1d5db;
+}
+```
+
+Validation checklist:
+1. `stencila themes validate theme.css` — confirm tokens parse and are recognized.
+2. `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "color", "surface"])` — verify the semantic foundation renders correctly and token overrides took effect.
+3. `snap(route: "/_specimen", dark: true, full_page: true)` — check that the base-theme dark fallbacks are acceptable (no explicit dark variants were set, so base defaults apply).
+4. `snap(route: "/_specimen", devices: ["mobile", "desktop"])` — confirm layout across viewports.
+5. `snap(route: "/_specimen", palette: true)` — verify the teal accent integrates with surrounding colors.
+
+If `snap` cannot be run (e.g., no Stencila server is running), mark visual verification as **pending** and rely on `stencila themes validate` and `stencila themes tokens --scope semantic` for now. Recommend running the snap commands above once the server is available.
 
 Input: Update our published site theme so the header is slimmer, navigation is quieter, the site title is more prominent, and search feels more branded.
 
@@ -418,6 +495,7 @@ Notes:
 - If the theme references assets that are not present in the workspace, do not fabricate files; keep a clear placeholder path or request the missing assets.
 - If exact token availability is uncertain, run `stencila themes tokens` with the narrowest useful `--scope` and `--family` filters instead of guessing from memory.
 - If a concrete theme file is being created or updated, validate it with `stencila themes validate <FILE>` and mention `--strict` when unknown-token failures are desirable.
+- If `snap` cannot be run (no server, no served route, theme not yet renderable), mark visual verification as "pending" in the output, rely on CLI validation and token verification, and recommend specific `snap` commands to run once the environment is ready. Do not claim snap-based findings without actual snap results.
 
 ## Maintainer guidance
 

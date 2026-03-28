@@ -47,6 +47,7 @@ allowed-tools:
   - glob
   - grep
   - shell
+  - snap
   - ask_user
 ---
 
