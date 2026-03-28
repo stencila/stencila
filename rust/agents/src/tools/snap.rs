@@ -315,15 +315,26 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         },
     };
 
-    let result = stencila_snap::snap(options)
-        .await
-        .map_err(|error| AgentError::Io {
-            message: format!("snap failed: {error}"),
-        })?;
+    // The snap crate uses the synchronous `headless_chrome` library internally,
+    // so all browser operations (launch, navigate, measure, capture) block the
+    // calling thread despite the functions being marked `async`. Offload the
+    // entire snap operation to a blocking thread so the tokio runtime stays free
+    // (e.g. to drive TUI tick events and spinner animations).
+    let handle = tokio::runtime::Handle::current();
+    let output = tokio::task::spawn_blocking(move || {
+        handle.block_on(async move { stencila_snap::snap(options).await })
+    })
+    .await
+    .map_err(|error| AgentError::Io {
+        message: format!("snap task panicked: {error}"),
+    })?
+    .map_err(|error| AgentError::Io {
+        message: format!("snap failed: {error}"),
+    })?;
 
-    let screenshot_bytes = result.screenshot.clone();
+    let screenshot_bytes = output.screenshot.clone();
 
-    let json_text = result.to_json().map_err(|error| AgentError::Io {
+    let json_text = output.to_json().map_err(|error| AgentError::Io {
         message: format!("failed to serialize snap result: {error}"),
     })?;
 
