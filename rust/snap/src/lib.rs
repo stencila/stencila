@@ -305,9 +305,23 @@ fn build_capture_info(
     }
 }
 
+/// Normalize an optional string: treat empty and whitespace-only values as `None`.
+fn normalize_optional_selector(value: Option<String>) -> Option<String> {
+    value.filter(|s| !s.trim().is_empty())
+}
+
 /// Main entry point for snap operation
 pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     let start = Instant::now();
+
+    // Normalize selector and wait_for: treat empty/whitespace-only strings as None
+    // so that callers don't need to distinguish between absent and empty values.
+    let selector = normalize_optional_selector(options.selector);
+    let wait_config = WaitConfig {
+        wait_for: normalize_optional_selector(options.wait_config.wait_for),
+        wait_until: options.wait_config.wait_until,
+        delay: options.wait_config.delay,
+    };
 
     // Resolve the target: route or file path
     let target = match &options.route_or_path {
@@ -357,7 +371,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
     // Navigate and wait
     browser
-        .navigate_and_wait(&url, &options.wait_config, options.print_media)
+        .navigate_and_wait(&url, &wait_config, options.print_media)
         .await?;
 
     // Resolve measure mode to a concrete preset.
@@ -377,8 +391,8 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     };
 
     // Build selector list
-    let selector_overrides_preset = options.selector.is_some();
-    let mut selectors = if let Some(sel) = &options.selector {
+    let selector_overrides_preset = selector.is_some();
+    let mut selectors = if let Some(sel) = &selector {
         // Explicit selector overrides preset
         vec![sel.clone()]
     } else if let Some(preset) = resolved_preset {
@@ -411,7 +425,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
             &viewport,
             MeasurementContext {
                 viewport_only_capture: options.screenshot
-                    && options.selector.is_none()
+                    && selector.is_none()
                     && !options.full_page,
             },
         );
@@ -452,7 +466,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     let raw_capture = if options.screenshot {
         let capture_opts = CaptureOptions {
             full_page: options.full_page,
-            selector: options.selector.clone(),
+            selector: selector.clone(),
         };
         Some(browser.capture_screenshot(&capture_opts, &viewport).await?)
     } else {
@@ -478,7 +492,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         };
 
     let capture = if options.screenshot {
-        let mode = if options.selector.is_some() {
+        let mode = if selector.is_some() {
             CaptureMode::Element
         } else if options.full_page {
             CaptureMode::FullPage
@@ -488,7 +502,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
         Some(build_capture_info(
             mode,
-            options.selector.as_ref(),
+            selector.as_ref(),
             matched_elements,
             full_page_content_height,
             screenshot_resize.as_ref(),
@@ -511,7 +525,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
             // Reload and wait
             browser
-                .navigate_and_wait(&url, &options.wait_config, options.print_media)
+                .navigate_and_wait(&url, &wait_config, options.print_media)
                 .await?;
 
             // Measure with same selectors
@@ -522,7 +536,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
                     &device_viewport,
                     MeasurementContext {
                         viewport_only_capture: options.screenshot
-                            && options.selector.is_none()
+                            && selector.is_none()
                             && !options.full_page,
                     },
                 );
@@ -535,7 +549,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
             let device_capture = if options.screenshot {
                 let capture_opts = CaptureOptions {
                     full_page: options.full_page,
-                    selector: options.selector.clone(),
+                    selector: selector.clone(),
                 };
                 Some(
                     browser
@@ -571,14 +585,14 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
             let device_capture = if options.screenshot {
                 Some(build_capture_info(
-                    if options.selector.is_some() {
+                    if selector.is_some() {
                         CaptureMode::Element
                     } else if options.full_page {
                         CaptureMode::FullPage
                     } else {
                         CaptureMode::Viewport
                     },
-                    options.selector.as_ref(),
+                    selector.as_ref(),
                     device_matched_elements,
                     device_full_page_content_height,
                     device_screenshot_resize.as_ref(),
@@ -616,7 +630,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         ok,
         url,
         target: TargetInfo {
-            selector: options.selector,
+            selector,
             full_page: options.full_page,
             measured_selectors: selectors,
             measure_preset: if !selector_overrides_preset {
@@ -718,5 +732,20 @@ mod tests {
 
         assert_eq!(capture.matched_elements, Some(3));
         assert!(capture.used_selector_for_capture);
+    }
+
+    #[test]
+    fn normalize_optional_selector_filters_empty_values() {
+        assert_eq!(normalize_optional_selector(None), None);
+        assert_eq!(normalize_optional_selector(Some(String::new())), None);
+        assert_eq!(normalize_optional_selector(Some("   ".to_string())), None);
+        assert_eq!(
+            normalize_optional_selector(Some("body".to_string())),
+            Some("body".to_string())
+        );
+        assert_eq!(
+            normalize_optional_selector(Some(" .title ".to_string())),
+            Some(" .title ".to_string())
+        );
     }
 }
