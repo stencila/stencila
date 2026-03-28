@@ -15,17 +15,19 @@ Different model families are trained and optimized for different tool interfaces
 
 Stencila handles this automatically. When an agent session starts, Stencila selects the tool definitions and system prompts that match the model's provider. Users do not need to configure this; the right tools are provided to the right models.
 
-A core set of tools is shared across all providers. Provider-specific tools extend this base:
+A core set of tools is shared across all providers. Provider-specific tools extend this base, and optional tools are available to agents that list them in `allowed-tools`:
 
 | Tool | Providers | Description |
 | ---- | --------- | ----------- |
 | [**Shell**](shell/) | All | Execute shell commands |
 | [**File**](file) (`read_file`, `write_file`, `grep`, `glob`) | All | Read, write, and search files |
-| [**Web**](web) (`web_fetch`) | All | Fetch web pages and save content locally |
-| `edit_file` | Anthropic, Gemini | Apply exact-match `old_string`/`new_string` replacements |
-| `apply_patch` | OpenAI | Apply multi-file edits in v4a diff format |
+| [`edit_file`](file#edit_file) | Anthropic, Gemini | Apply exact-match `old_string`/`new_string` replacements |
+| [`apply_patch`](file#apply_patch) | OpenAI | Apply multi-file edits in v4a diff format |
 | [`read_many_files`](file#read_many_files) | Gemini | Batch-read multiple files in a single call |
 | [`list_dir`](file#list_dir) | Gemini | List directory contents with depth options |
+| [**Web**](web) (`web_fetch`) | All | Fetch web pages and save content locally |
+| [**Snap**](snap) | Opt-in | Capture screenshots and collect structured measurements of served pages |
+| [**Orchestration**](orchestration) (`ask_user`, `list_agents`, `list_workflows`, `delegate`) | Opt-in | Discover agents and workflows, delegate tasks, and interact with users |
 
 ## Tool Guards
 

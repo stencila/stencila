@@ -1,5 +1,7 @@
 items:
   - file
   - shell
-  - snap
   - web
+  - snap
+  - orchestration
+
