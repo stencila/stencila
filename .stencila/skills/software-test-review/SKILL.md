@@ -40,7 +40,7 @@ This skill does not write or modify any code or test files. It only reads, evalu
 
 The review answers one central question: **Are these tests good enough to drive the Green phase of implementation?** Tests that are accepted should be a reliable specification of the slice's expected behavior. Tests that need revision should come back with specific, actionable feedback so the test-creation agent can fix them efficiently.
 
-A corollary question is equally important: **Does every test earn its keep?** Each test carries ongoing maintenance cost — it must be compiled, run, kept passing through refactors, and understood by future developers. A test is only worth that cost if it provides meaningful confidence that a real behavior works correctly. Trivial tests that merely restate the code, assert tautologies, or verify something the type system already guarantees add net-negative value: they cost time to maintain and provide no real safety net. This review must actively identify and flag such tests.
+A corollary question is equally important: **Does every test earn its keep?** Each test carries ongoing maintenance cost — it must be loaded, run, kept passing through refactors, and understood by future developers. A test is only worth that cost if it provides meaningful confidence that a real behavior works correctly. Trivial tests that merely restate the code, assert tautologies, or verify something the type system already guarantees add net-negative value: they cost time to maintain and provide no real safety net. This review must actively identify and flag such tests.
 
 The reviewer must distinguish between acceptance criteria that should drive automated tests and criteria that are better satisfied by implementation or human inspection. Documentation requirements, doc comments, README edits, changelog entries, and similar non-executable deliverables are usually **not** reasons to demand source-inspecting unit tests. Their absence from the test suite is not automatically a coverage gap.
 
@@ -53,7 +53,7 @@ This skill requires the following information to operate:
 | Slice name           | Yes      | Name or identifier of the current slice                     |
 | Slice scope          | Yes      | Concise description of what the slice covers                |
 | Acceptance criteria  | Yes      | The criteria the tests must verify                          |
-| Target packages      | Yes      | Packages, crates, modules, or directories involved          |
+| Target packages      | Yes      | Packages, modules, or directories involved                  |
 | Test files           | Yes      | List of test file paths to review                           |
 | Test command         | No       | Command used to run the tests                               |
 | Test execution results | No     | Structured output from running the tests (pass/fail counts, failure details) |
@@ -190,25 +190,25 @@ Assess each test across these dimensions:
 
 #### 7f. Triviality / Cost-Value Balance
 
-Every test has a maintenance cost: it must compile, execute, stay green through refactors, and be understood by future developers. A test is only worth that cost if it provides meaningful confidence that the system behaves correctly under conditions that could realistically fail. **Actively look for and flag trivial tests that add more maintenance cost than testing value.**
+Every test has a maintenance cost: it must be kept loadable, execute successfully, stay green through refactors, and be understood by future developers. A test is only worth that cost if it provides meaningful confidence that the system behaves correctly under conditions that could realistically fail. **Actively look for and flag trivial tests that add more maintenance cost than testing value.**
 
 Flag a test as trivial if it matches any of these anti-patterns:
 
 - **Tautological assertions** — the test asserts something that is guaranteed to be true by construction. Examples:
-  - Creating a struct with a field set to `42` and then asserting the field is `42` (this tests the language's assignment, not the code)
+  - Creating an object with a field set to `42` and then asserting the field is `42` (this tests the language's assignment, not the code)
   - Asserting that a constant equals its own literal value
   - Building a value and immediately checking it matches itself
 - **Type-system-verified properties** — the test verifies something the compiler or type checker already enforces. Examples:
-  - Asserting that a function that returns `Result<T, E>` produces a `Result` type
-  - Checking that a required struct field exists (in a language where the struct would not compile without it)
-  - Asserting that an enum variant is one of its known variants
+  - Asserting that a function with a declared return type actually returns that type (e.g., checking a function that returns `Optional[str]` produces an `Optional`)
+  - Checking that a required field exists on an object when the language would already reject its absence at compile time or construction time
+  - Asserting that a value is one of the known variants of a discriminated union or enum
 - **Constructor echo tests** — the test creates an object with known inputs and asserts each field matches the input, without exercising any logic, transformation, validation, or default-value computation. If the constructor has no interesting behavior (no validation, no defaults, no derived fields), testing it is tautological
 - **Getter/setter round-trips with no logic** — the test calls a setter and then a getter to confirm the value is stored, when the getter/setter pair is trivial (no validation, no transformation, no side effects)
-- **Existence checks with no behavior** — the test imports a symbol or calls a function with no assertions, only to confirm it exists and does not panic. This is sometimes called a "smoke test" but provides minimal value when the compiler already verifies the symbol exists
-- **String/display representation checks for trivial formats** — asserting that `Display` or `ToString` output matches a hardcoded string when the implementation is a trivial format string with no conditional logic
+- **Existence checks with no behavior** — the test imports a symbol or calls a function with no assertions, only to confirm it exists and does not raise an error. This is sometimes called a "smoke test" but provides minimal value when the language's tooling already verifies the symbol exists
+- **String/display representation checks for trivial formats** — asserting that a `toString()`, `__str__()`, `Display`, or similar string-conversion output matches a hardcoded string when the implementation is a trivial format string with no conditional logic
 - **Duplicate coverage** — the test covers exactly the same behavior and code path as another test in the same suite, with no meaningfully different inputs, edge cases, or assertions
 
-When evaluating whether a test is trivial, ask: **"What bug would this test catch that would not already be caught by the compiler, type system, or another test?"** If the answer is "none" or "only if someone makes a typo in a trivial one-liner," the test is trivial.
+When evaluating whether a test is trivial, ask: **"What bug would this test catch that would not already be caught by the compiler, type checker, linter, or another test?"** If the answer is "none" or "only if someone makes a typo in a trivial one-liner," the test is trivial.
 
 Trivial tests are not just useless — they are actively harmful because they:
 - Create false confidence that "we have N tests" when those tests catch nothing
@@ -303,9 +303,9 @@ A numbered list of concrete improvements in priority order. Each recommendation 
 ### Example 1: Accept — well-covered tests with minor style issues
 
 Slice scope: "Token validation for auth module"
-Acceptance criteria: `AuthToken` struct has `sub`, `exp`, `iat`, `roles` fields; `AuthError::MalformedToken` returned for empty string; expired tokens rejected
+Acceptance criteria: `AuthToken` type has `sub`, `exp`, `iat`, `roles` fields; `AuthError.MalformedToken` returned for empty string; expired tokens rejected
 
-Test execution: 3 tests, all failed with `error[E0433]: failed to resolve: could not find AuthToken in auth` — correct Red-phase behavior.
+Test execution: 3 tests, all failed with resolution errors indicating `AuthToken` cannot be found — correct Red-phase behavior.
 
 Review:
 
@@ -330,11 +330,11 @@ Review:
 > ### Findings
 >
 > **Convention conformance**
-> - **Low**: `test_auth_token_has_required_fields` uses `assert!` for field existence checks, while existing tests in the package use `assert_eq!` for struct field verification. Consistency is preferred but not blocking.
+> - **Low**: `test_auth_token_has_required_fields` uses a loose truthiness check for field existence, while existing tests in the package use equality assertions for field verification. Consistency is preferred but not blocking.
 >
 > ### Recommendations
 >
-> 1. Consider switching field assertions to `assert_eq!` to match existing conventions in the `auth` crate — this is minor and does not block acceptance
+> 1. Consider switching field assertions to equality checks to match existing conventions in the `auth` package — this is minor and does not block acceptance
 
 ### Example 2: Revise — missing coverage and test bugs
 
@@ -381,10 +381,10 @@ Review:
 
 ### Example 3: Revise — majority trivial tests inflating coverage
 
-Slice scope: "Add `Config` struct with validation for the settings module"
-Acceptance criteria: `Config::new` validates that `port` is 1–65535; `Config::new` validates that `host` is non-empty; `Config::new` returns `ConfigError::InvalidPort` and `ConfigError::InvalidHost` respectively
+Slice scope: "Add `Config` class with validation for the settings module"
+Acceptance criteria: `Config` constructor validates that `port` is 1–65535; `Config` constructor validates that `host` is non-empty; constructor raises `ConfigError.InvalidPort` and `ConfigError.InvalidHost` respectively
 
-Test suite has 8 tests. Test execution: 8 tests, all failed with `error[E0433]: failed to resolve: could not find Config in settings` — correct Red-phase behavior.
+Test suite has 8 tests. Test execution: 8 tests, all failed with import/resolution errors indicating `Config` cannot be found — correct Red-phase behavior.
 
 Review:
 
@@ -410,15 +410,15 @@ Review:
 >
 > **Test quality — Triviality**
 > - **High**: 5 of 8 tests (63%) are trivial, making the majority of the suite maintenance cost with no testing value:
->   - **Medium**: `test_config_has_port_field` — creates `Config { port: 8080, .. }` and asserts `config.port == 8080`. This is a tautological constructor echo test; it tests that Rust assignment works, not that the code is correct.
+>   - **Medium**: `test_config_has_port_field` — creates a `Config` with `port: 8080` and asserts `config.port == 8080`. This is a tautological constructor echo test; it tests that assignment works, not that the code is correct.
 >   - **Medium**: `test_config_has_host_field` — same pattern: sets `host` to `"localhost"` and asserts it equals `"localhost"`. No logic is exercised.
->   - **Medium**: `test_config_default_port` — asserts `Config::default().port == 0`. Unless the default value has business significance specified in the acceptance criteria, this tests the `Default` derive, not application logic.
->   - **Medium**: `test_config_is_debug` — asserts `format!("{:?}", config).contains("Config")`. This tests that `#[derive(Debug)]` works, which is guaranteed by the compiler.
->   - **Medium**: `test_config_clone` — clones a `Config` and asserts the clone equals the original. This tests `#[derive(Clone, PartialEq)]`, not application logic.
+>   - **Medium**: `test_config_default_port` — asserts that a default-constructed `Config` has `port == 0`. Unless the default value has business significance specified in the acceptance criteria, this tests the default mechanism, not application logic.
+>   - **Medium**: `test_config_is_debug` — asserts that the string representation of a `Config` contains `"Config"`. This tests the auto-generated debug/string representation, which is guaranteed by the language framework.
+>   - **Medium**: `test_config_clone` — clones a `Config` and asserts the clone equals the original. This tests the language's copy/clone mechanism, not application logic.
 >
 > ### Recommendations
 >
-> 1. **Delete** `test_config_has_port_field`, `test_config_has_host_field`, `test_config_default_port`, `test_config_is_debug`, and `test_config_clone` — they catch no bugs that the compiler would miss and will need updating on every refactor
+> 1. **Delete** `test_config_has_port_field`, `test_config_has_host_field`, `test_config_default_port`, `test_config_is_debug`, and `test_config_clone` — they catch no bugs that the language toolchain would miss and will need updating on every refactor
 > 2. Keep `test_new_rejects_port_zero`, `test_new_rejects_port_above_65535`, `test_new_rejects_empty_host`, and `test_new_accepts_valid_config` — these test real validation logic
 > 3. The resulting 3-test suite will have 100% meaningful coverage of the acceptance criteria with zero maintenance waste
 
