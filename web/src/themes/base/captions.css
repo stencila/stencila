@@ -34,8 +34,8 @@
     --caption-font-family: var(--font-family-serif);
     --caption-font-size: calc(var(--text-font-size) * 0.85);
 
-    --caption-color: var(--text-color);
-    --caption-color-dark: var(--text-color-dark);
+    --caption-color: var(--text-color-primary);
+    --caption-color-dark: var(--text-color-primary-dark);
 
     --caption-line-height: var(--line-height-normal);
     --caption-line-height-print: var(--line-height-tight);

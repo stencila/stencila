@@ -80,13 +80,13 @@
 
     /* Work Authors */
     --work-authors-font-size: var(--text-font-size);
-    --work-authors-color: var(--text-color);
+    --work-authors-color: var(--text-color-primary);
     --work-authors-text-align: left;
     --work-authors-margin-bottom: var(--space-6);
 
     /* Work Abstract */
     --work-abstract-font-size: var(--text-font-size);
-    --work-abstract-color: var(--text-color);
+    --work-abstract-color: var(--text-color-primary);
     --work-abstract-background: var(--surface-background);
     --work-abstract-text-align: left;
     --work-abstract-max-width: var(--work-content-max-width);

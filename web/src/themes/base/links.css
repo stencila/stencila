@@ -34,9 +34,12 @@
     --link-color-hover: var(--color-blue-700);
     --link-color-hover-dark: var(--color-blue-300);
 
-    /* Link Decoration - Control underline visibility */
-    --link-decoration: none;
+    /* Link Decoration - Underline by default for accessibility (WCAG SC 1.4.1)
+     * Links must be distinguishable from surrounding text by more than color alone */
+    --link-decoration: underline;
     --link-decoration-hover: underline;
+    --link-underline-offset: 0.15em;
+    --link-decoration-thickness: 1px;
 
     /* Link Transitions - Smooth state changes */
     --link-transition-duration: var(--transition-duration-base);
@@ -52,6 +55,8 @@ stencila-link {
     a {
         color: var(--link-color);
         text-decoration: var(--link-decoration);
+        text-underline-offset: var(--link-underline-offset);
+        text-decoration-thickness: var(--link-decoration-thickness);
         transition: color var(--link-transition-duration) ease;
     }
 

@@ -11,6 +11,7 @@
  */
 
 :root {
+    --root-max-width: none;
     --root-padding: var(--space-0);
     --root-padding-tablet: var(--space-2);
     --root-padding-mobile: var(--space-4);

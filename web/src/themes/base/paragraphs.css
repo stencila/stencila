@@ -33,7 +33,7 @@
     --paragraph-hyphens: none;
     --paragraph-orphans: 3;
     --paragraph-widows: 3;
-    --paragraph-text-wrap: auto;
+    --paragraph-text-wrap: pretty;
 
     /* Lead Paragraph Enhancement - Applied to first paragraph after headings */
     --paragraph-lead-font-size: inherit;

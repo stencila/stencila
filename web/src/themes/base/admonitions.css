@@ -57,7 +57,7 @@
     /* Borders & Visual Structure */
     --admonition-border-width: var(--border-width-default);
     --admonition-border-radius: var(--border-radius-default);
-    --admonition-accent-border-width: var(--border-width-default);
+    --admonition-accent-border-width: 3px;
 
     /* Typography */
     --admonition-title-font-family: var(--text-font-family);

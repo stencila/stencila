@@ -54,8 +54,8 @@
     --figure-background-print: transparent;
 
     --figure-border-width: 0;
-    --figure-border-color: var(--border-color-subtle);
-    --figure-border-color-dark: var(--border-color-subtle-dark);
+    --figure-border-color: var(--border-color-muted);
+    --figure-border-color-dark: var(--border-color-muted-dark);
     --figure-border-color-print: var(--border-color-default-print);
     --figure-border-radius: var(--border-radius-default);
 
