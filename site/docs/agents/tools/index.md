@@ -24,8 +24,8 @@ A core set of tools is shared across all providers. Provider-specific tools exte
 | [**Web**](web) (`web_fetch`) | All | Fetch web pages and save content locally |
 | `edit_file` | Anthropic, Gemini | Apply exact-match `old_string`/`new_string` replacements |
 | `apply_patch` | OpenAI | Apply multi-file edits in v4a diff format |
-| `read_many_files` | Gemini | Batch-read multiple files in a single call |
-| `list_dir` | Gemini | List directory contents with depth options |
+| [`read_many_files`](file#read_many_files) | Gemini | Batch-read multiple files in a single call |
+| [`list_dir`](file#list_dir) | Gemini | List directory contents with depth options |
 
 ## Tool Guards
 

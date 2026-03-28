@@ -73,6 +73,33 @@ Finds files matching a glob pattern, sorted by modification time (newest first).
 | `pattern` | string | ✅ | Glob pattern to match files (e.g., `"**/*.rs"`, `"src/*.py"`) |
 | `path` | string | | Base directory for the search. Defaults to the working directory |
 
+## `list_dir`
+
+Lists the contents of a directory. Directories are shown with a trailing slash; files include their size.
+
+| Parameter | Type | Required | Description |
+| --------- | ---- | :------: | ----------- |
+| `path` | string | ✅ | Absolute path to the directory to list |
+| `depth` | integer (min: 1) | | Maximum depth to recurse. Defaults to 1 (immediate children only) |
+
+Returns one entry per line. Empty directories return `"Empty directory."`.
+
+> [!info]
+> This tool is only available when using Gemini models.
+
+## `read_many_files`
+
+Reads multiple files in a single call. Returns the contents of each file with a header delimiter. Errors for individual files are reported inline without aborting the batch.
+
+| Parameter | Type | Required | Description |
+| --------- | ---- | :------: | ----------- |
+| `paths` | array of strings | ✅ | Absolute file paths to read |
+
+Each file's output is prefixed with an `=== /path/to/file ===` header. Image files are reported as placeholders with their media type. If a file cannot be read, the error message appears in place of its content so that other files in the batch are still returned.
+
+> [!info]
+> This tool is only available when using Gemini models.
+
 ## Guard Rules
 
 The file guard normalizes every path (tilde expansion, `..` resolution, relative to absolute) and then checks it against a set of rules. For tools that operate on multiple paths (e.g., `apply_patch`), each path is evaluated and the strictest verdict wins.
