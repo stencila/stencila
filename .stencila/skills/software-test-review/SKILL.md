@@ -1,6 +1,6 @@
 ---
 name: software-test-review
-description: Evaluate the quality of TDD tests against slice acceptance criteria, codebase conventions, and Red-phase execution results, producing a structured review with Accept or Revise recommendations. Use when tests written during the Red phase of red-green-refactor need quality review — checking coverage of acceptance criteria, conformance with codebase test conventions, test quality (naming, assertions, isolation, readability), edge-case and error-path coverage, and whether Red-phase failures indicate correctly missing implementation. Discovers codebase conventions independently and produces an actionable review report.
+description: Evaluate the quality of TDD tests against slice acceptance criteria, codebase conventions, and Red-phase execution results, producing a structured review with Accept or Revise recommendations. Use when tests written during the Red phase of red-green-refactor need quality review — checking coverage of acceptance criteria, conformance with codebase test conventions, test quality (naming, assertions, isolation, readability, triviality), edge-case and error-path coverage, and whether Red-phase failures indicate correctly missing implementation. Flags trivial low-value tests that add more maintenance cost than testing value. Discovers codebase conventions independently and produces an actionable review report.
 keywords:
   - test review
   - test quality
@@ -13,6 +13,12 @@ keywords:
   - test assertions
   - test isolation
   - test readability
+  - trivial tests
+  - low-value tests
+  - maintenance cost
+  - test value
+  - over-testing
+  - tautological tests
   - edge cases
   - error paths
   - Red-phase validation
@@ -28,11 +34,13 @@ allowed-tools: read_file glob grep
 
 ## Overview
 
-Review tests written during the Red phase of a TDD cycle. This skill evaluates tests across multiple quality dimensions: acceptance-criteria coverage, codebase convention conformance, test quality, edge-case handling, and whether Red-phase failures indicate correctly missing implementation. The output is a structured review report with an Accept or Revise recommendation.
+Review tests written during the Red phase of a TDD cycle. This skill evaluates tests across multiple quality dimensions: acceptance-criteria coverage, codebase convention conformance, test quality (including detection of trivial low-value tests), edge-case handling, and whether Red-phase failures indicate correctly missing implementation. The output is a structured review report with an Accept or Revise recommendation.
 
 This skill does not write or modify any code or test files. It only reads, evaluates, and reports.
 
 The review answers one central question: **Are these tests good enough to drive the Green phase of implementation?** Tests that are accepted should be a reliable specification of the slice's expected behavior. Tests that need revision should come back with specific, actionable feedback so the test-creation agent can fix them efficiently.
+
+A corollary question is equally important: **Does every test earn its keep?** Each test carries ongoing maintenance cost — it must be compiled, run, kept passing through refactors, and understood by future developers. A test is only worth that cost if it provides meaningful confidence that a real behavior works correctly. Trivial tests that merely restate the code, assert tautologies, or verify something the type system already guarantees add net-negative value: they cost time to maintain and provide no real safety net. This review must actively identify and flag such tests.
 
 The reviewer must distinguish between acceptance criteria that should drive automated tests and criteria that are better satisfied by implementation or human inspection. Documentation requirements, doc comments, README edits, changelog entries, and similar non-executable deliverables are usually **not** reasons to demand source-inspecting unit tests. Their absence from the test suite is not automatically a coverage gap.
 
@@ -120,7 +128,7 @@ For each acceptance criterion:
 - Flag any **test-appropriate executable behavior** criteria that have no corresponding test
 - Do **not** mark a documentation-only or other non-test-deliverable criterion as missing merely because there is no automated test for it
 - Flag tests that read source files, comments, or documentation solely to prove prose was added as an inappropriate testing strategy unless the repository already has a strong convention for such checks and the criterion explicitly calls for them
-- Flag tests that do not map to any acceptance criterion (over-testing is a mild concern; missing coverage is a serious one)
+- Flag tests that do not map to any acceptance criterion — over-testing adds maintenance burden without providing safety. Assess each unmapped test for triviality using the criteria in Step 7f
 
 Produce a coverage matrix:
 
@@ -180,6 +188,37 @@ Assess each test across these dimensions:
 - Avoid testing behavior that belongs to other slices or to code that already exists and is already tested
 - Each test function should focus on one logical behavior
 
+#### 7f. Triviality / Cost-Value Balance
+
+Every test has a maintenance cost: it must compile, execute, stay green through refactors, and be understood by future developers. A test is only worth that cost if it provides meaningful confidence that the system behaves correctly under conditions that could realistically fail. **Actively look for and flag trivial tests that add more maintenance cost than testing value.**
+
+Flag a test as trivial if it matches any of these anti-patterns:
+
+- **Tautological assertions** — the test asserts something that is guaranteed to be true by construction. Examples:
+  - Creating a struct with a field set to `42` and then asserting the field is `42` (this tests the language's assignment, not the code)
+  - Asserting that a constant equals its own literal value
+  - Building a value and immediately checking it matches itself
+- **Type-system-verified properties** — the test verifies something the compiler or type checker already enforces. Examples:
+  - Asserting that a function that returns `Result<T, E>` produces a `Result` type
+  - Checking that a required struct field exists (in a language where the struct would not compile without it)
+  - Asserting that an enum variant is one of its known variants
+- **Constructor echo tests** — the test creates an object with known inputs and asserts each field matches the input, without exercising any logic, transformation, validation, or default-value computation. If the constructor has no interesting behavior (no validation, no defaults, no derived fields), testing it is tautological
+- **Getter/setter round-trips with no logic** — the test calls a setter and then a getter to confirm the value is stored, when the getter/setter pair is trivial (no validation, no transformation, no side effects)
+- **Existence checks with no behavior** — the test imports a symbol or calls a function with no assertions, only to confirm it exists and does not panic. This is sometimes called a "smoke test" but provides minimal value when the compiler already verifies the symbol exists
+- **String/display representation checks for trivial formats** — asserting that `Display` or `ToString` output matches a hardcoded string when the implementation is a trivial format string with no conditional logic
+- **Duplicate coverage** — the test covers exactly the same behavior and code path as another test in the same suite, with no meaningfully different inputs, edge cases, or assertions
+
+When evaluating whether a test is trivial, ask: **"What bug would this test catch that would not already be caught by the compiler, type system, or another test?"** If the answer is "none" or "only if someone makes a typo in a trivial one-liner," the test is trivial.
+
+Trivial tests are not just useless — they are actively harmful because they:
+- Create false confidence that "we have N tests" when those tests catch nothing
+- Must be updated during refactors, slowing down legitimate changes
+- Clutter the test suite, making it harder to find and understand the tests that matter
+- Waste CI time on every run
+- Encourage a culture of testing quantity over quality
+
+**Severity**: Flag individual trivial tests as **Medium**. If the majority of the test suite consists of trivial tests (more than half), elevate this to a **High** finding because the suite provides inadequate real coverage despite appearing to have tests. A suite full of trivial tests is worse than a suite with fewer but meaningful tests.
+
 ### 8. Evaluate edge-case and error-path coverage
 
 - Check whether the acceptance criteria imply edge cases (empty input, boundary values, null/None, maximum sizes, concurrent access, etc.)
@@ -213,10 +252,10 @@ Recommend **Accept** when:
 Recommend **Revise** when:
 
 - Any test-appropriate executable acceptance criterion is missing test coverage, OR
-- Any High-severity finding exists (test bugs, syntax errors, serious quality problems), OR
+- Any High-severity finding exists (test bugs, syntax errors, serious quality problems, a majority-trivial test suite), OR
 - Red-phase failures indicate test defects rather than missing implementation
 
-When recommending Revise, the review report serves as feedback for the test-creation agent. Make findings specific and actionable so the test creator knows exactly what to fix.
+When recommending Revise, the review report serves as feedback for the test-creation agent. Make findings specific and actionable so the test creator knows exactly what to fix. For trivial tests, explicitly recommend removing or replacing them — do not just note they are trivial but leave them in place. Specify what meaningful test (if any) should take their place, or state clearly that the test should be deleted with no replacement.
 
 When in doubt, recommend Revise — it is safer to improve tests before driving implementation than to accept weak tests that lead to incorrect Green-phase code.
 
@@ -251,8 +290,8 @@ For each finding:
 
 Severity guidelines:
 
-- **High**: Missing acceptance-criteria coverage, test bugs, syntax/compilation errors, tests that pass when they should fail, tests that fail for the wrong reason
-- **Medium**: Convention violations, weak assertions, poor naming, missing edge-case tests that the criteria imply, tests that over-assert on implementation details, tests that verify documentation or comments by reading source files when inspection would be more appropriate
+- **High**: Missing acceptance-criteria coverage, test bugs, syntax/compilation errors, tests that pass when they should fail, tests that fail for the wrong reason, a test suite where the majority of tests are trivial (more maintenance cost than testing value)
+- **Medium**: Convention violations, weak assertions, poor naming, missing edge-case tests that the criteria imply, tests that over-assert on implementation details, tests that verify documentation or comments by reading source files when inspection would be more appropriate, individual trivial tests (tautological assertions, constructor echo tests, type-system-verified properties, getter/setter round-trips with no logic — see Step 7f)
 - **Low**: Style inconsistencies, minor naming improvements, opportunities to simplify setup, tests that go slightly beyond slice scope
 
 ### Recommendations
@@ -340,6 +379,49 @@ Review:
 > 2. Add a test `test_parse_csv_raises_encoding_error_for_non_utf8` that passes binary non-UTF-8 data and asserts `CsvError.EncodingError` is raised
 > 3. Strengthen `test_parse_csv_skips_malformed_rows` to assert the returned list contains only the valid rows, not just that it is a list
 
+### Example 3: Revise — majority trivial tests inflating coverage
+
+Slice scope: "Add `Config` struct with validation for the settings module"
+Acceptance criteria: `Config::new` validates that `port` is 1–65535; `Config::new` validates that `host` is non-empty; `Config::new` returns `ConfigError::InvalidPort` and `ConfigError::InvalidHost` respectively
+
+Test suite has 8 tests. Test execution: 8 tests, all failed with `error[E0433]: failed to resolve: could not find Config in settings` — correct Red-phase behavior.
+
+Review:
+
+> ### Overall Assessment
+>
+> While all acceptance criteria are covered, 5 of 8 tests are trivial — they test constructor field assignment, type identity, and default values with no validation logic. The suite gives a false sense of thoroughness. **Revise** — remove the 5 trivial tests and keep the 3 meaningful validation tests.
+>
+> ### Strengths
+>
+> - The three validation tests (`test_new_rejects_port_zero`, `test_new_rejects_empty_host`, `test_new_accepts_valid_config`) are well-named and assert the right error types
+> - Red-phase failures are correct — all failures indicate missing implementation
+>
+> ### Acceptance-Criteria Coverage
+>
+> | Acceptance Criterion | Covered By | Status |
+> |---|---|---|
+> | Port validated 1–65535 | `test_new_rejects_port_zero`, `test_new_rejects_port_above_65535` | ✅ Covered |
+> | Host validated non-empty | `test_new_rejects_empty_host` | ✅ Covered |
+> | `InvalidPort` error returned | `test_new_rejects_port_zero` | ✅ Covered |
+> | `InvalidHost` error returned | `test_new_rejects_empty_host` | ✅ Covered |
+>
+> ### Findings
+>
+> **Test quality — Triviality**
+> - **High**: 5 of 8 tests (63%) are trivial, making the majority of the suite maintenance cost with no testing value:
+>   - **Medium**: `test_config_has_port_field` — creates `Config { port: 8080, .. }` and asserts `config.port == 8080`. This is a tautological constructor echo test; it tests that Rust assignment works, not that the code is correct.
+>   - **Medium**: `test_config_has_host_field` — same pattern: sets `host` to `"localhost"` and asserts it equals `"localhost"`. No logic is exercised.
+>   - **Medium**: `test_config_default_port` — asserts `Config::default().port == 0`. Unless the default value has business significance specified in the acceptance criteria, this tests the `Default` derive, not application logic.
+>   - **Medium**: `test_config_is_debug` — asserts `format!("{:?}", config).contains("Config")`. This tests that `#[derive(Debug)]` works, which is guaranteed by the compiler.
+>   - **Medium**: `test_config_clone` — clones a `Config` and asserts the clone equals the original. This tests `#[derive(Clone, PartialEq)]`, not application logic.
+>
+> ### Recommendations
+>
+> 1. **Delete** `test_config_has_port_field`, `test_config_has_host_field`, `test_config_default_port`, `test_config_is_debug`, and `test_config_clone` — they catch no bugs that the compiler would miss and will need updating on every refactor
+> 2. Keep `test_new_rejects_port_zero`, `test_new_rejects_port_above_65535`, `test_new_rejects_empty_host`, and `test_new_accepts_valid_config` — these test real validation logic
+> 3. The resulting 3-test suite will have 100% meaningful coverage of the acceptance criteria with zero maintenance waste
+
 ## Edge Cases
 
 - **No test execution results available**: Review the tests on their quality dimensions alone. Skip the Red-phase validation step. Note in the report that execution feedback was unavailable. The review can still recommend Accept or Revise based on coverage and quality alone.
@@ -350,5 +432,6 @@ Review:
 - **Tests intentionally pass during Red phase**: Some tests in a slice that extends existing code may pass because the existing code already satisfies part of the criterion. If the slice scope explains this, note it as acceptable. If it is unexpected, flag it for scrutiny.
 - **Very large test files**: For test files with many tests, focus the review on the tests relevant to the current slice's acceptance criteria. Existing tests in the file that predate the current slice are outside the review scope.
 - **Multiple test files across packages**: Review each file against its own package's conventions. Produce a single unified report covering all files.
-- **Test creation agent added tests beyond acceptance criteria**: Mild over-testing is acceptable. Flag it as Low severity only if the extra tests risk confusion or maintenance burden. Do not recommend Revise solely for minor over-testing.
+- **Test creation agent added tests beyond acceptance criteria**: Extra tests that verify meaningful behavior beyond the acceptance criteria are acceptable — flag as Low severity only if they risk confusion. However, if the extra tests are trivial (see Step 7f), flag them at Medium or High severity as appropriate. A test that goes beyond the acceptance criteria *and* is trivial should be removed, not merely noted.
+- **AI-generated test suites with inflated counts**: AI test generators commonly produce suites padded with trivial tests — constructor echo tests, type-verification tests, and tautological assertions — to give the appearance of thorough coverage. Be especially vigilant with AI-generated tests: scrutinize every test against the triviality criteria in Step 7f and do not accept a suite at face value just because it has many tests.
 - **Tests were added only to prove docs exist**: Recommend Revise unless there is an explicit repository convention or plan requirement for an automated docs-presence check. Prefer feedback telling the creator to remove those tests and leave the documentation requirement to implementation and human review.
