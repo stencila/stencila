@@ -308,6 +308,7 @@ fn is_proprietary_font(name: &str) -> bool {
         || name_normalized.starts_with("calibri")
         || name_normalized.starts_with("cambria")
         || name_normalized.starts_with("segoe")
+        || name_normalized.starts_with("sitka")
         || name_normalized.starts_with("helvetica")
         || name_normalized.starts_with("avenir")
         || name_normalized.starts_with("gill sans")
@@ -370,6 +371,10 @@ fn is_open_source_font(name: &str) -> bool {
         | "dejavu sans" | "dejavu serif" | "dejavu sans mono"
         // GNU FreeFont - GPL with font exception
         | "freesans" | "freeserif" | "freemono"
+        // URW fonts - GPL with font exception (Ghostscript/TeX Live)
+        | "urw palladio l" | "urw bookman l" | "urw gothic l" | "urw chancery l" | "p052"
+        // STIX fonts - OFL
+        | "stix two math" | "stix two text"
         // Red Hat fonts - OFL
         | "red hat display" | "red hat text" | "red hat mono"
         // Microsoft open source fonts - OFL

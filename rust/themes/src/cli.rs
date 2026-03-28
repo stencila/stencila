@@ -122,7 +122,7 @@ struct Show {
     /// The name of the theme to show
     ///
     /// If not provided, shows the default resolved theme following the
-    /// resolution order: workspace theme.css → user default.css → builtin stencila.css
+    /// resolution order: workspace theme.css → user default.css → base theme
     name: Option<String>,
 
     /// Show resolved CSS variables

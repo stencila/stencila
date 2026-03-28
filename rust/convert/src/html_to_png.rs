@@ -1064,7 +1064,7 @@ fn wrap_html(html: &str) -> String {
     } else {
         format!(r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css">"#)
     };
-    // Custom theme, falling back to Stencila
+    // Custom theme overrides (if any workspace or user theme is resolved)
     // Note that the resolved theme is based on the output path
     // TODO: support getting theme by name and path, will currently use cwd
     let overrides = if let Ok(Some(theme)) = stencila_themes::get_sync(None, None) {
@@ -1073,11 +1073,9 @@ fn wrap_html(html: &str) -> String {
         // the calculation of theme variables and rendering of Mermaid and other JS-based images.
         let content = theme.computed_css(LengthConversion::KeepUnits);
         format!(r#"<style>{content}</style>"#)
-    } else if let Some(file) = Web::get("themes/stencila.css") {
-        let content = String::from_utf8_lossy(&file.data);
-        format!(r#"<style>{content}</style>"#)
     } else {
-        format!(r#"<link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css">"#)
+        // No theme found — base theme provides all foundational styles
+        String::new()
     };
     let theme = [base, overrides].concat();
 

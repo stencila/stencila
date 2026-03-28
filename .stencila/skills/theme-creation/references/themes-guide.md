@@ -33,7 +33,7 @@ Major module groups include:
 
 These implementation details affect how themes behave:
 
-- If no theme is specified, resolution order is: workspace `theme.css` walking up from the document path, then user `default.css`, then builtin `stencila.css`.
+- If no theme is specified, resolution order is: workspace `theme.css` walking up from the document path, then user `default.css`, then base theme (no overrides).
 - If a named theme is requested, Stencila searches user themes first, then builtin themes.
 - If `--plot-theme` is set to a named preset other than `custom` or `none`, preset CSS is merged before variables are extracted.
 - Only top-level `:root` custom properties are exported to non-web targets. Tokens inside `@media` or `@supports` are useful for web rendering but are not exported to DOCX, PDF, email, or plot targets.
@@ -175,7 +175,7 @@ If external resources such as web fonts are needed, use `@import url(...)` for t
 }
 ```
 
-The builtin themes (`stencila.css`, `tufte.css`, `latex.css`) follow this same pattern — none of them import `base.css`.
+The builtin themes (`tufte.css`, `latex.css`) follow this same pattern — none of them import `base.css`.
 
 ## Target-specific guidance
 

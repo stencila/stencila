@@ -256,7 +256,8 @@ pub async fn serve_path(
     let theme_name = query.get("~theme").cloned();
 
     // Resolve theme if theme_name is not "none"
-    let theme = if theme_name.as_deref() != Some("none") {
+    let themed = theme_name.as_deref() != Some("none");
+    let theme = if themed {
         stencila_themes::get(theme_name, Some(doc.directory().to_path_buf()))
             .await
             .ok()
@@ -275,6 +276,7 @@ pub async fn serve_path(
         None,
         node_html,
         web,
+        themed,
         theme.as_ref(),
         view,
         None,

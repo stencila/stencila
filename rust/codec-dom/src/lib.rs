@@ -221,7 +221,8 @@ pub async fn encode(
             .map(PathBuf::from);
 
         // Resolve theme if theme_name is not "none"
-        let theme = if theme_name.as_deref() != Some("none") {
+        let themed = theme_name.as_deref() != Some("none");
+        let theme = if themed {
             stencila_themes::get(theme_name, theme_base_path)
                 .await
                 .ok()
@@ -243,6 +244,7 @@ pub async fn encode(
             extra_head,
             node_html,
             web_base,
+            themed,
             theme.as_ref(),
             view,
             site,
@@ -266,6 +268,10 @@ pub async fn encode(
 ///
 /// This is exposed as a public function for use by the `stencila-server` crate
 /// (and elsewhere) so that there is a single, optimized implementation.
+///
+/// When `themed` is true, base CSS and view CSS are always loaded. The optional
+/// `theme` provides additional overrides on top of base. When `themed` is false,
+/// no styling is applied (used when theme is explicitly set to "none").
 #[allow(clippy::too_many_arguments)]
 pub async fn standalone_html(
     doc_id: String,
@@ -275,6 +281,7 @@ pub async fn standalone_html(
     extra_head: Option<String>,
     node_html: String,
     web_base: String,
+    themed: bool,
     theme: Option<&Theme>,
     view: &str,
     site: Option<String>,
@@ -371,7 +378,7 @@ pub async fn standalone_html(
     }
 
     // View CSS
-    if view != "none" && theme.is_some() {
+    if view != "none" && themed {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/views/{view}.css">"#
@@ -394,9 +401,9 @@ pub async fn standalone_html(
     };
     html.push_str(&js);
 
-    // Base theme CSS (always loaded unless theme is None)
+    // Base theme CSS (always loaded when themed)
     // This provides foundational styles that all themes build upon
-    if theme.is_some() {
+    if themed {
         html.push_str(&format!(
             r#"
     <link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css">"#
@@ -404,7 +411,7 @@ pub async fn standalone_html(
     }
 
     // Theme CSS
-    // Always include a theme link (for client-side theme switching)
+    // Always include a theme link when themed (for client-side theme switching)
     // For user/workspace themes, also inject a style tag that takes precedence
     if let Some((theme_type, theme_data, _display_name)) = &theme {
         match theme_type {
@@ -416,11 +423,11 @@ pub async fn standalone_html(
                 ));
             }
             ThemeType::User | ThemeType::Workspace => {
-                // For user/workspace themes: include link to default builtin theme
+                // Include a disabled link to a builtin theme
                 // (enables switching to builtin themes from client)
                 html.push_str(&format!(
                     r#"
-    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/stencila.css" disabled>"#
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css" disabled>"#
                 ));
 
                 // Also inject the custom theme CSS (takes precedence when active)
@@ -435,6 +442,13 @@ pub async fn standalone_html(
                 ));
             }
         }
+    } else if themed {
+        // No override theme resolved — base theme is sufficient
+        // Include a disabled link for client-side theme switching
+        html.push_str(&format!(
+            r#"
+    <link data-theme-link rel="stylesheet" type="text/css" href="{web_base}/themes/base.css" disabled>"#
+        ));
     }
 
     // Add meta tags with theme information for client-side theme switching

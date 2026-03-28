@@ -191,7 +191,7 @@ Then add only the module-specific tokens or focused selectors needed for the use
    - Reuse the current token vocabulary, selectors, and import style when updating a theme.
    - Patch requested selectors or token blocks in place when possible instead of rewriting the full file.
    - If fonts, logos, icons, or other assets are referenced, use existing workspace asset paths when available.
-   - Keep Stencila resolution order in mind when explaining placement: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then builtin `stencila.css`.
+   - Keep Stencila resolution order in mind when explaining placement: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then base theme (no overrides).
    - If the user refers to a named theme, remember that named themes are resolved from user themes first, then builtin themes.
    - Use `stencila themes new` to scaffold a workspace `theme.css` template, or `stencila themes new <NAME>` for a named user theme, when starting from scratch.
 

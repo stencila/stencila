@@ -31,7 +31,7 @@ Major module groups include:
 
 ## Review constraints that affect correctness
 
-- If no theme is specified, Stencila resolves workspace `theme.css` while walking up from the document path, then user `default.css`, then builtin `stencila.css`.
+- If no theme is specified, Stencila resolves workspace `theme.css` while walking up from the document path, then user `default.css`, then base theme (no overrides).
 - If a named theme is requested, user themes are searched before builtin themes.
 - If `--plot-theme` is set to a named preset other than `custom` or `none`, preset CSS is merged before variables are extracted.
 - Only top-level `:root` custom properties are exported to non-web targets. Tokens inside `@media` or `@supports` may affect web rendering but are not exported to DOCX, PDF, email, or plot targets.
@@ -77,7 +77,7 @@ Stencila automatically loads `base.css` before any theme CSS. Review user themes
 
 - Do not treat the absence of `@import url("./base.css")` as a problem.
 - Treat the presence of that import in a workspace theme as a review finding — it is unnecessary and may cause issues.
-- The builtin themes (`stencila.css`, `tufte.css`, `latex.css`) follow this same pattern — none import `base.css`.
+- The builtin themes (`tufte.css`, `latex.css`) follow this same pattern — none import `base.css`.
 
 ## Document vs site theme review
 

@@ -18,7 +18,7 @@ Semantic tokens act as the stable public API for theme authors, while node-speci
 
 Theme resolution and computation are part of the implementation contract that affects which tokens are available to non-web targets:
 
-- **Resolution order** (when no theme is specified): workspace `theme.css` (walks up from the document path), then user `default.css`, then builtin `stencila.css`.
+- **Resolution order** (when no theme is specified): workspace `theme.css` (walks up from the document path), then user `default.css`, then base theme (no overrides).
 - **Named themes**: if you request a theme by name, Stencila searches user themes first, then builtin themes.
 - **Plot presets**: if `--plot-theme` is set to a named preset (not `custom` or `none`), preset CSS from `themes/plots/{name}.css` is merged into the theme before variables are extracted.
 - **Token extraction scope**: only top-level `:root` custom properties are parsed for token export. Tokens inside `@media`/`@supports` blocks are used for web rendering but are not exported to non-web targets.

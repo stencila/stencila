@@ -181,7 +181,7 @@ Stencila automatically loads `base.css` before any theme CSS — both when rende
      - This provides concrete evidence for review findings rather than relying on mental CSS evaluation.
    - Compare the requested changes against the existing token vocabulary, selectors, and import style.
    - When reviewing a patch, check whether it preserves unrelated styling and modifies only the relevant areas.
-   - Keep Stencila resolution order in mind when commenting on file choice: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then builtin `stencila.css`.
+   - Keep Stencila resolution order in mind when commenting on file choice: when no theme is specified, Stencila resolves workspace `theme.css` first while walking up from the document path, then user `default.css`, then base theme (no overrides).
    - If the user refers to a named theme, remember that named themes are resolved from user themes first, then builtin themes.
 
 4. Check the semantic foundation first.
