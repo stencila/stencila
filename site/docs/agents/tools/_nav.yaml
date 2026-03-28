@@ -1,4 +1,5 @@
 items:
   - file
   - shell
+  - snap
   - web
