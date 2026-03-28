@@ -51,14 +51,14 @@ Also use the theme CLI as the live source of truth when available:
 
 ## Visual verification with `snap` and `/_specimen`
 
-Use the `snap` tool during review to visually verify how the theme actually renders, rather than relying solely on static analysis of the CSS. You can snap any page served by Stencila — including the user's own documents and site pages — but the `/_specimen` route is the canonical target for theme visual QA. It is a stable, deterministic page that renders representative examples of every major content type — typography, headings, lists, blockquotes, code blocks, math, images, tables, figures, admonitions, and thematic breaks — so it exercises all token families in one page. See [`references/snap-tool.md`](references/snap-tool.md) for the full parameter reference.
+Use the `snap` tool during review to verify how the theme actually renders, rather than relying solely on static analysis of the CSS. Snap returns structured measurement data (tokens, CSS properties, layout metrics, contrast ratios, color palette) by default; screenshots are opt-in when you need visual confirmation. You can snap any page served by Stencila — including the user's own documents and site pages — but the `/_specimen` route is the canonical target for theme visual QA. It is a stable, deterministic page that renders representative examples of every major content type — typography, headings, lists, blockquotes, code blocks, math, images, tables, figures, admonitions, and thematic breaks — so it exercises all token families in one page. See [`references/snap-tool.md`](references/snap-tool.md) for the full parameter reference.
 
 ### When to snap during review
 
 - **At the start of review**: snap `/_specimen` to see how the theme currently renders, and extract token values to compare against what the CSS declares.
 - **To verify specific findings**: snap with a focused `selector` or `token_prefix` to gather evidence for a specific review finding.
 - **For dark-mode review**: snap with `dark: true` to verify that dark variants render correctly.
-- **For responsive review**: snap with `devices` to verify layout across viewports.
+- **For responsive review**: snap with `device: "mobile"` or other presets to verify layout at different viewports.
 - **For color review**: snap with `palette: true` to verify color harmony and contrast.
 
 ### Key snap parameters for theme review
@@ -67,26 +67,37 @@ Use the `snap` tool during review to visually verify how the theme actually rend
 |---|---|
 | `route: "/_specimen"` | Target the specimen page — exercises all major content types in one page |
 | `measure: "theme"` | Collect measurements using the theme-oriented selector preset |
-| `tokens: true` | Extract resolved CSS custom property values to verify overrides are applied. **Always combine with `token_prefix`** — without a prefix filter the output includes hundreds of tokens and is likely to be truncated |
-| `token_prefix: ["color", "font"]` | Filter token output to specific families (requires `tokens: true`). Always provide this when using `tokens` to keep results focused and avoid truncation |
+| `tokens: true` | Extract resolved CSS custom property values to verify overrides are applied. **Requires at least one `token_prefix`** — the tool returns a validation error without one |
+| `token_prefix: ["text", "heading"]` | Filter token output to specific families (required with `tokens`). Use narrow prefixes — bare `"color"` matches 100+ primitive palette tokens; prefer `"color-accent"`, `"surface"`, etc. |
 | `palette: true` | Extract the page's color palette for harmony and contrast review |
 | `dark: true` or `light: true` | Force a color scheme to review light and dark variants |
 | `device: "mobile"` | Test at a specific viewport (also `"tablet"`, `"laptop"`, `"desktop"`) |
-| `devices: ["mobile", "laptop", "desktop"]` | Batch measurement across multiple viewports |
 | `full_page: true` | Capture the full scrollable page instead of just the viewport |
 | `selector: "stencila-table"` | Focus on a specific element type for targeted review |
-| `assert: ["css(.title).fontSize>=28px"]` | Assert specific CSS property values as pass/fail checks |
+| `assert: ["css(stencila-paragraph).fontSize>=16px"]` | Assert numeric CSS properties; use `~=` for string matching (e.g., `fontFamily~=Source Serif`) |
 
 ### Typical snap workflow during review
 
-1. Baseline snap: `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — see what the theme produces now. Always use `token_prefix` to avoid truncation.
-2. Token verification: `snap(route: "/_specimen", tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — compare resolved values against what the CSS declares. Adjust prefixes to match the families under review.
-3. Dark mode: `snap(route: "/_specimen", full_page: true, dark: true)` — check for missing or broken dark variants.
-4. Responsive: `snap(route: "/_specimen", full_page: true, devices: ["mobile", "laptop", "desktop"])` — check for layout or overflow issues at different viewport sizes.
+1. Baseline snap: `snap(route: "/_specimen", measure: "theme", tokens: true, token_prefix: ["text", "heading", "surface"])` — see what the theme produces now. Measurements and tokens are returned by default without a screenshot.
+2. Token verification: `snap(route: "/_specimen", tokens: true, token_prefix: ["text", "heading", "surface"])` — compare resolved values against what the CSS declares. Adjust prefixes to match the families under review.
+3. Dark mode: `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` — check for missing or broken dark variants. Add `screenshot: true` for a visual check.
+4. Responsive: `snap(route: "/_specimen", device: "mobile", measure: "theme")` — check for layout or overflow issues. Run separate snaps per device preset.
 5. Color harmony: `snap(route: "/_specimen", palette: true)` — verify the overall palette is cohesive.
-6. Spot-check: `snap(route: "/_specimen", selector: "stencila-code-chunk")` — focus on a specific content type flagged in review.
+6. Spot-check: `snap(route: "/_specimen", selector: "stencila-code-block")` — focus on a specific content type flagged in review.
 
 Also snap the user's actual document route to verify the theme works on real content, not just the specimen.
+
+### Screenshot tips
+
+Screenshots are opt-in (`screenshot: true`) and default to `resize: "auto"` which preserves full resolution unless the image exceeds hard provider limits (8000px). A 600px minimum width floor prevents worst-case mobile downscaling.
+
+- **Full-page screenshots of tall pages** (like `/_specimen`) are useful for gross layout checks but get downscaled on very tall captures, making typography details harder to read. For font rendering and spacing verification, use selector-targeted snaps (e.g., `selector: "stencila-heading"`) instead.
+- **Prefer unique selectors** for element screenshots — when multiple elements match, only the first is captured but measurements cover all matches.
+- **`measure: "theme"` output** has summaries and diagnostics first, followed by verbose per-element CSS. The summaries are typically the most useful part — scan those before diving into raw values.
+- **Diagnostics about unmatched selectors** (e.g., "Selector footer matched no elements") are informational facts about the route, not theme bugs. Do not turn them into review findings unless the route is actually expected to contain those elements.
+- **Contrast calculations** work on elements with explicit backgrounds. Transparent descendants report "background color is unavailable" — this is expected, not a theme defect. Inspect enclosing solid-surface containers when contrast data is needed.
+
+Theme resolution is cached for about 30 seconds. When reviewing iterative changes, batch CSS edits before snapping rather than snapping after each small modification.
 
 ### When snap is unavailable
 
@@ -166,7 +177,7 @@ Stencila automatically loads `base.css` before any theme CSS — both when rende
    - Use `stencila themes show` to see the current default resolved theme CSS, or `stencila themes show <NAME>` for a specific theme. Add `--verbose` to also see resolved variable values — this is especially useful for understanding what values the theme inherits and what overrides actually change.
    - Use `stencila themes list` to see all available themes (workspace, user, and builtin) and their locations.
    - Use `snap` to capture a visual baseline of how the theme currently renders:
-     - `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — see the current rendering and resolved token values before reviewing proposed changes. Adjust prefixes to match the families relevant to the review.
+     - `snap(route: "/_specimen", measure: "theme", tokens: true, token_prefix: ["text", "heading", "surface"])` — see current measurements and resolved token values before reviewing proposed changes. Adjust prefixes to match the families relevant to the review.
      - This provides concrete evidence for review findings rather than relying on mental CSS evaluation.
    - Compare the requested changes against the existing token vocabulary, selectors, and import style.
    - When reviewing a patch, check whether it preserves unrelated styling and modifies only the relevant areas.
@@ -201,7 +212,7 @@ Stencila automatically loads `base.css` before any theme CSS — both when rende
 
 7. Check dark-mode handling.
    - If the theme sets light-mode colors, check whether corresponding `*-dark` variants are defined when the values would not work on a dark background.
-   - Use `snap(route: "/_specimen", full_page: true, dark: true)` to visually verify dark-mode rendering — this often reveals issues that are not obvious from reading the CSS alone.
+   - Use `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` to verify dark-mode token values. Add `screenshot: true` for a visual check — this often reveals issues that are not obvious from reading the CSS alone.
    - Flag missing dark variants for accent, surface, text, and plot tokens when the theme is used on web targets.
    - Do not require dark variants for tokens that are inherently scheme-neutral (e.g., content width, spacing, font families).
    - If the theme claims dark-mode support for non-web targets, flag that as incorrect.
@@ -243,9 +254,9 @@ Stencila automatically loads `base.css` before any theme CSS — both when rende
     - Use `stencila themes validate <FILE> --strict` when unknown tokens should fail review.
     - Use `stencila themes validate <FILE> --as json` when machine-readable validation results are useful.
     - Use `snap` to provide visual evidence for your review findings:
-      - `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "color", "surface"])` — verify content types render correctly and confirm resolved token values. Adjust prefixes to match the families under review.
-      - `snap(route: "/_specimen", dark: true, full_page: true)` — verify dark-mode rendering.
-      - `snap(route: "/_specimen", devices: ["mobile", "laptop", "desktop"])` — verify responsive behavior.
+      - `snap(route: "/_specimen", measure: "theme", tokens: true, token_prefix: ["text", "heading", "surface"])` — verify content types render correctly and confirm resolved token values. Adjust prefixes to match the families under review.
+      - `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` — verify dark-mode token values.
+      - `snap(route: "/_specimen", device: "mobile", measure: "theme")` — verify responsive behavior. Run separate snaps per device.
       - `snap(route: "/_specimen", palette: true)` — verify color harmony.
       - Also snap the user's actual document or site route to confirm real-content rendering.
     - Recommend concrete checks for each required target:
@@ -269,7 +280,7 @@ When useful, structure the response like this:
 8. Validation and token-verification commands
 9. Final verdict or next step
 
-Each finding should be evidence-based. Use `snap` screenshots and measurements as evidence alongside CSS analysis — do not make speculative claims without citing the token, selector, file region, snippet, snap result, or target assumption involved.
+Each finding should be evidence-based. Use `snap` measurements, tokens, and screenshots as evidence alongside CSS analysis — do not make speculative claims without citing the token, selector, file region, snippet, snap result, or target assumption involved.
 
 ## Examples
 
@@ -291,8 +302,8 @@ Output:
 6. Optional improvements:
    - add explicit link tokens if link styling should remain stable across targets
 7. Visual verification:
-   - `snap(route: "/_specimen", full_page: true, tokens: true, token_prefix: ["text", "heading", "surface", "border"])` confirmed typography tokens applied correctly; table borders render with the selector-level rule but would be more portable as token overrides.
-   - `snap(route: "/_specimen", dark: true, full_page: true)` revealed no dark variants defined — text and surface colors fall back to base-theme defaults in dark mode, which may not match the intended design.
+   - `snap(route: "/_specimen", measure: "theme", tokens: true, token_prefix: ["text", "heading", "surface", "border"])` confirmed typography tokens applied correctly; table borders render with the selector-level rule but would be more portable as token overrides.
+   - `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` revealed no dark variants defined — text and surface colors fall back to base-theme defaults in dark mode, which may not match the intended design.
 8. Validation and token-verification commands:
    - `stencila themes validate theme.css --strict`
    - `stencila themes tokens --scope print`
@@ -332,7 +343,7 @@ Output:
 6. Optional improvements:
    - review whether `--nav-menu-color-active` should align with the broader accent system for consistency
 7. Visual verification:
-   - `snap(route: "/_specimen", full_page: true, device: "mobile")` confirmed the 48px header causes nav items to wrap on mobile — consider increasing the height or switching to a hamburger menu at narrow viewports.
+   - `snap(route: "/_specimen", device: "mobile", measure: "theme")` confirmed the 48px header causes nav items to wrap on mobile — consider increasing the height or switching to a hamburger menu at narrow viewports.
    - `snap(route: "/_specimen", measure: "theme")` showed the letter-spacing override applies correctly but is not achievable through tokens alone, justifying the selector in this case.
 8. Validation and token-verification commands:
    - `stencila themes tokens --scope site --family nav-menu`
