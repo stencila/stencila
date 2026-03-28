@@ -1,6 +1,6 @@
 ---
-title: Web Tool
-description: Tool for fetching web pages and saving content locally, and the guard rules that protect against SSRF and credential exposure.
+title: Web Tools
+description: Tools for fetching web pages and saving content locally, and the guard rules that protect against SSRF and credential exposure.
 ---
 
 The web tool allows agents to fetch web pages and save content locally for further reading and analysis. Each URL is evaluated by the [web guard](#guard-rules) before the request is made.
