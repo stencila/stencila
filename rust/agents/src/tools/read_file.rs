@@ -8,7 +8,6 @@ use crate::registry::{MAX_IMAGE_BYTES, ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
-/// Tool definition matching `tests/fixtures/tool_schemas/read_file.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "read_file".into(),

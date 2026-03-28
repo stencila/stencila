@@ -7,7 +7,6 @@ use crate::error::{AgentError, AgentResult};
 use crate::execution::FileContent;
 use crate::registry::{ToolExecutorFn, ToolOutput};
 
-/// Tool definition matching `tests/fixtures/tool_schemas/read_many_files.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "read_many_files".into(),

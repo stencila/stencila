@@ -9,7 +9,6 @@ use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
-/// Tool definition matching `tests/fixtures/tool_schemas/edit_file.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "edit_file".into(),

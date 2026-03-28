@@ -7,7 +7,6 @@ use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
-/// Tool definition matching `tests/fixtures/tool_schemas/glob.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "glob".into(),

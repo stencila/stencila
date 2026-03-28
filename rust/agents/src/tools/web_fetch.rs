@@ -38,7 +38,6 @@ static CLIENT: LazyLock<Client> = LazyLock::new(|| {
         .expect("failed to build HTTP client")
 });
 
-/// Tool definition matching `tests/fixtures/tool_schemas/web_fetch.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "web_fetch".into(),

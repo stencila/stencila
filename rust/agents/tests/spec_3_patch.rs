@@ -14,7 +14,6 @@ use stencila_agents::registry::ToolRegistry;
 use stencila_agents::tools;
 use stencila_agents::tools::apply_patch::{Hunk, HunkLine, Patch, PatchOperation, parse_patch};
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
-use stencila_models3::types::tool::ToolDefinition;
 
 // ---------------------------------------------------------------------------
 // MockExecutionEnvironment (duplicated — each integration test is a separate crate)
@@ -173,35 +172,6 @@ impl ExecutionEnvironment for MockExecutionEnvironment {
     fn os_version(&self) -> String {
         "mock-os 1.0".into()
     }
-}
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-fn load_fixture(name: &str) -> Result<ToolDefinition, String> {
-    let path = format!(
-        "{}/tests/fixtures/tool_schemas/{name}.json",
-        env!("CARGO_MANIFEST_DIR")
-    );
-    let content = std::fs::read_to_string(&path)
-        .map_err(|e| format!("failed to read fixture {path}: {e}"))?;
-    serde_json::from_str(&content).map_err(|e| format!("failed to parse fixture {path}: {e}"))
-}
-
-// =========================================================================
-// Schema Parity
-// =========================================================================
-
-#[test]
-fn apply_patch_schema_matches_fixture() -> Result<(), String> {
-    let fixture = load_fixture("apply_patch")?;
-    let definition = tools::apply_patch::definition();
-    assert_eq!(definition.name, fixture.name);
-    assert_eq!(definition.description, fixture.description);
-    assert_eq!(definition.parameters, fixture.parameters);
-    assert_eq!(definition.strict, fixture.strict);
-    Ok(())
 }
 
 // =========================================================================

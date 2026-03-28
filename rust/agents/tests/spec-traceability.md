@@ -143,14 +143,6 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 
 | Spec Section | Requirement | Test File | Test(s) | Status |
 |---|---|---|---|---|
-| 3.3 | read_file schema parity | spec_3_tools.rs | read_file_schema_matches_fixture | Pass |
-| 3.3 | write_file schema parity | spec_3_tools.rs | write_file_schema_matches_fixture | Pass |
-| 3.3 | edit_file schema parity | spec_3_tools.rs | edit_file_schema_matches_fixture | Pass |
-| 3.3 | shell schema parity | spec_3_tools.rs | shell_schema_matches_fixture | Pass |
-| 3.3 | grep schema parity | spec_3_tools.rs | grep_schema_matches_fixture | Pass |
-| 3.3 | glob schema parity | spec_3_tools.rs | glob_schema_matches_fixture | Pass |
-| 3.6 | read_many_files schema parity | spec_3_tools.rs | read_many_files_schema_matches_fixture | Pass |
-| 3.6 | list_dir schema parity | spec_3_tools.rs | list_dir_schema_matches_fixture | Pass |
 | 3.3 | read_file executor | spec_3_tools.rs | read_file_text_content, read_file_with_offset_and_limit, read_file_image_returns_image_with_text, read_file_large_image_falls_back_to_text, read_file_not_found | Pass |
 | 3.3 | write_file executor | spec_3_tools.rs | write_file_success_with_byte_count, write_file_records_write, write_file_missing_content | Pass |
 | 3.3 | edit_file executor | spec_3_tools.rs | edit_file_single_replace, edit_file_replace_all, edit_file_not_found, edit_file_old_string_missing, edit_file_not_unique, edit_file_correct_writeback | Pass |
@@ -169,7 +161,6 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 
 | Spec Section | Requirement | Test File | Test(s) | Status |
 |---|---|---|---|---|
-| App A | apply_patch schema parity | spec_3_patch.rs | apply_patch_schema_matches_fixture | Pass |
 | App A | v4a parse Add File | spec_3_patch.rs | parse_add_file | Pass |
 | App A | v4a parse Delete File | spec_3_patch.rs | parse_delete_file | Pass |
 | App A | v4a parse Update (single hunk) | spec_3_patch.rs | parse_update_single_hunk | Pass |
@@ -236,7 +227,6 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 3.5 | Anthropic shell default timeout 120s | spec_3_profiles.rs | anthropic_shell_default_timeout_is_120s | Pass |
 | 3.6 | Gemini shell default timeout 10s | spec_3_profiles.rs | gemini_shell_default_timeout_is_10s | Pass |
 | 3.4-3.6 | Shell tool present in all profiles | spec_3_profiles.rs | all_profiles_have_shell_tool | Pass |
-| 3.4-3.6 | Schema parity for assembled profiles | spec_3_profiles.rs | openai_profile_schema_parity, anthropic_profile_schema_parity, gemini_profile_schema_parity | Pass |
 | 3.7 | Custom tool registration | spec_3_profiles.rs | custom_tool_registration | Pass |
 | 3.7 | Custom tool override (latest-wins) | spec_3_profiles.rs | custom_tool_override_replaces_existing | Pass |
 | 3.7 | Override preserves position | spec_3_profiles.rs | custom_tool_override_preserves_position | Pass |

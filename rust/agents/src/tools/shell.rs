@@ -10,7 +10,6 @@ use super::required_str;
 /// Default timeout in milliseconds (10 seconds).
 const DEFAULT_TIMEOUT_MS: u64 = 10_000;
 
-/// Tool definition matching `tests/fixtures/tool_schemas/shell.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "shell".into(),

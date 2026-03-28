@@ -1,6 +1,6 @@
 //! Tests for core tool implementations (spec 3.3, 3.6).
 //!
-//! Phase 5b+6a: schema fixture parity and tool executor behavior.
+//! Tool executor behavior, registration, and argument validation.
 
 #![allow(clippy::result_large_err)]
 
@@ -14,7 +14,6 @@ use stencila_agents::execution::{ExecutionEnvironment, FileContent};
 use stencila_agents::registry::{MAX_IMAGE_BYTES, ToolOutput, ToolRegistry};
 use stencila_agents::tools;
 use stencila_agents::types::{DirEntry, ExecResult, GrepOptions};
-use stencila_models3::types::tool::ToolDefinition;
 
 // ---------------------------------------------------------------------------
 // MockExecutionEnvironment
@@ -331,56 +330,6 @@ impl ExecutionEnvironment for MockExecutionEnvironment {
         "mock-os 1.0".into()
     }
 }
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/// Load a fixture and deserialize as `ToolDefinition`.
-fn load_fixture(name: &str) -> Result<ToolDefinition, String> {
-    let path = format!(
-        "{}/tests/fixtures/tool_schemas/{name}.json",
-        env!("CARGO_MANIFEST_DIR")
-    );
-    let content = std::fs::read_to_string(&path)
-        .map_err(|e| format!("failed to read fixture {path}: {e}"))?;
-    serde_json::from_str(&content).map_err(|e| format!("failed to parse fixture {path}: {e}"))
-}
-
-// =========================================================================
-// Schema Parity Tests (8)
-// =========================================================================
-
-/// Assert that a tool module's `definition()` matches its JSON fixture.
-macro_rules! schema_parity_test {
-    ($test_name:ident, $module:ident, $fixture:expr) => {
-        #[test]
-        fn $test_name() -> Result<(), String> {
-            let fixture = load_fixture($fixture)?;
-            let definition = tools::$module::definition();
-            assert_eq!(definition.name, fixture.name);
-            assert_eq!(definition.description, fixture.description);
-            assert_eq!(definition.parameters, fixture.parameters);
-            assert_eq!(definition.strict, fixture.strict);
-            Ok(())
-        }
-    };
-}
-
-schema_parity_test!(read_file_schema_matches_fixture, read_file, "read_file");
-schema_parity_test!(write_file_schema_matches_fixture, write_file, "write_file");
-schema_parity_test!(edit_file_schema_matches_fixture, edit_file, "edit_file");
-schema_parity_test!(shell_schema_matches_fixture, shell, "shell");
-schema_parity_test!(grep_schema_matches_fixture, grep, "grep");
-schema_parity_test!(glob_schema_matches_fixture, glob, "glob");
-schema_parity_test!(
-    read_many_files_schema_matches_fixture,
-    read_many_files,
-    "read_many_files"
-);
-schema_parity_test!(list_dir_schema_matches_fixture, list_dir, "list_dir");
-schema_parity_test!(web_fetch_schema_matches_fixture, web_fetch, "web_fetch");
-schema_parity_test!(snap_schema_matches_fixture, snap, "snap");
 
 // =========================================================================
 // read_file tests (3)

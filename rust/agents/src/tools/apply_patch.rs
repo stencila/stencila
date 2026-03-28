@@ -670,7 +670,6 @@ fn normalize_punctuation(s: &str) -> String {
 // Tool definition and executor
 // ---------------------------------------------------------------------------
 
-/// Tool definition matching `tests/fixtures/tool_schemas/apply_patch.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "apply_patch".into(),

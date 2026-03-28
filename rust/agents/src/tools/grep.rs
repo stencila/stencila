@@ -8,7 +8,6 @@ use crate::types::GrepOptions;
 
 use super::required_str;
 
-/// Tool definition matching `tests/fixtures/tool_schemas/grep.json`.
 pub fn definition() -> ToolDefinition {
     ToolDefinition {
         name: "grep".into(),
