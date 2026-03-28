@@ -401,22 +401,66 @@ impl BrowserSession {
     ) -> Result<CaptureResult> {
         let (screenshot_data, full_page_content_height) = if let Some(selector) = &options.selector
         {
-            // Element-specific screenshot
+            // Element-specific screenshot using a clip viewport from the
+            // element's bounding box. This captures from the fully-rendered
+            // page and clips to the element's region, which works correctly
+            // for custom elements and slotted content (unlike
+            // `element.capture_screenshot()` which can produce blank images
+            // for web components).
             let matched_elements = self
                 .tab
                 .find_elements(selector)
                 .map_err(|error| eyre!("Failed to query selector {selector}: {error}"))?
                 .len();
-            let element = self
+
+            // Scroll the element into view and then use
+            // getBoundingClientRect() via JS to get its viewport position.
+            // Scrolling is necessary because getBoundingClientRect() returns
+            // viewport-relative coordinates — if the element is below the
+            // fold, the clip region would be outside the rendered area and
+            // produce a blank or clipped screenshot.
+            let selector_json = serde_json::to_string(selector)
+                .map_err(|error| eyre!("Failed to serialize selector: {error}"))?;
+            let rect_script = format!(
+                r#"JSON.stringify((function() {{
+                    const el = document.querySelector({selector_json});
+                    if (!el) return null;
+                    el.scrollIntoView({{ block: 'center', inline: 'nearest' }});
+                    const r = el.getBoundingClientRect();
+                    return {{ x: r.x, y: r.y, width: r.width, height: r.height }};
+                }})())"#
+            );
+            let rect_result = self
                 .tab
-                .wait_for_element(selector)
-                .map_err(|error| eyre!("Failed to find selector {selector}: {error}"))?;
+                .evaluate(&rect_script, false)
+                .map_err(|error| eyre!("Failed to get element rect for {selector}: {error}"))?;
+            let rect_json = rect_result
+                .value
+                .and_then(|v| v.as_str().map(String::from))
+                .ok_or_else(|| eyre!("Element {selector} not found or returned no rect"))?;
+            let rect: serde_json::Value = serde_json::from_str(&rect_json)
+                .map_err(|error| eyre!("Failed to parse element rect: {error}"))?;
+
+            let clip = headless_chrome::protocol::cdp::Page::Viewport {
+                x: rect["x"].as_f64().unwrap_or(0.0),
+                y: rect["y"].as_f64().unwrap_or(0.0),
+                width: rect["width"].as_f64().unwrap_or(0.0),
+                height: rect["height"].as_f64().unwrap_or(0.0),
+                scale: 1.0,
+            };
+
+            let data = self
+                .tab
+                .capture_screenshot(
+                    headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
+                    None,
+                    Some(clip),
+                    true,
+                )
+                .map_err(|error| eyre!("Failed to capture element screenshot: {error}"))?;
+
             return Ok(CaptureResult {
-                bytes: element
-                    .capture_screenshot(
-                        headless_chrome::protocol::cdp::Page::CaptureScreenshotFormatOption::Png,
-                    )
-                    .map_err(|error| eyre!("Failed to capture element screenshot: {error}"))?,
+                bytes: data,
                 matched_elements: Some(matched_elements),
                 full_page_content_height: None,
             });

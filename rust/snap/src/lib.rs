@@ -361,9 +361,14 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         .await?;
 
     // Resolve measure mode to a concrete preset.
-    // Assertions implicitly enable measurement when mode is Off.
+    // Assertions implicitly enable measurement when mode is Off; use `All` so
+    // that selectors from both `Document` and `Site` presets are available for
+    // assertion evaluation (the previous route-dependent default meant that
+    // e.g. `css(stencila-paragraph)` assertions failed on site routes because
+    // the `Site` preset does not include document-content selectors).
     let resolved_preset = match &options.measure {
         MeasureMode::Off if options.assertions.is_empty() => None,
+        MeasureMode::Off if !options.assertions.is_empty() => Some(MeasurePreset::All),
         MeasureMode::Off | MeasureMode::Auto => Some(match &target {
             ResolvedTarget::Route(_) => MeasurePreset::Site,
             ResolvedTarget::Path(_) => MeasurePreset::Document,
@@ -373,7 +378,7 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
     // Build selector list
     let selector_overrides_preset = options.selector.is_some();
-    let selectors = if let Some(sel) = &options.selector {
+    let mut selectors = if let Some(sel) = &options.selector {
         // Explicit selector overrides preset
         vec![sel.clone()]
     } else if let Some(preset) = resolved_preset {
@@ -381,6 +386,22 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
     } else {
         vec![]
     };
+
+    // Parse assertions once up front so that parse errors are reported
+    // immediately and the parsed values can be reused for both selector
+    // collection and later evaluation.
+    let parsed_assertions: Vec<Assertion> = options
+        .assertions
+        .iter()
+        .map(|s| Assertion::parse(s))
+        .collect::<eyre::Result<Vec<_>>>()?;
+
+    // Ensure assertion selectors are measured even if they aren't in the preset
+    for assertion in &parsed_assertions {
+        if !selectors.contains(&assertion.selector) {
+            selectors.push(assertion.selector.clone());
+        }
+    }
 
     // Measure (if selectors are non-empty)
     let measurements = if !selectors.is_empty() {
@@ -416,19 +437,13 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None
     };
 
-    // Evaluate assertions
-    let assertion_results = if !options.assertions.is_empty() {
-        let assertions = options
-            .assertions
-            .iter()
-            .map(|s| Assertion::parse(s))
-            .collect::<eyre::Result<Vec<_>>>()?;
-
+    // Evaluate assertions using the already-parsed values
+    let assertion_results = if !parsed_assertions.is_empty() {
         let measurements = measurements
             .as_ref()
             .ok_or_else(|| eyre::eyre!("Measurements required for assertions but not collected"))?;
 
-        AssertionResults::evaluate(&assertions, measurements)?
+        AssertionResults::evaluate(&parsed_assertions, measurements)?
     } else {
         AssertionResults::default()
     };
