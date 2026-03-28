@@ -1517,3 +1517,210 @@ unknown_field = "test"
 
     Ok(())
 }
+
+// ---- Specimen config tests ----
+
+#[test]
+fn test_specimen_config_with_layout_overrides() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    let config_content = r#"
+[site.specimen.layout]
+preset = "docs"
+
+[site.specimen.layout.header]
+start = "logo"
+end = ["color-mode"]
+
+[site.specimen.layout.left-sidebar]
+start = "nav-tree"
+
+[site.specimen.layout.footer]
+middle = "copyright"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let site = cfg.site.as_ref().expect("site should be present");
+    let specimen = site.specimen.as_ref().expect("specimen should be present");
+    let layout = specimen
+        .layout
+        .as_ref()
+        .expect("specimen.layout should be present");
+
+    assert_eq!(layout.preset, Some(crate::LayoutPreset::Docs));
+
+    // Verify header config
+    let header = layout.header.as_ref().expect("header should be present");
+    let header_config = header.config().expect("header should be config");
+    let start = header_config
+        .start
+        .as_ref()
+        .expect("header.start should be present");
+    assert_eq!(start.len(), 1);
+    assert!(matches!(&start[0], crate::ComponentSpec::Name(n) if n == "logo"));
+    let end = header_config
+        .end
+        .as_ref()
+        .expect("header.end should be present");
+    assert_eq!(end.len(), 1);
+    assert!(matches!(&end[0], crate::ComponentSpec::Name(n) if n == "color-mode"));
+
+    // Verify left-sidebar config
+    let sidebar = layout
+        .left_sidebar
+        .as_ref()
+        .expect("left-sidebar should be present");
+    let sidebar_config = sidebar.config().expect("left-sidebar should be config");
+    let sidebar_start = sidebar_config
+        .start
+        .as_ref()
+        .expect("left-sidebar.start should be present");
+    assert_eq!(sidebar_start.len(), 1);
+    assert!(matches!(&sidebar_start[0], crate::ComponentSpec::Name(n) if n == "nav-tree"));
+
+    // Verify footer config
+    let footer = layout.footer.as_ref().expect("footer should be present");
+    let footer_config = footer.config().expect("footer should be config");
+    let middle = footer_config
+        .middle
+        .as_ref()
+        .expect("footer.middle should be present");
+    assert_eq!(middle.len(), 1);
+    assert!(matches!(&middle[0], crate::ComponentSpec::Name(n) if n == "copyright"));
+
+    Ok(())
+}
+
+#[test]
+fn test_specimen_config_absent_yields_none() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    let config_content = r#"
+[site]
+title = "My Site"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let site = cfg.site.as_ref().expect("site should be present");
+    assert!(
+        site.specimen.is_none(),
+        "specimen should be None when not specified in config"
+    );
+
+    Ok(())
+}
+
+#[test]
+fn test_specimen_layout_resolve_for_route_applies_component_overrides() -> Result<()> {
+    let temp_dir = TempDir::new()?;
+
+    let config_content = r#"
+[site.specimen.layout]
+preset = "docs"
+
+[site.specimen.layout.header]
+end = ["color-mode"]
+
+[[site.specimen.layout.overrides]]
+routes = ["/_specimen/**"]
+header.end = ["site-search", "color-mode"]
+left-sidebar = false
+footer.middle = "copyright"
+"#;
+    fs::write(temp_dir.path().join(CONFIG_FILENAME), config_content)?;
+
+    let cfg = config_isolated(temp_dir.path())?;
+
+    let site = cfg.site.as_ref().expect("site should be present");
+    let specimen = site.specimen.as_ref().expect("specimen should be present");
+    let layout = specimen
+        .layout
+        .as_ref()
+        .expect("specimen.layout should be present");
+
+    // ---- Matching route: overrides should apply ----
+    let resolved = layout.resolve_for_route("/_specimen/");
+
+    // Override should replace header.end with ["site-search", "color-mode"]
+    let header = resolved.header.as_ref().expect("header should be present");
+    let header_config = header.config().expect("header should be config");
+    let end = header_config
+        .end
+        .as_ref()
+        .expect("header.end should be present");
+    assert_eq!(
+        end.len(),
+        2,
+        "header.end should have 2 components from override"
+    );
+    assert!(
+        matches!(&end[0], crate::ComponentSpec::Name(n) if n == "site-search"),
+        "first header.end component should be site-search from override"
+    );
+    assert!(
+        matches!(&end[1], crate::ComponentSpec::Name(n) if n == "color-mode"),
+        "second header.end component should be color-mode from override"
+    );
+
+    // Override should disable left-sidebar
+    assert!(
+        resolved
+            .left_sidebar
+            .as_ref()
+            .is_some_and(|r| !r.is_enabled()),
+        "left-sidebar should be disabled for /_specimen/ route"
+    );
+
+    // Override should set footer.middle to "copyright"
+    let footer = resolved.footer.as_ref().expect("footer should be present");
+    let footer_config = footer.config().expect("footer should be config");
+    let footer_middle = footer_config
+        .middle
+        .as_ref()
+        .expect("footer.middle should be present");
+    assert_eq!(footer_middle.len(), 1);
+    assert!(
+        matches!(&footer_middle[0], crate::ComponentSpec::Name(n) if n == "copyright"),
+        "footer.middle should be copyright from override"
+    );
+
+    // ---- Non-matching route: overrides should NOT apply ----
+    let resolved_other = layout.resolve_for_route("/some-other-page/");
+
+    // header.end should be the global config (just "color-mode"), not the override
+    let header_other = resolved_other
+        .header
+        .as_ref()
+        .expect("header should be present for non-matching route");
+    let header_other_config = header_other
+        .config()
+        .expect("header should be config for non-matching route");
+    let end_other = header_other_config
+        .end
+        .as_ref()
+        .expect("header.end should be present for non-matching route");
+    assert_eq!(
+        end_other.len(),
+        1,
+        "header.end should have 1 component for non-matching route (global config only)"
+    );
+    assert!(
+        matches!(&end_other[0], crate::ComponentSpec::Name(n) if n == "color-mode"),
+        "header.end should be color-mode from global config for non-matching route"
+    );
+
+    // left-sidebar should still be enabled for non-matching route (docs preset default)
+    assert!(
+        resolved_other
+            .left_sidebar
+            .as_ref()
+            .is_some_and(|r| r.is_enabled()),
+        "left-sidebar should be enabled for non-matching route"
+    );
+
+    Ok(())
+}

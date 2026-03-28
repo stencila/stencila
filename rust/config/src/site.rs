@@ -814,6 +814,47 @@ pub struct SiteConfig {
     /// ```
     #[serde(alias = "auto-index")]
     pub auto_index: Option<AutoIndexSpec>,
+
+    /// Specimen page configuration
+    ///
+    /// Controls the layout and behavior of the specimen page, which provides
+    /// a preview of site components and styles.
+    ///
+    /// ```toml
+    /// [site.specimen.layout]
+    /// preset = "docs"
+    ///
+    /// [site.specimen.layout.header]
+    /// start = "logo"
+    /// end = ["color-mode"]
+    /// ```
+    pub specimen: Option<SpecimenConfig>,
+}
+
+/// Configuration for the specimen page
+///
+/// The specimen page provides a preview of site components and styles.
+/// It has its own layout configuration that can differ from the main site layout.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(rename_all = "kebab-case", deny_unknown_fields)]
+pub struct SpecimenConfig {
+    /// Layout configuration for the specimen page
+    ///
+    /// Controls the layout structure of the specimen page including header,
+    /// sidebars, footer, and navigation. Supports the same preset and
+    /// override system as the main site layout.
+    pub layout: Option<LayoutConfig>,
+}
+
+impl SpecimenConfig {
+    /// Validate the specimen configuration
+    pub fn validate(&self) -> Result<()> {
+        if let Some(layout) = &self.layout {
+            layout.validate()?;
+        }
+        Ok(())
+    }
 }
 
 impl SiteConfig {
@@ -829,6 +870,10 @@ impl SiteConfig {
 
         if let Some(layout) = &self.layout {
             layout.validate()?;
+        }
+
+        if let Some(specimen) = &self.specimen {
+            specimen.validate()?;
         }
 
         // Validate reviews configuration
