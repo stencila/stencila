@@ -558,6 +558,7 @@ where
     if let Err(e) = crate::specimen::render_specimen_page(
         &site_config,
         &base_url,
+        web_base.as_deref(),
         &output_dir,
         &document_routes,
         &routes_set,
@@ -1676,6 +1677,7 @@ mod tests {
         let html = render_specimen_page(
             &site_config,
             "",
+            Some(""),
             output_dir.path(),
             &routes,
             &routes_set,
@@ -1723,6 +1725,7 @@ mod tests {
         let html = render_specimen_page(
             &site_config,
             "",
+            Some(""),
             output_dir.path(),
             &routes,
             &routes_set,

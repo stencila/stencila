@@ -31,6 +31,7 @@ pub async fn specimen_node() -> Result<Node> {
 pub(crate) async fn render_specimen_page(
     site_config: &stencila_config::SiteConfig,
     base_url: &str,
+    web_base: Option<&str>,
     output_dir: &std::path::Path,
     routes: &[crate::RouteEntry],
     routes_set: &std::collections::HashSet<String>,
@@ -98,6 +99,7 @@ pub(crate) async fn render_specimen_page(
         &node,
         Some(EncodeOptions {
             base_url: Some(base_url.to_string()),
+            web_base: web_base.map(|s| s.to_string()),
             view: Some("site".to_string()),
             ..Default::default()
         }),
