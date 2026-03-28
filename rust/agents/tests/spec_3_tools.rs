@@ -1154,15 +1154,6 @@ async fn snap_invalid_device_rejected() {
 }
 
 #[tokio::test]
-async fn snap_invalid_devices_entry_rejected() {
-    let env = MockExecutionEnvironment::new();
-    let exec = tools::snap::executor();
-    let result = exec(json!({"devices": ["desktop", "phone"]}), &env).await;
-
-    assert!(matches!(result, Err(AgentError::ValidationError { .. })));
-}
-
-#[tokio::test]
 async fn snap_dark_and_light_rejected() {
     let env = MockExecutionEnvironment::new();
     let exec = tools::snap::executor();

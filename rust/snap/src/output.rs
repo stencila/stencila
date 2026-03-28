@@ -5,7 +5,7 @@ use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 
-use crate::{assertions::AssertionResults, devices::ViewportConfig, measure::MeasureResult};
+use crate::{assertions::AssertionResults, measure::MeasureResult};
 
 /// How the screenshot was captured.
 #[derive(Debug, Clone, Copy, Serialize, Deserialize)]
@@ -76,9 +76,6 @@ pub struct SnapOutput {
 
     /// Metadata about screenshot resizing, when applied.
     pub screenshot_resize: Option<ScreenshotResize>,
-
-    /// Per-device results when `--devices` is used
-    pub devices: Option<BTreeMap<String, DeviceSnapResult>>,
 
     /// Timing information
     pub timings: Timings,
@@ -161,27 +158,6 @@ pub struct PaletteEntry {
 
     /// Number of elements using this color
     pub count: usize,
-}
-
-/// Per-device snap result for multi-device batch mode
-#[skip_serializing_none]
-#[derive(Debug, Serialize, Deserialize)]
-pub struct DeviceSnapResult {
-    /// Viewport configuration used
-    pub viewport: ViewportConfig,
-
-    /// Measurement results
-    pub measure: Option<MeasureResult>,
-
-    /// Information about screenshot capture semantics
-    pub capture: Option<CaptureInfo>,
-
-    /// Screenshot PNG bytes (if captured)
-    #[serde(skip)]
-    pub screenshot: Option<Vec<u8>>,
-
-    /// Metadata about screenshot resizing, when applied.
-    pub screenshot_resize: Option<ScreenshotResize>,
 }
 
 /// Timing information

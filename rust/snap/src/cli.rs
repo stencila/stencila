@@ -30,7 +30,7 @@ const BROWSER_FAILURE: i32 = 40;
 /// - Measure page elements for automated testing
 /// - Extract resolved CSS custom property (theme token) values
 /// - Extract the page's color palette
-/// - Batch-measure across multiple device viewports
+/// - Compare across device viewports using --device
 #[derive(Debug, Parser)]
 #[command(after_long_help = CLI_AFTER_LONG_HELP)]
 pub struct Cli {
@@ -68,14 +68,6 @@ pub struct Cli {
     /// tablet, tablet-landscape
     #[arg(long, value_enum)]
     device: Option<DevicePreset>,
-
-    /// Measure at multiple device presets in one invocation
-    ///
-    /// Comma-separated list of device presets. Results are keyed by device
-    /// name in the output. When combined with --shot, screenshots are named
-    /// {stem}-{device}.png.
-    #[arg(long, value_delimiter = ',')]
-    devices: Option<Vec<DevicePreset>>,
 
     /// Viewport width in pixels
     ///
@@ -239,9 +231,6 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Snap a document file directly</dim>
   <b>stencila snap</> <g>./my-doc.md</> <c>--shot</> <g>doc.png</>
 
-  <dim># Measure at multiple viewports in one call</dim>
-  <b>stencila snap</> <c>--devices</> <g>mobile,tablet,laptop</> <c>--measure</>
-
   <dim># Assert site chrome properties</dim>
   <b>stencila snap</> <c>--assert</> <y>"exists(stencila-logo)==true"</>
 
@@ -324,7 +313,6 @@ impl Cli {
             selector: self.selector,
             full_page: self.full,
             device: self.device,
-            devices: self.devices,
             viewport,
             color_scheme,
             print_media: self.print,
@@ -359,32 +347,6 @@ impl Cli {
                 tokio::fs::create_dir_all(dir).await?;
             }
             tokio::fs::write(shot_path, screenshot_data).await?;
-        }
-
-        // Write per-device screenshots to disk if --shot and --devices were specified
-        if let Some(shot_path) = &shot_path
-            && let Some(ref devices) = result.devices
-        {
-            let stem = shot_path
-                .file_stem()
-                .and_then(|s| s.to_str())
-                .unwrap_or("snap");
-            let ext = shot_path
-                .extension()
-                .and_then(|s| s.to_str())
-                .unwrap_or("png");
-            for (device_name, device_result) in devices {
-                if let Some(ref data) = device_result.screenshot {
-                    let device_path = shot_path
-                        .parent()
-                        .unwrap_or(std::path::Path::new("."))
-                        .join(format!("{stem}-{device_name}.{ext}"));
-                    if let Some(dir) = device_path.parent() {
-                        tokio::fs::create_dir_all(dir).await?;
-                    }
-                    tokio::fs::write(&device_path, data).await?;
-                }
-            }
         }
 
         // Output JSON to stdout

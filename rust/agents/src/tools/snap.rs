@@ -47,14 +47,6 @@ pub fn definition() -> ToolDefinition {
                     "description": "Device preset for viewport dimensions.",
                     "enum": ["laptop", "desktop", "mobile", "tablet", "tablet-landscape"]
                 },
-                "devices": {
-                    "type": "array",
-                    "items": {
-                        "type": "string",
-                        "enum": ["laptop", "desktop", "mobile", "tablet", "tablet-landscape"]
-                    },
-                    "description": "Multiple device presets for batch measurement."
-                },
                 "width": {
                     "type": "integer",
                     "description": "Custom viewport width in pixels."
@@ -192,12 +184,6 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         });
     }
 
-    if args.get("device").is_some() && args.get("devices").is_some() {
-        return Err(AgentError::ValidationError {
-            reason: "'device' and 'devices' are mutually exclusive".into(),
-        });
-    }
-
     let color_scheme = if dark {
         ColorScheme::Dark
     } else if light {
@@ -280,21 +266,6 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
         }
     };
 
-    let devices: Option<Vec<DevicePreset>> = args
-        .get("devices")
-        .and_then(Value::as_array)
-        .map(|arr| {
-            arr.iter()
-                .map(|v| {
-                    let s = v.as_str().ok_or_else(|| AgentError::ValidationError {
-                        reason: "each entry in 'devices' must be a string".into(),
-                    })?;
-                    parse_device(s)
-                })
-                .collect::<AgentResult<Vec<_>>>()
-        })
-        .transpose()?;
-
     let options = SnapOptions {
         route_or_path: args.get("route").and_then(Value::as_str).map(String::from),
         url: None,
@@ -309,7 +280,6 @@ async fn execute(args: Value) -> AgentResult<ToolOutput> {
             .and_then(Value::as_str)
             .map(parse_device)
             .transpose()?,
-        devices,
         viewport,
         color_scheme: effective_color_scheme,
         print_media,

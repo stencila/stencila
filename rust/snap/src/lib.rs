@@ -40,9 +40,7 @@ pub enum MeasureMode {
     /// Use a specific preset
     Preset(MeasurePreset),
 }
-use output::{
-    CaptureInfo, CaptureMode, DeviceSnapResult, SnapOutput, TargetInfo, Timings, TokenOutput,
-};
+use output::{CaptureInfo, CaptureMode, SnapOutput, TargetInfo, Timings, TokenOutput};
 use server::ServerInfo;
 
 const MAX_SCREENSHOT_DIMENSION: u32 = 8_000;
@@ -122,9 +120,6 @@ pub struct SnapOptions {
 
     /// Single device preset
     pub device: Option<DevicePreset>,
-
-    /// Multiple device presets for batch mode
-    pub devices: Option<Vec<DevicePreset>>,
 
     /// Custom viewport configuration
     pub viewport: Option<ViewportConfig>,
@@ -566,114 +561,6 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         None
     };
 
-    // Multi-device batch (if --devices specified)
-    let devices_result = if let Some(device_presets) = &options.devices {
-        let mut device_results = BTreeMap::new();
-
-        for device in device_presets {
-            let mut device_viewport = device.viewport();
-            // Propagate color scheme override so --dark/--light apply to all devices
-            if let Some(color_scheme) = options.color_scheme {
-                device_viewport.color_scheme = color_scheme;
-            }
-            browser.resize_viewport(&device_viewport, options.print_media)?;
-
-            // Reload and wait
-            browser
-                .navigate_and_wait(&url, &wait_config, options.print_media)
-                .await?;
-
-            // Measure with same selectors
-            let device_measure = if !selectors.is_empty() {
-                let mut measurements = browser.inject_and_measure(&selectors).await?;
-                enrich_measurements(
-                    &mut measurements,
-                    &device_viewport,
-                    MeasurementContext {
-                        viewport_only_capture: options.screenshot
-                            && selector.is_none()
-                            && !options.full_page,
-                    },
-                );
-                Some(measurements)
-            } else {
-                None
-            };
-
-            // Capture device screenshot bytes (if requested)
-            let device_capture = if options.screenshot {
-                let capture_opts = CaptureOptions {
-                    full_page: options.full_page,
-                    selector: selector.clone(),
-                };
-                Some(
-                    browser
-                        .capture_screenshot(&capture_opts, &device_viewport)
-                        .await?,
-                )
-            } else {
-                None
-            };
-
-            let (
-                device_screenshot,
-                device_screenshot_resize,
-                device_matched_elements,
-                device_full_page_content_height,
-            ) = if let Some(CaptureResult {
-                bytes,
-                matched_elements,
-                full_page_content_height,
-            }) = device_capture
-            {
-                let (bytes, resize) =
-                    resize_screenshot_if_needed(bytes, options.screenshot_resize)?;
-                (
-                    Some(bytes),
-                    resize,
-                    matched_elements,
-                    full_page_content_height,
-                )
-            } else {
-                (None, None, None, None)
-            };
-
-            let device_capture = if options.screenshot {
-                Some(build_capture_info(
-                    if selector.is_some() {
-                        CaptureMode::Element
-                    } else if options.full_page {
-                        CaptureMode::FullPage
-                    } else {
-                        CaptureMode::Viewport
-                    },
-                    selector.as_ref(),
-                    device_matched_elements,
-                    device_full_page_content_height,
-                    device_screenshot_resize.as_ref(),
-                ))
-            } else {
-                None
-            };
-
-            let device_name = format!("{device:?}").to_lowercase();
-            device_results.insert(
-                device_name,
-                DeviceSnapResult {
-                    viewport: device_viewport,
-                    measure: device_measure,
-                    capture: device_capture,
-                    screenshot: device_screenshot,
-                    screenshot_resize: device_screenshot_resize,
-                },
-            );
-        }
-
-        Some(device_results)
-    } else {
-        None
-    };
-
     // Close browser cleanly to avoid temp directory warnings
     browser.close();
 
@@ -706,7 +593,6 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
         assertions: assertion_results,
         screenshot: screenshot_bytes,
         screenshot_resize,
-        devices: devices_result,
         timings: Timings {
             total_ms: elapsed.as_millis() as u64,
         },
