@@ -97,7 +97,7 @@ digraph workflow_creation_topdown {
 }
 ```
 
-```text #design-prompt
+```markdown #design-prompt
 Design a workflow for the following goal. Do NOT create the workflow yet — produce a design document that covers:
 
 1. The workflow's name, purpose, and description
@@ -111,17 +111,17 @@ Goal:
 
 $goal
 
-Before starting, use workflow_get_output to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
+Before starting, use `workflow_get_output` to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
-After producing the design document, you MUST call workflow_set_context three times to store the dependency lists. Use the following keys and provide JSON arrays of objects:
+After producing the design document, you MUST call `workflow_set_context` three times to store the dependency lists. Use the following keys and provide JSON arrays of objects:
 
-1. Key "agents-with-skills" — agents that need custom skills. Each object: {"name": "agent-name", "description": "one-line description", "skills-needed": "brief description of skills"}
-2. Key "agents-without-skills" — agents that use existing skills or need none. Each object: {"name": "agent-name", "description": "one-line description"}
-3. Key "child-workflows" — child workflows to compose. Each object: {"name": "workflow-name", "description": "one-line description"}
+1. Key "agents-with-skills" — agents that need custom skills. Each object: `{"name": "agent-name", "description": "one-line description", "skills-needed": "brief description of skills"}`
+2. Key "agents-without-skills" — agents that use existing skills or need none. Each object: `{"name": "agent-name", "description": "one-line description"}`
+3. Key "child-workflows" — child workflows to compose. Each object: `{"name": "workflow-name", "description": "one-line description"}`
 
-Use empty arrays [] for any category with no new dependencies. Only include dependencies that need to be CREATED — omit agents and workflows that already exist in the workspace.
+Use empty arrays `[]` for any category with no new dependencies. Only include dependencies that need to be CREATED — omit agents and workflows that already exist in the workspace.
 
 These arrays are used by the downstream fan-outs to create all dependencies in parallel before the workflow itself is built.
 ```
@@ -154,40 +154,44 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #create-agent-with-skills-prompt
+```markdown #create-agent-with-skills-prompt
 Create the following agent (it needs custom skills that will be designed and built as part of this process):
 
 Name: $fan_out.item.name
+
 Description: $fan_out.item.description
+
 Skills needed: $fan_out.item.skills-needed
 
 Create an agent with the specified name, description, and custom skills. The agent should be complete, well-structured, and ready for the workflow to reference.
 ```
 
-```text #create-agent-without-skills-prompt
+```markdown #create-agent-without-skills-prompt
 Create the following agent:
 
 Name: $fan_out.item.name
+
 Description: $fan_out.item.description
 
 Create an agent with the specified name and description. The agent should be complete, well-structured, and ready for the workflow to reference.
 ```
 
-```text #create-child-workflow-prompt
+```markdown #create-child-workflow-prompt
 Create the following workflow:
 
 Name: $fan_out.item.name
+
 Description: $fan_out.item.description
 
 Create a workflow with the specified name and description. The workflow should be complete, well-structured, and ready to be composed as a child workflow.
 ```
 
-```text #create-workflow-prompt
+```markdown #create-workflow-prompt
 Create the workflow defined in the approved design, now that all its dependencies have been created.
 
-Use workflow_get_output to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing workflow draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+Use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing workflow draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
 The workflow's goal is:
 
@@ -196,7 +200,7 @@ $goal
 Reference the agents and child workflows that were created in the earlier phases of this workflow. Make sure all dependencies from the approved design are correctly referenced in the pipeline.
 ```
 
-```text #review-workflow-prompt
+```markdown #review-workflow-prompt
 Review the current workflow draft for the goal:
 
 $goal
@@ -204,6 +208,7 @@ $goal
 The workflow was designed top-down: its agent and child workflow dependencies were created first based on an approved design, then the workflow was created to reference those dependencies.
 
 Verify that:
+
 1. The workflow correctly references all agents and child workflows from the approved design
 2. The pipeline structure matches the approved design
 3. The workflow's instructions, prompts, and node configuration are clear and complete
@@ -238,24 +243,26 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #commit-prompt
+```markdown #commit-prompt
 Commit the workflow and dependency artifacts created by this workflow.
 
 Workflow goal: $goal
 
-Step 1 — stage changes:
-  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
-  Stage the workflow files and any agent, skill, or child workflow files created during this
-  pipeline. These are typically directories under `.stencila/workflows/`, `.stencila/agents/`,
-  and `.stencila/skills/`. Use the goal description as a guide, but include any other files
-  that are clearly part of this workflow creation work. Avoid staging unrelated changes.
+**Step 1: stage changes**
 
-Step 2 — commit:
-  Compose a commit message based on the workflow goal and the actual changes staged.
-  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
-  project's commit message conventions and follow them. Also check for any commit message
-  instructions in the system prompt or prior context and apply those.
-  Run `git commit` with the composed message.
+Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+Stage the workflow files and any agent, skill, or child workflow files created during this
+pipeline. These are typically directories under `.stencila/workflows/`, `.stencila/agents/`,
+and `.stencila/skills/`. Use the goal description as a guide, but include any other files
+that are clearly part of this workflow creation work. Avoid staging unrelated changes.
+
+**Step 2: commit**
+
+Compose a commit message based on the workflow goal and the actual changes staged.
+Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+project's commit message conventions and follow them. Also check for any commit message
+instructions in the system prompt or prior context and apply those.
+Run `git commit` with the composed message.
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue regardless.

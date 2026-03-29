@@ -41,17 +41,17 @@ digraph software_plan_iterative {
 }
 ```
 
-```text #creator-prompt
+```markdown #creator-prompt
 Create or update a software delivery plan for the goal:
 
 $goal
 
-Before starting, use workflow_get_output to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+Before starting, use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 ```
 
-```text #reviewer-prompt
+```markdown #reviewer-prompt
 Review the current software delivery plan draft for the goal:
 
 $goal
@@ -81,23 +81,25 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #commit-prompt
+```markdown #commit-prompt
 Commit the delivery plan artifact.
 
 Plan goal: $goal
 
-Step 1 — stage changes:
-  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
-  Stage the delivery plan files. These are typically in `.stencila/plans/`. Use the goal
-  description as a guide, but include any other files that are clearly part of this planning
-  work. Avoid staging unrelated changes.
+**Step 1: stage changes**
 
-Step 2 — commit:
-  Compose a commit message based on the plan goal and the actual changes staged.
-  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
-  project's commit message conventions and follow them. Also check for any commit message
-  instructions in the system prompt or prior context and apply those.
-  Run `git commit` with the composed message.
+Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+Stage the delivery plan files. These are typically in `.stencila/plans/`. Use the goal
+description as a guide, but include any other files that are clearly part of this planning
+work. Avoid staging unrelated changes.
+
+**Step 2: commit**
+
+Compose a commit message based on the plan goal and the actual changes staged.
+Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+project's commit message conventions and follow them. Also check for any commit message
+instructions in the system prompt or prior context and apply those.
+Run `git commit` with the composed message.
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue regardless.

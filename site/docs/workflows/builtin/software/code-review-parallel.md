@@ -66,7 +66,8 @@ digraph code_review_parallel {
 }
 ```
 
-```text #synthesize-prompt
+## `synthesize-prompt`
+
 You have received three independent code reviews of the same code. Retrieve the output of each review node using the available tools.
 
 Produce a single unified report with these sections:
@@ -91,7 +92,8 @@ Before finalizing, validate each finding against the actual code. Pay particular
 Be concise. Do not reproduce the full text of each review — synthesize and deduplicate.
 
 Write the final report to `.stencila/reviews/` as a Markdown file. Derive the filename from the review target using kebab-case (e.g., `.stencila/reviews/codec-markdown-review.md`). Create the directory if it does not exist. If a file with that name already exists, chose another name.
-```
+
+## `human-review`
 
 ```yaml #human-review
 preamble: |

@@ -47,7 +47,7 @@ digraph code_review_parallel {
 }
 ```
 
-```text #synthesize-prompt
+```markdown #synthesize-prompt
 You have received three independent code reviews of the same code. Retrieve the output of each review node using the available tools.
 
 Produce a single unified report with these sections:

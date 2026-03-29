@@ -59,23 +59,25 @@ digraph workflow_creation_iterative {
 }
 ```
 
-```text #creator-prompt
+## `creator-prompt`
+
 Create or update a workflow for the goal:
 
 $goal
 
-Before starting, use workflow_get_output to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+Before starting, use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
-```
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
-```text #reviewer-prompt
+## `reviewer-prompt`
+
 Review the current workflow draft for the goal:
 
 $goal
 
 If the draft is acceptable, choose the Accept branch. If the draft needs changes, choose the Revise branch and provide specific revision feedback in your response.
-```
+
+## `human-review-interview`
 
 ```yaml #human-review-interview
 preamble: |
@@ -98,28 +100,30 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #commit-prompt
+## `commit-prompt`
+
 Commit the workflow artifact.
 
 Workflow goal: $goal
 
-Step 1 — stage changes:
-  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
-  Stage the workflow files. These are typically a WORKFLOW.md and associated files in a
-  directory under `.stencila/workflows/`. Use the goal description as a guide, but include
-  any other files that are clearly part of this workflow creation work. Avoid staging
-  unrelated changes.
+**Step 1: stage changes**
 
-Step 2 — commit:
-  Compose a commit message based on the workflow goal and the actual changes staged.
-  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
-  project's commit message conventions and follow them. Also check for any commit message
-  instructions in the system prompt or prior context and apply those.
-  Run `git commit` with the composed message.
+Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+Stage the workflow files. These are typically a WORKFLOW.md and associated files in a
+directory under `.stencila/workflows/`. Use the goal description as a guide, but include
+any other files that are clearly part of this workflow creation work. Avoid staging
+unrelated changes.
+
+**Step 2: commit**
+
+Compose a commit message based on the workflow goal and the actual changes staged.
+Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+project's commit message conventions and follow them. Also check for any commit message
+instructions in the system prompt or prior context and apply those.
+Run `git commit` with the composed message.
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue regardless.
-```
 
 ---
 

@@ -76,7 +76,8 @@ digraph workflow_create_run {
 }
 ```
 
-```text #create-prompt
+## `create-prompt`
+
 Generate an ephemeral workflow tailored to this goal:
 
 $goal
@@ -102,19 +103,18 @@ CRITICAL INSTRUCTIONS — read all of these before starting:
 
 3. Set the child workflow's goal in the frontmatter to a clear, actionable description of
    what the workflow should accomplish. Then store this same goal string into workflow context
-   using workflow_set_context with key "child_goal" so the parent workflow can pass it through
+   using `workflow_set_context` with key "child_goal" so the parent workflow can pass it through
    during execution.
 
-4. Check for validation feedback from a previous attempt using workflow_get_output. If validation
+4. Check for validation feedback from a previous attempt using `workflow_get_output`. If validation
    errors are present, fix the issues rather than starting from scratch. Also use
-   workflow_get_context with key "validation_result" to see the specific validation output.
+   `workflow_get_context` with key "validation_result" to see the specific validation output.
 
-5. Design the pipeline to use available workspace agents where appropriate. Use list_agents to
+5. Design the pipeline to use available workspace agents where appropriate. Use `list_agents` to
    see what agents are available. Fall back to general-purpose agents for tasks that do not
    match a specialist.
 
 6. Keep the workflow's description concise and specific to the goal.
-```
 
 ---
 

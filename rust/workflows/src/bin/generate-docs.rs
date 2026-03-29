@@ -338,7 +338,7 @@ fn build_workflow_page(
     // Pipeline / body
     if !body.is_empty() {
         writeln!(out, "# Pipeline\n")?;
-        writeln!(out, "{body}\n")?;
+        writeln!(out, "{}\n", handle_code_blocks(&body))?;
     }
 
     // Footer
@@ -355,6 +355,58 @@ fn build_workflow_page(
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/// Insert a Markdown heading before each fenced code block that carries an
+/// ID fragment (e.g. `` ```text #select-slice-prompt `` or
+/// `` ```yaml #human-review ``). The heading uses the ID so that prompts
+/// and interviews are clearly labelled in the generated docs.
+///
+/// Code blocks with language `markdown` are unwrapped: the fences are
+/// removed and the content is emitted as raw Markdown in the page.
+fn handle_code_blocks(body: &str) -> String {
+    let mut out = String::with_capacity(body.len());
+    // When inside a `markdown` code block that is being unwrapped, this is
+    // `true` so that we emit lines verbatim and swallow the closing fence.
+    let mut unwrapping_markdown = false;
+
+    for line in body.lines() {
+        if unwrapping_markdown {
+            // A bare ``` closes the block we are unwrapping.
+            if line.trim() == "```" {
+                unwrapping_markdown = false;
+                continue;
+            }
+            out.push_str(line);
+            out.push('\n');
+            continue;
+        }
+
+        if let Some(rest) = line.strip_prefix("```") {
+            // Look for a `#fragment` after the language tag.
+            // The format is: ```<lang> #<id>
+            if let Some(hash_pos) = rest.find('#') {
+                let id = rest[hash_pos + 1..].trim();
+                if !id.is_empty() {
+                    writeln!(out, "## `{id}`\n").expect("write to String");
+                }
+
+                let lang = rest[..hash_pos].trim();
+                if lang == "markdown" {
+                    // Skip the opening fence; content will be emitted raw.
+                    unwrapping_markdown = true;
+                    continue;
+                }
+            }
+        }
+        out.push_str(line);
+        out.push('\n');
+    }
+    // Remove trailing newline added by the loop to match the original trimmed body
+    if out.ends_with('\n') {
+        out.pop();
+    }
+    out
+}
 
 /// Extract the Markdown body after YAML frontmatter.
 fn extract_body(raw: &str) -> &str {

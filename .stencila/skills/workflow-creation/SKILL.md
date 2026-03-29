@@ -156,7 +156,7 @@ digraph example {
 }
 ```
 
-```text #creator-prompt
+```markdown #creator-prompt
 Create or revise the draft for this goal: $goal
 Check for reviewer feedback from a previous iteration and revise rather than restart.
 ```
@@ -165,7 +165,7 @@ Check for reviewer feedback from a previous iteration and revise rather than res
 cargo fmt -p workflows && cargo test -p workflows
 ```
 
-```text #human-question
+```markdown #human-question
 What should change before the next revision?
 ```
 
@@ -315,13 +315,13 @@ digraph draft_review_iterative {
 }
 ```
 
-```text #creator-prompt
+```markdown #creator-prompt
 Create or update the draft for: $goal
 
 Before starting, check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. Also check for human revision notes and incorporate those as well.
 ```
 
-```text #reviewer-prompt
+```markdown #reviewer-prompt
 Review the current draft for the goal '$goal'.
 
 If the draft is acceptable, choose the Accept branch.

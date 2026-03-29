@@ -86,7 +86,8 @@ digraph agent_creation_topdown {
 }
 ```
 
-```text #design-prompt
+## `design-prompt`
+
 Design an agent for the following goal. Do NOT create the agent yet — produce a design document that covers:
 
 1. The agent's name, purpose, and description
@@ -99,16 +100,17 @@ Goal:
 
 $goal
 
-Before starting, use workflow_get_output to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
+Before starting, use `workflow_get_output` to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
-After producing the design document, you MUST call workflow_set_context to store the skills list. Use key "skills" and provide a JSON array of objects, where each object has "name" (kebab-case skill name), "description" (one-line description), and "capabilities" (key capabilities the skill should provide). For example:
+After producing the design document, you MUST call `workflow_set_context` to store the skills list. Use key "skills" and provide a JSON array of objects, where each object has "name" (kebab-case skill name), "description" (one-line description), and "capabilities" (key capabilities the skill should provide). For example:
 
-[{"name": "data-analysis", "description": "Analyze datasets and produce summaries", "capabilities": "Statistical analysis, visualization, trend detection"}]
+`[{"name": "data-analysis", "description": "Analyze datasets and produce summaries", "capabilities": "Statistical analysis, visualization, trend detection"}]`
 
 This array is used by the downstream fan-out to create all skills in parallel.
-```
+
+## `design-review-interview`
 
 ```yaml #design-review-interview
 preamble: |
@@ -139,31 +141,34 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #create-skill-prompt
+## `create-skill-prompt`
+
 Create the following skill:
 
 Name: $fan_out.item.name
+
 Description: $fan_out.item.description
+
 Capabilities: $fan_out.item.capabilities
 
 Create a skill with the specified name, description, and capabilities. The skill should be complete, well-structured, and ready for the agent to reference.
-```
 
-```text #create-agent-prompt
+## `create-agent-prompt`
+
 Create the agent defined in the approved design, now that all its skills have been created.
 
-Use workflow_get_output to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing agent draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
+Use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing agent draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
 The agent's goal is:
 
 $goal
 
 Reference the skills that were created in the earlier phase of this workflow. Make sure each skill is listed in the agent's skills section.
-```
 
-```text #review-agent-prompt
+## `review-agent-prompt`
+
 Review the current agent draft for the goal:
 
 $goal
@@ -171,13 +176,15 @@ $goal
 The agent was designed top-down: its skills were created first based on an approved design, then the agent was created to reference those skills.
 
 Verify that:
+
 1. The agent correctly references all skills from the approved design
 2. The agent's instructions are clear, complete, and consistent with its skills
 3. The agent's tools, model preferences, and other configuration are appropriate
 4. The skill count is justified — single-skill agents are preferred because Stencila preloads the skill into the prompt; flag any multi-skill design that could reasonably be consolidated
 
 If the draft is acceptable, choose the Accept branch. If the draft needs changes, choose the Revise branch and provide specific revision feedback in your response.
-```
+
+## `human-review-interview`
 
 ```yaml #human-review-interview
 preamble: |
@@ -204,27 +211,29 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #commit-prompt
+## `commit-prompt`
+
 Commit the agent and skill artifacts created by this workflow.
 
 Agent goal: $goal
 
-Step 1 — stage changes:
-  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
-  Stage the agent and skill files. These are typically directories under `.stencila/agents/`
-  and `.stencila/skills/`. Use the goal description as a guide, but include any other files
-  that are clearly part of this agent creation work. Avoid staging unrelated changes.
+**Step 1: stage changes**
 
-Step 2 — commit:
-  Compose a commit message based on the agent goal and the actual changes staged.
-  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
-  project's commit message conventions and follow them. Also check for any commit message
-  instructions in the system prompt or prior context and apply those.
-  Run `git commit` with the composed message.
+Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+Stage the agent and skill files. These are typically directories under `.stencila/agents/`
+and `.stencila/skills/`. Use the goal description as a guide, but include any other files
+that are clearly part of this agent creation work. Avoid staging unrelated changes.
+
+**Step 2: commit**
+
+Compose a commit message based on the agent goal and the actual changes staged.
+Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+project's commit message conventions and follow them. Also check for any commit message
+instructions in the system prompt or prior context and apply those.
+Run `git commit` with the composed message.
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue regardless.
-```
 
 ---
 

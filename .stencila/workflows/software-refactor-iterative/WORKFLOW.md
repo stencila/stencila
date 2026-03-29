@@ -68,20 +68,21 @@ digraph software_refactor_iterative {
 }
 ```
 
-```text #refactor-prompt
+```markdown #refactor-prompt
 Refactor the code for the goal:
 
 $goal
 
-Before starting, use workflow_get_output to check for feedback from a previous iteration. This may be:
+Before starting, use `workflow_get_output` to check for feedback from a previous iteration. This may be:
 - Code review feedback from the software-code-reviewer (if the reviewer requested revisions)
 - Test failure output from the software-test-executor (if tests broke after a prior refactor)
 
 If feedback is present, use it to address the specific issues identified rather than starting over. If you disagree with a specific review finding, you may skip it but note your reasoning.
 
-Also use workflow_get_context with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
 
 Requirements:
+
 - Discover and follow existing codebase conventions
 - Apply safe transformations: duplication removal, naming improvements, complexity reduction, convention alignment
 - Keep all existing tests passing after every change
@@ -90,45 +91,52 @@ Requirements:
 - Verify the code compiles and tests pass after your changes
 ```
 
-```text #run-tests-prompt
+```markdown #run-tests-prompt
 Run the tests relevant to the refactored code.
 
 Refactoring goal: $goal
 
-Step 1 — determine test scope:
-  Examine the refactoring goal to identify which packages, modules, or directories were affected.
-  Discover the appropriate test command for the project and scope it to the relevant areas.
+**Step 1: determine test scope**
 
-Step 2 — execute tests:
-  Run the scoped tests. If no scoped test command is obvious, run the project's full test suite.
+Examine the refactoring goal to identify which packages, modules, or directories were affected.
+Discover the appropriate test command for the project and scope it to the relevant areas.
 
-Step 3 — route based on results:
-  If this node has outgoing labeled edges: call workflow_set_route with label "Pass" if all
-  tests passed, or "Fail" if any test failed. The failure output serves as feedback for the
-  refactorer in the next iteration.
+**Step 2: execute tests**
+
+Run the scoped tests. If no scoped test command is obvious, run the project's full test suite.
+
+**Step 3: route based on results**
+
+If this node has outgoing labeled edges: call `workflow_set_route` with label "Pass" if all
+tests passed, or "Fail" if any test failed. The failure output serves as feedback for the
+refactorer in the next iteration.
 ```
 
-```text #review-prompt
+```markdown #review-prompt
 Review the refactored code for the goal:
 
 $goal
 
-Step 1 — examine the changes:
-  Read the files that were modified by the refactoring. Use the goal description to identify
-  the scope of files, modules, or packages to review.
+**Step 1: examine the changes**
 
-Step 2 — evaluate the refactoring:
-  Assess the changes across these dimensions:
-  - Correctness: Do the changes preserve existing behavior? Are there any subtle bugs introduced?
-  - Quality: Is duplication reduced? Is complexity improved? Are names clear and consistent?
-  - Conventions: Do the changes follow the codebase's existing patterns and style?
-  - Security: Are there any security concerns introduced by the refactoring?
-  - Maintainability: Is the refactored code easier to understand and modify?
+Read the files that were modified by the refactoring. Use the goal description to identify
+the scope of files, modules, or packages to review.
 
-Step 3 — route:
-  If the refactoring is acceptable, choose the Accept branch.
-  If the refactoring needs changes, choose the Revise branch and provide specific, actionable
-  feedback in your response describing what should be improved.
+**Step 2: evaluate the refactoring**
+
+Assess the changes across these dimensions:
+
+- Correctness: Do the changes preserve existing behavior? Are there any subtle bugs introduced?
+- Quality: Is duplication reduced? Is complexity improved? Are names clear and consistent?
+- Conventions: Do the changes follow the codebase's existing patterns and style?
+- Security: Are there any security concerns introduced by the refactoring?
+- Maintainability: Is the refactored code easier to understand and modify?
+
+**Step 3: route**
+
+If the refactoring is acceptable, choose the Accept branch.
+If the refactoring needs changes, choose the Revise branch and provide specific, actionable
+feedback in your response describing what should be improved.
 ```
 
 ```yaml #human-review-interview
@@ -152,24 +160,26 @@ questions:
     show-if: "human.decision == Revise"
 ```
 
-```text #commit-prompt
+```markdown #commit-prompt
 Commit the changes from the completed refactoring.
 
 Refactoring goal: $goal
 
-Step 1 — stage changes:
-  Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
-  Stage the files related to this refactoring. Use the goal description as a guide for which
-  paths are most relevant, but include other changed files (e.g., test fixtures, configuration,
-  shared modules) when they are clearly part of this refactoring's work. Use your judgement —
-  avoid staging unrelated changes that happened to be in the working tree.
+**Step 1: stage changes**
 
-Step 2 — commit:
-  Compose a commit message based on the refactoring goal and the actual changes staged.
-  Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
-  project's commit message conventions and follow them. Also check for any commit message
-  instructions in the system prompt or prior context and apply those.
-  Run `git commit` with the composed message.
+Use the shell tool to review uncommitted changes with `git status` and `git diff --stat`.
+Stage the files related to this refactoring. Use the goal description as a guide for which
+paths are most relevant, but include other changed files (e.g., test fixtures, configuration,
+shared modules) when they are clearly part of this refactoring's work. Use your judgement —
+avoid staging unrelated changes that happened to be in the working tree.
+
+**Step 2: commit**
+
+Compose a commit message based on the refactoring goal and the actual changes staged.
+Inspect the repository's recent commit history (`git log --oneline -20`) to infer the
+project's commit message conventions and follow them. Also check for any commit message
+instructions in the system prompt or prior context and apply those.
+Run `git commit` with the composed message.
 
 If any step fails (nothing to commit, git errors, etc.), report the issue but do not block
 the workflow — execution will continue regardless.

@@ -25,7 +25,7 @@ digraph test_refs {
 }
 ```
 
-```text #creator-prompt
+```markdown #creator-prompt
 Reply with exactly the word yes.
 ```
 
