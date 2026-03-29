@@ -1,7 +1,7 @@
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
-import { fixCssPaths, litResolve } from './vite-plugins'
+import { finalizeBuildArtifacts, litResolve } from './vite-plugins'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 
@@ -21,9 +21,29 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '[name]-[hash].js',
-        assetFileNames: '[name][extname]',
+        assetFileNames: (assetInfo) => {
+          const originalFileNames = assetInfo.originalFileNames ?? []
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/views/vscode.ts'))) {
+            return 'views/vscode[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_base.ts'))) {
+            return 'themes/base[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_latex.ts'))) {
+            return 'themes/latex[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_tufte.ts'))) {
+            return 'themes/tufte[extname]'
+          }
+
+          return '[name][extname]'
+        },
       },
     },
   },
-  plugins: [litResolve(), fixCssPaths('../vscode/out/web')],
+  plugins: [litResolve(), finalizeBuildArtifacts('../vscode/out/web')],
 })

@@ -3,7 +3,7 @@ import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { defineConfig } from 'vite'
 import { compression, defineAlgorithm } from 'vite-plugin-compression2'
-import { fixCssPaths, litResolve } from './vite-plugins'
+import { finalizeBuildArtifacts, litResolve } from './vite-plugins'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const version = process.env.VERSION
@@ -55,7 +55,27 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '[name]-[hash].js',
-        assetFileNames: '[name][extname]',
+        assetFileNames: (assetInfo) => {
+          const originalFileNames = assetInfo.originalFileNames ?? []
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/views/dynamic.ts'))) {
+            return 'views/dynamic[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_base.ts'))) {
+            return 'themes/base[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_latex.ts'))) {
+            return 'themes/latex[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_tufte.ts'))) {
+            return 'themes/tufte[extname]'
+          }
+
+          return '[name][extname]'
+        },
       },
     },
   },
@@ -68,6 +88,6 @@ export default defineConfig({
         }),
       ],
     }),
-    fixCssPaths('dist'),
+    finalizeBuildArtifacts('dist'),
   ],
 })

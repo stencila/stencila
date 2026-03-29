@@ -1,10 +1,4 @@
-import {
-  existsSync,
-  mkdirSync,
-  renameSync,
-  unlinkSync,
-  writeFileSync,
-} from 'fs'
+import { existsSync, unlinkSync, writeFileSync } from 'fs'
 import { dirname, join, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import type { Plugin } from 'vite'
@@ -32,52 +26,25 @@ export function litResolve(): Plugin {
 }
 
 /**
- * Fix CSS output paths and clean up theme stub JS files.
+ * Clean up build artifacts after Vite writes the bundle.
  *
- * Rollup extracts CSS from entry points as "assets" which lose their
- * entry path prefix. This plugin moves them to match the entry name
- * (e.g., `base.css` → `themes/base.css`, `dynamic.css` → `views/dynamic.css`).
- *
- * It also removes the empty JS stubs generated from CSS-only theme entries.
+ * Removes empty JS stubs generated for CSS-only theme entries and restores the
+ * output `.gitignore` after `emptyOutDir` clears the directory.
  */
-export function fixCssPaths(outDir: string): Plugin {
+export function finalizeBuildArtifacts(outDir: string): Plugin {
   const distDir = resolve(dirname(fileURLToPath(import.meta.url)), outDir)
-
-  // Map CSS basename → target directory based on entry point names
-  const cssPathMap: Record<string, string> = {
-    'base.css': 'themes',
-    'latex.css': 'themes',
-    'tufte.css': 'themes',
-    'dynamic.css': 'views',
-    'vscode.css': 'views',
-  }
+  const themeStubEntries = new Set([
+    'themes/base.js',
+    'themes/latex.js',
+    'themes/tufte.js',
+  ])
 
   return {
-    name: 'fix-css-paths',
+    name: 'finalize-build-artifacts',
     writeBundle(_, bundle) {
-      // Move CSS files to their correct directories
-      for (const [cssName, targetDir] of Object.entries(cssPathMap)) {
-        const src = join(distDir, cssName)
-        if (existsSync(src)) {
-          const dest = join(distDir, targetDir, cssName)
-          mkdirSync(dirname(dest), { recursive: true })
-          renameSync(src, dest)
-          for (const ext of ['.br', '.gz', '.map']) {
-            const srcExt = join(distDir, `${cssName}${ext}`)
-            if (existsSync(srcExt)) {
-              renameSync(srcExt, join(distDir, targetDir, `${cssName}${ext}`))
-            }
-          }
-        }
-      }
-
       // Remove empty JS stubs from CSS-only theme entries
       for (const fileName of Object.keys(bundle)) {
-        if (
-          fileName.startsWith('themes/') &&
-          fileName.endsWith('.js') &&
-          fileName !== 'themes/init.js'
-        ) {
+        if (themeStubEntries.has(fileName)) {
           for (const ext of ['', '.map', '.br', '.gz']) {
             try {
               unlinkSync(join(distDir, `${fileName}${ext}`))
