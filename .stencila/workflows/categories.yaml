@@ -1,0 +1,57 @@
+# Canonical source for builtin workflow categories.
+#
+# Used by `generate-docs` to produce:
+#   - site/docs/workflows/builtin/index.md   (per-category listings)
+#   - site/docs/workflows/builtin/<category>/ (workflow pages in subdirectories)
+#   - site/docs/workflows/builtin/_nav.yaml  (ordered navigation)
+#
+# Each category has:
+#   slug       — URL-safe directory name
+#   title      — heading used in index.md and _nav.yaml
+#   prelude    — one or two sentence intro rendered before the category listing
+#   workflows  — ordered list of workflow names (must match directory names in .stencila/workflows/)
+
+categories:
+  - slug: skills
+    title: Skills
+    prelude: >-
+      Workflows for creating and refining agent skills.
+    workflows:
+      - skill-creation-iterative
+
+  - slug: agents
+    title: Agents
+    prelude: >-
+      Workflows for creating and refining agents.
+    workflows:
+      - agent-creation-iterative
+      - agent-creation-topdown
+
+  - slug: workflows
+    title: Workflows
+    prelude: >-
+      Workflows for creating, refining, and dynamically running workflows.
+    workflows:
+      - workflow-creation-iterative
+      - workflow-creation-topdown
+      - workflow-create-run
+
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Workflows for creating and refining themes.
+    workflows:
+      - theme-creation-iterative
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Workflows for the design, planning, implementation, testing, review,
+      and delivery of software.
+    workflows:
+      - software-design-iterative
+      - software-plan-iterative
+      - software-refactor-iterative
+      - software-delivery-tdd
+      - software-delivery-full
+      - code-review-parallel
