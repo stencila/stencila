@@ -29,7 +29,7 @@ Creates or updates an agent
 | Model | `large` |
 | Reasoning effort | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `agent-creation` |
+| Skills | [`agent-creation`](/docs/skills/builtin/agents/agent-creation/) |
 
 # Prompt
 

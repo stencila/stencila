@@ -200,6 +200,36 @@ struct Category {
     agents: Vec<String>,
 }
 
+#[derive(Deserialize)]
+struct SkillCategoriesFile {
+    categories: Vec<SkillCategory>,
+}
+
+#[derive(Deserialize)]
+struct SkillCategory {
+    slug: String,
+    skills: Vec<String>,
+}
+
+/// Build a map from skill name to its category slug by reading the skills
+/// categories.yaml file. Returns an empty map if the file is missing.
+fn load_skill_to_category(repo_root: &Path) -> BTreeMap<String, String> {
+    let path = repo_root.join(".stencila/skills/categories.yaml");
+    let Ok(content) = fs::read_to_string(&path) else {
+        return BTreeMap::new();
+    };
+    let Ok(file) = serde_yaml::from_str::<SkillCategoriesFile>(&content) else {
+        return BTreeMap::new();
+    };
+    let mut map = BTreeMap::new();
+    for cat in file.categories {
+        for skill in cat.skills {
+            map.insert(skill, cat.slug.clone());
+        }
+    }
+    map
+}
+
 async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Result<()> {
     let categories_path = repo_root.join(".stencila/agents/categories.yaml");
     let categories_file: CategoriesFile =
@@ -208,6 +238,8 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
 
     let agents = stencila_agents::definition::list_builtin().await;
     let agents_by_name: BTreeMap<&str, _> = agents.iter().map(|a| (a.name.as_str(), a)).collect();
+
+    let skill_to_category = load_skill_to_category(repo_root);
 
     // Clean the docs directory (remove old flat files and category subdirs)
     if docs_root.exists() {
@@ -239,7 +271,7 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
             });
             let raw = fs::read_to_string(agent.path())?;
             let source_path = relative_display(repo_root, agent.path());
-            let content = build_agent_page(agent, &raw, &source_path)?;
+            let content = build_agent_page(agent, &raw, &source_path, &skill_to_category)?;
             fs::write(category_dir.join(format!("{}.md", agent.name)), content)?;
         }
     }
@@ -404,7 +436,12 @@ fn escape_markdown_table(s: &str) -> String {
 // Agent page builder
 // ---------------------------------------------------------------------------
 
-fn build_agent_page(agent: &AgentInstance, raw: &str, source_path: &str) -> Result<String> {
+fn build_agent_page(
+    agent: &AgentInstance,
+    raw: &str,
+    source_path: &str,
+    skill_to_category: &BTreeMap<String, String>,
+) -> Result<String> {
     let title = title_case(&agent.name);
     let body = extract_body(raw).trim().to_string();
 
@@ -497,7 +534,16 @@ fn build_agent_page(agent: &AgentInstance, raw: &str, source_path: &str) -> Resu
         if skills.is_empty() {
             rows.push(("Skills", "none".to_string()));
         } else {
-            let formatted: Vec<String> = skills.iter().map(|s| format!("`{s}`")).collect();
+            let formatted: Vec<String> = skills
+                .iter()
+                .map(|s| {
+                    if let Some(slug) = skill_to_category.get(s.as_str()) {
+                        format!("[`{s}`](/docs/skills/builtin/{slug}/{s}/)")
+                    } else {
+                        format!("`{s}`")
+                    }
+                })
+                .collect();
             rows.push(("Skills", formatted.join(", ")));
         }
     }

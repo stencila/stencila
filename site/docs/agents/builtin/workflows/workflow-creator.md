@@ -29,7 +29,7 @@ Creates or updates a workflow
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user`, `list_agents`, `list_workflows` |
-| Skills | `workflow-creation` |
+| Skills | [`workflow-creation`](/docs/skills/builtin/workflows/workflow-creation/) |
 
 # Prompt
 

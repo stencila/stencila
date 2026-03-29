@@ -34,7 +34,7 @@ Iteratively refactor part or all of a software project using the software-code-r
 | Property | Value |
 | -------- | ----- |
 | Goal | What code should be refactored? Describe the scope (files, modules, packages) and any specific quality improvements you want |
-| Referenced agents | `software-code-refactorer`, `software-test-executor`, `software-code-reviewer`, `general` |
+| Referenced agents | [`software-code-refactorer`](/docs/agents/builtin/software/software-code-refactorer/), [`software-test-executor`](/docs/agents/builtin/software/software-test-executor/), [`software-code-reviewer`](/docs/agents/builtin/software/software-code-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

@@ -42,7 +42,7 @@ Reviews Stencila theme artifacts for token correctness, cross-target portability
 | Reasoning effort | `high` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep`, `shell`, `snap` |
-| Skills | `theme-review` |
+| Skills | [`theme-review`](/docs/skills/builtin/themes/theme-review/) |
 
 # Prompt
 

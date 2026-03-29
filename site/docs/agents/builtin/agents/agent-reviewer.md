@@ -29,7 +29,7 @@ Reviews an agent for quality, correctness, and completeness
 | Model | `medium` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `agent-review` |
+| Skills | [`agent-review`](/docs/skills/builtin/agents/agent-review/) |
 
 # Prompt
 

@@ -33,7 +33,7 @@ Design a workflow top-down by first planning its structure and dependencies, cre
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the workflow you want to design — what process should it automate, and what agents or child workflows will it need? |
-| Referenced agents | `workflow-creator`, `workflow-reviewer`, `general` |
+| Referenced agents | [`workflow-creator`](/docs/agents/builtin/workflows/workflow-creator/), [`workflow-reviewer`](/docs/agents/builtin/workflows/workflow-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

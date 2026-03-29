@@ -29,7 +29,7 @@ Reviews workflows for correctness, clarity, and completeness
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `grep`, `glob`, `shell`, `list_agents`, `list_workflows` |
-| Skills | `workflow-review` |
+| Skills | [`workflow-review`](/docs/skills/builtin/workflows/workflow-review/) |
 
 # Prompt
 

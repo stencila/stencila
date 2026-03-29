@@ -40,7 +40,7 @@ Reviews software delivery plans for quality, correctness, completeness, and feas
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep` |
-| Skills | `software-plan-review` |
+| Skills | [`software-plan-review`](/docs/skills/builtin/software/software-plan-review/) |
 
 # Prompt
 

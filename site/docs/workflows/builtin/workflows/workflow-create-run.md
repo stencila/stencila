@@ -32,7 +32,7 @@ Generate an ephemeral workflow tailored to a user's goal and immediately execute
 | Property | Value |
 | -------- | ----- |
 | Goal | What task or goal should be accomplished? Describe what you need done — a workflow will be created and executed to achieve it |
-| Referenced agents | `workflow-creator` |
+| Referenced agents | [`workflow-creator`](/docs/agents/builtin/workflows/workflow-creator/) |
 
 # Pipeline
 

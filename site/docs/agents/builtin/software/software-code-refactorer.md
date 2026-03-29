@@ -45,7 +45,7 @@ Refactors production code to improve quality while keeping all tests passing. Di
 | Reasoning effort | `medium` |
 | Trust level | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `software-code-refactoring` |
+| Skills | [`software-code-refactoring`](/docs/skills/builtin/software/software-code-refactoring/) |
 
 # Prompt
 

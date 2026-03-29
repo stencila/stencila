@@ -36,7 +36,7 @@ Reads a software delivery plan, marks the just-completed slice or slice batch (i
 | Reasoning effort | `medium` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep` |
-| Skills | `software-slice-selection` |
+| Skills | [`software-slice-selection`](/docs/skills/builtin/software/software-slice-selection/) |
 
 # Prompt
 

@@ -37,7 +37,7 @@ Reviews software design specifications for quality, correctness, completeness, f
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep` |
-| Skills | `software-design-review` |
+| Skills | [`software-design-review`](/docs/skills/builtin/software/software-design-review/) |
 
 # Prompt
 

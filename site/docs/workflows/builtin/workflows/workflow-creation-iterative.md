@@ -28,7 +28,7 @@ Create and iteratively refine a Stencila workflow using the workflow-creator and
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the workflow you want to create — what process should it automate? |
-| Referenced agents | `workflow-creator`, `workflow-reviewer`, `general` |
+| Referenced agents | [`workflow-creator`](/docs/agents/builtin/workflows/workflow-creator/), [`workflow-reviewer`](/docs/agents/builtin/workflows/workflow-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

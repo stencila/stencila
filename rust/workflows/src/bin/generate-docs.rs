@@ -45,6 +45,36 @@ struct Category {
     workflows: Vec<String>,
 }
 
+#[derive(Deserialize)]
+struct AgentCategoriesFile {
+    categories: Vec<AgentCategory>,
+}
+
+#[derive(Deserialize)]
+struct AgentCategory {
+    slug: String,
+    agents: Vec<String>,
+}
+
+/// Build a map from agent name to its category slug by reading the agents
+/// categories.yaml file. Returns an empty map if the file is missing.
+fn load_agent_to_category(repo_root: &Path) -> BTreeMap<String, String> {
+    let path = repo_root.join(".stencila/agents/categories.yaml");
+    let Ok(content) = fs::read_to_string(&path) else {
+        return BTreeMap::new();
+    };
+    let Ok(file) = serde_yaml::from_str::<AgentCategoriesFile>(&content) else {
+        return BTreeMap::new();
+    };
+    let mut map = BTreeMap::new();
+    for cat in file.categories {
+        for agent in cat.agents {
+            map.insert(agent, cat.slug.clone());
+        }
+    }
+    map
+}
+
 async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> Result<()> {
     let categories_path = repo_root.join(".stencila/workflows/categories.yaml");
     let categories_file: CategoriesFile =
@@ -54,6 +84,8 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
     let workflows = stencila_workflows::list_builtin().await;
     let workflows_by_name: BTreeMap<&str, _> =
         workflows.iter().map(|w| (w.name.as_str(), w)).collect();
+
+    let agent_to_category = load_agent_to_category(repo_root);
 
     // Clean the docs directory (remove old flat files and category subdirs)
     if docs_root.exists() {
@@ -87,7 +119,7 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
                 });
             let raw = fs::read_to_string(workflow.path())?;
             let source_path = relative_display(repo_root, workflow.path());
-            let content = build_workflow_page(workflow, &raw, &source_path)?;
+            let content = build_workflow_page(workflow, &raw, &source_path, &agent_to_category)?;
             fs::write(category_dir.join(format!("{}.md", workflow.name)), content)?;
         }
     }
@@ -194,6 +226,7 @@ fn build_workflow_page(
     workflow: &WorkflowInstance,
     raw: &str,
     source_path: &str,
+    agent_to_category: &BTreeMap<String, String>,
 ) -> Result<String> {
     let title = title_case(&workflow.name);
     let body = extract_body(raw).trim().to_string();
@@ -259,7 +292,16 @@ fn build_workflow_page(
 
     let agents = workflow.agent_references();
     if !agents.is_empty() {
-        let formatted: Vec<String> = agents.iter().map(|a| format!("`{a}`")).collect();
+        let formatted: Vec<String> = agents
+            .iter()
+            .map(|a| {
+                if let Some(slug) = agent_to_category.get(a.as_str()) {
+                    format!("[`{a}`](/docs/agents/builtin/{slug}/{a}/)")
+                } else {
+                    format!("`{a}`")
+                }
+            })
+            .collect();
         rows.push(("Referenced agents", formatted.join(", ")));
     }
 

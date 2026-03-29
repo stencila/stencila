@@ -28,7 +28,7 @@ Create and iteratively refine a Stencila agent using the agent-creator and agent
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the agent you want to create — what should it help users do? |
-| Referenced agents | `agent-creator`, `agent-reviewer`, `general` |
+| Referenced agents | [`agent-creator`](/docs/agents/builtin/agents/agent-creator/), [`agent-reviewer`](/docs/agents/builtin/agents/agent-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

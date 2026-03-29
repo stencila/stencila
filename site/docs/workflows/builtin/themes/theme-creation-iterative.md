@@ -33,7 +33,7 @@ Create and iteratively refine a Stencila theme using the theme-creator and theme
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the theme you want to create — what style, mood, or design direction should it have? |
-| Referenced agents | `theme-creator`, `theme-reviewer`, `general` |
+| Referenced agents | [`theme-creator`](/docs/agents/builtin/themes/theme-creator/), [`theme-reviewer`](/docs/agents/builtin/themes/theme-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

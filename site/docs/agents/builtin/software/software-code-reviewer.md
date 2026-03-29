@@ -38,7 +38,7 @@ Reviews source code for correctness, quality, security, style, and maintainabili
 | Reasoning effort | `high` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |
-| Skills | `software-code-review` |
+| Skills | [`software-code-review`](/docs/skills/builtin/software/software-code-review/) |
 
 # Prompt
 

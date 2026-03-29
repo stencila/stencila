@@ -32,7 +32,7 @@ Design an agent top-down by first planning its skills, creating each skill via t
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the agent you want to design — what should it do, and what specialized skills will it need? |
-| Referenced agents | `agent-creator`, `agent-reviewer`, `general` |
+| Referenced agents | [`agent-creator`](/docs/agents/builtin/agents/agent-creator/), [`agent-reviewer`](/docs/agents/builtin/agents/agent-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

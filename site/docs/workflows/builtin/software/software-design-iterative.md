@@ -28,7 +28,7 @@ Create and iteratively refine a software design specification using the software
 | Property | Value |
 | -------- | ----- |
 | Goal | What feature or system do you want to design? |
-| Referenced agents | `software-design-creator`, `software-design-reviewer`, `general` |
+| Referenced agents | [`software-design-creator`](/docs/agents/builtin/software/software-design-creator/), [`software-design-reviewer`](/docs/agents/builtin/software/software-design-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

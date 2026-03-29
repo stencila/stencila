@@ -31,7 +31,7 @@ Execute a software delivery plan using test-driven development with Red-Green-Re
 | Property | Value |
 | -------- | ----- |
 | Goal | Which delivery plan should be executed? Provide the plan content or reference the plan file path |
-| Referenced agents | `software-slice-selector`, `software-test-creator`, `software-delivery-completer`, `software-test-executor`, `software-test-reviewer`, `software-implementor`, `software-code-refactorer`, `general` |
+| Referenced agents | [`software-slice-selector`](/docs/agents/builtin/software/software-slice-selector/), [`software-test-creator`](/docs/agents/builtin/software/software-test-creator/), [`software-delivery-completer`](/docs/agents/builtin/software/software-delivery-completer/), [`software-test-executor`](/docs/agents/builtin/software/software-test-executor/), [`software-test-reviewer`](/docs/agents/builtin/software/software-test-reviewer/), [`software-implementor`](/docs/agents/builtin/software/software-implementor/), [`software-code-refactorer`](/docs/agents/builtin/software/software-code-refactorer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

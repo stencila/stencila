@@ -29,7 +29,7 @@ Creates or updates a skill
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `skill-creation` |
+| Skills | [`skill-creation`](/docs/skills/builtin/skills/skill-creation/) |
 
 # Prompt
 

@@ -35,7 +35,7 @@ Writes failing tests for a TDD slice (Red phase). Given slice scope, acceptance 
 | Reasoning effort | `high` |
 | Trust level | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `software-test-creation` |
+| Skills | [`software-test-creation`](/docs/skills/builtin/software/software-test-creation/) |
 
 # Prompt
 

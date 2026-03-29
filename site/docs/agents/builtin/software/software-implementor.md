@@ -36,7 +36,7 @@ Implements the minimum production code necessary to make failing tests pass (Gre
 | Reasoning effort | `medium` |
 | Trust level | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
-| Skills | `software-implementation` |
+| Skills | [`software-implementation`](/docs/skills/builtin/software/software-implementation/) |
 
 # Prompt
 

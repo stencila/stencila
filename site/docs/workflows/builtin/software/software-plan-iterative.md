@@ -29,7 +29,7 @@ Create and iteratively refine a software delivery plan using the software-plan-c
 | Property | Value |
 | -------- | ----- |
 | Goal | What feature or design spec do you want a delivery plan for? |
-| Referenced agents | `software-plan-creator`, `software-plan-reviewer`, `general` |
+| Referenced agents | [`software-plan-creator`](/docs/agents/builtin/software/software-plan-creator/), [`software-plan-reviewer`](/docs/agents/builtin/software/software-plan-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

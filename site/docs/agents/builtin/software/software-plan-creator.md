@@ -36,7 +36,7 @@ Creates or updates software delivery plans from design specifications
 | Model | `large` |
 | Reasoning effort | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `ask_user` |
-| Skills | `software-plan-creation` |
+| Skills | [`software-plan-creation`](/docs/skills/builtin/software/software-plan-creation/) |
 
 # Prompt
 

@@ -29,7 +29,7 @@ Run three independent code reviews in parallel using Anthropic, OpenAI, and Goog
 | Property | Value |
 | -------- | ----- |
 | Goal | What code should be reviewed? (e.g., a file path, package name, or description of the change) |
-| Referenced agents | `software-code-reviewer` |
+| Referenced agents | [`software-code-reviewer`](/docs/agents/builtin/software/software-code-reviewer/) |
 
 # Pipeline
 

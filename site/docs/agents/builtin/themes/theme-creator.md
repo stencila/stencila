@@ -42,7 +42,7 @@ Creates or updates Stencila theme CSS files using semantic tokens, module tokens
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `snap`, `ask_user` |
-| Skills | `theme-creation` |
+| Skills | [`theme-creation`](/docs/skills/builtin/themes/theme-creation/) |
 
 # Prompt
 

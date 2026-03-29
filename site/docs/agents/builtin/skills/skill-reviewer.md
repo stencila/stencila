@@ -29,7 +29,7 @@ Reviews a skill for quality, correctness, and completeness
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |
-| Skills | `skill-review` |
+| Skills | [`skill-review`](/docs/skills/builtin/skills/skill-review/) |
 
 # Prompt
 

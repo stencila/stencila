@@ -33,7 +33,7 @@ Creates or updates software design specifications
 | Model | `large` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `ask_user`, `web_fetch` |
-| Skills | `software-design-creation` |
+| Skills | [`software-design-creation`](/docs/skills/builtin/software/software-design-creation/) |
 
 # Prompt
 

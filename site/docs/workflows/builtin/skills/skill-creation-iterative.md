@@ -28,7 +28,7 @@ Create and iteratively refine a Stencila skill using the skill-creator and skill
 | Property | Value |
 | -------- | ----- |
 | Goal | Describe the skill you want to create — what capability should it give agents? |
-| Referenced agents | `skill-creator`, `skill-reviewer`, `general` |
+| Referenced agents | [`skill-creator`](/docs/agents/builtin/skills/skill-creator/), [`skill-reviewer`](/docs/agents/builtin/skills/skill-reviewer/), [`general`](/docs/agents/builtin/general/general/) |
 
 # Pipeline
 

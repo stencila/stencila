@@ -35,7 +35,7 @@ Executes scoped tests for a TDD slice and reports structured pass/fail results. 
 | Reasoning effort | `medium` |
 | Trust level | `medium` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |
-| Skills | `software-test-execution` |
+| Skills | [`software-test-execution`](/docs/skills/builtin/software/software-test-execution/) |
 
 # Prompt
 
