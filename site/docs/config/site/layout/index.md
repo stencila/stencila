@@ -84,7 +84,7 @@ Global responsive configuration for sidebar collapse
 
 # `components`
 
-**Type:** [`components`](components/)
+**Type:** [`components`](components.md)
 
 Named component definitions for reuse
 

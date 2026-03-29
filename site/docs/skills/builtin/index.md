@@ -30,12 +30,12 @@ Skills for the design, planning, implementation, testing, review, and delivery o
 - [**Software Code Review Skill**](./software/software-code-review/) — Evaluate source code for correctness, quality, security, style conformance, and maintainability, producing a structured review report with findings and recommendations. Use when the user wants to review, critique, audit, evaluate, or inspect source code — checking for bugs, logic errors, unhandled error paths, security vulnerabilities, naming and readability issues, complexity, duplication, coupling, testability, and API design. Discovers codebase conventions independently and produces an actionable report with severity-graded findings grouped by category, prioritized recommendations, and open questions.
 - [**Software Code Refactoring Skill**](./software/software-code-refactoring/) — Improve production code quality while preserving all existing test behavior. Commonly used for the Refactor phase of TDD red-green-refactor, but applicable to any codebase with tests. Use when production code works but needs cleanup — reducing duplication, improving naming, simplifying complexity, aligning with codebase style, extracting functions or types, or removing dead code. Discovers conventions, applies safe transformations, verifies compilation after each change, and produces a structured summary. Works with any language or framework.
 
-## Skills
+## Workflows
 
-Skills for creating and reviewing agent skills.
+Skills for creating and reviewing workflows.
 
-- [**Skill Creation Skill**](./skills/skill-creation/) — Create a new Stencila workspace skill. Use when asked to create, write, or scaffold a SKILL.md file or skill directory.
-- [**Skill Review Skill**](./skills/skill-review/) — Critically review a workspace skill and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a SKILL.md file or skill directory. Covers frontmatter validation, instruction clarity, completeness, and adherence to the Agent Skills Specification.
+- [**Workflow Creation Skill**](./workflows/workflow-creation/) — Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, composition, and validation.
+- [**Workflow Review Skill**](./workflows/workflow-review/) — Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, workflow composition, and adherence to Stencila workflow patterns.
 
 ## Agents
 
@@ -44,9 +44,9 @@ Skills for creating and reviewing agents.
 - [**Agent Creation Skill**](./agents/agent-creation/) — Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an agent directory or AGENT.md file. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
 - [**Agent Review Skill**](./agents/agent-review/) — Critically review a Stencila agent and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve an agent directory or AGENT.md file. Covers frontmatter validation, system instruction quality, configuration correctness, and adherence to the Agent schema.
 
-## Workflows
+## Skills
 
-Skills for creating and reviewing workflows.
+Skills for creating and reviewing agent skills.
 
-- [**Workflow Creation Skill**](./workflows/workflow-creation/) — Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, composition, and validation.
-- [**Workflow Review Skill**](./workflows/workflow-review/) — Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, workflow composition, and adherence to Stencila workflow patterns.
+- [**Skill Creation Skill**](./skills/skill-creation/) — Create a new Stencila workspace skill. Use when asked to create, write, or scaffold a SKILL.md file or skill directory.
+- [**Skill Review Skill**](./skills/skill-review/) — Critically review a workspace skill and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a SKILL.md file or skill directory. Covers frontmatter validation, instruction clarity, completeness, and adherence to the Agent Skills Specification.

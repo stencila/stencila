@@ -24,11 +24,13 @@ Workflows for the design, planning, implementation, testing, review, and deliver
 - [**Software Delivery Full Workflow**](./software/software-delivery-full/) — End-to-end software feature pipeline that composes design, planning, and TDD delivery workflows into a single orchestrated sequence
 - [**Code Review Parallel Workflow**](./software/code-review-parallel/) — Run three independent code reviews in parallel using Anthropic, OpenAI, and Google models via the `software-code-reviewer` agent, then synthesize a unified prioritized findings report highlighting reviewer agreement and disagreement
 
-## Skills
+## Workflows
 
-Workflows for creating and refining agent skills.
+Workflows for creating, refining, and dynamically running workflows.
 
-- [**Skill Creation Iterative Workflow**](./skills/skill-creation-iterative/) — Create and iteratively refine a Stencila skill using the `skill-creator` and `skill-reviewer` agents, with human review, optional commit, and revision loops until accepted
+- [**Workflow Creation Iterative Workflow**](./workflows/workflow-creation-iterative/) — Create and iteratively refine a Stencila workflow using the `workflow-creator` and `workflow-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
+- [**Workflow Creation Top-Down Workflow**](./workflows/workflow-creation-topdown/) — Design a workflow top-down by first planning its structure and dependencies, creating each dependency via the appropriate child workflow, then building and refining the parent workflow with those dependencies available
+- [**Workflow Create and Run Workflow**](./workflows/workflow-create-run/) — Generate an ephemeral workflow tailored to a user's goal and immediately execute it, enabling single-delegation dynamic workflow orchestration
 
 ## Agents
 
@@ -37,10 +39,8 @@ Workflows for creating and refining agents.
 - [**Agent Creation Iterative Workflow**](./agents/agent-creation-iterative/) — Create and iteratively refine a Stencila agent using the `agent-creator` and `agent-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
 - [**Agent Creation Top-Down Workflow**](./agents/agent-creation-topdown/) — Design an agent top-down by first planning its skills, creating each skill via the `skill-creation-iterative` workflow, and then creating, refining, and optionally committing the agent with those skills available
 
-## Workflows
+## Skills
 
-Workflows for creating, refining, and dynamically running workflows.
+Workflows for creating and refining agent skills.
 
-- [**Workflow Creation Iterative Workflow**](./workflows/workflow-creation-iterative/) — Create and iteratively refine a Stencila workflow using the `workflow-creator` and `workflow-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
-- [**Workflow Creation Top-Down Workflow**](./workflows/workflow-creation-topdown/) — Design a workflow top-down by first planning its structure and dependencies, creating each dependency via the appropriate child workflow, then building and refining the parent workflow with those dependencies available
-- [**Workflow Create and Run Workflow**](./workflows/workflow-create-run/) — Generate an ephemeral workflow tailored to a user's goal and immediately execute it, enabling single-delegation dynamic workflow orchestration
+- [**Skill Creation Iterative Workflow**](./skills/skill-creation-iterative/) — Create and iteratively refine a Stencila skill using the `skill-creator` and `skill-reviewer` agents, with human review, optional commit, and revision loops until accepted

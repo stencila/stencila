@@ -7,17 +7,6 @@ Builtin agents ship with Stencila and are available in every workspace without a
 
 You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.
 
-## General
-
-General-purpose agents handle a wide range of tasks and route requests to specialized agents when appropriate.
-
-- [**Manager Agent**](./general/manager/) — Routes user requests to the most appropriate agent or workflow.
-- [**General Agent**](./general/general/) — A general-purpose agent using the default model provider
-- [**General A Agent**](./general/general-a/) — A general-purpose agent using Anthropic's frontier model
-- [**General G Agent**](./general/general-g/) — A general-purpose agent using Google's frontier model
-- [**General M Agent**](./general/general-m/) — A general-purpose agent using Mistral's frontier model
-- [**General O Agent**](./general/general-o/) — A general-purpose agent using OpenAI's frontier model
-
 ## Themes
 
 Agents for creating and reviewing Stencila themes.
@@ -42,12 +31,12 @@ Agents for the design, planning, implementation, testing, review, and delivery o
 - [**Software Code Refactorer Agent**](./software/software-code-refactorer/) — Refactors production code to improve quality while keeping all tests passing. Discovers codebase conventions, applies safe transformations (duplication removal, naming improvements, complexity reduction, convention alignment), and verifies the code still compiles and all tests pass. Commonly used for the Refactor phase of TDD, but works equally well as a standalone code-quality improvement pass on any codebase with tests. Handles iterative feedback from failed test runs.
 - [**Software Delivery Completer Agent**](./software/software-delivery-completer/) — Verifies plan-level Definition of Done and completion criteria after all execution slices are finished, performs bounded minor closeout work (formatting, lint, generated files, small documentation or glue fixes), runs final verification commands, and produces a structured completion report. Reports clearly when substantial unfinished work remains rather than beginning a new implementation cycle. Used as the final delivery stage after slice-by-slice TDD execution.
 
-## Skills
+## Workflows
 
-Agents for creating and reviewing agent skills.
+Agents for creating and reviewing workflows.
 
-- [**Skill Creator Agent**](./skills/skill-creator/) — Creates or updates a skill
-- [**Skill Reviewer Agent**](./skills/skill-reviewer/) — Reviews a skill for quality, correctness, and completeness
+- [**Workflow Creator Agent**](./workflows/workflow-creator/) — Creates or updates a workflow
+- [**Workflow Reviewer Agent**](./workflows/workflow-reviewer/) — Reviews workflows for correctness, clarity, and completeness
 
 ## Agents
 
@@ -56,9 +45,20 @@ Agents for creating and reviewing other agents.
 - [**Agent Creator Agent**](./agents/agent-creator/) — Creates or updates an agent
 - [**Agent Reviewer Agent**](./agents/agent-reviewer/) — Reviews an agent for quality, correctness, and completeness
 
-## Workflows
+## Skills
 
-Agents for creating and reviewing workflows.
+Agents for creating and reviewing agent skills.
 
-- [**Workflow Creator Agent**](./workflows/workflow-creator/) — Creates or updates a workflow
-- [**Workflow Reviewer Agent**](./workflows/workflow-reviewer/) — Reviews workflows for correctness, clarity, and completeness
+- [**Skill Creator Agent**](./skills/skill-creator/) — Creates or updates a skill
+- [**Skill Reviewer Agent**](./skills/skill-reviewer/) — Reviews a skill for quality, correctness, and completeness
+
+## General
+
+General-purpose agents handle a wide range of tasks and route requests to specialized agents when appropriate.
+
+- [**Manager Agent**](./general/manager/) — Routes user requests to the most appropriate agent or workflow.
+- [**General Agent**](./general/general/) — A general-purpose agent using the default model provider
+- [**General A Agent**](./general/general-a/) — A general-purpose agent using Anthropic's frontier model
+- [**General G Agent**](./general/general-g/) — A general-purpose agent using Google's frontier model
+- [**General M Agent**](./general/general-m/) — A general-purpose agent using Mistral's frontier model
+- [**General O Agent**](./general/general-o/) — A general-purpose agent using OpenAI's frontier model

@@ -581,6 +581,17 @@
               "type": "null"
             }
           ]
+        },
+        "specimen": {
+          "description": "Specimen page configuration\n\nControls the layout and behavior of the specimen page, which provides\na preview of site components and styles.\n\n```toml\n[site.specimen.layout]\npreset = \"docs\"\n\n[site.specimen.layout.header]\nstart = \"logo\"\nend = [\"color-mode\"]\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SpecimenConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false
@@ -3089,6 +3100,24 @@
           "items": {
             "type": "string"
           }
+        }
+      },
+      "additionalProperties": false
+    },
+    "SpecimenConfig": {
+      "description": "Configuration for the specimen page\nhttps://stencila.io/docs/config/specimenconfig",
+      "type": "object",
+      "properties": {
+        "layout": {
+          "description": "Layout configuration for the specimen page\n\nControls the layout structure of the specimen page including header,\nsidebars, footer, and navigation. Supports the same preset and\noverride system as the main site layout.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/LayoutConfig"
+            },
+            {
+              "type": "null"
+            }
+          ]
         }
       },
       "additionalProperties": false

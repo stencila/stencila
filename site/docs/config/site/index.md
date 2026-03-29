@@ -365,6 +365,12 @@ Site actions zone configuration
 
 Auto-index configuration for directories without content files
 
+# `specimen`
+
+**Type:** [`SpecimenConfig`](specimen.md) (optional)
+
+Specimen page configuration
+
 
 ***
 
