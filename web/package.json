@@ -52,7 +52,7 @@
     "@codemirror/state": "6.6.0",
     "@codemirror/view": "6.40.0",
     "@iconify-json/bi": "1.2.7",
-    "@iconify-json/lucide": "1.2.98",
+    "@iconify-json/lucide": "1.2.100",
     "@lezer/highlight": "1.2.3",
     "@lit-labs/observers": "2.1.0",
     "@lit/context": "1.1.6",
