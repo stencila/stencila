@@ -12,19 +12,6 @@
 #   agents   — ordered list of agent names (must match directory names in .stencila/agents/)
 
 categories:
-  - slug: general
-    title: General
-    prelude: >-
-      General-purpose agents handle a wide range of tasks and route requests to
-      specialized agents when appropriate.
-    agents:
-      - manager
-      - general
-      - general-a
-      - general-g
-      - general-m
-      - general-o
-
   - slug: themes
     title: Themes
     prelude: >-
@@ -52,13 +39,13 @@ categories:
       - software-code-refactorer
       - software-delivery-completer
 
-  - slug: skills
-    title: Skills
+  - slug: workflows
+    title: Workflows
     prelude: >-
-      Agents for creating and reviewing agent skills.
+      Agents for creating and reviewing workflows.
     agents:
-      - skill-creator
-      - skill-reviewer
+      - workflow-creator
+      - workflow-reviewer
 
   - slug: agents
     title: Agents
@@ -68,10 +55,23 @@ categories:
       - agent-creator
       - agent-reviewer
 
-  - slug: workflows
-    title: Workflows
+  - slug: skills
+    title: Skills
     prelude: >-
-      Agents for creating and reviewing workflows.
+      Agents for creating and reviewing agent skills.
     agents:
-      - workflow-creator
-      - workflow-reviewer
+      - skill-creator
+      - skill-reviewer
+
+  - slug: general
+    title: General
+    prelude: >-
+      General-purpose agents handle a wide range of tasks and route requests to
+      specialized agents when appropriate.
+    agents:
+      - manager
+      - general
+      - general-a
+      - general-g
+      - general-m
+      - general-o

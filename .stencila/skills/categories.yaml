@@ -38,13 +38,13 @@ categories:
       - software-code-review
       - software-code-refactoring
 
-  - slug: skills
-    title: Skills
+  - slug: workflows
+    title: Workflows
     prelude: >-
-      Skills for creating and reviewing agent skills.
+      Skills for creating and reviewing workflows.
     skills:
-      - skill-creation
-      - skill-review
+      - workflow-creation
+      - workflow-review
 
   - slug: agents
     title: Agents
@@ -54,10 +54,10 @@ categories:
       - agent-creation
       - agent-review
 
-  - slug: workflows
-    title: Workflows
+  - slug: skills
+    title: Skills
     prelude: >-
-      Skills for creating and reviewing workflows.
+      Skills for creating and reviewing agent skills.
     skills:
-      - workflow-creation
-      - workflow-review
+      - skill-creation
+      - skill-review

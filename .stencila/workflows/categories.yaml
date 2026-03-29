@@ -32,12 +32,14 @@ categories:
       - software-delivery-full
       - code-review-parallel
 
-  - slug: skills
-    title: Skills
+  - slug: workflows
+    title: Workflows
     prelude: >-
-      Workflows for creating and refining agent skills.
+      Workflows for creating, refining, and dynamically running workflows.
     workflows:
-      - skill-creation-iterative
+      - workflow-creation-iterative
+      - workflow-creation-topdown
+      - workflow-create-run
 
   - slug: agents
     title: Agents
@@ -47,11 +49,9 @@ categories:
       - agent-creation-iterative
       - agent-creation-topdown
 
-  - slug: workflows
-    title: Workflows
+  - slug: skills
+    title: Skills
     prelude: >-
-      Workflows for creating, refining, and dynamically running workflows.
+      Workflows for creating and refining agent skills.
     workflows:
-      - workflow-creation-iterative
-      - workflow-creation-topdown
-      - workflow-create-run
+      - skill-creation-iterative
