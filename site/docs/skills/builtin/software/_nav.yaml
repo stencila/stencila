@@ -1,0 +1,12 @@
+items:
+  - "software-design-creation"
+  - "software-design-review"
+  - "software-plan-creation"
+  - "software-plan-review"
+  - "software-slice-selection"
+  - "software-test-creation"
+  - "software-test-review"
+  - "software-test-execution"
+  - "software-implementation"
+  - "software-code-review"
+  - "software-code-refactoring"

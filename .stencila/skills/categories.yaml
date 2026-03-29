@@ -1,0 +1,63 @@
+# Canonical source for builtin skill categories.
+#
+# Used by `generate-docs` to produce:
+#   - site/docs/skills/builtin/index.md   (per-category listings)
+#   - site/docs/skills/builtin/<category>/ (skill pages in subdirectories)
+#   - site/docs/skills/builtin/_nav.yaml  (ordered navigation)
+#
+# Each category has:
+#   slug     — URL-safe directory name
+#   title    — heading used in index.md and _nav.yaml
+#   prelude  — one or two sentence intro rendered before the category listing
+#   skills   — ordered list of skill names (must match directory names in .stencila/skills/)
+
+categories:
+  - slug: skills
+    title: Skills
+    prelude: >-
+      Skills for creating and reviewing agent skills.
+    skills:
+      - skill-creation
+      - skill-review
+
+  - slug: agents
+    title: Agents
+    prelude: >-
+      Skills for creating and reviewing agents.
+    skills:
+      - agent-creation
+      - agent-review
+
+  - slug: workflows
+    title: Workflows
+    prelude: >-
+      Skills for creating and reviewing workflows.
+    skills:
+      - workflow-creation
+      - workflow-review
+
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Skills for creating and reviewing themes.
+    skills:
+      - theme-creation
+      - theme-review
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Skills for the design, planning, implementation, testing, review, and
+      delivery of software.
+    skills:
+      - software-design-creation
+      - software-design-review
+      - software-plan-creation
+      - software-plan-review
+      - software-slice-selection
+      - software-test-creation
+      - software-test-review
+      - software-test-execution
+      - software-implementation
+      - software-code-review
+      - software-code-refactoring
