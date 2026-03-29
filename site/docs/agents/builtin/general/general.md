@@ -1,5 +1,5 @@
 ---
-title: "General"
+title: "General Agent"
 description: "A general-purpose agent using the default model provider"
 keywords:
   - general

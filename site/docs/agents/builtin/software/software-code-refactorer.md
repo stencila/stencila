@@ -1,5 +1,5 @@
 ---
-title: "Software Code Refactorer"
+title: "Software Code Refactorer Agent"
 description: "Refactors production code to improve quality while keeping all tests passing. Discovers codebase conventions, applies safe transformations (duplication removal, naming improvements, complexity reduction, convention alignment), and verifies the code still compiles and all tests pass. Commonly used for the Refactor phase of TDD, but works equally well as a standalone code-quality improvement pass on any codebase with tests. Handles iterative feedback from failed test runs."
 keywords:
   - refactoring

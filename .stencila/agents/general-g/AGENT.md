@@ -1,5 +1,6 @@
 ---
 name: general-g
+title: General G Agent
 description: A general-purpose agent using Google's frontier model
 keywords:
   - general

@@ -1,6 +1,7 @@
 ---
 name: software-refactor-iterative
-description: Iteratively refactor part or all of a software project using the software-code-refactorer and software-code-reviewer agents, with test verification after each pass, human approval, and optional commit before completion
+title: Software Refactor Iterative Workflow
+description: Iteratively refactor part or all of a software project using the `software-code-refactorer` and `software-code-reviewer` agents, with test verification after each pass, human approval, and optional commit before completion
 goal-hint: What code should be refactored? Describe the scope (files, modules, packages) and any specific quality improvements you want
 keywords:
   - refactoring

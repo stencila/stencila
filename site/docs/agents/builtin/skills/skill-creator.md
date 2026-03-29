@@ -1,5 +1,5 @@
 ---
-title: "Skill Creator"
+title: "Skill Creator Agent"
 description: "Creates or updates a skill"
 keywords:
   - skill

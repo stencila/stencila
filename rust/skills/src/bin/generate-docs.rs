@@ -4,7 +4,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use eyre::Result;
+use inflector::Inflector;
 use serde::Deserialize;
+use stencila_codec_text::to_text;
 use stencila_skills::SkillInstance;
 
 #[tokio::main]
@@ -114,7 +116,7 @@ async fn generate_builtin_skill_pages(repo_root: &Path, docs_root: &Path) -> Res
             writeln!(
                 cat_index,
                 "- [**{}**](./{}/): {}",
-                title_case(&skill.name),
+                skill_title(skill),
                 skill.name,
                 skill.description,
             )?;
@@ -147,7 +149,7 @@ Builtin skills are bundled with Stencila and loaded as the base skill layer for 
             writeln!(
                 index,
                 "- [**{}**](./{}/{}/) — {}",
-                title_case(&skill.name),
+                skill_title(skill),
                 category.slug,
                 skill.name,
                 skill.description,
@@ -181,7 +183,7 @@ Builtin skills are bundled with Stencila and loaded as the base skill layer for 
 // ---------------------------------------------------------------------------
 
 fn build_skill_page(skill: &SkillInstance, raw: &str, source_path: &str) -> Result<String> {
-    let title = title_case(&skill.name);
+    let title = skill_title(skill);
     let body = extract_body(raw).trim().to_string();
 
     let mut out = String::new();
@@ -276,18 +278,14 @@ fn extract_body(raw: &str) -> &str {
     raw
 }
 
-fn title_case(name: &str) -> String {
-    name.split('-')
-        .filter(|part| !part.is_empty())
-        .map(|part| {
-            let mut chars = part.chars();
-            match chars.next() {
-                Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+fn skill_title(skill: &SkillInstance) -> String {
+    skill
+        .options
+        .title
+        .as_ref()
+        .map(to_text)
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| skill.name.to_title_case())
 }
 
 fn relative_display(root: &Path, path: &Path) -> String {

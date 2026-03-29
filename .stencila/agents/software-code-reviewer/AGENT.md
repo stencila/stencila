@@ -1,5 +1,6 @@
 ---
 name: software-code-reviewer
+title: Software Code Reviewer Agent
 description: Reviews source code for correctness, quality, security, style, and maintainability. Discovers codebase conventions, analyzes code against them, and produces a structured review report with prioritized findings and actionable recommendations. Works with any language or framework.
 keywords:
   - code review

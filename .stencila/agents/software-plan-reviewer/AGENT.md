@@ -1,5 +1,6 @@
 ---
 name: software-plan-reviewer
+title: Software Plan Reviewer Agent
 description: Reviews software delivery plans for quality, correctness, completeness, and feasibility
 keywords:
   - software plan

@@ -1,5 +1,5 @@
 ---
-title: "Theme Creation"
+title: "Theme Creation Skill"
 description: "Create, update, or plan a Stencila theme for documents or published sites. Use when asked to choose a theme direction, write or patch theme.css, recommend semantic or module token families, customize site navigation or branding, tune PDF and print page tokens, align web, Python, and R plots with a Stencila design system, list available builtin tokens with `stencila themes tokens`, or validate a theme file with `stencila themes validate`."
 keywords:
   - theme.css

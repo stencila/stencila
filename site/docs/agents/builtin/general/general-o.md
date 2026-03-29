@@ -1,5 +1,5 @@
 ---
-title: "General O"
+title: "General O Agent"
 description: "A general-purpose agent using OpenAI's frontier model"
 keywords:
   - general

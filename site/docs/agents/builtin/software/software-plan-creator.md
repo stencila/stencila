@@ -1,5 +1,5 @@
 ---
-title: "Software Plan Creator"
+title: "Software Plan Creator Agent"
 description: "Creates or updates software delivery plans from design specifications"
 keywords:
   - delivery plan

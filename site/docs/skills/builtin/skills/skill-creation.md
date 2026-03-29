@@ -1,5 +1,5 @@
 ---
-title: "Skill Creation"
+title: "Skill Creation Skill"
 description: "Create a new Stencila workspace skill. Use when asked to create, write, or scaffold a SKILL.md file or skill directory."
 keywords:
   - skill

@@ -19,6 +19,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-agents = { path = "../agents", default-features = false }
+stencila-codec-text = { path = "../codec-text" }
 stencila-models3 = { path = "../models3" }
 stencila-skills = { path = "../skills" }
 stencila-attractor = { path = "../attractor" }

@@ -1,5 +1,5 @@
 ---
-title: "Workflow Creation"
+title: "Workflow Creation Skill"
 description: "Create a new Stencila workflow. Use when asked to create, write, scaffold, or set up a workflow directory or WORKFLOW.md file. Covers workflow discovery, duplicate-name checks, ephemeral workflows, WORKFLOW.md frontmatter, DOT pipeline authoring, goals, agents, branching, composition, and validation."
 keywords:
   - workflow

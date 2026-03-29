@@ -1,5 +1,5 @@
 ---
-title: "Software Slice Selection"
+title: "Software Slice Selection Skill"
 description: "Mark the just-completed slice or slice batch (if any), update the completed slices list, select the next unfinished execution unit from a delivery plan based on phase ordering and dependency constraints, and report whether more slices remain. Determines slice exhaustion, not full plan completion — does not verify plan-level Definition of Done items. Combines completion tracking with next-work selection in a single step. Reads plans from .stencila/plans/, parses phase and slice structure, validates package references against the codebase, and can normalize overly narrow plan slices by combining adjacent compatible slices into one execution unit."
 keywords:
   - slice selection

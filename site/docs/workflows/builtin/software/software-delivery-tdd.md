@@ -1,5 +1,5 @@
 ---
-title: "Software Delivery Tdd"
+title: "Software Delivery Test-Driven Development (TDD) Workflow"
 description: "Execute a software delivery plan using test-driven development with Red-Green-Refactor cycles, agent-driven scoped test execution, human approval after each slice, and a bounded delivery closeout phase with final human review once all slices are complete"
 keywords:
   - tdd

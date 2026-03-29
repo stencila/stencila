@@ -1,5 +1,6 @@
 ---
 name: workflow-creator
+title: Workflow Creator Agent
 description: Creates or updates a workflow
 keywords:
   - workflow

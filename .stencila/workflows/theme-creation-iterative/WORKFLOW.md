@@ -1,6 +1,7 @@
 ---
 name: theme-creation-iterative
-description: Create and iteratively refine a Stencila theme using the theme-creator and theme-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions
+title: Theme Creation Iterative Workflow
+description: Create and iteratively refine a Stencila theme using the `theme-creator` and `theme-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
 goal-hint: Describe the theme you want to create — what style, mood, or design direction should it have?
 keywords:
   - theme

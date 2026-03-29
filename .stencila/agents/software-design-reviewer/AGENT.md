@@ -1,5 +1,6 @@
 ---
 name: software-design-reviewer
+title: Software Design Reviewer Agent
 description: Reviews software design specifications for quality, correctness, completeness, feasibility, and architecture
 keywords:
   - software design

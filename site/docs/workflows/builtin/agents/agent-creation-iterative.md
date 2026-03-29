@@ -1,6 +1,6 @@
 ---
-title: "Agent Creation Iterative"
-description: "Create and iteratively refine a Stencila agent using the agent-creator and agent-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions"
+title: "Agent Creation Iterative Workflow"
+description: "Create and iteratively refine a Stencila agent using the `agent-creator` and `agent-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions"
 keywords:
   - agent
   - creation
@@ -9,7 +9,7 @@ keywords:
   - human-in-the-loop
 ---
 
-Create and iteratively refine a Stencila agent using the agent-creator and agent-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions
+Create and iteratively refine a Stencila agent using the `agent-creator` and `agent-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
 
 **Keywords:** agent · creation · review · iterative · human-in-the-loop
 

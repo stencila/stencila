@@ -1,5 +1,6 @@
 ---
 name: software-implementor
+title: Software Implementor Agent
 description: Implements the minimum production code necessary to make failing tests pass (Green phase of TDD). Given slice scope, acceptance criteria, target packages, and test file references, examines failing test output, discovers codebase conventions, and writes focused implementation code that satisfies test expectations without over-engineering. Handles iterative feedback from failed test runs.
 keywords:
   - implementation

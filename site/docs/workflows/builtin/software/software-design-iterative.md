@@ -1,6 +1,6 @@
 ---
-title: "Software Design Iterative"
-description: "Create and iteratively refine a software design specification using the software-design-creator and software-design-reviewer agents, with human review, optional commit, and revision loops until accepted"
+title: "Software Design Iterative Workflow"
+description: "Create and iteratively refine a software design specification using the `software-design-creator` and `software-design-reviewer` agents, with human review, optional commit, and revision loops until accepted"
 keywords:
   - software-design
   - design-specification
@@ -9,7 +9,7 @@ keywords:
   - human-in-the-loop
 ---
 
-Create and iteratively refine a software design specification using the software-design-creator and software-design-reviewer agents, with human review, optional commit, and revision loops until accepted
+Create and iteratively refine a software design specification using the `software-design-creator` and `software-design-reviewer` agents, with human review, optional commit, and revision loops until accepted
 
 **Keywords:** software-design · design-specification · review · iterative · human-in-the-loop
 

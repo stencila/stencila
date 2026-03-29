@@ -1,5 +1,6 @@
 ---
 name: skill-creator
+title: Skill Creator Agent
 description: Creates or updates a skill
 keywords:
   - skill

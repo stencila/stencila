@@ -1,5 +1,5 @@
 ---
-title: "Software Implementation"
+title: "Software Implementation Skill"
 description: "Write the minimal production code needed to make failing TDD tests pass (Green phase of red-green-refactor). Use when failing tests exist and production code must be written or modified to satisfy them. Reads and interprets failing test output, discovers codebase conventions (module layout, naming, import patterns, error handling, coding style), writes focused production code that satisfies test expectations without over-engineering, integrates new code with existing modules, types, and APIs, handles revision feedback from failed test runs, and verifies implementation compiles or parses before handing off to test execution. Works with any language or framework."
 keywords:
   - implementation

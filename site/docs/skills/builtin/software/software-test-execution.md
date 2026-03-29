@@ -1,5 +1,5 @@
 ---
-title: "Software Test Execution"
+title: "Software Test Execution Skill"
 description: "Run scoped tests for a TDD slice, determine the appropriate test framework and command, and report structured pass/fail results. Use when tests need to be executed after writing, implementing, or refactoring code. Reads test metadata, discovers the test framework if needed, executes the scoped test command, parses output into structured results, and reports whether tests passed or failed. Handles compilation errors, missing dependencies, timeouts, and works with any language and test framework."
 keywords:
   - test execution

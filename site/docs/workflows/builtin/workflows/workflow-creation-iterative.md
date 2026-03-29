@@ -1,6 +1,6 @@
 ---
-title: "Workflow Creation Iterative"
-description: "Create and iteratively refine a Stencila workflow using the workflow-creator and workflow-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions"
+title: "Workflow Creation Iterative Workflow"
+description: "Create and iteratively refine a Stencila workflow using the `workflow-creator` and `workflow-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions"
 keywords:
   - workflow
   - creation
@@ -9,7 +9,7 @@ keywords:
   - human-in-the-loop
 ---
 
-Create and iteratively refine a Stencila workflow using the workflow-creator and workflow-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions
+Create and iteratively refine a Stencila workflow using the `workflow-creator` and `workflow-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
 
 **Keywords:** workflow · creation · review · iterative · human-in-the-loop
 

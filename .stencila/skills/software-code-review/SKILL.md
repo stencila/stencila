@@ -1,5 +1,6 @@
 ---
 name: software-code-review
+title: Software Code Review Skill
 description: Evaluate source code for correctness, quality, security, style conformance, and maintainability, producing a structured review report with findings and recommendations. Use when the user wants to review, critique, audit, evaluate, or inspect source code — checking for bugs, logic errors, unhandled error paths, security vulnerabilities, naming and readability issues, complexity, duplication, coupling, testability, and API design. Discovers codebase conventions independently and produces an actionable report with severity-graded findings grouped by category, prioritized recommendations, and open questions.
 keywords:
   - code review

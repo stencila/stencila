@@ -1,5 +1,6 @@
 ---
 name: software-test-executor
+title: Software Test Executor Agent
 description: Executes scoped tests for a TDD slice and reports structured pass/fail results. Given the test command, test files, and slice scope, discovers the test framework if no command is provided, runs only the tests relevant to the current slice, parses output, and reports a structured pass/fail result.
 keywords:
   - test execution

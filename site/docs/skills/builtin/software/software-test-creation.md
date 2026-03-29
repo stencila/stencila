@@ -1,5 +1,5 @@
 ---
-title: "Software Test Creation"
+title: "Software Test Creation Skill"
 description: "Write failing tests for a TDD slice based on acceptance criteria and codebase conventions. Use when the \"red\" phase of red-green-refactor requires tests that define expected behavior before implementation exists. Discovers codebase test conventions first, writes test files that compile or parse but fail because the implementation does not yet exist, and reports test metadata. Works with any language or test framework."
 keywords:
   - test creation

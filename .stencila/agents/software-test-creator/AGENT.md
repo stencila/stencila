@@ -1,5 +1,6 @@
 ---
 name: software-test-creator
+title: Software Test Creator Agent
 description: Writes failing tests for a TDD slice (Red phase). Given slice scope, acceptance criteria, and package references, examines existing codebase test conventions, writes focused tests that will fail because the implementation does not yet exist, and reports the test file paths and scoped test command.
 keywords:
   - test creation

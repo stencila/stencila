@@ -1,5 +1,5 @@
 ---
-title: "Software Test Reviewer"
+title: "Software Test Reviewer Agent"
 description: "Reviews tests written during the Red phase of a TDD slice, evaluating acceptance-criteria coverage, codebase convention conformance, test quality, edge-case handling, and Red-phase failure correctness. Given slice metadata and test execution results, produces a structured review report with an Accept or Revise recommendation."
 keywords:
   - test review

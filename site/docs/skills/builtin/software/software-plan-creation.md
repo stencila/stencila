@@ -1,5 +1,5 @@
 ---
-title: "Software Plan Creation"
+title: "Software Plan Creation Skill"
 description: "Create delivery plans for software design specifications. Use when the user wants to plan implementation, break a design into delivery phases, create an implementation roadmap, produce a test plan, or structure a TDD approach for a feature. Reads the latest design spec by default and produces a phased plan covering implementation, testing, and documentation, with TDD slices sized to be logically coherent without degenerating into micro-slices."
 keywords:
   - delivery plan

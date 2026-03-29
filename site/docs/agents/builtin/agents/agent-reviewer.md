@@ -1,5 +1,5 @@
 ---
-title: "Agent Reviewer"
+title: "Agent Reviewer Agent"
 description: "Reviews an agent for quality, correctness, and completeness"
 keywords:
   - agent

@@ -1,5 +1,6 @@
 ---
 name: agent-creation
+title: Agent Creation Skill
 description: Create a new Stencila agent. Use when asked to create, write, scaffold, or set up an agent directory or AGENT.md file. Covers workspace and user-level agents with model, provider, tool, trust, and MCP configuration.
 keywords:
   - agent

@@ -1,5 +1,6 @@
 ---
 name: software-design-creator
+title: Software Design Creator Agent
 description: Creates or updates software design specifications
 keywords:
   - software design

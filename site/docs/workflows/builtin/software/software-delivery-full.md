@@ -1,5 +1,5 @@
 ---
-title: "Software Delivery Full"
+title: "Software Delivery Full Workflow"
 description: "End-to-end software feature pipeline that composes design, planning, and TDD delivery workflows into a single orchestrated sequence"
 keywords:
   - software

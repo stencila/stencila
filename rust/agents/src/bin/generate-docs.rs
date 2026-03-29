@@ -4,9 +4,11 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use eyre::Result;
+use inflector::Inflector;
 use serde::Deserialize;
 use stencila_agents::definition::AgentInstance;
 use stencila_agents::tool_guard::shell::packs::{Confidence, Pack, all_packs};
+use stencila_codec_text::to_text;
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -304,7 +306,7 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
             writeln!(
                 cat_index,
                 "- [**{}**](./{}/): {}",
-                title_case(&agent.name),
+                agent_title(agent),
                 agent.name,
                 agent.description,
             )?;
@@ -337,7 +339,7 @@ Builtin agents are bundled with Stencila and can be used without creating worksp
             writeln!(
                 index,
                 "- [**{}**](./{}/{}/) — {}",
-                title_case(&agent.name),
+                agent_title(agent),
                 category.slug,
                 agent.name,
                 agent.description,
@@ -442,7 +444,7 @@ fn build_agent_page(
     source_path: &str,
     skill_to_category: &BTreeMap<String, String>,
 ) -> Result<String> {
-    let title = title_case(&agent.name);
+    let title = agent_title(agent);
     let body = extract_body(raw).trim().to_string();
 
     let mut out = String::new();
@@ -597,18 +599,14 @@ fn extract_body(raw: &str) -> &str {
     raw
 }
 
-fn title_case(name: &str) -> String {
-    name.split('-')
-        .filter(|part| !part.is_empty())
-        .map(|part| {
-            let mut chars = part.chars();
-            match chars.next() {
-                Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+fn agent_title(agent: &AgentInstance) -> String {
+    agent
+        .options
+        .title
+        .as_ref()
+        .map(to_text)
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| agent.name.to_title_case())
 }
 
 fn relative_display(root: &Path, path: &Path) -> String {

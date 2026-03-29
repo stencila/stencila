@@ -1,5 +1,5 @@
 ---
-title: "Software Plan Review"
+title: "Software Plan Review Skill"
 description: "Critically review a software delivery plan and suggest concrete improvements. Use when the user wants to review, critique, audit, evaluate, or strengthen a delivery plan, implementation plan, project plan, phased roadmap, or test plan. Reviews plans produced by the software-plan-creation skill, checking task breakdown quality, sequencing, dependencies, testing strategy, TDD slice design and sizing, design coverage, risks, and actionability. Produces a structured critique with prioritized recommendations."
 keywords:
   - plan review

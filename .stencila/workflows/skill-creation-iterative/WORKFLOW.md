@@ -1,6 +1,7 @@
 ---
 name: skill-creation-iterative
-description: Create and iteratively refine a Stencila skill using the skill-creator and skill-reviewer agents, with human review, optional commit, and revision loops until accepted
+title: Skill Creation Iterative Workflow
+description: Create and iteratively refine a Stencila skill using the `skill-creator` and `skill-reviewer` agents, with human review, optional commit, and revision loops until accepted
 goal-hint: Describe the skill you want to create — what capability should it give agents?
 keywords:
   - skill

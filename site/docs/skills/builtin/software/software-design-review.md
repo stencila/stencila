@@ -1,5 +1,5 @@
 ---
-title: "Software Design Review"
+title: "Software Design Review Skill"
 description: "Critically review a software design specification and suggest concrete improvements. Use when the user wants to review, critique, audit, evaluate, or strengthen a design spec, technical specification, feature design, architecture proposal, or implementation plan. Focus on clarity, completeness, correctness, feasibility, tradeoffs, risks, assumptions, and actionable recommendations that improve the design without turning the task into code generation or workflow design."
 keywords:
   - software design

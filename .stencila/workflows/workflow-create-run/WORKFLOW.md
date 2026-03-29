@@ -1,5 +1,6 @@
 ---
 name: workflow-create-run
+title: Workflow Create and Run Workflow
 description: Generate an ephemeral workflow tailored to a user's goal and immediately execute it, enabling single-delegation dynamic workflow orchestration
 goal-hint: What task or goal should be accomplished? Describe what you need done — a workflow will be created and executed to achieve it
 keywords:

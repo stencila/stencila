@@ -1,5 +1,5 @@
 ---
-title: "Skill Review"
+title: "Skill Review Skill"
 description: "Critically review a workspace skill and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a SKILL.md file or skill directory. Covers frontmatter validation, instruction clarity, completeness, and adherence to the Agent Skills Specification."
 keywords:
   - skill

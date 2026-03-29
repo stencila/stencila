@@ -7,6 +7,7 @@ version.workspace = true
 cli = ["clap", "stencila-cli-utils"]
 
 [dependencies]
+Inflector = { workspace = true }
 derive_more = { workspace = true }
 eyre = { workspace = true }
 glob = { workspace = true }
@@ -16,6 +17,7 @@ serde = { workspace = true }
 serde_json = { workspace = true }
 serde_yaml = { workspace = true }
 stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codec-text = { path = "../codec-text" }
 stencila-codecs = { path = "../codecs" }
 stencila-dirs = { path = "../dirs" }
 stencila-schema = { path = "../schema" }

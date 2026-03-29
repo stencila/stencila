@@ -1,5 +1,6 @@
 ---
 name: software-code-refactoring
+title: Software Code Refactoring Skill
 description: Improve production code quality while preserving all existing test behavior. Commonly used for the Refactor phase of TDD red-green-refactor, but applicable to any codebase with tests. Use when production code works but needs cleanup — reducing duplication, improving naming, simplifying complexity, aligning with codebase style, extracting functions or types, or removing dead code. Discovers conventions, applies safe transformations, verifies compilation after each change, and produces a structured summary. Works with any language or framework.
 keywords:
   - refactoring

@@ -1,5 +1,6 @@
 ---
 name: skill-reviewer
+title: Skill Reviewer Agent
 description: Reviews a skill for quality, correctness, and completeness
 keywords:
   - skill

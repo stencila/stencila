@@ -1,5 +1,6 @@
 ---
 name: general-o
+title: General O Agent
 description: A general-purpose agent using OpenAI's frontier model
 keywords:
   - general

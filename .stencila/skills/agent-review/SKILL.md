@@ -1,5 +1,6 @@
 ---
 name: agent-review
+title: Agent Review Skill
 description: Critically review a Stencila agent and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve an agent directory or AGENT.md file. Covers frontmatter validation, system instruction quality, configuration correctness, and adherence to the Agent schema.
 keywords:
   - agent

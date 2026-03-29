@@ -1,5 +1,5 @@
 ---
-title: "Workflow Create Run"
+title: "Workflow Create and Run Workflow"
 description: "Generate an ephemeral workflow tailored to a user's goal and immediately execute it, enabling single-delegation dynamic workflow orchestration"
 keywords:
   - workflow

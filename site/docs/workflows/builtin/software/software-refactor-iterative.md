@@ -1,6 +1,6 @@
 ---
-title: "Software Refactor Iterative"
-description: "Iteratively refactor part or all of a software project using the software-code-refactorer and software-code-reviewer agents, with test verification after each pass, human approval, and optional commit before completion"
+title: "Software Refactor Iterative Workflow"
+description: "Iteratively refactor part or all of a software project using the `software-code-refactorer` and `software-code-reviewer` agents, with test verification after each pass, human approval, and optional commit before completion"
 keywords:
   - refactoring
   - code quality
@@ -12,7 +12,7 @@ keywords:
   - conventions
 ---
 
-Iteratively refactor part or all of a software project using the software-code-refactorer and software-code-reviewer agents, with test verification after each pass, human approval, and optional commit before completion
+Iteratively refactor part or all of a software project using the `software-code-refactorer` and `software-code-reviewer` agents, with test verification after each pass, human approval, and optional commit before completion
 
 **Keywords:** refactoring · code quality · code cleanup · iterative · review · human-in-the-loop · safe transformation · conventions
 

@@ -34,6 +34,7 @@ serde_yaml = { workspace = true }
 smart-default = { workspace = true }
 sha2 = { workspace = true }
 stencila-codec-html = { path = "../codec-html" }
+stencila-codec-text = { path = "../codec-text" }
 stencila-codec-markdown = { path = "../codec-markdown" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }

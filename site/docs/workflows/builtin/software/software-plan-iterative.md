@@ -1,6 +1,6 @@
 ---
-title: "Software Plan Iterative"
-description: "Create and iteratively refine a software delivery plan using the software-plan-creator and software-plan-reviewer agents, with human review, optional commit, and revision loops until accepted"
+title: "Software Plan Iterative Workflow"
+description: "Create and iteratively refine a software delivery plan using the `software-plan-creator` and `software-plan-reviewer` agents, with human review, optional commit, and revision loops until accepted"
 keywords:
   - software-plan
   - delivery-plan
@@ -10,7 +10,7 @@ keywords:
   - human-in-the-loop
 ---
 
-Create and iteratively refine a software delivery plan using the software-plan-creator and software-plan-reviewer agents, with human review, optional commit, and revision loops until accepted
+Create and iteratively refine a software delivery plan using the `software-plan-creator` and `software-plan-reviewer` agents, with human review, optional commit, and revision loops until accepted
 
 **Keywords:** software-plan · delivery-plan · implementation-plan · review · iterative · human-in-the-loop
 

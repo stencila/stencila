@@ -1,5 +1,5 @@
 ---
-title: "Software Test Review"
+title: "Software Test Review Skill"
 description: "Evaluate the quality of TDD tests against slice acceptance criteria, codebase conventions, and Red-phase execution results, producing a structured review with Accept or Revise recommendations. Use when tests written during the Red phase of red-green-refactor need quality review — checking coverage of acceptance criteria, conformance with codebase test conventions, test quality (naming, assertions, isolation, readability, triviality), edge-case and error-path coverage, and whether Red-phase failures indicate correctly missing implementation. Flags trivial low-value tests that add more maintenance cost than testing value. Discovers codebase conventions independently and produces an actionable review report."
 keywords:
   - test review

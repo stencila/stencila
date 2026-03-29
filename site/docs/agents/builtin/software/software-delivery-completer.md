@@ -1,5 +1,5 @@
 ---
-title: "Software Delivery Completer"
+title: "Software Delivery Completer Agent"
 description: "Verifies plan-level Definition of Done and completion criteria after all execution slices are finished, performs bounded minor closeout work (formatting, lint, generated files, small documentation or glue fixes), runs final verification commands, and produces a structured completion report. Reports clearly when substantial unfinished work remains rather than beginning a new implementation cycle. Used as the final delivery stage after slice-by-slice TDD execution."
 keywords:
   - delivery completion

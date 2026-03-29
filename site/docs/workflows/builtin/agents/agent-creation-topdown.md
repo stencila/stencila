@@ -1,6 +1,6 @@
 ---
-title: "Agent Creation Topdown"
-description: "Design an agent top-down by first planning its skills, creating each skill via the skill-creation-iterative workflow, and then creating, refining, and optionally committing the agent with those skills available"
+title: "Agent Creation Top-Down Workflow"
+description: "Design an agent top-down by first planning its skills, creating each skill via the `skill-creation-iterative` workflow, and then creating, refining, and optionally committing the agent with those skills available"
 keywords:
   - agent
   - creation
@@ -11,7 +11,7 @@ keywords:
   - human-in-the-loop
 ---
 
-Design an agent top-down by first planning its skills, creating each skill via the skill-creation-iterative workflow, and then creating, refining, and optionally committing the agent with those skills available
+Design an agent top-down by first planning its skills, creating each skill via the `skill-creation-iterative` workflow, and then creating, refining, and optionally committing the agent with those skills available
 
 **Keywords:** agent · creation · top-down · skills · design-first · iterative · human-in-the-loop
 

@@ -1,5 +1,5 @@
 ---
-title: "Manager"
+title: "Manager Agent"
 description: "Routes user requests to the most appropriate agent or workflow."
 keywords:
   - route

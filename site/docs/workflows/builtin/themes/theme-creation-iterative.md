@@ -1,6 +1,6 @@
 ---
-title: "Theme Creation Iterative"
-description: "Create and iteratively refine a Stencila theme using the theme-creator and theme-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions"
+title: "Theme Creation Iterative Workflow"
+description: "Create and iteratively refine a Stencila theme using the `theme-creator` and `theme-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions"
 keywords:
   - theme
   - creation
@@ -12,7 +12,7 @@ keywords:
   - css
 ---
 
-Create and iteratively refine a Stencila theme using the theme-creator and theme-reviewer agents, route approved drafts through human review with optional commit, and loop on requested revisions
+Create and iteratively refine a Stencila theme using the `theme-creator` and `theme-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
 
 **Keywords:** theme · creation · review · iterative · human-in-the-loop · theme.css · design tokens · css
 

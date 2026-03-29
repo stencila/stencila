@@ -1,5 +1,5 @@
 ---
-title: "Agent Creator"
+title: "Agent Creator Agent"
 description: "Creates or updates an agent"
 keywords:
   - agent

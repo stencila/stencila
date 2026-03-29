@@ -1,5 +1,6 @@
 ---
 name: theme-review
+title: Theme Review Skill
 description: Critically review an existing or proposed Stencila theme artifact for correctness, token usage, target coverage, cross-target portability, dark-mode handling, maintainability, and approval readiness. Use when asked to review, critique, assess, audit, or validate a theme.css file, theme patch, theme plan, site theme, document theme, plot theme, print or PDF theme, check design tokens, assess DOCX or email behavior, review dark mode support, or validate with stencila themes validate.
 keywords:
   - review theme.css

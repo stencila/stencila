@@ -1,5 +1,6 @@
 ---
 name: workflow-review
+title: Workflow Review Skill
 description: Critically review a Stencila workflow and suggest improvements. Use when asked to review, audit, critique, evaluate, or improve a workflow directory or WORKFLOW.md file. Covers frontmatter validation, DOT pipeline quality, workflow structure, agent selection quality, discovery metadata, ephemeral workflow conventions, workflow composition, and adherence to Stencila workflow patterns.
 keywords:
   - workflow

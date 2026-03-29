@@ -1,5 +1,6 @@
 ---
 name: workflow-reviewer
+title: Workflow Reviewer Agent
 description: Reviews workflows for correctness, clarity, and completeness
 keywords:
   - workflow

@@ -1,5 +1,6 @@
 ---
 name: general-m
+title: General M Agent
 description: A general-purpose agent using Mistral's frontier model
 keywords:
   - general

@@ -1,5 +1,6 @@
 ---
 name: workflow-creation-topdown
+title: Workflow Creation Top-Down Workflow
 description: Design a workflow top-down by first planning its structure and dependencies, creating each dependency via the appropriate child workflow, then building and refining the parent workflow with those dependencies available
 goal-hint: Describe the workflow you want to design — what process should it automate, and what agents or child workflows will it need?
 keywords:

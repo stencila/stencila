@@ -1,5 +1,6 @@
 ---
 name: general-a
+title: General A Agent
 description: A general-purpose agent using Anthropic's frontier model
 keywords:
   - general

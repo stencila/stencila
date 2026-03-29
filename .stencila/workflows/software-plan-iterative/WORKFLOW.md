@@ -1,6 +1,7 @@
 ---
 name: software-plan-iterative
-description: Create and iteratively refine a software delivery plan using the software-plan-creator and software-plan-reviewer agents, with human review, optional commit, and revision loops until accepted
+title: Software Plan Iterative Workflow
+description: Create and iteratively refine a software delivery plan using the `software-plan-creator` and `software-plan-reviewer` agents, with human review, optional commit, and revision loops until accepted
 goal-hint: What feature or design spec do you want a delivery plan for?
 keywords:
   - software-plan

@@ -1,6 +1,7 @@
 ---
 name: agent-creation-topdown
-description: Design an agent top-down by first planning its skills, creating each skill via the skill-creation-iterative workflow, and then creating, refining, and optionally committing the agent with those skills available
+title: Agent Creation Top-Down Workflow
+description: Design an agent top-down by first planning its skills, creating each skill via the `skill-creation-iterative` workflow, and then creating, refining, and optionally committing the agent with those skills available
 goal-hint: Describe the agent you want to design — what should it do, and what specialized skills will it need?
 keywords:
   - agent

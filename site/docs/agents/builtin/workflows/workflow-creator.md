@@ -1,5 +1,5 @@
 ---
-title: "Workflow Creator"
+title: "Workflow Creator Agent"
 description: "Creates or updates a workflow"
 keywords:
   - workflow

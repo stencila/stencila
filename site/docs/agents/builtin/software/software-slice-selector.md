@@ -1,5 +1,5 @@
 ---
-title: "Software Slice Selector"
+title: "Software Slice Selector Agent"
 description: "Reads a software delivery plan, marks the just-completed slice or slice batch (if any), updates the completed slices list, selects the next unfinished execution unit based on phase ordering and dependency constraints, and reports whether more slices remain. Combines slice completion tracking with next-work selection in a single step and may normalize overly narrow plans by combining adjacent compatible slices."
 keywords:
   - slice selection

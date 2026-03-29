@@ -1,5 +1,6 @@
 ---
 name: software-delivery-full
+title: Software Delivery Full Workflow
 description: End-to-end software feature pipeline that composes design, planning, and TDD delivery workflows into a single orchestrated sequence
 goal-hint: What feature or capability do you want to design, plan, and deliver?
 keywords:

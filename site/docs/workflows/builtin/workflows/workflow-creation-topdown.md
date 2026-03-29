@@ -1,5 +1,5 @@
 ---
-title: "Workflow Creation Topdown"
+title: "Workflow Creation Top-Down Workflow"
 description: "Design a workflow top-down by first planning its structure and dependencies, creating each dependency via the appropriate child workflow, then building and refining the parent workflow with those dependencies available"
 keywords:
   - workflow

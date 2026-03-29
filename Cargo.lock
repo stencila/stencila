@@ -9228,6 +9228,7 @@ dependencies = [
  "stencila-cli-utils",
  "stencila-codec-html",
  "stencila-codec-markdown",
+ "stencila-codec-text",
  "stencila-codecs",
  "stencila-codemode",
  "stencila-config",
@@ -11938,6 +11939,7 @@ dependencies = [
 name = "stencila-skills"
 version = "2.14.1"
 dependencies = [
+ "Inflector",
  "clap",
  "derive_more 2.1.1",
  "eyre",
@@ -11949,6 +11951,7 @@ dependencies = [
  "serde_yaml",
  "stencila-cli-utils",
  "stencila-codec-markdown",
+ "stencila-codec-text",
  "stencila-codecs",
  "stencila-dirs",
  "stencila-schema",
@@ -12112,6 +12115,7 @@ dependencies = [
  "stencila-agents",
  "stencila-attractor",
  "stencila-cli-utils",
+ "stencila-codec-text",
  "stencila-codecs",
  "stencila-db",
  "stencila-dirs",

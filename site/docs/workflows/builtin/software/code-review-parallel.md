@@ -1,6 +1,6 @@
 ---
-title: "Code Review Parallel"
-description: "Run three independent code reviews in parallel using Anthropic, OpenAI, and Google models via the software-code-reviewer agent, then synthesize a unified prioritized findings report highlighting reviewer agreement and disagreement"
+title: "Code Review Parallel Workflow"
+description: "Run three independent code reviews in parallel using Anthropic, OpenAI, and Google models via the `software-code-reviewer` agent, then synthesize a unified prioritized findings report highlighting reviewer agreement and disagreement"
 keywords:
   - code review
   - parallel
@@ -10,7 +10,7 @@ keywords:
   - prioritized findings
 ---
 
-Run three independent code reviews in parallel using Anthropic, OpenAI, and Google models via the software-code-reviewer agent, then synthesize a unified prioritized findings report highlighting reviewer agreement and disagreement
+Run three independent code reviews in parallel using Anthropic, OpenAI, and Google models via the `software-code-reviewer` agent, then synthesize a unified prioritized findings report highlighting reviewer agreement and disagreement
 
 **Keywords:** code review · parallel · multi-model · consensus · disagreement · prioritized findings
 

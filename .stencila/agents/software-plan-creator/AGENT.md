@@ -1,5 +1,6 @@
 ---
 name: software-plan-creator
+title: Software Plan Creator Agent
 description: Creates or updates software delivery plans from design specifications
 keywords:
   - delivery plan

@@ -1,5 +1,5 @@
 ---
-title: "Theme Creator"
+title: "Theme Creator Agent"
 description: "Creates or updates Stencila theme CSS files using semantic tokens, module tokens, and the theme CLI"
 keywords:
   - theme

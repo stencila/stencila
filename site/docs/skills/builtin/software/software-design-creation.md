@@ -1,5 +1,5 @@
 ---
-title: "Software Design Creation"
+title: "Software Design Creation Skill"
 description: "Create software design specifications for new features or standalone software. Use when the user needs help turning a brief idea into a concrete design spec by eliciting missing requirements, clarifying scope, defining users and constraints, outlining architecture and interfaces, identifying risks and assumptions, and writing acceptance criteria that developers can later use for planning and implementation."
 keywords:
   - software design

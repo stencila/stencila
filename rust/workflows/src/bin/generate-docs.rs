@@ -4,7 +4,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use eyre::Result;
+use inflector::Inflector;
 use serde::Deserialize;
+use stencila_codec_text::to_text;
 use stencila_workflows::WorkflowInstance;
 
 #[tokio::main]
@@ -154,7 +156,7 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
             writeln!(
                 cat_index,
                 "- [**{}**](./{}/): {}",
-                title_case(&workflow.name),
+                workflow_title(workflow),
                 workflow.name,
                 workflow.description,
             )?;
@@ -189,7 +191,7 @@ Builtin workflows are bundled with Stencila and can be listed and run without ad
             writeln!(
                 index,
                 "- [**{}**](./{}/{}/) — {}",
-                title_case(&workflow.name),
+                workflow_title(workflow),
                 category.slug,
                 workflow.name,
                 workflow.description,
@@ -228,7 +230,7 @@ fn build_workflow_page(
     source_path: &str,
     agent_to_category: &BTreeMap<String, String>,
 ) -> Result<String> {
-    let title = title_case(&workflow.name);
+    let title = workflow_title(workflow);
     let body = extract_body(raw).trim().to_string();
 
     let mut out = String::new();
@@ -346,18 +348,14 @@ fn extract_body(raw: &str) -> &str {
     raw
 }
 
-fn title_case(name: &str) -> String {
-    name.split('-')
-        .filter(|part| !part.is_empty())
-        .map(|part| {
-            let mut chars = part.chars();
-            match chars.next() {
-                Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
-                None => String::new(),
-            }
-        })
-        .collect::<Vec<_>>()
-        .join(" ")
+fn workflow_title(workflow: &WorkflowInstance) -> String {
+    workflow
+        .options
+        .title
+        .as_ref()
+        .map(to_text)
+        .filter(|t| !t.is_empty())
+        .unwrap_or_else(|| workflow.name.to_title_case())
 }
 
 fn relative_display(root: &Path, path: &Path) -> String {

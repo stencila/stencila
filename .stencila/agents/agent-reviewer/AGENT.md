@@ -1,5 +1,6 @@
 ---
 name: agent-reviewer
+title: Agent Reviewer Agent
 description: Reviews an agent for quality, correctness, and completeness
 keywords:
   - agent
