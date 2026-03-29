@@ -126,6 +126,9 @@ fn get_definitions(schema: &Value) -> Result<&Map<String, Value>> {
 /// Discover all documentation pages from the schema
 fn discover_pages(schema: &Value, definitions: &Map<String, Value>) -> Result<Vec<DocPage>> {
     let mut pages = Vec::new();
+    // Track which definitions have already been fully expanded (def_name -> doc path)
+    // so we can generate cross-references instead of duplicating content
+    let mut expanded_defs: HashMap<String, String> = HashMap::new();
 
     let root_props = schema
         .get("properties")
@@ -133,7 +136,14 @@ fn discover_pages(schema: &Value, definitions: &Map<String, Value>) -> Result<Ve
         .ok_or_else(|| eyre!("No root properties"))?;
 
     for (prop_name, prop) in root_props {
-        discover_property_pages(prop_name, prop, "", definitions, &mut pages)?;
+        discover_property_pages(
+            prop_name,
+            prop,
+            "",
+            definitions,
+            &mut pages,
+            &mut expanded_defs,
+        )?;
     }
 
     Ok(pages)
@@ -146,6 +156,7 @@ fn discover_property_pages(
     parent_path: &str,
     definitions: &Map<String, Value>,
     pages: &mut Vec<DocPage>,
+    expanded_defs: &mut HashMap<String, String>,
 ) -> Result<()> {
     let current_path = if parent_path.is_empty() {
         prop_name.to_string()
@@ -154,9 +165,15 @@ fn discover_property_pages(
     };
 
     match classify_property(prop, definitions) {
-        PropertyType::ObjectWithChildren { def_name } => {
+        PropertyType::ObjectWithChildren { ref def_name } => {
+            // Record that we are expanding this definition at this path
+            // (only the first occurrence — later ones get cross-references)
+            expanded_defs
+                .entry(def_name.clone())
+                .or_insert_with(|| current_path.clone());
+
             let def = definitions
-                .get(&def_name)
+                .get(def_name)
                 .ok_or_else(|| eyre!("Definition not found: {}", def_name))?;
 
             // Check if this object has child properties that need their own pages
@@ -166,10 +183,35 @@ fn discover_property_pages(
                 .cloned()
                 .unwrap_or_default();
 
+            // Split children into those that get their own sub-pages vs those
+            // whose definition was already expanded elsewhere (cross-references).
             let mut children_with_pages = Vec::new();
+            let mut cross_ref_children: HashMap<String, String> = HashMap::new();
             for (child_name, child_prop) in &child_props {
                 if should_have_own_page(child_prop, definitions) {
-                    children_with_pages.push(child_name.clone());
+                    if let Some((child_def_name, _)) =
+                        resolve_to_definition(child_prop, definitions)
+                        && let Some(canonical_path) = expanded_defs.get(&child_def_name)
+                        && *canonical_path != format!("{current_path}/{child_name}")
+                    {
+                        cross_ref_children.insert(child_name.clone(), canonical_path.clone());
+                    } else {
+                        children_with_pages.push(child_name.clone());
+                    }
+                }
+            }
+
+            // Pre-register children that will get their own pages so that
+            // content generation can determine the correct link format for
+            // siblings that reference already-expanded definitions.
+            for (child_name, child_prop) in &child_props {
+                if children_with_pages.contains(child_name)
+                    && let Some((child_def_name, _)) =
+                        resolve_to_definition(child_prop, definitions)
+                {
+                    expanded_defs
+                        .entry(child_def_name)
+                        .or_insert_with(|| format!("{current_path}/{child_name}"));
                 }
             }
 
@@ -177,11 +219,13 @@ fn discover_property_pages(
             let mut sibling_type_links: HashMap<String, String> = HashMap::new();
             for (child_name, child_prop) in &child_props {
                 if should_have_own_page(child_prop, definitions)
+                    && !cross_ref_children.contains_key(child_name)
                     && let Some((child_def_name, _)) =
                         resolve_to_definition(child_prop, definitions)
                 {
                     // Link to sibling page: ./child-name.md or ./child-name/
-                    let has_children = has_documentable_children(child_prop, definitions);
+                    let has_children = has_documentable_children(child_prop, definitions)
+                        && has_own_children(child_prop, definitions, expanded_defs);
                     let link = if has_children {
                         format!("./{child_name}/")
                     } else {
@@ -194,20 +238,39 @@ fn discover_property_pages(
             // Generate content for this page
             let desc = get_description(def);
             let title = generate_page_title(&current_path, true);
-            let content =
-                generate_object_page_content(&title, def, definitions, &children_with_pages);
+            let content = generate_object_page_content(
+                &title,
+                def,
+                definitions,
+                &children_with_pages,
+                &cross_ref_children,
+                expanded_defs,
+            );
 
-            pages.push(DocPage {
-                path: format!("{current_path}/index.md"),
-                title,
-                description: first_line(&desc),
-                content,
-                is_index: true,
-            });
+            // If there are no children with their own sub-pages, this is a
+            // leaf page (all children are cross-references or inline), so
+            // emit a flat .md file instead of a directory with index.md.
+            if children_with_pages.is_empty() {
+                pages.push(DocPage {
+                    path: format!("{current_path}.md"),
+                    title,
+                    description: first_line(&desc),
+                    content,
+                    is_index: false,
+                });
+            } else {
+                pages.push(DocPage {
+                    path: format!("{current_path}/index.md"),
+                    title,
+                    description: first_line(&desc),
+                    content,
+                    is_index: true,
+                });
+            }
 
             // Recurse into children that need pages, passing sibling type links
             for (child_name, child_prop) in &child_props {
-                if should_have_own_page(child_prop, definitions) {
+                if children_with_pages.contains(child_name) {
                     discover_property_pages_with_links(
                         child_name,
                         child_prop,
@@ -215,6 +278,7 @@ fn discover_property_pages(
                         definitions,
                         pages,
                         &sibling_type_links,
+                        expanded_defs,
                     )?;
                 }
             }
@@ -364,6 +428,7 @@ fn discover_property_pages_with_links(
     definitions: &Map<String, Value>,
     pages: &mut Vec<DocPage>,
     sibling_type_links: &HashMap<String, String>,
+    expanded_defs: &mut HashMap<String, String>,
 ) -> Result<()> {
     let current_path = if parent_path.is_empty() {
         prop_name.to_string()
@@ -416,7 +481,14 @@ fn discover_property_pages_with_links(
         });
     } else {
         // Delegate to the regular function for other property types
-        discover_property_pages(prop_name, prop, parent_path, definitions, pages)?;
+        discover_property_pages(
+            prop_name,
+            prop,
+            parent_path,
+            definitions,
+            pages,
+            expanded_defs,
+        )?;
     }
 
     Ok(())
@@ -531,6 +603,33 @@ fn has_documentable_children(prop: &Value, definitions: &Map<String, Value>) -> 
         }
     }
 
+    false
+}
+
+/// Check if a property will produce a directory (at least one child that is not a cross-reference)
+///
+/// An `ObjectWithChildren` whose documentable children have all been expanded
+/// elsewhere will be rendered as a flat `.md` file instead of a directory.
+fn has_own_children(
+    prop: &Value,
+    definitions: &Map<String, Value>,
+    expanded_defs: &HashMap<String, String>,
+) -> bool {
+    if let Some((_, def)) = resolve_to_definition(prop, definitions)
+        && let Some(props) = def.get("properties").and_then(|p| p.as_object())
+    {
+        for (_, child_prop) in props {
+            if should_have_own_page(child_prop, definitions) {
+                if let Some((child_def_name, _)) = resolve_to_definition(child_prop, definitions) {
+                    if !expanded_defs.contains_key(&child_def_name) {
+                        return true;
+                    }
+                } else {
+                    return true;
+                }
+            }
+        }
+    }
     false
 }
 
@@ -699,6 +798,8 @@ fn generate_object_page_content(
     def: &Value,
     definitions: &Map<String, Value>,
     children_with_pages: &[String],
+    cross_ref_children: &HashMap<String, String>,
+    expanded_defs: &HashMap<String, String>,
 ) -> String {
     let desc = get_description(def);
     let first = first_line(&desc);
@@ -708,12 +809,21 @@ fn generate_object_page_content(
     // Document all properties
     if let Some(props) = def.get("properties").and_then(|p| p.as_object()) {
         for (prop_name, prop) in props {
-            // Properties with their own pages get linked type
-            if children_with_pages.contains(prop_name) {
+            if let Some(canonical_path) = cross_ref_children.get(prop_name) {
+                // Property whose definition is already documented elsewhere
+                content.push_str(&format_property_with_cross_ref(
+                    prop_name,
+                    prop,
+                    definitions,
+                    canonical_path,
+                ));
+            } else if children_with_pages.contains(prop_name) {
+                // Properties with their own pages get linked type
                 content.push_str(&format_property_with_page_link(
                     prop_name,
                     prop,
                     definitions,
+                    expanded_defs,
                 ));
             } else {
                 content.push_str(&format_property(prop_name, prop, definitions));
@@ -724,18 +834,52 @@ fn generate_object_page_content(
     content
 }
 
+/// Format a property whose definition is already documented at another path
+fn format_property_with_cross_ref(
+    prop_name: &str,
+    prop: &Value,
+    definitions: &Map<String, Value>,
+    canonical_path: &str,
+) -> String {
+    let desc = get_prop_description(prop);
+    let first = first_line(&desc);
+
+    let type_name = resolve_to_definition(prop, definitions)
+        .map(|(name, _)| name)
+        .unwrap_or_else(|| prop_name.to_string());
+
+    let link = format!("/docs/config/{canonical_path}/");
+    let optional = is_optional(prop);
+    let optional_str = if optional { " (optional)" } else { "" };
+
+    let mut md = format!("# `{prop_name}`\n\n");
+    md.push_str(&format!(
+        "**Type:** [`{type_name}`]({link}){optional_str}\n\n"
+    ));
+    md.push_str(&first);
+    md.push_str("\n\n");
+    md.push_str(&format!(
+        "See [{canonical_path}]({link}) for full documentation.\n\n"
+    ));
+
+    md
+}
+
 /// Format a property that has its own documentation page
 fn format_property_with_page_link(
     prop_name: &str,
     prop: &Value,
     definitions: &Map<String, Value>,
+    expanded_defs: &HashMap<String, String>,
 ) -> String {
     let desc = get_prop_description(prop);
     let first = first_line(&desc);
 
     // Get the type name and link
-    let (type_name, link) = if has_documentable_children(prop, definitions) {
-        // Has children - directory link
+    let will_be_directory = has_documentable_children(prop, definitions)
+        && has_own_children(prop, definitions, expanded_defs);
+    let (type_name, link) = if will_be_directory {
+        // Has children that will get their own sub-pages - directory link
         if let Some((def_name, _)) = resolve_to_definition(prop, definitions) {
             (def_name, format!("{prop_name}/"))
         } else {
