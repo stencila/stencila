@@ -46,7 +46,16 @@ audit: install
 
 # Build the distribution
 build: install
-	npm run build
+	@if [ -n "$(BASE_URL)" ]; then \
+		BASE_URL=$(BASE_URL) npm run build; \
+	elif [ "$(VERSION)" = "dev" ]; then \
+		BASE_URL=https://stencila.dev/web/dev npm run build; \
+	elif [ -n "$(VERSION)" ]; then \
+		BASE_URL=https://stencila.dev/web/v$(VERSION) npm run build; \
+	else \
+		# No VERSION or BASE_URL: vite.config.ts defaults to /~static/dev/ \
+		npm run build; \
+	fi
 
 # Publish the distribution (requires rclone and relevant secrets)
 # When VERSION=dev, use rclone sync (mutable, overwrites existing files).
