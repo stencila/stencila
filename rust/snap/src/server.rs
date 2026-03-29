@@ -194,10 +194,26 @@ impl ServerInfo {
 }
 
 /// Check if a process with the given PID is running
-#[cfg(target_family = "unix")]
+#[cfg(target_os = "linux")]
 fn is_process_running(pid: u32) -> bool {
     let proc_path = format!("/proc/{}", pid);
     Path::new(&proc_path).exists()
+}
+
+/// Check if a process with the given PID is running
+#[cfg(all(target_family = "unix", not(target_os = "linux")))]
+#[allow(unsafe_code)]
+fn is_process_running(pid: u32) -> bool {
+    // On macOS and BSDs, /proc doesn't exist. Use kill(pid, 0) which
+    // checks process existence without sending a signal. Returns 0 if
+    // the process exists, or -1 with EPERM if it exists but we lack
+    // permission to signal it — either way, the process is running.
+    let ret = unsafe { libc::kill(pid as i32, 0) };
+    if ret == 0 {
+        return true;
+    }
+    // EPERM means the process exists but we can't signal it
+    std::io::Error::last_os_error().raw_os_error() == Some(libc::EPERM)
 }
 
 /// Check if a process with the given PID is running

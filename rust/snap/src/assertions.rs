@@ -54,8 +54,8 @@ impl Assertion {
         // Parse domain and selector: "css(.title)" or "count(section)"
         let (domain, selector, rest) = parse_domain_selector(input)?;
 
-        // For count/exists, no property needed
-        if domain == "count" || domain == "exists" {
+        // For count/exists/text, no property needed
+        if domain == "count" || domain == "exists" || domain == "text" {
             let (operator, value) = parse_operator_value(rest)?;
             return Ok(Self {
                 domain,
@@ -88,6 +88,22 @@ impl Assertion {
             .copied()
             .unwrap_or(0);
 
+        // Short-circuit: when the element doesn't exist and the domain
+        // requires an element, fail immediately rather than comparing
+        // error-description strings against numeric/string expectations.
+        if element_count == 0 && self.domain != "count" && self.domain != "exists" {
+            return AssertionResult {
+                assertion: format!("{self}"),
+                passed: false,
+                expected: format!("{:?}", self.value),
+                actual: format!(
+                    "element not found (selector '{}' matched 0 elements)",
+                    self.selector
+                ),
+                message: format!("Selector '{}' matched no elements", self.selector),
+            };
+        }
+
         let actual_value = match self.domain.as_str() {
             "css" => {
                 // Safe: parse() ensures property is present for css domain
@@ -96,18 +112,11 @@ impl Assertion {
                     .as_ref()
                     .expect("property required for css domain");
 
-                if element_count == 0 {
-                    format!(
-                        "element not found (selector '{}' matched 0 elements)",
-                        self.selector
-                    )
-                } else {
-                    measurements
-                        .css
-                        .get(&self.selector)
-                        .and_then(|css| get_css_property(css, prop))
-                        .unwrap_or_else(|| format!("property '{}' not available", prop))
-                }
+                measurements
+                    .css
+                    .get(&self.selector)
+                    .and_then(|css| get_css_property(css, prop))
+                    .unwrap_or_else(|| format!("property '{}' not available", prop))
             }
             "box" => {
                 // Safe: parse() ensures property is present for box domain
@@ -116,19 +125,12 @@ impl Assertion {
                     .as_ref()
                     .expect("property required for box domain");
 
-                if element_count == 0 {
-                    format!(
-                        "element not found (selector '{}' matched 0 elements)",
-                        self.selector
-                    )
-                } else {
-                    measurements
-                        .box_info
-                        .get(&self.selector)
-                        .and_then(|box_info| get_box_property(box_info, prop))
-                        .map(|v| v.to_string())
-                        .unwrap_or_else(|| format!("property '{}' not available", prop))
-                }
+                measurements
+                    .box_info
+                    .get(&self.selector)
+                    .and_then(|box_info| get_box_property(box_info, prop))
+                    .map(|v| v.to_string())
+                    .unwrap_or_else(|| format!("property '{}' not available", prop))
             }
             "count" => measurements
                 .counts
@@ -140,20 +142,11 @@ impl Assertion {
                 .get(&self.selector)
                 .map(|c| (*c > 0).to_string())
                 .unwrap_or_else(|| "false".to_string()),
-            "text" => {
-                if element_count == 0 {
-                    format!(
-                        "element not found (selector '{}' matched 0 elements)",
-                        self.selector
-                    )
-                } else {
-                    measurements
-                        .text
-                        .get(&self.selector)
-                        .cloned()
-                        .unwrap_or_else(|| "text not available".to_string())
-                }
-            }
+            "text" => measurements
+                .text
+                .get(&self.selector)
+                .cloned()
+                .unwrap_or_else(|| "text not available".to_string()),
             _ => "unsupported domain".to_string(),
         };
 
@@ -258,14 +251,28 @@ fn parse_domain_selector(input: &str) -> Result<(String, String, &str)> {
     let open_paren = input.find('(').ok_or_else(|| eyre::eyre!("Missing '('"))?;
     let domain = input[..open_paren].trim().to_string();
 
-    let close_paren = input[open_paren..]
-        .find(')')
-        .ok_or_else(|| eyre::eyre!("Missing ')'"))?;
-    let selector = input[open_paren + 1..open_paren + close_paren]
-        .trim()
-        .to_string();
+    // Find the matching closing parenthesis using depth tracking,
+    // so that nested parens in selectors like :nth-child(2) or
+    // :not(.foo) are handled correctly.
+    let mut depth = 0u32;
+    let mut close_pos = None;
+    for (i, ch) in input[open_paren..].char_indices() {
+        match ch {
+            '(' => depth += 1,
+            ')' => {
+                depth -= 1;
+                if depth == 0 {
+                    close_pos = Some(open_paren + i);
+                    break;
+                }
+            }
+            _ => {}
+        }
+    }
+    let close_paren = close_pos.ok_or_else(|| eyre::eyre!("Missing closing ')'"))?;
 
-    let rest = &input[open_paren + close_paren + 1..];
+    let selector = input[open_paren + 1..close_paren].trim().to_string();
+    let rest = &input[close_paren + 1..];
 
     Ok((domain, selector, rest))
 }
@@ -372,6 +379,10 @@ fn get_css_property(css: &crate::measure::CssProperties, prop: &str) -> Option<S
         "left" => css.left.clone(),
         "zIndex" => css.z_index.clone(),
         "overflow" => css.overflow.clone(),
+        "overflowX" => css.overflow_x.clone(),
+        "overflowY" => css.overflow_y.clone(),
+        "minHeight" => css.min_height.clone(),
+        "maxWidth" => css.max_width.clone(),
         // Flexbox
         "gap" => css.gap.clone(),
         "justifyContent" => css.justify_content.clone(),
@@ -399,11 +410,9 @@ fn evaluate_comparison(actual: &str, operator: &Operator, expected: &Value) -> b
     match expected {
         Value::Number(expected_num) => {
             // Extract numeric value from actual (strip "px" if present)
-            let actual_num = actual
-                .trim_end_matches("px")
-                .trim()
-                .parse::<f64>()
-                .unwrap_or(0.0);
+            let Ok(actual_num) = actual.trim_end_matches("px").trim().parse::<f64>() else {
+                return false;
+            };
 
             match operator {
                 Operator::Equals => (actual_num - expected_num).abs() < 0.5,
@@ -495,5 +504,226 @@ mod tests {
             &Operator::Contains,
             &Value::String("Roboto".to_string())
         ));
+    }
+
+    #[test]
+    fn test_non_numeric_actual_value_does_not_coerce_to_zero() {
+        // An error string should NOT be treated as 0.0
+        assert!(!evaluate_comparison(
+            "element not found (selector '.missing' matched 0 elements)",
+            &Operator::LessThanOrEqual,
+            &Value::Number(10.0)
+        ));
+        assert!(!evaluate_comparison(
+            "property 'width' not available",
+            &Operator::Equals,
+            &Value::Number(0.0)
+        ));
+    }
+
+    #[test]
+    fn test_parse_nested_parentheses_selectors() {
+        let assertion = Assertion::parse("css(li:nth-child(2)).fontSize >= 16px")
+            .expect("Failed to parse nth-child selector");
+        assert_eq!(assertion.selector, "li:nth-child(2)");
+        assert_eq!(assertion.property, Some("fontSize".to_string()));
+
+        let assertion = Assertion::parse("count(div:not(.hidden)) >= 1")
+            .expect("Failed to parse :not selector");
+        assert_eq!(assertion.selector, "div:not(.hidden)");
+
+        let assertion = Assertion::parse("exists(section:has(.title)) == true")
+            .expect("Failed to parse :has selector");
+        assert_eq!(assertion.selector, "section:has(.title)");
+    }
+
+    #[test]
+    fn test_missing_element_assertion_fails() {
+        let measurements = MeasureResult {
+            css: std::collections::HashMap::new(),
+            box_info: std::collections::HashMap::new(),
+            counts: std::collections::HashMap::new(),
+            text: std::collections::HashMap::new(),
+            summaries: std::collections::HashMap::new(),
+            contrast: std::collections::HashMap::new(),
+            diagnostics: Vec::new(),
+            errors: Vec::new(),
+        };
+
+        let assertion = Assertion::parse("css(.missing).width >= 0px").expect("should parse");
+        let result = assertion.evaluate(&measurements);
+        assert!(!result.passed, "assertion on missing element should fail");
+        assert!(
+            result.actual.contains("matched 0 elements"),
+            "actual should mention missing element"
+        );
+    }
+
+    #[test]
+    fn test_parse_text_assertion() {
+        let assertion =
+            Assertion::parse("text(h1) ~= Welcome").expect("Failed to parse text assertion");
+        assert_eq!(assertion.domain, "text");
+        assert_eq!(assertion.selector, "h1");
+        assert!(assertion.property.is_none());
+        assert!(matches!(assertion.operator, Operator::Contains));
+        assert!(matches!(assertion.value, Value::String(ref s) if s == "Welcome"));
+
+        let assertion = Assertion::parse("text(.title) == \"Hello World\"")
+            .expect("Failed to parse text equals assertion");
+        assert_eq!(assertion.domain, "text");
+        assert_eq!(assertion.selector, ".title");
+        assert!(assertion.property.is_none());
+        assert!(matches!(assertion.operator, Operator::Equals));
+        assert!(matches!(assertion.value, Value::String(ref s) if s == "Hello World"));
+    }
+
+    #[test]
+    fn test_evaluate_text_assertion() {
+        let measurements = MeasureResult {
+            css: std::collections::HashMap::new(),
+            box_info: std::collections::HashMap::new(),
+            counts: std::collections::HashMap::from([("h1".to_string(), 1)]),
+            text: std::collections::HashMap::from([("h1".to_string(), "Welcome Home".to_string())]),
+            summaries: std::collections::HashMap::new(),
+            contrast: std::collections::HashMap::new(),
+            diagnostics: Vec::new(),
+            errors: Vec::new(),
+        };
+
+        let assertion = Assertion::parse("text(h1) ~= Welcome").expect("should parse");
+        let result = assertion.evaluate(&measurements);
+        assert!(result.passed, "text contains should match");
+
+        let assertion = Assertion::parse("text(h1) == Welcome Home").expect("should parse");
+        let result = assertion.evaluate(&measurements);
+        assert!(result.passed, "text equals should match");
+    }
+
+    #[test]
+    fn test_get_css_property_covers_all_fields() {
+        use crate::measure::CssProperties;
+
+        let sentinel = Some("test".to_string());
+        let css = CssProperties {
+            padding_top: sentinel.clone(),
+            padding_bottom: sentinel.clone(),
+            padding_left: sentinel.clone(),
+            padding_right: sentinel.clone(),
+            margin_top: sentinel.clone(),
+            margin_bottom: sentinel.clone(),
+            margin_left: sentinel.clone(),
+            margin_right: sentinel.clone(),
+            font_size: sentinel.clone(),
+            line_height: sentinel.clone(),
+            color: sentinel.clone(),
+            color_hex: sentinel.clone(),
+            font_family: sentinel.clone(),
+            font_weight: sentinel.clone(),
+            text_align: sentinel.clone(),
+            text_decoration: sentinel.clone(),
+            letter_spacing: sentinel.clone(),
+            text_transform: sentinel.clone(),
+            white_space: sentinel.clone(),
+            display: sentinel.clone(),
+            visibility: sentinel.clone(),
+            opacity: sentinel.clone(),
+            background_color: sentinel.clone(),
+            background_color_hex: sentinel.clone(),
+            background_image: sentinel.clone(),
+            background_size: sentinel.clone(),
+            background_position: sentinel.clone(),
+            border_width: sentinel.clone(),
+            border_color: sentinel.clone(),
+            border_color_hex: sentinel.clone(),
+            border_radius: sentinel.clone(),
+            border_style: sentinel.clone(),
+            border_top_width: sentinel.clone(),
+            border_right_width: sentinel.clone(),
+            border_bottom_width: sentinel.clone(),
+            border_left_width: sentinel.clone(),
+            position: sentinel.clone(),
+            top: sentinel.clone(),
+            right: sentinel.clone(),
+            bottom: sentinel.clone(),
+            left: sentinel.clone(),
+            z_index: sentinel.clone(),
+            overflow: sentinel.clone(),
+            overflow_x: sentinel.clone(),
+            overflow_y: sentinel.clone(),
+            min_height: sentinel.clone(),
+            max_width: sentinel.clone(),
+            gap: sentinel.clone(),
+            justify_content: sentinel.clone(),
+            align_items: sentinel.clone(),
+            flex_direction: sentinel.clone(),
+            box_shadow: sentinel.clone(),
+            transform: sentinel.clone(),
+            filter: sentinel.clone(),
+        };
+
+        let camel_case_names = [
+            "paddingTop",
+            "paddingBottom",
+            "paddingLeft",
+            "paddingRight",
+            "marginTop",
+            "marginBottom",
+            "marginLeft",
+            "marginRight",
+            "fontSize",
+            "lineHeight",
+            "color",
+            "colorHex",
+            "fontFamily",
+            "fontWeight",
+            "textAlign",
+            "textDecoration",
+            "letterSpacing",
+            "textTransform",
+            "whiteSpace",
+            "display",
+            "visibility",
+            "opacity",
+            "backgroundColor",
+            "backgroundColorHex",
+            "backgroundImage",
+            "backgroundSize",
+            "backgroundPosition",
+            "borderWidth",
+            "borderColor",
+            "borderColorHex",
+            "borderRadius",
+            "borderStyle",
+            "borderTopWidth",
+            "borderRightWidth",
+            "borderBottomWidth",
+            "borderLeftWidth",
+            "position",
+            "top",
+            "right",
+            "bottom",
+            "left",
+            "zIndex",
+            "overflow",
+            "overflowX",
+            "overflowY",
+            "minHeight",
+            "maxWidth",
+            "gap",
+            "justifyContent",
+            "alignItems",
+            "flexDirection",
+            "boxShadow",
+            "transform",
+            "filter",
+        ];
+
+        for name in camel_case_names {
+            assert!(
+                get_css_property(&css, name).is_some(),
+                "get_css_property should handle '{name}'"
+            );
+        }
     }
 }

@@ -19,6 +19,9 @@ stencila-dirs = { path = "../dirs" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
+[target.'cfg(all(target_family = "unix", not(target_os = "linux")))'.dependencies]
+libc = "0.2"
+
 [dev-dependencies]
 test-log = { workspace = true }
 

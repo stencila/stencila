@@ -366,7 +366,12 @@ impl BrowserSession {
                     if (!el) return null;
                     el.scrollIntoView({{ block: 'center', inline: 'nearest' }});
                     const r = el.getBoundingClientRect();
-                    return {{ x: r.x, y: r.y, width: r.width, height: r.height }};
+                    return {{
+                        x: r.x + window.scrollX,
+                        y: r.y + window.scrollY,
+                        width: r.width,
+                        height: r.height
+                    }};
                 }})())"#
             );
             let rect_result = self

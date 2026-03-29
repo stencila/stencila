@@ -11968,6 +11968,7 @@ dependencies = [
  "eyre",
  "headless_chrome",
  "image",
+ "libc",
  "serde",
  "serde_json",
  "serde_with",

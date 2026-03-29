@@ -566,7 +566,13 @@ pub async fn snap(options: SnapOptions) -> eyre::Result<SnapOutput> {
 
     // Build output
     let elapsed = start.elapsed();
-    let ok = assertion_results.passed;
+
+    // `ok` is false when assertions fail OR when browser-level issues
+    // occurred (e.g. selector matched no elements for a screenshot, or
+    // measurement errors were reported).
+    let has_browser_issues =
+        matched_elements == Some(0) || measurements.as_ref().is_some_and(|m| !m.errors.is_empty());
+    let ok = assertion_results.passed && !has_browser_issues;
 
     Ok(SnapOutput {
         ok,
