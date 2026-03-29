@@ -192,6 +192,115 @@ Exercises: `admonition-*` tokens including type-specific colors, borders, icons,
 > [!TIP]+ Collapsed Admonition (Initially Collapsed)
 > This content is hidden by default and revealed when the reader clicks the toggle. It demonstrates the folded state for admonitions with lengthy supplementary content.
 
+## Diagrams
+
+Exercises: `diagram-*` tokens including node backgrounds, edge colors, text, and structural styling
+
+A Mermaid flowchart testing node shapes, decision diamonds, edge labels, and connection styling:
+
+```mermaid exec
+flowchart
+  A[Data Collection] --> B{Quality Check}
+  B -->|Pass| C[Analysis]
+  B -->|Fail| D[Data Cleaning]
+  D --> B
+  C --> E[Results]
+```
+
+A Mermaid sequence diagram testing actor backgrounds, signal colors, and activation boxes:
+
+```mermaid exec
+sequenceDiagram
+  participant R as Researcher
+  participant DS as Data Scientist
+  participant DB as Database
+
+  R->>DS: Submit data
+  activate DS
+  DS->>DB: Store data
+  DB-->>DS: Confirmation
+  DS->>DS: Quality check
+  deactivate DS
+  DS-->>R: Analysis results
+```
+
+
+## Plots
+
+Exercises: `plot-*` tokens including categorical colors, axes, grid, legends, typography, and background
+
+An ECharts bar chart testing categorical color palette, axis lines, grid, and legend:
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["Q1", "Q2", "Q3", "Q4"]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "name": "Revenue",
+      "data": [320, 450, 390, 520],
+      "type": "bar"
+    },
+    {
+      "name": "Profit",
+      "data": [120, 180, 150, 220],
+      "type": "bar"
+    }
+  ]
+}
+```
+
+A Vega-Lite line plot testing line marks, point marks, multi-series legend, and color encoding:
+
+```vegalite exec
+{
+  "data": {
+    "values": [
+      {"day": "Mon", "series": "Sales", "value": 120},
+      {"day": "Tue", "series": "Sales", "value": 200},
+      {"day": "Wed", "series": "Sales", "value": 150},
+      {"day": "Thu", "series": "Sales", "value": 80},
+      {"day": "Fri", "series": "Sales", "value": 70},
+      {"day": "Sat", "series": "Sales", "value": 110},
+      {"day": "Sun", "series": "Sales", "value": 130},
+      {"day": "Mon", "series": "Costs", "value": 80},
+      {"day": "Tue", "series": "Costs", "value": 120},
+      {"day": "Wed", "series": "Costs", "value": 100},
+      {"day": "Thu", "series": "Costs", "value": 60},
+      {"day": "Fri", "series": "Costs", "value": 50},
+      {"day": "Sat", "series": "Costs", "value": 80},
+      {"day": "Sun", "series": "Costs", "value": 90}
+    ]
+  },
+  "mark": {
+    "type": "line",
+    "interpolate": "monotone",
+    "point": true
+  },
+  "encoding": {
+    "x": {
+      "field": "day",
+      "type": "ordinal",
+      "sort": ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+    },
+    "y": {
+      "field": "value",
+      "type": "quantitative"
+    },
+    "color": {
+      "field": "series",
+      "type": "nominal"
+    }
+  }
+}
+```
+
+
 ## Thematic Breaks
 
 Exercises: `thematic-break-*` tokens for border style, width, color, and spacing
