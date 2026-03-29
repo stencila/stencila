@@ -1586,7 +1586,7 @@
     "@eslint/js": "10.0.1",
     "@types/mocha": "10.0.10",
     "@types/node": "25.5.0",
-    "@types/vscode": "1.93.0",
+    "@types/vscode": "1.110.0",
     "@typescript-eslint/parser": "8.57.2",
     "@vscode/test-cli": "0.0.12",
     "@vscode/test-electron": "2.5.2",
