@@ -1,0 +1,13 @@
+items:
+  - "software-design-creator"
+  - "software-design-reviewer"
+  - "software-plan-creator"
+  - "software-plan-reviewer"
+  - "software-slice-selector"
+  - "software-test-creator"
+  - "software-test-reviewer"
+  - "software-test-executor"
+  - "software-implementor"
+  - "software-code-reviewer"
+  - "software-code-refactorer"
+  - "software-delivery-completer"

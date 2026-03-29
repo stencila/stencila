@@ -1,0 +1,77 @@
+# Canonical source for builtin agent categories.
+#
+# Used by `generate-docs` to produce:
+#   - site/docs/agents/builtin/index.md   (per-category tables)
+#   - site/docs/agents/builtin/<category>/ (agent pages in subdirectories)
+#   - site/docs/agents/builtin/_nav.yaml  (ordered navigation)
+#
+# Each category has:
+#   slug     — URL-safe directory name
+#   title    — heading used in index.md and _nav.yaml
+#   prelude  — one or two sentence intro rendered before the category table
+#   agents   — ordered list of agent names (must match directory names in .stencila/agents/)
+
+categories:
+  - slug: general
+    title: General
+    prelude: >-
+      General-purpose agents handle a wide range of tasks and route requests to
+      specialized agents when appropriate.
+    agents:
+      - manager
+      - general
+      - general-a
+      - general-g
+      - general-m
+      - general-o
+
+  - slug: skills
+    title: Skills
+    prelude: >-
+      Agents for creating and reviewing agent skills.
+    agents:
+      - skill-creator
+      - skill-reviewer
+
+  - slug: agents
+    title: Agents
+    prelude: >-
+      Agents for creating and reviewing other agents.
+    agents:
+      - agent-creator
+      - agent-reviewer
+
+  - slug: workflows
+    title: Workflows
+    prelude: >-
+      Agents for creating and reviewing workflows.
+    agents:
+      - workflow-creator
+      - workflow-reviewer
+
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Agents for creating and reviewing themes.
+    agents:
+      - theme-creator
+      - theme-reviewer
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Agents for the design, planning, implementation, testing, review, and
+      delivery of software.
+    agents:
+      - software-design-creator
+      - software-design-reviewer
+      - software-plan-creator
+      - software-plan-reviewer
+      - software-slice-selector
+      - software-test-creator
+      - software-test-reviewer
+      - software-test-executor
+      - software-implementor
+      - software-code-reviewer
+      - software-code-refactorer
+      - software-delivery-completer

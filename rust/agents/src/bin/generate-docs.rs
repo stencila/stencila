@@ -1,16 +1,25 @@
 use std::collections::BTreeMap;
+use std::fmt::Write;
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use eyre::Result;
+use serde::Deserialize;
+use stencila_agents::definition::AgentInstance;
 use stencila_agents::tool_guard::shell::packs::{Confidence, Pack, all_packs};
 
-fn main() {
+#[tokio::main]
+async fn main() -> Result<()> {
     let manifest_dir = env!("CARGO_MANIFEST_DIR");
-    let site_root = PathBuf::from(manifest_dir).join("../../site/docs/agents/tools");
+    let repo_root = PathBuf::from(manifest_dir).join("../..").canonicalize()?;
+    let site_root = repo_root.join("site/docs/agents/tools");
+    let builtin_root = repo_root.join("site/docs/agents/builtin");
 
     fs::create_dir_all(site_root.join("shell")).expect("failed to create shell docs dir");
+    fs::create_dir_all(&builtin_root)?;
 
     generate_shell_pack_pages(&site_root);
+    generate_builtin_agent_pages(&repo_root, &builtin_root).await?;
     replace_between(
         &site_root.join("shell/index.md"),
         "<!-- PACKS_TABLE_START -->",
@@ -21,7 +30,13 @@ fn main() {
     #[allow(clippy::print_stderr)]
     {
         eprintln!("Generated tool guard docs at {}", site_root.display());
+        eprintln!(
+            "Generated builtin agents docs at {}",
+            builtin_root.display()
+        );
     }
+
+    Ok(())
 }
 
 // ---------------------------------------------------------------------------
@@ -169,6 +184,157 @@ fn generate_shell_pack_pages(root: &Path) {
 }
 
 // ---------------------------------------------------------------------------
+// categories.yaml — canonical category definitions
+// ---------------------------------------------------------------------------
+
+#[derive(Deserialize)]
+struct CategoriesFile {
+    categories: Vec<Category>,
+}
+
+#[derive(Deserialize)]
+struct Category {
+    slug: String,
+    title: String,
+    prelude: String,
+    agents: Vec<String>,
+}
+
+async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Result<()> {
+    let categories_path = repo_root.join(".stencila/agents/categories.yaml");
+    let categories_file: CategoriesFile =
+        serde_yaml::from_str(&fs::read_to_string(&categories_path)?)?;
+    let categories = &categories_file.categories;
+
+    let agents = stencila_agents::definition::list_builtin().await;
+    let agents_by_name: BTreeMap<&str, _> = agents.iter().map(|a| (a.name.as_str(), a)).collect();
+
+    // Clean the docs directory (remove old flat files and category subdirs)
+    if docs_root.exists() {
+        for entry in fs::read_dir(docs_root)? {
+            let entry = entry?;
+            let path = entry.path();
+            if path.is_dir() {
+                fs::remove_dir_all(&path)?;
+            } else if path.file_name().is_some_and(|name| {
+                let name = name.to_string_lossy();
+                name != "index.md" && name != "_nav.yaml"
+            }) {
+                fs::remove_file(&path)?;
+            }
+        }
+    }
+
+    // Write individual agent pages into category subdirectories
+    for category in categories {
+        let category_dir = docs_root.join(&category.slug);
+        fs::create_dir_all(&category_dir)?;
+
+        for agent_name in &category.agents {
+            let agent = agents_by_name.get(agent_name.as_str()).unwrap_or_else(|| {
+                panic!(
+                    "agent '{}' listed in categories.yaml not found in builtin agents",
+                    agent_name
+                )
+            });
+            let raw = fs::read_to_string(agent.path())?;
+            let source_path = relative_display(repo_root, agent.path());
+            let content = build_agent_page(agent, &raw, &source_path)?;
+            fs::write(category_dir.join(format!("{}.md", agent.name)), content)?;
+        }
+    }
+
+    // Generate per-category index.md pages
+    for category in categories {
+        let category_dir = docs_root.join(&category.slug);
+        let mut cat_index = String::new();
+        writeln!(cat_index, "---")?;
+        writeln!(
+            cat_index,
+            "title: \"{}\"",
+            category.title.replace('"', "\\\"")
+        )?;
+        writeln!(
+            cat_index,
+            "description: \"{}\"",
+            category.prelude.replace('"', "\\\"")
+        )?;
+        writeln!(cat_index, "---\n")?;
+        writeln!(cat_index, "{}\n", category.prelude)?;
+
+        for agent_name in &category.agents {
+            let agent = agents_by_name.get(agent_name.as_str()).unwrap_or_else(|| {
+                panic!(
+                    "agent '{}' listed in categories.yaml not found in builtin agents",
+                    agent_name
+                )
+            });
+            writeln!(
+                cat_index,
+                "- [**{}**](./{}/): {}",
+                title_case(&agent.name),
+                agent.name,
+                agent.description,
+            )?;
+        }
+
+        fs::write(category_dir.join("index.md"), cat_index)?;
+    }
+
+    // Generate top-level index.md
+    let mut index = String::new();
+    index.push_str(
+        "---\n\
+title: Builtin Agents\n\
+description: Builtin agents bundled with Stencila.\n\
+---\n\n\
+Builtin agents are bundled with Stencila and can be used without creating workspace or user-level agent definitions.\n",
+    );
+
+    for category in categories {
+        writeln!(index, "\n## {}\n", category.title)?;
+        writeln!(index, "{}\n", category.prelude)?;
+
+        for agent_name in &category.agents {
+            let agent = agents_by_name.get(agent_name.as_str()).unwrap_or_else(|| {
+                panic!(
+                    "agent '{}' listed in categories.yaml not found in builtin agents",
+                    agent_name
+                )
+            });
+            writeln!(
+                index,
+                "- [**{}**](./{}/{}/) — {}",
+                title_case(&agent.name),
+                category.slug,
+                agent.name,
+                agent.description,
+            )?;
+        }
+    }
+
+    fs::write(docs_root.join("index.md"), index)?;
+
+    // Generate _nav.yaml listing category subdirectories in order
+    let mut nav = String::from("items:\n");
+    for category in categories {
+        writeln!(nav, "  - \"{}\"", category.slug)?;
+    }
+    fs::write(docs_root.join("_nav.yaml"), nav)?;
+
+    // Generate per-category _nav.yaml files to control agent ordering
+    for category in categories {
+        let mut cat_nav = String::from("items:\n");
+        for agent_name in &category.agents {
+            writeln!(cat_nav, "  - \"{}\"", agent_name)?;
+        }
+        fs::write(docs_root.join(&category.slug).join("_nav.yaml"), cat_nav)?;
+    }
+
+    Ok(())
+}
+
+// ---------------------------------------------------------------------------
 // Sentinel replacement
 // ---------------------------------------------------------------------------
 
@@ -231,5 +397,177 @@ fn join_names(names: &[&str]) -> String {
 }
 
 fn escape_markdown_table(s: &str) -> String {
-    s.replace('|', "\\|")
+    s.replace('|', "\\|").replace('\n', " ")
+}
+
+// ---------------------------------------------------------------------------
+// Agent page builder
+// ---------------------------------------------------------------------------
+
+fn build_agent_page(agent: &AgentInstance, raw: &str, source_path: &str) -> Result<String> {
+    let title = title_case(&agent.name);
+    let body = extract_body(raw).trim().to_string();
+
+    let mut out = String::new();
+
+    // Site frontmatter — title, description, and keywords
+    writeln!(out, "---")?;
+    writeln!(out, "title: \"{}\"", title.replace('"', "\\\""))?;
+    writeln!(
+        out,
+        "description: \"{}\"",
+        agent.description.replace('"', "\\\"")
+    )?;
+    if let Some(keywords) = &agent.options.keywords
+        && !keywords.is_empty()
+    {
+        writeln!(out, "keywords:")?;
+        for kw in keywords {
+            writeln!(out, "  - {kw}")?;
+        }
+    }
+    writeln!(out, "---")?;
+
+    // Description
+    writeln!(out, "\n{}\n", agent.description)?;
+
+    // Keywords
+    if let Some(keywords) = &agent.options.keywords
+        && !keywords.is_empty()
+    {
+        writeln!(out, "**Keywords:** {}\n", keywords.join(" · "))?;
+    }
+
+    // When to use
+    if let Some(items) = &agent.when_to_use
+        && !items.is_empty()
+    {
+        writeln!(out, "# When to use\n")?;
+        for item in items {
+            writeln!(out, "- {item}")?;
+        }
+        writeln!(out)?;
+    }
+
+    // When not to use
+    if let Some(items) = &agent.when_not_to_use
+        && !items.is_empty()
+    {
+        writeln!(out, "# When not to use\n")?;
+        for item in items {
+            writeln!(out, "- {item}")?;
+        }
+        writeln!(out)?;
+    }
+
+    // Configuration table
+    let mut rows: Vec<(&str, String)> = Vec::new();
+
+    let model_preference = agent
+        .models
+        .as_ref()
+        .filter(|v| !v.is_empty())
+        .map(|v| {
+            v.iter()
+                .map(|m| format!("`{m}`"))
+                .collect::<Vec<_>>()
+                .join(", ")
+        })
+        .or_else(|| agent.model_size.as_ref().map(|s| format!("`{s}`")));
+    if let Some(val) = model_preference {
+        rows.push(("Model", val));
+    }
+
+    if let Some(val) = &agent.reasoning_effort {
+        rows.push(("Reasoning effort", format!("`{val}`")));
+    }
+
+    if let Some(val) = &agent.trust_level {
+        rows.push(("Trust level", format!("`{val}`")));
+    }
+
+    if let Some(tools) = &agent.allowed_tools
+        && !tools.is_empty()
+    {
+        let formatted: Vec<String> = tools.iter().map(|t| format!("`{t}`")).collect();
+        rows.push(("Tools", formatted.join(", ")));
+    }
+
+    if let Some(skills) = &agent.allowed_skills {
+        if skills.is_empty() {
+            rows.push(("Skills", "none".to_string()));
+        } else {
+            let formatted: Vec<String> = skills.iter().map(|s| format!("`{s}`")).collect();
+            rows.push(("Skills", formatted.join(", ")));
+        }
+    }
+
+    if let Some(true) = agent.options.enable_mcp {
+        rows.push(("MCP", "enabled".to_string()));
+    } else if let Some(false) = agent.options.enable_mcp {
+        rows.push(("MCP", "disabled".to_string()));
+    }
+
+    if let Some(true) = agent.options.enable_mcp_codemode {
+        rows.push(("MCP codemode", "enabled".to_string()));
+    } else if let Some(false) = agent.options.enable_mcp_codemode {
+        rows.push(("MCP codemode", "disabled".to_string()));
+    }
+
+    if !rows.is_empty() {
+        writeln!(out, "# Configuration\n")?;
+        writeln!(out, "| Property | Value |")?;
+        writeln!(out, "| -------- | ----- |")?;
+        for (key, value) in &rows {
+            writeln!(out, "| {} | {} |", key, escape_markdown_table(value))?;
+        }
+        writeln!(out)?;
+    }
+
+    // Thematic break before the system prompt body
+    if !body.is_empty() {
+        writeln!(out, "# Prompt\n")?;
+        writeln!(out, "{body}\n")?;
+    }
+
+    // Footer
+    writeln!(out, "---\n")?;
+    writeln!(
+        out,
+        "This page was generated from [`{source_path}`]\
+         (https://github.com/stencila/stencila/blob/main/{source_path})."
+    )?;
+
+    Ok(out)
+}
+
+/// Extract the Markdown body after YAML frontmatter.
+fn extract_body(raw: &str) -> &str {
+    if let Some(rest) = raw.strip_prefix("---\n")
+        && let Some(index) = rest.find("\n---\n")
+    {
+        return &rest[index + 5..];
+    }
+    raw
+}
+
+fn title_case(name: &str) -> String {
+    name.split('-')
+        .filter(|part| !part.is_empty())
+        .map(|part| {
+            let mut chars = part.chars();
+            match chars.next() {
+                Some(first) => format!("{}{}", first.to_uppercase(), chars.as_str()),
+                None => String::new(),
+            }
+        })
+        .collect::<Vec<_>>()
+        .join(" ")
+}
+
+fn relative_display(root: &Path, path: &Path) -> String {
+    path.strip_prefix(root)
+        .unwrap_or(path)
+        .to_string_lossy()
+        .replace('\\', "/")
 }

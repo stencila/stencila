@@ -391,6 +391,7 @@ async fn list_dir(agents_dir: &Path) -> Result<Vec<AgentInstance>> {
 #[derive(RustEmbed)]
 #[folder = "$CARGO_MANIFEST_DIR/../../.stencila/agents"]
 #[exclude = "test-*"]
+#[exclude = "categories.yaml"]
 struct BuiltinAgents;
 
 static BUILTIN_AGENTS: OnceLock<Vec<AgentInstance>> = OnceLock::new();
