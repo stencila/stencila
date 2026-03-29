@@ -25,6 +25,10 @@ Write failing tests for a TDD slice based on acceptance criteria and codebase co
 
 **Keywords:** test creation · test writing · TDD · red green refactor · red phase · failing tests · test-first · test-first development · acceptance criteria · unit tests · integration tests · test conventions · test scaffolding · codebase conventions · test framework discovery · write failing tests · acceptance test derivation
 
+> [!tip] Usage
+>
+> To use this skill, add `software-test-creation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

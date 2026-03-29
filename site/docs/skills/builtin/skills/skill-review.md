@@ -15,6 +15,10 @@ Critically review a workspace skill and suggest improvements. Use when asked to 
 
 **Keywords:** skill · review · audit · critique · evaluate · improve · SKILL.md
 
+> [!tip] Usage
+>
+> To use this skill, add `skill-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

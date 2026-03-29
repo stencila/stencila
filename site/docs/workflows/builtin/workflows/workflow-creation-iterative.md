@@ -13,6 +13,10 @@ Create and iteratively refine a Stencila workflow using the `workflow-creator` a
 
 **Keywords:** workflow · creation · review · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~workflow-creation-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new Stencila workflow needs to be drafted, reviewed, and refined before acceptance

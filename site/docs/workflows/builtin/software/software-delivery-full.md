@@ -18,6 +18,10 @@ End-to-end software feature pipeline that composes design, planning, and TDD del
 
 **Keywords:** software · feature · lifecycle · end-to-end · design · planning · delivery · tdd · implementation · development
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~software-delivery-full` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a feature needs to go from idea through design, planning, and implementation in one pipeline

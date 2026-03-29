@@ -16,6 +16,10 @@ Create and iteratively refine a Stencila theme using the `theme-creator` and `th
 
 **Keywords:** theme · creation · review · iterative · human-in-the-loop · theme.css · design tokens · css
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~theme-creation-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new Stencila theme needs to be drafted, reviewed, and refined before acceptance

@@ -15,6 +15,10 @@ Design an agent top-down by first planning its skills, creating each skill via t
 
 **Keywords:** agent · creation · top-down · skills · design-first · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~agent-creation-topdown` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when creating a new agent that needs custom skills which do not yet exist

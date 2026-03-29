@@ -26,6 +26,10 @@ Create, update, or plan a Stencila theme for documents or published sites. Use w
 
 **Keywords:** theme.css · document theme · site theme · design system · theme tokens · semantic tokens · plot tokens · print tokens · css custom properties · pdf theme · docx theme · email theme · site branding · navigation theming · logo styling · dark mode · font-face · self-hosted fonts
 
+> [!tip] Usage
+>
+> To use this skill, add `theme-creation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

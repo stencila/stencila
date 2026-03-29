@@ -12,6 +12,10 @@ Routes user requests to the most appropriate agent or workflow.
 
 **Keywords:** route · delegate · dispatch · manager
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#manager` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user's request needs to be routed to the best agent or workflow

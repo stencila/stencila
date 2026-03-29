@@ -15,6 +15,10 @@ Create a new Stencila workflow. Use when asked to create, write, scaffold, or se
 
 **Keywords:** workflow · pipeline · create · scaffold · write · set up · WORKFLOW.md
 
+> [!tip] Usage
+>
+> To use this skill, add `workflow-creation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

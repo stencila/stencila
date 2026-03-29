@@ -144,6 +144,13 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
         writeln!(cat_index, "---\n")?;
         writeln!(cat_index, "{}\n", category.prelude)?;
 
+        let first_workflow = &category.workflows[0];
+        writeln!(
+            cat_index,
+            "You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, \
+             or by starting your prompt with `~workflow-name` e.g. `~{first_workflow}`.\n",
+        )?;
+
         for workflow_name in &category.workflows {
             let workflow = workflows_by_name
                 .get(workflow_name.as_str())
@@ -170,9 +177,10 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
     index.push_str(
         "---\n\
 title: Builtin Workflows\n\
-description: Builtin workflows bundled with Stencila.\n\
+description: Builtin workflows that ship with Stencila.\n\
 ---\n\n\
-Builtin workflows are bundled with Stencila and can be listed and run without adding local workflow files.\n",
+Builtin workflows ship with Stencila and are available in every workspace without additional configuration.\n\n\
+You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.\n",
     );
 
     for category in categories {
@@ -262,6 +270,16 @@ fn build_workflow_page(
     {
         writeln!(out, "**Keywords:** {}\n", keywords.join(" · "))?;
     }
+
+    // Usage tip
+    writeln!(out, "> [!tip] Usage")?;
+    writeln!(out, ">")?;
+    writeln!(
+        out,
+        "> To run this workflow, start your prompt with `~{}` followed by your goal, \
+         or select it with the `/workflow` command.\n",
+        workflow.name,
+    )?;
 
     // When to use
     if let Some(items) = &workflow.when_to_use

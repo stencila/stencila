@@ -17,6 +17,10 @@ Reads a software delivery plan, marks the just-completed slice or slice batch (i
 
 **Keywords:** slice selection · delivery plan execution · plan progression · work item selection · next slice · slice completion · completion check · remaining slices · software-slice-selection
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-slice-selector` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when a TDD workflow needs to select the next execution unit from a delivery plan

@@ -15,6 +15,10 @@ Critically review a Stencila agent and suggest improvements. Use when asked to r
 
 **Keywords:** agent · review · audit · critique · evaluate · improve · AGENT.md
 
+> [!tip] Usage
+>
+> To use this skill, add `agent-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

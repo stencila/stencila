@@ -14,6 +14,10 @@ A general-purpose agent using Anthropic's frontier model
 
 **Keywords:** general · assistant · unspecialized · broad · default · fallback
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#general-a` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user needs help with a broad or unspecialized task that does not clearly require a specialist

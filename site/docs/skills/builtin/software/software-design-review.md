@@ -21,6 +21,10 @@ Critically review a software design specification and suggest concrete improveme
 
 **Keywords:** software design · design review · design spec review · technical specification · architecture review · feature design · implementation plan · tradeoffs · risks · feasibility · requirements quality · actionable feedback · not code review
 
+> [!tip] Usage
+>
+> To use this skill, add `software-design-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

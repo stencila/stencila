@@ -296,6 +296,14 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
         writeln!(cat_index, "---\n")?;
         writeln!(cat_index, "{}\n", category.prelude)?;
 
+        let first_agent = &category.agents[0];
+        writeln!(
+            cat_index,
+            "You can use these agents in the Stencila TUI by selecting one with the `/agent` command, \
+             or by starting your prompt with `#agent-name` e.g. `#{first_agent}`. \
+             Agents can also be referenced by name in workflow node definitions.\n",
+        )?;
+
         for agent_name in &category.agents {
             let agent = agents_by_name.get(agent_name.as_str()).unwrap_or_else(|| {
                 panic!(
@@ -320,9 +328,10 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
     index.push_str(
         "---\n\
 title: Builtin Agents\n\
-description: Builtin agents bundled with Stencila.\n\
+description: Builtin agents that ship with Stencila.\n\
 ---\n\n\
-Builtin agents are bundled with Stencila and can be used without creating workspace or user-level agent definitions.\n",
+Builtin agents ship with Stencila and are available in every workspace without additional configuration.\n\n\
+You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.\n",
     );
 
     for category in categories {
@@ -476,6 +485,17 @@ fn build_agent_page(
     {
         writeln!(out, "**Keywords:** {}\n", keywords.join(" · "))?;
     }
+
+    // Usage tip
+    writeln!(out, "> [!tip] Usage")?;
+    writeln!(out, ">")?;
+    writeln!(
+        out,
+        "> To use this agent, start your prompt with `#{}` in the Stencila TUI, \
+         or select it with the `/agent` command. You can also reference it by name \
+         in a workflow pipeline.\n",
+        agent.name,
+    )?;
 
     // When to use
     if let Some(items) = &agent.when_to_use

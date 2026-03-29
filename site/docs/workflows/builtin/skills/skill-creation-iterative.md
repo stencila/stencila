@@ -13,6 +13,10 @@ Create and iteratively refine a Stencila skill using the `skill-creator` and `sk
 
 **Keywords:** skill · creation · review · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~skill-creation-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new Stencila skill needs to be drafted, reviewed, and refined before acceptance

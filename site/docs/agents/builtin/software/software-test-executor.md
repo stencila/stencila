@@ -16,6 +16,10 @@ Executes scoped tests for a TDD slice and reports structured pass/fail results. 
 
 **Keywords:** test execution · test runner · run tests · TDD · red green refactor · pass fail · test results · scoped tests
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-test-executor` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when a TDD workflow needs to execute tests and report structured results

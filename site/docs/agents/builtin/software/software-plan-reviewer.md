@@ -22,6 +22,10 @@ Reviews software delivery plans for quality, correctness, completeness, and feas
 
 **Keywords:** software plan · plan review · delivery plan · implementation plan · task breakdown · phasing · sequencing · testing strategy · TDD slices · risks · definition of done · critique · audit · software-plan-review
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-plan-reviewer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to review, audit, or critique a software delivery plan, implementation plan, or phased roadmap

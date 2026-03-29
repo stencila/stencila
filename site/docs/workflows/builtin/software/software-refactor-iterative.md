@@ -16,6 +16,10 @@ Iteratively refactor part or all of a software project using the `software-code-
 
 **Keywords:** refactoring · code quality · code cleanup · iterative · review · human-in-the-loop · safe transformation · conventions
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~software-refactor-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when existing production code needs quality improvements such as duplication removal, naming cleanup, complexity reduction, or convention alignment

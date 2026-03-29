@@ -24,6 +24,10 @@ Reviews Stencila theme artifacts for token correctness, cross-target portability
 
 **Keywords:** theme review · theme.css · design tokens · css custom properties · token correctness · cross-target portability · dark mode · theme validation · document theme · site theme · plot theme · pdf theme · print theme · docx theme · email theme · theme approval
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#theme-reviewer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to review, critique, audit, assess, or validate a Stencila theme artifact

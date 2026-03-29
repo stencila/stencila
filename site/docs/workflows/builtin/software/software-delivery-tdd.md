@@ -15,6 +15,10 @@ Execute a software delivery plan using test-driven development with Red-Green-Re
 
 **Keywords:** tdd · test-driven-development · red-green-refactor · software-delivery · implementation · slicing · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~software-delivery-tdd` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a software delivery plan exists and needs to be executed slice-by-slice using TDD

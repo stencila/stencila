@@ -29,6 +29,10 @@ Write the minimal production code needed to make failing TDD tests pass (Green p
 
 **Keywords:** implementation · production code · green phase · TDD · red green refactor · make tests pass · write code · code writing · satisfy tests · fix failing tests · minimal implementation · codebase conventions · module layout · coding style · integrate code · compile check · parse check · not test creation · not test writing · not refactoring · not test execution
 
+> [!tip] Usage
+>
+> To use this skill, add `software-implementation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

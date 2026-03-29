@@ -29,6 +29,10 @@ Run scoped tests for a TDD slice, determine the appropriate test framework and c
 
 **Keywords:** test execution · test runner · run tests · test results · pass fail · TDD · red green refactor · scoped tests · test command · test framework discovery · compilation errors · test output parsing · test verification · cargo test · pytest · vitest · go test · not test creation · not test writing · not implementation · not refactoring
 
+> [!tip] Usage
+>
+> To use this skill, add `software-test-execution` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

@@ -22,6 +22,10 @@ Creates or updates Stencila theme CSS files using semantic tokens, module tokens
 
 **Keywords:** theme · theme.css · css · design system · tokens · semantic tokens · document theme · site theme · plot tokens · print tokens · branding · styling · dark mode · fonts
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#theme-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to create, update, or patch a theme.css file

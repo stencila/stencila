@@ -16,6 +16,10 @@ Creates or updates software design specifications
 
 **Keywords:** software design · design spec · technical specification · feature design · requirements gathering · acceptance criteria · architecture · software-design-creation
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-design-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks for a software design spec, technical plan, feature specification, architecture outline, or implementation-ready requirements document

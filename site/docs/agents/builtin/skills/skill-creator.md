@@ -12,6 +12,10 @@ Creates or updates a skill
 
 **Keywords:** skill · create · scaffold · SKILL.md
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#skill-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to create, scaffold, or write an agent skill

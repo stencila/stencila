@@ -22,6 +22,10 @@ Evaluate source code for correctness, quality, security, style conformance, and 
 
 **Keywords:** code review · code audit · code quality · code inspection · bug detection · security review · vulnerability detection · error handling · style conformance · readability · complexity · maintainability · testability · API design
 
+> [!tip] Usage
+>
+> To use this skill, add `software-code-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

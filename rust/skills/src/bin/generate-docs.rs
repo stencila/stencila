@@ -106,6 +106,15 @@ async fn generate_builtin_skill_pages(repo_root: &Path, docs_root: &Path) -> Res
         writeln!(cat_index, "---\n")?;
         writeln!(cat_index, "{}\n", category.prelude)?;
 
+        let first_skill = &category.skills[0];
+        writeln!(
+            cat_index,
+            "To give an agent access to a skill, add it to the `allowed-skills` list in the agent's \
+             AGENT.md frontmatter e.g. `allowed-skills: {first_skill}`. \
+             When creating a new agent, you can prompt the `#agent-creator` agent or the `~agent-creation-iterative` \
+             workflow to use specific skills.\n",
+        )?;
+
         for skill_name in &category.skills {
             let skill = skills_by_name.get(skill_name.as_str()).unwrap_or_else(|| {
                 panic!(
@@ -130,9 +139,10 @@ async fn generate_builtin_skill_pages(repo_root: &Path, docs_root: &Path) -> Res
     index.push_str(
         "---\n\
 title: Builtin Skills\n\
-description: Builtin skills bundled with Stencila.\n\
+description: Builtin skills that ship with Stencila.\n\
 ---\n\n\
-Builtin skills are bundled with Stencila and loaded as the base skill layer for agent sessions.\n",
+Builtin skills ship with Stencila and are available in every workspace without additional configuration.\n\n\
+To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter. When creating a new agent, you can prompt the `#agent-creator` agent or run `~agent-creation-iterative` workflow and specify which skills it should use.\n",
     );
 
     for category in categories {
@@ -215,6 +225,16 @@ fn build_skill_page(skill: &SkillInstance, raw: &str, source_path: &str) -> Resu
     {
         writeln!(out, "**Keywords:** {}\n", keywords.join(" · "))?;
     }
+
+    // Usage tip
+    writeln!(out, "> [!tip] Usage")?;
+    writeln!(out, ">")?;
+    writeln!(
+        out,
+        "> To use this skill, add `{}` to the `allowed-skills` list in your agent's AGENT.md. \
+         You can also ask `#agent-creator` to build an agent that uses it.\n",
+        skill.name,
+    )?;
 
     // Configuration table
     let mut rows: Vec<(&str, String)> = Vec::new();

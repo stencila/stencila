@@ -17,6 +17,10 @@ Writes failing tests for a TDD slice (Red phase). Given slice scope, acceptance 
 
 **Keywords:** test creation · TDD · red phase · failing tests · test writing · acceptance criteria · test-first · red green refactor · software-test-creation
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-test-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when a TDD workflow needs failing tests written for a slice's acceptance criteria

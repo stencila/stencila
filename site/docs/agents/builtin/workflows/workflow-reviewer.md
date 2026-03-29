@@ -12,6 +12,10 @@ Reviews workflows for correctness, clarity, and completeness
 
 **Keywords:** workflow · review · audit · pipeline
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#workflow-reviewer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to review, audit, or critique a Stencila workflow

@@ -14,6 +14,10 @@ Create a new Stencila agent. Use when asked to create, write, scaffold, or set u
 
 **Keywords:** agent · create · scaffold · write · set up · AGENT.md
 
+> [!tip] Usage
+>
+> To use this skill, add `agent-creation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

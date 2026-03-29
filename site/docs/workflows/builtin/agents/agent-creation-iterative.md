@@ -13,6 +13,10 @@ Create and iteratively refine a Stencila agent using the `agent-creator` and `ag
 
 **Keywords:** agent · creation · review · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~agent-creation-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new Stencila agent needs to be drafted, reviewed, and refined before acceptance

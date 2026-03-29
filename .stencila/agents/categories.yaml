@@ -25,6 +25,33 @@ categories:
       - general-m
       - general-o
 
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Agents for creating and reviewing Stencila themes.
+    agents:
+      - theme-creator
+      - theme-reviewer
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Agents for the design, planning, implementation, testing, review, and
+      delivery of software.
+    agents:
+      - software-design-creator
+      - software-design-reviewer
+      - software-plan-creator
+      - software-plan-reviewer
+      - software-slice-selector
+      - software-test-creator
+      - software-test-reviewer
+      - software-test-executor
+      - software-implementor
+      - software-code-reviewer
+      - software-code-refactorer
+      - software-delivery-completer
+
   - slug: skills
     title: Skills
     prelude: >-
@@ -48,30 +75,3 @@ categories:
     agents:
       - workflow-creator
       - workflow-reviewer
-
-  - slug: themes
-    title: Themes
-    prelude: >-
-      Agents for creating and reviewing themes.
-    agents:
-      - theme-creator
-      - theme-reviewer
-
-  - slug: software
-    title: Software Engineering
-    prelude: >-
-      Agents for the design, planning, implementation, testing, review, and
-      delivery of software.
-    agents:
-      - software-design-creator
-      - software-design-reviewer
-      - software-plan-creator
-      - software-plan-reviewer
-      - software-slice-selector
-      - software-test-creator
-      - software-test-reviewer
-      - software-test-executor
-      - software-implementor
-      - software-code-reviewer
-      - software-code-refactorer
-      - software-delivery-completer

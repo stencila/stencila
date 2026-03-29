@@ -12,6 +12,32 @@
 #   skills   — ordered list of skill names (must match directory names in .stencila/skills/)
 
 categories:
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Skills for creating and reviewing Stencila themes.
+    skills:
+      - theme-creation
+      - theme-review
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Skills for the design, planning, implementation, testing, review, and
+      delivery of software.
+    skills:
+      - software-design-creation
+      - software-design-review
+      - software-plan-creation
+      - software-plan-review
+      - software-slice-selection
+      - software-test-creation
+      - software-test-review
+      - software-test-execution
+      - software-implementation
+      - software-code-review
+      - software-code-refactoring
+
   - slug: skills
     title: Skills
     prelude: >-
@@ -35,29 +61,3 @@ categories:
     skills:
       - workflow-creation
       - workflow-review
-
-  - slug: themes
-    title: Themes
-    prelude: >-
-      Skills for creating and reviewing themes.
-    skills:
-      - theme-creation
-      - theme-review
-
-  - slug: software
-    title: Software Engineering
-    prelude: >-
-      Skills for the design, planning, implementation, testing, review, and
-      delivery of software.
-    skills:
-      - software-design-creation
-      - software-design-review
-      - software-plan-creation
-      - software-plan-review
-      - software-slice-selection
-      - software-test-creation
-      - software-test-review
-      - software-test-execution
-      - software-implementation
-      - software-code-review
-      - software-code-refactoring

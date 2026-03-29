@@ -19,6 +19,10 @@ Creates or updates software delivery plans from design specifications
 
 **Keywords:** delivery plan · implementation plan · project plan · phased delivery · test plan · TDD · red green refactor · implementation roadmap · software planning · task breakdown · software-plan-creation
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-plan-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks for a delivery plan, implementation plan, task breakdown, phased roadmap, or test-driven development strategy for a software design

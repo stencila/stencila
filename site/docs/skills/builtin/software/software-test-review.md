@@ -35,6 +35,10 @@ Evaluate the quality of TDD tests against slice acceptance criteria, codebase co
 
 **Keywords:** test review · test quality · test critique · TDD · red phase review · acceptance criteria coverage · test conventions · test naming · test assertions · test isolation · test readability · trivial tests · low-value tests · maintenance cost · test value · over-testing · tautological tests · edge cases · error paths · Red-phase validation · codebase conventions · test conformance · not test creation · not test writing · not test execution · not implementation · not refactoring
 
+> [!tip] Usage
+>
+> To use this skill, add `software-test-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

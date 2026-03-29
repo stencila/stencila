@@ -13,6 +13,10 @@ Create and iteratively refine a software design specification using the `softwar
 
 **Keywords:** software-design · design-specification · review · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~software-design-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new software design specification needs to be drafted, reviewed, and refined before acceptance

@@ -15,6 +15,10 @@ Design a workflow top-down by first planning its structure and dependencies, cre
 
 **Keywords:** workflow · creation · top-down · dependencies · design-first · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~workflow-creation-topdown` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when creating a workflow that needs custom agents or child workflows that do not yet exist

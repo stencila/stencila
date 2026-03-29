@@ -12,6 +12,26 @@
 #   workflows  — ordered list of workflow names (must match directory names in .stencila/workflows/)
 
 categories:
+  - slug: themes
+    title: Themes
+    prelude: >-
+      Workflows for creating and refining Stencila themes.
+    workflows:
+      - theme-creation-iterative
+
+  - slug: software
+    title: Software Engineering
+    prelude: >-
+      Workflows for the design, planning, implementation, testing, review,
+      and delivery of software.
+    workflows:
+      - software-design-iterative
+      - software-plan-iterative
+      - software-refactor-iterative
+      - software-delivery-tdd
+      - software-delivery-full
+      - code-review-parallel
+
   - slug: skills
     title: Skills
     prelude: >-
@@ -35,23 +55,3 @@ categories:
       - workflow-creation-iterative
       - workflow-creation-topdown
       - workflow-create-run
-
-  - slug: themes
-    title: Themes
-    prelude: >-
-      Workflows for creating and refining themes.
-    workflows:
-      - theme-creation-iterative
-
-  - slug: software
-    title: Software Engineering
-    prelude: >-
-      Workflows for the design, planning, implementation, testing, review,
-      and delivery of software.
-    workflows:
-      - software-design-iterative
-      - software-plan-iterative
-      - software-refactor-iterative
-      - software-delivery-tdd
-      - software-delivery-full
-      - code-review-parallel

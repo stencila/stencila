@@ -18,6 +18,10 @@ Reviews tests written during the Red phase of a TDD slice, evaluating acceptance
 
 **Keywords:** test review · test quality · TDD · red phase · test evaluation · acceptance criteria coverage · test conventions · code review · red green refactor · software-test-review
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-test-reviewer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when a TDD workflow needs to evaluate test quality before proceeding to implementation

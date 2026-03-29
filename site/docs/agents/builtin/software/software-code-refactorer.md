@@ -22,6 +22,10 @@ Refactors production code to improve quality while keeping all tests passing. Di
 
 **Keywords:** refactoring · code quality · code cleanup · clean code · reduce duplication · DRY · naming improvement · simplify complexity · readability · codebase conventions · safe transformation · preserve tests · TDD · refactor phase
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-code-refactorer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when production code works but needs cleanup — reducing duplication, improving naming, simplifying complexity, or aligning with codebase conventions

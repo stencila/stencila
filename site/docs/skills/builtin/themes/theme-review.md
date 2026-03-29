@@ -26,6 +26,10 @@ Critically review an existing or proposed Stencila theme artifact for correctnes
 
 **Keywords:** review theme.css · critique theme · audit theme · assess theme · review document theme · review site theme · review pdf theme · review docx theme · review email theme · review plot theme · review navigation theme · review dark mode · design tokens · css custom properties · theme validation · cross-target portability · token correctness · theme approval
 
+> [!tip] Usage
+>
+> To use this skill, add `theme-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

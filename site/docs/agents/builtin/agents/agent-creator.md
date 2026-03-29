@@ -12,6 +12,10 @@ Creates or updates an agent
 
 **Keywords:** agent · create · scaffold · AGENT.md
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#agent-creator` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to create, scaffold, or set up a Stencila agent

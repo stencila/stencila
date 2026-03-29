@@ -14,6 +14,10 @@ Run three independent code reviews in parallel using Anthropic, OpenAI, and Goog
 
 **Keywords:** code review · parallel · multi-model · consensus · disagreement · prioritized findings
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~code-review-parallel` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when you want independent code reviews from multiple LLM families to reduce blind spots

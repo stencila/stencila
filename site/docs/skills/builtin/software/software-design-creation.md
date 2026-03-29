@@ -20,6 +20,10 @@ Create software design specifications for new features or standalone software. U
 
 **Keywords:** software design · design spec · software specification · technical specification · feature design · feature requirements · product requirements · requirements gathering · acceptance criteria · architecture · implementation planning · not code review
 
+> [!tip] Usage
+>
+> To use this skill, add `software-design-creation` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

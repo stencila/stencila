@@ -15,6 +15,10 @@ Generate an ephemeral workflow tailored to a user's goal and immediately execute
 
 **Keywords:** workflow · dynamic · generation · execution · orchestration · ephemeral · single-delegation
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~workflow-create-run` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a task needs a multi-step workflow but no existing workflow matches

@@ -28,6 +28,10 @@ Improve production code quality while preserving all existing test behavior. Com
 
 **Keywords:** refactoring · refactor phase · TDD · red green refactor · code quality · code cleanup · reduce duplication · DRY · naming improvement · simplify complexity · code style · extract function · extract type · inline variable · remove dead code · readability · maintainability · codebase conventions · preserve tests · safe transformation
 
+> [!tip] Usage
+>
+> To use this skill, add `software-code-refactoring` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |

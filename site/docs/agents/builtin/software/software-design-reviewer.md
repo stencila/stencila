@@ -20,6 +20,10 @@ Reviews software design specifications for quality, correctness, completeness, f
 
 **Keywords:** software design · design review · design spec review · technical plan · technical specification · architecture review · requirements review · acceptance criteria · feasibility · critique · audit · software-design-review
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-design-reviewer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when the user asks to review, audit, or critique a software design spec, technical plan, architecture proposal, or implementation plan

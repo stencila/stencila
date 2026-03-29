@@ -18,6 +18,10 @@ Verifies plan-level Definition of Done and completion criteria after all executi
 
 **Keywords:** delivery completion · definition of done · closeout · plan verification · final checks · delivery report · completion criteria · bounded closeout · plan-level checks · software delivery
 
+> [!tip] Usage
+>
+> To use this agent, start your prompt with `#software-delivery-completer` in the Stencila TUI, or select it with the `/agent` command. You can also reference it by name in a workflow pipeline.
+
 # When to use
 
 - when all execution slices of a delivery plan have been completed and plan-level completion criteria need to be verified

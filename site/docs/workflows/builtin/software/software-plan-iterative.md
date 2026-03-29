@@ -14,6 +14,10 @@ Create and iteratively refine a software delivery plan using the `software-plan-
 
 **Keywords:** software-plan · delivery-plan · implementation-plan · review · iterative · human-in-the-loop
 
+> [!tip] Usage
+>
+> To run this workflow, start your prompt with `~software-plan-iterative` followed by your goal, or select it with the `/workflow` command.
+
 # When to use
 
 - when a new software delivery plan needs to be drafted, reviewed, and refined before acceptance

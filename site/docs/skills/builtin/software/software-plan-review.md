@@ -19,6 +19,10 @@ Critically review a software delivery plan and suggest concrete improvements. Us
 
 **Keywords:** plan review · plan critique · delivery plan · implementation plan · task breakdown · risk assessment · testing strategy · TDD slice review · definition of done · not code review · not design creation
 
+> [!tip] Usage
+>
+> To use this skill, add `software-plan-review` to the `allowed-skills` list in your agent's AGENT.md. You can also ask `#agent-creator` to build an agent that uses it.
+
 # Configuration
 
 | Property | Value |
