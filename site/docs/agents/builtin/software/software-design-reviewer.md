@@ -39,6 +39,7 @@ Reviews software design specifications for quality, correctness, completeness, f
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep` |
 | Skills | [`software-design-review`](/docs/skills/builtin/software/software-design-review/) |

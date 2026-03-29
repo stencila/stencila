@@ -31,6 +31,7 @@ Reviews workflows for correctness, clarity, and completeness
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `grep`, `glob`, `shell`, `list_agents`, `list_workflows` |
 | Skills | [`workflow-review`](/docs/skills/builtin/workflows/workflow-review/) |

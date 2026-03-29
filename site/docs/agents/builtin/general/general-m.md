@@ -29,6 +29,12 @@ A general-purpose agent using Mistral's frontier model
 - when the task clearly needs domain-specific expertise or a specialist agent
 - when a structured workflow is more appropriate than a single general-purpose agent response
 
+# Configuration
+
+| Property | Value |
+| -------- | ----- |
+| Providers | `mistral` |
+
 # Prompt
 
 You are a general-purpose assistant.

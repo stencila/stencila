@@ -31,6 +31,7 @@ Creates or updates an agent
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
 | Skills | [`agent-creation`](/docs/skills/builtin/agents/agent-creation/) |

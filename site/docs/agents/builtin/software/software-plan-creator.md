@@ -38,6 +38,7 @@ Creates or updates software delivery plans from design specifications
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `ask_user` |
 | Skills | [`software-plan-creation`](/docs/skills/builtin/software/software-plan-creation/) |

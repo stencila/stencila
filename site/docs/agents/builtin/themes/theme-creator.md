@@ -44,6 +44,7 @@ Creates or updates Stencila theme CSS files using semantic tokens, module tokens
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `snap`, `ask_user` |
 | Skills | [`theme-creation`](/docs/skills/builtin/themes/theme-creation/) |

@@ -31,6 +31,7 @@ Reviews an agent for quality, correctness, and completeness
 | Property | Value |
 | -------- | ----- |
 | Model | `medium` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep`, `shell`, `ask_user` |
 | Skills | [`agent-review`](/docs/skills/builtin/agents/agent-review/) |

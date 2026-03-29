@@ -35,6 +35,7 @@ Creates or updates software design specifications
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `ask_user`, `web_fetch` |
 | Skills | [`software-design-creation`](/docs/skills/builtin/software/software-design-creation/) |

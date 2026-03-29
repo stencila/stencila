@@ -36,6 +36,7 @@ Writes failing tests for a TDD slice (Red phase). Given slice scope, acceptance 
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `high` |
 | Trust level | `medium` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |

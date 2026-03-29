@@ -537,6 +537,11 @@ fn build_agent_page(
         rows.push(("Model", val));
     }
 
+    if let Some(providers) = &agent.providers {
+        let formatted: Vec<String> = providers.iter().map(|t| format!("`{t}`")).collect();
+        rows.push(("Providers", formatted.join(", ")));
+    }
+
     if let Some(val) = &agent.reasoning_effort {
         rows.push(("Reasoning effort", format!("`{val}`")));
     }

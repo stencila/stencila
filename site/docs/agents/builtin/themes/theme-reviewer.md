@@ -43,6 +43,7 @@ Reviews Stencila theme artifacts for token correctness, cross-target portability
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep`, `shell`, `snap` |

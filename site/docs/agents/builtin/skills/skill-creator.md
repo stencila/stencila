@@ -31,6 +31,7 @@ Creates or updates a skill
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `write_file`, `edit_file`, `apply_patch`, `glob`, `grep`, `shell`, `ask_user` |
 | Skills | [`skill-creation`](/docs/skills/builtin/skills/skill-creation/) |

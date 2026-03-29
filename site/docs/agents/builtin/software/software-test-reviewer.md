@@ -39,6 +39,7 @@ Reviews tests written during the Red phase of a TDD slice, evaluating acceptance
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |

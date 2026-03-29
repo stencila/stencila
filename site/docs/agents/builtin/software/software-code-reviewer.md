@@ -39,6 +39,7 @@ Reviews source code for correctness, quality, security, style, and maintainabili
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Trust level | `low` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |

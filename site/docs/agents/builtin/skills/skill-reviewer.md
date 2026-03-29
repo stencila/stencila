@@ -31,6 +31,7 @@ Reviews a skill for quality, correctness, and completeness
 | Property | Value |
 | -------- | ----- |
 | Model | `large` |
+| Providers | `openai`, `anthropic`, `any` |
 | Reasoning effort | `high` |
 | Tools | `read_file`, `glob`, `grep`, `shell` |
 | Skills | [`skill-review`](/docs/skills/builtin/skills/skill-review/) |
