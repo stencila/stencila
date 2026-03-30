@@ -405,6 +405,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Show the current configuration</dim>
   <b>stencila config</b>
 
+  <dim># Show the current configuration explicitly</dim>
+  <b>stencila config show</b>
+
   <dim># Show configuration as JSON</dim>
   <b>stencila config get</b> <c>--as</c> <g>json</g>
 
@@ -430,6 +433,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 #[derive(Debug, Subcommand)]
 enum Command {
+    Show(Show),
     Get(Get),
     Set(Set),
     Unset(Unset),
@@ -440,15 +444,50 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         let Some(command) = self.command else {
             // Default to showing the entire config
-            return Get::default().run().await;
+            return Show::default().run().await;
         };
 
         match command {
+            Command::Show(show) => show.run().await,
             Command::Get(get) => get.run().await,
             Command::Set(set) => set.run().await,
             Command::Unset(unset) => unset.run().await,
             Command::Check(check) => check.run().await,
         }
+    }
+}
+
+/// Show the current configuration
+#[derive(Debug, Default, Args)]
+#[command(after_long_help = SHOW_AFTER_LONG_HELP)]
+struct Show {
+    /// Output format (toml, json, or yaml, default: yaml)
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
+
+pub static SHOW_AFTER_LONG_HELP: &str = cstr!(
+    "<bold><b>Examples</b></bold>
+
+  <dim># Show entire configuration</dim>
+  <b>stencila config show</b>
+
+  <dim># Show as JSON</dim>
+  <b>stencila config show</b> <c>--as</c> <g>json</g>
+
+  <dim># Show as TOML</dim>
+  <b>stencila config show</b> <c>--as</c> <g>toml</g>
+ "
+);
+
+impl Show {
+    async fn run(self) -> Result<()> {
+        Get {
+            key: None,
+            r#as: self.r#as,
+        }
+        .run()
+        .await
     }
 }
 
@@ -462,7 +501,7 @@ struct Get {
     /// Supports nested paths and array access (e.g., `packages[0].name`).
     key: Option<String>,
 
-    /// Output format (toml, json, or yaml, default: toml)
+    /// Output format (toml, json, or yaml, default: yaml)
     #[arg(long, short)]
     r#as: Option<AsFormat>,
 }
@@ -473,8 +512,14 @@ pub static GET_AFTER_LONG_HELP: &str = cstr!(
   <dim># Show entire configuration</dim>
   <b>stencila config get</b>
 
+  <dim># Show entire configuration as YAML (default)</dim>
+  <b>stencila config get</b>
+
   <dim># Show as JSON</dim>
   <b>stencila config get</b> <c>--as</c> <g>json</g>
+
+  <dim># Show as TOML</dim>
+  <b>stencila config get</b> <c>--as</c> <g>toml</g>
 
   <dim># Get a specific value</dim>
   <b>stencila config get</b> <g>site.id</g>
@@ -489,7 +534,7 @@ pub static GET_AFTER_LONG_HELP: &str = cstr!(
 
 impl Get {
     async fn run(self) -> Result<()> {
-        let format = self.r#as.map(Into::into).unwrap_or(Format::Toml);
+        let format = self.r#as.map(Into::into).unwrap_or(Format::Yaml);
 
         // Always use the singleton config for consistency
         let cfg = get()?;
