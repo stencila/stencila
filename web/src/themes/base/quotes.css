@@ -37,9 +37,11 @@
  */
 
 :root {
-    /* Quote block layout - breakout width
-     * Quote blocks break out by default; set --quote-block-max-width to 100% to disable */
-    --quote-block-max-width: var(--content-breakout-width);
+    /* Quote block layout - readable breakout width
+     * Quotes are wider than content-width for visual differentiation but
+     * capped at a readable line length (not the full breakout width used
+     * by tables, figures, and code blocks which need more room). */
+    --quote-block-max-width: calc(var(--work-content-max-width) + 20ch);
     --quote-block-max-width-mobile: var(--content-breakout-width-mobile);
     --quote-block-max-width-print: 100%;
 
@@ -52,12 +54,12 @@
     --quote-border-radius: var(--border-radius-default);
 
     --quote-spacing: var(--content-spacing);
-    --quote-padding: calc(var(--content-spacing) * 0.5);
+    --quote-padding: calc(var(--content-spacing) * 0.75);
     --quote-spacing-horizontal: calc(var(--content-spacing) * 0.75);
     --quote-spacing-horizontal-mobile: 0;
 
     --quote-font-style: italic;
-    --quote-font-size: calc(var(--text-font-size) * 1.125);
+    --quote-font-size: var(--text-font-size);
 
     --quote-inline-font-style: inherit;
     --quote-inline-quotes: auto;
@@ -100,9 +102,14 @@ stencila-quote-block {
         border-radius: var(--quote-border-radius);
     }
 
-    /* Remove default top margin from first paragraph to align with quote padding */
-    blockquote stencila-paragraph:first-child {
+    /* Remove spacing on first/last elements inside blockquote to avoid double spacing with padding.
+     * Targets all child types, not just paragraphs — blockquotes can contain lists, code blocks, etc. */
+    blockquote > :first-child {
         margin-top: 0;
+    }
+
+    blockquote > :last-child {
+        margin-bottom: 0;
     }
 }
 
