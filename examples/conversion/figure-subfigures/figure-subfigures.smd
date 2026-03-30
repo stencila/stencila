@@ -73,7 +73,7 @@ A figure with four subfigures showing colored placeholders.
 
     ::: figure
     
-        ::: include subfigure.ipynb
+    ::: include subfigure.ipynb
 
     A line graph included from subfigure.ipynb
 

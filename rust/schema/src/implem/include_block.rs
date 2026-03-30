@@ -105,8 +105,9 @@ impl MarkdownCodec for IncludeBlock {
         } else if matches!(context.format, Format::Smd) {
             // For SMD, encode as an include block
             context
-                .push_colons()
-                .push_str(" include ")
+                // Because there is no nested content, ident less 1
+                .push_indent_less(1)
+                .push_str("::: include ")
                 .push_prop_str(NodeProperty::Source, &self.source);
 
             if self.execution_mode.is_some() || self.media_type.is_some() || self.select.is_some() {

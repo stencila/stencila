@@ -58,21 +58,21 @@ start     end        offsets   node_type+property                   authorship
    778    784       (53, 13)   CodeChunk.programmingLanguage
    794   1105      (16, 321)   CodeChunk.code
    705   1123      (-89, 18)   CodeChunk
-  1164   1179      (459, 56)   IncludeBlock.source
-  1144   1180       (-20, 1)   IncludeBlock
-  1144   1181         (0, 1)   Figure.content
-  1185   1227       (41, 46)   Text.value
-  1185   1227         (0, 0)   Text
-  1185   1227         (0, 0)   Paragraph.content
-  1185   1228         (0, 1)   Paragraph
-  1181   1229        (-4, 1)   Figure.caption
-  1124   1237       (-57, 8)   Figure
-   533   1238      (-591, 1)   Figure.content
-  1238   1295      (705, 57)   Text.value
-  1238   1295         (0, 0)   Text
-  1238   1295         (0, 0)   Paragraph.content
-  1238   1296         (0, 1)   Paragraph
-  1238   1297         (0, 1)   Figure.caption
-   521   1301      (-717, 4)   Figure
-     0   1302      (-521, 1)   Article.content
-     0   1302         (0, 0)   Article
+  1160   1175      (455, 52)   IncludeBlock.source
+  1144   1176       (-16, 1)   IncludeBlock
+  1144   1177         (0, 1)   Figure.content
+  1181   1223       (37, 46)   Text.value
+  1181   1223         (0, 0)   Text
+  1181   1223         (0, 0)   Paragraph.content
+  1181   1224         (0, 1)   Paragraph
+  1177   1225        (-4, 1)   Figure.caption
+  1124   1233       (-53, 8)   Figure
+   533   1234      (-591, 1)   Figure.content
+  1234   1291      (701, 57)   Text.value
+  1234   1291         (0, 0)   Text
+  1234   1291         (0, 0)   Paragraph.content
+  1234   1292         (0, 1)   Paragraph
+  1234   1293         (0, 1)   Figure.caption
+   521   1297      (-713, 4)   Figure
+     0   1298      (-521, 1)   Article.content
+     0   1298         (0, 0)   Article
