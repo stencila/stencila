@@ -54,7 +54,7 @@ content:
     content:
     - type: Text
       value:
-        string: A figure with two code chunk subfigures producing charts.
+        string: A figure with two code chunk subfigures and a transcluded subfigure.
   content:
   - type: CodeChunk
     code:

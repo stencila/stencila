@@ -79,6 +79,6 @@ A figure with four subfigures showing colored placeholders.
 
     :::
 
-A figure with two code chunk subfigures producing charts.
+A figure with two code chunk subfigures and a transcluded subfigure.
 
 :::

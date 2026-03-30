@@ -68,11 +68,11 @@ start     end        offsets   node_type+property                   authorship
   1177   1225        (-4, 1)   Figure.caption
   1124   1233       (-53, 8)   Figure
    533   1234      (-591, 1)   Figure.content
-  1234   1291      (701, 57)   Text.value
-  1234   1291         (0, 0)   Text
-  1234   1291         (0, 0)   Paragraph.content
-  1234   1292         (0, 1)   Paragraph
-  1234   1293         (0, 1)   Figure.caption
-   521   1297      (-713, 4)   Figure
-     0   1298      (-521, 1)   Article.content
-     0   1298         (0, 0)   Article
+  1234   1302      (701, 68)   Text.value
+  1234   1302         (0, 0)   Text
+  1234   1302         (0, 0)   Paragraph.content
+  1234   1303         (0, 1)   Paragraph
+  1234   1304         (0, 1)   Figure.caption
+   521   1308      (-713, 4)   Figure
+     0   1309      (-521, 1)   Article.content
+     0   1309         (0, 0)   Article

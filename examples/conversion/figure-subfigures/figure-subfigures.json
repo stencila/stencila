@@ -106,7 +106,7 @@
           "content": [
             {
               "type": "Text",
-              "value": "A figure with two code chunk subfigures producing charts."
+              "value": "A figure with two code chunk subfigures and a transcluded subfigure."
             }
           ]
         }

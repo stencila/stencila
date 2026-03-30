@@ -48,6 +48,6 @@ A line graph included from subfigure.ipynb
 
 :::::
 
-A figure with two code chunk subfigures producing charts.
+A figure with two code chunk subfigures and a transcluded subfigure.
 
 :::

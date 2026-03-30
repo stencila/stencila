@@ -24,6 +24,6 @@ start     end        offsets   node_type+property                   authorship
   1144   1175      (439, 53)   IncludeBlock
   1177   1223       (33, 48)   Paragraph
   1124   1232       (-53, 9)   Figure
-  1234   1291      (110, 59)   Paragraph
-   521   1296      (-713, 5)   Figure
-     0   1297      (-521, 1)   Article
+  1234   1302      (110, 70)   Paragraph
+   521   1307      (-713, 5)   Figure
+     0   1308      (-521, 1)   Article

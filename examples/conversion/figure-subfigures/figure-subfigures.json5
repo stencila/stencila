@@ -105,7 +105,7 @@
           content: [
             {
               type: "Text",
-              value: { string: "A figure with two code chunk subfigures producing charts." }
+              value: { string: "A figure with two code chunk subfigures and a transcluded subfigure." }
             }
           ]
         }
