@@ -5,7 +5,9 @@ description: "Skills for the design, planning, implementation, testing, review, 
 
 Skills for the design, planning, implementation, testing, review, and delivery of software.
 
-To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter e.g. `allowed-skills: software-design-creation`. When creating a new agent, you can prompt the `#agent-creator` agent or the `~agent-creation-iterative` workflow to use specific skills.
+> [!tip] Usage
+>
+> To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter e.g. `allowed-skills: software-design-creation`. When creating a new agent, you can prompt the `#agent-creator` agent or the `~agent-creation-iterative` workflow to use specific skills.
 
 - [**Software Design Creation Skill**](./software-design-creation/): Create software design specifications for new features or standalone software. Use when the user needs help turning a brief idea into a concrete design spec by eliciting missing requirements, clarifying scope, defining users and constraints, outlining architecture and interfaces, identifying risks and assumptions, and writing acceptance criteria that developers can later use for planning and implementation.
 - [**Software Design Review Skill**](./software-design-review/): Critically review a software design specification and suggest concrete improvements. Use when the user wants to review, critique, audit, evaluate, or strengthen a design spec, technical specification, feature design, architecture proposal, or implementation plan. Focus on clarity, completeness, correctness, feasibility, tradeoffs, risks, assumptions, and actionable recommendations that improve the design without turning the task into code generation or workflow design.

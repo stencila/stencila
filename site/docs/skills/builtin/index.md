@@ -5,7 +5,9 @@ description: Builtin skills that ship with Stencila.
 
 Builtin skills ship with Stencila and are available in every workspace without additional configuration.
 
-To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter. When creating a new agent, you can prompt the `#agent-creator` agent or run `~agent-creation-iterative` workflow and specify which skills it should use.
+> [!tip] Usage
+>
+> To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter. When creating a new agent, you can prompt the `#agent-creator` agent or run `~agent-creation-iterative` workflow and specify which skills it should use.
 
 ## Themes
 

@@ -5,7 +5,9 @@ description: "Agents for the design, planning, implementation, testing, review, 
 
 Agents for the design, planning, implementation, testing, review, and delivery of software.
 
-You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-design-creator`. Agents can also be referenced by name in workflow node definitions.
+> [!tip] Usage
+>
+> You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-design-creator`. Agents can also be referenced by name in workflow node definitions.
 
 - [**Software Design Creator Agent**](./software-design-creator/): Creates or updates software design specifications
 - [**Software Design Reviewer Agent**](./software-design-reviewer/): Reviews software design specifications for quality, correctness, completeness, feasibility, and architecture

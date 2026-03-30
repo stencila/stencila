@@ -145,9 +145,11 @@ async fn generate_builtin_workflow_pages(repo_root: &Path, docs_root: &Path) -> 
         writeln!(cat_index, "{}\n", category.prelude)?;
 
         let first_workflow = &category.workflows[0];
+        writeln!(cat_index, "> [!tip] Usage")?;
+        writeln!(cat_index, ">")?;
         writeln!(
             cat_index,
-            "You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, \
+            "> You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, \
              or by starting your prompt with `~workflow-name` e.g. `~{first_workflow}`.\n",
         )?;
 
@@ -180,7 +182,9 @@ title: Builtin Workflows\n\
 description: Builtin workflows that ship with Stencila.\n\
 ---\n\n\
 Builtin workflows ship with Stencila and are available in every workspace without additional configuration.\n\n\
-You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.\n",
+> [!tip] Usage\n\
+>\n\
+> You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.\n",
     );
 
     for category in categories {

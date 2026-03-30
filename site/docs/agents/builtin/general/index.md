@@ -5,7 +5,9 @@ description: "General-purpose agents handle a wide range of tasks and route requ
 
 General-purpose agents handle a wide range of tasks and route requests to specialized agents when appropriate.
 
-You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#manager`. Agents can also be referenced by name in workflow node definitions.
+> [!tip] Usage
+>
+> You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#manager`. Agents can also be referenced by name in workflow node definitions.
 
 - [**Manager Agent**](./manager/): Routes user requests to the most appropriate agent or workflow.
 - [**General Agent**](./general/): A general-purpose agent using the default model provider

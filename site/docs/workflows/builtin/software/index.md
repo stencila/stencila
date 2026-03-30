@@ -5,7 +5,9 @@ description: "Workflows for the design, planning, implementation, testing, revie
 
 Workflows for the design, planning, implementation, testing, review, and delivery of software.
 
-You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-design-iterative`.
+> [!tip] Usage
+>
+> You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-design-iterative`.
 
 - [**Software Design Iterative Workflow**](./software-design-iterative/): Create and iteratively refine a software design specification using the `software-design-creator` and `software-design-reviewer` agents, with human review, optional commit, and revision loops until accepted
 - [**Software Plan Iterative Workflow**](./software-plan-iterative/): Create and iteratively refine a software delivery plan using the `software-plan-creator` and `software-plan-reviewer` agents, with human review, optional commit, and revision loops until accepted

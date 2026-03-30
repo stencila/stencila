@@ -107,9 +107,11 @@ async fn generate_builtin_skill_pages(repo_root: &Path, docs_root: &Path) -> Res
         writeln!(cat_index, "{}\n", category.prelude)?;
 
         let first_skill = &category.skills[0];
+        writeln!(cat_index, "> [!tip] Usage")?;
+        writeln!(cat_index, ">")?;
         writeln!(
             cat_index,
-            "To give an agent access to a skill, add it to the `allowed-skills` list in the agent's \
+            "> To give an agent access to a skill, add it to the `allowed-skills` list in the agent's \
              AGENT.md frontmatter e.g. `allowed-skills: {first_skill}`. \
              When creating a new agent, you can prompt the `#agent-creator` agent or the `~agent-creation-iterative` \
              workflow to use specific skills.\n",
@@ -142,7 +144,9 @@ title: Builtin Skills\n\
 description: Builtin skills that ship with Stencila.\n\
 ---\n\n\
 Builtin skills ship with Stencila and are available in every workspace without additional configuration.\n\n\
-To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter. When creating a new agent, you can prompt the `#agent-creator` agent or run `~agent-creation-iterative` workflow and specify which skills it should use.\n",
+> [!tip] Usage\n\
+>\n\
+> To give an agent access to a skill, add it to the `allowed-skills` list in the agent's AGENT.md frontmatter. When creating a new agent, you can prompt the `#agent-creator` agent or run `~agent-creation-iterative` workflow and specify which skills it should use.\n",
     );
 
     for category in categories {

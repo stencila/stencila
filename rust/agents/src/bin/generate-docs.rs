@@ -297,9 +297,11 @@ async fn generate_builtin_agent_pages(repo_root: &Path, docs_root: &Path) -> Res
         writeln!(cat_index, "{}\n", category.prelude)?;
 
         let first_agent = &category.agents[0];
+        writeln!(cat_index, "> [!tip] Usage")?;
+        writeln!(cat_index, ">")?;
         writeln!(
             cat_index,
-            "You can use these agents in the Stencila TUI by selecting one with the `/agent` command, \
+            "> You can use these agents in the Stencila TUI by selecting one with the `/agent` command, \
              or by starting your prompt with `#agent-name` e.g. `#{first_agent}`. \
              Agents can also be referenced by name in workflow node definitions.\n",
         )?;
@@ -331,7 +333,9 @@ title: Builtin Agents\n\
 description: Builtin agents that ship with Stencila.\n\
 ---\n\n\
 Builtin agents ship with Stencila and are available in every workspace without additional configuration.\n\n\
-You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.\n",
+> [!tip] Usage\n\
+>\n\
+> You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.\n",
     );
 
     for category in categories {

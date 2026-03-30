@@ -5,7 +5,9 @@ description: Builtin agents that ship with Stencila.
 
 Builtin agents ship with Stencila and are available in every workspace without additional configuration.
 
-You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.
+> [!tip] Usage
+>
+> You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.
 
 ## Themes
 

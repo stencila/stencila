@@ -5,7 +5,9 @@ description: Builtin workflows that ship with Stencila.
 
 Builtin workflows ship with Stencila and are available in every workspace without additional configuration.
 
-You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.
+> [!tip] Usage
+>
+> You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.
 
 ## Themes
 
