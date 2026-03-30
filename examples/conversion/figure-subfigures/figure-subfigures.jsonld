@@ -1,0 +1,197 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A figure with four subfigures showing colored placeholders."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:content": [
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A red placeholder image."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/e74c3c/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A green placeholder image."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/2ecc71/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A blue placeholder image."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/3498db/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "An orange placeholder image."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/f39c12/fff"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A figure with two code chunk subfigures producing charts."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:content": [
+        {
+          "@type": "stencila:CodeChunk",
+          "stencila:code": {
+            "string": "hist(rnorm(1000), col = \"lightblue\", main = \"\")"
+          },
+          "programmingLanguage": "r",
+          "stencila:labelType": "FigureLabel",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A light blue histogram of random normal values generated in R."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "stencila:CodeChunk",
+          "stencila:code": {
+            "string": "{\n  \"data\": [\n    {\n      \"type\": \"bar\",\n      \"x\": [\"A\", \"B\", \"C\", \"D\", \"E\"],\n      \"y\": [4, 7, 2, 9, 5],\n      \"marker\": {\"color\": \"pink\"}\n    }\n  ],\n  \"layout\": {\n    \"xaxis\": {\"title\": {\"text\": \"Category\"}},\n    \"yaxis\": {\"title\": {\"text\": \"Value\"}}\n  }\n}"
+          },
+          "programmingLanguage": "plotly",
+          "stencila:labelType": "FigureLabel",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A pink bar chart generated using Plotly."
+                  }
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "A line graph included from subfigure.ipynb"
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "stencila:IncludeBlock",
+              "stencila:source": "subfigure.ipynb"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

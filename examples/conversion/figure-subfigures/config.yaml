@@ -1,0 +1,19 @@
+jats.xml:
+  encode:
+    skip: true
+    
+compact.jats.xml:
+  encode:
+    skip: true
+
+myst:
+  encode:
+    skip: true
+
+qmd:
+  encode:
+    skip: true
+
+txt:
+  encode:
+    skip: true

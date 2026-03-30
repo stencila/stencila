@@ -1,0 +1,172 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A figure with four subfigures showing colored placeholders."
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/e74c3c/fff"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A red placeholder image."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/2ecc71/fff"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A green placeholder image."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/3498db/fff"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A blue placeholder image."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "https://placehold.co/400x300/f39c12/fff"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "An orange placeholder image."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Figure",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A figure with two code chunk subfigures producing charts."
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "CodeChunk",
+          "programmingLanguage": "r",
+          "code": "hist(rnorm(1000), col = \"lightblue\", main = \"\")",
+          "labelType": "FigureLabel",
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A light blue histogram of random normal values generated in R."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "CodeChunk",
+          "programmingLanguage": "plotly",
+          "code": "{\n  \"data\": [\n    {\n      \"type\": \"bar\",\n      \"x\": [\"A\", \"B\", \"C\", \"D\", \"E\"],\n      \"y\": [4, 7, 2, 9, 5],\n      \"marker\": {\"color\": \"pink\"}\n    }\n  ],\n  \"layout\": {\n    \"xaxis\": {\"title\": {\"text\": \"Category\"}},\n    \"yaxis\": {\"title\": {\"text\": \"Value\"}}\n  }\n}",
+          "labelType": "FigureLabel",
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A pink bar chart generated using Plotly."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "IncludeBlock",
+              "source": "subfigure.ipynb"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "A line graph included from subfigure.ipynb"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

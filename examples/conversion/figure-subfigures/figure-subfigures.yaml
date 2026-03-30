@@ -1,0 +1,104 @@
+type: Article
+content:
+- type: Figure
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A figure with four subfigures showing colored placeholders.
+  content:
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A red placeholder image.
+    content:
+    - type: ImageObject
+      contentUrl: https://placehold.co/400x300/e74c3c/fff
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A green placeholder image.
+    content:
+    - type: ImageObject
+      contentUrl: https://placehold.co/400x300/2ecc71/fff
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A blue placeholder image.
+    content:
+    - type: ImageObject
+      contentUrl: https://placehold.co/400x300/3498db/fff
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: An orange placeholder image.
+    content:
+    - type: ImageObject
+      contentUrl: https://placehold.co/400x300/f39c12/fff
+- type: Figure
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A figure with two code chunk subfigures producing charts.
+  content:
+  - type: CodeChunk
+    code:
+      string: hist(rnorm(1000), col = "lightblue", main = "")
+    programmingLanguage: r
+    labelType: FigureLabel
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A light blue histogram of random normal values generated in R.
+  - type: CodeChunk
+    code:
+      string: |-
+        {
+          "data": [
+            {
+              "type": "bar",
+              "x": ["A", "B", "C", "D", "E"],
+              "y": [4, 7, 2, 9, 5],
+              "marker": {"color": "pink"}
+            }
+          ],
+          "layout": {
+            "xaxis": {"title": {"text": "Category"}},
+            "yaxis": {"title": {"text": "Value"}}
+          }
+        }
+    programmingLanguage: plotly
+    labelType: FigureLabel
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A pink bar chart generated using Plotly.
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: A line graph included from subfigure.ipynb
+    content:
+    - type: IncludeBlock
+      source: subfigure.ipynb

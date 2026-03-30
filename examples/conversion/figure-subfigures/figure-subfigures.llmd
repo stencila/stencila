@@ -1,0 +1,53 @@
+::: figure
+
+::::: figure
+
+![](https://placehold.co/400x300/e74c3c/fff)
+
+A red placeholder image.
+
+:::::
+
+::::: figure
+
+![](https://placehold.co/400x300/2ecc71/fff)
+
+A green placeholder image.
+
+:::::
+
+::::: figure
+
+![](https://placehold.co/400x300/3498db/fff)
+
+A blue placeholder image.
+
+:::::
+
+::::: figure
+
+![](https://placehold.co/400x300/f39c12/fff)
+
+An orange placeholder image.
+
+:::::
+
+A figure with four subfigures showing colored placeholders.
+
+:::
+
+::: figure
+
+Figure A light blue histogram of random normal values generated in R.
+
+Figure A pink bar chart generated using Plotly.
+
+::::: figure
+
+A line graph included from subfigure.ipynb
+
+:::::
+
+A figure with two code chunk subfigures producing charts.
+
+:::

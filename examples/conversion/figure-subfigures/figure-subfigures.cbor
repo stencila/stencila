@@ -1,0 +1,14 @@
+¿dtypegArticlegcontent‚¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx;A figure with four subfigures showing colored placeholders.gcontent„¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringxA red placeholder image.gcontent¿dtypekImageObjectjcontentUrlx'https://placehold.co/400x300/e74c3c/fffÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringxA green placeholder image.gcontent¿dtypekImageObjectjcontentUrlx'https://placehold.co/400x300/2ecc71/fffÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringxA blue placeholder image.gcontent¿dtypekImageObjectjcontentUrlx'https://placehold.co/400x300/3498db/fffÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringxAn orange placeholder image.gcontent¿dtypekImageObjectjcontentUrlx'https://placehold.co/400x300/f39c12/fffÿÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx9A figure with two code chunk subfigures producing charts.gcontentƒ¿dtypeiCodeChunkdcode¡fstringx/hist(rnorm(1000), col = "lightblue", main = "")sprogrammingLanguagearilabelTypekFigureLabelgcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx>A light blue histogram of random normal values generated in R.ÿ¿dtypeiCodeChunkdcode¡fstringy{
+  "data": [
+    {
+      "type": "bar",
+      "x": ["A", "B", "C", "D", "E"],
+      "y": [4, 7, 2, 9, 5],
+      "marker": {"color": "pink"}
+    }
+  ],
+  "layout": {
+    "xaxis": {"title": {"text": "Category"}},
+    "yaxis": {"title": {"text": "Value"}}
+  }
+}sprogrammingLanguagefplotlyilabelTypekFigureLabelgcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx(A pink bar chart generated using Plotly.ÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx*A line graph included from subfigure.ipynbgcontent¿dtypelIncludeBlockfsourceosubfigure.ipynbÿÿÿÿ
