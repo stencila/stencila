@@ -311,8 +311,8 @@ async fn convert_encode_losses_propagated() -> Result<()> {
     assert!(
         loss_json
             .as_object()
-            .is_some_and(|obj| obj.contains_key("encode:generic")),
-        "Encode losses should contain 'encode:generic' when using generic fallback, got: {loss_json:?}"
+            .is_some_and(|obj| obj.contains_key("generic")),
+        "Encode losses should contain 'generic' when using generic fallback, got: {loss_json:?}"
     );
 
     Ok(())
@@ -358,16 +358,16 @@ async fn convert_decode_losses_propagated() -> Result<()> {
         .expect("Losses should serialize to a JSON object");
 
     assert!(
-        loss_obj.contains_key("decode:unknown_block_to_raw"),
-        "Decode losses should contain 'decode:unknown_block_to_raw', got: {loss_json:?}"
+        loss_obj.contains_key("unknown_block_to_raw"),
+        "Decode losses should contain 'unknown_block_to_raw', got: {loss_json:?}"
     );
     assert!(
-        loss_obj.contains_key("decode:unknown_inline_to_text"),
-        "Decode losses should contain 'decode:unknown_inline_to_text', got: {loss_json:?}"
+        loss_obj.contains_key("unknown_inline_to_text"),
+        "Decode losses should contain 'unknown_inline_to_text', got: {loss_json:?}"
     );
     assert!(
-        loss_obj.contains_key("decode:oxa_classes_dropped"),
-        "Decode losses should contain 'decode:oxa_classes_dropped', got: {loss_json:?}"
+        loss_obj.contains_key("oxa_classes_dropped"),
+        "Decode losses should contain 'oxa_classes_dropped', got: {loss_json:?}"
     );
 
     Ok(())
