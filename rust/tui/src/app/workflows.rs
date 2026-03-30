@@ -28,12 +28,26 @@ impl App {
     /// canonical pre-run interview. When `false` (used by delegation) the
     /// caller is expected to call [`submit_workflow_goal`] separately.
     pub(super) fn activate_workflow(&mut self, info: WorkflowDefinitionInfo, auto_start: bool) {
+        self.activate_workflow_with_inline_goal(info, auto_start, None);
+    }
+
+    /// Enter workflow mode, optionally pre-seeding the goal from an inline
+    /// tilde shortcut (e.g. `~theme-creation a dark theme`).
+    ///
+    /// When `inline_goal` is `Some`, it takes precedence over the workflow
+    /// definition's default goal for both the input field and the spawned run.
+    pub(super) fn activate_workflow_with_inline_goal(
+        &mut self,
+        info: WorkflowDefinitionInfo,
+        auto_start: bool,
+        inline_goal: Option<String>,
+    ) {
         self.cancel_active_workflow();
         self.mode = super::AppMode::Workflow;
-        let default_goal = info.goal.clone();
+        let effective_goal = inline_goal.or_else(|| info.goal.clone());
         self.active_workflow = Some(ActiveWorkflow::new_pending(info));
 
-        if let Some(goal) = &default_goal {
+        if let Some(goal) = &effective_goal {
             self.input.set_text(goal);
         } else {
             self.input.clear();
@@ -58,12 +72,12 @@ impl App {
 
         // Start the workflow immediately so the runtime can emit the canonical
         // pre-run interview (goal prompt, gate timeout questions, etc.).
-        // Pass the real default goal if present; otherwise pass `None` so the
+        // Pass the effective goal if present; otherwise pass `None` so the
         // runtime's pre-run interview can ask for one instead of using a
         // synthetic placeholder.
         if should_start_run {
             self.submit_workflow_goal(
-                default_goal,
+                effective_goal,
                 stencila_workflows::GateTimeoutConfig::default(),
             );
         }
@@ -1026,5 +1040,59 @@ mod tests {
             workflow.run_handle.is_none(),
             "test harness should not spawn a real run"
         );
+    }
+
+    #[tokio::test]
+    async fn inline_goal_overrides_default_goal() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow_with_inline_goal(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: Some("default goal".to_string()),
+                goal_hint: None,
+            },
+            false,
+            Some("inline goal from tilde shortcut".to_string()),
+        );
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert_eq!(app.input.text(), "inline goal from tilde shortcut");
+    }
+
+    #[tokio::test]
+    async fn inline_goal_used_when_no_default_goal() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow_with_inline_goal(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: None,
+                goal_hint: None,
+            },
+            false,
+            Some("goal from tilde".to_string()),
+        );
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert_eq!(app.input.text(), "goal from tilde");
+    }
+
+    #[tokio::test]
+    async fn no_inline_goal_falls_back_to_default() {
+        let mut app = App::new_for_test().await;
+        app.activate_workflow_with_inline_goal(
+            WorkflowDefinitionInfo {
+                name: "test-wf".to_string(),
+                description: String::new(),
+                goal: Some("default goal".to_string()),
+                goal_hint: None,
+            },
+            false,
+            None,
+        );
+
+        assert_eq!(app.mode, AppMode::Workflow);
+        assert_eq!(app.input.text(), "default goal");
     }
 }

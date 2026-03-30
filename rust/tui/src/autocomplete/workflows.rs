@@ -22,6 +22,9 @@ pub struct WorkflowAcceptResult {
     pub info: WorkflowDefinitionInfo,
     /// Byte range in the input to clear (the `~query` token).
     pub range: Range<usize>,
+    /// Inline goal text appended after the workflow name (e.g.
+    /// `~theme-creation a dark theme` → `"a dark theme"`).
+    pub inline_goal: Option<String>,
 }
 
 /// State for the workflow picker popup.
@@ -43,6 +46,8 @@ pub struct WorkflowsState {
     token_range: Range<usize>,
     /// Whether this popup was opened via the `~` trigger (vs `/workflow`).
     tilde_mode: bool,
+    /// Inline goal text extracted from `~workflow-name goal text`.
+    inline_goal: Option<String>,
 }
 
 impl WorkflowsState {
@@ -54,6 +59,7 @@ impl WorkflowsState {
             selected: 0,
             token_range: 0..0,
             tilde_mode: false,
+            inline_goal: None,
         }
     }
 
@@ -97,17 +103,19 @@ impl WorkflowsState {
             return;
         }
 
-        let Some((range, query)) = find_tilde_token(input, cursor) else {
+        let Some((range, query, inline_goal)) = find_tilde_token(input, cursor) else {
             if self.tilde_mode {
                 self.visible = false;
                 self.candidates.clear();
                 self.selected = 0;
+                self.inline_goal = None;
             }
             return;
         };
 
         self.tilde_mode = true;
         self.token_range = range;
+        self.inline_goal = inline_goal.map(std::string::ToString::to_string);
 
         let query_lower = query.to_ascii_lowercase();
         self.candidates = all_workflows
@@ -161,11 +169,13 @@ impl WorkflowsState {
         let info = self.candidates[self.selected].info.clone();
         let range = self.token_range.clone();
         let tilde = self.tilde_mode;
+        let inline_goal = self.inline_goal.take();
         self.dismiss();
 
         Some(WorkflowAcceptResult {
             info,
             range: if tilde { range } else { 0..0 },
+            inline_goal: if tilde { inline_goal } else { None },
         })
     }
 
@@ -176,39 +186,76 @@ impl WorkflowsState {
         self.selected = 0;
         self.token_range = 0..0;
         self.tilde_mode = false;
+        self.inline_goal = None;
     }
 }
 
-/// Find a `~word` workflow token at position 0 of the input.
+/// Find a `~word` or `~word goal text` workflow token at position 0.
 ///
-/// Returns the byte range of the token (from `~` through any trailing valid
-/// characters) and the query string after `~` up to the cursor.
-/// Returns `None` if the input doesn't start with `~` or the cursor is not
-/// within the token.
-fn find_tilde_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str)> {
+/// Returns `(range, name_query, inline_goal)`:
+/// - `range` — byte range of the entire token (from `~` to the end of input),
+///   used for clearing the input on accept.
+/// - `name_query` — the workflow-name portion after `~` up to the cursor (or
+///   up to the first space, whichever comes first), used for popup filtering.
+/// - `inline_goal` — text after the first space following the workflow name,
+///   if present. E.g. `~theme-creation a dark theme` yields
+///   `Some("a dark theme")`.
+///
+/// Returns `None` if the input doesn't start with `~` or the cursor is before
+/// the `~`.
+fn find_tilde_token(input: &str, cursor: usize) -> Option<(Range<usize>, &str, Option<&str>)> {
     if !input.starts_with('~') || cursor < 1 {
         return None;
     }
 
-    let after_tilde = &input[1..cursor];
-    if !after_tilde
-        .chars()
-        .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
-    {
-        return None;
-    }
+    let after_tilde = &input[1..];
 
-    // Token extends from `~` through any contiguous valid chars after cursor
-    let mut end = cursor;
-    for c in input[cursor..].chars() {
-        if c.is_alphanumeric() || c == '-' || c == '_' {
-            end += c.len_utf8();
-        } else {
-            break;
+    // Find the end of the workflow-name portion (alphanumeric, `-`, `_`).
+    let name_end = after_tilde
+        .find(|c: char| !(c.is_alphanumeric() || c == '-' || c == '_'))
+        .unwrap_or(after_tilde.len());
+
+    // The characters between `~` and the cursor must be within the name or
+    // goal portion. Validate that the name part (before any space) contains
+    // only valid chars.
+    let cursor_offset = cursor - 1; // offset into after_tilde
+    if cursor_offset <= name_end {
+        // Cursor is within the name portion — validate all chars up to cursor.
+        let up_to_cursor = &after_tilde[..cursor_offset];
+        if !up_to_cursor
+            .chars()
+            .all(|c| c.is_alphanumeric() || c == '-' || c == '_')
+        {
+            return None;
+        }
+    } else {
+        // Cursor is past the name — the character right after the name must
+        // be a space (the separator between name and inline goal).
+        if !after_tilde[name_end..].starts_with(' ') {
+            return None;
         }
     }
 
-    Some((0..end, after_tilde))
+    // The name query for filtering is the name portion up to the cursor (or
+    // the full name if the cursor is past it).
+    let name_query = &after_tilde[..name_end.min(cursor_offset)];
+
+    // The entire input is the token range (name + optional goal).
+    let range = 0..input.len();
+
+    // Extract inline goal: everything after the first space past the name.
+    let inline_goal = if name_end < after_tilde.len() && after_tilde.as_bytes()[name_end] == b' ' {
+        let goal_text = after_tilde[name_end + 1..].trim();
+        if goal_text.is_empty() {
+            None
+        } else {
+            Some(goal_text)
+        }
+    } else {
+        None
+    };
+
+    Some((range, name_query, inline_goal))
 }
 
 #[cfg(test)]
@@ -447,31 +494,31 @@ mod tests {
     #[test]
     fn find_tilde_bare() {
         let result = find_tilde_token("~", 1);
-        assert_eq!(result, Some((0..1, "")));
+        assert_eq!(result, Some((0..1, "", None)));
     }
 
     #[test]
     fn find_tilde_with_name() {
         let result = find_tilde_token("~deploy", 7);
-        assert_eq!(result, Some((0..7, "deploy")));
+        assert_eq!(result, Some((0..7, "deploy", None)));
     }
 
     #[test]
     fn find_tilde_partial_name() {
         let result = find_tilde_token("~dep", 4);
-        assert_eq!(result, Some((0..4, "dep")));
+        assert_eq!(result, Some((0..4, "dep", None)));
     }
 
     #[test]
     fn find_tilde_with_hyphen() {
         let result = find_tilde_token("~code-review", 12);
-        assert_eq!(result, Some((0..12, "code-review")));
+        assert_eq!(result, Some((0..12, "code-review", None)));
     }
 
     #[test]
     fn find_tilde_with_underscore() {
         let result = find_tilde_token("~my_workflow", 12);
-        assert_eq!(result, Some((0..12, "my_workflow")));
+        assert_eq!(result, Some((0..12, "my_workflow", None)));
     }
 
     #[test]
@@ -483,7 +530,7 @@ mod tests {
     #[test]
     fn find_tilde_cursor_mid_token() {
         let result = find_tilde_token("~deploy", 4);
-        assert_eq!(result, Some((0..7, "dep")));
+        assert_eq!(result, Some((0..7, "dep", None)));
     }
 
     #[test]
@@ -502,5 +549,82 @@ mod tests {
     fn find_tilde_invalid_chars() {
         let result = find_tilde_token("~foo.bar", 8);
         assert!(result.is_none());
+    }
+
+    // --- Inline goal tests ---
+
+    #[test]
+    fn find_tilde_with_inline_goal() {
+        let result = find_tilde_token("~deploy to staging", 18);
+        assert_eq!(result, Some((0..18, "deploy", Some("to staging"))));
+    }
+
+    #[test]
+    fn find_tilde_with_inline_goal_cursor_in_name() {
+        let result = find_tilde_token("~deploy to staging", 4);
+        assert_eq!(result, Some((0..18, "dep", Some("to staging"))));
+    }
+
+    #[test]
+    fn find_tilde_space_only_no_goal() {
+        let result = find_tilde_token("~deploy ", 8);
+        assert_eq!(result, Some((0..8, "deploy", None)));
+    }
+
+    #[test]
+    fn find_tilde_space_cursor_at_space() {
+        let result = find_tilde_token("~deploy goal", 8);
+        assert_eq!(result, Some((0..12, "deploy", Some("goal"))));
+    }
+
+    #[test]
+    fn find_tilde_inline_goal_with_special_chars() {
+        let result = find_tilde_token("~theme-creation a theme for example.com", 39);
+        assert_eq!(
+            result,
+            Some((0..39, "theme-creation", Some("a theme for example.com")))
+        );
+    }
+
+    #[test]
+    fn tilde_with_inline_goal_filters_by_name() {
+        let mut state = WorkflowsState::new();
+        state.update("~deploy to staging", 18, &sample_candidates());
+        assert!(state.is_visible());
+        assert_eq!(state.candidates().len(), 1);
+        assert_eq!(state.candidates()[0].name, "deploy");
+    }
+
+    #[test]
+    fn tilde_accept_with_inline_goal() {
+        let mut state = WorkflowsState::new();
+        state.update("~deploy to staging", 18, &sample_candidates());
+        assert!(state.is_visible());
+
+        let result = state.accept().expect("should accept");
+        assert_eq!(result.range, 0..18);
+        assert_eq!(result.info.name, "deploy");
+        assert_eq!(result.inline_goal, Some("to staging".to_string()));
+    }
+
+    #[test]
+    fn tilde_accept_without_inline_goal() {
+        let mut state = WorkflowsState::new();
+        state.update("~deploy", 7, &sample_candidates());
+        assert!(state.is_visible());
+
+        let result = state.accept().expect("should accept");
+        assert_eq!(result.range, 0..7);
+        assert_eq!(result.info.name, "deploy");
+        assert_eq!(result.inline_goal, None);
+    }
+
+    #[test]
+    fn command_mode_accept_has_no_inline_goal() {
+        let mut state = WorkflowsState::new();
+        state.open(sample_candidates());
+
+        let result = state.accept().expect("should accept");
+        assert_eq!(result.inline_goal, None);
     }
 }

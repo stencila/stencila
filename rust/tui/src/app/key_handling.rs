@@ -580,7 +580,7 @@ impl App {
                     if result.range.start != result.range.end {
                         self.input.replace_range(result.range, "");
                     }
-                    self.activate_workflow(result.info, true);
+                    self.activate_workflow_with_inline_goal(result.info, true, result.inline_goal);
                 }
             }
             (KeyModifiers::NONE, KeyCode::Esc) => self.workflows_state.dismiss(),
