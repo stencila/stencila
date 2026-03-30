@@ -384,6 +384,11 @@ impl DomEncodeContext {
         self.node_types.len() == 1
     }
 
+    /// Whether the given node type is an ancestor of the current node
+    pub fn has_ancestor(&self, node_type: NodeType) -> bool {
+        self.node_types.contains(&node_type)
+    }
+
     /// Get the content of the encoding context at completion of encoding
     pub fn content(&mut self) -> String {
         // Use take instead of cloning for performance

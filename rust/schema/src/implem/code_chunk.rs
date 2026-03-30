@@ -132,7 +132,9 @@ impl DomCodec for CodeChunk {
             context.push_slot_fn("div", "outputs", |context| outputs.to_dom(context));
         }
 
-        if let Some(LabelType::FigureLabel) = &self.label_type {
+        if let Some(LabelType::FigureLabel) = &self.label_type
+            && !context.has_ancestor(NodeType::Figure)
+        {
             context.push_slot_fn("div", "caption", |context| {
                 caption_to_dom(
                     context,
