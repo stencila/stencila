@@ -92,7 +92,7 @@ summary(model)
 predict(model, newdata = data.frame(wt = 3.0, hp = 150))
 ```
 
-## Math
+# Math
 
 Exercises: `math-*`, `math-font-family` tokens for block and inline expressions
 
@@ -107,14 +107,14 @@ $$
 $$
 
 
-## Images
+# Images
 
 Exercises: `image-*` tokens for layout, titles, and captions
 
 ![A standalone image demonstrating block-level image layout and responsive width constraints](https://placehold.co/680x320/7c3aed/e9d5ff?text=Image+Object)
 
 
-## Tables
+# Tables
 
 Exercises: `table-*` tokens including headers, borders, striping, captions, and notes
 
@@ -146,7 +146,7 @@ Data sourced from CRC Handbook of Chemistry and Physics. All measurements at 25 
 :::
 
 
-## Figures
+# Figures
 
 Exercises: `figure-*` tokens including container styling, captions, labels, and content layout
 
@@ -167,7 +167,7 @@ Comparison of signal amplitude across three experimental conditions. The labeled
 :::
 
 
-## Admonitions
+# Admonitions
 
 Exercises: `admonition-*` tokens including type-specific colors, borders, icons, and disclosure
 
@@ -192,7 +192,7 @@ Exercises: `admonition-*` tokens including type-specific colors, borders, icons,
 > [!TIP]+ Collapsed Admonition (Initially Collapsed)
 > This content is hidden by default and revealed when the reader clicks the toggle. It demonstrates the folded state for admonitions with lengthy supplementary content.
 
-## Diagrams
+# Diagrams
 
 Exercises: `diagram-*` tokens including node backgrounds, edge colors, text, and structural styling
 
@@ -225,7 +225,7 @@ sequenceDiagram
 ```
 
 
-## Plots
+# Plots
 
 Exercises: `plot-*` tokens including categorical colors, axes, grid, legends, typography, and background
 
@@ -301,7 +301,7 @@ A Vega-Lite line plot testing line marks, point marks, multi-series legend, and 
 ```
 
 
-## Thematic Breaks
+# Thematic Breaks
 
 Exercises: `thematic-break-*` tokens for border style, width, color, and spacing
 
