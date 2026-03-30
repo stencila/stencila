@@ -3,6 +3,7 @@ id = "ws108426faab"
 watch = "wardj3nsovuj"
 
 [site]
+domain = "stencila.io"
 author = "Stencila"
 root = "site"
 exclude = ["tests/excluded.smd"]
