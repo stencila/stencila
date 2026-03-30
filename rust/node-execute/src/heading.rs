@@ -16,6 +16,7 @@ impl Executable for Heading {
             *appendix_count += 1;
 
             executor.figure_count = 0;
+            executor.subfigure_counts.clear();
             executor.table_count = 0;
             executor.equation_count = 0;
 

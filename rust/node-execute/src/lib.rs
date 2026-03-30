@@ -212,6 +212,13 @@ pub struct Executor {
     /// The count of `Figure` nodes and `CodeChunk` nodes with a figure `labelType`
     figure_count: u32,
 
+    /// Stack of subfigure counters, one per ancestor `Figure` node.
+    ///
+    /// A new counter is pushed in `enter_struct` when entering a `Figure` and
+    /// popped in `exit_struct` when leaving it. Child figures and code chunks
+    /// use the top-of-stack counter to generate sublabels (A, B, C…).
+    subfigure_counts: Vec<u32>,
+
     /// The count of `MathBlock` nodes
     equation_count: u32,
 
@@ -442,6 +449,7 @@ impl Executor {
             appendix_count: None,
             table_count: 0,
             figure_count: 0,
+            subfigure_counts: Vec::new(),
             equation_count: 0,
             supplement_count: 0,
             labels: Default::default(),
@@ -467,6 +475,7 @@ impl Executor {
             appendix_count: None,
             table_count: 0,
             figure_count: 0,
+            subfigure_counts: Vec::new(),
             equation_count: 0,
             supplement_count: 0,
             labels: Default::default(),
@@ -547,6 +556,7 @@ impl Executor {
         self.appendix_count = None;
         self.table_count = 0;
         self.figure_count = 0;
+        self.subfigure_counts.clear();
         self.equation_count = 0;
         self.supplement_count = 0;
         self.linting_context.clear();
@@ -1009,23 +1019,47 @@ impl Executor {
         self.programming_language.clone()
     }
 
+    /// Convert a 1-based number to an alphabetic label (1→"A", 2→"B", …, 27→"AA")
+    fn number_to_alpha(num: u32) -> String {
+        let mut label = String::new();
+        let mut n = num;
+        while n > 0 {
+            let remainder = (n - 1) % 26;
+            label.insert(0, (b'A' + remainder as u8) as char);
+            n = (n - 1) / 26;
+        }
+        label
+    }
+
     /// Get the current appendix label or an empty string if appendices are not currently active
     pub fn appendix_label(&self) -> String {
         match self.appendix_count {
             None => String::new(),
-            Some(index) => {
-                // Convert number to alphabetic label (A, B, C... Z, AA, AB...)
-                let mut label = String::new();
-                let mut num = index;
+            Some(index) => Self::number_to_alpha(index),
+        }
+    }
 
-                while num > 0 {
-                    let remainder = (num - 1) % 26;
-                    label.insert(0, (b'A' + remainder as u8) as char);
-                    num = (num - 1) / 26;
-                }
+    /// Whether the node currently being compiled has a `Figure` ancestor.
+    ///
+    /// This relies on walk ordering: `Executable::compile` runs from `visit_block`
+    /// *before* `enter_struct` pushes the current node onto `walk_ancestors`. So
+    /// when a top-level figure calls this, its own `NodeType::Figure` is not yet
+    /// in `walk_ancestors` and the method correctly returns `false`. A child
+    /// figure's `compile` runs after the parent's `enter_struct`, so the parent
+    /// *is* present and the method returns `true`.
+    pub fn has_figure_ancestor(&self) -> bool {
+        self.walk_ancestors.contains(&NodeType::Figure)
+    }
 
-                label
-            }
+    /// Increments the innermost subfigure counter and returns a subfigure label
+    /// (e.g. "1A", "1B"). The parent figure number comes from the current `figure_count`.
+    pub fn subfigure_label(&mut self) -> String {
+        if let Some(count) = self.subfigure_counts.last_mut() {
+            *count += 1;
+            let letter = Self::number_to_alpha(*count);
+            [self.appendix_label(), self.figure_count.to_string(), letter].concat()
+        } else {
+            self.figure_label()
         }
     }
 
@@ -1325,10 +1359,159 @@ impl VisitorAsync for Executor {
 
     fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
         self.walk_ancestors.push(node_type);
+        if node_type == NodeType::Figure {
+            self.subfigure_counts.push(0);
+        }
         WalkControl::Continue
     }
 
     fn exit_struct(&mut self) {
+        if self.walk_ancestors.last() == Some(&NodeType::Figure) {
+            self.subfigure_counts.pop();
+        }
         self.walk_ancestors.pop();
+    }
+}
+
+#[cfg(test)]
+mod labelling_tests {
+    use std::path::PathBuf;
+    use std::sync::Arc;
+
+    use stencila_kernels::Kernels;
+    use stencila_schema::{ExecutionBounds, NodeId, NodeType, VisitorAsync};
+    use tokio::sync::RwLock;
+
+    use super::Executor;
+
+    fn test_executor() -> Executor {
+        let kernels = Kernels::new(ExecutionBounds::Main, &PathBuf::from("."), None);
+        Executor::new(PathBuf::from("."), Arc::new(RwLock::new(kernels)), None)
+    }
+
+    #[test]
+    fn number_to_alpha_basics() -> eyre::Result<()> {
+        assert_eq!(Executor::number_to_alpha(1), "A");
+        assert_eq!(Executor::number_to_alpha(2), "B");
+        assert_eq!(Executor::number_to_alpha(26), "Z");
+        assert_eq!(Executor::number_to_alpha(27), "AA");
+        assert_eq!(Executor::number_to_alpha(28), "AB");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn top_level_figure_labels() -> eyre::Result<()> {
+        let mut exec = test_executor();
+
+        assert_eq!(exec.figure_label(), "1");
+        assert_eq!(exec.figure_label(), "2");
+        assert_eq!(exec.figure_label(), "3");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn subfigure_labels() -> eyre::Result<()> {
+        let mut exec = test_executor();
+
+        // Parent figure compiles — no Figure in ancestors yet
+        assert!(!exec.has_figure_ancestor());
+        assert_eq!(exec.figure_label(), "1");
+
+        // enter_struct pushes Figure and a subfigure counter
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+
+        // Children now see a figure ancestor
+        assert!(exec.has_figure_ancestor());
+        assert_eq!(exec.subfigure_label(), "1A");
+        assert_eq!(exec.subfigure_label(), "1B");
+        assert_eq!(exec.subfigure_label(), "1C");
+        assert_eq!(exec.subfigure_label(), "1D");
+
+        // exit_struct pops Figure
+        exec.exit_struct();
+        assert!(!exec.has_figure_ancestor());
+
+        // Second top-level figure
+        assert_eq!(exec.figure_label(), "2");
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+        assert_eq!(exec.subfigure_label(), "2A");
+        assert_eq!(exec.subfigure_label(), "2B");
+        exec.exit_struct();
+
+        // Third top-level figure (no children)
+        assert_eq!(exec.figure_label(), "3");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn subfigure_labels_with_appendix() -> eyre::Result<()> {
+        let mut exec = test_executor();
+
+        // First top-level figure before appendix
+        assert_eq!(exec.figure_label(), "1");
+
+        // Enter appendix: set appendix_count and reset figure_count
+        exec.appendix_count = Some(1);
+        exec.figure_count = 0;
+        exec.subfigure_counts.clear();
+
+        // Figure in appendix A
+        assert_eq!(exec.figure_label(), "A1");
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+        assert_eq!(exec.subfigure_label(), "A1A");
+        assert_eq!(exec.subfigure_label(), "A1B");
+        exec.exit_struct();
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn sibling_figures_independent_counters() -> eyre::Result<()> {
+        let mut exec = test_executor();
+
+        // First parent figure with 2 subfigures
+        assert_eq!(exec.figure_label(), "1");
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+        assert_eq!(exec.subfigure_label(), "1A");
+        assert_eq!(exec.subfigure_label(), "1B");
+        exec.exit_struct();
+
+        // Second parent figure with 3 subfigures — counter starts fresh
+        assert_eq!(exec.figure_label(), "2");
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+        assert_eq!(exec.subfigure_label(), "2A");
+        assert_eq!(exec.subfigure_label(), "2B");
+        assert_eq!(exec.subfigure_label(), "2C");
+        exec.exit_struct();
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn has_figure_ancestor_walk_ordering() -> eyre::Result<()> {
+        let mut exec = test_executor();
+
+        // Before entering any struct, no figure ancestor
+        assert!(!exec.has_figure_ancestor());
+
+        // Enter an Article — still no figure ancestor
+        exec.enter_struct(NodeType::Article, NodeId::null());
+        assert!(!exec.has_figure_ancestor());
+
+        // Enter a Figure — now there IS a figure ancestor
+        // (this happens after the Figure's own compile(), so compile()
+        //  would have seen false, which is the correct behavior)
+        exec.enter_struct(NodeType::Figure, NodeId::null());
+        assert!(exec.has_figure_ancestor());
+
+        // Exit Figure
+        exec.exit_struct();
+        assert!(!exec.has_figure_ancestor());
+
+        // Exit Article
+        exec.exit_struct();
+        assert!(!exec.has_figure_ancestor());
+
+        Ok(())
     }
 }

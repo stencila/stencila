@@ -8,20 +8,35 @@ impl Executable for CodeChunk {
         let node_id = self.node_id();
         tracing::trace!("Compiling CodeChunk {node_id}");
 
+        // Code chunks inside a figure are promoted to FigureLabel so they
+        // participate in subfigure numbering even without an explicit label_type.
+        let inside_figure = executor.has_figure_ancestor();
+        if inside_figure && self.label_type.is_none() {
+            self.label_type = Some(LabelType::FigureLabel);
+            executor.patch(
+                &node_id,
+                [set(NodeProperty::LabelType, LabelType::FigureLabel)],
+            );
+        }
+
         // Update automatic label if necessary
-        if self.label_automatically.unwrap_or(true)
-            && let Some(label_type) = &self.label_type
-        {
-            let label = match label_type {
-                LabelType::FigureLabel => executor.figure_label(),
-                LabelType::TableLabel => executor.table_label(),
-                _ => {
-                    tracing::error!("Should be unreachable");
-                    String::new()
-                }
+        if self.label_automatically.unwrap_or(true) {
+            let label = if inside_figure {
+                Some(executor.subfigure_label())
+            } else {
+                self.label_type.as_ref().map(|label_type| match label_type {
+                    LabelType::FigureLabel => executor.figure_label(),
+                    LabelType::TableLabel => executor.table_label(),
+                    _ => {
+                        tracing::error!("Should be unreachable");
+                        String::new()
+                    }
+                })
             };
 
-            if Some(&label) != self.label.as_ref() {
+            if let Some(label) = label
+                && Some(&label) != self.label.as_ref()
+            {
                 self.label = Some(label.clone());
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
             }

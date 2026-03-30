@@ -8,9 +8,15 @@ impl Executable for Figure {
         let node_id = self.node_id();
         tracing::trace!("Compiling Figure {node_id}");
 
-        // Update automatic label if necessary
+        // Update automatic label if necessary.
+        // Figures nested inside another figure get subfigure labels (e.g. "1A")
+        // rather than incrementing the top-level figure count.
         if self.label_automatically.unwrap_or(true) {
-            let label = executor.figure_label();
+            let label = if executor.has_figure_ancestor() {
+                executor.subfigure_label()
+            } else {
+                executor.figure_label()
+            };
             if Some(&label) != self.label.as_ref() {
                 self.label = Some(label.clone());
                 executor.patch(&node_id, [set(NodeProperty::Label, label)]);
