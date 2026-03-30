@@ -577,7 +577,7 @@ impl MarkdownCodec for CodeChunk {
                     .push_prop_str(NodeProperty::Code, &self.code)
                     .push_str("}}\n");
             } else {
-                context.push_str(&backticks);
+                context.push_indent().push_str(&backticks);
 
                 if let Some(lang) = &self.programming_language {
                     context
@@ -623,13 +623,14 @@ impl MarkdownCodec for CodeChunk {
 
                 context
                     .newline()
+                    .push_indent()
                     .push_prop_fn(NodeProperty::Code, |context| self.code.to_markdown(context));
 
                 if !self.code.ends_with('\n') {
                     context.newline();
                 }
 
-                context.push_str(&backticks).newline();
+                context.push_indent().push_str(&backticks).newline();
             }
 
             if wrapped {

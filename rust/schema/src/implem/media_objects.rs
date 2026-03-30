@@ -55,16 +55,22 @@ macro_rules! jats_content {
 
 macro_rules! to_markdown {
     ($object:expr, $context:expr, $losses:expr) => {{
+        // Determine whether this is block object or not BEFORE
+        // encoding any inline properties (e.g. caption) otherwise
+        // the context.content_type is overwritten
+        let is_block = matches!($context.content_type, Some(ContentType::Block));
+
+        // If a block media object, and encoding SMD, then indent if necessary
+        // e.g. for sub-figures
+        if is_block && matches!($context.format, Format::Smd) {
+            $context.push_indent_less(1);
+        }
+
         $context
             .enter_node($object.node_type(), $object.node_id())
             .merge_losses(lost_options!($object, id))
             .merge_losses($losses)
             .push_str("![");
-
-        // Determine whether this is block object or not BEFORE
-        // encoding any inline properties (e.g. caption) otherwise
-        // the context.content_type is overwritten
-        let is_block = matches!($context.content_type, Some(ContentType::Block));
 
         if let Some(caption) = &$object.caption {
             $context.push_prop_fn(NodeProperty::Caption, |context| {

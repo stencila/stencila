@@ -175,6 +175,15 @@ impl MarkdownEncodeContext {
         self
     }
 
+    /// Push indentation corresponding to the current depth less an amount onto the content
+    pub fn push_indent_less(&mut self, amount: usize) -> &mut Self {
+        if self.depth > 0 {
+            let depth = self.depth.saturating_sub(amount);
+            self.content.push_str(&" ".repeat(depth * 4));
+        }
+        self
+    }
+
     /// Push the colons for a fenced div onto the content
     pub fn push_colons(&mut self) -> &mut Self {
         if matches!(self.format, Format::Smd) {
