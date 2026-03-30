@@ -4,24 +4,24 @@ start     end        offsets   node_type+property                   authorship
     12     46         (0, 1)   Figure.content
      0     50       (-12, 4)   Figure
     62     63       (62, 13)   Figure.label
-    65     71         (3, 8)   Text.value
-    65     71         (0, 0)   Text
-    65     71         (0, 0)   Paragraph.content
-    65     72         (0, 1)   Paragraph
-    65     73         (0, 1)   Figure.caption
-    77    104       (12, 31)   ImageObject.contentUrl
-    73    106        (-4, 2)   ImageObject
-    73    107         (0, 1)   Figure.content
-    51    111       (-22, 4)   Figure
-   124    161       (73, 50)   Text.value
-   124    161         (0, 0)   Text
-   124    161         (0, 0)   Paragraph.content
-   124    162         (0, 1)   Paragraph
-   124    163         (0, 1)   Figure.caption
-   167    196       (43, 33)   ImageObject.contentUrl
-   163    198        (-4, 2)   ImageObject
-   163    199         (0, 1)   Figure.content
-   112    203       (-51, 4)   Figure
+    69     96        (7, 33)   ImageObject.contentUrl
+    65     98        (-4, 2)   ImageObject
+    65     99         (0, 1)   Figure.content
+    99    105        (34, 6)   Text.value
+    99    105         (0, 0)   Text
+    99    105         (0, 0)   Paragraph.content
+    99    106         (0, 1)   Paragraph
+    99    107         (0, 1)   Figure.caption
+    51    111       (-48, 4)   Figure
+   128    157       (77, 46)   ImageObject.contentUrl
+   124    159        (-4, 2)   ImageObject
+   124    160         (0, 1)   Figure.content
+   160    197       (36, 37)   Text.value
+   160    197         (0, 0)   Text
+   160    197         (0, 0)   Paragraph.content
+   160    198         (0, 1)   Paragraph
+   160    199         (0, 1)   Figure.caption
+   112    203       (-48, 4)   Figure
    112    204         (0, 1)   Section.content
    112    203        (0, -1)   Section
      0    204      (-112, 1)   Article.content

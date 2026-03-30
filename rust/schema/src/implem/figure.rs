@@ -104,20 +104,21 @@ impl MarkdownCodec for Figure {
 
             context.push_str("\n\n");
 
+            context
+                .increase_depth()
+                .push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                })
+                .decrease_depth();
+
+            // Place caption after content, following normal layout convention
             if let Some(caption) = &self.caption {
                 context.push_prop_fn(NodeProperty::Caption, |context| {
                     caption.to_markdown(context)
                 });
             }
 
-            context
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
-                })
-                .push_colons()
-                .newline()
-                .exit_node()
-                .newline();
+            context.push_colons().newline().exit_node().newline();
         }
     }
 }
