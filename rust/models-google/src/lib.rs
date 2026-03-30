@@ -1,4 +1,4 @@
-use std::{sync::Arc};
+use std::sync::Arc;
 
 use cached::proc_macro::cached;
 use itertools::Itertools;

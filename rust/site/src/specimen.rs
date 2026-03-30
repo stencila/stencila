@@ -33,6 +33,7 @@ pub async fn specimen_node() -> Result<Node> {
 /// See the inline comment on `effective_layout` for rationale.
 ///
 /// Returns the rendered HTML string.
+#[allow(clippy::too_many_arguments)]
 pub(crate) async fn render_specimen_page<F, Fut>(
     site_config: &stencila_config::SiteConfig,
     base_url: &str,

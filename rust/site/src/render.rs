@@ -1490,20 +1490,6 @@ mod tests {
         // The file must contain expected HTML markers (stabilized heading IDs
         // from the embedded specimen Markdown).
         let html = fs::read_to_string(&specimen_path)?;
-        // Debug: print a fragment around "typography" to see actual ID format
-        if let Some(pos) = html.find("typography") {
-            let start = pos.saturating_sub(40);
-            let end = (pos + 50).min(html.len());
-            eprintln!(
-                "DEBUG specimen HTML around 'typography': {:?}",
-                &html[start..end]
-            );
-        } else {
-            eprintln!(
-                "DEBUG specimen HTML does NOT contain 'typography' at all, length={}",
-                html.len()
-            );
-        }
         assert!(
             html.contains("id=typography"),
             "specimen HTML should contain heading id=typography"

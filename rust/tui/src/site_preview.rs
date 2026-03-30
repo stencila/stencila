@@ -24,6 +24,7 @@ impl Drop for SitePreviewHandle {
 ///
 /// Returns `None` if the workspace has no site configuration (this is not
 /// an error — it just means preview is not applicable).
+#[allow(clippy::large_futures)]
 pub fn spawn_preview() -> Result<Option<SitePreviewHandle>> {
     let cfg = stencila_config::get()?;
     if cfg.site.is_none() {
