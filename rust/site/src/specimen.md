@@ -47,7 +47,7 @@ Exercises: `list-*` tokens including marker styles, indentation, and nested spac
    1. Nested ordered item
    2. Another nested ordered item
 
-# Blockquotes
+# Quotes
 
 Exercises: `quote-*` tokens for border, background, and typography
 
