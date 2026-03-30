@@ -564,6 +564,7 @@ where
         &routes_set,
         &nav_items,
         resolved_logo.as_ref().as_ref(),
+        decode_fn.as_ref(),
     )
     .await
     {
@@ -1674,6 +1675,19 @@ mod tests {
         let routes_set = HashSet::new();
         let nav_items = Vec::new();
 
+        // Decode-only callback (no execution) — sufficient for layout tests
+        let decode_fn = |doc_path: PathBuf, _args: HashMap<String, String>| async move {
+            let content = tokio::fs::read_to_string(&doc_path).await?;
+            stencila_codecs::from_str(
+                &content,
+                Some(stencila_codec::DecodeOptions {
+                    format: Some(stencila_format::Format::Markdown),
+                    ..Default::default()
+                }),
+            )
+            .await
+        };
+
         let html = render_specimen_page(
             &site_config,
             "",
@@ -1683,6 +1697,7 @@ mod tests {
             &routes_set,
             &nav_items,
             None,
+            &decode_fn,
         )
         .await?;
 
@@ -1722,6 +1737,19 @@ mod tests {
         let routes_set = HashSet::new();
         let nav_items = Vec::new();
 
+        // Decode-only callback (no execution) — sufficient for layout tests
+        let decode_fn = |doc_path: PathBuf, _args: HashMap<String, String>| async move {
+            let content = tokio::fs::read_to_string(&doc_path).await?;
+            stencila_codecs::from_str(
+                &content,
+                Some(stencila_codec::DecodeOptions {
+                    format: Some(stencila_format::Format::Markdown),
+                    ..Default::default()
+                }),
+            )
+            .await
+        };
+
         let html = render_specimen_page(
             &site_config,
             "",
@@ -1731,6 +1759,7 @@ mod tests {
             &routes_set,
             &nav_items,
             None,
+            &decode_fn,
         )
         .await?;
 

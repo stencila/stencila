@@ -1,3 +1,5 @@
+use std::{collections::HashMap, future::Future, path::PathBuf};
+
 use eyre::Result;
 use stencila_codec::{DecodeOptions, stencila_schema::Node};
 use stencila_codecs::from_str;
@@ -20,15 +22,18 @@ pub async fn specimen_node() -> Result<Node> {
 
 /// Render the specimen page to the output directory
 ///
-/// Decodes the embedded specimen Markdown, applies site layout, and writes
-/// the result to `_specimen/index.html` under `output_dir`.
+/// Writes the embedded specimen Markdown to a temp file and passes it
+/// through the same `decode_document_fn` callback that `render()` uses for
+/// regular documents. This means the specimen is *executed* — math is
+/// typeset, diagrams are rendered, and plots are generated — rather than
+/// merely decoded.
 ///
 /// Layout resolution follows a three-tier fallback:
 /// `site.specimen.layout` → `site.layout` → `LayoutPreset::Docs` defaults.
 /// See the inline comment on `effective_layout` for rationale.
 ///
 /// Returns the rendered HTML string.
-pub(crate) async fn render_specimen_page(
+pub(crate) async fn render_specimen_page<F, Fut>(
     site_config: &stencila_config::SiteConfig,
     base_url: &str,
     web_base: Option<&str>,
@@ -37,14 +42,24 @@ pub(crate) async fn render_specimen_page(
     routes_set: &std::collections::HashSet<String>,
     nav_items: &Vec<stencila_config::NavItem>,
     resolved_logo: Option<&stencila_config::LogoConfig>,
-) -> Result<String> {
-    use std::collections::HashMap;
+    decode_document_fn: &F,
+) -> Result<String>
+where
+    F: Fn(PathBuf, HashMap<String, String>) -> Fut + Send + Sync,
+    Fut: Future<Output = Result<Node>> + Send,
+{
     use stencila_codec::EncodeOptions;
     use stencila_node_stabilize::stabilize;
     use tokio::fs::{create_dir_all, write};
 
-    // Decode the specimen node
-    let mut node = specimen_node().await?;
+    // Write the embedded specimen Markdown to a temp file so it can be
+    // passed through the decode_document_fn callback, which opens and
+    // executes documents from disk (rendering math, diagrams, plots, etc.).
+    let temp_dir = tempfile::tempdir()?;
+    let specimen_path = temp_dir.path().join("specimen.md");
+    tokio::fs::write(&specimen_path, include_str!("specimen.md")).await?;
+
+    let mut node = decode_document_fn(specimen_path, HashMap::new()).await?;
 
     // Stabilize node UIDs for deterministic heading IDs
     stabilize(&mut node);
