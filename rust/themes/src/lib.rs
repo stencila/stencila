@@ -1116,7 +1116,7 @@ pub async fn new(name: Option<String>, force: bool) -> Result<Option<PathBuf>> {
 /// If `name` is None (default resolution):
 /// - Walk up directory tree for `theme.css` (workspace theme)
 /// - If not found, look for `default.css` in user themes
-/// - If not found, return None (base theme provides all foundational styles)
+/// - If not found, return builtin `base.css`
 #[cached(time = 30, result = true)]
 pub async fn get(name: Option<String>, base_path: Option<PathBuf>) -> Result<Option<Theme>> {
     get_uncached(name.as_deref(), base_path.as_deref()).await
@@ -1163,7 +1163,7 @@ pub async fn get_uncached(name: Option<&str>, base_path: Option<&Path>) -> Resul
         return Ok(None);
     }
 
-    // Default theme resolution: workspace -> default.css -> base theme (no overrides)
+    // Default theme resolution: workspace -> default.css -> base.css
 
     // 1. Look for workspace theme.css
     let mut current = base_path
@@ -1213,7 +1213,15 @@ pub async fn get_uncached(name: Option<&str>, base_path: Option<&Path>) -> Resul
         }
     }
 
-    // 3. No theme found — base theme provides all foundational styles
+    // 3. Fall back to builtin base.css
+    if let Some(file) = Web::get("themes/base.css") {
+        let name = Some("base".to_string());
+        let css = String::from_utf8_lossy(&file.data).to_string();
+
+        return Ok(Some(Theme::new(ThemeType::Builtin, name, None, css, false)));
+    }
+
+    // Shouldn't happen since base.css is embedded
     Ok(None)
 }
 

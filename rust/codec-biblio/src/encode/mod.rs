@@ -33,6 +33,9 @@ use crate::{
 
 mod styles;
 
+/// Default citation style, consistent with the base theme CSS `--citation-style` variable
+const DEFAULT_STYLE: &str = "apa";
+
 /// Encode a set of Stencila [`Reference`] nodes to Hayagriva YAML
 pub fn yaml(references: &[&Reference]) -> Result<String> {
     let entries: Vec<Entry> = references
@@ -68,7 +71,7 @@ pub async fn json(references: &[&Reference], style: Option<&str>) -> Result<Stri
 
 /// Render a set of Stencila [`Reference`] nodes to Stencila `Paragraphs`
 async fn render_references(references: &[&Reference], style: Option<&str>) -> Result<Vec<Block>> {
-    let style_name = style.unwrap_or("ama");
+    let style_name = style.unwrap_or(DEFAULT_STYLE);
 
     // Load the style
     let style = get_style(style_name).await?;
@@ -112,7 +115,7 @@ pub async fn render_citations(
     citations: Vec<&CitationGroup>,
     style: Option<&str>,
 ) -> Result<(Vec<Vec<Inline>>, Vec<Reference>)> {
-    let style_name = style.unwrap_or("ama");
+    let style_name = style.unwrap_or(DEFAULT_STYLE);
 
     tracing::trace!("Rendering citations");
 
