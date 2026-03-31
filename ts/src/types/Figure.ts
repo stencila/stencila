@@ -26,6 +26,11 @@ export class Figure extends CreativeWork {
   caption?: Block[];
 
   /**
+   * Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.
+   */
+  layout?: string;
+
+  /**
    * The content of the figure.
    */
   content: Block[];

@@ -18,6 +18,7 @@ core:
   - label
   - labelAutomatically
   - caption
+  - layout
   - authors
   - provenance
 properties:
@@ -68,6 +69,14 @@ properties:
       max:
         description: Generate up to three arbitrary, non-recursive, block nodes.
         strategy: option::of(vec_blocks_non_recursive(3))
+  layout:
+    '@id': stencila:layout
+    description: |
+      Layout for arranging content blocks in a multi-panel figure.
+      When absent, content blocks stack vertically with no grid.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
   content:
     '@id': stencila:content
     description: The content of the figure.

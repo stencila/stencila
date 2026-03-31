@@ -23,6 +23,9 @@ export class Figure extends Entity {
   @property()
   labelAutomatically?: string
 
+  @property()
+  layout?: string
+
   /**
    * Store original img styles for restoration after print
    */

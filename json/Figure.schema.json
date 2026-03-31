@@ -32,6 +32,7 @@
     "label",
     "labelAutomatically",
     "caption",
+    "layout",
     "authors",
     "provenance"
   ],
@@ -766,6 +767,20 @@
       "items": {
         "$ref": "Block.schema.json"
       }
+    },
+    "layout": {
+      "@id": "stencila:layout",
+      "description": "Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
     },
     "content": {
       "@id": "stencila:content",

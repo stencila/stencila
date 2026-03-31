@@ -819,6 +819,18 @@
       }
     },
     {
+      "@id": "stencila:layout",
+      "@type": "rdfs:Property",
+      "rdfs:label": "layout",
+      "rdfs:comment": "Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Figure"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

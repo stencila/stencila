@@ -90,6 +90,10 @@ impl DomCodec for Figure {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(layout) = &self.layout {
+            context.push_attr("layout", layout);
+        }
+
         if let Some(authors) = &self.authors {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
@@ -207,6 +211,12 @@ impl MarkdownCodec for Figure {
             {
                 context.push_str(" ");
                 context.push_prop_str(NodeProperty::Label, label);
+            }
+
+            if let Some(layout) = &self.layout {
+                context.push_str(" [");
+                context.push_prop_str(NodeProperty::Layout, layout);
+                context.push_str("]");
             }
 
             context.push_str("\n\n");

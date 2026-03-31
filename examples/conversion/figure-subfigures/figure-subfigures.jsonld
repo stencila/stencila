@@ -20,6 +20,7 @@
           ]
         }
       ],
+      "stencila:layout": "2",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -126,6 +127,7 @@
           ]
         }
       ],
+      "stencila:layout": "30,70",
       "stencila:content": [
         {
           "@type": "stencila:CodeChunk",

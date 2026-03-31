@@ -2091,6 +2091,9 @@ class Figure(CreativeWork):
     caption: list[Block] | None = None
     """A caption for the figure."""
 
+    layout: str | None = None
+    """Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid."""
+
     content: list[Block]
     """The content of the figure."""
 

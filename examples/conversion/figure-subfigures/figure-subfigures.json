@@ -15,6 +15,7 @@
           ]
         }
       ],
+      "layout": "2",
       "content": [
         {
           "type": "Figure",
@@ -100,6 +101,7 @@
     },
     {
       "type": "Figure",
+      "layout": "30,70",
       "caption": [
         {
           "type": "Paragraph",

@@ -833,12 +833,18 @@ fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
             alt((Caseless("figure"), Caseless("fig"), Caseless("fig."))),
             multispace0,
         ),
-        opt(take_while(1.., |_| true)),
+        (
+            opt(take_while(1.., |c: char| c != '[')),
+            opt(delimited('[', take_until(1.., ']'), ']')),
+        ),
     )
-    .map(|label: Option<&str>| {
+    .map(|(label, layout)| {
         Block::Figure(Figure {
-            label: label.and_then(|label| (!label.is_empty()).then_some(label.to_string())),
+            label: label
+                .and_then(|label: &str| (!label.trim().is_empty()).then_some(label.to_string())),
             label_automatically: label.is_some().then_some(false),
+            layout: layout
+                .and_then(|layout: &str| (!layout.trim().is_empty()).then_some(layout.to_string())),
             ..Default::default()
         })
     })
@@ -1622,6 +1628,7 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             Block::Figure(Figure {
                 label: options.get("label").map(|label| label.to_string()),
                 label_automatically: options.contains_key("label").then_some(false),
+                layout: options.get("layout").map(|label| label.to_string()),
                 caption: (!caption.is_empty()).then_some(caption),
                 content,
                 ..Default::default()
@@ -2067,7 +2074,7 @@ fn mds_to_table_cells(
 #[allow(clippy::unwrap_used)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use stencila_codec::stencila_schema::{ClaimType, ExecutionMode, Node};
+    use stencila_codec::stencila_schema::{ClaimType, ExecutionMode, Figure, Node};
 
     use super::*;
 
@@ -2076,6 +2083,38 @@ mod tests {
         call_arg(&mut Located::new("arg=1")).unwrap();
         call_arg(&mut Located::new("arg = 1")).unwrap();
         call_arg(&mut Located::new("arg=`1*1`")).unwrap();
+    }
+
+    #[test]
+    fn test_myst_figure_layout() {
+        let code = mdast::Code {
+            value: [":layout: 2", "", "Caption"].join("\n"),
+            lang: Some("{figure}".into()),
+            meta: Some("plot.png".into()),
+            position: None,
+        };
+
+        let mut context = Context::new(Format::Myst);
+        let Some(Block::Figure(Figure { layout, .. })) = myst_to_block(&code, &mut context) else {
+            panic!("expected figure")
+        };
+        assert_eq!(layout.as_deref(), Some("2"));
+    }
+
+    #[test]
+    fn test_figure_with_attrs() {
+        let Block::Figure(Figure { layout, .. }) = figure(&mut Located::new("figure [2]")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(layout.as_deref(), Some("2"));
+
+        let Block::Figure(Figure { layout, .. }) =
+            figure(&mut Located::new("figure [30,70]")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(layout.as_deref(), Some("30,70"));
     }
 
     #[test]

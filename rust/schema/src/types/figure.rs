@@ -95,6 +95,11 @@ pub struct Figure {
     #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
+    /// Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub layout: Option<String>,
+
     /// The content of the figure.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]

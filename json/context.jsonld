@@ -370,6 +370,7 @@
     "labelOnly": "stencila:labelOnly",
     "labelType": "stencila:labelType",
     "lastModified": "stencila:lastModified",
+    "layout": "stencila:layout",
     "legalName": "schema:legalName",
     "length": "stencila:length",
     "level": "stencila:level",

@@ -650,6 +650,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
         && ![
             "CreativeWorkVariantOrString",
             "IntegerOrString",
+            "LayoutPresetOrString",
             "StringOrNumber",
             "ThingVariant",
             "UnsignedIntegerOrString"

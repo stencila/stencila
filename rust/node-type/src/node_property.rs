@@ -178,6 +178,7 @@ pub enum NodeProperty {
     LabelOnly,
     LabelType,
     LastModified,
+    Layout,
     LegalName,
     Length,
     Level,

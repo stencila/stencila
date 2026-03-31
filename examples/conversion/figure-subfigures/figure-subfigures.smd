@@ -1,4 +1,4 @@
-::: figure
+::: figure [2]
 
     ::: figure
     
@@ -36,7 +36,7 @@ A figure with four subfigures showing colored placeholders.
 
 :::
 
-::: figure
+::: figure [30,70]
 
     ::: figure
     

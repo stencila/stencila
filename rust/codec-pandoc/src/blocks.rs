@@ -580,12 +580,23 @@ fn table_cell_from_pandoc(
 }
 
 fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pandoc::Block {
-    let attrs = if let Some(label) = &figure.label {
-        attrs_attributes(vec![("label".into(), label.into())])
-    } else {
+    let mut attributes = Vec::new();
+
+    if let Some(label) = &figure.label {
+        attributes.push(("label".into(), label.into()));
+    }
+
+    if let Some(layout) = &figure.layout {
+        attributes.push(("layout".into(), layout.into()));
+    }
+
+    let attrs = if attributes.is_empty() {
         attrs_empty()
+    } else {
+        attrs_attributes(attributes)
     };
 
+    let prev_paragraph_to_plain = context.paragraph_to_plain;
     context.paragraph_to_plain = true;
 
     let caption = figure
@@ -596,7 +607,7 @@ fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pando
 
     let blocks = blocks_to_pandoc(NodeProperty::Content, &figure.content, context);
 
-    context.paragraph_to_plain = false;
+    context.paragraph_to_plain = prev_paragraph_to_plain;
 
     pandoc::Block::Figure(
         attrs,
@@ -617,6 +628,8 @@ fn figure_from_pandoc(
     let label = get_attr(&attrs, "label");
     let label_automatically = label.is_some().then_some(false);
 
+    let layout = get_attr(&attrs, "layout");
+
     let id = (!attrs.identifier.is_empty()).then_some(attrs.identifier);
 
     let caption = (!caption.long.is_empty()).then(|| blocks_from_pandoc(caption.long, context));
@@ -627,6 +640,7 @@ fn figure_from_pandoc(
         id,
         label,
         label_automatically,
+        layout,
         caption,
         content,
         ..Default::default()

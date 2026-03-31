@@ -67,6 +67,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Article.executionStatus",
                 "Article.executionEnded",
                 "Article.executionDuration",
+                // Figure exclusions
+                "Figure.layout",
                 // Table exclusions
                 "Table.notes",
                 "TableCell.content",

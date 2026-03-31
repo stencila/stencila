@@ -7,6 +7,7 @@ content:
     - type: Text
       value:
         string: A figure with four subfigures showing colored placeholders.
+  layout: '2'
   content:
   - type: Figure
     caption:
@@ -55,6 +56,7 @@ content:
     - type: Text
       value:
         string: A figure with two code chunk subfigures and a transcluded subfigure.
+  layout: 30,70
   content:
   - type: CodeChunk
     code:
