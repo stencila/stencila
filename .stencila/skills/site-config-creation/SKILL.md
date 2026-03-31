@@ -3,51 +3,19 @@ name: site-config-creation
 description: Create or update the [site] section of stencila.toml for published Stencila sites. Use when asked to configure site domain, title, author, logo, icons, labels, descriptions, socials, featured content, navigation, routes, access, layout presets and regions, glide, search, formats, reviews, uploads, remotes, actions, auto-index, or specimen. Covers reading existing TOML, generating valid configuration, editing while preserving comments and formatting, and snap-based visual verification.
 keywords:
   - stencila.toml
-  - site config
   - site configuration
   - domain
   - title
-  - author
   - logo
-  - icons
-  - labels
-  - descriptions
-  - socials
-  - featured
-  - nav
   - navigation
   - routes
   - redirects
-  - spread routes
   - access
-  - layout
   - layout preset
-  - docs preset
-  - blog preset
-  - landing preset
-  - api preset
-  - glide
   - search
-  - formats
   - reviews
   - uploads
   - remotes
-  - actions
-  - auto-index
-  - specimen
-  - site layout
-  - sidebar
-  - header
-  - footer
-  - nav-tree
-  - nav-menu
-  - breadcrumbs
-  - toc-tree
-  - prev-next
-  - color-mode
-  - social-links
-  - copyright
-  - site-search
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell snap ask_user
 ---
 
@@ -55,13 +23,15 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell snap a
 
 Help the user create or update the `[site]` section of `stencila.toml` for a published Stencila site. This skill covers all site configuration subsections — from basic metadata (domain, title, author) through navigation, layout, search, access control, and interactive features (reviews, uploads, remotes).
 
-Use the localized reference for field details:
-- [`references/site-config-reference.md`](references/site-config-reference.md) for the complete field reference with types, defaults, and examples for every subsection
+Use these references for field details:
+
+- [`references/site-configuration.md`](references/site-configuration.md) for the complete field reference with types, defaults, and examples for every subsection
+
 - [`references/snap-tool.md`](references/snap-tool.md) for visual verification of layout and component changes
 
-Also use the CLI as a live source of truth:
-- `stencila config show` to display the current resolved configuration and verify changes took effect
-- `stencila config show --format toml` to see the TOML representation
+Use `stencila config check` to validate the configuration.
+
+Use `stencila config show` to inspect the resolved configuration after validation and verify that changes took effect as intended.
 
 ## Core rules
 
@@ -69,7 +39,7 @@ Also use the CLI as a live source of truth:
 - Preserve existing comments, formatting, and unrelated sections when editing.
 - Use `edit_file` for targeted TOML edits rather than rewriting the entire file.
 - Generate valid TOML — quote keys containing special characters, use correct array and table syntax.
-- Validate configuration after changes with `stencila config show`.
+- Validate configuration after changes with `stencila config check`.
 - Use `snap` for visual verification of layout, navigation, and component changes when a server is running.
 - Do not invent asset files (logos, images); ask the user for paths or use clearly marked placeholders.
 - When a field supports both simple and detailed forms (search, reviews, uploads, remotes, auto-index), use the simple form when defaults suffice.
@@ -84,7 +54,7 @@ Also use the CLI as a live source of truth:
 2. **Determine the scope of changes.**
    - Identify which subsections are affected (top-level fields, nav, layout, routes, etc.).
    - If the request is ambiguous (e.g., "set up my site"), ask the user what they need before generating configuration.
-   - Use [`references/site-config-reference.md`](references/site-config-reference.md) to look up correct field names, types, and value formats.
+   - Use [`references/site-configuration.md`](references/site-configuration.md) to look up correct field names, types, and value formats.
 
 3. **Generate or update the TOML configuration.**
    - For new subsections, add them in a logical order within the file.
@@ -97,7 +67,8 @@ Also use the CLI as a live source of truth:
      - Array of tables: `[[site.layout.overrides]]`
 
 4. **Validate the configuration.**
-   - Run `stencila config show` to verify the configuration parses correctly and resolves as expected.
+   - Run `stencila config check` to validate the configuration and catch schema or value errors.
+   - Then run `stencila config show` to inspect the resolved configuration and verify the final effective values.
    - Check for validation errors (invalid domain, unknown component names, invalid route patterns).
 
 5. **Visually verify layout and component changes (when applicable).**
@@ -120,10 +91,12 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 | Output | Description |
 |---|---|
 | Updated `stencila.toml` | The modified configuration file |
-| Validation results | Output from `stencila config show` confirming the configuration is valid |
+| Validation results | Output from `stencila config check` confirming the configuration is valid, plus `stencila config show` output showing the resolved values |
 | Visual verification | Snap results showing layout/component changes render correctly (when available) |
 
 ## Subsection guidance
+
+Use this section for quick patterns and common examples. For complete field details, defaults, and additional forms, check [`references/site-configuration.md`](references/site-configuration.md).
 
 ### Domain, title, author, logo
 
@@ -138,6 +111,7 @@ logo = "logo.svg"
 ```
 
 For responsive logos, use the table form:
+
 ```toml
 [site.logo]
 default = "logo.svg"
@@ -184,7 +158,7 @@ Available presets: `docs`, `blog`, `landing`, `api`. Built-in components: `logo`
 
 ### Routes
 
-File routes, redirects, and spread variants:
+Use `[site.routes]` to map routes to files, add redirects, or generate route variants from arguments.
 
 ```toml
 [site.routes]
@@ -194,6 +168,8 @@ File routes, redirects, and spread variants:
 ```
 
 ### Access control
+
+Use `[site.access]` to control who can view specific routes, with a default access level and per-route overrides.
 
 ```toml
 [site.access]
@@ -241,6 +217,35 @@ Output: Edit the existing `stencila.toml` to add:
 [site.socials]
 github = "org/repo"
 discord = "invite-code"
+```
+
+Input: Add search to an existing docs site while preserving comments and unrelated settings.
+
+Before:
+
+```toml
+[workspace]
+id = "acme-docs"
+
+[site]
+title = "Acme Docs"
+
+[site.layout]
+preset = "docs"
+```
+
+After:
+
+```toml
+[workspace]
+id = "acme-docs"
+
+[site]
+title = "Acme Docs"
+search = true
+
+[site.layout]
+preset = "docs"
 ```
 
 Input: Configure a landing page for the root with docs layout for everything under /docs/.
@@ -307,6 +312,6 @@ end = ["site-search", "color-mode"]
 - If nav routes do not start with `/`, warn that only internal routes are supported in site navigation.
 - If access route keys do not end with `/`, add the trailing slash and explain the requirement.
 - If `site.root` is set, remind the user that routes and file paths are relative to that directory.
-- If `snap` is unavailable, mark visual verification as pending, rely on `stencila config show` for validation, and recommend specific snap commands.
+- If `snap` is unavailable, mark visual verification as pending, rely on `stencila config check` for validation and `stencila config show` for inspection, and recommend specific snap commands.
 - If the user wants to remove a subsection entirely, delete the relevant TOML lines rather than setting empty values.
 - When editing inline tables or arrays of tables, be careful with TOML syntax — inline tables must be on one line, array-of-tables uses `[[double brackets]]`.
