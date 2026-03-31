@@ -47,11 +47,13 @@ import type {
   ImageObject,
   Inline,
   InstructionMessage,
+  LabelType,
   Link,
   List,
   ListItem,
   Node,
   NodeType,
+  Paragraph,
   StyledBlock,
   StyledInline,
   Table,
@@ -498,6 +500,84 @@ const NODE_SCHEMAS: Partial<Record<NodeType, NodeSchema>> = {
 }
 
 /**
+ * Convert a 1-based number to alphabetic label (1=A, 2=B, ..., 27=AA).
+ */
+function numberToAlpha(num: number): string {
+  let label = ''
+  let n = num
+  while (n > 0) {
+    const remainder = (n - 1) % 26
+    label = String.fromCharCode(65 + remainder) + label
+    n = Math.floor((n - 1) / 26)
+  }
+  return label
+}
+
+/**
+ * Extract inlines from blocks (flatten Paragraphs to their inline content).
+ *
+ * Mirrors `blocks_to_inlines` in `../../rust/schema/src/transforms.rs`.
+ */
+function blocksToInlines(blocks: Block[]): Inline[] {
+  const inlines: Inline[] = []
+  for (const block of blocks) {
+    if (block.type === 'Paragraph') {
+      inlines.push(...(block as Paragraph).content)
+    }
+  }
+  return inlines
+}
+
+interface SubfigureCaption {
+  alpha: string
+  caption: Block[]
+}
+
+/**
+ * Collect subfigure captions from a figure's content blocks.
+ *
+ * Mirrors `collect_subfigure_captions` in `../../rust/schema/src/implem/figure.rs`.
+ */
+function collectSubfigureCaptions(content: Block[]): SubfigureCaption[] {
+  const result: SubfigureCaption[] = []
+  let position = 0
+  for (const block of content) {
+    if (block.type === 'Figure') {
+      const fig = block as Figure
+      if (fig.caption) {
+        position += 1
+        const alpha =
+          extractSubfigureAlpha(fig.label) ?? numberToAlpha(position)
+        result.push({ alpha, caption: fig.caption })
+      }
+    } else if (block.type === 'CodeChunk') {
+      const chunk = block as CodeChunk
+      if (
+        chunk.labelType === ('FigureLabel' as LabelType) &&
+        chunk.caption
+      ) {
+        position += 1
+        const alpha =
+          extractSubfigureAlpha(chunk.label) ?? numberToAlpha(position)
+        result.push({ alpha, caption: chunk.caption })
+      }
+    }
+  }
+  return result
+}
+
+/**
+ * Extract the alphabetic suffix from a subfigure label like "1A" -> "A".
+ *
+ * Mirrors `subfigure_label_to_alpha` in `../../rust/schema/src/implem/figure.rs`.
+ */
+function extractSubfigureAlpha(label: string | undefined): string | null {
+  if (!label) return null
+  const match = label.match(/[A-Z]+$/)
+  return match ? match[0] : null
+}
+
+/**
  * Manual encoders for node types that need custom logic
  *
  * ONLY USE WHEN NECESSARY: These should only exist if there is a corresponding
@@ -667,7 +747,10 @@ const MANUAL_ENCODERS: Partial<
 
     // Outputs
 
-    if (node.labelType == 'FigureLabel') {
+    if (
+      node.labelType == 'FigureLabel' &&
+      !context.ancestors.includes('Figure' as NodeType)
+    ) {
       context.pushSlot(
         'div',
         'caption',
@@ -679,10 +762,18 @@ const MANUAL_ENCODERS: Partial<
   },
 
   Figure: (node: Figure, context: EncodeContext) => {
-    context.enterNode('Figure', {
+    const isSubfigure = context.ancestors.includes('Figure' as NodeType)
+
+    const attrs: Attrs = {
       label: node.label,
       'label-automatically': node.labelAutomatically,
-    })
+    }
+
+    if (node.layout) {
+      attrs['layout'] = node.layout
+    }
+
+    context.enterNode('Figure', attrs)
 
     const ancestors = [...context.ancestors, 'Figure' as NodeType]
 
@@ -698,12 +789,66 @@ const MANUAL_ENCODERS: Partial<
       )
     }
 
+    if (node.id) {
+      context.pushSlot('div', 'id', '', { id: node.id })
+    }
+
+    const subcaptions = isSubfigure
+      ? []
+      : collectSubfigureCaptions(node.content)
+
     // Build figure content with caption inside
     let figureContent = encodeNodes(node.content, ancestors)
 
-    if (node.caption) {
+    // Subfigures do not render their own figcaption; their captions
+    // are appended to the parent figure's caption instead.
+    if (
+      !isSubfigure &&
+      ((node.label != null && node.labelAutomatically === false) ||
+        node.caption != null ||
+        subcaptions.length > 0)
+    ) {
+      // Build subcaption inlines: " (A) caption text (B) caption text ..."
+      const subcaptionInlines: Inline[] = subcaptions.flatMap((sc) => {
+        const inlines = blocksToInlines(sc.caption)
+        const label: Inline = {
+          type: 'Strong',
+          content: [
+            {
+              type: 'Text',
+              value: { string: ` (${sc.alpha}) ` },
+            } as Text,
+          ],
+        }
+        return [label, ...inlines]
+      })
+
+      // Merge subcaption inlines into the caption
+      let caption: Block[]
+      if (node.caption) {
+        caption = structuredClone(node.caption)
+        const last = caption[caption.length - 1]
+        if (last && last.type === 'Paragraph') {
+          ;(last as Paragraph).content.push(...subcaptionInlines)
+        } else {
+          caption.push({
+            type: 'Paragraph',
+            content: subcaptionInlines,
+          } as Paragraph)
+        }
+      } else {
+        caption = [
+          { type: 'Paragraph', content: subcaptionInlines } as Paragraph,
+        ]
+      }
+
       figureContent += '<figcaption>'
-      figureContent += encodeCaption(node.caption, 'Figure', node.label, ancestors)
+      figureContent += encodeCaption(
+        caption,
+        'Figure',
+        node.label,
+        ancestors
+      )
       figureContent += '</figcaption>'
     }
 
