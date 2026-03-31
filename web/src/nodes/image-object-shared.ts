@@ -90,28 +90,15 @@ export const imageObjectStyles = css`
     border: none;
   }
 
-  /* Block-level image (static view) */
+  /* Block-level image styling.
+   * Vertical spacing is owned by the host element in the light DOM (images.css).
+   * The shadow DOM only handles rendering-level properties. */
   .image-container img {
     display: block;
-    max-width: 100%;
+    width: var(--image-block-width, auto);
+    max-width: var(--image-block-max-width, 100%);
     height: auto;
-    margin: 1rem auto;
-  }
-
-  /* Inline image (full view - within paragraph/heading) */
-  .image-inline img,
-  .image-inline ::slotted(img) {
-    display: inline;
-    max-height: 1.2em;
-    vertical-align: middle;
-  }
-
-  /* Block image (full view - with caption support) */
-  .image-block img {
-    display: block;
-    max-width: 100%;
-    height: auto;
-    margin: 1rem auto;
+    margin: 0 auto;
   }
 
   /* Error display */

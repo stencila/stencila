@@ -3,16 +3,30 @@
  * Schema: [ImageObject](../../schema/ImageObject.yaml)
  * Purpose: Displays images with optional captions and titles, both inline and as figure content.
  *
- * DOM Structure:
+ * DOM Structure (server-rendered light DOM):
  * <stencila-image-object id=xxx depth=N ancestors=Parent content-url='https://example.org/image.jpg'>
- *     <img src='https://example.org/image.jpg'/>
+ *   #shadow-root
+ *     <div class="image-container">
+ *       <img src='https://example.org/image.jpg'/>  ← rendered inside shadow DOM
+ *     </div>
+ *     <slot name="title"></slot>
+ *     <slot name="caption"></slot>
+ *   (light DOM children, slotted through)
  *     <span slot=title>
- *         <stencila-text id=xxx depth=N+1 ancestors=Parent.ImageObject>Image title</stencila-text>
+ *         <stencila-text ...>Image title</stencila-text>
  *     </span>
  *     <span slot=caption>
- *         <stencila-text id=xxx depth=N+1 ancestors=Parent.ImageObject>Image caption</stencila-text>
+ *         <stencila-text ...>Image caption</stencila-text>
  *     </span>
  * </stencila-image-object>
+ *
+ * Shadow DOM Boundary:
+ * - The <stencila-image-object> host element IS targetable from this CSS.
+ * - The <img> inside the shadow root is NOT targetable from this CSS.
+ *   Use CSS custom properties (--image-block-width, --image-block-max-width)
+ *   on the host to influence shadow DOM image rendering.
+ * - [slot=title] and [slot=caption] are slotted light-DOM content and ARE
+ *   targetable from this CSS.
  *
  * Key Attributes:
  * - content-url: URL of the image source
@@ -25,6 +39,8 @@
  * - ImageObject can appear inline within paragraphs or as figure content
  * - Both title and caption slots are optional
  * - When used in figures, captions are typically handled by the figure element
+ * - Vertical spacing is owned by this CSS (host element); the shadow DOM
+ *   only handles rendering-level properties (display, width, height)
  *
  * Examples: examples/conversion/media-objects/media-objects.dom.html
  */
@@ -61,6 +77,10 @@ stencila-image-object {
     margin-top: var(--content-spacing);
     margin-bottom: var(--content-spacing);
 
+    /* Fallback styles for light-DOM media elements.
+     * These only apply before the web component upgrades (server-rendered HTML)
+     * and for data: URI images where mediaSrc is not set (slotted through).
+     * Once the component upgrades, the shadow DOM renders its own <img>. */
     img,
     picture,
     canvas,
@@ -103,9 +123,11 @@ stencila-heading stencila-image-object {
     margin-top: 0;
     margin-bottom: 0;
 
+    /* Fallback for light-DOM <img> before component upgrade / data: URIs.
+     * The shadow DOM inline styles use the same 1.2em value. */
     img {
         display: inline-block;
-        max-height: 1.1em;
+        max-height: var(--image-inline-max-height, 1.2em);
         vertical-align: middle;
         margin: 0;
     }

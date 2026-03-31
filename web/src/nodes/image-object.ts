@@ -391,7 +391,7 @@ export class ImageObject extends MediaObject {
       & img,
       & ::slotted(img) {
         display: inline;
-        max-height: 1.2em;
+        max-height: var(--image-inline-max-height, 1.2em);
         vertical-align: middle;
       }
     `
@@ -429,19 +429,13 @@ export class ImageObject extends MediaObject {
   }
 
   private renderImg() {
-    const imgStyles = css`
-      & {
-        display: block;
-        max-width: 100%;
-        height: auto;
-        margin: 1rem auto;
-      }
-    `
     return html`
       <div slot="content">
-        ${this.mediaSrc ?
-          html`<img class=${imgStyles} src=${this.mediaSrc} />` :
-          html`<slot></slot>`}
+        <div class="image-container">
+          ${this.mediaSrc ?
+            html`<img src=${this.mediaSrc} />` :
+            html`<slot></slot>`}
+        </div>
         <div>
           <slot name="caption"></slot>
         </div>

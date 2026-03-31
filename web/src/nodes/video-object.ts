@@ -26,7 +26,7 @@ export class VideoObject extends MediaObject {
         display: block;
         max-width: 100%;
         height: auto;
-        margin: 1rem auto;
+        margin: 0 auto;
         border-radius: 3px;
       }
     `

@@ -34,7 +34,7 @@ export class AudioObject extends MediaObject {
         display: block;
         width: 100%; // Without this audio controls are small and centered
         height: auto;
-        margin: 1rem auto;
+        margin: 0 auto;
         border-radius: 3px;
       }
     `
