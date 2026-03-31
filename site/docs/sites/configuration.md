@@ -479,6 +479,7 @@ Common built-in components include:
 - `edit-on:m365`
 - `copy-markdown`
 - `site-search`
+- `site-review`
 
 The generated component reference also documents `edit-on` as a configurable
 component type.

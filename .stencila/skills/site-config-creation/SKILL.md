@@ -16,6 +16,14 @@ keywords:
   - reviews
   - uploads
   - remotes
+  - auto-index
+  - featured
+  - glide
+  - specimen
+  - socials
+  - formats
+  - exclude
+  - toml
 allowed-tools: read_file write_file edit_file apply_patch glob grep shell snap ask_user
 ---
 
@@ -23,7 +31,7 @@ allowed-tools: read_file write_file edit_file apply_patch glob grep shell snap a
 
 Help the user create or update the `[site]` section of `stencila.toml` for a published Stencila site. This skill covers all site configuration subsections — from basic metadata (domain, title, author) through navigation, layout, search, access control, and interactive features (reviews, uploads, remotes).
 
-Use these references for field details:
+Use these references:
 
 - [`references/site-configuration.md`](references/site-configuration.md) for the complete field reference with types, defaults, and examples for every subsection
 
@@ -32,6 +40,24 @@ Use these references for field details:
 Use `stencila config check` to validate the configuration.
 
 Use `stencila config show` to inspect the resolved configuration after validation and verify that changes took effect as intended.
+
+## Required Inputs
+
+| Input                            | Required | Description                                                  |
+| -------------------------------- | -------- | ------------------------------------------------------------ |
+| User's site configuration goals  | Required | What the user wants to configure (domain, layout, nav, etc.) |
+| Existing `stencila.toml` content | Required | Current file content (read from workspace)                   |
+| Asset paths (logos, images)      | Optional | Paths to logo files, social images, etc.                     |
+
+When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them.
+
+## Outputs
+
+| Output                  | Description                                                                                                                               |
+| ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Updated `stencila.toml` | The modified configuration file                                                                                                           |
+| Validation results      | Output from `stencila config check` confirming the configuration is valid, plus `stencila config show` output showing the resolved values |
+| Visual verification     | Snap results showing layout/component changes render correctly (when available)                                                           |
 
 ## Core rules
 
@@ -75,24 +101,6 @@ Use `stencila config show` to inspect the resolved configuration after validatio
    - If the change affects layout, navigation, or visual components and a Stencila server is running, use `snap` to verify.
    - See [`references/snap-tool.md`](references/snap-tool.md) for the typical verification workflow.
    - If `snap` is unavailable, mark visual verification as pending and recommend specific commands.
-
-## Required Inputs
-
-| Input | Required | Description |
-|---|---|---|
-| User's site configuration goals | Required | What the user wants to configure (domain, layout, nav, etc.) |
-| Existing `stencila.toml` content | Required | Current file content (read from workspace) |
-| Asset paths (logos, images) | Optional | Paths to logo files, social images, etc. |
-
-When used standalone, these inputs come from the user or the agent's prompt. When used within a workflow, the workflow's stage prompt will specify how to obtain them.
-
-## Outputs
-
-| Output | Description |
-|---|---|
-| Updated `stencila.toml` | The modified configuration file |
-| Validation results | Output from `stencila config check` confirming the configuration is valid, plus `stencila config show` output showing the resolved values |
-| Visual verification | Snap results showing layout/component changes render correctly (when available) |
 
 ## Subsection guidance
 
