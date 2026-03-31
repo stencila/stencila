@@ -154,18 +154,47 @@ Exercises: `figure-*` tokens including container styling, captions, labels, and 
 
 An example figure with a single-paragraph caption describing the placeholder image content. Figure captions use the `--figure-caption-*` token family.
 
-![Placeholder figure](https://placehold.co/680x400/2568ef/ddd?text=Figure+Content)
+![](https://placehold.co/680x400/2568ef/ddd?text=Figure+Content)
 
 :::
 
-::: figure Figure 1
+::: figure {layout=2}
 
-Comparison of signal amplitude across three experimental conditions. The labeled figure demonstrates the `--figure-label-*` tokens for the automatic "Figure 1" prefix. A second caption paragraph tests multi-paragraph caption spacing within the figure container.
+  ::: figure
 
-![Labeled figure](https://placehold.co/680x400/166534/d1fae5?text=Figure+1)
+  ![](https://placehold.co/300x150/e74c3c/fff?text=A)
+
+  A red placeholder image.
+
+  :::
+
+  ::: figure
+
+  ![](https://placehold.co/300x150/2ecc71/fff?text=B)
+
+  A green placeholder image.
+
+  :::
+
+  ::: figure
+
+  ![](https://placehold.co/300x150/3498db/fff?text=C)
+
+  A blue placeholder image.
+
+  :::
+
+  ::: figure
+
+  ![](https://placehold.co/300x150/f39c12/fff?text=D)
+
+  An orange placeholder image.
+
+  :::
+
+  A figure with four subfigures. Exercises `--figure-subfigure-*` tokens.
 
 :::
-
 
 # Admonitions
 
