@@ -42,6 +42,10 @@ enabled = true
 exclude-routes = ["/api/**"]
 ```
 
+Stencila validates site configuration strictly. Unknown keys in `[site]` and
+its nested tables will cause a configuration parse error, so it is worth
+checking field names carefully if a config does not load.
+
 ## A gentle starting point
 
 You do not need to configure everything up front. A small site can start with
@@ -176,6 +180,10 @@ alt = "Acme"
 Available fields include `default`, `mobile`, `tablet`, `dark`,
 `dark-mobile`, `dark-tablet`, `link`, and `alt`.
 
+You do not need to define every variant. Stencila falls back sensibly when a
+more specific logo is missing. For example, a dark mobile logo falls back
+through `dark`, then `mobile`, then `default`.
+
 ## Navigation metadata
 
 These fields help shape the labels and presentation of your navigation without
@@ -271,6 +279,8 @@ cta = { label = "Get Started", route = "/docs/getting-started/" }
 This is keyed by the dropdown's parent group, using the same matching rules as
  icons and descriptions. The `title` field is required. Other supported fields
 include `badge`, `icon`, `image`, `description`, and `cta`.
+
+If both `icon` and `image` are provided, the icon takes precedence.
 
 ## Navigation structure
 
@@ -369,6 +379,8 @@ Access levels are ordered:
 `public` < `subscriber` < `password` < `team`
 
 Route keys must start and end with `/`, and the longest matching prefix wins.
+Access rules are cumulative, so child routes should not be less restrictive
+than their parents.
 
 ### `[site.routes]`
 
@@ -392,6 +404,8 @@ Common uses include:
 
 Redirect status codes include `301`, `302`, `303`, `307`, and `308`.
 Spread modes are `grid` for cartesian products and `zip` for positional pairing.
+Advanced spread routes can also use reserved placeholders such as `{tag}`,
+`{branch}`, and `{i}`.
 
 ## Layout and page structure
 
@@ -401,6 +415,9 @@ The layout system controls where site-level UI appears around your content.
 In most cases, the easiest approach is to start from a preset and customize only
 what you need.
 
+If you do not choose a preset explicitly, the layout behaves like the `docs`
+preset.
+
 #### Presets
 
 | Preset | Best for |
@@ -409,6 +426,13 @@ what you need.
 | `blog` | article or blog pages with a simpler structure |
 | `landing` | homepages or landing pages with no sidebars |
 | `api` | API reference pages with navigation on the left and a simplified right side |
+
+In practice, these presets differ mainly in which built-in components are placed
+in which regions. For example, `docs` includes left navigation, breadcrumbs,
+prev/next links, and a right-side table of contents, while `blog` removes the
+left sidebar and bottom navigation. The `landing` preset removes sidebars and
+also sets `main.width = "none"`, `main.padding = "none"`, and
+`main.title = false`.
 
 ```toml
 [site.layout]
@@ -428,8 +452,12 @@ You can place components into six layout regions:
 | `right-sidebar` | table of contents or secondary tools |
 | `footer` | full-width footer |
 
-Each region has `start`, `middle`, and `end` slots. Regions can also use `rows`
-for multi-row layouts.
+Each region has `start`, `middle`, and `end` slots. Horizontal regions can also
+use `rows` for multi-row layouts. Sidebars use only `start`, `middle`, and
+`end`.
+
+A region can be omitted to inherit its current behavior, configured as a table,
+or set to `false` to disable it.
 
 #### Built-in components
 
@@ -483,6 +511,9 @@ preset = "landing"
 
 The first matching override wins, so order matters.
 
+Within an override, explicit settings replace the preset or base layout, while
+omitted regions inherit from it. Use `false` to disable a region explicitly.
+
 #### Named components
 
 You can define reusable named components under `[site.layout.components]`.
@@ -498,6 +529,8 @@ collapsible = true
 ```
 
 If the component name matches a built-in component type, `type` can be omitted.
+When you reference a component by name in a region, it must either be a built-in
+component type or a name you defined under `[site.layout.components]`.
 
 #### Responsive behavior
 
@@ -582,6 +615,9 @@ pages.
 These features are especially useful for team documentation, data publishing,
 and collaborative knowledge bases. Several of them require `workspace.id`
 because enforcement happens through Stencila Cloud.
+
+In practice, you will usually want `workspace.id` configured before using
+reviews, uploads, remotes, restricted access, or custom domain management.
 
 ### `[site.reviews]`
 
