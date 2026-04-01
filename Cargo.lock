@@ -11795,6 +11795,7 @@ dependencies = [
  "stencila-codec-text-trait",
  "stencila-format",
  "stencila-images",
+ "stencila-layout-lang",
  "stencila-node-id",
  "stencila-node-patch-derive",
  "stencila-node-path",

@@ -1,35 +1,43 @@
 <stencila-article id=xxx depth=0 ancestors='' root>
   <section slot=content>
     <stencila-figure id=xxx depth=1 ancestors=Article layout=2>
-      <figure slot=content>
-        <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
-          <figure slot=content>
-            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/e74c3c/fff'>
-              <img src='https://placehold.co/400x300/e74c3c/fff'/>
-            </stencila-image-object>
-          </figure>
-        </stencila-figure>
-        <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
-          <figure slot=content>
-            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/2ecc71/fff'>
-              <img src='https://placehold.co/400x300/2ecc71/fff'/>
-            </stencila-image-object>
-          </figure>
-        </stencila-figure>
-        <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
-          <figure slot=content>
-            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/3498db/fff'>
-              <img src='https://placehold.co/400x300/3498db/fff'/>
-            </stencila-image-object>
-          </figure>
-        </stencila-figure>
-        <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
-          <figure slot=content>
-            <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/f39c12/fff'>
-              <img src='https://placehold.co/400x300/f39c12/fff'/>
-            </stencila-image-object>
-          </figure>
-        </stencila-figure>
+      <figure slot=content style='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/e74c3c/fff'>
+                <img src='https://placehold.co/400x300/e74c3c/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/2ecc71/fff'>
+                <img src='https://placehold.co/400x300/2ecc71/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:2 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/3498db/fff'>
+                <img src='https://placehold.co/400x300/3498db/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:2 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/400x300/f39c12/fff'>
+                <img src='https://placehold.co/400x300/f39c12/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
         <figcaption>
           <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
             <p slot=content>
@@ -64,10 +72,13 @@
       </figure>
     </stencila-figure>
     <stencila-figure id=xxx depth=1 ancestors=Article layout=30,70>
-      <figure slot=content>
-        <stencila-code-chunk id=xxx depth=2 ancestors=Article.Figure code='hist(rnorm(1000), col = "lightblue", main = "")' programming-language=r label-type=FigureLabel>
-        </stencila-code-chunk>
-        <stencila-code-chunk id=xxx depth=2 ancestors=Article.Figure code='{
+      <figure slot=content style='display:grid;grid-template-columns:minmax(0,30fr) minmax(0,70fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1'>
+          <stencila-code-chunk id=xxx depth=2 ancestors=Article.Figure code='hist(rnorm(1000), col = "lightblue", main = "")' programming-language=r label-type=FigureLabel>
+          </stencila-code-chunk>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1'>
+          <stencila-code-chunk id=xxx depth=2 ancestors=Article.Figure code='{
   "data": [
     {
       "type": "bar",
@@ -81,13 +92,16 @@
     "yaxis": {"title": {"text": "Value"}}
   }
 }' programming-language=plotly label-type=FigureLabel>
-        </stencila-code-chunk>
-        <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
-          <figure slot=content>
-            <stencila-include-block id=xxx depth=3 ancestors=Article.Figure.Figure source=subfigure.ipynb>
-            </stencila-include-block>
-          </figure>
-        </stencila-figure>
+          </stencila-code-chunk>
+        </div>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:2 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-include-block id=xxx depth=3 ancestors=Article.Figure.Figure source=subfigure.ipynb>
+              </stencila-include-block>
+            </figure>
+          </stencila-figure>
+        </div>
         <figcaption>
           <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
             <p slot=content>
@@ -110,6 +124,159 @@
                 </strong>
               </stencila-strong>
               <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A line graph included from subfigure.ipynb</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
+    <stencila-figure id=xxx depth=1 ancestors=Article layout=row>
+      <figure slot=content style='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/300x220/c0392b/fff'>
+                <img src='https://placehold.co/300x220/c0392b/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/300x220/16a085/fff'>
+                <img src='https://placehold.co/300x220/16a085/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:3 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/300x220/2980b9/fff'>
+                <img src='https://placehold.co/300x220/2980b9/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A figure using the row preset to place three subfigures side by side.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(A)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Left panel.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(B)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Middle panel.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(C)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Right panel.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
+    <stencila-figure id=xxx depth=1 ancestors=Article layout=a,b|a,c>
+      <figure slot=content style='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 2'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/420x520/8e44ad/fff'>
+                <img src='https://placehold.co/420x520/8e44ad/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/420x250/27ae60/fff'>
+                <img src='https://placehold.co/420x250/27ae60/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:2 / span 1;grid-row:2 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/420x250/f39c12/fff'>
+                <img src='https://placehold.co/420x250/f39c12/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A figure using an explicit layout map with a vertically spanning left panel.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(A)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Spans both rows.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(B)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Top right panel.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(C)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Bottom right panel.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
+    <stencila-figure id=xxx depth=1 ancestors=Article layout=40,g20,40>
+      <figure slot=content style='display:grid;grid-template-columns:minmax(0,40fr) minmax(var(--figure-subfigure-gap),20fr) minmax(0,40fr);row-gap:var(--figure-subfigure-gap)'>
+        <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/420x260/e67e22/fff'>
+                <img src='https://placehold.co/420x260/e67e22/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <div class=figure-content-item style='grid-column:3 / span 1;grid-row:1 / span 1'>
+          <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+            <figure slot=content>
+              <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://placehold.co/420x260/2c3e50/fff'>
+                <img src='https://placehold.co/420x260/2c3e50/fff'/>
+              </stencila-image-object>
+            </figure>
+          </stencila-figure>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A figure using explicit gap tracks between two equal-width columns.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(A)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Left panel with gap.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(B)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Right panel with gap.</stencila-text>
             </p>
           </stencila-paragraph>
         </figcaption>

@@ -194,6 +194,239 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A figure using the row preset to place three subfigures side by side."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:layout": "row",
+      "stencila:content": [
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Left panel."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/300x220/c0392b/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Middle panel."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/300x220/16a085/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Right panel."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/300x220/2980b9/fff"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A figure using an explicit layout map with a vertically spanning left panel."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:layout": "a,b|a,c",
+      "stencila:content": [
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Spans both rows."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/420x520/8e44ad/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Top right panel."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/420x250/27ae60/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Bottom right panel."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/420x250/f39c12/fff"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A figure using explicit gap tracks between two equal-width columns."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:layout": "40,g20,40",
+      "stencila:content": [
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Left panel with gap."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/420x260/e67e22/fff"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Right panel with gap."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "https://placehold.co/420x260/2c3e50/fff"
+            }
+          ]
+        }
+      ]
     }
   ]
 }

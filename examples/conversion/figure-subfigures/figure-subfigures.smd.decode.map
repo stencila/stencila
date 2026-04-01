@@ -26,4 +26,42 @@ start     end        offsets   node_type+property                   authorship
   1136   1244       (-53, 9)   Figure
   1246   1314      (110, 70)   Paragraph
    525   1319      (-721, 5)   Figure
-     0   1320      (-525, 1)   Article
+  1363   1407      (838, 88)   ImageObject
+  1359   1407        (-4, 0)   ImageObject
+  1409   1424       (50, 17)   Paragraph
+  1339   1433       (-70, 9)   Figure
+  1459   1503      (120, 70)   ImageObject
+  1455   1503        (-4, 0)   ImageObject
+  1505   1522       (50, 19)   Paragraph
+  1435   1531       (-70, 9)   Figure
+  1557   1601      (122, 70)   ImageObject
+  1553   1601        (-4, 0)   ImageObject
+  1603   1619       (50, 18)   Paragraph
+  1533   1628       (-70, 9)   Figure
+  1630   1699       (97, 71)   Paragraph
+  1321   1704      (-309, 5)   Figure
+  1752   1796      (431, 92)   ImageObject
+  1748   1796        (-4, 0)   ImageObject
+  1798   1818       (50, 22)   Paragraph
+  1728   1827       (-70, 9)   Figure
+  1853   1897      (125, 70)   ImageObject
+  1849   1897        (-4, 0)   ImageObject
+  1899   1919       (50, 22)   Paragraph
+  1829   1928       (-70, 9)   Figure
+  1954   1998      (125, 70)   ImageObject
+  1950   1998        (-4, 0)   ImageObject
+  2000   2023       (50, 25)   Paragraph
+  1930   2032       (-70, 9)   Figure
+  2034   2110      (104, 78)   Paragraph
+  1706   2115      (-328, 5)   Figure
+  2165   2209      (459, 94)   ImageObject
+  2161   2209        (-4, 0)   ImageObject
+  2211   2235       (50, 26)   Paragraph
+  2141   2244       (-70, 9)   Figure
+  2270   2314      (129, 70)   ImageObject
+  2266   2314        (-4, 0)   ImageObject
+  2316   2341       (50, 27)   Paragraph
+  2246   2350       (-70, 9)   Figure
+  2352   2419      (106, 69)   Paragraph
+  2117   2424      (-235, 5)   Figure
+     0   2425     (-2117, 1)   Article

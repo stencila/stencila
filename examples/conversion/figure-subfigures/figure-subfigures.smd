@@ -82,3 +82,85 @@ A figure with four subfigures showing colored placeholders.
 A figure with two code chunk subfigures and a transcluded subfigure.
 
 :::
+
+::: figure [row]
+
+    ::: figure
+    
+    ![](https://placehold.co/300x220/c0392b/fff)
+
+    Left panel.
+
+    :::
+
+    ::: figure
+    
+    ![](https://placehold.co/300x220/16a085/fff)
+
+    Middle panel.
+
+    :::
+
+    ::: figure
+    
+    ![](https://placehold.co/300x220/2980b9/fff)
+
+    Right panel.
+
+    :::
+
+A figure using the row preset to place three subfigures side by side.
+
+:::
+
+::: figure [a,b|a,c]
+
+    ::: figure
+    
+    ![](https://placehold.co/420x520/8e44ad/fff)
+
+    Spans both rows.
+
+    :::
+
+    ::: figure
+    
+    ![](https://placehold.co/420x250/27ae60/fff)
+
+    Top right panel.
+
+    :::
+
+    ::: figure
+    
+    ![](https://placehold.co/420x250/f39c12/fff)
+
+    Bottom right panel.
+
+    :::
+
+A figure using an explicit layout map with a vertically spanning left panel.
+
+:::
+
+::: figure [40,g20,40]
+
+    ::: figure
+    
+    ![](https://placehold.co/420x260/e67e22/fff)
+
+    Left panel with gap.
+
+    :::
+
+    ::: figure
+    
+    ![](https://placehold.co/420x260/2c3e50/fff)
+
+    Right panel with gap.
+
+    :::
+
+A figure using explicit gap tracks between two equal-width columns.
+
+:::

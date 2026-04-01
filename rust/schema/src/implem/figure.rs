@@ -1,4 +1,5 @@
 use stencila_codec_info::lost_options;
+use stencila_layout_lang::{Columns, Layout, Placement, parse as parse_layout};
 use stencila_node_type::NodeType;
 
 use crate::{
@@ -14,6 +15,12 @@ use super::utils::caption_to_dom;
 struct SubfigureCaption {
     alpha: String,
     caption: Vec<Block>,
+}
+
+/// SSR-ready grid styles for a figure layout and its content items.
+struct GridLayoutStyles {
+    container: String,
+    items: Vec<String>,
 }
 
 /// Extract the alphabetic suffix from a subfigure label like "1A" -> "A"
@@ -76,9 +83,139 @@ fn collect_subfigure_captions(content: &[Block]) -> Vec<SubfigureCaption> {
     result
 }
 
+/// Resolve a figure layout string into container and item styles for SSR.
+fn resolve_grid_layout_styles(layout: &str, item_count: usize) -> Option<GridLayoutStyles> {
+    if item_count == 0 {
+        return None;
+    }
+
+    let layout = parse_layout(layout).ok()?.resolve_row(item_count);
+
+    match layout {
+        Layout::Auto { columns } => {
+            let container = columns_style(&columns);
+            let column_count = columns.column_count();
+            if column_count == 0 {
+                return None;
+            }
+
+            let use_gap_tracks = has_explicit_gap_tracks(&columns);
+            let items = (0..item_count)
+                .map(|index| {
+                    let col = index % column_count;
+                    let row = index / column_count;
+                    placement_style(col as u32, row as u32, 1, 1, use_gap_tracks)
+                })
+                .collect_vec();
+
+            Some(GridLayoutStyles { container, items })
+        }
+        Layout::Map {
+            columns,
+            placements,
+        } => {
+            if placements.len() != item_count {
+                return None;
+            }
+
+            let container = columns_style(&columns);
+            let use_gap_tracks = has_explicit_gap_tracks(&columns);
+            let items = placements
+                .iter()
+                .map(|placement| placement_to_style(placement, use_gap_tracks))
+                .collect_vec();
+
+            Some(GridLayoutStyles { container, items })
+        }
+        Layout::Row => None,
+    }
+}
+
+/// Whether the column spec uses explicit inline gap tracks.
+fn has_explicit_gap_tracks(columns: &Columns) -> bool {
+    columns.gaps.iter().any(Option::is_some)
+}
+
+/// Generate the inline grid styles for the figure container.
+fn columns_style(columns: &Columns) -> String {
+    let mut styles = vec!["display:grid".to_string()];
+
+    if has_explicit_gap_tracks(columns) {
+        let template = columns
+            .widths
+            .iter()
+            .enumerate()
+            .flat_map(|(index, width)| {
+                let column = std::iter::once(format!("minmax(0,{width}fr)"));
+                let gap = columns.gaps.get(index).map(|gap| match gap {
+                    Some(gap) => format!("minmax(var(--figure-subfigure-gap),{gap}fr)"),
+                    None => "var(--figure-subfigure-gap)".to_string(),
+                });
+                column.chain(gap)
+            })
+            .collect_vec()
+            .join(" ");
+
+        styles.push(format!("grid-template-columns:{template}"));
+    } else {
+        let template = columns
+            .widths
+            .iter()
+            .map(|width| format!("minmax(0,{width}fr)"))
+            .join(" ");
+
+        styles.push(format!("grid-template-columns:{template}"));
+        styles.push("column-gap:var(--figure-subfigure-gap)".to_string());
+    }
+
+    styles.push("row-gap:var(--figure-subfigure-gap)".to_string());
+
+    styles.join(";")
+}
+
+/// Generate the placement style for a parsed layout placement.
+fn placement_to_style(placement: &Placement, use_gap_tracks: bool) -> String {
+    placement_style(
+        placement.col,
+        placement.row,
+        placement.col_span,
+        placement.row_span,
+        use_gap_tracks,
+    )
+}
+
+/// Generate the grid placement style for a single rendered content item.
+fn placement_style(
+    col: u32,
+    row: u32,
+    col_span: u32,
+    row_span: u32,
+    use_gap_tracks: bool,
+) -> String {
+    let grid_column_start = if use_gap_tracks {
+        (col * 2) + 1
+    } else {
+        col + 1
+    };
+    let grid_column_span = if use_gap_tracks {
+        (col_span * 2) - 1
+    } else {
+        col_span
+    };
+
+    format!(
+        "grid-column:{grid_column_start} / span {grid_column_span};grid-row:{} / span {row_span}",
+        row + 1
+    )
+}
+
 impl DomCodec for Figure {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         let is_subfigure = context.has_ancestor(NodeType::Figure);
+        let grid_layout_styles = self
+            .layout
+            .as_deref()
+            .and_then(|layout| resolve_grid_layout_styles(layout, self.content.len()));
 
         context.enter_node(self.node_type(), self.node_id());
 
@@ -116,7 +253,25 @@ impl DomCodec for Figure {
         };
 
         context.push_slot_fn("figure", "content", |context| {
-            self.content.to_dom(context);
+            if let Some(grid_layout_styles) = &grid_layout_styles {
+                context.push_attr("style", &grid_layout_styles.container);
+
+                for (index, block) in self.content.iter().enumerate() {
+                    let Some(style) = grid_layout_styles.items.get(index) else {
+                        block.to_dom(context);
+                        continue;
+                    };
+
+                    context.enter_elem_attrs(
+                        "div",
+                        [("class", "figure-content-item"), ("style", style)],
+                    );
+                    block.to_dom(context);
+                    context.exit_elem();
+                }
+            } else {
+                self.content.to_dom(context);
+            }
 
             // Subfigures do not render their own figcaption; their captions
             // are appended to the parent figure's caption instead.

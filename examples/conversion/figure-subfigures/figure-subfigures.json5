@@ -168,6 +168,217 @@
           ]
         }
       ]
+    },
+    {
+      type: "Figure",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A figure using the row preset to place three subfigures side by side." }
+            }
+          ]
+        }
+      ],
+      layout: "row",
+      content: [
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Left panel." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/300x220/c0392b/fff"
+            }
+          ]
+        },
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Middle panel." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/300x220/16a085/fff"
+            }
+          ]
+        },
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Right panel." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/300x220/2980b9/fff"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Figure",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A figure using an explicit layout map with a vertically spanning left panel." }
+            }
+          ]
+        }
+      ],
+      layout: "a,b|a,c",
+      content: [
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Spans both rows." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/420x520/8e44ad/fff"
+            }
+          ]
+        },
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Top right panel." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/420x250/27ae60/fff"
+            }
+          ]
+        },
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Bottom right panel." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/420x250/f39c12/fff"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "Figure",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A figure using explicit gap tracks between two equal-width columns." }
+            }
+          ]
+        }
+      ],
+      layout: "40,g20,40",
+      content: [
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Left panel with gap." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/420x260/e67e22/fff"
+            }
+          ]
+        },
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Right panel with gap." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "https://placehold.co/420x260/2c3e50/fff"
+            }
+          ]
+        }
+      ]
     }
   ]
 }
