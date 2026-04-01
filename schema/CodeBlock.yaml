@@ -15,3 +15,44 @@ latex:
 markdown:
   derive: false
 proptest: {}
+core:
+  - isDemo
+properties:
+  isDemo:
+    '@id': stencila:isDemo
+    description: Whether the code block is a demo that should also be rendered.
+    $comment: |
+      When true, the code in the block is decoded using the format indicated by
+      `programmingLanguage` and rendered as block content below the code display.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, qmd]
+  compilationDigest:
+    '@id': stencila:compilationDigest
+    description: A digest of the `code` and `programmingLanguage`.
+    $comment: Used to avoid unnecessary re-compilation of demo content.
+    $ref: CompilationDigest
+    strip: [compilation]
+    dom:
+      skip: true
+  compilationMessages:
+    '@id': stencila:compilationMessages
+    description: Messages generated while compiling the demo content.
+    strip: [compilation]
+    type: array
+    items:
+      $ref: CompilationMessage
+    dom:
+      elem: span
+  content:
+    '@id': stencila:content
+    description: The content rendered from the code when `isDemo` is true.
+    type: array
+    items:
+      $ref: Block
+    walk: true
+    strip: [output]
+    patch:
+      formats: []
+    dom:
+      elem: div

@@ -1,5 +1,5 @@
 import { html } from 'lit'
-import { customElement } from 'lit/decorators'
+import { customElement, property } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 import { getTitleIcon } from '../ui/nodes/properties/programming-language'
@@ -10,10 +10,17 @@ import '../ui/nodes/cards/block-on-demand'
 import '../ui/nodes/properties/authors'
 import '../ui/nodes/properties/code/code'
 import '../ui/nodes/properties/provenance'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 @customElement('stencila-code-block')
 @withTwind()
 export class CodeBlock extends CodeStatic {
+  @property({
+    attribute: 'is-demo',
+    converter: booleanConverter,
+  })
+  isDemo?: boolean
+
   override render() {
     if (this.isWithin('StyledBlock') || this.isWithinUserChatMessage()) {
       return this.renderContent()
@@ -69,6 +76,7 @@ export class CodeBlock extends CodeStatic {
           no-gutters
         >
         </stencila-ui-node-code>
+        <slot name="content"></slot>
       </div>
     `
   }

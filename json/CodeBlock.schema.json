@@ -33,7 +33,8 @@
     "id",
     "programmingLanguage",
     "authors",
-    "provenance"
+    "provenance",
+    "isDemo"
   ],
   "properties": {
     "type": {
@@ -172,6 +173,79 @@
       "type": "array",
       "items": {
         "$ref": "ProvenanceCount.schema.json"
+      }
+    },
+    "isDemo": {
+      "@id": "stencila:isDemo",
+      "description": "Whether the code block is a demo that should also be rendered.",
+      "$comment": "When true, the code in the block is decoded using the format indicated by\n`programmingLanguage` and rendered as block content below the code display.\n",
+      "aliases": [
+        "is-demo",
+        "is_demo"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd"
+        ]
+      },
+      "type": "boolean"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `code` and `programmingLanguage`.",
+      "$comment": "Used to avoid unnecessary re-compilation of demo content.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "dom": {
+        "skip": true
+      },
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the demo content.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
+    "content": {
+      "@id": "stencila:content",
+      "description": "The content rendered from the code when `isDemo` is true.",
+      "strip": [
+        "output"
+      ],
+      "patch": {
+        "formats": []
+      },
+      "walk": true,
+      "dom": {
+        "elem": "div"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
       }
     }
   }

@@ -41,6 +41,9 @@
       "rdfs:comment": "A digest of the content, semantics and dependencies of the node.",
       "schema:domainIncludes": [
         {
+          "@id": "stencila:CodeBlock"
+        },
+        {
           "@id": "stencila:Executable"
         },
         {
@@ -71,6 +74,9 @@
         },
         {
           "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CodeBlock"
         },
         {
           "@id": "stencila:Executable"
@@ -336,6 +342,9 @@
         },
         {
           "@id": "stencila:CitationGroup"
+        },
+        {
+          "@id": "stencila:CodeBlock"
         },
         {
           "@id": "stencila:Excerpt"

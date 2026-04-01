@@ -2,6 +2,7 @@ import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
 
 import '../ui/nodes/properties/code/code-static'
+import { booleanConverter } from '../utilities/booleanConverter'
 
 /**
  * Static version of the CodeBlock web component
@@ -19,8 +20,21 @@ export class CodeBlockStatic extends LitElement {
   @property({ attribute: 'programming-language' })
   programmingLanguage?: string
 
+  @property({
+    attribute: 'is-demo',
+    converter: booleanConverter,
+  })
+  isDemo?: boolean
+
   /**
-   * Use Light DOM so text selection works for site review
+   * Demo content element detached from DOM before Lit renders,
+   * to be re-appended after the code block in firstUpdated.
+   */
+  private demoContent?: Element
+
+  /**
+   * Use Light DOM so that Prism styles can be applied and
+   * text selection works for site review
    */
   protected override createRenderRoot() {
     return this
@@ -33,7 +47,23 @@ export class CodeBlockStatic extends LitElement {
     if (existingPre) {
       existingPre.remove()
     }
+
+    // Detach demo content so Lit's template renders first (the code block),
+    // then we re-append content after it in firstUpdated
+    const contentSlot = this.querySelector(':scope > [slot="content"]')
+    if (contentSlot) {
+      this.demoContent = contentSlot
+      contentSlot.remove()
+    }
+
     super.connectedCallback()
+  }
+
+  protected override firstUpdated() {
+    if (this.demoContent) {
+      this.appendChild(this.demoContent)
+      this.demoContent = undefined
+    }
   }
 
   override render() {

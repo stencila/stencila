@@ -526,6 +526,7 @@ impl Visitor for Collector {
             Node::CallBlock(node) => cms_ems!(self, node, None, None, None),
             Node::Chat(node) => cms_ems!(self, node, None, None, None),
             Node::ChatMessage(node) => cms_ems!(self, node, None, None, None),
+            Node::CodeBlock(node) => cms!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
             Node::CodeChunk(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
             Node::ForBlock(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
             Node::IfBlock(node) => cms_ems!(self, node, None, None, None),

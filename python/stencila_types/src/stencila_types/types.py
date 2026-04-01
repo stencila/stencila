@@ -1572,6 +1572,18 @@ class CodeBlock(CodeStatic):
 
     type: Literal["CodeBlock"] = "CodeBlock"
 
+    is_demo: bool | None = None
+    """Whether the code block is a demo that should also be rendered."""
+
+    compilation_digest: CompilationDigest | None = None
+    """A digest of the `code` and `programmingLanguage`."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while compiling the demo content."""
+
+    content: list[Block] | None = None
+    """The content rendered from the code when `isDemo` is true."""
+
 
 @dataclass(kw_only=True, repr=False)
 class CodeChunk(CodeExecutable):

@@ -80,6 +80,9 @@
           "@id": "stencila:Citation"
         },
         {
+          "@id": "stencila:CodeBlock"
+        },
+        {
           "@id": "stencila:Executable"
         },
         {

@@ -152,6 +152,7 @@ pub enum NodeProperty {
     IsChecked,
     IsCollapsed,
     IsContinuation,
+    IsDemo,
     IsDisabled,
     IsEchoed,
     IsEmbedded,

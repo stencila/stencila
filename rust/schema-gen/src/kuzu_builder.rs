@@ -80,6 +80,9 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "TableCell.verticalAlignment",
                 // Datatable exclusions
                 "Datatable.notes",
+                // CodeBlock exclusions
+                "CodeBlock.isDemo",
+                "CodeBlock.content",
                 // List exclusions
                 "ListItem.position",
                 // ForBlock exclusions

@@ -867,6 +867,9 @@
           "@id": "stencila:CitationGroup"
         },
         {
+          "@id": "stencila:CodeBlock"
+        },
+        {
           "@id": "stencila:Excerpt"
         },
         {

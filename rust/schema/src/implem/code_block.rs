@@ -21,6 +21,10 @@ impl DomCodec for CodeBlock {
             context.push_slot_fn("div", "provenance", |context| provenance.to_dom(context));
         }
 
+        if self.is_demo == Some(true) {
+            context.push_attr("is-demo", "true");
+        }
+
         // Put code in a `<pre><code>` as well so that it is visible in static view
         context
             .enter_elem("pre")
@@ -28,6 +32,16 @@ impl DomCodec for CodeBlock {
             .push_text(&self.code)
             .exit_elem()
             .exit_elem();
+
+        if let Some(messages) = &self.options.compilation_messages {
+            context.push_slot_fn("span", "compilation-messages", |context| {
+                messages.to_dom(context)
+            });
+        }
+
+        if let Some(content) = &self.options.content {
+            context.push_slot_fn("div", "content", |context| content.to_dom(context));
+        }
 
         context.exit_node();
     }
@@ -76,6 +90,10 @@ impl MarkdownCodec for CodeBlock {
 
         if let Some(lang) = &self.programming_language {
             context.push_prop_str(NodeProperty::ProgrammingLanguage, lang);
+        }
+
+        if self.is_demo == Some(true) {
+            context.push_str(" ").push_prop_str(NodeProperty::IsDemo, "demo");
         }
 
         if let Some(id) = &self.id {

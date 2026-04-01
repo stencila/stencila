@@ -1733,6 +1733,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
             .map(|lang| lang.starts_with("{") && lang.ends_with("}"))
             .unwrap_or_default();
     let is_raw = meta.starts_with("raw") || lang.as_deref() == Some("raw");
+    let is_demo = meta.starts_with("demo");
 
     if is_exec {
         let lang = lang.and_then(|lang| {
@@ -1852,6 +1853,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
             id: code_id,
             code: value.into(),
             programming_language: lang,
+            is_demo: is_demo.then_some(true),
             ..Default::default()
         })
     }

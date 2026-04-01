@@ -31,6 +31,7 @@ mod bibliography;
 mod call_block;
 mod chat;
 mod citation;
+mod code_block;
 mod citation_group;
 mod code_chunk;
 mod code_expression;
@@ -1312,6 +1313,7 @@ impl VisitorAsync for Executor {
             AppendixBreak(node) => self.visit_executable(node).await,
             CallBlock(node) => self.visit_executable(node).await,
             Chat(node) => self.visit_executable(node).await,
+            CodeBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
             Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,

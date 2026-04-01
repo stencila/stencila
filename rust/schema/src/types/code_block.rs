@@ -3,6 +3,10 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::block::Block;
+use super::boolean::Boolean;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
@@ -63,10 +67,50 @@ pub struct CodeBlock {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
+    /// Whether the code block is a demo that should also be rendered.
+    #[serde(alias = "is-demo", alias = "is_demo")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub is_demo: Option<Boolean>,
+
+    /// Non-core optional fields
+    #[serde(flatten)]
+    #[html(flatten)]
+    #[jats(flatten)]
+    pub options: Box<CodeBlockOptions>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
     pub uid: NodeUid
+}
+
+#[skip_serializing_none]
+#[serde_as]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[serde(rename_all = "camelCase")]
+#[cfg_attr(feature = "proptest", derive(Arbitrary))]
+pub struct CodeBlockOptions {
+    /// A digest of the `code` and `programmingLanguage`.
+    #[serde(alias = "compilation-digest", alias = "compilation_digest")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_digest: Option<CompilationDigest>,
+
+    /// Messages generated while compiling the demo content.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
+
+    /// The content rendered from the code when `isDemo` is true.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(output)]
+    #[walk]
+    #[patch()]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub content: Option<Vec<Block>>,
 }
 
 impl CodeBlock {

@@ -79,6 +79,15 @@
     --code-padding-inline: 0.05em 0.25em;
     --code-padding-block: var(--space-4);
 
+    /* Demo code block - groups code + rendered preview */
+    --code-demo-border-color: var(--border-color-muted);
+    --code-demo-border-color-dark: var(--border-color-muted-dark);
+    --code-demo-border-width: var(--border-width-default);
+    --code-demo-border-radius: var(--code-border-radius);
+    --code-demo-content-padding: var(--space-4);
+    --code-demo-content-background: transparent;
+    --code-demo-content-background-dark: transparent;
+
     /* CodeMirror Editor */
     --code-caret-color: var(--text-color-primary);
     --code-caret-color-dark: #e8e8e8;
@@ -224,6 +233,9 @@
 
 @media (prefers-color-scheme: dark) {
     :root:not([data-color-scheme="light"]) {
+        --code-demo-border-color: var(--code-demo-border-color-dark);
+        --code-demo-content-background: var(--code-demo-content-background-dark);
+
         --code-theme: var(--code-theme-dark);
         --code-color: var(--code-color-dark);
         --code-color-inline: var(--code-color-inline-dark);
@@ -286,6 +298,9 @@
 }
 
 :root[data-color-scheme="dark"] {
+    --code-demo-border-color: var(--code-demo-border-color-dark);
+    --code-demo-content-background: var(--code-demo-content-background-dark);
+
     --code-theme: var(--code-theme-dark);
     --code-color: var(--code-color-dark);
     --code-color-inline: var(--code-color-inline-dark);
@@ -370,6 +385,26 @@ stencila-code-chunk {
     /* Spacing */
     margin-top: var(--code-spacing);
     margin-bottom: var(--code-spacing);
+}
+
+/* Demo code block - code + rendered preview grouped together */
+stencila-code-block[is-demo] {
+    border: var(--code-demo-border-width) solid var(--code-demo-border-color);
+    border-radius: var(--code-demo-border-radius);
+    overflow: hidden;
+
+    /* Remove the code block's own border since the parent provides it */
+    pre {
+        border: none;
+        border-radius: 0;
+        border-bottom: var(--code-demo-border-width) solid var(--code-demo-border-color);
+    }
+
+    /* Rendered content area below the code */
+    > [slot="content"] {
+        padding: var(--code-demo-content-padding);
+        background: var(--code-demo-content-background);
+    }
 }
 
 /* Intermediate wrapper - needs block display for width constraints to work */
