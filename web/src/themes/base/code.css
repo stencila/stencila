@@ -208,7 +208,7 @@
     --code-tag-angle-dark: var(--color-gray-500);
     --code-operator: var(--color-gray-600);
     --code-operator-dark: var(--color-gray-400);
-    --code-punctuation: var(--color-gray-600);
+    --code-punctuation: var(--color-gray-500);
     --code-punctuation-dark: var(--color-gray-500);
     --code-punctuation-bracket: var(--code-punctuation);
     --code-punctuation-bracket-dark: var(--code-punctuation-dark);
@@ -416,6 +416,12 @@ stencila-ui-node-code-static {
 
     .token.punctuation {
         color: var(--code-punctuation);
+    }
+
+    /* Colon fence delimiters (:::) in Stencila Markdown */
+    .token.colon-delimiter {
+        color: var(--color-purple-600);
+        font-weight: bold;
     }
 
     .token.tag,
