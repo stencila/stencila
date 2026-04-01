@@ -65,6 +65,7 @@
     --figure-content-display: block;
     --figure-content-max-width: 100%;
     --figure-content-margin-horizontal: auto;
+    --figure-subfigure-gap: 0;
 
     /* Caption typography - inherits from caption tokens */
     --figure-caption-font-family: var(--caption-font-family);
@@ -102,6 +103,35 @@ stencila-figure {
     margin-top: var(--figure-spacing-top);
     margin-bottom: var(--figure-spacing-bottom);
 
+    /* Subfigures (nested figures) within a grid layout.
+     * Uses [slot] to match specificity of breakout rules in works.css */
+    > [slot] > stencila-figure,
+    > [slot] > .figure-content-item > stencila-figure {
+        margin-top: 0;
+        margin-bottom: 0;
+        width: 100%;
+        min-width: 0;
+
+        /* Remove auto-centering so subfigures fill their grid cell */
+        > [slot] {
+            margin-left: 0;
+            margin-right: 0;
+        }
+
+        /* Remove block-level image host margins and stretch images to fill
+         * the grid cell via custom properties that penetrate the shadow DOM */
+        stencila-image-object {
+            width: 100%;
+            margin-top: 0;
+            margin-bottom: 0;
+            --image-block-width: 100%;
+        }
+    }
+
+    > [slot] > .figure-content-item {
+        min-width: 0;
+    }
+
     figure {
         /* Browser normalization */
         margin: 0;
@@ -123,6 +153,9 @@ stencila-figure {
         /* Caption spacing and layout */
         margin-top: var(--figure-caption-spacing-top);
         max-width: var(--figure-caption-max-width);
+
+        /* Span all grid columns when figure uses grid layout */
+        grid-column: 1 / -1;
 
         stencila-paragraph p {
             /* Caption typography */
@@ -156,6 +189,19 @@ stencila-figure {
 @media (max-width: 640px) {
     :root {
         --figure-max-width: var(--figure-max-width-mobile);
+    }
+
+    /* Override inline grid layout to stack subfigures on small screens.
+     * Only targets figures with a resolved layout (which receive inline
+     * display:grid and grid-template-columns styles from SSR). Uses
+     * !important to override those inline styles. */
+    stencila-figure[layout] > figure[slot="content"] {
+        grid-template-columns: 1fr !important;
+    }
+
+    stencila-figure[layout] > figure[slot="content"] > .figure-content-item {
+        grid-column: 1 !important;
+        grid-row: auto !important;
     }
 }
 
