@@ -4,8 +4,7 @@
 items:
   - label: "Markdown"
     children:
-      - { name: "markdown", label: "Markdown" }
-      - { name: "md", label: "CommonMark" }
+      - { name: "md", label: "Markdown" }
       - { name: "smd", label: "Stencila Markdown" }
       - { name: "myst", label: "MyST Markdown" }
       - { name: "qmd", label: "Quarto Markdown" }
