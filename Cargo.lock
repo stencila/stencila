@@ -10920,6 +10920,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-layout-lang"
+version = "0.0.0"
+dependencies = [
+ "pretty_assertions",
+ "thiserror 2.0.18",
+ "winnow 0.7.15",
+]
+
+[[package]]
 name = "stencila-linter"
 version = "0.0.0"
 dependencies = [
