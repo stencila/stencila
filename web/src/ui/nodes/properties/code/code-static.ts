@@ -97,7 +97,8 @@ export class UINodeCodeStatic extends LitElement {
     markdown: 'markdown',
     md: 'markdown',
     // Stencila Markdown
-    smd: 'smd',
+    // Use 'markdown' so Prism's after-tokenize hook highlights fenced code blocks
+    smd: 'markdown',
     // YAML
     yaml: 'yaml',
     yml: 'yaml',

@@ -73,7 +73,7 @@ Prism.languages.insertBefore('smd', 'code', {
           pattern: /\[([^\]]*)\]/,
           inside: {
             punctuation: /[[\]]/,
-            selector: /[^\[\]]+/,
+            selector: /[^\]]+/,
           },
         },
         'attr-value': /(?<=\b(?:figure|table)\s+)\S+/,
@@ -222,3 +222,10 @@ Prism.languages.insertBefore('smd', 'code', {
     },
   },
 })
+
+// Replace the `markdown` grammar with the extended `smd` grammar so that
+// Prism's built-in `after-tokenize` hook (which only fires for language
+// `markdown` or `md`) runs for SMD content.  Without this, fenced code
+// blocks (e.g. ```svg … ```) are parsed structurally but never
+// re-highlighted with the language-specific grammar.
+Prism.languages.markdown = Prism.languages.smd
