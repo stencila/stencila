@@ -18,6 +18,7 @@ import 'prismjs/components/prism-yaml'
 import 'prismjs/components/prism-latex'
 import 'prismjs/components/prism-markup-templating' // Required by Django/Jinja
 import 'prismjs/components/prism-django' // Jinja2 is based on Django templates
+import './prism-smd' // Stencila Markdown (extends markdown)
 
 /**
  * A lightweight component for rendering syntax-highlighted code
@@ -92,6 +93,11 @@ export class UINodeCodeStatic extends LitElement {
     sql: 'sql',
     // TOML
     toml: 'toml',
+    // Markdown
+    markdown: 'markdown',
+    md: 'markdown',
+    // Stencila Markdown
+    smd: 'smd',
     // YAML
     yaml: 'yaml',
     yml: 'yaml',
