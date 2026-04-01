@@ -1,0 +1,409 @@
+---
+title: Figures
+description: How to author figures in Stencila Markdown — captions, labels, subfigures, and multi-panel layouts.
+---
+
+In Markdown, an image on its own line renders as a block-level image — but it has no caption, no label, and no way to refer to it from elsewhere in your document. A **figure** wraps one or more images (or other content) and adds:
+
+- **Labels**: automatically numbered identifiers like "Figure 1", "Figure 2", etc.
+- **Captions**: descriptive text rendered below the figure.
+- **Multi-panel layouts**: arrange subfigures in grids with a concise layout mini-language.
+
+Use a plain block image when you just want to show a picture. Use a figure when the image is a first-class part of your document that readers need to identify and reference.
+
+# Syntax
+
+A figure in Stencila Markdown, starts with a colon fence line with the keyword `figure` and optional label and layout. In an basic figure there is usually a single image and a caption paragraph.
+
+```smd
+::: figure <label> [<layout>]
+
+![](image.png)
+
+The figure caption.
+
+:::
+```
+
+# Labels
+
+Every figure automatically receives a sequential label — "Figure 1", "Figure 2", and so on — based on its position in the document. You do not need to manage these numbers yourself; if you reorder figures, the labels update to match.
+
+You _can_ set an explicit label by placing it after the `figure` keyword. However, it is almost always better to omit explicit labels and let Stencila assign them automatically. Explicit labels do not update when you rearrange your document and can easily get out of sync.
+
+
+# Captions
+
+Inside a `::: figure` fence, Stencila separates **content** from **caption** automatically:
+
+- A paragraph containing only an image (or audio, or video) becomes **content**.
+- Any other paragraph becomes **caption**.
+
+The caption can appear before or after the image — Stencila treats it the same way. Both of these produce identical output:
+
+```smd demo
+::: figure
+
+A blue placeholder image.
+
+![](https://placehold.co/600x300/3498db/white)
+
+:::
+```
+
+You can include multiple paragraphs in the caption:
+
+```smd demo
+::: figure
+
+![](https://placehold.co/600x300/2ecc71/white)
+
+This is the first paragraph of the caption.
+
+This is a second paragraph providing additional detail about the figure.
+
+:::
+```
+
+# Subfigures
+
+A figure can contain nested figures as **subfigures**. Each subfigure gets its own sub-label (A, B, C, …) and optional caption, while the parent figure holds the overall caption.
+
+```smd demo
+::: figure
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e74c3c/white)
+
+    A red panel.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    A blue panel.
+
+    :::
+
+A figure with two subfigures stacked vertically.
+
+:::
+```
+
+## Layout specifications
+
+To arrange subfigures in a grid, add a layout specification in square brackets after `figure`:
+
+```smd
+::: figure [<layout>]
+
+:::
+```
+
+The layout mini-language is designed to make simple layouts easy to write while keeping more complex arrangements possible. Rather than requiring full CSS, it provides a compact shorthand that covers the most common multi-panel figure patterns.
+
+| Intent | Layout | Description |
+| --- | --- | --- |
+| Single column | _(none)_ | Default — subfigures stack vertically in a single column |
+| Single row | `[row]` | All subfigures side-by-side in a single row |
+| Two equal columns | `[2]` | Subfigures flow into a 2-column grid |
+| Three equal columns | `[3]` | Subfigures flow into a 3-column grid |
+| Unequal columns | `[30,70]` | Proportional widths (30:70 split) |
+| Columns with gap | `[40,g20,40]` | Two columns with a gap between them |
+| Layout map | `[a,b\|a,c]` | Explicit placement — `a` spans two rows |
+| Map + widths | `[30,70 : a,b\|a,c]` | Widths and placement combined |
+| Empty cell | `[a,.\|b,c]` | `.` leaves a cell empty |
+
+## Single row
+
+The keyword `row` places all subfigures side-by-side in a single row without having to count them:
+
+```smd demo
+::: figure [row]
+
+    ::: figure
+
+    ![](https://placehold.co/300x200/e74c3c/white)
+
+    Red.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/300x200/2ecc71/white)
+
+    Green.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/300x200/3498db/white)
+
+    Blue.
+
+    :::
+
+Three panels in a single row.
+
+:::
+```
+
+## Column count
+
+A single integer specifies the number of equal-width columns. Subfigures flow left-to-right, top-to-bottom:
+
+```smd demo
+::: figure [2]
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e74c3c/white)
+
+    Red.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/2ecc71/white)
+
+    Green.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    Blue.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/f39c12/white)
+
+    Orange.
+
+    :::
+
+Four panels in a two-column grid.
+
+:::
+```
+
+## Column widths
+
+Comma-separated integers define proportional column widths. The numbers are relative — `30,70` means a 30:70 split:
+
+```smd demo
+::: figure [30,70]
+
+    ::: figure
+
+    ![](https://placehold.co/300x300/9b59b6/white)
+
+    Narrow left panel.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/700x300/1abc9c/white)
+
+    Wide right panel.
+
+    :::
+
+Unequal two-column layout with a 30:70 width ratio.
+
+:::
+```
+
+## Column gaps
+
+Add a gap between columns using the `gN` token. For example, `40,g20,40` means two columns of equal width with a gap between them:
+
+```smd demo
+::: figure [40,g20,40]
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e67e22/white)
+
+    Left.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/2980b9/white)
+
+    Right.
+
+    :::
+
+Two columns with an explicit gap.
+
+:::
+```
+
+## Layout maps
+
+For precise control over where each subfigure appears, use a **layout map**. Letters represent subfigures (`a` = first subfigure, `b` = second, etc.), commas separate columns, and pipes (`|`) separate rows:
+
+| Layout | Meaning |
+| --- | --- |
+| `a,b` | Two subfigures side-by-side |
+| `a,b\|a,c` | `a` spans two rows on the left; `b` and `c` stack on the right |
+| `a,a\|b,c` | `a` spans two columns on top; `b` and `c` sit below |
+| `a,.\|b,c` | Top-right cell is empty |
+
+### Spanning rows
+
+Repeating a letter across rows makes that subfigure span vertically:
+
+```smd demo
+::: figure [a,b|a,c]
+
+    ::: figure
+
+    ![](https://placehold.co/400x500/e74c3c/white)
+
+    Spans both rows.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/2ecc71/white)
+
+    Top right.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    Bottom right.
+
+    :::
+
+One tall panel on the left with two stacked panels on the right.
+
+:::
+```
+
+### Spanning columns
+
+Repeating a letter across columns makes that subfigure span horizontally:
+
+```smd demo
+::: figure [a,a|b,c]
+
+    ::: figure
+
+    ![](https://placehold.co/800x250/f39c12/white)
+
+    Spans both columns.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/9b59b6/white)
+
+    Bottom left.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/1abc9c/white)
+
+    Bottom right.
+
+    :::
+
+A wide panel on top with two panels below.
+
+:::
+```
+
+### Empty cells
+
+Use `.` to leave a cell empty:
+
+```smd demo
+::: figure [a,.|b,c]
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e74c3c/white)
+
+    Top left.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/2ecc71/white)
+
+    Bottom left.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    Bottom right.
+
+    :::
+
+Top-right cell left intentionally empty.
+
+:::
+```
+
+## Combining column widths with layout maps
+
+For layouts that need both unequal column widths _and_ precise placement, put the column specification before a `:` and the layout map after it:
+
+```smd demo
+::: figure [30,70 : a,b|a,c]
+
+    ::: figure
+
+    ![](https://placehold.co/300x500/e74c3c/white)
+
+    Narrow left, spans both rows.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/700x250/2ecc71/white)
+
+    Wide right, top.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/700x250/3498db/white)
+
+    Wide right, bottom.
+
+    :::
+
+A 30:70 split with the left panel spanning both rows.
+
+:::
+```
