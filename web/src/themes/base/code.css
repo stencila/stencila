@@ -387,6 +387,40 @@ stencila-code-chunk {
     margin-bottom: var(--code-spacing);
 }
 
+/* Apply figure-style overlays to code chunk outputs.
+ * Mirrors the overlay positioning from figures.css so that code chunks
+ * whose outputs are wrapped in a .figure-content-area get the same
+ * absolute-positioned overlay and stretched image treatment. */
+stencila-code-chunk {
+    > [slot="outputs"] > .figure-content-area {
+        position: relative;
+    }
+
+    > [slot="outputs"] > .figure-content-area > stencila-image-object {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        margin-top: 0;
+        margin-bottom: 0;
+        --image-block-width: 100%;
+    }
+
+    > [slot="outputs"] > .figure-content-area > [slot="overlay"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    > [slot="outputs"] > .figure-content-area > [slot="overlay"] svg {
+        width: 100%;
+        height: 100%;
+        display: block;
+    }
+}
+
 /* Demo code block - code + rendered preview grouped together */
 stencila-code-block[is-demo] {
     border: var(--code-demo-border-width) solid var(--code-demo-border-color);
