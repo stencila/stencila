@@ -86,15 +86,15 @@
     "vega-lite": "6.4.2"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "6.5.0",
-    "@playwright/test": "1.58.2",
+    "@argos-ci/playwright": "6.6.1",
+    "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.2",
     "@types/plotly.js-dist-min": "2.3.4",
     "@types/prismjs": "1.26.6",
     "glob": "13.0.6",
     "postcss-import": "16.1.1",
     "tsx": "4.21.0",
-    "vite": "8.0.2",
+    "vite": "8.0.3",
     "vite-plugin-compression2": "2.5.3"
   }
 }
