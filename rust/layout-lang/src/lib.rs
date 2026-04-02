@@ -20,9 +20,9 @@ const INVALID_COLUMN_TOKEN: &str = "invalid column token";
 ///
 /// - integer column counts such as `"2"`
 /// - the row preset `"row"`
-/// - explicit column specifications such as `"30,70"` or `"40,g20,40"`
-/// - layout maps such as `"a,b|a,c"`
-/// - combined explicit-column and map forms such as `"30,70:a,b|a,c"`
+/// - explicit column specifications such as `"30 70"` or `"40 g20 40"`
+/// - layout maps such as `"a b | a c"`
+/// - combined explicit-column and map forms such as `"30 70 : a b | a c"`
 ///
 /// Leading and trailing whitespace is ignored, but the parser requires full
 /// consumption of the trimmed input.
@@ -40,7 +40,7 @@ const INVALID_COLUMN_TOKEN: &str = "invalid column token";
 ///
 /// assert_eq!(parse("row"), Ok(Layout::Row));
 /// assert_eq!(
-///     parse("30,70:a,b|a,c"),
+///     parse("30 70 : a b | a c"),
 ///     Ok(Layout::Map {
 ///         columns: Columns {
 ///             widths: vec![30, 70],
@@ -395,21 +395,27 @@ enum ColumnToken {
 fn detect_parse_form(input: &str) -> ParseForm {
     if input == ROW_KEYWORD {
         ParseForm::Standard
-    } else if input
-        .chars()
-        .all(|char| char.is_ascii_digit() || matches!(char, 'g' | ',' | ' ' | '\t'))
-        && (input.contains(',') || input.starts_with('g'))
+    } else if input.contains('|') {
+        ParseForm::Map
+    } else if input.split_whitespace().all(is_column_or_gap_token)
+        && input.split_whitespace().count() > 1
     {
         ParseForm::ColumnSpec
-    } else if input.contains('|')
-        || input
-            .chars()
-            .any(|char| char.is_ascii_lowercase() || char == '.')
+    } else if input
+        .split_whitespace()
+        .any(|token| token.len() == 1 && (token.as_bytes()[0].is_ascii_lowercase() || token == "."))
     {
         ParseForm::Map
     } else {
         ParseForm::Standard
     }
+}
+
+fn is_column_or_gap_token(token: &str) -> bool {
+    token.chars().all(|c| c.is_ascii_digit())
+        || (token.starts_with('g')
+            && token.len() > 1
+            && token[1..].chars().all(|c| c.is_ascii_digit()))
 }
 
 fn parse_standard_layout(input: &str) -> Result<Layout, LayoutError> {
@@ -445,9 +451,7 @@ fn parse_column_count(input: &mut &str) -> ModalResult<usize> {
 fn parse_form2_str(input: &str) -> Result<Layout, LayoutError> {
     let mut tokens = Vec::new();
 
-    for part in input.split(',') {
-        let token = part.trim();
-
+    for token in input.split_whitespace() {
         if token.is_empty() {
             return Err(parse_error(EMPTY_TOKEN));
         }
@@ -552,7 +556,7 @@ fn parse_form4_str(input: &str) -> Result<Layout, LayoutError> {
 }
 
 fn parse_map_row(row: &str) -> Result<Vec<char>, LayoutError> {
-    row.split(',').map(parse_map_cell).collect()
+    row.split_whitespace().map(parse_map_cell).collect()
 }
 
 fn parse_map_cell(cell: &str) -> Result<char, LayoutError> {

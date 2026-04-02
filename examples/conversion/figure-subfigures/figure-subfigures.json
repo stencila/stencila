@@ -101,7 +101,7 @@
     },
     {
       "type": "Figure",
-      "layout": "30,70",
+      "layout": "30 70",
       "caption": [
         {
           "type": "Paragraph",
@@ -249,7 +249,7 @@
     },
     {
       "type": "Figure",
-      "layout": "a,b|a,c",
+      "layout": "a b|a c",
       "caption": [
         {
           "type": "Paragraph",
@@ -326,7 +326,7 @@
     },
     {
       "type": "Figure",
-      "layout": "40,g20,40",
+      "layout": "40 g20 40",
       "caption": [
         {
           "type": "Paragraph",

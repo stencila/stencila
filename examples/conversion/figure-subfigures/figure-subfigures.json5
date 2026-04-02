@@ -111,7 +111,7 @@
           ]
         }
       ],
-      layout: "30,70",
+      layout: "30 70",
       content: [
         {
           type: "CodeChunk",
@@ -259,7 +259,7 @@
           ]
         }
       ],
-      layout: "a,b|a,c",
+      layout: "a b|a c",
       content: [
         {
           type: "Figure",
@@ -336,7 +336,7 @@
           ]
         }
       ],
-      layout: "40,g20,40",
+      layout: "40 g20 40",
       content: [
         {
           type: "Figure",

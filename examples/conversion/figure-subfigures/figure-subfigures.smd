@@ -36,7 +36,7 @@ A figure with four subfigures showing colored placeholders.
 
 :::
 
-::: figure [30,70]
+::: figure [30 70]
 
     ::: figure
     
@@ -113,7 +113,7 @@ A figure using the row preset to place three subfigures side by side.
 
 :::
 
-::: figure [a,b|a,c]
+::: figure [a b|a c]
 
     ::: figure
     
@@ -143,7 +143,7 @@ A figure using an explicit layout map with a vertically spanning left panel.
 
 :::
 
-::: figure [40,g20,40]
+::: figure [40 g20 40]
 
     ::: figure
     

@@ -127,7 +127,7 @@
           ]
         }
       ],
-      "stencila:layout": "30,70",
+      "stencila:layout": "30 70",
       "stencila:content": [
         {
           "@type": "stencila:CodeChunk",
@@ -295,7 +295,7 @@
           ]
         }
       ],
-      "stencila:layout": "a,b|a,c",
+      "stencila:layout": "a b|a c",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -380,7 +380,7 @@
           ]
         }
       ],
-      "stencila:layout": "40,g20,40",
+      "stencila:layout": "40 g20 40",
       "stencila:content": [
         {
           "@type": "stencila:Figure",

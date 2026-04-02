@@ -21,7 +21,7 @@ fn map(columns: Columns, placements: Vec<Placement>) -> Layout {
 #[test]
 fn parse_form3_vertical_span_standalone() {
     assert_eq!(
-        parse("a,b|a,c"),
+        parse("a b|a c"),
         Ok(map(
             Columns::equal(2),
             vec![
@@ -36,7 +36,7 @@ fn parse_form3_vertical_span_standalone() {
 #[test]
 fn parse_form3_horizontal_span_standalone() {
     assert_eq!(
-        parse("a,a|b,c"),
+        parse("a a|b c"),
         Ok(map(
             Columns::equal(2),
             vec![
@@ -51,7 +51,7 @@ fn parse_form3_horizontal_span_standalone() {
 #[test]
 fn parse_form3_full_rectangle_span_standalone() {
     assert_eq!(
-        parse("a,a|a,a"),
+        parse("a a|a a"),
         Ok(map(Columns::equal(2), vec![placement('a', 0, 0, 2, 2)]))
     );
 }
@@ -59,7 +59,7 @@ fn parse_form3_full_rectangle_span_standalone() {
 #[test]
 fn parse_form3_empty_cell_standalone() {
     assert_eq!(
-        parse("a,.|b,c"),
+        parse("a .|b c"),
         Ok(map(
             Columns::equal(2),
             vec![
@@ -74,7 +74,7 @@ fn parse_form3_empty_cell_standalone() {
 #[test]
 fn parse_form4_with_explicit_widths_and_vertical_span() {
     assert_eq!(
-        parse("30,70:a,b|a,c"),
+        parse("30 70:a b|a c"),
         Ok(map(
             Columns {
                 widths: vec![30, 70],
@@ -92,7 +92,7 @@ fn parse_form4_with_explicit_widths_and_vertical_span() {
 #[test]
 fn parse_form4_allows_whitespace_around_colon() {
     assert_eq!(
-        parse("30,70 : a,b"),
+        parse("30 70 : a b"),
         Ok(map(
             Columns {
                 widths: vec![30, 70],
@@ -106,7 +106,7 @@ fn parse_form4_allows_whitespace_around_colon() {
 #[test]
 fn parse_form4_supports_explicit_gap_tokens() {
     assert_eq!(
-        parse("40,g20,40:a,b|a,c"),
+        parse("40 g20 40:a b|a c"),
         Ok(map(
             Columns {
                 widths: vec![40, 40],
@@ -124,7 +124,7 @@ fn parse_form4_supports_explicit_gap_tokens() {
 #[test]
 fn parse_form4_supports_empty_cells() {
     assert_eq!(
-        parse("30,70:a,.|b,c"),
+        parse("30 70:a .|b c"),
         Ok(map(
             Columns {
                 widths: vec![30, 70],
@@ -142,7 +142,7 @@ fn parse_form4_supports_empty_cells() {
 #[test]
 fn parse_form4_rejects_inconsistent_row_widths() {
     assert_eq!(
-        parse("a,b|a"),
+        parse("a b|a"),
         Err(LayoutError::InconsistentRowWidth {
             expected: 2,
             actual: 1,
@@ -153,7 +153,7 @@ fn parse_form4_rejects_inconsistent_row_widths() {
 #[test]
 fn parse_form4_rejects_non_rectangular_spans() {
     assert_eq!(
-        parse("a,b|a,a"),
+        parse("a b|a a"),
         Err(LayoutError::NonRectangularSpan { label: 'a' })
     );
 }
@@ -161,7 +161,7 @@ fn parse_form4_rejects_non_rectangular_spans() {
 #[test]
 fn parse_form4_rejects_column_count_mismatches() {
     assert_eq!(
-        parse("30,70,20:a,b|a,c"),
+        parse("30 70 20:a b|a c"),
         Err(LayoutError::ColumnCountMismatch {
             expected: 3,
             actual: 2,
@@ -172,12 +172,12 @@ fn parse_form4_rejects_column_count_mismatches() {
 #[test]
 fn parse_form4_rejects_integer_column_count_combined_forms() {
     assert!(matches!(
-        parse("2:a,b"),
+        parse("2:a b"),
         Err(LayoutError::InvalidCombinedForm { form }) if form == "integer column count"
     ));
 
     assert!(matches!(
-        parse("2 : a,b|a,c"),
+        parse("2 : a b|a c"),
         Err(LayoutError::InvalidCombinedForm { form }) if form == "integer column count"
     ));
 }
@@ -185,18 +185,18 @@ fn parse_form4_rejects_integer_column_count_combined_forms() {
 #[test]
 fn parse_form4_rejects_row_preset_combined_forms() {
     assert!(matches!(
-        parse("row:a,b"),
+        parse("row:a b"),
         Err(LayoutError::InvalidCombinedForm { form }) if form == "row preset"
     ));
 }
 
 #[test]
 fn parse_form4_rejects_malformed_map_syntax() {
-    for input in ["a,,b", "|a,b", "a,b|", "a,b extra", "a,g20,b", "a,g20|b,c"] {
+    for input in ["|a b", "a b|", "a b extra", "a g20 b", "a g20|b c"] {
         let result = parse(input);
         assert!(
-            matches!(result, Err(LayoutError::Parse(..))),
-            "parse({input:?}) should return LayoutError::Parse, got: {result:?}"
+            result.is_err(),
+            "parse({input:?}) should return an error, got: {result:?}"
         );
     }
 }

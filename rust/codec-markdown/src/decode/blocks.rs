@@ -2412,11 +2412,11 @@ mod tests {
         assert_eq!(layout.as_deref(), Some("2"));
 
         let Block::Figure(Figure { layout, .. }) =
-            figure(&mut Located::new("figure [30,70]")).unwrap()
+            figure(&mut Located::new("figure [30 70]")).unwrap()
         else {
             panic!("expected figure")
         };
-        assert_eq!(layout.as_deref(), Some("30,70"));
+        assert_eq!(layout.as_deref(), Some("30 70"));
     }
 
     #[test]

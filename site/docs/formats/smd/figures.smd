@@ -154,11 +154,11 @@ The layout mini-language is designed to make simple layouts easy to write while 
 | Single row | `[row]` | All subfigures side-by-side in a single row |
 | Two equal columns | `[2]` | Subfigures flow into a 2-column grid |
 | Three equal columns | `[3]` | Subfigures flow into a 3-column grid |
-| Unequal columns | `[30,70]` | Proportional widths (30:70 split) |
-| Columns with gap | `[40,g20,40]` | Two columns with a gap between them |
-| Layout map | `[a,b\|a,c]` | Explicit placement — `a` spans two rows |
-| Map + widths | `[30,70 : a,b\|a,c]` | Widths and placement combined |
-| Empty cell | `[a,.\|b,c]` | `.` leaves a cell empty |
+| Unequal columns | `[30 70]` | Proportional widths (30:70 split) |
+| Columns with gap | `[40 g20 40]` | Two columns with a gap between them |
+| Layout map | `[a b \| a c]` | Explicit placement — `a` spans two rows |
+| Map + widths | `[30 70 : a b \| a c]` | Widths and placement combined |
+| Empty cell | `[a . \| b c]` | `.` leaves a cell empty |
 
 ## Single row
 
@@ -242,10 +242,10 @@ Four panels in a two-column grid.
 
 ## Column widths
 
-Comma-separated integers define proportional column widths. The numbers are relative — `30,70` means a 30:70 split:
+Space-separated integers define proportional column widths. The numbers are relative — `30 70` means a 30:70 split:
 
 ```smd demo
-::: figure [30,70]
+::: figure [30 70]
 
     ::: figure
 
@@ -270,10 +270,10 @@ Unequal two-column layout with a 30:70 width ratio.
 
 ## Column gaps
 
-Add a gap between columns using the `gN` token. For example, `40,g20,40` means two columns of equal width with a gap between them:
+Add a gap between columns using the `gN` token. For example, `40 g20 40` means two columns of equal width with a gap between them:
 
 ```smd demo
-::: figure [40,g20,40]
+::: figure [40 g20 40]
 
     ::: figure
 
@@ -298,21 +298,21 @@ Two columns with an explicit gap.
 
 ## Layout maps
 
-For precise control over where each subfigure appears, use a **layout map**. Letters represent subfigures (`a` = first subfigure, `b` = second, etc.), commas separate columns, and pipes (`|`) separate rows:
+For precise control over where each subfigure appears, use a **layout map**. Letters represent subfigures (`a` = first subfigure, `b` = second, etc.), spaces separate columns, and pipes (`|`) separate rows:
 
 | Layout | Meaning |
 | --- | --- |
-| `a,b` | Two subfigures side-by-side |
-| `a,b\|a,c` | `a` spans two rows on the left; `b` and `c` stack on the right |
-| `a,a\|b,c` | `a` spans two columns on top; `b` and `c` sit below |
-| `a,.\|b,c` | Top-right cell is empty |
+| `a b` | Two subfigures side-by-side |
+| `a b \| a c` | `a` spans two rows on the left; `b` and `c` stack on the right |
+| `a a \| b c` | `a` spans two columns on top; `b` and `c` sit below |
+| `a . \| b c` | Top-right cell is empty |
 
 ### Spanning rows
 
 Repeating a letter across rows makes that subfigure span vertically:
 
 ```smd demo
-::: figure [a,b|a,c]
+::: figure [a b | a c]
 
     ::: figure
 
@@ -348,7 +348,7 @@ One tall panel on the left with two stacked panels on the right.
 Repeating a letter across columns makes that subfigure span horizontally:
 
 ```smd demo
-::: figure [a,a|b,c]
+::: figure [a a | b c]
 
     ::: figure
 
@@ -384,7 +384,7 @@ A wide panel on top with two panels below.
 Use `.` to leave a cell empty:
 
 ```smd demo
-::: figure [a,.|b,c]
+::: figure [a . | b c]
 
     ::: figure
 
@@ -420,7 +420,7 @@ Top-right cell left intentionally empty.
 For layouts that need both unequal column widths _and_ precise placement, put the column specification before a `:` and the layout map after it:
 
 ```smd demo
-::: figure [30,70 : a,b|a,c]
+::: figure [30 70 : a b | a c]
 
     ::: figure
 
