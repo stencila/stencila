@@ -647,11 +647,12 @@ impl MarkdownCodec for CodeChunk {
                 context.push_indent().push_str(&backticks).newline();
 
                 if let Some(caption) = &self.caption
-                    && matches!(self.label_type, Some(LabelType::TableLabel)) {
-                        context.push_prop_fn(NodeProperty::Caption, |context| {
-                            caption.to_markdown(context)
-                        });
-                    }
+                    && matches!(self.label_type, Some(LabelType::TableLabel))
+                {
+                    context.push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context)
+                    });
+                }
 
                 if let Some(overlay) = &self.overlay
                     && matches!(context.format, Format::Smd)
@@ -674,11 +675,12 @@ impl MarkdownCodec for CodeChunk {
                 }
 
                 if let Some(caption) = &self.caption
-                    && !matches!(self.label_type, Some(LabelType::TableLabel)) {
-                        context.push_prop_fn(NodeProperty::Caption, |context| {
-                            caption.to_markdown(context)
-                        });
-                    }
+                    && !matches!(self.label_type, Some(LabelType::TableLabel))
+                {
+                    context.push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context)
+                    });
+                }
             }
 
             if wrapped {

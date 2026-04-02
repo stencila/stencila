@@ -67,6 +67,25 @@
     --figure-content-margin-horizontal: auto;
     --figure-subfigure-gap: 0;
 
+    /* Subfigure label badges - shown over each subfigure panel.
+     * Visible by default; set --figure-sublabel-display to "none" in a
+     * theme to hide.  Position, colors, typography, and shape are all
+     * tokenized for theme-level customization. */
+    --figure-sublabel-display: block;
+    --figure-sublabel-position-top: 0.5rem;
+    --figure-sublabel-position-left: 0.5rem;
+    --figure-sublabel-padding: 0.12em 0.45em;
+    --figure-sublabel-font-family: var(--font-family-sans);
+    --figure-sublabel-font-size: 0.78rem;
+    --figure-sublabel-font-weight: var(--font-weight-medium, 500);
+    --figure-sublabel-color: color-mix(in srgb, currentColor 82%, transparent);
+    --figure-sublabel-color-dark: color-mix(in srgb, currentColor 88%, transparent);
+    --figure-sublabel-background: color-mix(in srgb, var(--surface-color, #fff) 78%, transparent);
+    --figure-sublabel-background-dark: color-mix(in srgb, var(--surface-color, #111) 58%, transparent);
+    --figure-sublabel-border-radius: var(--border-radius-default, 4px);
+    --figure-sublabel-border: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+    --figure-sublabel-backdrop-filter: blur(2px);
+
     /* Caption typography - inherits from caption tokens */
     --figure-caption-font-family: var(--caption-font-family);
     --figure-caption-font-size: var(--caption-font-size);
@@ -112,6 +131,8 @@
         --figure-overlay-stroke-color: var(--figure-overlay-stroke-color-dark);
         --figure-overlay-text-color: var(--figure-overlay-text-color-dark);
         --figure-overlay-marker-color: var(--figure-overlay-marker-color-dark);
+        --figure-sublabel-color: var(--figure-sublabel-color-dark);
+        --figure-sublabel-background: var(--figure-sublabel-background-dark);
     }
 }
 
@@ -123,6 +144,8 @@
     --figure-overlay-stroke-color: var(--figure-overlay-stroke-color-dark);
     --figure-overlay-text-color: var(--figure-overlay-text-color-dark);
     --figure-overlay-marker-color: var(--figure-overlay-marker-color-dark);
+    --figure-sublabel-color: var(--figure-sublabel-color-dark);
+    --figure-sublabel-background: var(--figure-sublabel-background-dark);
 }
 
 stencila-figure {
@@ -166,6 +189,35 @@ stencila-figure {
 
     > [slot] > .figure-content-item {
         min-width: 0;
+    }
+
+    /* Subfigure label badges - positioned over each subfigure panel.
+     * The badge is rendered via a ::before pseudo-element on the
+     * .figure-content-item wrapper that carries a data-sublabel attribute.
+     * Visible by default; themes can hide them by setting
+     * --figure-sublabel-display to "none". */
+    .figure-content-item[data-sublabel] {
+        position: relative;
+    }
+
+    .figure-content-item[data-sublabel]::before {
+        content: attr(data-sublabel);
+        display: var(--figure-sublabel-display);
+        position: absolute;
+        top: var(--figure-sublabel-position-top);
+        left: var(--figure-sublabel-position-left);
+        z-index: 2;
+        padding: var(--figure-sublabel-padding);
+        font-family: var(--figure-sublabel-font-family);
+        font-size: var(--figure-sublabel-font-size);
+        font-weight: var(--figure-sublabel-font-weight);
+        color: var(--figure-sublabel-color);
+        background: var(--figure-sublabel-background);
+        border-radius: var(--figure-sublabel-border-radius);
+        border: var(--figure-sublabel-border);
+        backdrop-filter: var(--figure-sublabel-backdrop-filter);
+        line-height: 1;
+        pointer-events: none;
     }
 
     /* Anchor figure-level overlays to the rendered content area, including

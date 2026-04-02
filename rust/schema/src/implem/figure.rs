@@ -18,6 +18,12 @@ struct SubfigureCaption {
     caption: Vec<Block>,
 }
 
+/// Derived metadata for a figure-like item within a parent figure's content.
+struct SubfigureItem {
+    alpha: String,
+    caption: Option<Vec<Block>>,
+}
+
 /// SSR-ready grid styles for a figure layout and its content items.
 struct GridLayoutStyles {
     container: String,
@@ -44,44 +50,56 @@ fn subfigure_index_to_alpha(num: u32) -> String {
     label
 }
 
+/// Compute derived metadata for each content block in a parent figure.
+///
+/// Returns `Some(SubfigureItem)` for subfigure and figure-labelled code-chunk
+/// blocks, and `None` for other block types.
+fn compute_subfigure_items(content: &[Block]) -> Vec<Option<SubfigureItem>> {
+    let mut position: u32 = 0;
+    content
+        .iter()
+        .map(|block| match block {
+            Block::Figure(Figure { label, caption, .. }) => {
+                position += 1;
+                Some(SubfigureItem {
+                    alpha: subfigure_label_to_alpha(label)
+                        .unwrap_or_else(|| subfigure_index_to_alpha(position)),
+                    caption: caption.clone(),
+                })
+            }
+            Block::CodeChunk(CodeChunk {
+                label_type: Some(LabelType::FigureLabel),
+                label,
+                caption,
+                ..
+            }) => {
+                position += 1;
+                Some(SubfigureItem {
+                    alpha: subfigure_label_to_alpha(label)
+                        .unwrap_or_else(|| subfigure_index_to_alpha(position)),
+                    caption: caption.clone(),
+                })
+            }
+            _ => None,
+        })
+        .collect()
+}
+
 /// Collect subfigure captions from a figure's content blocks.
 ///
 /// Uses the alphabetic suffix from the subfigure label when available,
 /// falling back to positional lettering (A, B, C, …) for uncompiled documents.
 fn collect_subfigure_captions(content: &[Block]) -> Vec<SubfigureCaption> {
-    let mut result = Vec::new();
-    let mut position: u32 = 0;
-    for block in content {
-        match block {
-            Block::Figure(fig) => {
-                if let Some(caption) = &fig.caption {
-                    position += 1;
-                    let alpha = subfigure_label_to_alpha(&fig.label)
-                        .unwrap_or_else(|| subfigure_index_to_alpha(position));
-                    result.push(SubfigureCaption {
-                        alpha,
-                        caption: caption.clone(),
-                    });
-                }
-            }
-            Block::CodeChunk(CodeChunk {
-                label_type: Some(LabelType::FigureLabel),
-                label,
-                caption: Some(caption),
-                ..
-            }) => {
-                position += 1;
-                let alpha = subfigure_label_to_alpha(label)
-                    .unwrap_or_else(|| subfigure_index_to_alpha(position));
-                result.push(SubfigureCaption {
-                    alpha,
-                    caption: caption.clone(),
-                });
-            }
-            _ => {}
-        }
-    }
-    result
+    compute_subfigure_items(content)
+        .into_iter()
+        .flatten()
+        .filter_map(|item| {
+            item.caption.map(|caption| SubfigureCaption {
+                alpha: item.alpha,
+                caption,
+            })
+        })
+        .collect()
 }
 
 /// Resolve a figure layout string into container and item styles for SSR.
@@ -253,6 +271,13 @@ impl DomCodec for Figure {
             collect_subfigure_captions(&self.content)
         };
 
+        let subfigure_items = if is_subfigure {
+            Vec::new()
+        } else {
+            compute_subfigure_items(&self.content)
+        };
+        let subfigure_count = subfigure_items.iter().filter(|item| item.is_some()).count();
+
         context.push_slot_fn("figure", "content", |context| {
             context.enter_elem_attrs("div", [("class", "figure-content-area")]);
 
@@ -269,8 +294,29 @@ impl DomCodec for Figure {
                         "div",
                         [("class", "figure-content-item"), ("style", style)],
                     );
+                    if subfigure_count >= 2
+                        && let Some(Some(item)) = subfigure_items.get(index)
+                    {
+                        context.push_attr("data-sublabel", &item.alpha);
+                    }
                     block.to_dom(context);
                     context.exit_elem();
+                }
+            } else if subfigure_count >= 2 {
+                for (index, block) in self.content.iter().enumerate() {
+                    if let Some(Some(item)) = subfigure_items.get(index) {
+                        context.enter_elem_attrs(
+                            "div",
+                            [
+                                ("class", "figure-content-item"),
+                                ("data-sublabel", &item.alpha),
+                            ],
+                        );
+                        block.to_dom(context);
+                        context.exit_elem();
+                    } else {
+                        block.to_dom(context);
+                    }
                 }
             } else {
                 self.content.to_dom(context);
