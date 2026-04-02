@@ -1,0 +1,41 @@
+<stencila-article id=xxx depth=0 ancestors='' root>
+  <section slot=content>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
+      <p slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Figure-labeled code chunk with overlay:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code=plot(data) programming-language=python label-type=FigureLabel label=1 label-automatically=false>
+      <div slot=caption>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
+          <p slot=content>
+            <span class=figure-label>Figure 1</span>:<stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>A code-generated figure with an annotation overlay.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-code-chunk>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
+      <p slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>Plain SVG code block in caption should not become overlay:</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-code-chunk id=xxx depth=1 ancestors=Article code=plot(other_data) programming-language=python label-type=FigureLabel label=2 label-automatically=false>
+      <div slot=caption>
+        <stencila-code-block id=xxx depth=2 ancestors=Article.CodeChunk code='&lt;svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg"&gt;
+  &lt;circle cx="5" cy="5" r="4" /&gt;
+&lt;/svg&gt;' programming-language=svg>
+          <pre>
+            <code>&lt;svg viewBox=&quot;0 0 10 10&quot; xmlns=&quot;http:&#x2F;&#x2F;www.w3.org&#x2F;2000&#x2F;svg&quot;&gt;
+  &lt;circle cx=&quot;5&quot; cy=&quot;5&quot; r=&quot;4&quot; &#x2F;&gt;
+&lt;&#x2F;svg&gt;</code>
+          </pre>
+        </stencila-code-block>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.CodeChunk>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.CodeChunk.Paragraph>A figure whose caption includes an SVG example, not an overlay.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-code-chunk>
+  </section>
+</stencila-article>

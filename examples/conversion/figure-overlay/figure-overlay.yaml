@@ -1,0 +1,51 @@
+type: Article
+content:
+- type: Figure
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A cat with an annotation overlay.
+  overlay: |-
+    <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+      <text x="500" y="310" fill="red" font-size="24">Region of interest</text>
+    </svg>
+  content:
+  - type: ImageObject
+    contentUrl: https://example.org/cat.jpg
+- type: Figure
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A figure with a subfigure overlay.
+  layout: '2'
+  content:
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: Left panel.
+    overlay: |-
+      <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="60" y="40" width="120" height="100" fill="none" stroke="#00f" stroke-width="4" />
+        <text x="70" y="32" fill="#00f" font-size="18">Panel A</text>
+      </svg>
+    content:
+    - type: ImageObject
+      contentUrl: https://example.org/panel-a.jpg
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: Right panel.
+    content:
+    - type: ImageObject
+      contentUrl: https://example.org/panel-b.jpg

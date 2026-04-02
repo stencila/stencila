@@ -1,0 +1,18 @@
+start     end        offsets   node_type+property                   authorship
+    12     44       (12, 44)   ImageObject
+    12     44         (0, 0)   ImageObject
+    47    291      (35, 247)   CodeBlock
+   293    326      (246, 35)   Paragraph
+     0    331      (-293, 5)   Figure
+   373    409      (373, 78)   ImageObject
+   369    409        (-4, 0)   ImageObject
+   416    681      (47, 272)   CodeBlock
+   687    702      (271, 21)   Paragraph
+   349    711      (-338, 9)   Figure
+   737    773      (388, 62)   ImageObject
+   733    773        (-4, 0)   ImageObject
+   775    791       (42, 18)   Paragraph
+   713    800       (-62, 9)   Figure
+   802    836       (89, 36)   Paragraph
+   333    841      (-469, 5)   Figure
+     0    842      (-333, 1)   Article

@@ -1,0 +1,19 @@
+Figure-labeled code chunk with overlay:
+
+```{code-cell} python
+:type: figure
+:label: 1
+:caption: A code-generated figure with an annotation overlay.
+
+plot(data)
+```
+
+Plain SVG code block in caption should not become overlay:
+
+```{code-cell} python
+:type: figure
+:label: 2
+:caption: ```svg <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">   <circle cx="5" cy="5" r="4" /> </svg> ```  A figure whose caption includes an SVG example, not an overlay.
+
+plot(other_data)
+```

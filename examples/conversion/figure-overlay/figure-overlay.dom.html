@@ -1,0 +1,79 @@
+<stencila-article id=xxx depth=0 ancestors='' root>
+  <section slot=content>
+    <stencila-figure id=xxx depth=1 ancestors=Article>
+      <figure slot=content>
+        <div class=figure-content-area>
+          <stencila-image-object id=xxx depth=2 ancestors=Article.Figure content-url='https://example.org/cat.jpg'>
+            <img src='https://example.org/cat.jpg'/>
+          </stencila-image-object>
+          <div slot=overlay>
+            <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+              <text x="500" y="310" fill="red" font-size="24">Region of interest</text>
+            </svg>
+          </div>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A cat with an annotation overlay.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
+    <stencila-figure id=xxx depth=1 ancestors=Article layout=2>
+      <figure slot=content>
+        <div class=figure-content-area style='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+          <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1'>
+            <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+              <figure slot=content>
+                <div class=figure-content-area>
+                  <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://example.org/panel-a.jpg'>
+                    <img src='https://example.org/panel-a.jpg'/>
+                  </stencila-image-object>
+                  <div slot=overlay>
+                    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+                      <rect x="60" y="40" width="120" height="100" fill="none" stroke="#00f" stroke-width="4" />
+                      <text x="70" y="32" fill="#00f" font-size="18">Panel A</text>
+                    </svg>
+                  </div>
+                </div>
+              </figure>
+            </stencila-figure>
+          </div>
+          <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1'>
+            <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+              <figure slot=content>
+                <div class=figure-content-area>
+                  <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='https://example.org/panel-b.jpg'>
+                    <img src='https://example.org/panel-b.jpg'/>
+                  </stencila-image-object>
+                </div>
+              </figure>
+            </stencila-figure>
+          </div>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A figure with a subfigure overlay.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(A)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Left panel.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(B)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Right panel.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
+  </section>
+</stencila-article>

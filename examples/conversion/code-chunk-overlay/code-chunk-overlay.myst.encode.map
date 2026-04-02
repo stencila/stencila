@@ -1,0 +1,23 @@
+start     end        offsets   node_type+property                   authorship
+     0     39        (0, 39)   Text.value
+     0     39         (0, 0)   Text
+     0     39         (0, 0)   Paragraph.content
+     0     40         (0, 1)   Paragraph
+    56     62       (56, 22)   CodeChunk.programmingLanguage
+    70     76       (14, 14)   CodeChunk.labelType
+    85     86       (15, 10)   CodeChunk.label
+    97    148       (12, 62)   CodeChunk.caption
+   150    161       (53, 13)   CodeChunk.code
+    41    165      (-109, 4)   CodeChunk
+   166    224      (125, 59)   Text.value
+   166    224         (0, 0)   Text
+   166    224         (0, 0)   Paragraph.content
+   166    225         (0, 1)   Paragraph
+   241    247       (75, 22)   CodeChunk.programmingLanguage
+   255    261       (14, 14)   CodeChunk.labelType
+   270    271       (15, 10)   CodeChunk.label
+   282    458      (12, 187)   CodeChunk.caption
+   460    477      (178, 19)   CodeChunk.code
+   226    481      (-234, 4)   CodeChunk
+     0    482      (-226, 1)   Article.content
+     0    482         (0, 0)   Article

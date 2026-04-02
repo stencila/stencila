@@ -1,0 +1,45 @@
+::: figure
+
+![](https://example.org/cat.jpg)
+
+
+```svg overlay
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+  <text x="500" y="310" fill="red" font-size="24">Region of interest</text>
+</svg>
+```
+
+A cat with an annotation overlay.
+
+:::
+
+::: figure [2]
+
+    ::: figure
+    
+    ![](https://example.org/panel-a.jpg)
+
+
+    ```svg overlay
+    <svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+      <rect x="60" y="40" width="120" height="100" fill="none" stroke="#00f" stroke-width="4" />
+      <text x="70" y="32" fill="#00f" font-size="18">Panel A</text>
+    </svg>
+    ```
+    
+    Left panel.
+
+    :::
+
+    ::: figure
+    
+    ![](https://example.org/panel-b.jpg)
+
+    Right panel.
+
+    :::
+
+A figure with a subfigure overlay.
+
+:::

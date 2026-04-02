@@ -1,0 +1,50 @@
+type: Article
+content:
+- type: Paragraph
+  content:
+  - type: Text
+    value:
+      string: 'Figure-labeled code chunk with overlay:'
+- type: CodeChunk
+  code:
+    string: plot(data)
+  programmingLanguage: python
+  labelType: FigureLabel
+  label: '1'
+  labelAutomatically: false
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A code-generated figure with an annotation overlay.
+  overlay: |-
+    <svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+      <text x="500" y="310" fill="red" font-size="24">Peak of interest</text>
+    </svg>
+- type: Paragraph
+  content:
+  - type: Text
+    value:
+      string: 'Plain SVG code block in caption should not become overlay:'
+- type: CodeChunk
+  code:
+    string: plot(other_data)
+  programmingLanguage: python
+  labelType: FigureLabel
+  label: '2'
+  labelAutomatically: false
+  caption:
+  - type: CodeBlock
+    code:
+      string: |-
+        <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="5" cy="5" r="4" />
+        </svg>
+    programmingLanguage: svg
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A figure whose caption includes an SVG example, not an overlay.

@@ -1,0 +1,7 @@
+Figure-labeled code chunk with overlay:
+
+plot(data)
+
+Plain SVG code block in caption should not become overlay:
+
+plot(other_data)

@@ -1,0 +1,15 @@
+compact.jats.xml:
+  decode:
+    skip: true
+jats.xml:
+  decode:
+    skip: true
+myst:
+  decode:
+    skip: true
+qmd:
+  decode:
+    skip: true
+pandoc:
+  decode:
+    skip: true

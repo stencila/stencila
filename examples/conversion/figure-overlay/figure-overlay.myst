@@ -1,0 +1,11 @@
+:::{figure} https://example.org/cat.jpg
+
+A cat with an annotation overlay.
+
+:::
+
+:::{figure}
+
+A figure with a subfigure overlay.
+
+:::

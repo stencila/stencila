@@ -1,0 +1,68 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Figure-labeled code chunk with overlay:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "code": "plot(data)",
+      "labelType": "FigureLabel",
+      "label": "1",
+      "labelAutomatically": false,
+      "overlay": "<svg viewBox=\"0 0 800 600\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"400\" cy=\"300\" r=\"80\" fill=\"none\" stroke=\"red\" stroke-width=\"6\" />\n  <text x=\"500\" y=\"310\" fill=\"red\" font-size=\"24\">Peak of interest</text>\n</svg>",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A code-generated figure with an annotation overlay."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": "Plain SVG code block in caption should not become overlay:"
+        }
+      ]
+    },
+    {
+      "type": "CodeChunk",
+      "programmingLanguage": "python",
+      "code": "plot(other_data)",
+      "labelType": "FigureLabel",
+      "label": "2",
+      "labelAutomatically": false,
+      "caption": [
+        {
+          "type": "CodeBlock",
+          "programmingLanguage": "svg",
+          "code": "<svg viewBox=\"0 0 10 10\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"5\" cy=\"5\" r=\"4\" />\n</svg>"
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A figure whose caption includes an SVG example, not an overlay."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

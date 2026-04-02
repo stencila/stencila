@@ -1,0 +1,36 @@
+Figure-labeled code chunk with overlay:
+
+::: figure 1
+
+```python exec
+plot(data)
+```
+
+```svg overlay
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+  <text x="500" y="310" fill="red" font-size="24">Peak of interest</text>
+</svg>
+```
+A code-generated figure with an annotation overlay.
+
+
+:::
+
+Plain SVG code block in caption should not become overlay:
+
+::: figure 2
+
+```python exec
+plot(other_data)
+```
+```svg
+<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="5" cy="5" r="4" />
+</svg>
+```
+
+A figure whose caption includes an SVG example, not an overlay.
+
+
+:::

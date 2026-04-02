@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+  <body>
+    <p>Figure-labeled code chunk with overlay:</p>
+    <code executable="yes" language="python" label-type="FigureLabel">plot(data)<label>1</label>
+      <caption>
+        <p>A code-generated figure with an annotation overlay.</p>
+      </caption>
+    </code>
+    <p>Plain SVG code block in caption should not become overlay:</p>
+    <code executable="yes" language="python" label-type="FigureLabel">plot(other_data)<label>2</label>
+      <caption>
+        <code language="svg">&lt;svg viewBox=&quot;0 0 10 10&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;&gt;&#10;  &lt;circle cx=&quot;5&quot; cy=&quot;5&quot; r=&quot;4&quot; /&gt;&#10;&lt;/svg&gt;</code>
+        <p>A figure whose caption includes an SVG example, not an overlay.</p>
+      </caption>
+    </code>
+  </body>
+</article>

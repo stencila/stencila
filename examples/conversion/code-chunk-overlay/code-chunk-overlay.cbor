@@ -1,0 +1,6 @@
+¿dtypegArticlegcontent„¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx'Figure-labeled code chunk with overlay:¿dtypeiCodeChunkdcode¡fstringjplot(data)sprogrammingLanguagefpythonilabelTypekFigureLabelelabela1rlabelAutomaticallyôgcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx3A code-generated figure with an annotation overlay.goverlayxß<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
+  <text x="500" y="310" fill="red" font-size="24">Peak of interest</text>
+</svg>ÿ¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx:Plain SVG code block in caption should not become overlay:¿dtypeiCodeChunkdcode¡fstringpplot(other_data)sprogrammingLanguagefpythonilabelTypekFigureLabelelabela2rlabelAutomaticallyôgcaption‚¿dtypeiCodeBlockdcode¡fstringxd<svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="5" cy="5" r="4" />
+</svg>sprogrammingLanguagecsvgÿ¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx?A figure whose caption includes an SVG example, not an overlay.ÿÿ
