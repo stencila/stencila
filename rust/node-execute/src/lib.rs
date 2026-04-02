@@ -31,8 +31,8 @@ mod bibliography;
 mod call_block;
 mod chat;
 mod citation;
-mod code_block;
 mod citation_group;
+mod code_block;
 mod code_chunk;
 mod code_expression;
 mod code_utils;
@@ -1117,6 +1117,76 @@ impl Executor {
         self.supplement_count.to_string()
     }
 
+    /// Generate an auto-id from a label type and label, or return the existing
+    /// id if it was user-supplied.
+    ///
+    /// Auto-generated ids follow the pattern `{prefix}-{label}` where the prefix
+    /// is derived from the label type (e.g. `fig`, `tbl`, `sup`) and the label is
+    /// lowercased.  If the node already has an id that does not match this
+    /// pattern it is treated as user-supplied and left unchanged.
+    pub fn auto_id(
+        label_type: &LabelType,
+        label: &str,
+        current_id: &Option<String>,
+    ) -> Option<String> {
+        let prefix = match label_type {
+            LabelType::FigureLabel => "fig",
+            LabelType::TableLabel => "tbl",
+            LabelType::SupplementLabel => "sup",
+            LabelType::AppendixLabel => return None,
+        };
+
+        let auto = format!("{prefix}-{}", label.to_lowercase());
+
+        match current_id {
+            // No id yet — generate one
+            None => Some(auto),
+            // Already has the correct auto-id
+            Some(id) if *id == auto => None,
+            // Has a previous auto-id (matches prefix-{alphanum} pattern) — update it
+            Some(id) if Self::is_auto_id(id, prefix) => Some(auto),
+            // User-supplied id — leave it alone
+            Some(_) => None,
+        }
+    }
+
+    /// Whether an id looks like it was auto-generated for the given prefix.
+    ///
+    /// Auto ids match `{prefix}-{optional letters}{digits}{optional letters}`
+    /// which covers all label shapes produced by the executor:
+    /// - top-level: `fig-1`, `tbl-10`
+    /// - subfigure: `fig-1a`, `fig-1b`
+    /// - appendix: `fig-a1`, `fig-a1a`
+    fn is_auto_id(id: &str, prefix: &str) -> bool {
+        id.strip_prefix(prefix)
+            .and_then(|rest| rest.strip_prefix('-'))
+            .is_some_and(|suffix| {
+                let mut chars = suffix.chars().peekable();
+
+                // Optional leading letters (appendix prefix e.g. "a", "aa")
+                while chars.peek().is_some_and(|c| c.is_ascii_lowercase()) {
+                    chars.next();
+                }
+
+                // Required: one or more digits
+                let has_digit = chars.peek().is_some_and(|c| c.is_ascii_digit());
+                if !has_digit {
+                    return false;
+                }
+                while chars.peek().is_some_and(|c| c.is_ascii_digit()) {
+                    chars.next();
+                }
+
+                // Optional trailing letters (subfigure suffix e.g. "a", "aa")
+                while chars.peek().is_some_and(|c| c.is_ascii_lowercase()) {
+                    chars.next();
+                }
+
+                // Must have consumed everything
+                chars.peek().is_none()
+            })
+    }
+
     /// Get the execution status for a node based on state of node
     /// and options of the executor
     pub fn node_execution_status(
@@ -1485,6 +1555,177 @@ mod labelling_tests {
         assert_eq!(exec.subfigure_label(), "2B");
         assert_eq!(exec.subfigure_label(), "2C");
         exec.exit_struct();
+
+        Ok(())
+    }
+
+    #[test]
+    fn auto_id_generates_from_label() -> eyre::Result<()> {
+        use stencila_schema::LabelType;
+
+        // Figure: no existing id
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1", &None),
+            Some("fig-1".to_string())
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "2", &None),
+            Some("fig-2".to_string())
+        );
+
+        // Subfigure labels are lowercased
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1A", &None),
+            Some("fig-1a".to_string())
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1B", &None),
+            Some("fig-1b".to_string())
+        );
+
+        // Appendix figure labels
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "A1", &None),
+            Some("fig-a1".to_string())
+        );
+
+        // Table
+        assert_eq!(
+            Executor::auto_id(&LabelType::TableLabel, "1", &None),
+            Some("tbl-1".to_string())
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::TableLabel, "3", &None),
+            Some("tbl-3".to_string())
+        );
+
+        // Supplement
+        assert_eq!(
+            Executor::auto_id(&LabelType::SupplementLabel, "1", &None),
+            Some("sup-1".to_string())
+        );
+
+        // AppendixLabel returns None (no auto-id for appendices)
+        assert_eq!(
+            Executor::auto_id(&LabelType::AppendixLabel, "A", &None),
+            None
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn auto_id_preserves_user_supplied() -> eyre::Result<()> {
+        use stencila_schema::LabelType;
+
+        // User-supplied id that doesn't match auto pattern is preserved
+        assert_eq!(
+            Executor::auto_id(
+                &LabelType::FigureLabel,
+                "1",
+                &Some("my-results-figure".to_string())
+            ),
+            None
+        );
+        assert_eq!(
+            Executor::auto_id(
+                &LabelType::TableLabel,
+                "2",
+                &Some("demographics-table".to_string())
+            ),
+            None
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1", &Some("custom-id".to_string())),
+            None
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn auto_id_updates_stale_auto_ids() -> eyre::Result<()> {
+        use stencila_schema::LabelType;
+
+        // Had fig-1, now label is "2" — should update to fig-2
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "2", &Some("fig-1".to_string())),
+            Some("fig-2".to_string())
+        );
+
+        // Had tbl-1, now label is "3" — should update to tbl-3
+        assert_eq!(
+            Executor::auto_id(&LabelType::TableLabel, "3", &Some("tbl-1".to_string())),
+            Some("tbl-3".to_string())
+        );
+
+        // Had fig-1a, now label is "2A" — should update
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "2A", &Some("fig-1a".to_string())),
+            Some("fig-2a".to_string())
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn auto_id_no_op_when_correct() -> eyre::Result<()> {
+        use stencila_schema::LabelType;
+
+        // Already has the correct auto id — should return None (no update needed)
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1", &Some("fig-1".to_string())),
+            None
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::TableLabel, "2", &Some("tbl-2".to_string())),
+            None
+        );
+        assert_eq!(
+            Executor::auto_id(&LabelType::FigureLabel, "1A", &Some("fig-1a".to_string())),
+            None
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn is_auto_id_detection() -> eyre::Result<()> {
+        // Valid auto ids — top-level
+        assert!(Executor::is_auto_id("fig-1", "fig"));
+        assert!(Executor::is_auto_id("fig-10", "fig"));
+        assert!(Executor::is_auto_id("tbl-1", "tbl"));
+        assert!(Executor::is_auto_id("tbl-12", "tbl"));
+        assert!(Executor::is_auto_id("sup-1", "sup"));
+
+        // Valid auto ids — subfigure (digits then letters)
+        assert!(Executor::is_auto_id("fig-1a", "fig"));
+        assert!(Executor::is_auto_id("fig-1b", "fig"));
+        assert!(Executor::is_auto_id("fig-10a", "fig"));
+
+        // Valid auto ids — appendix (letters then digits)
+        assert!(Executor::is_auto_id("fig-a1", "fig"));
+        assert!(Executor::is_auto_id("fig-b2", "fig"));
+        assert!(Executor::is_auto_id("tbl-a1", "tbl"));
+
+        // Valid auto ids — appendix subfigure (letters, digits, letters)
+        assert!(Executor::is_auto_id("fig-a1a", "fig"));
+        assert!(Executor::is_auto_id("fig-a1b", "fig"));
+
+        // Not auto ids — no digits at all
+        assert!(!Executor::is_auto_id("fig-abc", "fig"));
+        assert!(!Executor::is_auto_id("tbl-abc", "tbl"));
+
+        // Not auto ids — wrong structure
+        assert!(!Executor::is_auto_id("my-figure", "fig"));
+        assert!(!Executor::is_auto_id("fig-", "fig")); // empty suffix
+        assert!(!Executor::is_auto_id("figure-1", "fig")); // wrong prefix
+        assert!(!Executor::is_auto_id("fig-1-extra", "fig")); // hyphen in suffix
+        assert!(!Executor::is_auto_id("tbl-my-table", "tbl")); // hyphen in suffix
+
+        // Not auto ids — uppercase letters (auto ids are always lowercased)
+        assert!(!Executor::is_auto_id("fig-1A", "fig"));
+        assert!(!Executor::is_auto_id("fig-A1", "fig"));
 
         Ok(())
     }
