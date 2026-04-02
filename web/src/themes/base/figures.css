@@ -221,9 +221,14 @@ stencila-figure {
     }
 
     /* Anchor figure-level overlays to the rendered content area, including
-     * grid layouts that now live on this wrapper. */
+     * grid layouts that now live on this wrapper.
+     * Vertically center subfigures within their grid row so that images
+     * with different aspect ratios align at their midpoint instead of
+     * leaving whitespace below shorter panels. Only takes effect when
+     * the element is a grid container (i.e. a layout is specified). */
     figure > .figure-content-area {
         position: relative;
+        align-items: center;
     }
 
     figure {

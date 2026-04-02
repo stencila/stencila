@@ -451,6 +451,50 @@ A 30:70 split with the left panel spanning both rows.
 :::
 ```
 
+## Mixed image sizes
+
+Subfigure images do not need to share the same aspect ratio. When images in the same row have different heights, each image preserves its natural proportions and is vertically centered within the row:
+
+```smd demo
+::: figure [2]
+
+    ::: figure
+
+    ![](https://placehold.co/300x150/e74c3c/white)
+
+    Wide (2 : 1).
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/250x200/2ecc71/white)
+
+    Tall (5 : 4).
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    Medium (8 : 5).
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/200x100/f39c12/white)
+
+    Wide (2 : 1).
+
+    :::
+
+Subfigures with different aspect ratios — each image keeps its proportions and centers vertically.
+
+:::
+```
+
 # Overlays
 
 An **overlay** is a transparent SVG layer rendered on top of a figure's visual content. Use overlays to add annotations — circles, arrows, bounding boxes, text labels — without modifying the underlying image.
