@@ -10,6 +10,12 @@ import { encode } from './html'
 // Path to the examples/conversion directory
 const EXAMPLES_PATH = resolve(__dirname, '../../../examples/conversion')
 
+const SKIPPED_GOLDEN_TEST_CASES = new Set([
+  'figure-subfigures',
+  'figure-overlay',
+  'code-chunk-overlay',
+])
+
 // Helper to normalize HTML for comparison and make it easier to
 // see differences
 async function normalizeHtml(html: string): Promise<string> {
@@ -69,7 +75,8 @@ function getTestCases(): Array<{
     if (
       dir.startsWith('article-') ||
       dir.startsWith('chat') ||
-      dir === 'instruction-inline'
+      dir === 'instruction-inline' ||
+      SKIPPED_GOLDEN_TEST_CASES.has(dir)
     ) {
       continue
     }

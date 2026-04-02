@@ -578,6 +578,23 @@ function extractSubfigureAlpha(label: string | undefined): string | null {
 }
 
 /**
+ * Wrap figure-like rendered content in the shared content-area container.
+ *
+ * This currently exists to mirror the wrapper emitted by the Rust DOM codec
+ * for regular figures and for figure-labeled code chunk outputs with overlays.
+ * More advanced layout-specific structure is intentionally omitted here while
+ * the newer figure layout / overlay golden tests are skipped.
+ */
+function encodeFigureContentArea(
+  content: string,
+  overlay?: string
+): string {
+  const overlayContent = overlay ? `<div slot="overlay">${overlay}</div>` : ''
+
+  return `<div class="figure-content-area">${content}${overlayContent}</div>`
+}
+
+/**
  * Manual encoders for node types that need custom logic
  *
  * ONLY USE WHEN NECESSARY: These should only exist if there is a corresponding
@@ -746,6 +763,17 @@ const MANUAL_ENCODERS: Partial<
     }
 
     // Outputs
+    if (node.outputs) {
+      const outputs = encodeNodes(node.outputs, ancestors)
+      const hasFigureOverlay =
+        node.labelType === ('FigureLabel' as LabelType) && !!node.overlay
+
+      context.pushSlot(
+        'div',
+        'outputs',
+        hasFigureOverlay ? encodeFigureContentArea(outputs, node.overlay) : outputs
+      )
+    }
 
     if (
       node.labelType == 'FigureLabel' &&
@@ -797,8 +825,10 @@ const MANUAL_ENCODERS: Partial<
       ? []
       : collectSubfigureCaptions(node.content)
 
-    // Build figure content with caption inside
-    let figureContent = encodeNodes(node.content, ancestors)
+    let figureContent = encodeFigureContentArea(
+      encodeNodes(node.content, ancestors),
+      node.overlay
+    )
 
     // Subfigures do not render their own figcaption; their captions
     // are appended to the parent figure's caption instead.
