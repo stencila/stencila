@@ -36,17 +36,13 @@ You _can_ set an explicit label by placing it after the `figure` keyword. Howeve
 
 Every figure with a label automatically receives an `id` that you can use as an internal link target. The id is derived from the label with a `fig-` prefix — for example, a figure labelled "1" gets the id `fig-1`, and a subfigure labelled "1A" gets `fig-1a`.
 
-Link to a figure using a standard Markdown link with a `#` target. Stencila resolves the reference and fills in the link text automatically:
+Link to a figure using a standard Markdown link with a `#` target. Stencila resolves the reference and fills in the link text automatically if it is missing.
 
-```smd
-See [](#fig-1) for an overview.
+```smd demo
+See [Figure 1](#fig-1) for an overview.
 
-Subfigure [](#fig-1a) shows the red panel, while [](#fig-1b) shows the blue panel.
+Subfigure [Figure 4a](#fig-4a) shows the red panel, while [Figure 4c](#fig-4c) shows the blue panel.
 ```
-
-Tables and datatables get a `tbl-` prefix (e.g. `tbl-1`) and supplements get `sup-` (e.g. `sup-1`).
-
-If you need a stable id that won't change when figures are reordered, set an explicit `id` attribute on the node — Stencila will never overwrite a user-supplied id.
 
 # Captions
 
