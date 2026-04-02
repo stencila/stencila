@@ -105,15 +105,24 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
     };
 
+    let is_options = struct_name.to_string().ends_with("Options");
+
     let mut fields = TokenStream::new();
     let mut fields_mut = TokenStream::new();
     let mut fields_async = TokenStream::new();
+    let mut has_options_field = false;
     type_attr.data.map_struct_fields(|field| {
-        if !field.attrs.is_empty() {
-            let Some(field_name) = field.ident else {
-                return;
-            };
+        let Some(field_name) = field.ident else {
+            return;
+        };
 
+        // Track whether there is an `options` field to walk into below
+        if field_name == "options" && !is_options {
+            has_options_field = true;
+            return;
+        }
+
+        if !field.attrs.is_empty() {
             let property = if field_name == "r#abstract" {
                 "Abstract".to_string()
             } else {
@@ -150,6 +159,20 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             })
         }
     });
+
+    // Always walk into the `options` field so that any #[walk] fields
+    // in the Options struct are reached
+    if has_options_field {
+        fields.extend(quote! {
+            self.options.walk(visitor);
+        });
+        fields_mut.extend(quote! {
+            self.options.walk_mut(visitor);
+        });
+        fields_async.extend(quote! {
+            self.options.walk_async(visitor).await?;
+        });
+    }
 
     if visit.is_empty() && fields.is_empty() {
         quote! {
