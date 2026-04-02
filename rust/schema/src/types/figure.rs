@@ -100,6 +100,11 @@ pub struct Figure {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub layout: Option<String>,
 
+    /// An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay: Option<String>,
+
     /// The content of the figure.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]

@@ -34,6 +34,11 @@ export class CodeChunk extends CodeExecutable {
   caption?: Block[];
 
   /**
+   * An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
+   */
+  overlay?: string;
+
+  /**
    * Outputs from executing the chunk.
    */
   outputs?: Node[];

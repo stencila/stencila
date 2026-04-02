@@ -1605,6 +1605,9 @@ class CodeChunk(CodeExecutable):
     caption: list[Block] | None = None
     """A caption for the chunk."""
 
+    overlay: str | None = None
+    """An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels."""
+
     outputs: list[Node] | None = None
     """Outputs from executing the chunk."""
 
@@ -2105,6 +2108,9 @@ class Figure(CreativeWork):
 
     layout: str | None = None
     """Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid."""
+
+    overlay: str | None = None
+    """An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels."""
 
     content: list[Block]
     """The content of the figure."""

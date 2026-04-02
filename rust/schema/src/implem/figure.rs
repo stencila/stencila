@@ -1,4 +1,5 @@
 use stencila_codec_info::lost_options;
+use stencila_format::Format;
 use stencila_layout_lang::{Columns, Layout, Placement, parse as parse_layout};
 use stencila_node_type::NodeType;
 
@@ -253,6 +254,8 @@ impl DomCodec for Figure {
         };
 
         context.push_slot_fn("figure", "content", |context| {
+            context.enter_elem_attrs("div", [("class", "figure-content-area")]);
+
             if let Some(grid_layout_styles) = &grid_layout_styles {
                 context.push_attr("style", &grid_layout_styles.container);
 
@@ -272,6 +275,14 @@ impl DomCodec for Figure {
             } else {
                 self.content.to_dom(context);
             }
+
+            if let Some(overlay) = &self.overlay {
+                context.push_slot_fn("div", "overlay", |context| {
+                    context.push_html(overlay);
+                });
+            }
+
+            context.exit_elem();
 
             // Subfigures do not render their own figcaption; their captions
             // are appended to the parent figure's caption instead.
@@ -382,6 +393,28 @@ impl MarkdownCodec for Figure {
                     self.content.to_markdown(context)
                 })
                 .decrease_depth();
+
+            if let Some(overlay) = &self.overlay
+                && matches!(context.format, Format::Smd)
+            {
+                let backticks = context.enclosing_backticks(overlay);
+
+                context
+                    .push_str("\n")
+                    .push_indent()
+                    .push_str(&backticks)
+                    .push_str("svg overlay\n")
+                    .push_indent()
+                    .push_prop_fn(NodeProperty::Overlay, |context| {
+                        overlay.to_markdown(context)
+                    });
+
+                if !overlay.ends_with('\n') {
+                    context.newline();
+                }
+
+                context.push_indent().push_str(&backticks).push_str("\n\n");
+            }
 
             // Place caption after content, following normal layout convention
             if let Some(caption) = &self.caption {

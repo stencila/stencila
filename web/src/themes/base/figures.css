@@ -103,13 +103,20 @@ stencila-figure {
     margin-top: var(--figure-spacing-top);
     margin-bottom: var(--figure-spacing-bottom);
 
-    /* Subfigures (nested figures) within a grid layout.
-     * Uses [slot] to match specificity of breakout rules in works.css */
+    /* Subfigures (nested figures) should fill their parent figure or grid cell
+     * instead of inheriting the generic fit-content breakout sizing in works.css.
+     *
+     * Supported structures:
+     * - direct nested subfigures
+     * - grid-wrapped subfigures inside `.figure-content-item` (with or without
+     *   the `.figure-content-area` wrapper introduced for overlays) */
     > [slot] > stencila-figure,
-    > [slot] > .figure-content-item > stencila-figure {
+    > [slot] > .figure-content-item > stencila-figure,
+    figure > .figure-content-area > .figure-content-item > stencila-figure {
         margin-top: 0;
         margin-bottom: 0;
         width: 100%;
+        max-width: 100%;
         min-width: 0;
 
         /* Remove auto-centering so subfigures fill their grid cell */
@@ -132,6 +139,12 @@ stencila-figure {
         min-width: 0;
     }
 
+    /* Anchor figure-level overlays to the rendered content area, including
+     * grid layouts that now live on this wrapper. */
+    figure > .figure-content-area {
+        position: relative;
+    }
+
     figure {
         /* Browser normalization */
         margin: 0;
@@ -147,6 +160,21 @@ stencila-figure {
         max-width: var(--figure-content-max-width);
         margin-left: var(--figure-content-margin-horizontal);
         margin-right: var(--figure-content-margin-horizontal);
+    }
+
+    [slot="overlay"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+    }
+
+    [slot="overlay"] svg {
+        width: 100%;
+        height: 100%;
+        display: block;
     }
 
     figcaption {
@@ -195,13 +223,22 @@ stencila-figure {
      * Only targets figures with a resolved layout (which receive inline
      * display:grid and grid-template-columns styles from SSR). Uses
      * !important to override those inline styles. */
-    stencila-figure[layout] > figure[slot="content"] {
+    stencila-figure[layout] > figure[slot="content"] > .figure-content-area {
         grid-template-columns: 1fr !important;
     }
 
-    stencila-figure[layout] > figure[slot="content"] > .figure-content-item {
+    stencila-figure[layout] > figure[slot="content"] > .figure-content-area > .figure-content-item {
         grid-column: 1 !important;
         grid-row: auto !important;
+    }
+
+    /* Hide parent-level overlays when the grid collapses to a single column.
+     * The overlay's viewBox was authored for the side-by-side layout so its
+     * coordinates no longer align once subfigures stack vertically.
+     * Subfigure overlays are unaffected — they are scoped to their own
+     * content area and scale correctly in the stacked layout. */
+    stencila-figure[layout] > figure[slot="content"] > .figure-content-area > [slot="overlay"] {
+        display: none;
     }
 }
 

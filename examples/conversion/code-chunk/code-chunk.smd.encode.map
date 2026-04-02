@@ -32,26 +32,26 @@ start     end        offsets   node_type+property                   authorship
    233    258         (0, 0)   Paragraph.content
    233    259         (0, 1)   Paragraph
    271    272       (38, 13)   CodeChunk.label
-   274    286        (3, 14)   Text.value
-   274    286         (0, 0)   Text
-   274    286         (0, 0)   Paragraph.content
-   274    287         (0, 1)   Paragraph
-   274    288         (0, 1)   CodeChunk.caption
-   291    292        (17, 4)   CodeChunk.programmingLanguage
-   298    307        (7, 15)   CodeChunk.code
-   260    317      (-38, 10)   CodeChunk
+   277    278         (6, 6)   CodeChunk.programmingLanguage
+   284    293        (7, 15)   CodeChunk.code
+   298    310       (14, 17)   Text.value
+   298    310         (0, 0)   Text
+   298    310         (0, 0)   Paragraph.content
+   298    311         (0, 1)   Paragraph
+   298    312         (0, 1)   CodeChunk.caption
+   260    317       (-38, 5)   CodeChunk
    318    342       (58, 25)   Text.value
    318    342         (0, 0)   Text
    318    342         (0, 0)   Paragraph.content
    318    343         (0, 1)   Paragraph
    354    355       (36, 12)   CodeChunk.label
-   357    367        (3, 12)   Text.value
-   357    367         (0, 0)   Text
-   357    367         (0, 0)   Paragraph.content
-   357    368         (0, 1)   Paragraph
-   357    369         (0, 1)   CodeChunk.caption
-   372    373        (15, 4)   CodeChunk.programmingLanguage
-   379    391        (7, 18)   CodeChunk.code
-   344    401      (-35, 10)   CodeChunk
+   360    361         (6, 6)   CodeChunk.programmingLanguage
+   367    379        (7, 18)   CodeChunk.code
+   384    394       (17, 15)   Text.value
+   384    394         (0, 0)   Text
+   384    394         (0, 0)   Paragraph.content
+   384    395         (0, 1)   Paragraph
+   384    396         (0, 1)   CodeChunk.caption
+   344    401       (-40, 5)   CodeChunk
      0    402      (-344, 1)   Article.content
      0    402         (0, 0)   Article

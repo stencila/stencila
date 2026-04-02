@@ -1,6 +1,6 @@
 ---
 title: Figures
-description: How to author figures in Stencila Markdown — captions, labels, subfigures, and multi-panel layouts.
+description: How to author figures in Stencila Markdown — captions, labels, subfigures, multi-panel layouts, and annotation overlays.
 ---
 
 In Markdown, an image on its own line renders as a block-level image — but it has no caption, no label, and no way to refer to it from elsewhere in your document. A **figure** wraps one or more images (or other content) and adds:
@@ -8,6 +8,7 @@ In Markdown, an image on its own line renders as a block-level image — but it 
 - **Labels**: automatically numbered identifiers like "Figure 1", "Figure 2", etc.
 - **Captions**: descriptive text rendered below the figure.
 - **Multi-panel layouts**: arrange subfigures in grids with a concise layout mini-language.
+- **Overlays**: transparent SVG annotation layers for arrows, callouts, bounding boxes, and labels.
 
 Use a plain block image when you just want to show a picture. Use a figure when the image is a first-class part of your document that readers need to identify and reference.
 
@@ -93,7 +94,7 @@ A figure with two subfigures stacked vertically.
 :::
 ```
 
-## Layout specifications
+## Grid layouts
 
 To arrange subfigures in a grid, add a layout specification in square brackets after `figure`:
 
@@ -407,3 +408,137 @@ A 30:70 split with the left panel spanning both rows.
 
 :::
 ```
+
+# Overlays
+
+An **overlay** is a transparent SVG layer rendered on top of a figure's visual content. Use overlays to add annotations — circles, arrows, bounding boxes, text labels — without modifying the underlying image.
+
+Because each overlay is attached to a specific figure or subfigure and uses SVG `viewBox` scaling, annotations stay locked to the content they describe regardless of how the page is displayed. On a wide desktop screen a two-column layout renders side by side with each panel's overlay covering exactly that panel; on a narrow mobile screen the same grid collapses to a vertical stack and the overlays scale down with their panels, keeping every circle, arrow, and label in the right place. This means you author annotations once and they work everywhere — web, mobile, print, and PDF — without any manual adjustment.
+
+Inside a `::: figure` fence, add a fenced code block with the info string `svg overlay` containing an `<svg>` element. Set the SVG `viewBox` to match the dimensions of the underlying content so that annotation coordinates map directly to pixel positions in the image.
+
+## Simple figure overlay
+
+A single annotation overlay on a figure. The `viewBox="0 0 600 300"` matches the 600×300 placeholder image, so coordinates map directly to pixel positions:
+
+````smd demo
+::: figure
+
+![](https://placehold.co/600x300/3498db/white)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="300" cy="150" r="60" fill="none" stroke="red" stroke-width="3"/>
+  <text x="370" y="155" fill="red" font-size="18" font-weight="bold">Center</text>
+  <rect x="30" y="30" width="160" height="80" fill="none" stroke="yellow" stroke-width="2" stroke-dasharray="8,4"/>
+  <text x="40" y="125" fill="yellow" font-size="14">Region A</text>
+  <line x1="450" y1="50" x2="550" y2="250" stroke="lime" stroke-width="2"/>
+  <polygon points="550,250 540,235 555,240" fill="lime"/>
+  <text x="455" y="42" fill="lime" font-size="14">Trend</text>
+</svg>
+```
+
+A figure with several annotation shapes: a circle, a dashed bounding box, a text label, and an arrow line.
+
+:::
+````
+
+## Subfigures with individual overlays
+
+Each subfigure can carry its own overlay. The overlay on each panel is scoped to that subfigure's content area:
+
+````smd demo
+::: figure [2]
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e74c3c/white)
+
+    ```svg overlay
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <rect x="50" y="40" width="140" height="90" fill="none" stroke="cyan" stroke-width="3" rx="8"/>
+      <text x="60" y="150" fill="cyan" font-size="16">Feature α</text>
+    </svg>
+    ```
+
+    Red panel.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/2ecc71/white)
+
+    ```svg overlay
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <ellipse cx="280" cy="130" rx="80" ry="50" fill="none" stroke="magenta" stroke-width="3"/>
+      <text x="230" y="200" fill="magenta" font-size="16">Feature β</text>
+    </svg>
+    ```
+
+    Green panel.
+
+    :::
+
+Two subfigures, each with its own overlay annotation.
+
+:::
+````
+
+## Parent overlay connecting subfigures
+
+A top-level figure with subfigures can also carry its own overlay. Because this overlay sits above the entire grid, it can annotate relationships _between_ panels — for example, drawing an arrow from a feature in one subfigure to a corresponding feature in another. Each subfigure can still have its own overlay alongside the parent one.
+
+On small screens the grid collapses to a vertical stack, and when that happens the parent overlay is automatically hidden. The grid layout that the overlay was designed for no longer exists, so its coordinates would be meaningless. Subfigure overlays are unaffected — each one is scoped to its own panel and continues to scale correctly.
+
+In this example the parent overlay draws a connecting arrow between the two panels, while each subfigure highlights a region of interest:
+
+````smd demo
+::: figure [2]
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/9b59b6/white)
+
+    ```svg overlay
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="125" r="40" fill="none" stroke="yellow" stroke-width="3"/>
+      <text x="180" y="210" fill="yellow" font-size="16">Source</text>
+    </svg>
+    ```
+
+    Left panel with source.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/1abc9c/white)
+
+    ```svg overlay
+    <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+      <rect x="120" y="70" width="100" height="100" stroke="orange" fill="none" stroke-width="3"/>
+      <text x="150" y="210" fill="orange" font-size="16">Target</text>
+    </svg>
+    ```
+
+    Right panel with target.
+
+    :::
+
+```svg overlay
+<svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" fill="white"/>
+    </marker>
+  </defs>
+  <line x1="350" y1="150" x2="500" y2="150" stroke="white" stroke-width="3" marker-end="url(#arrowhead)"/>
+  <text x="370" y="135" fill="white" font-size="16" font-weight="bold">Leads to</text>
+</svg>
+```
+
+Subfigures with individual annotations plus a parent overlay arrow connecting them.
+
+:::
+````

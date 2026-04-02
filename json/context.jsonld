@@ -418,6 +418,7 @@
     "otherwise": "stencila:otherwise",
     "output": "stencila:output",
     "outputs": "stencila:outputs",
+    "overlay": "stencila:overlay",
     "overrides": "stencila:overrides",
     "pageEnd": "schema:pageEnd",
     "pageStart": "schema:pageStart",

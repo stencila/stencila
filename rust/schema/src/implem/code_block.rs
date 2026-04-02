@@ -93,7 +93,9 @@ impl MarkdownCodec for CodeBlock {
         }
 
         if self.is_demo == Some(true) {
-            context.push_str(" ").push_prop_str(NodeProperty::IsDemo, "demo");
+            context
+                .push_str(" ")
+                .push_prop_str(NodeProperty::IsDemo, "demo");
         }
 
         if let Some(id) = &self.id {

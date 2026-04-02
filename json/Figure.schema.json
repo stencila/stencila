@@ -33,6 +33,7 @@
     "labelAutomatically",
     "caption",
     "layout",
+    "overlay",
     "authors",
     "provenance"
   ],
@@ -780,6 +781,21 @@
           "qmd"
         ]
       },
+      "type": "string"
+    },
+    "overlay": {
+      "@id": "stencila:overlay",
+      "description": "An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "walk": false,
       "type": "string"
     },
     "content": {

@@ -43,6 +43,7 @@
     "label",
     "labelAutomatically",
     "caption",
+    "overlay",
     "outputs",
     "isEchoed",
     "isHidden"
@@ -576,6 +577,17 @@
       "items": {
         "$ref": "Block.schema.json"
       }
+    },
+    "overlay": {
+      "@id": "stencila:overlay",
+      "description": "An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd"
+        ]
+      },
+      "type": "string"
     },
     "outputs": {
       "@id": "stencila:outputs",

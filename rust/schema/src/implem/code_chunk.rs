@@ -128,8 +128,26 @@ impl DomCodec for CodeChunk {
             });
         }
 
+        let has_figure_overlay =
+            matches!(self.label_type, Some(LabelType::FigureLabel)) && self.overlay.is_some();
+
         if let Some(outputs) = &self.outputs {
-            context.push_slot_fn("div", "outputs", |context| outputs.to_dom(context));
+            if has_figure_overlay {
+                context.push_slot_fn("div", "outputs", |context| {
+                    context.enter_elem_attrs("div", [("class", "figure-content-area")]);
+                    outputs.to_dom(context);
+
+                    if let Some(overlay) = &self.overlay {
+                        context.push_slot_fn("div", "overlay", |context| {
+                            context.push_html(overlay);
+                        });
+                    }
+
+                    context.exit_elem();
+                });
+            } else {
+                context.push_slot_fn("div", "outputs", |context| outputs.to_dom(context));
+            }
         }
 
         if let Some(LabelType::FigureLabel) = &self.label_type
@@ -563,12 +581,6 @@ impl MarkdownCodec for CodeChunk {
                     false
                 };
 
-            if let Some(caption) = &self.caption {
-                context.push_prop_fn(NodeProperty::Caption, |context| {
-                    caption.to_markdown(context)
-                });
-            }
-
             if !wrapped
                 && matches!(self.programming_language.as_deref(), Some("docsql"))
                 && !self.code.contains(['\n', ';'])
@@ -633,6 +645,40 @@ impl MarkdownCodec for CodeChunk {
                 }
 
                 context.push_indent().push_str(&backticks).newline();
+
+                if let Some(caption) = &self.caption
+                    && matches!(self.label_type, Some(LabelType::TableLabel)) {
+                        context.push_prop_fn(NodeProperty::Caption, |context| {
+                            caption.to_markdown(context)
+                        });
+                    }
+
+                if let Some(overlay) = &self.overlay
+                    && matches!(context.format, Format::Smd)
+                {
+                    let backticks = context.enclosing_backticks(overlay);
+
+                    context.push_str("\n");
+                    context.push_indent();
+                    context.push_str(&backticks).push_str("svg overlay\n");
+                    context.push_prop_fn(NodeProperty::Overlay, |context| {
+                        context.push_str(overlay);
+                    });
+
+                    if !overlay.ends_with('\n') {
+                        context.newline();
+                    }
+
+                    context.push_indent();
+                    context.push_str(&backticks).newline();
+                }
+
+                if let Some(caption) = &self.caption
+                    && !matches!(self.label_type, Some(LabelType::TableLabel)) {
+                        context.push_prop_fn(NodeProperty::Caption, |context| {
+                            caption.to_markdown(context)
+                        });
+                    }
             }
 
             if wrapped {

@@ -31,6 +31,11 @@ export class Figure extends CreativeWork {
   layout?: string;
 
   /**
+   * An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
+   */
+  overlay?: string;
+
+  /**
    * The content of the figure.
    */
   content: Block[];

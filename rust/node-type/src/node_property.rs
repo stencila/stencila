@@ -226,6 +226,7 @@ pub enum NodeProperty {
     Otherwise,
     Output,
     Outputs,
+    Overlay,
     Overrides,
     PageEnd,
     PageStart,

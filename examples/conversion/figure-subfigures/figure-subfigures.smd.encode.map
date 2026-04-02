@@ -44,22 +44,22 @@ start     end        offsets   node_type+property                   authorship
    459    520         (0, 1)   Figure.caption
      0    524      (-459, 4)   Figure
    537    542      (537, 18)   Figure.layout
-   569    631       (32, 89)   Text.value
-   569    631         (0, 0)   Text
-   569    631         (0, 0)   Paragraph.content
-   569    632         (0, 1)   Paragraph
-   565    633        (-4, 1)   CodeChunk.caption
-   640    641        (75, 8)   CodeChunk.programmingLanguage
-   651    698       (11, 57)   CodeChunk.code
-   545    716     (-106, 18)   CodeChunk
-   741    781      (196, 65)   Text.value
-   741    781         (0, 0)   Text
-   741    781         (0, 0)   Paragraph.content
-   741    782         (0, 1)   Paragraph
-   737    783        (-4, 1)   CodeChunk.caption
-   790    796       (53, 13)   CodeChunk.programmingLanguage
-   806   1117      (16, 321)   CodeChunk.code
-   717   1135      (-89, 18)   CodeChunk
+   572    573       (35, 31)   CodeChunk.programmingLanguage
+   583    630       (11, 57)   CodeChunk.code
+   643    705       (60, 75)   Text.value
+   643    705         (0, 0)   Text
+   643    705         (0, 0)   Paragraph.content
+   643    706         (0, 1)   Paragraph
+   639    707        (-4, 1)   CodeChunk.caption
+   545    716       (-94, 9)   CodeChunk
+   744    750      (199, 34)   CodeChunk.programmingLanguage
+   760   1071      (16, 321)   CodeChunk.code
+  1084   1124      (324, 53)   Text.value
+  1084   1124         (0, 0)   Text
+  1084   1124         (0, 0)   Paragraph.content
+  1084   1125         (0, 1)   Paragraph
+  1080   1126        (-4, 1)   CodeChunk.caption
+   717   1135      (-363, 9)   CodeChunk
   1172   1187      (455, 52)   IncludeBlock.source
   1156   1188       (-16, 1)   IncludeBlock
   1156   1189         (0, 1)   Figure.content

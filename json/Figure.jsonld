@@ -831,6 +831,23 @@
       }
     },
     {
+      "@id": "stencila:overlay",
+      "@type": "rdfs:Property",
+      "rdfs:label": "overlay",
+      "rdfs:comment": "An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

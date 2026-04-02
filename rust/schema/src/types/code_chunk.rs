@@ -130,6 +130,11 @@ pub struct CodeChunk {
     #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
+    /// An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
+    #[patch(format = "md", format = "smd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay: Option<String>,
+
     /// Outputs from executing the chunk.
     #[serde(alias = "output")]
     #[serde(default)]

@@ -40,18 +40,16 @@ A figure with four subfigures showing colored placeholders.
 
     ::: figure
     
-    A light blue histogram of random normal values generated in R.
-
     ```r exec
     hist(rnorm(1000), col = "lightblue", main = "")
     ```
+    A light blue histogram of random normal values generated in R.
+
 
     :::
 
     ::: figure
     
-    A pink bar chart generated using Plotly.
-
     ```plotly exec
     {
       "data": [
@@ -68,6 +66,8 @@ A figure with four subfigures showing colored placeholders.
       }
     }
     ```
+    A pink bar chart generated using Plotly.
+
 
     :::
 

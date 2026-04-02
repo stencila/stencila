@@ -69,6 +69,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Article.executionDuration",
                 // Figure exclusions
                 "Figure.layout",
+                "Figure.overlay",
                 // Table exclusions
                 "Table.notes",
                 "TableCell.content",
@@ -80,6 +81,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "TableCell.verticalAlignment",
                 // Datatable exclusions
                 "Datatable.notes",
+                // CodeChunk exclusions
+                "CodeChunk.overlay",
                 // CodeBlock exclusions
                 "CodeBlock.isDemo",
                 "CodeBlock.content",

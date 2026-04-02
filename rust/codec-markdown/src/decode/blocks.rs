@@ -1229,6 +1229,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             chunk.label = figure.label.clone();
             chunk.label_automatically = figure.label_automatically;
             chunk.caption = (!children.is_empty()).then_some(children);
+            extract_code_chunk_overlay(&mut chunk);
 
             // Replace the mapping entry for figure, with one for chunk
             context.map_remove(chunk.node_id());
@@ -1264,6 +1265,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             }
             figure.caption = (!caption.is_empty()).then_some(caption);
             figure.content = content;
+            extract_figure_overlay(figure);
         }
     } else if let Block::ForBlock(for_block) = parent {
         // At the end of a for block, if there is an `otherwise` placeholder
@@ -1625,14 +1627,17 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 .unwrap_or_default();
             let caption = decode_blocks(&value, context);
 
-            Block::Figure(Figure {
+            let mut figure = Figure {
                 label: options.get("label").map(|label| label.to_string()),
                 label_automatically: options.contains_key("label").then_some(false),
                 layout: options.get("layout").map(|label| label.to_string()),
                 caption: (!caption.is_empty()).then_some(caption),
                 content,
                 ..Default::default()
-            })
+            };
+            extract_figure_overlay(&mut figure);
+
+            Block::Figure(figure)
         }
         "table" => {
             let rows = if let Some(Block::Table(Table { rows, .. })) =
@@ -1717,6 +1722,116 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
     })
 }
 
+/// Normalize extracted overlay content for stable round-tripping.
+fn normalize_overlay(overlay: &str) -> String {
+    overlay.strip_suffix('\n').unwrap_or(overlay).to_string()
+}
+
+/// Determine whether a code block is an explicit SVG overlay fence.
+fn is_svg_overlay(programming_language: &Option<String>) -> bool {
+    programming_language.as_deref() == Some("svg overlay")
+}
+
+/// Promote an explicit SVG overlay fence in a figure-labeled code chunk's
+/// caption into the chunk's `overlay` property.
+///
+/// This is needed when collapsing a single-code-chunk `::: figure` into a
+/// `CodeChunk`, because the overlay fence is initially parsed as a caption
+/// child rather than as a chunk property. Code chunks only derive overlays
+/// when labeled as figures; in all other cases an `svg overlay` fence remains
+/// a normal code block.
+fn extract_code_chunk_overlay(chunk: &mut CodeChunk) {
+    if !matches!(chunk.label_type, Some(LabelType::FigureLabel)) {
+        return;
+    }
+
+    if let Some(caption) = &mut chunk.caption {
+        let mut overlay = None;
+        let mut blocks = Vec::with_capacity(caption.len());
+
+        for block in caption.drain(..) {
+            match block {
+                Block::CodeBlock(CodeBlock {
+                    programming_language,
+                    code,
+                    ..
+                }) if chunk.overlay.is_none()
+                    && overlay.is_none()
+                    && is_svg_overlay(&programming_language) =>
+                {
+                    overlay = Some(normalize_overlay(&code));
+                }
+                block => blocks.push(block),
+            }
+        }
+
+        *caption = blocks;
+        if chunk.overlay.is_none() {
+            chunk.overlay = overlay;
+        }
+        if caption.is_empty() {
+            chunk.caption = None;
+        }
+    }
+}
+
+/// Promote an explicit SVG overlay fence in a figure's content or caption into
+/// the figure's `overlay` property.
+///
+/// Figures only derive overlays from explicit `svg overlay` fences. Extracted
+/// fences are removed from content or caption, and the first such fence wins.
+fn extract_figure_overlay(figure: &mut Figure) {
+    let mut overlay = None;
+    let mut content = Vec::with_capacity(figure.content.len());
+
+    for block in figure.content.drain(..) {
+        match block {
+            Block::CodeBlock(CodeBlock {
+                programming_language,
+                code,
+                ..
+            }) if overlay.is_none() && is_svg_overlay(&programming_language) => {
+                overlay = Some(normalize_overlay(&code));
+            }
+            block => content.push(block),
+        }
+    }
+
+    figure.content = content;
+    if figure.overlay.is_none() {
+        figure.overlay = overlay;
+    }
+
+    if let Some(caption) = &mut figure.caption {
+        let mut overlay = None;
+        let mut blocks = Vec::with_capacity(caption.len());
+
+        for block in caption.drain(..) {
+            match block {
+                Block::CodeBlock(CodeBlock {
+                    programming_language,
+                    code,
+                    ..
+                }) if figure.overlay.is_none()
+                    && overlay.is_none()
+                    && is_svg_overlay(&programming_language) =>
+                {
+                    overlay = Some(normalize_overlay(&code));
+                }
+                block => blocks.push(block),
+            }
+        }
+
+        *caption = blocks;
+        if figure.overlay.is_none() {
+            figure.overlay = overlay;
+        }
+        if caption.is_empty() {
+            figure.caption = None;
+        }
+    }
+}
+
 /// Transform a [`mdast::Code`] node to a Stencila [`Block`]
 fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
     let mdast::Code {
@@ -1725,6 +1840,7 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
 
     let meta = meta.unwrap_or_default();
     let code_id = parse_code_id(&meta);
+    let is_svg_overlay = lang.as_deref() == Some("svg") && meta.trim() == "overlay";
     let is_exec = meta.starts_with("exec")
         || lang.as_deref() == Some("exec")
         || lang.as_deref().is_some_and(is_executable_language)
@@ -1852,7 +1968,11 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
         Block::CodeBlock(CodeBlock {
             id: code_id,
             code: value.into(),
-            programming_language: lang,
+            programming_language: if is_svg_overlay {
+                Some("svg overlay".to_string())
+            } else {
+                lang
+            },
             is_demo: is_demo.then_some(true),
             ..Default::default()
         })
@@ -2076,9 +2196,33 @@ fn mds_to_table_cells(
 #[allow(clippy::unwrap_used)]
 mod tests {
     use pretty_assertions::assert_eq;
-    use stencila_codec::stencila_schema::{ClaimType, ExecutionMode, Figure, Node};
+    use stencila_codec::{
+        DecodeOptions, EncodeOptions,
+        stencila_format::Format,
+        stencila_schema::{
+            Block, ClaimType, CodeChunk, ExecutionMode, Figure, LabelType, Node, Paragraph,
+        },
+    };
 
     use super::*;
+    use crate::{decode, encode};
+
+    fn decode_smd(md: &str) -> Vec<Block> {
+        let (node, _) = decode(
+            md,
+            Some(DecodeOptions {
+                format: Some(Format::Smd),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+
+        let Node::Article(article) = node else {
+            panic!("expected article")
+        };
+
+        article.content
+    }
 
     #[test]
     fn test_call_arg() {
@@ -2101,6 +2245,162 @@ mod tests {
             panic!("expected figure")
         };
         assert_eq!(layout.as_deref(), Some("2"));
+    }
+
+    #[test]
+    fn test_decode_figure_overlay_from_content() {
+        let blocks = decode_smd(
+            "::: figure\n\n![](plot.png)\n\n```svg overlay\n<svg>content</svg>\n```\n\nCaption\n\n:::\n",
+        );
+
+        let Some(Block::Figure(Figure {
+            overlay,
+            content,
+            caption,
+            ..
+        })) = blocks.first()
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(overlay.as_deref(), Some("<svg>content</svg>"));
+        assert!(
+            content
+                .iter()
+                .all(|block| !matches!(block, Block::CodeBlock(CodeBlock { programming_language: Some(lang), .. }) if lang == "svg overlay"))
+        );
+        assert!(caption.is_some());
+    }
+
+    #[test]
+    fn test_decode_figure_overlay_from_caption() {
+        let blocks = decode_smd(
+            "::: figure\n\n![](plot.png)\n\nCaption\n\n```svg overlay\n<svg>caption</svg>\n```\n\n:::\n",
+        );
+
+        let Some(Block::Figure(Figure {
+            overlay, caption, ..
+        })) = blocks.first()
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(overlay.as_deref(), Some("<svg>caption</svg>"));
+        assert!(
+            caption
+                .as_ref()
+                .into_iter()
+                .flatten()
+                .all(|block| !matches!(block, Block::CodeBlock(CodeBlock { programming_language: Some(lang), .. }) if lang == "svg overlay"))
+        );
+    }
+
+    #[test]
+    fn test_decode_figure_without_overlay() {
+        let blocks = decode_smd("::: figure\n\n![](plot.png)\n\nCaption\n\n:::\n");
+
+        let Some(Block::Figure(Figure { overlay, .. })) = blocks.first() else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(overlay, &None);
+    }
+
+    #[test]
+    fn test_decode_single_chunk_figure_overlay_to_code_chunk() {
+        let blocks = decode_smd(
+            "::: figure 1\n\n```r exec\nplot(y~x)\n```\n\n```svg overlay\n<svg>chunk</svg>\n```\n\nCaption\n\n:::\n",
+        );
+
+        let Some(Block::CodeChunk(CodeChunk {
+            label_type,
+            overlay,
+            caption,
+            ..
+        })) = blocks.first()
+        else {
+            panic!("expected code chunk")
+        };
+
+        assert_eq!(label_type, &Some(LabelType::FigureLabel));
+        assert_eq!(overlay.as_deref(), Some("<svg>chunk</svg>"));
+        assert!(
+            caption
+                .as_ref()
+                .into_iter()
+                .flatten()
+                .all(|block| !matches!(block, Block::CodeBlock(CodeBlock { programming_language: Some(lang), .. }) if lang == "svg overlay"))
+        );
+    }
+
+    #[test]
+    fn test_do_not_extract_overlay_for_table_labeled_chunk() {
+        let mut chunk = CodeChunk {
+            label_type: Some(LabelType::TableLabel),
+            caption: Some(vec![
+                Block::CodeBlock(CodeBlock {
+                    programming_language: Some("svg overlay".to_string()),
+                    code: "<svg>table</svg>".into(),
+                    ..Default::default()
+                }),
+                Block::Paragraph(Paragraph {
+                    content: vec![Inline::Text(Text::from("Caption"))],
+                    ..Default::default()
+                }),
+            ]),
+            ..Default::default()
+        };
+
+        extract_code_chunk_overlay(&mut chunk);
+
+        assert_eq!(chunk.overlay, None);
+        assert!(matches!(
+            chunk.caption.as_ref().and_then(|caption| caption.first()),
+            Some(Block::CodeBlock(CodeBlock { programming_language: Some(lang), .. })) if lang == "svg overlay"
+        ));
+    }
+
+    #[test]
+    fn test_smd_overlay_roundtrip() {
+        let original = "::: figure\n\n![](plot.png)\n\n```svg overlay\n<svg>roundtrip</svg>\n```\n\nCaption\n\n:::\n";
+
+        let (node, _) = decode(
+            original,
+            Some(DecodeOptions {
+                format: Some(Format::Smd),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+
+        let (encoded, _) = encode(
+            &node,
+            Some(EncodeOptions {
+                format: Some(Format::Smd),
+                ..Default::default()
+            }),
+        )
+        .expect("encode should succeed");
+
+        assert!(encoded.contains("```svg overlay\n<svg>roundtrip</svg>\n```"));
+
+        let (decoded_again, _) = decode(
+            &encoded,
+            Some(DecodeOptions {
+                format: Some(Format::Smd),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+
+        let Node::Article(article) = decoded_again else {
+            panic!("expected article")
+        };
+        let Some(Block::Figure(Figure { overlay, .. })) = article.content.first() else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(overlay.as_deref(), Some("<svg>roundtrip</svg>"));
     }
 
     #[test]

@@ -19,6 +19,7 @@ core:
   - labelAutomatically
   - caption
   - layout
+  - overlay
   - authors
   - provenance
 properties:
@@ -75,6 +76,17 @@ properties:
       Layout for arranging content blocks in a multi-panel figure.
       When absent, content blocks stack vertically with no grid.
     type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  overlay:
+    '@id': stencila:overlay
+    description: |
+      An optional SVG overlay rendered on top of the figure's content.
+      The SVG is positioned absolutely over the content area and scales
+      proportionally using the SVG viewBox. Used for annotations such as
+      arrows, callouts, bounding boxes, and labels.
+    type: string
+    walk: false
     patch:
       formats: [md, smd, myst, ipynb, qmd]
   content:
