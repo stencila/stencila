@@ -30,6 +30,7 @@
         css: {},
         box_info: {},
         counts: {},
+        dom_context: {},
         text: {},
         errors: []
     };
@@ -125,6 +126,37 @@
         // Text content (truncate if very long)
         const text = el.textContent || '';
         result.text[sel] = text.length > 200 ? text.substring(0, 200) + '...' : text;
+
+        // DOM ancestor chain (Element.parentElement only — does not cross
+        // shadow DOM boundaries, iframes, or document fragments)
+        const domAncestors = [];
+        let parent = el.parentElement;
+        const MAX_ANCESTORS = 20;
+        while (parent && parent.tagName !== 'BODY' && domAncestors.length < MAX_ANCESTORS) {
+            const entry = { tag: parent.tagName.toLowerCase() };
+            if (parent.id) entry.id = parent.id;
+            const cls = Array.from(parent.classList);
+            if (cls.length > 0) entry.classes = cls;
+            domAncestors.push(entry);
+            parent = parent.parentElement;
+        }
+        if (parent && parent.tagName === 'BODY') {
+            domAncestors.push({ tag: 'body' });
+        }
+
+        // Stencila-specific schema attributes
+        const depthAttr = el.getAttribute('depth');
+        const depthParsed = depthAttr !== null ? Number(depthAttr) : NaN;
+        const depthVal = Number.isInteger(depthParsed) && depthParsed >= 0 ? depthParsed : undefined;
+
+        result.dom_context[sel] = {
+            tagName: el.tagName.toLowerCase(),
+            id: el.id || undefined,
+            classes: Array.from(el.classList),
+            schemaAncestors: el.getAttribute('ancestors') || undefined,
+            schemaDepth: (depthVal !== undefined && !isNaN(depthVal)) ? depthVal : undefined,
+            domAncestors: domAncestors
+        };
     }
 
     return result;

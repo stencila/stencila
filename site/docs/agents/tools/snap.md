@@ -63,10 +63,40 @@ Every snap call returns JSON with some or all of these fields depending on what 
 
 - **`selector_matched`** — whether the target selector was found on the page (present even without a screenshot)
 - **measurements** — per-element computed styles when a `measure` preset is active
+- **`dom_context`** — DOM structural context for each measured element (see [DOM context](#dom-context) below)
 - **tokens** — resolved CSS custom property values grouped by family (when `tokens: true`)
 - **palette** — extracted color palette (when `palette: true`)
 - **assertions** — pass/fail results for each assertion expression
 - **diagnostics** — informational messages (e.g. unmatched selectors on the route — these are route facts, not theme bugs)
+
+## DOM context
+
+When measurement is active (any `measure` preset), the output includes a `dom_context` map keyed by selector. Each entry describes the **first matched element** (consistent with `css`, `box_info`, and `text` which also operate on the first match). The `counts` field tells you how many total matches exist.
+
+DOM context helps agents form better hypotheses about where CSS values originate by revealing the structural nesting of elements, without needing additional snap calls to walk the ancestor chain manually.
+
+### Structure
+
+Each `dom_context` entry contains:
+
+| Field | Type | Description |
+| ----- | ---- | ----------- |
+| `tagName` | string | Tag name of the matched element (e.g. `"stencila-paragraph"`, `"header"`, `"div"`) |
+| `id` | string or absent | Element id, if present |
+| `classes` | array of strings or absent | CSS class list on the element (omitted when empty) |
+| `schemaAncestors` | string or absent | Stencila `ancestors` attribute — dot-separated schema ancestor chain (e.g. `"Article.ListItem"`). Stencila-specific, not a standard DOM feature |
+| `schemaDepth` | integer or absent | Stencila `depth` attribute — schema tree depth where the root Article is 0. Stencila-specific |
+| `domAncestors` | array or absent | DOM ancestor chain from the element up to `<body>`. Each entry has `tag`, optional `id`, and optional `classes`. First entry is the immediate parent; last is `body`. Capped at 20 entries. Only `Element.parentElement` is followed — shadow DOM boundaries, iframes, and document fragments are not crossed |
+
+### Stability expectations
+
+All measurement output fields (`summaries`, `contrast`, `counts`, `dom_context`, `text`, `css`, `box_info`, `diagnostics`, `errors`) are **stable output fields** — they are always present when measurement is active, even when empty (`{}` or `[]`). However, the **values** within `dom_context` entries are informational and may change without notice:
+
+- **Tag names, IDs, and classes** reflect the live DOM at measurement time. Frontend refactors may change these values.
+- **Stencila schema attributes** (`schemaAncestors`, `schemaDepth`) are more stable because they derive from the document schema, but may evolve with schema changes.
+- **Ancestor chain length and structure** depend on the page's HTML structure, which varies between routes, layout presets, and Stencila versions.
+
+Do not hardcode expectations about specific class names or wrapper structures in agent instructions or skills. Use DOM context as a hint for investigation, not as a contract.
 
 ## Examples
 
@@ -134,6 +164,7 @@ snap(route: "/_specimen", measure: "theme", width: 480)
 - **Avoid full-page screenshots of very tall pages** for typography review — use selector-targeted snaps instead (e.g. `selector: "stencila-heading"`).
 - **Prefer unique selectors** for element screenshots — when multiple elements match, only the first is captured but measurements cover all matches.
 - **Assertions are best for numeric CSS properties** (fontSize, lineHeight, width, height, marginTop, etc.). Use the `~=` operator for string matching (e.g. fontFamily).
+- **Use DOM context for CSS investigation**: when a computed value is unexpected, check the `dom_context` for the selector to see the ancestor chain. This helps identify which parent element may be contributing inherited styles or layout constraints, reducing trial-and-error follow-up snaps.
 - **Theme changes are cached for ~30 seconds** by the server. Batch CSS edits before snapping to see them all reflected.
 - **Responsive testing**: use separate `device: "mobile"` and `device: "desktop"` calls — there is no batch multi-device parameter.
 - **Unknown `measure` values** produce a validation error listing the valid options — use only the documented presets.

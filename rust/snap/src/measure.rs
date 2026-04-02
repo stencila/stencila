@@ -159,35 +159,40 @@ pub fn selectors_for_preset(preset: MeasurePreset) -> Vec<String> {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct MeasureResult {
     /// Concise theme-oriented summaries by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub summaries: HashMap<String, StyleSummary>,
 
     /// Contrast checks by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub contrast: HashMap<String, ContrastCheck>,
 
     /// Element counts by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub counts: HashMap<String, usize>,
 
+    /// DOM structural context by selector (first matched element).
+    /// See [`DomContext`] doc comment for stability expectations.
+    #[serde(default)]
+    pub dom_context: HashMap<String, DomContext>,
+
     /// Text content by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub text: HashMap<String, String>,
 
     /// Diagnostics and warnings
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    #[serde(default)]
     pub diagnostics: Vec<String>,
 
     /// Diagnostic errors and warnings
-    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    #[serde(default)]
     pub errors: Vec<String>,
 
     /// Computed CSS properties by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub css: HashMap<String, CssProperties>,
 
     /// Bounding box information by selector
-    #[serde(skip_serializing_if = "HashMap::is_empty", default)]
+    #[serde(default)]
     pub box_info: HashMap<String, BoxInfo>,
 }
 
@@ -343,6 +348,61 @@ pub struct BoxInfo {
     pub y: f64,
     pub width: f64,
     pub height: f64,
+}
+
+/// DOM structural context for a measured element.
+///
+/// This is debugging/contextual data intended to help agents form hypotheses
+/// about CSS behavior. Field values reflect the live DOM state at measurement
+/// time and may change across frontend refactors, wrapper restructures, or
+/// Stencila version upgrades. Consumers should treat these as informational
+/// hints, not stable semantic identifiers.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DomContext {
+    /// Tag name of the matched element (e.g. "stencila-paragraph", "header", "div")
+    pub tag_name: String,
+
+    /// Element id, if present
+    pub id: Option<String>,
+
+    /// CSS class list on the element
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub classes: Vec<String>,
+
+    /// The Stencila `ancestors` attribute if present (dot-separated schema
+    /// ancestor chain, e.g. "Article.List.ListItem"). This is a Stencila-specific
+    /// attribute, not a standard DOM feature.
+    pub schema_ancestors: Option<String>,
+
+    /// The Stencila `depth` attribute if present (schema tree depth, where
+    /// the root Article is 0). This is a Stencila-specific attribute.
+    pub schema_depth: Option<u32>,
+
+    /// DOM ancestor chain from the element up to `<body>`, represented as a
+    /// list of concise node descriptors. The first entry is the immediate
+    /// parent; the last is `<body>`. Capped at 20 entries. Only
+    /// `Element.parentElement` is followed — shadow DOM boundaries, iframes,
+    /// and document fragments are not crossed.
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub dom_ancestors: Vec<AncestorNode>,
+}
+
+/// Concise descriptor for a single ancestor node in the DOM tree.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct AncestorNode {
+    /// Tag name (e.g. "stencila-article", "div", "main")
+    pub tag: String,
+
+    /// Element id, if present
+    pub id: Option<String>,
+
+    /// CSS classes, if any
+    #[serde(skip_serializing_if = "Vec::is_empty", default)]
+    pub classes: Vec<String>,
 }
 
 /// JavaScript code to inject for measurement
@@ -717,6 +777,7 @@ mod tests {
                 },
             )]),
             counts: HashMap::from([(".title".to_string(), 1)]),
+            dom_context: HashMap::new(),
             text: HashMap::from([(".title".to_string(), "Hello".to_string())]),
             summaries: HashMap::new(),
             contrast: HashMap::new(),
@@ -750,6 +811,7 @@ mod tests {
                 },
             )]),
             counts: HashMap::from([(".footer".to_string(), 1)]),
+            dom_context: HashMap::new(),
             text: HashMap::new(),
             summaries: HashMap::new(),
             contrast: HashMap::new(),
@@ -772,5 +834,106 @@ mod tests {
     fn test_parse_hex_color_rejects_alpha() {
         assert_eq!(parse_hex_color("#ffffff"), Some((255, 255, 255)));
         assert_eq!(parse_hex_color("#ffffffff"), None);
+    }
+
+    #[test]
+    fn test_parse_measurements_with_dom_context() {
+        let json = r##"{
+            "css": {},
+            "box_info": {},
+            "counts": {
+                "stencila-paragraph": 3
+            },
+            "dom_context": {
+                "stencila-paragraph": {
+                    "tagName": "stencila-paragraph",
+                    "id": "t5-p42",
+                    "schemaAncestors": "Article",
+                    "schemaDepth": 2,
+                    "domAncestors": [
+                        { "tag": "stencila-article", "id": "root" },
+                        { "tag": "main", "id": "main-content" },
+                        { "tag": "div", "classes": ["layout-main"] },
+                        { "tag": "body" }
+                    ]
+                }
+            },
+            "text": {},
+            "errors": []
+        }"##;
+
+        let result = parse_measurements(json).expect("Failed to parse");
+        let ctx = result
+            .dom_context
+            .get("stencila-paragraph")
+            .expect("dom_context entry missing");
+        assert_eq!(ctx.tag_name, "stencila-paragraph");
+        assert_eq!(ctx.id.as_deref(), Some("t5-p42"));
+        assert!(ctx.classes.is_empty());
+        assert_eq!(ctx.schema_ancestors.as_deref(), Some("Article"));
+        assert_eq!(ctx.schema_depth, Some(2));
+        assert_eq!(ctx.dom_ancestors.len(), 4);
+        assert_eq!(ctx.dom_ancestors[0].tag, "stencila-article");
+        assert_eq!(ctx.dom_ancestors[0].id.as_deref(), Some("root"));
+        assert_eq!(ctx.dom_ancestors[2].classes, vec!["layout-main"]);
+        assert_eq!(ctx.dom_ancestors[3].tag, "body");
+    }
+
+    #[test]
+    fn test_parse_measurements_without_dom_context() {
+        let json = r##"{
+            "css": {},
+            "box_info": {},
+            "counts": { ".title": 1 },
+            "text": {},
+            "errors": []
+        }"##;
+
+        let result = parse_measurements(json).expect("Failed to parse");
+        assert!(result.dom_context.is_empty());
+    }
+
+    #[test]
+    fn test_measure_result_serializes_all_fields_when_empty() {
+        let result = MeasureResult {
+            summaries: HashMap::new(),
+            contrast: HashMap::new(),
+            counts: HashMap::new(),
+            dom_context: HashMap::new(),
+            text: HashMap::new(),
+            diagnostics: Vec::new(),
+            errors: Vec::new(),
+            css: HashMap::new(),
+            box_info: HashMap::new(),
+        };
+        let json = serde_json::to_string(&result).expect("Failed to serialize");
+        assert!(json.contains("\"summaries\""));
+        assert!(json.contains("\"contrast\""));
+        assert!(json.contains("\"counts\""));
+        assert!(json.contains("\"dom_context\""));
+        assert!(json.contains("\"text\""));
+        assert!(json.contains("\"diagnostics\""));
+        assert!(json.contains("\"errors\""));
+        assert!(json.contains("\"css\""));
+        assert!(json.contains("\"box_info\""));
+    }
+
+    #[test]
+    fn test_dom_context_skip_serializing_optional_fields() {
+        let ctx = DomContext {
+            tag_name: "div".to_string(),
+            id: None,
+            classes: vec![],
+            schema_ancestors: None,
+            schema_depth: None,
+            dom_ancestors: vec![],
+        };
+        let json = serde_json::to_string(&ctx).expect("Failed to serialize");
+        assert!(!json.contains("id"));
+        assert!(!json.contains("classes"));
+        assert!(!json.contains("schemaAncestors"));
+        assert!(!json.contains("schemaDepth"));
+        assert!(!json.contains("domAncestors"));
+        assert!(json.contains("tagName"));
     }
 }
