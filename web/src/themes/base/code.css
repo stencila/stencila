@@ -419,6 +419,28 @@ stencila-code-chunk {
         height: 100%;
         display: block;
     }
+
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg {
+        stroke: var(--figure-overlay-stroke-color);
+        stroke-width: var(--figure-overlay-stroke-width);
+        fill: none;
+        font-family: var(--figure-overlay-font-family);
+        font-size: var(--figure-overlay-font-size);
+        font-weight: var(--figure-overlay-font-weight);
+    }
+
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg text:not([fill]) {
+        fill: var(--figure-overlay-text-color);
+    }
+
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg text:not([stroke]) {
+        stroke: none;
+    }
+
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg marker polygon:not([fill]),
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg marker path:not([fill]) {
+        fill: var(--figure-overlay-marker-color);
+    }
 }
 
 /* Demo code block - code + rendered preview grouped together */

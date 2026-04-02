@@ -80,6 +80,27 @@
     --figure-label-font-weight: var(--label-font-weight);
     --figure-label-font-style: var(--label-font-style);
     --figure-label-color: var(--label-color);
+
+    /* Overlay tokens - defaults for SVG annotation layers on figures and code chunks.
+     * A single base color drives all derived defaults. Theme authors can override
+     * just --figure-overlay-color to restyle everything, or override individual
+     * tokens for fine-grained control. */
+    --figure-overlay-color: var(--color-gray-600);
+    --figure-overlay-color-dark: var(--color-gray-400);
+    --figure-overlay-color-print: var(--color-gray-800);
+
+    --figure-overlay-stroke-color: var(--figure-overlay-color);
+    --figure-overlay-stroke-color-dark: var(--figure-overlay-color-dark);
+    --figure-overlay-stroke-width: 2;
+
+    --figure-overlay-text-color: var(--figure-overlay-color);
+    --figure-overlay-text-color-dark: var(--figure-overlay-color-dark);
+    --figure-overlay-font-family: var(--font-family-sans);
+    --figure-overlay-font-size: 16;
+    --figure-overlay-font-weight: var(--font-weight-semibold);
+
+    --figure-overlay-marker-color: var(--figure-overlay-color);
+    --figure-overlay-marker-color-dark: var(--figure-overlay-color-dark);
 }
 
 /* Dark Mode Application - System Preference */
@@ -87,6 +108,10 @@
     :root:not([data-color-scheme="light"]) {
         --figure-background: var(--figure-background-dark);
         --figure-border-color: var(--figure-border-color-dark);
+        --figure-overlay-color: var(--figure-overlay-color-dark);
+        --figure-overlay-stroke-color: var(--figure-overlay-stroke-color-dark);
+        --figure-overlay-text-color: var(--figure-overlay-text-color-dark);
+        --figure-overlay-marker-color: var(--figure-overlay-marker-color-dark);
     }
 }
 
@@ -94,6 +119,10 @@
 :root[data-color-scheme="dark"] {
     --figure-background: var(--figure-background-dark);
     --figure-border-color: var(--figure-border-color-dark);
+    --figure-overlay-color: var(--figure-overlay-color-dark);
+    --figure-overlay-stroke-color: var(--figure-overlay-stroke-color-dark);
+    --figure-overlay-text-color: var(--figure-overlay-text-color-dark);
+    --figure-overlay-marker-color: var(--figure-overlay-marker-color-dark);
 }
 
 stencila-figure {
@@ -177,6 +206,36 @@ stencila-figure {
         display: block;
     }
 
+    :where([slot="overlay"]) svg {
+        stroke: var(--figure-overlay-stroke-color);
+        stroke-width: var(--figure-overlay-stroke-width);
+        fill: none;
+        font-family: var(--figure-overlay-font-family);
+        font-size: var(--figure-overlay-font-size);
+        font-weight: var(--figure-overlay-font-weight);
+    }
+
+    /* Text needs its own fill and stroke reset because the svg-level defaults
+     * leave all elements unfilled and would otherwise stroke glyph outlines.
+     * Apply these defaults only when the text element does not already declare
+     * fill or stroke, so explicit SVG presentation attributes still work. */
+    :where([slot="overlay"]) svg text:not([fill]) {
+        fill: var(--figure-overlay-text-color);
+    }
+
+    :where([slot="overlay"]) svg text:not([stroke]) {
+        stroke: none;
+    }
+
+    /* Common arrowhead markers use polygon/path children, which need their own
+     * fill defaults because marker contents do not inherit the desired color.
+     * Apply these defaults only when the marker child does not already declare
+     * fill, so explicit SVG presentation attributes still work. */
+    :where([slot="overlay"]) svg marker polygon:not([fill]),
+    :where([slot="overlay"]) svg marker path:not([fill]) {
+        fill: var(--figure-overlay-marker-color);
+    }
+
     figcaption {
         /* Caption spacing and layout */
         margin-top: var(--figure-caption-spacing-top);
@@ -244,10 +303,16 @@ stencila-figure {
 
 /* Print Media Optimization */
 @media print {
-    :root {
+    :root,
+    :root[data-color-scheme="dark"],
+    :root:not([data-color-scheme="light"]) {
         --figure-max-width: var(--figure-max-width-print);
         --figure-background: var(--figure-background-print);
         --figure-border-color: var(--figure-border-color-print);
+        --figure-overlay-color: var(--figure-overlay-color-print);
+        --figure-overlay-stroke-color: var(--figure-overlay-color-print);
+        --figure-overlay-text-color: var(--figure-overlay-color-print);
+        --figure-overlay-marker-color: var(--figure-overlay-color-print);
     }
 
     stencila-figure {

@@ -79,6 +79,37 @@ Layout and typography styling for figure captions (inherits from caption and lab
 | `--figure-label-font-style`    | Font style for figure labels                  | `var(--label-font-style)`      |
 | `--figure-label-color`         | Text color for figure labels                  | `var(--label-color)`           |
 
+## Overlay Tokens
+
+Defaults for SVG annotation layers rendered on top of figures and code chunks. A single base color (`--figure-overlay-color`) drives all derived defaults — override it to restyle all overlays at once, or override individual tokens for fine-grained control.
+
+These tokens apply to both figure overlays and code chunk overlays (when the code chunk has a figure label). Token definitions live in `figures.css`; code chunk overlay rules in `code.css` reference the same tokens via the `:root` cascade.
+
+| Token                              | Description                                              | Default Value                        |
+| ---------------------------------- | -------------------------------------------------------- | ------------------------------------ |
+| `--figure-overlay-color`           | Base color — all other overlay colors derive from this   | `var(--color-gray-600)`              |
+| `--figure-overlay-color-dark`      | Base color in dark mode                                  | `var(--color-gray-400)`              |
+| `--figure-overlay-color-print`     | Base color in print (forced high-contrast)               | `var(--color-gray-800)`              |
+| `--figure-overlay-stroke-color`    | Stroke color for shapes                                  | `var(--figure-overlay-color)`        |
+| `--figure-overlay-stroke-color-dark` | Stroke color in dark mode                              | `var(--figure-overlay-color-dark)`   |
+| `--figure-overlay-stroke-width`    | Stroke width (unitless, scales with viewBox)             | `2`                                  |
+| `--figure-overlay-text-color`      | Fill color for `<text>` elements                         | `var(--figure-overlay-color)`        |
+| `--figure-overlay-text-color-dark` | Text fill color in dark mode                             | `var(--figure-overlay-color-dark)`   |
+| `--figure-overlay-font-family`     | Font family for `<text>` elements                        | `var(--font-family-sans)`            |
+| `--figure-overlay-font-size`       | Font size (unitless, scales with viewBox)                | `16`                                 |
+| `--figure-overlay-font-weight`     | Font weight for `<text>` elements                        | `var(--font-weight-semibold)`        |
+| `--figure-overlay-marker-color`    | Fill color for marker children (`<polygon>`, `<path>`)   | `var(--figure-overlay-color)`        |
+| `--figure-overlay-marker-color-dark` | Marker fill color in dark mode                         | `var(--figure-overlay-color-dark)`   |
+
+**Dark mode:** In dark mode, all overlay color tokens automatically switch to their `-dark` variants. The default (gray-100 in dark mode) provides reliable contrast on dark backgrounds and avoids clashing with accent-colored plot elements.
+
+**Print:** In print, all overlay color tokens are forced to `--figure-overlay-color-print` (default: `--color-gray-800`) for reliable high-contrast output regardless of theme customization.
+
+**Unitless values:** `--figure-overlay-stroke-width` and `--figure-overlay-font-size` are unitless numbers that scale with the SVG `viewBox` coordinate system. The defaults (2 and 16) work well for overlays with viewBox dimensions in the 400–800 unit range. For very small or very large viewBoxes, override these per-element with explicit SVG attributes.
+
+> [!NOTE]
+> Overlay tokens provide defaults for common inline SVG annotation content: shapes, lines, text labels, and common marker arrowheads. They do not tokenize every SVG feature. Properties such as `stroke-dasharray`, gradients, filters, and uncommon marker child shapes still need explicit SVG markup or attributes. When you need a different treatment on a specific element, use explicit SVG attributes such as `stroke`, `stroke-width`, `fill`, or `font-size` on that element. For text labels and marker arrowheads, the theme defaults are only applied when those attributes are absent, so explicit per-element SVG attributes continue to work reliably.
+
 # Examples
 
 ## Default Figures
@@ -235,6 +266,92 @@ Subsequent paragraphs maintain consistent spacing through the `--figure-caption-
 
 :::
 
+## Overlays
+
+Overlay elements inherit defaults from the `--figure-overlay-*` tokens. No explicit SVG presentation attributes are needed — shapes get themed stroke and fill, text gets themed color and font:
+
+```css
+:root {
+  /* No design token overrides — defaults apply */
+}
+```
+
+````smd demo
+::: figure
+
+![](https://placehold.co/600x300/6395f8/ddd?text=overlay)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="300" cy="150" r="60"/>
+  <text x="370" y="155">Center</text>
+  <rect x="30" y="30" width="160" height="80"/>
+  <text x="40" y="125">Region A</text>
+</svg>
+```
+
+A figure with themed overlay annotations using default tokens.
+
+:::
+````
+
+## Overlay Theme Overrides
+
+Mix defaults and explicit overrides in the same overlay. Elements with explicit attributes keep their specified values; elements without use the theme:
+
+````smd demo
+::: figure
+
+![](https://placehold.co/600x300/6395f8/ddd?text=override)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="300" cy="150" r="50"/>
+  <text x="360" y="155">Themed</text>
+  <circle cx="100" cy="75" r="30" stroke="orange" stroke-width="4"/>
+  <text x="140" y="80" fill="orange">Explicit orange</text>
+</svg>
+```
+
+Default themed circle and label alongside explicitly orange overrides.
+
+:::
+````
+
+## Custom Overlay Color
+
+Override `--figure-overlay-color` to restyle all overlay elements at once:
+
+```css
+:root {
+  --figure-overlay-color: var(--color-red-600);
+  --figure-overlay-color-dark: var(--color-red-400);
+}
+```
+
+::: style --figure-overlay-color: var(--color-red-600);
+
+````raw
+::: figure
+
+![](https://placehold.co/600x300/2568ef/ddd?text=custom)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <circle cx="300" cy="150" r="60"/>
+  <text x="370" y="155">Red theme</text>
+  <rect x="30" y="30" width="160" height="80"/>
+  <text x="40" y="125">Region</text>
+</svg>
+```
+
+All overlay elements now use red instead of the default accent color.
+
+:::
+````
+
+:::
+
 # Tips
 
 **Isolation**: Use `--figure-background` and `--figure-border-*` to add containers; leave them transparent for minimal layouts.
@@ -244,3 +361,5 @@ Subsequent paragraphs maintain consistent spacing through the `--figure-caption-
 **Labels**: Figure labels inherit shared label tokens; override `--figure-label-*` only when you need to break that alignment.
 
 **Print overrides**: Use `--figure-background-print` and `--figure-border-color-print` for print-specific adjustments.
+
+**Overlays**: Override `--figure-overlay-color` to change all overlay annotations at once; override individual tokens like `--figure-overlay-stroke-color` or `--figure-overlay-font-family` for fine-grained control. Use `--figure-overlay-color-print` for print-specific overlay styling.
