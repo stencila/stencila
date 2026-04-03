@@ -50,6 +50,8 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "labelAutomatically",
                 "labelOnly",
                 "mathml",
+                "overlay",
+                "overlayCompiled",
                 "pageEnd",
                 "pageStart",
                 "pagination",
@@ -70,7 +72,6 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 // Figure exclusions
                 "Figure.padding",
                 "Figure.layout",
-                "Figure.overlay",
                 // Table exclusions
                 "Table.notes",
                 "TableCell.content",
@@ -82,8 +83,6 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "TableCell.verticalAlignment",
                 // Datatable exclusions
                 "Datatable.notes",
-                // CodeChunk exclusions
-                "CodeChunk.overlay",
                 // CodeBlock exclusions
                 "CodeBlock.isDemo",
                 "CodeBlock.content",

@@ -419,6 +419,8 @@
     "output": "stencila:output",
     "outputs": "stencila:outputs",
     "overlay": "stencila:overlay",
+    "overlayCompilationDigest": "stencila:overlayCompilationDigest",
+    "overlayCompiled": "stencila:overlayCompiled",
     "overrides": "stencila:overrides",
     "padding": "stencila:padding",
     "pageEnd": "schema:pageEnd",

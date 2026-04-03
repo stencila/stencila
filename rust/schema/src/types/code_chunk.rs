@@ -263,6 +263,19 @@ pub struct CodeChunkOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_bounded: Option<ExecutionBounds>,
 
+    /// The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.
+    #[serde(alias = "overlay-compiled", alias = "overlay_compiled")]
+    #[strip(output)]
+    #[patch()]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay_compiled: Option<String>,
+
+    /// A digest of the overlay property.
+    #[serde(alias = "overlay-compilation-digest", alias = "overlay_compilation_digest")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay_compilation_digest: Option<CompilationDigest>,
+
     /// Whether the code should be treated as side-effect free when executed.
     #[serde(alias = "execution-pure", alias = "execution_pure")]
     #[strip(execution)]

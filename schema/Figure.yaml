@@ -76,17 +76,6 @@ properties:
     type: string
     patch:
       formats: [md, smd, myst, ipynb, qmd]
-  overlay:
-    '@id': stencila:overlay
-    description: |
-      An optional SVG overlay rendered on top of the figure's content.
-      The SVG is positioned absolutely over the content area and scales
-      proportionally using the SVG viewBox. Used for annotations such as
-      arrows, callouts, bounding boxes, and labels.
-    type: string
-    walk: false
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   padding:
     '@id': stencila:padding
     description: |
@@ -98,6 +87,40 @@ properties:
     type: string
     patch:
       formats: [md, smd, myst, ipynb, qmd]
+  overlay:
+    '@id': stencila:overlay
+    description: |
+      An optional SVG overlay rendered on top of the figure's content.
+      The SVG is positioned absolutely over the content area and scales
+      proportionally using the SVG viewBox. Used for annotations such as
+      arrows, callouts, bounding boxes, and labels.
+    type: string
+    walk: false
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+  overlayCompiled:
+    '@id': stencila:overlayCompiled
+    description: |
+      The compiled SVG overlay with all custom elements expanded to
+      standard SVG. Generated during compilation from the overlay
+      source. When present, renderers use this instead of overlay.
+    type: string
+    strip: [output]
+    patch:
+      formats: []
+  compilationDigest:
+    '@id': stencila:compilationDigest
+    description: A digest of the `overlay` property.
+    $comment: Used to avoid unnecessary recompilation of the overlay.
+    $ref: CompilationDigest
+    strip: [compilation]
+  compilationMessages:
+    '@id': stencila:compilationMessages
+    description: Messages generated while compiling the overlay.
+    type: array
+    items:
+      $ref: CompilationMessage
+    strip: [compilation]
   content:
     '@id': stencila:content
     description: The content of the figure.

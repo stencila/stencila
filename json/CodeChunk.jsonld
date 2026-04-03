@@ -47,6 +47,9 @@
           "@id": "stencila:Executable"
         },
         {
+          "@id": "stencila:Figure"
+        },
+        {
           "@id": "stencila:Math"
         },
         {
@@ -80,6 +83,9 @@
         },
         {
           "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:Link"
@@ -585,6 +591,35 @@
       ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:overlayCompiled",
+      "@type": "rdfs:Property",
+      "rdfs:label": "overlayCompiled",
+      "rdfs:comment": "The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:overlayCompilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "overlayCompilationDigest",
+      "rdfs:comment": "A digest of the overlay property.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
       }
     },
     {

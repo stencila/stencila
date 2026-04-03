@@ -7,6 +7,8 @@ use super::bibliography::Bibliography;
 use super::block::Block;
 use super::boolean::Boolean;
 use super::comment::Comment;
+use super::compilation_digest::CompilationDigest;
+use super::compilation_message::CompilationMessage;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
@@ -341,15 +343,35 @@ pub struct FigureOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub layout: Option<String>,
 
+    /// Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub padding: Option<String>,
+
     /// An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub overlay: Option<String>,
 
-    /// Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    /// The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.
+    #[serde(alias = "overlay-compiled", alias = "overlay_compiled")]
+    #[strip(output)]
+    #[patch()]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub padding: Option<String>,
+    pub overlay_compiled: Option<String>,
+
+    /// A digest of the `overlay` property.
+    #[serde(alias = "compilation-digest", alias = "compilation_digest")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_digest: Option<CompilationDigest>,
+
+    /// Messages generated while compiling the overlay.
+    #[serde(alias = "compilation-messages", alias = "compilation_messages", alias = "compilationMessage", alias = "compilation-message", alias = "compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
 }
 
 impl Figure {

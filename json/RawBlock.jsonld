@@ -187,6 +187,9 @@
           "@id": "stencila:Executable"
         },
         {
+          "@id": "stencila:Figure"
+        },
+        {
           "@id": "stencila:Math"
         },
         {
@@ -220,6 +223,9 @@
         },
         {
           "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:Link"

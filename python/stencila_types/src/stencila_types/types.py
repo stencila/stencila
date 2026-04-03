@@ -1608,6 +1608,12 @@ class CodeChunk(CodeExecutable):
     overlay: str | None = None
     """An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels."""
 
+    overlay_compiled: str | None = None
+    """The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay."""
+
+    overlay_compilation_digest: CompilationDigest | None = None
+    """A digest of the overlay property."""
+
     outputs: list[Node] | None = None
     """Outputs from executing the chunk."""
 
@@ -2109,11 +2115,20 @@ class Figure(CreativeWork):
     layout: str | None = None
     """Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid."""
 
+    padding: str | None = None
+    """Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left)."""
+
     overlay: str | None = None
     """An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels."""
 
-    padding: str | None = None
-    """Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left)."""
+    overlay_compiled: str | None = None
+    """The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay."""
+
+    compilation_digest: CompilationDigest | None = None
+    """A digest of the `overlay` property."""
+
+    compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while compiling the overlay."""
 
     content: list[Block]
     """The content of the figure."""

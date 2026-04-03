@@ -100,6 +100,22 @@ properties:
     type: string
     patch:
       formats: [md, smd]
+  overlayCompiled:
+    '@id': stencila:overlayCompiled
+    description: |
+      The compiled SVG overlay with all custom elements expanded to
+      standard SVG. Generated during compilation from the overlay
+      source. When present, renderers use this instead of overlay.
+    type: string
+    strip: [output]
+    patch:
+      formats: []
+  overlayCompilationDigest:
+    '@id': stencila:overlayCompilationDigest
+    description: A digest of the overlay property.
+    $comment: Used to avoid unnecessary recompilation of the overlay.
+    $ref: CompilationDigest
+    strip: [compilation]
   outputs:
     "@id": stencila:outputs
     description: Outputs from executing the chunk.

@@ -2,6 +2,7 @@
 
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
+import { CompilationDigest } from "./CompilationDigest.js";
 import { Cord } from "./Cord.js";
 import { LabelType } from "./LabelType.js";
 import { Node } from "./Node.js";
@@ -37,6 +38,16 @@ export class CodeChunk extends CodeExecutable {
    * An optional SVG overlay rendered on top of the chunk's visual content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
    */
   overlay?: string;
+
+  /**
+   * The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.
+   */
+  overlayCompiled?: string;
+
+  /**
+   * A digest of the overlay property.
+   */
+  overlayCompilationDigest?: CompilationDigest;
 
   /**
    * Outputs from executing the chunk.

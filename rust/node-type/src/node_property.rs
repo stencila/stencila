@@ -227,6 +227,8 @@ pub enum NodeProperty {
     Output,
     Outputs,
     Overlay,
+    OverlayCompilationDigest,
+    OverlayCompiled,
     Overrides,
     Padding,
     PageEnd,

@@ -831,6 +831,18 @@
       }
     },
     {
+      "@id": "stencila:padding",
+      "@type": "rdfs:Property",
+      "rdfs:label": "padding",
+      "rdfs:comment": "Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Figure"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:overlay",
       "@type": "rdfs:Property",
       "rdfs:label": "overlay",
@@ -848,15 +860,93 @@
       }
     },
     {
-      "@id": "stencila:padding",
+      "@id": "stencila:overlayCompiled",
       "@type": "rdfs:Property",
-      "rdfs:label": "padding",
-      "rdfs:comment": "Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).",
-      "schema:domainIncludes": {
-        "@id": "stencila:Figure"
-      },
+      "rdfs:label": "overlayCompiled",
+      "rdfs:comment": "The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeChunk"
+        },
+        {
+          "@id": "stencila:Figure"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:compilationDigest",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationDigest",
+      "rdfs:comment": "A digest of the `overlay` property.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CodeBlock"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationDigest"
+      }
+    },
+    {
+      "@id": "stencila:compilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "compilationMessages",
+      "rdfs:comment": "Messages generated while compiling the overlay.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Text"
+        },
+        {
+          "@id": "stencila:AppendixBreak"
+        },
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:CodeBlock"
+        },
+        {
+          "@id": "stencila:Executable"
+        },
+        {
+          "@id": "stencila:Figure"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:Math"
+        },
+        {
+          "@id": "stencila:RawBlock"
+        },
+        {
+          "@id": "stencila:Styled"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
       }
     },
     {

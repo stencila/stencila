@@ -589,6 +589,34 @@
       },
       "type": "string"
     },
+    "overlayCompiled": {
+      "@id": "stencila:overlayCompiled",
+      "description": "The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.",
+      "aliases": [
+        "overlay-compiled",
+        "overlay_compiled"
+      ],
+      "strip": [
+        "output"
+      ],
+      "patch": {
+        "formats": []
+      },
+      "type": "string"
+    },
+    "overlayCompilationDigest": {
+      "@id": "stencila:overlayCompilationDigest",
+      "description": "A digest of the overlay property.",
+      "$comment": "Used to avoid unnecessary recompilation of the overlay.",
+      "aliases": [
+        "overlay-compilation-digest",
+        "overlay_compilation_digest"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
     "outputs": {
       "@id": "stencila:outputs",
       "description": "Outputs from executing the chunk.",

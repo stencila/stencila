@@ -397,7 +397,12 @@ impl DomCodec for Figure {
                 self.content.to_dom(context);
             }
 
-            if let Some(overlay) = &self.options.overlay {
+            if let Some(overlay) = self
+                .options
+                .overlay_compiled
+                .as_ref()
+                .or(self.options.overlay.as_ref())
+            {
                 context.push_slot_fn("div", "overlay", |context| {
                     context.push_html(overlay);
                 });

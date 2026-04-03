@@ -128,8 +128,8 @@ impl DomCodec for CodeChunk {
             });
         }
 
-        let has_figure_overlay =
-            matches!(self.label_type, Some(LabelType::FigureLabel)) && self.overlay.is_some();
+        let has_figure_overlay = matches!(self.label_type, Some(LabelType::FigureLabel))
+            && (self.overlay.is_some() || self.options.overlay_compiled.is_some());
 
         if let Some(outputs) = &self.outputs {
             if has_figure_overlay {
@@ -137,7 +137,12 @@ impl DomCodec for CodeChunk {
                     context.enter_elem_attrs("div", [("class", "figure-content-area")]);
                     outputs.to_dom(context);
 
-                    if let Some(overlay) = &self.overlay {
+                    if let Some(overlay) = self
+                        .options
+                        .overlay_compiled
+                        .as_ref()
+                        .or(self.overlay.as_ref())
+                    {
                         context.push_slot_fn("div", "overlay", |context| {
                             context.push_html(overlay);
                         });

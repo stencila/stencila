@@ -781,6 +781,20 @@
       },
       "type": "string"
     },
+    "padding": {
+      "@id": "stencila:padding",
+      "description": "Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
     "overlay": {
       "@id": "stencila:overlay",
       "description": "An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.",
@@ -796,19 +810,51 @@
       "walk": false,
       "type": "string"
     },
-    "padding": {
-      "@id": "stencila:padding",
-      "description": "Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).",
+    "overlayCompiled": {
+      "@id": "stencila:overlayCompiled",
+      "description": "The compiled SVG overlay with all custom elements expanded to standard SVG. Generated during compilation from the overlay source. When present, renderers use this instead of overlay.",
+      "aliases": [
+        "overlay-compiled",
+        "overlay_compiled"
+      ],
+      "strip": [
+        "output"
+      ],
       "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
+        "formats": []
       },
       "type": "string"
+    },
+    "compilationDigest": {
+      "@id": "stencila:compilationDigest",
+      "description": "A digest of the `overlay` property.",
+      "$comment": "Used to avoid unnecessary recompilation of the overlay.",
+      "aliases": [
+        "compilation-digest",
+        "compilation_digest"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "$ref": "CompilationDigest.schema.json"
+    },
+    "compilationMessages": {
+      "@id": "stencila:compilationMessages",
+      "description": "Messages generated while compiling the overlay.",
+      "aliases": [
+        "compilation-messages",
+        "compilation_messages",
+        "compilationMessage",
+        "compilation-message",
+        "compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
     },
     "content": {
       "@id": "stencila:content",
