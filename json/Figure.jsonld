@@ -848,6 +848,18 @@
       }
     },
     {
+      "@id": "stencila:padding",
+      "@type": "rdfs:Property",
+      "rdfs:label": "padding",
+      "rdfs:comment": "Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).",
+      "schema:domainIncludes": {
+        "@id": "stencila:Figure"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",

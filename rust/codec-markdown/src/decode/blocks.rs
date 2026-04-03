@@ -20,7 +20,7 @@ use stencila_codec::{
     stencila_schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        CodeExpression, ExecutionBounds, ExecutionMode, Figure, ForBlock, Heading,
+        CodeExpression, ExecutionBounds, ExecutionMode, Figure, FigureOptions, ForBlock, Heading,
         HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
         Node, Page, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
@@ -834,17 +834,25 @@ fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
             multispace0,
         ),
         (
-            opt(take_while(1.., |c: char| c != '[')),
+            opt(take_while(1.., |c: char| c != '[' && c != '{')),
             opt(delimited('[', take_until(1.., ']'), ']')),
+            opt(preceded(multispace0, attrs)),
         ),
     )
-    .map(|(label, layout)| {
+    .map(|(label, layout, attrs)| {
+        let mut attrs: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
+
         Block::Figure(Figure {
             label: label
                 .and_then(|label: &str| (!label.trim().is_empty()).then_some(label.to_string())),
             label_automatically: label.is_some().then_some(false),
-            layout: layout
-                .and_then(|layout: &str| (!layout.trim().is_empty()).then_some(layout.to_string())),
+            options: Box::new(stencila_codec::stencila_schema::FigureOptions {
+                layout: layout.and_then(|layout: &str| {
+                    (!layout.trim().is_empty()).then_some(layout.to_string())
+                }),
+                padding: attrs.swap_remove("pad").flatten().map(node_to_string),
+                ..Default::default()
+            }),
             ..Default::default()
         })
     })
@@ -1630,9 +1638,13 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             let mut figure = Figure {
                 label: options.get("label").map(|label| label.to_string()),
                 label_automatically: options.contains_key("label").then_some(false),
-                layout: options.get("layout").map(|label| label.to_string()),
                 caption: (!caption.is_empty()).then_some(caption),
                 content,
+                options: Box::new(FigureOptions {
+                    layout: options.get("layout").map(|label| label.to_string()),
+                    padding: options.get("padding").map(|padding| padding.to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
             };
             extract_figure_overlay(&mut figure);
@@ -1798,8 +1810,8 @@ fn extract_figure_overlay(figure: &mut Figure) {
     }
 
     figure.content = content;
-    if figure.overlay.is_none() {
-        figure.overlay = overlay;
+    if figure.options.overlay.is_none() {
+        figure.options.overlay = overlay;
     }
 
     if let Some(caption) = &mut figure.caption {
@@ -1812,7 +1824,7 @@ fn extract_figure_overlay(figure: &mut Figure) {
                     programming_language,
                     code,
                     ..
-                }) if figure.overlay.is_none()
+                }) if figure.options.overlay.is_none()
                     && overlay.is_none()
                     && is_svg_overlay(&programming_language) =>
                 {
@@ -1823,8 +1835,8 @@ fn extract_figure_overlay(figure: &mut Figure) {
         }
 
         *caption = blocks;
-        if figure.overlay.is_none() {
-            figure.overlay = overlay;
+        if figure.options.overlay.is_none() {
+            figure.options.overlay = overlay;
         }
         if caption.is_empty() {
             figure.caption = None;
@@ -2241,10 +2253,10 @@ mod tests {
         };
 
         let mut context = Context::new(Format::Myst);
-        let Some(Block::Figure(Figure { layout, .. })) = myst_to_block(&code, &mut context) else {
+        let Some(Block::Figure(figure)) = myst_to_block(&code, &mut context) else {
             panic!("expected figure")
         };
-        assert_eq!(layout.as_deref(), Some("2"));
+        assert_eq!(figure.options.layout.as_deref(), Some("2"));
     }
 
     #[test]
@@ -2254,7 +2266,7 @@ mod tests {
         );
 
         let Some(Block::Figure(Figure {
-            overlay,
+            options,
             content,
             caption,
             ..
@@ -2263,7 +2275,7 @@ mod tests {
             panic!("expected figure")
         };
 
-        assert_eq!(overlay.as_deref(), Some("<svg>content</svg>"));
+        assert_eq!(options.overlay.as_deref(), Some("<svg>content</svg>"));
         assert!(
             content
                 .iter()
@@ -2279,13 +2291,13 @@ mod tests {
         );
 
         let Some(Block::Figure(Figure {
-            overlay, caption, ..
+            options, caption, ..
         })) = blocks.first()
         else {
             panic!("expected figure")
         };
 
-        assert_eq!(overlay.as_deref(), Some("<svg>caption</svg>"));
+        assert_eq!(options.overlay.as_deref(), Some("<svg>caption</svg>"));
         assert!(
             caption
                 .as_ref()
@@ -2299,11 +2311,11 @@ mod tests {
     fn test_decode_figure_without_overlay() {
         let blocks = decode_smd("::: figure\n\n![](plot.png)\n\nCaption\n\n:::\n");
 
-        let Some(Block::Figure(Figure { overlay, .. })) = blocks.first() else {
+        let Some(Block::Figure(Figure { options, .. })) = blocks.first() else {
             panic!("expected figure")
         };
 
-        assert_eq!(overlay, &None);
+        assert_eq!(options.overlay, None);
     }
 
     #[test]
@@ -2396,27 +2408,74 @@ mod tests {
         let Node::Article(article) = decoded_again else {
             panic!("expected article")
         };
-        let Some(Block::Figure(Figure { overlay, .. })) = article.content.first() else {
+        let Some(Block::Figure(Figure { options, .. })) = article.content.first() else {
             panic!("expected figure")
         };
 
-        assert_eq!(overlay.as_deref(), Some("<svg>roundtrip</svg>"));
+        assert_eq!(options.overlay.as_deref(), Some("<svg>roundtrip</svg>"));
     }
 
     #[test]
     fn test_figure_with_attrs() {
-        let Block::Figure(Figure { layout, .. }) = figure(&mut Located::new("figure [2]")).unwrap()
+        let Block::Figure(Figure { options, .. }) =
+            figure(&mut Located::new("figure [2]")).unwrap()
         else {
             panic!("expected figure")
         };
-        assert_eq!(layout.as_deref(), Some("2"));
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(options.padding, None);
 
-        let Block::Figure(Figure { layout, .. }) =
+        let Block::Figure(Figure { options, .. }) =
             figure(&mut Located::new("figure [30 70]")).unwrap()
         else {
             panic!("expected figure")
         };
-        assert_eq!(layout.as_deref(), Some("30 70"));
+        assert_eq!(options.layout.as_deref(), Some("30 70"));
+        assert_eq!(options.padding, None);
+
+        let Block::Figure(Figure { label, options, .. }) =
+            figure(&mut Located::new("figure {pad=50}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(label, None);
+        assert_eq!(options.layout, None);
+        assert_eq!(options.padding.as_deref(), Some("50"));
+
+        let Block::Figure(Figure { label, options, .. }) =
+            figure(&mut Located::new("figure 1 {pad=50}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(label.as_deref(), Some("1 "));
+        assert_eq!(options.layout, None);
+        assert_eq!(options.padding.as_deref(), Some("50"));
+
+        let Block::Figure(Figure { label, options, .. }) =
+            figure(&mut Located::new("figure [2] {pad=50}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(label, None);
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(options.padding.as_deref(), Some("50"));
+
+        let Block::Figure(Figure { label, options, .. }) =
+            figure(&mut Located::new("figure 1 [2] {pad=\"30 60\"}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(label.as_deref(), Some("1 "));
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(options.padding.as_deref(), Some("30 60"));
+
+        let Block::Figure(Figure { label, options, .. }) =
+            figure(&mut Located::new("figure  {pad=50}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(label, None);
+        assert_eq!(options.padding.as_deref(), Some("50"));
     }
 
     #[test]

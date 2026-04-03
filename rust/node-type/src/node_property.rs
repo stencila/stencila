@@ -228,6 +228,7 @@ pub enum NodeProperty {
     Outputs,
     Overlay,
     Overrides,
+    Padding,
     PageEnd,
     PageStart,
     Pagination,

@@ -63,7 +63,7 @@ Prism.languages.insertBefore('smd', 'code', {
       },
     },
     {
-      // ::: figure/table [layout] <label>
+      // ::: figure/table [layout] {attributes} <label>
       pattern: /^([ \t]*)(:{3,})[ \t]+(figure|table)([ \t]+(.+))?$/m,
       lookbehind: true,
       inside: {
@@ -76,7 +76,19 @@ Prism.languages.insertBefore('smd', 'code', {
             selector: /[^\]]+/,
           },
         },
-        'attr-value': /(?<=\b(?:figure|table)\s+)\S+/,
+        attributes: {
+          pattern: /\{[^}\n]*\}/,
+          inside: {
+            punctuation: /[{}=]/,
+            'attr-name': /[\w-]+(?=\s*=)/,
+            string: /"(?:\\.|[^"\\])*"/,
+            number: /(?<=\=\s*)-?(?:\d+\.\d+|\d+)/,
+            boolean: /(?<=\=\s*)\b(?:true|false)\b/,
+            'attr-value': /(?<=\=\s*)[^\s{}"]+/,
+          },
+        },
+        'attr-value':
+          /(?<=\b(?:figure|table)\s+)(?!\[[^\]]*\]|\{[^}\n]*\})\S+/,
       },
     },
     {

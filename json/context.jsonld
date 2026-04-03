@@ -420,6 +420,7 @@
     "outputs": "stencila:outputs",
     "overlay": "stencila:overlay",
     "overrides": "stencila:overrides",
+    "padding": "stencila:padding",
     "pageEnd": "schema:pageEnd",
     "pageStart": "schema:pageStart",
     "pagination": "schema:pagination",

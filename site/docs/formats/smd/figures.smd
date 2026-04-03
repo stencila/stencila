@@ -14,10 +14,10 @@ Use a plain block image when you just want to show a picture. Use a figure when 
 
 # Syntax
 
-A figure in Stencila Markdown, starts with a colon fence line with the keyword `figure` and optional label and layout. In an basic figure there is usually a single image and a caption paragraph.
+A figure in Stencila Markdown starts with a colon fence line with the keyword `figure` and optional label, layout, and padding. In a basic figure there is usually a single image and a caption paragraph.
 
 ```smd
-::: figure <label> [<layout>]
+::: figure <label> [<layout>] {pad="<padding>"}
 
 ![](image.png)
 
@@ -710,3 +710,79 @@ Subfigures with individual annotations plus a parent overlay arrow connecting th
 
 :::
 ````
+
+## Padding
+
+Padding adds whitespace around a figure's content area. For overlays, that extra space becomes part of the overlay coordinate space, which lets you place arrows, labels, notes, or scale bars just outside the image instead of drawing over it.
+
+Add padding on the figure fence using a `pad` attribute:
+
+```smd
+::: figure {pad=50}
+::: figure {pad="30 60"}
+::: figure [2] {pad="10 20 30 40"}
+```
+
+- `50` means 50px on all sides.
+- `30 60` means 30px top and bottom, 60px left and right.
+- `10 20 30 40` means top, right, bottom, left.
+
+When using more than one padding value, quote the value so it is parsed as a single attribute.
+
+### Padding for a single figure overlay
+
+This example adds bottom padding so a scale bar can sit below the image instead of covering it:
+
+````smd demo
+::: figure {pad="0 0 56 0"}
+
+![](https://placehold.co/600x300/27ae60/white)
+
+```svg overlay
+<svg viewBox="0 0 600 356" xmlns="http://www.w3.org/2000/svg">
+  <line x1="40" y1="326" x2="170" y2="326" stroke="white" stroke-width="8"/>
+  <text x="78" y="350" fill="white">20 μm</text>
+</svg>
+```
+
+A figure with bottom padding that leaves room for a scale bar beneath the image.
+
+:::
+````
+
+### Padding on a parent figure
+
+Padding also works on parent figures with grid layouts. Here the parent figure uses bottom padding so a shared note can sit below the whole grid, while the subfigure labels are still generated automatically by Stencila:
+
+````smd demo
+::: figure [2] {pad="0 0 56 0"}
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/e74c3c/white)
+
+    Red panel.
+
+    :::
+
+    ::: figure
+
+    ![](https://placehold.co/400x250/3498db/white)
+
+    Blue panel.
+
+    :::
+
+```svg overlay
+<svg viewBox="0 0 824 306" xmlns="http://www.w3.org/2000/svg">
+  <text x="300" y="292">Points of interest</text>
+  <line x1="360" y1="276" x2="220" y2="210"/>
+  <line x1="470" y1="276" x2="610" y2="90"/>
+</svg>
+```
+
+A two-panel figure with parent padding that leaves room for a note below the grid.
+
+:::
+````
+

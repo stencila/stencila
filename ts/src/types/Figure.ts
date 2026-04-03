@@ -36,6 +36,11 @@ export class Figure extends CreativeWork {
   overlay?: string;
 
   /**
+   * Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).
+   */
+  padding?: string;
+
+  /**
    * The content of the figure.
    */
   content: Block[];

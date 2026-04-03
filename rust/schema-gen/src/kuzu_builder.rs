@@ -68,6 +68,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Article.executionEnded",
                 "Article.executionDuration",
                 // Figure exclusions
+                "Figure.padding",
                 "Figure.layout",
                 "Figure.overlay",
                 // Table exclusions

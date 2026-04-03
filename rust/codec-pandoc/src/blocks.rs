@@ -586,7 +586,7 @@ fn figure_to_pandoc(figure: &Figure, context: &mut PandocEncodeContext) -> pando
         attributes.push(("label".into(), label.into()));
     }
 
-    if let Some(layout) = &figure.layout {
+    if let Some(layout) = &figure.options.layout {
         attributes.push(("layout".into(), layout.into()));
     }
 
@@ -640,9 +640,12 @@ fn figure_from_pandoc(
         id,
         label,
         label_automatically,
-        layout,
         caption,
         content,
+        options: Box::new(FigureOptions {
+            layout,
+            ..Default::default()
+        }),
         ..Default::default()
     })
 }

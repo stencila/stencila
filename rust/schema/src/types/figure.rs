@@ -95,16 +95,6 @@ pub struct Figure {
     #[jats(elem = "caption")]
     pub caption: Option<Vec<Block>>,
 
-    /// Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub layout: Option<String>,
-
-    /// An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub overlay: Option<String>,
-
     /// The content of the figure.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -345,6 +335,21 @@ pub struct FigureOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub version: Option<StringOrNumber>,
+
+    /// Layout for arranging content blocks in a multi-panel figure. When absent, content blocks stack vertically with no grid.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub layout: Option<String>,
+
+    /// An optional SVG overlay rendered on top of the figure's content. The SVG is positioned absolutely over the content area and scales proportionally using the SVG viewBox. Used for annotations such as arrows, callouts, bounding boxes, and labels.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay: Option<String>,
+
+    /// Padding around the figure's content area in pixel units. Creates whitespace where overlay annotations can be placed outside the image bounds. Accepts 1, 2, or 4 space-separated values following CSS shorthand order (all, vertical/horizontal, or top/right/bottom/left).
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub padding: Option<String>,
 }
 
 impl Figure {

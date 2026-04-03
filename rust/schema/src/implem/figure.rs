@@ -228,13 +228,86 @@ fn placement_style(
     )
 }
 
+/// Parse figure padding shorthand into top, right, bottom, and left values.
+fn parse_padding(padding: &str) -> Option<(f64, f64, f64, f64)> {
+    let values = padding
+        .split_whitespace()
+        .map(str::parse::<f64>)
+        .collect::<Result<Vec<_>, _>>()
+        .ok()?;
+
+    if values.iter().any(|value| *value < 0.0) {
+        return None;
+    }
+
+    match values.as_slice() {
+        [all] => Some((*all, *all, *all, *all)),
+        [vertical, horizontal] => Some((*vertical, *horizontal, *vertical, *horizontal)),
+        [top, right, bottom, left] => Some((*top, *right, *bottom, *left)),
+        _ => None,
+    }
+}
+
+/// Format a CSS number without a trailing decimal for whole numbers.
+fn css_number(value: f64) -> String {
+    if value.fract() == 0.0 {
+        format!("{value:.0}")
+    } else {
+        value.to_string()
+    }
+}
+
+/// Format a CSS length in pixels, preserving zero as unitless.
+fn css_px(value: f64) -> String {
+    if value == 0.0 {
+        "0".to_string()
+    } else {
+        format!("{}px", css_number(value))
+    }
+}
+
+/// Convert figure padding shorthand into a CSS `padding:` declaration.
+fn padding_to_css(padding: &str) -> Option<String> {
+    let (top, right, bottom, left) = parse_padding(padding)?;
+
+    let css = if top == right && right == bottom && bottom == left {
+        css_px(top)
+    } else if top == bottom && right == left {
+        format!("{} {}", css_px(top), css_px(right))
+    } else {
+        format!(
+            "{} {} {} {}",
+            css_px(top),
+            css_px(right),
+            css_px(bottom),
+            css_px(left)
+        )
+    };
+
+    Some(format!("padding:{css}"))
+}
+
 impl DomCodec for Figure {
     fn to_dom(&self, context: &mut DomEncodeContext) {
         let is_subfigure = context.has_ancestor(NodeType::Figure);
         let grid_layout_styles = self
+            .options
             .layout
             .as_deref()
             .and_then(|layout| resolve_grid_layout_styles(layout, self.content.len()));
+        let content_area_styles = [
+            grid_layout_styles
+                .as_ref()
+                .map(|styles| styles.container.as_str()),
+            self.options
+                .padding
+                .as_deref()
+                .and_then(padding_to_css)
+                .as_deref(),
+        ]
+        .into_iter()
+        .flatten()
+        .join(";");
 
         context.enter_node(self.node_type(), self.node_id());
 
@@ -246,7 +319,7 @@ impl DomCodec for Figure {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
-        if let Some(layout) = &self.layout {
+        if let Some(layout) = &self.options.layout {
             context.push_attr("layout", layout);
         }
 
@@ -281,9 +354,11 @@ impl DomCodec for Figure {
         context.push_slot_fn("figure", "content", |context| {
             context.enter_elem_attrs("div", [("class", "figure-content-area")]);
 
-            if let Some(grid_layout_styles) = &grid_layout_styles {
-                context.push_attr("style", &grid_layout_styles.container);
+            if !content_area_styles.is_empty() {
+                context.push_attr("style", &content_area_styles);
+            }
 
+            if let Some(grid_layout_styles) = &grid_layout_styles {
                 for (index, block) in self.content.iter().enumerate() {
                     let Some(style) = grid_layout_styles.items.get(index) else {
                         block.to_dom(context);
@@ -322,7 +397,7 @@ impl DomCodec for Figure {
                 self.content.to_dom(context);
             }
 
-            if let Some(overlay) = &self.overlay {
+            if let Some(overlay) = &self.options.overlay {
                 context.push_slot_fn("div", "overlay", |context| {
                     context.push_html(overlay);
                 });
@@ -406,6 +481,14 @@ impl MarkdownCodec for Figure {
                         if let Some(label) = &self.label {
                             context.myst_directive_option(NodeProperty::Label, None, label);
                         }
+
+                        if let Some(layout) = &self.options.layout {
+                            context.myst_directive_option(NodeProperty::Layout, None, layout);
+                        }
+
+                        if let Some(padding) = &self.options.padding {
+                            context.myst_directive_option(NodeProperty::Padding, None, padding);
+                        }
                     },
                     |context| {
                         if let Some(caption) = &self.caption {
@@ -425,10 +508,16 @@ impl MarkdownCodec for Figure {
                 context.push_prop_str(NodeProperty::Label, label);
             }
 
-            if let Some(layout) = &self.layout {
+            if let Some(layout) = &self.options.layout {
                 context.push_str(" [");
                 context.push_prop_str(NodeProperty::Layout, layout);
                 context.push_str("]");
+            }
+
+            if let Some(padding) = &self.options.padding {
+                context.push_str(" {pad=\"");
+                context.push_prop_str(NodeProperty::Padding, padding);
+                context.push_str("\"}");
             }
 
             context.push_str("\n\n");
@@ -440,7 +529,7 @@ impl MarkdownCodec for Figure {
                 })
                 .decrease_depth();
 
-            if let Some(overlay) = &self.overlay
+            if let Some(overlay) = &self.options.overlay
                 && matches!(context.format, Format::Smd)
             {
                 let backticks = context.enclosing_backticks(overlay);
@@ -451,9 +540,7 @@ impl MarkdownCodec for Figure {
                     .push_str(&backticks)
                     .push_str("svg overlay\n")
                     .push_indent()
-                    .push_prop_fn(NodeProperty::Overlay, |context| {
-                        overlay.to_markdown(context)
-                    });
+                    .push_prop_str(NodeProperty::Overlay, overlay);
 
                 if !overlay.ends_with('\n') {
                     context.newline();
