@@ -58,7 +58,7 @@ The caption can appear before or after the image — Stencila treats it the same
 
 A blue placeholder image.
 
-![](https://placehold.co/600x300/3498db/white)
+![](images/600x300-blue.png)
 
 :::
 ```
@@ -68,7 +68,7 @@ You can include multiple paragraphs in the caption:
 ```smd demo
 ::: figure
 
-![](https://placehold.co/600x300/2ecc71/white)
+![](images/600x300-teal.png)
 
 This is the first paragraph of the caption.
 
@@ -117,15 +117,15 @@ A figure can contain nested figures as **subfigures**. Each subfigure gets its o
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e74c3c/white)
+    ![](images/400x250-purple.png)
 
-    A red panel.
+    A purple panel.
 
     :::
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-blue.png)
 
     A blue panel.
 
@@ -169,23 +169,23 @@ The keyword `row` places all subfigures side-by-side in a single row without hav
 
     ::: figure
 
-    ![](https://placehold.co/300x200/e74c3c/white)
+    ![](images/300x200-purple.png)
 
-    Red.
-
-    :::
-
-    ::: figure
-
-    ![](https://placehold.co/300x200/2ecc71/white)
-
-    Green.
+    Purple.
 
     :::
 
     ::: figure
 
-    ![](https://placehold.co/300x200/3498db/white)
+    ![](images/300x200-teal.png)
+
+    Teal.
+
+    :::
+
+    ::: figure
+
+    ![](images/300x200-blue.png)
 
     Blue.
 
@@ -205,23 +205,23 @@ A single integer specifies the number of equal-width columns. Subfigures flow le
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e74c3c/white)
+    ![](images/400x250-purple.png)
 
-    Red.
-
-    :::
-
-    ::: figure
-
-    ![](https://placehold.co/400x250/2ecc71/white)
-
-    Green.
+    Purple.
 
     :::
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-teal.png)
+
+    Teal.
+
+    :::
+
+    ::: figure
+
+    ![](images/400x250-blue.png)
 
     Blue.
 
@@ -229,7 +229,7 @@ A single integer specifies the number of equal-width columns. Subfigures flow le
 
     ::: figure
 
-    ![](https://placehold.co/400x250/f39c12/white)
+    ![](images/400x250-orange.png)
 
     Orange.
 
@@ -249,7 +249,7 @@ Space-separated integers define proportional column widths. The numbers are rela
 
     ::: figure
 
-    ![](https://placehold.co/300x300/9b59b6/white)
+    ![](images/300x300-purple.png)
 
     Narrow left panel.
 
@@ -257,7 +257,7 @@ Space-separated integers define proportional column widths. The numbers are rela
 
     ::: figure
 
-    ![](https://placehold.co/700x300/1abc9c/white)
+    ![](images/700x300-teal.png)
 
     Wide right panel.
 
@@ -277,7 +277,7 @@ Add a gap between columns using the `gN` token. For example, `40 g20 40` means t
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e67e22/white)
+    ![](images/400x250-orange.png)
 
     Left.
 
@@ -285,7 +285,7 @@ Add a gap between columns using the `gN` token. For example, `40 g20 40` means t
 
     ::: figure
 
-    ![](https://placehold.co/400x250/2980b9/white)
+    ![](images/400x250-blue.png)
 
     Right.
 
@@ -316,7 +316,7 @@ Repeating a letter across rows makes that subfigure span vertically:
 
     ::: figure
 
-    ![](https://placehold.co/400x500/e74c3c/white)
+    ![](images/400x500-purple.png)
 
     Spans both rows.
 
@@ -324,7 +324,7 @@ Repeating a letter across rows makes that subfigure span vertically:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/2ecc71/white)
+    ![](images/400x250-teal.png)
 
     Top right.
 
@@ -332,7 +332,7 @@ Repeating a letter across rows makes that subfigure span vertically:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-blue.png)
 
     Bottom right.
 
@@ -352,7 +352,7 @@ Repeating a letter across columns makes that subfigure span horizontally:
 
     ::: figure
 
-    ![](https://placehold.co/800x250/f39c12/white)
+    ![](images/800x250-orange.png)
 
     Spans both columns.
 
@@ -360,7 +360,7 @@ Repeating a letter across columns makes that subfigure span horizontally:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/9b59b6/white)
+    ![](images/400x250-purple.png)
 
     Bottom left.
 
@@ -368,7 +368,7 @@ Repeating a letter across columns makes that subfigure span horizontally:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/1abc9c/white)
+    ![](images/400x250-teal.png)
 
     Bottom right.
 
@@ -388,7 +388,7 @@ Use `.` to leave a cell empty:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e74c3c/white)
+    ![](images/400x250-purple.png)
 
     Top left.
 
@@ -396,7 +396,7 @@ Use `.` to leave a cell empty:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/2ecc71/white)
+    ![](images/400x250-teal.png)
 
     Bottom left.
 
@@ -404,7 +404,7 @@ Use `.` to leave a cell empty:
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-blue.png)
 
     Bottom right.
 
@@ -424,7 +424,7 @@ For layouts that need both unequal column widths _and_ precise placement, put th
 
     ::: figure
 
-    ![](https://placehold.co/300x500/e74c3c/white)
+    ![](images/300x500-purple.png)
 
     Narrow left, spans both rows.
 
@@ -432,7 +432,7 @@ For layouts that need both unequal column widths _and_ precise placement, put th
 
     ::: figure
 
-    ![](https://placehold.co/700x250/2ecc71/white)
+    ![](images/700x250-teal.png)
 
     Wide right, top.
 
@@ -440,7 +440,7 @@ For layouts that need both unequal column widths _and_ precise placement, put th
 
     ::: figure
 
-    ![](https://placehold.co/700x250/3498db/white)
+    ![](images/700x250-blue.png)
 
     Wide right, bottom.
 
@@ -460,7 +460,7 @@ Subfigure images do not need to share the same aspect ratio. When images in the 
 
     ::: figure
 
-    ![](https://placehold.co/300x150/e74c3c/white)
+    ![](images/300x150-purple.png)
 
     Wide (2 : 1).
 
@@ -468,7 +468,7 @@ Subfigure images do not need to share the same aspect ratio. When images in the 
 
     ::: figure
 
-    ![](https://placehold.co/250x200/2ecc71/white)
+    ![](images/250x200-teal.png)
 
     Tall (5 : 4).
 
@@ -476,7 +476,7 @@ Subfigure images do not need to share the same aspect ratio. When images in the 
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-blue.png)
 
     Medium (8 : 5).
 
@@ -484,7 +484,7 @@ Subfigure images do not need to share the same aspect ratio. When images in the 
 
     ::: figure
 
-    ![](https://placehold.co/200x100/f39c12/white)
+    ![](images/200x100-orange.png)
 
     Wide (2 : 1).
 
@@ -512,7 +512,7 @@ A single annotation overlay on a figure. Here the `viewBox="0 0 600 300"` matche
 ````smd demo
 ::: figure
 
-![](https://placehold.co/600x300/3498db/white)
+![](images/600x300-blue.png)
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
@@ -620,7 +620,7 @@ Each subfigure can carry its own overlay. The overlay on each panel is scoped to
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e74c3c/white)
+    ![](images/400x250-purple.png)
 
     ```svg overlay
     <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
@@ -629,13 +629,13 @@ Each subfigure can carry its own overlay. The overlay on each panel is scoped to
     </svg>
     ```
 
-    Red panel.
+    Purple panel.
 
     :::
 
     ::: figure
 
-    ![](https://placehold.co/400x250/2ecc71/white)
+    ![](images/400x250-teal.png)
 
     ```svg overlay
     <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
@@ -644,7 +644,7 @@ Each subfigure can carry its own overlay. The overlay on each panel is scoped to
     </svg>
     ```
 
-    Green panel.
+    Teal panel.
 
     :::
 
@@ -666,7 +666,7 @@ In this example the parent overlay draws a connecting arrow between the two pane
 
     ::: figure
 
-    ![](https://placehold.co/400x250/9b59b6/white)
+    ![](images/400x250-purple.png)
 
     ```svg overlay
     <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
@@ -681,7 +681,7 @@ In this example the parent overlay draws a connecting arrow between the two pane
 
     ::: figure
 
-    ![](https://placehold.co/400x250/1abc9c/white)
+    ![](images/400x250-teal.png)
 
     ```svg overlay
     <svg viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
@@ -736,12 +736,12 @@ This example adds bottom padding so a scale bar can sit below the image instead 
 ````smd demo
 ::: figure {pad="0 0 56 0"}
 
-![](https://placehold.co/600x300/27ae60/white)
+![](images/600x300-teal.png)
 
 ```svg overlay
 <svg viewBox="0 0 600 356" xmlns="http://www.w3.org/2000/svg">
-  <line x1="40" y1="326" x2="170" y2="326" stroke="white" stroke-width="8"/>
-  <text x="78" y="350" fill="white">20 μm</text>
+  <line x1="40" y1="326" x2="170" y2="326" stroke-width="6"/>
+  <text x="78" y="350">20 μm</text>
 </svg>
 ```
 
@@ -759,15 +759,15 @@ Padding also works on parent figures with grid layouts. Here the parent figure u
 
     ::: figure
 
-    ![](https://placehold.co/400x250/e74c3c/white)
+    ![](images/400x250-purple.png)
 
-    Red panel.
+    Purple panel.
 
     :::
 
     ::: figure
 
-    ![](https://placehold.co/400x250/3498db/white)
+    ![](images/400x250-blue.png)
 
     Blue panel.
 
