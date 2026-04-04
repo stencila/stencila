@@ -47,8 +47,8 @@ pub fn expand_rect(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     );
 
     if !label.is_empty() {
-        let (lx, ly) = label_coords(x, y, w, h, label_position);
-        svg.push_str(&svg_text(lx, ly, label, "middle", 12, ""));
+        let (lx, ly, anchor) = label_coords(x, y, w, h, label_position);
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
     }
 
     svg
@@ -90,8 +90,8 @@ pub fn expand_ellipse(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     );
 
     if !label.is_empty() {
-        let (lx, ly) = label_coords(cx - rx, cy - ry, rx * 2.0, ry * 2.0, label_position);
-        svg.push_str(&svg_text(lx, ly, label, "middle", 12, ""));
+        let (lx, ly, anchor) = label_coords(cx - rx, cy - ry, rx * 2.0, ry * 2.0, label_position);
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
     }
 
     svg
@@ -155,8 +155,8 @@ pub fn expand_polygon(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             .fold(f64::NEG_INFINITY, f64::max);
         let w = max_x - min_x;
         let h = max_y - min_y;
-        let (lx, ly) = label_coords(min_x, min_y, w, h, label_position);
-        svg.push_str(&svg_text(lx, ly, label, "middle", 12, ""));
+        let (lx, ly, anchor) = label_coords(min_x, min_y, w, h, label_position);
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
     }
 
     svg
@@ -170,12 +170,12 @@ fn stroke_dash_attr(stroke_style: &str) -> String {
     }
 }
 
-fn label_coords(x: f64, y: f64, w: f64, h: f64, position: &str) -> (f64, f64) {
+fn label_coords(x: f64, y: f64, w: f64, h: f64, position: &str) -> (f64, f64, &str) {
     match position {
-        "below" => (x + w / 2.0, y + h + 16.0),
-        "center" => (x + w / 2.0, y + h / 2.0),
-        "left" => (x - 8.0, y + h / 2.0),
-        "right" => (x + w + 8.0, y + h / 2.0),
-        _ => (x + w / 2.0, y - 8.0), // above (default)
+        "below" => (x + w / 2.0, y + h + 16.0, "middle"),
+        "center" => (x + w / 2.0, y + h / 2.0, "middle"),
+        "left" => (x - 8.0, y + h / 2.0, "end"),
+        "right" => (x + w + 8.0, y + h / 2.0, "start"),
+        _ => (x + w / 2.0, y - 8.0, "middle"), // above (default)
     }
 }

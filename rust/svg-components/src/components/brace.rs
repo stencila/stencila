@@ -31,11 +31,9 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let pass = pass_through_attrs(attrs);
 
     // Direction vector from start to end
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let len = (dx * dx + dy * dy).sqrt();
+    let metrics = vector_metrics(x1, y1, x2, y2);
 
-    if len < 0.001 {
+    if metrics.len < 0.001 {
         ctx.messages.push(CompilationMessage::warning(
             "<s:brace> start and end points are too close together",
         ));
@@ -43,22 +41,19 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     }
 
     // Bulge amount: user-specified or 10% of the span length
-    let bulge = attr_f64(attrs, "bulge").unwrap_or(len * 0.1);
+    let bulge = attr_f64(attrs, "bulge").unwrap_or(metrics.len * 0.1);
 
     // Normal direction: the side name indicates which direction the tip points.
     // For a horizontal line (left→right): above = up, below = down
     // For a vertical line (top→bottom): left = left, right = right
-    let (nx, ny) = match side {
-        "above" | "right" => (dy / len, -dx / len),
-        _ => (-dy / len, dx / len), // below/left (default)
-    };
+    let (nx, ny) = normal_for_side(&metrics, side);
 
     // Map normalized (t, n) coordinates to actual SVG coordinates.
     // t: fraction along the spine (0 = start, 1 = end)
     // n: fraction of bulge depth (0 = on chord, 1 = at tip)
     let pt = |t: f64, n: f64| {
-        let x = (x1 + t * dx + n * bulge * nx).round();
-        let y = (y1 + t * dy + n * bulge * ny).round();
+        let x = (x1 + t * metrics.dx + n * bulge * nx).round();
+        let y = (y1 + t * metrics.dy + n * bulge * ny).round();
         format!("{},{}", fmt_coord(x), fmt_coord(y))
     };
 
@@ -97,8 +92,8 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_svg = match label {
         Some(label_text) => {
             let label_offset = 12.0;
-            let lx = x1 + 0.5 * dx + (0.82 * bulge + label_offset) * nx;
-            let ly = y1 + 0.5 * dy + (0.82 * bulge + label_offset) * ny;
+            let lx = x1 + 0.5 * metrics.dx + (0.82 * bulge + label_offset) * nx;
+            let ly = y1 + 0.5 * metrics.dy + (0.82 * bulge + label_offset) * ny;
             let extra = match side {
                 "left" | "right" => format!(
                     r#" dominant-baseline="middle" transform="rotate(-90,{},{})""#,

@@ -22,6 +22,77 @@ use crate::diagnostics::CompilationMessage;
 /// Parsed attributes from an `s:` element.
 pub type Attrs = HashMap<String, String>;
 
+#[derive(Clone, Copy)]
+struct VectorMetrics {
+    dx: f64,
+    dy: f64,
+    len: f64,
+    nx: f64,
+    ny: f64,
+}
+
+fn vector_metrics(x1: f64, y1: f64, x2: f64, y2: f64) -> VectorMetrics {
+    let dx = x2 - x1;
+    let dy = y2 - y1;
+    let len = (dx * dx + dy * dy).sqrt();
+    let (nx, ny) = if len > 0.0 {
+        (-dy / len, dx / len)
+    } else {
+        (0.0, -1.0)
+    };
+
+    VectorMetrics {
+        dx,
+        dy,
+        len,
+        nx,
+        ny,
+    }
+}
+
+fn normal_for_side(metrics: &VectorMetrics, side: &str) -> (f64, f64) {
+    match side {
+        "above" | "right" => (-metrics.nx, -metrics.ny),
+        _ => (metrics.nx, metrics.ny),
+    }
+}
+
+fn quad_control_point(x1: f64, y1: f64, x2: f64, y2: f64) -> QuadControlPoint {
+    let metrics = vector_metrics(x1, y1, x2, y2);
+    let offset = metrics.len * 0.25;
+
+    QuadControlPoint {
+        cx: (x1 + x2) / 2.0 + metrics.nx * offset,
+        cy: (y1 + y2) / 2.0 + metrics.ny * offset,
+    }
+}
+
+fn cubic_control_points(x1: f64, y1: f64, x2: f64, y2: f64) -> CubicControlPoints {
+    let metrics = vector_metrics(x1, y1, x2, y2);
+    let offset = metrics.len * 0.25;
+
+    CubicControlPoints {
+        cx1: x1 + metrics.dx / 3.0 + metrics.nx * offset,
+        cy1: y1 + metrics.dy / 3.0 + metrics.ny * offset,
+        cx2: x1 + 2.0 * metrics.dx / 3.0 - metrics.nx * offset,
+        cy2: y1 + 2.0 * metrics.dy / 3.0 - metrics.ny * offset,
+    }
+}
+
+#[derive(Clone, Copy)]
+struct QuadControlPoint {
+    cx: f64,
+    cy: f64,
+}
+
+#[derive(Clone, Copy)]
+struct CubicControlPoints {
+    cx1: f64,
+    cy1: f64,
+    cx2: f64,
+    cy2: f64,
+}
+
 /// The context available to a component expander.
 pub struct ComponentContext<'a> {
     pub anchors: &'a HashMap<String, Anchor>,
@@ -128,20 +199,7 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
             )
         }
         "quad" => {
-            // Offset the control point perpendicular to the chord so the
-            // curve visibly bows out. Without this, placing the control
-            // point on the chord produces a straight line.
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let len = (dx * dx + dy * dy).sqrt();
-            let offset = len * 0.25;
-            let (nx, ny) = if len > 0.0 {
-                (-dy / len, dx / len)
-            } else {
-                (0.0, -1.0)
-            };
-            let cx = (x1 + x2) / 2.0 + nx * offset;
-            let cy = (y1 + y2) / 2.0 + ny * offset;
+            let QuadControlPoint { cx, cy } = quad_control_point(x1, y1, x2, y2);
             format!(
                 r#"<path d="M {},{} Q {},{} {},{}" fill="none" stroke="currentColor"{}{}{}/>"#,
                 fmt_coord(x1),
@@ -156,23 +214,7 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
             )
         }
         "cubic" => {
-            // S-curve: offset control points perpendicular to the chord so
-            // the curve has proper tangent angles at both endpoints.
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let len = (dx * dx + dy * dy).sqrt();
-            let offset = len * 0.25;
-            let (nx, ny) = if len > 0.0 {
-                (-dy / len, dx / len)
-            } else {
-                (0.0, -1.0)
-            };
-            // First control point: 1/3 along the chord, offset to one side
-            let cx1 = x1 + dx / 3.0 + nx * offset;
-            let cy1 = y1 + dy / 3.0 + ny * offset;
-            // Second control point: 2/3 along the chord, offset to the other side
-            let cx2 = x1 + 2.0 * dx / 3.0 - nx * offset;
-            let cy2 = y1 + 2.0 * dy / 3.0 - ny * offset;
+            let CubicControlPoints { cx1, cy1, cx2, cy2 } = cubic_control_points(x1, y1, x2, y2);
             format!(
                 r#"<path d="M {},{} C {},{} {},{} {},{}" fill="none" stroke="currentColor"{}{}{}/>"#,
                 fmt_coord(x1),
@@ -316,7 +358,10 @@ fn pass_through_attrs(attrs: &Attrs) -> String {
     ];
 
     let mut result = String::new();
-    for (key, value) in attrs {
+    let mut keys: Vec<&String> = attrs.keys().collect();
+    keys.sort();
+    for key in keys {
+        let value = &attrs[key];
         if !COMPONENT_ATTRS.contains(&key.as_str()) {
             result.push(' ');
             result.push_str(key);

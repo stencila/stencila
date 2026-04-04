@@ -67,11 +67,11 @@ fn examples() {
         };
 
         // Validate compiled SVG is well-formed XML (catches duplicate attributes, etc.)
-        if let Some(svg) = &result.compiled {
-            if let Err(err) = roxmltree::Document::parse(svg) {
-                failures.push(format!("{}: invalid XML: {err}", fixture_path.display()));
-                eprintln!("--- INVALID XML: {} ---\n{err}", fixture_path.display());
-            }
+        if let Some(svg) = &result.compiled
+            && let Err(err) = roxmltree::Document::parse(svg)
+        {
+            failures.push(format!("{}: invalid XML: {err}", fixture_path.display()));
+            eprintln!("--- INVALID XML: {} ---\n{err}", fixture_path.display());
         }
 
         if compiled_file.exists() {

@@ -1,4 +1,5 @@
 use super::*;
+use std::f64::consts::{PI, TAU};
 
 /// Expand `<s:angle>` into an arc showing the angle between two lines.
 ///
@@ -53,12 +54,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     // Use the shorter arc (< 180°)
     let mut sweep_angle = angle_to - angle_from;
     // Normalize to [-PI, PI]
-    while sweep_angle > std::f64::consts::PI {
-        sweep_angle -= 2.0 * std::f64::consts::PI;
-    }
-    while sweep_angle < -std::f64::consts::PI {
-        sweep_angle += 2.0 * std::f64::consts::PI;
-    }
+    sweep_angle = (sweep_angle + PI).rem_euclid(TAU) - PI;
 
     // Arc start and end points on the circle of radius r centered at vertex
     let arc_x1 = vx + r * angle_from.cos();
@@ -67,11 +63,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let arc_y2 = vy + r * angle_to.sin();
 
     // SVG arc flags
-    let large_arc = if sweep_angle.abs() > std::f64::consts::PI {
-        1
-    } else {
-        0
-    };
+    let large_arc = if sweep_angle.abs() > PI { 1 } else { 0 };
     let sweep_flag = if sweep_angle > 0.0 { 1 } else { 0 };
 
     let path = format!(
@@ -93,7 +85,14 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             let label_r = r + 12.0;
             let lx = vx + label_r * mid_angle.cos();
             let ly = vy + label_r * mid_angle.sin();
-            svg_text(lx, ly, label_text, "middle", 12, r#" dominant-baseline="middle""#)
+            svg_text(
+                lx,
+                ly,
+                label_text,
+                "middle",
+                12,
+                r#" dominant-baseline="middle""#,
+            )
         }
         None => String::new(),
     };

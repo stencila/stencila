@@ -28,17 +28,8 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let cap_height = 8.0;
     let side_offset = 20.0;
 
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let len = (dx * dx + dy * dy).sqrt();
-
-    // Perpendicular unit normal pointing "above" (left of start→end direction).
-    // In SVG coordinates (-dy, dx)/len points upward for a left-to-right line.
-    let (nx, ny) = if len > 0.0 {
-        (-dy / len, dx / len)
-    } else {
-        (0.0, -1.0)
-    };
+    let metrics = vector_metrics(x1, y1, x2, y2);
+    let (nx, ny) = (metrics.nx, metrics.ny);
 
     let side_sign = match side {
         "below" => -1.0,
@@ -54,16 +45,10 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let dy2 = y2 + oy;
 
     // Main dimension line (offset)
-    let mut svg = svg_line(
-        dx1,
-        dy1,
-        dx2,
-        dy2,
-        &format!(r#" marker-start="url(#s:cap-line)" marker-end="url(#s:cap-line)"{pass}"#),
-    );
+    let mut svg = svg_line(dx1, dy1, dx2, dy2, &pass);
 
     // Extension lines from original points to offset dimension line endpoints
-    if len > 0.0 {
+    if metrics.len > 0.0 {
         svg.push_str(&svg_line(x1, y1, dx1, dy1, ""));
         svg.push_str(&svg_line(x2, y2, dx2, dy2, ""));
 

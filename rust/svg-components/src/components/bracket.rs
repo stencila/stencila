@@ -31,27 +31,22 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attrs.get("label");
     let pass = pass_through_attrs(attrs);
 
-    let dx = x2 - x1;
-    let dy = y2 - y1;
-    let len = (dx * dx + dy * dy).sqrt();
+    let metrics = vector_metrics(x1, y1, x2, y2);
 
-    if len < 0.001 {
+    if metrics.len < 0.001 {
         ctx.messages.push(CompilationMessage::warning(
             "<s:bracket> start and end points are too close together",
         ));
         return String::new();
     }
 
-    let depth = attr_f64(attrs, "depth").unwrap_or(len * 0.08);
+    let depth = attr_f64(attrs, "depth").unwrap_or(metrics.len * 0.08);
 
     // Normal direction: the side name indicates which side of the content the
     // bracket sits on. The spine (connecting line) is offset in this direction,
     // while the arms point back toward the chord (toward the content).
     // For a horizontal left-to-right line: above = spine is up, arms point down.
-    let (nx, ny) = match side {
-        "above" | "right" => (dy / len, -dx / len),
-        _ => (-dy / len, dx / len), // below/left
-    };
+    let (nx, ny) = normal_for_side(&metrics, side);
 
     // Spine is offset in the normal direction (the side the bracket sits on).
     // Arms point back from the spine toward the chord (toward the content).
@@ -63,10 +58,10 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let path = match variant {
         "round" => {
             // Round bracket: quadratic curves at the corners
-            let r = depth.min(len * 0.15); // corner radius
+            let r = depth.min(metrics.len * 0.15); // corner radius
             // Tangent unit vector along the spine
-            let tx = dx / len;
-            let ty = dy / len;
+            let tx = metrics.dx / metrics.len;
+            let ty = metrics.dy / metrics.len;
 
             let mut d = String::new();
             // Start at the chord end of the first arm

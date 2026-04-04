@@ -23,7 +23,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attr_str(attrs, "label", "");
     let pass = pass_through_attrs(attrs);
 
-    let estimated_width = label.len() as f64 * 6.5 + 12.0;
+    let estimated_width = label.chars().count() as f64 * 6.5 + 12.0;
     let shape_height = 18.0;
     let shape_rx = shape_height / 2.0;
 

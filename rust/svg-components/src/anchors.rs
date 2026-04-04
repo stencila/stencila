@@ -1,5 +1,8 @@
 use std::collections::HashMap;
 
+use quick_xml::events::BytesStart;
+
+use crate::compile::parse_element_attrs;
 use crate::diagnostics::CompilationMessage;
 
 /// A resolved anchor point with concrete coordinates.
@@ -110,7 +113,7 @@ fn collect_explicit_anchors(
                 let name = String::from_utf8_lossy(local.as_ref()).to_string();
                 let full = e.name();
                 if full.as_ref() == b"s:anchor" || name == "anchor" && is_s_prefixed(e) {
-                    let attrs = parse_attrs(e);
+                    let attrs = parse_element_attrs(e);
                     let id = attrs.get("id");
                     let x = attrs.get("x").and_then(|v| v.parse::<f64>().ok());
                     let y = attrs.get("y").and_then(|v| v.parse::<f64>().ok());
@@ -152,21 +155,10 @@ pub fn resolve_anchor_ref(
     Some((anchor.x + dx, anchor.y + dy))
 }
 
-fn is_s_prefixed(e: &quick_xml::events::BytesStart) -> bool {
+fn is_s_prefixed(e: &BytesStart) -> bool {
     let binding = e.name();
     let full_name = String::from_utf8_lossy(binding.as_ref());
     full_name.starts_with("s:")
-}
-
-fn parse_attrs(e: &quick_xml::events::BytesStart) -> HashMap<String, String> {
-    e.attributes()
-        .flatten()
-        .map(|attr| {
-            let key = String::from_utf8_lossy(attr.key.as_ref()).to_string();
-            let val = String::from_utf8_lossy(&attr.value).to_string();
-            (key, val)
-        })
-        .collect()
 }
 
 #[cfg(test)]
@@ -239,6 +231,24 @@ mod tests {
             resolve_anchor_ref("#peak", &anchors, 125.0, -45.0).ok_or("failed to resolve")?;
         assert!((x - 460.0).abs() < f64::EPSILON);
         assert!((y - 55.0).abs() < f64::EPSILON);
+
+        Ok(())
+    }
+
+    #[test]
+    fn explicit_anchor_collection_unescapes_entities() -> Result<(), String> {
+        let svg = r#"<svg viewBox="0 0 10 10" xmlns:s="https://stencila.io/svg">
+            <s:anchor id="peak&amp;crest" x="1" y="2"/>
+        </svg>"#;
+        let mut messages = Vec::new();
+        let anchors = collect_anchors(svg, &mut messages);
+
+        assert!(messages.is_empty());
+        let peak = anchors
+            .get("peak&crest")
+            .ok_or("missing unescaped anchor id")?;
+        assert!((peak.x - 1.0).abs() < f64::EPSILON);
+        assert!((peak.y - 2.0).abs() < f64::EPSILON);
 
         Ok(())
     }

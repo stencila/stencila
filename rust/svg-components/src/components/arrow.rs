@@ -73,18 +73,7 @@ fn curve_midpoint_and_tangent(
     match curve {
         "quad" => {
             // Quadratic Bézier: M P0 Q P1 P2
-            // Control point (same formula as connector_svg)
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let len = (dx * dx + dy * dy).sqrt();
-            let offset = len * 0.25;
-            let (nx, ny) = if len > 0.0 {
-                (-dy / len, dx / len)
-            } else {
-                (0.0, -1.0)
-            };
-            let cx = (x1 + x2) / 2.0 + nx * offset;
-            let cy = (y1 + y2) / 2.0 + ny * offset;
+            let QuadControlPoint { cx, cy } = quad_control_point(x1, y1, x2, y2);
             // B(0.5)  = 0.25*P0 + 0.5*P1 + 0.25*P2
             let mx = 0.25 * x1 + 0.5 * cx + 0.25 * x2;
             let my = 0.25 * y1 + 0.5 * cy + 0.25 * y2;
@@ -95,20 +84,7 @@ fn curve_midpoint_and_tangent(
         }
         "cubic" => {
             // Cubic Bézier: M P0 C P1 P2 P3
-            // Control points (same formula as connector_svg)
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let len = (dx * dx + dy * dy).sqrt();
-            let offset = len * 0.25;
-            let (nx, ny) = if len > 0.0 {
-                (-dy / len, dx / len)
-            } else {
-                (0.0, -1.0)
-            };
-            let cx1 = x1 + dx / 3.0 + nx * offset;
-            let cy1 = y1 + dy / 3.0 + ny * offset;
-            let cx2 = x1 + 2.0 * dx / 3.0 - nx * offset;
-            let cy2 = y1 + 2.0 * dy / 3.0 - ny * offset;
+            let CubicControlPoints { cx1, cy1, cx2, cy2 } = cubic_control_points(x1, y1, x2, y2);
             // B(0.5)  = (P0 + 3P1 + 3P2 + P3) / 8
             let mx = (x1 + 3.0 * cx1 + 3.0 * cx2 + x2) / 8.0;
             let my = (y1 + 3.0 * cy1 + 3.0 * cy2 + y2) / 8.0;
@@ -144,11 +120,9 @@ fn curve_midpoint_and_tangent(
         }
         _ => {
             // Straight line
-            let dx = x2 - x1;
-            let dy = y2 - y1;
-            let len = (dx * dx + dy * dy).sqrt();
-            let deg = if len > 0.0 {
-                dy.atan2(dx).to_degrees()
+            let metrics = vector_metrics(x1, y1, x2, y2);
+            let deg = if metrics.len > 0.0 {
+                metrics.dy.atan2(metrics.dx).to_degrees()
             } else {
                 0.0
             };

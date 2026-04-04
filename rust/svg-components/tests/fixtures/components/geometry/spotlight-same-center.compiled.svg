@@ -1,0 +1,4 @@
+<svg viewBox="0 0 200 120" xmlns:s="https://stencila.io/svg">
+  <g s:component="spotlight" s:cx="80" s:cy="60" s:r="20"><mask id="s-spotlight-80-60-0.6-ellipse-20-20"><rect width="100%" height="100%" fill="white"/><ellipse cx="80" cy="60" rx="20" ry="20" fill="black"/></mask><rect width="100%" height="100%" fill="black" opacity="0.6" mask="url(#s-spotlight-80-60-0.6-ellipse-20-20)"/></g>
+  <g s:component="spotlight" s:cx="80" s:cy="60" s:height="30" s:opacity="0.4" s:shape="rect" s:width="60"><mask id="s-spotlight-80-60-0.4-rect-60-30"><rect width="100%" height="100%" fill="white"/><rect x="50" y="45" width="60" height="30" fill="black"/></mask><rect width="100%" height="100%" fill="black" opacity="0.4" mask="url(#s-spotlight-80-60-0.4-rect-60-30)"/></g>
+</svg>

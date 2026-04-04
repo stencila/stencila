@@ -29,7 +29,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let target = resolve_target(attrs, ctx.anchors);
 
     // Background shape metrics
-    let estimated_width = label.len() as f64 * 7.5 + 16.0;
+    let estimated_width = label.chars().count() as f64 * 7.5 + 16.0;
     let shape_height = 22.0;
     let shape_rx = match shape {
         "pill" => shape_height / 2.0,
@@ -132,13 +132,8 @@ fn label_offset(
             } else {
                 // Predominantly horizontal line — offset vertically (above)
                 // since horizontal offset would look unnatural
-                if dx >= 0.0 {
-                    // Line goes right → label above
-                    (lx, ly - vertical_gap)
-                } else {
-                    // Line goes left → label above
-                    (lx, ly - vertical_gap)
-                }
+                let _ = dx;
+                (lx, ly - vertical_gap)
             }
         }
     }

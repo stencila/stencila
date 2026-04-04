@@ -24,14 +24,19 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let opacity = attr_f64_or(attrs, "opacity", 0.6);
     let pass = pass_through_attrs(attrs);
 
-    // Generate a unique mask id based on position
-    let mask_id = format!("s-spotlight-{}-{}", fmt_coord(cx), fmt_coord(cy));
+    let mut mask_id = format!(
+        "s-spotlight-{}-{}-{}",
+        fmt_coord(cx),
+        fmt_coord(cy),
+        fmt_coord(opacity)
+    );
 
     // Build the mask cutout shape (white = visible, black = hidden)
     let cutout = match shape {
         "rect" => {
             let w = attr_f64_or(attrs, "width", 100.0);
             let h = attr_f64_or(attrs, "height", 100.0);
+            mask_id.push_str(&format!("-rect-{}-{}", fmt_coord(w), fmt_coord(h)));
             format!(
                 r#"<rect x="{}" y="{}" width="{}" height="{}" fill="white"/>"#,
                 fmt_coord(cx - w / 2.0),
@@ -46,6 +51,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 .or_else(|| attr_f64(attrs, "r"))
                 .unwrap_or(50.0);
             let ry = attr_f64(attrs, "ry").unwrap_or(rx);
+            mask_id.push_str(&format!("-ellipse-{}-{}", fmt_coord(rx), fmt_coord(ry)));
             format!(
                 r#"<ellipse cx="{}" cy="{}" rx="{}" ry="{}" fill="white"/>"#,
                 fmt_coord(cx),

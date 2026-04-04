@@ -83,6 +83,28 @@ pub fn scan_refs(svg_content: &str) -> HashSet<String> {
     refs
 }
 
+fn defs_insert_position(svg_content: &str) -> Option<usize> {
+    let mut reader = Reader::from_str(svg_content);
+    let mut depth = 0u32;
+
+    loop {
+        match reader.read_event() {
+            Ok(Event::Start(ref e)) => {
+                depth += 1;
+                let local = e.local_name();
+                if depth == 2 && local.as_ref() == b"defs" {
+                    return Some(reader.buffer_position() as usize);
+                }
+            }
+            Ok(Event::End(_)) => {
+                depth = depth.saturating_sub(1);
+            }
+            Ok(Event::Eof) | Err(_) => return None,
+            _ => {}
+        }
+    }
+}
+
 /// Check if the SVG already has a `<defs>` section (to determine where to inject).
 fn has_existing_defs(svg_content: &str) -> bool {
     let mut reader = Reader::from_str(svg_content);
@@ -130,8 +152,7 @@ pub fn generate_defs_block(referenced: &HashSet<String>) -> Option<String> {
 pub fn inject_defs(svg_content: &str, defs_block: &str) -> String {
     if has_existing_defs(svg_content) {
         // Insert after the opening <defs> tag
-        if let Some(pos) = svg_content.find("<defs>") {
-            let insert_pos = pos + 6;
+        if let Some(insert_pos) = defs_insert_position(svg_content) {
             let mut result = String::with_capacity(svg_content.len() + defs_block.len());
             result.push_str(&svg_content[..insert_pos]);
             // Extract just the inner content from the defs block (strip outer <defs></defs>)
@@ -225,5 +246,17 @@ mod tests {
         assert!(result.contains("<pattern id=\"existing\"/>"));
         // Should only have one <defs>...</defs> section
         assert_eq!(result.matches("<defs>").count(), 1);
+    }
+
+    #[test]
+    fn inject_defs_into_existing_defs_with_attributes() {
+        let svg = r#"<svg viewBox="0 0 100 100"><defs id="existing-defs"><pattern id="existing"/></defs></svg>"#;
+        let defs = "<defs><marker id=\"new\"/></defs>";
+        let result = inject_defs(svg, defs);
+
+        assert!(result.contains(
+            r#"<defs id="existing-defs"><marker id="new"/><pattern id="existing"/></defs>"#
+        ));
+        assert_eq!(result.matches("<defs").count(), 1);
     }
 }

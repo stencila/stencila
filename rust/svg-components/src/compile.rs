@@ -142,10 +142,10 @@ fn expand_s_elements(
                     skip_depth = 1;
                 } else {
                     // Standard SVG element — pass through
-                    write_element(&mut output, e, false);
-
                     if skip_depth > 0 {
                         skip_depth += 1;
+                    } else {
+                        write_element(&mut output, e, false);
                     }
                 }
             }
@@ -233,7 +233,7 @@ fn expand_s_elements(
     output
 }
 
-fn parse_element_attrs(e: &quick_xml::events::BytesStart) -> Attrs {
+pub(crate) fn parse_element_attrs(e: &quick_xml::events::BytesStart) -> Attrs {
     e.attributes()
         .flatten()
         .map(|attr| {
@@ -328,6 +328,16 @@ mod tests {
         assert!(compiled.contains("s:arrow-closed"));
         assert!(compiled.contains("<defs>"));
         assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn standard_svg_nested_inside_component_is_skipped() {
+        let svg = r#"<svg viewBox="0 0 100 100" xmlns:s="https://stencila.io/svg"><s:badge x="50" y="50" label="Test"><rect x="0" y="0" width="10" height="10"/></s:badge></svg>"#;
+        let result = compile(svg);
+        let compiled = result.compiled.expect("should compile");
+
+        assert!(!compiled.contains("<rect x=\"0\" y=\"0\" width=\"10\" height=\"10\"/>"));
+        assert!(roxmltree::Document::parse(&compiled).is_ok());
     }
 
     #[test]

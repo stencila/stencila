@@ -1,0 +1,3 @@
+<svg viewBox="0 0 200 120" xmlns:s="https://stencila.io/svg">
+  <g s:component="roi-rect" s:height="40" s:label="Left label" s:label-position="left" s:width="80" s:x="60" s:y="30"><rect x="60" y="30" width="80" height="40" fill="none" stroke="currentColor"/><text x="52" y="50" text-anchor="end" font-size="12">Left label</text></g>
+</svg>
