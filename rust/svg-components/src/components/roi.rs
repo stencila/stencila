@@ -97,6 +97,71 @@ pub fn expand_ellipse(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     svg
 }
 
+/// Expand `<s:roi-polygon>` into a polygon outline.
+///
+/// Supported attributes:
+/// - `points`: space-separated list of x,y coordinate pairs (e.g., "100,50 200,80 150,180")
+/// - `label`, `label-position`, `stroke-style`: same as roi-rect
+pub fn expand_polygon(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
+    let Some(points_str) = attrs.get("points") else {
+        ctx.messages.push(CompilationMessage::error(
+            "<s:roi-polygon> requires a 'points' attribute (e.g., points=\"100,50 200,80 150,180\")",
+        ));
+        return String::new();
+    };
+
+    // Parse points to compute bounding box for label positioning
+    let points: Vec<(f64, f64)> = points_str
+        .split_whitespace()
+        .filter_map(|pair| {
+            let mut parts = pair.split(',');
+            let x = parts.next()?.parse::<f64>().ok()?;
+            let y = parts.next()?.parse::<f64>().ok()?;
+            Some((x, y))
+        })
+        .collect();
+
+    if points.len() < 3 {
+        ctx.messages.push(CompilationMessage::error(
+            "<s:roi-polygon> requires at least 3 coordinate pairs in 'points'",
+        ));
+        return String::new();
+    }
+
+    let label = attr_str(attrs, "label", "");
+    let label_position = attr_str(attrs, "label-position", "above");
+    let stroke_style = attr_str(attrs, "stroke-style", "solid");
+    let pass = pass_through_attrs(attrs);
+    let dash = stroke_dash_attr(stroke_style);
+
+    let mut svg = format!(
+        r#"<polygon points="{}" fill="none" stroke="currentColor"{}{}/>"#,
+        crate::compile::xml_escape(points_str),
+        dash,
+        pass,
+    );
+
+    if !label.is_empty() {
+        // Compute bounding box of the polygon
+        let min_x = points.iter().map(|(x, _)| *x).fold(f64::INFINITY, f64::min);
+        let max_x = points
+            .iter()
+            .map(|(x, _)| *x)
+            .fold(f64::NEG_INFINITY, f64::max);
+        let min_y = points.iter().map(|(_, y)| *y).fold(f64::INFINITY, f64::min);
+        let max_y = points
+            .iter()
+            .map(|(_, y)| *y)
+            .fold(f64::NEG_INFINITY, f64::max);
+        let w = max_x - min_x;
+        let h = max_y - min_y;
+        let (lx, ly) = label_coords(min_x, min_y, w, h, label_position);
+        svg.push_str(&svg_text(lx, ly, label, "middle", 12, ""));
+    }
+
+    svg
+}
+
 fn stroke_dash_attr(stroke_style: &str) -> String {
     match stroke_style {
         "dashed" => r#" stroke-dasharray="6 4""#.to_string(),

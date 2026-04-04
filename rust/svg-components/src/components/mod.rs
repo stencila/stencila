@@ -1,12 +1,17 @@
+mod angle;
 mod arrow;
 mod badge;
 mod brace;
+mod bracket;
 mod callout;
 mod compass;
+mod crosshair;
 mod dimension;
+mod halo;
 mod marker;
 mod roi;
 mod scale_bar;
+mod spotlight;
 
 use std::collections::HashMap;
 
@@ -29,16 +34,22 @@ pub struct ComponentContext<'a> {
 /// or `None` if the element is not a known component (which will generate a warning).
 pub fn expand_component(name: &str, attrs: &Attrs, ctx: &mut ComponentContext) -> Option<String> {
     match name {
+        "angle" => Some(angle::expand(attrs, ctx)),
         "arrow" => Some(arrow::expand(attrs, ctx)),
-        "callout" => Some(callout::expand(attrs, ctx)),
         "badge" => Some(badge::expand(attrs, ctx)),
-        "scale-bar" => Some(scale_bar::expand(attrs, ctx)),
-        "dimension" => Some(dimension::expand(attrs, ctx)),
         "brace" => Some(brace::expand(attrs, ctx)),
-        "roi-rect" => Some(roi::expand_rect(attrs, ctx)),
-        "roi-ellipse" => Some(roi::expand_ellipse(attrs, ctx)),
-        "marker" => Some(marker::expand(attrs, ctx)),
+        "bracket" => Some(bracket::expand(attrs, ctx)),
+        "callout" => Some(callout::expand(attrs, ctx)),
         "compass" => Some(compass::expand(attrs, ctx)),
+        "crosshair" => Some(crosshair::expand(attrs, ctx)),
+        "dimension" => Some(dimension::expand(attrs, ctx)),
+        "halo" => Some(halo::expand(attrs, ctx)),
+        "marker" => Some(marker::expand(attrs, ctx)),
+        "roi-ellipse" => Some(roi::expand_ellipse(attrs, ctx)),
+        "roi-polygon" => Some(roi::expand_polygon(attrs, ctx)),
+        "roi-rect" => Some(roi::expand_rect(attrs, ctx)),
+        "scale-bar" => Some(scale_bar::expand(attrs, ctx)),
+        "spotlight" => Some(spotlight::expand(attrs, ctx)),
         _ => None,
     }
 }
@@ -290,6 +301,18 @@ fn pass_through_attrs(attrs: &Attrs) -> String {
         "cy",
         "axes",
         "id",
+        "r",
+        "gap",
+        "ring",
+        "points",
+        "depth",
+        "at",
+        "from-x",
+        "from-y",
+        "vertex",
+        "color",
+        "background",
+        "opacity",
     ];
 
     let mut result = String::new();

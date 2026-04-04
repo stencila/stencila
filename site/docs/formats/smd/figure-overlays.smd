@@ -47,16 +47,17 @@ Standard SVG elements are passed through untouched. If an overlay contains no `s
 
 ## Overview
 
-The component library provides 10 elements plus a positioning primitive, organized into six categories:
+The component library provides 16 elements plus a positioning primitive, organized into eight categories:
 
 | Category | Components | Purpose |
 | --- | --- | --- |
 | **Arrows & connectors** | `<s:arrow>` | Directional lines and curves between two points |
 | **Labels & callouts** | `<s:callout>`, `<s:badge>` | Text labels with optional backgrounds and leader lines |
-| **Measurement & scale** | `<s:scale-bar>`, `<s:dimension>` | Scale bars and dimension lines for spatial measurements |
-| **Brackets & braces** | `<s:brace>` | Curly braces for grouping annotations |
-| **Region of interest** | `<s:roi-rect>`, `<s:roi-ellipse>` | Highlighted regions in images |
-| **Point markers** | `<s:marker>` | Symbol glyphs placed at specific locations |
+| **Measurement & scale** | `<s:scale-bar>`, `<s:dimension>`, `<s:angle>` | Scale bars, dimension lines, and angle arcs |
+| **Brackets & braces** | `<s:brace>`, `<s:bracket>` | Curly braces and square/round brackets for grouping |
+| **Region of interest** | `<s:roi-rect>`, `<s:roi-ellipse>`, `<s:roi-polygon>`, `<s:spotlight>` | Highlighted regions and inverse-highlight masks |
+| **Point markers** | `<s:marker>`, `<s:crosshair>` | Symbol glyphs and reticles at specific locations |
+| **Emphasis & focus** | `<s:halo>` | Glowing rings to draw attention to features |
 | **Orientation & reference** | `<s:compass>` | Compass roses and orientation indicators |
 | **Positioning** | `<s:anchor>` | Named anchor points for relative positioning |
 
@@ -466,7 +467,85 @@ Horizontal and vertical dimension lines showing measured extents with perpendicu
 :::
 ````
 
+## Angle arc
+
+The `<s:angle>` component draws an arc showing the angle between two lines meeting at a vertex. Use it for geometric annotations showing angles between features.
+
+**Required:** vertex position (`x`/`y` or `at`), `from`, and `to`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Vertex position |
+| `at` | anchor ref | — | Vertex position from anchor |
+| `from` | anchor ref | — | First ray endpoint |
+| `from-x`, `from-y` | coordinates | — | First ray endpoint (direct) |
+| `to`, `to-x`/`to-y` | target | — | Second ray endpoint |
+| `r` | number | `30` | Arc radius in viewBox units |
+| `label` | text | — | Label at arc midpoint (e.g., "45°", "θ") |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:anchor id="vertex" x="200" y="240"/>
+  <s:anchor id="ray1" x="450" y="240"/>
+  <s:anchor id="ray2" x="350" y="60"/>
+
+  <!-- Draw the ray lines for context -->
+  <line x1="200" y1="240" x2="450" y2="240" stroke="currentColor" stroke-dasharray="4 3"/>
+  <line x1="200" y1="240" x2="350" y2="60" stroke="currentColor" stroke-dasharray="4 3"/>
+
+  <!-- Angle arc with label -->
+  <s:angle from="#ray1" to="#ray2" x="200" y="240" r="50" label="θ"/>
+</svg>
+```
+
+An angle arc showing the angle between two rays from a vertex, with dashed reference lines drawn in raw SVG.
+
+:::
+````
+
 # Brackets & braces
+
+## Brackets
+
+The `<s:bracket>` component draws a square or round bracket between two points. Use it for grouping annotations, significance brackets (e.g., `p < 0.05`), or spanning labels.
+
+**Required:** start position (`x`/`y` or `from`) and end position (`to-x`/`to-y` or `to`).
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Start point |
+| `from` | anchor ref | — | Start point from anchor |
+| `to-x`, `to-y` | coordinates | — | End point |
+| `to` | anchor ref | — | End point from anchor |
+| `side` | `above`, `below`, `left`, `right` | `above` | Which side the bracket opens toward |
+| `depth` | number | 8% of length | Bracket depth perpendicular to the endpoint line |
+| `variant` | `square`, `round` | `square` | Bracket shape |
+| `label` | text | — | Text at the bracket midpoint |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:bracket x="80" y="120" to-x="260" to-y="120" side="above" label="Group A"/>
+  <s:bracket x="300" y="120" to-x="520" to-y="120" side="above" variant="round" label="Group B"/>
+  <s:bracket x="180" y="200" to-x="420" to-y="200" side="below" label="p &lt; 0.05"/>
+</svg>
+```
+
+Three bracket variants: a square bracket above, a round bracket above, and a square bracket below with a significance label.
+
+:::
+````
+
+## Braces
 
 The `<s:brace>` component draws a curly brace between two points, with an optional label at the apex. Use it for grouping or spanning annotations.
 
@@ -574,6 +653,68 @@ An ROI rectangle defined by two anchor points, with cross markers at each corner
 :::
 ````
 
+## ROI polygon
+
+The `<s:roi-polygon>` component outlines a polygonal region of interest using a list of coordinate points.
+
+**Required:** `points`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `points` | coordinate pairs | — | Space-separated `x,y` pairs (e.g., `"100,50 200,80 150,180"`) |
+| `label` | text | — | Optional label |
+| `label-position` | `above`, `below`, `center`, `left`, `right` | `above` | Label placement |
+| `stroke-style` | `solid`, `dashed`, `dotted` | `solid` | Stroke pattern |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:roi-polygon points="100,60 250,40 300,120 220,200 80,160" label="Tissue boundary" stroke-style="dashed"/>
+  <s:roi-polygon points="350,80 480,60 520,180 430,240 330,200" label="Region B" stroke="crimson"/>
+</svg>
+```
+
+Two polygon ROIs: a dashed tissue boundary and a solid region in crimson, each defined by a list of vertex coordinates.
+
+:::
+````
+
+## Spotlight
+
+The `<s:spotlight>` component creates an inverse highlight — it dims everything _outside_ a specified region, drawing attention to the spotlighted area. It uses an SVG `<mask>` element internally.
+
+**Required:** `cx`, `cy`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `cx`, `cy` | coordinates | — | Center of the spotlight region |
+| `r` | number | `50` | Radius for circular spotlight |
+| `rx`, `ry` | numbers | — | Radii for elliptical spotlight (overrides `r`) |
+| `shape` | `circle`, `rect` | `circle` | Spotlight shape |
+| `width`, `height` | dimensions | `100` | Dimensions for rectangular spotlight |
+| `opacity` | `0.0`–`1.0` | `0.6` | Opacity of the dimmed area (higher = darker) |
+
+````smd demo
+::: figure
+
+![](images/600x300-blue.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:spotlight cx="200" cy="150" r="70"/>
+  <s:callout x="400" y="60" label="Feature of interest" to-x="240" to-y="120" shape="rect"/>
+</svg>
+```
+
+A circular spotlight dims the surrounding area to draw attention to a specific feature, with a callout pointing to it.
+
+:::
+````
+
 # Point markers
 
 The `<s:marker>` component stamps a symbol at a location, drawn from a built-in library of glyphs. Use it for marking sampling sites, points of interest, or any location that needs a distinct symbol.
@@ -603,6 +744,75 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 ```
 
 Four marker symbols: pin, star, cross, and circle, each with a label.
+
+:::
+````
+
+## Crosshair
+
+The `<s:crosshair>` component renders a crosshair/reticle centered on a point, with an optional central gap and enclosing ring. Use it for precise location marking in microscopy, targeting, or alignment contexts.
+
+**Required:** `cx`, `cy`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `cx`, `cy` | coordinates | — | Center position |
+| `size` | number | `20` | Arm length from center |
+| `gap` | number | `4` | Gap radius around center (keeps center visible) |
+| `ring` | `true`, `false` | `false` | Draw an enclosing circle at arm endpoints |
+| `label` | text | — | Optional label |
+| `label-position` | `right`, `above`, `below`, `left` | `right` | Label placement |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:crosshair cx="150" cy="150" size="25" gap="5" label="Point A"/>
+  <s:crosshair cx="400" cy="150" size="30" gap="6" ring="true" label="Target" stroke="crimson"/>
+</svg>
+```
+
+Two crosshairs: a basic reticle with label, and a ringed crosshair in crimson for a targeting reticle effect.
+
+:::
+````
+
+# Emphasis & focus
+
+## Halo
+
+The `<s:halo>` component renders a semi-transparent glowing ring around a point, drawing attention without obscuring the underlying content. Use it for highlighting points of interest, active selections, or emphasis.
+
+**Required:** `cx`, `cy`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `cx`, `cy` | coordinates | — | Center position |
+| `r` | number | `15` | Inner radius of the halo ring |
+| `width` | number | `8` | Ring thickness |
+| `color` | color | `currentColor` | Ring color |
+| `opacity` | `0.0`–`1.0` | `0.4` | Ring opacity |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:halo cx="150" cy="150" r="20" width="10" color="gold" opacity="0.5"/>
+  <s:marker x="150" y="150" symbol="circle" size="12"/>
+  <s:callout x="250" y="100" label="Active site" to-x="170" to-y="140"/>
+
+  <s:halo cx="420" cy="180" r="25" width="12" color="crimson" opacity="0.3"/>
+  <s:marker x="420" y="180" symbol="star" size="16"/>
+</svg>
+```
+
+Two halos highlighting points of interest: a gold halo around a circle marker with a callout, and a crimson halo around a star marker.
 
 :::
 ````
@@ -728,9 +938,16 @@ This example brings together multiple component types to annotate a figure in a 
   <!-- Arrow connecting features -->
   <s:arrow from="#peak" to="#valley" curve="quad" label="Transition" tip="both" stroke-width="1.5"/>
 
+  <!-- Halo emphasis on key points -->
+  <s:halo cx="250" cy="80" r="10" width="6" color="gold" opacity="0.5"/>
+  <s:halo cx="420" cy="200" r="10" width="6" color="red" opacity="0.5"/>
+
   <!-- Point markers -->
   <s:marker x="250" y="80" symbol="circle" size="12"/>
   <s:marker x="420" y="200" symbol="circle" size="12"/>
+
+  <!-- Brace -->
+  <s:brace x="180" y="230" to-x="340" to-y="230" side="below" label="Observed range"/>
 
   <!-- Scale bar in padding area -->
   <s:scale-bar x="40" y="320" length="130" label="20 μm"/>
@@ -740,7 +957,7 @@ This example brings together multiple component types to annotate a figure in a 
 </svg>
 ```
 
-A comprehensive annotation combining an ROI rectangle, a callout with leader line, a labeled curved arrow, point markers, a scale bar, and a compass indicator.
+A comprehensive annotation combining a spotlight, ROI rectangle, callout, curved arrow, halos, markers, a bracket, scale bar, and compass indicator.
 
 :::
 ````
