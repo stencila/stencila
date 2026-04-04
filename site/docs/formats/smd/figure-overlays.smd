@@ -1,0 +1,746 @@
+---
+title: Figure Overlay Components
+description: A reference for Stencila's declarative SVG overlay components — high-level elements that expand to standard SVG, eliminating coordinate math and boilerplate for figure annotations.
+---
+
+Stencila's [figure overlays](figures#overlays) let you annotate images and charts with standard SVG. That works, but raw SVG is verbose — a simple callout with a curved arrow and arrowhead definition takes 8–15 lines, and small coordinate mistakes produce arrows pointing nowhere or invisible markers.
+
+**Overlay components** solve this. You write high-level elements like `<s:callout>`, `<s:scale-bar>`, and `<s:arrow>` inside your `svg overlay` block, and Stencila expands them to standard SVG during compilation. The source you write is preserved in the document; the compiled SVG is stored separately and used for rendering.
+
+Components reduce a typical annotation from 15+ lines of raw SVG to 1–3 elements. They handle the geometry, arrowhead definitions, label positioning, and coordinate math automatically — making overlays more readable for authors and more reliable for LLM agents generating annotations.
+
+> [!NOTE]
+> Overlay components are fully backward-compatible. You can mix `s:` components and standard SVG freely in the same overlay. Any existing overlay without `s:` elements works exactly as before.
+
+# Namespace
+
+All components use the `s:` namespace prefix. Declare the namespace on your `<svg>` element:
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:callout x="300" y="150" label="Hello, components!" shape="pill"/>
+</svg>
+```
+
+A figure annotated with a single overlay component.
+
+:::
+````
+
+# How it works
+
+When your document is compiled, Stencila processes each `svg overlay` block:
+
+1. Scans for `<s:anchor>` definitions and generates auto-anchors from the `viewBox`
+2. Expands every `<s:*>` element into standard SVG (text, paths, shapes)
+3. Detects references to built-in definitions (arrowheads, marker symbols) and injects only the ones actually used
+4. Stores the compiled SVG separately — your source is preserved unchanged
+
+Standard SVG elements are passed through untouched. If an overlay contains no `s:` elements and no references to built-in defs, it is used as-is with no compilation step.
+
+# Component reference
+
+## Overview
+
+The component library provides 10 elements plus a positioning primitive, organized into six categories:
+
+| Category | Components | Purpose |
+| --- | --- | --- |
+| **Arrows & connectors** | `<s:arrow>` | Directional lines and curves between two points |
+| **Labels & callouts** | `<s:callout>`, `<s:badge>` | Text labels with optional backgrounds and leader lines |
+| **Measurement & scale** | `<s:scale-bar>`, `<s:dimension>` | Scale bars and dimension lines for spatial measurements |
+| **Brackets & braces** | `<s:brace>` | Curly braces for grouping annotations |
+| **Region of interest** | `<s:roi-rect>`, `<s:roi-ellipse>` | Highlighted regions in images |
+| **Point markers** | `<s:marker>` | Symbol glyphs placed at specific locations |
+| **Orientation & reference** | `<s:compass>` | Compass roses and orientation indicators |
+| **Positioning** | `<s:anchor>` | Named anchor points for relative positioning |
+
+## Common attributes
+
+Most components share a consistent set of attributes for positioning, labeling, and styling.
+
+### Positioning
+
+Components are positioned using direct coordinates, anchor references, or a combination:
+
+| Attribute | Description |
+| --- | --- |
+| `x`, `y` | Direct coordinates in viewBox units |
+| `from` | Reference to a named anchor (e.g., `from="#peak"` or `from="#s:center"`) |
+| `dx`, `dy` | Offset from the anchor or direct position |
+| `to` | Target anchor reference for leader lines or endpoints |
+| `to-x`, `to-y` | Direct target coordinates |
+
+### Labels
+
+| Attribute | Values | Description |
+| --- | --- | --- |
+| `label` | Any text | Short text content displayed by the component |
+| `label-position` | `above`, `below`, `left`, `right`, `center` | Where the label is placed relative to the component (available values vary by component) |
+
+### Connectors
+
+Components that draw lines between two points share these:
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `curve` | `straight`, `quad`, `cubic`, `elbow` | `straight` | Path shape between start and end |
+| `corner` | `horizontal-first`, `vertical-first` | `horizontal-first` | Bend direction for `curve="elbow"` |
+| `tip` | `end`, `start`, `both`, `none` | `end` | Which end(s) get arrowheads |
+| `tip-style` | Any `#s:arrow-*` id | `s:arrow-closed` | Arrowhead style from the built-in defs library |
+
+### SVG pass-through
+
+Standard SVG presentation attributes like `stroke`, `fill`, `stroke-width`, `opacity`, `font-size`, and `stroke-dasharray` are passed through to the generated SVG unchanged. Use these when you need a specific color or style that differs from theme defaults:
+
+```xml
+<s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson" stroke-width="3"/>
+```
+
+## Built-in definitions
+
+The component library includes a set of reusable SVG marker and symbol definitions. These are automatically injected when referenced — only the definitions you actually use are included in the compiled output (tree-shaking).
+
+### Arrow markers
+
+Use with `tip-style` on `<s:arrow>` and `<s:callout>`, or with `marker-end`/`marker-start` on raw SVG elements:
+
+| Id | Description |
+| --- | --- |
+| `s:arrow-closed` | Filled triangle (default arrowhead) |
+| `s:arrow-open` | Open chevron |
+| `s:arrow-dot` | Filled circle end |
+| `s:cap-line` | Perpendicular cap line (used by `<s:dimension>`) |
+
+### Marker symbols
+
+Use with `symbol` on `<s:marker>`, or reference directly with `<use href="#s:marker-*">`:
+
+| Id | Description |
+| --- | --- |
+| `s:marker-circle` | Open circle |
+| `s:marker-cross` | × cross |
+| `s:marker-pin` | Map-style pin |
+| `s:marker-star` | Filled star |
+
+You can also reference any built-in definition from standard SVG elements using `url(#id)` or `href="#id"` syntax:
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns="http://www.w3.org/2000/svg">
+  <line x1="100" y1="250" x2="300" y2="50" marker-end="url(#s:arrow-closed)"/>
+  <text x="310" y="45">Using a built-in arrowhead</text>
+</svg>
+```
+
+A standard SVG line using a built-in arrowhead definition — no component needed, just the `url(#s:arrow-closed)` reference.
+
+:::
+````
+
+# Anchors and positioning
+
+## Named anchors
+
+Define reusable named points with `<s:anchor>`. Other components can reference them with `from` and `to` attributes, using offsets (`dx`, `dy`) for relative positioning. Anchors are stripped from the compiled output — they exist only for coordinate resolution.
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:anchor id="feature" x="200" y="120"/>
+  <s:callout from="#feature" dx="150" dy="-60" label="Important" to="#feature"/>
+  <s:roi-rect from="#feature" dx="-40" dy="-30" to-x="260" to-y="170" stroke-style="dashed"/>
+</svg>
+```
+
+An anchor at (200, 120) referenced by a callout and a dashed ROI rectangle. The callout label is offset 150px right and 60px up from the anchor; its leader line points back to the anchor.
+
+:::
+````
+
+## Auto-anchors
+
+Stencila automatically generates anchor points from the `viewBox` dimensions. These are available without any `<s:anchor>` declaration:
+
+| Anchor | Position |
+| --- | --- |
+| `#s:center` | Center of the viewBox |
+| `#s:origin`, `#s:top-left` | Top-left corner (viewBox origin) |
+| `#s:top-right` | Top-right corner |
+| `#s:bottom-left` | Bottom-left corner |
+| `#s:bottom-right` | Bottom-right corner |
+| `#s:top-center` | Top edge midpoint |
+| `#s:bottom-center` | Bottom edge midpoint |
+| `#s:mid-left` | Left edge midpoint |
+| `#s:mid-right` | Right edge midpoint |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:callout from="#s:center" label="Center" shape="pill"/>
+  <s:badge from="#s:top-left" dx="40" dy="30" label="A"/>
+  <s:badge from="#s:top-right" dx="-40" dy="30" label="B"/>
+</svg>
+```
+
+Auto-anchors in action: a callout at the center and badges near the top corners, all positioned relative to viewBox-derived anchors.
+
+:::
+````
+
+# Arrows & connectors
+
+The `<s:arrow>` component draws directional lines and curves between two points. It is a _path-first_ component — the line is the primary visual, with an optional label along the path.
+
+**Required:** start position (`x`/`y` or `from`) and end position (`to-x`/`to-y` or `to`).
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Start position |
+| `from` | anchor ref | — | Start position from anchor |
+| `to-x`, `to-y` | coordinates | — | End position |
+| `to` | anchor ref | — | End position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from start anchor |
+| `curve` | `straight`, `quad`, `cubic`, `elbow` | `straight` | Path shape |
+| `corner` | `horizontal-first`, `vertical-first` | `horizontal-first` | Bend direction for elbow curves |
+| `tip` | `end`, `start`, `both`, `none` | `end` | Arrowhead placement |
+| `tip-style` | marker id | `s:arrow-closed` | Arrowhead style |
+| `label` | text | — | Optional label at midpoint |
+| `label-position` | `above`, `below` | `above` | Label offset direction relative to the line |
+| `label-angle` | `along`, `horizontal`, or degrees | `along` | Label rotation: `along` follows the line angle, `horizontal` keeps text level |
+
+## Straight arrows
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:arrow x="80" y="60" to-x="250" to-y="180" label="Default"/>
+  <s:arrow x="280" y="240" to-x="450" to-y="80" tip="both" label="Both tips"/>
+  <s:arrow x="460" y="240" to-x="560" to-y="60" tip-style="s:arrow-open" label="Open"/>
+</svg>
+```
+
+Three straight arrows: default single arrowhead, double-ended, and open chevron style.
+
+:::
+````
+
+## Curved arrows
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:arrow x="50" y="250" to-x="200" to-y="50" curve="quad" label="Quadratic"/>
+  <s:arrow x="230" y="250" to-x="380" to-y="50" curve="cubic" label="Cubic"/>
+  <s:arrow x="420" y="80" to-x="560" to-y="240" curve="elbow" label="Elbow"/>
+</svg>
+```
+
+Three curve types: quadratic Bézier, cubic Bézier, and right-angle elbow connector.
+
+:::
+````
+
+## Elbow corners
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:arrow x="80" y="60" to-x="280" to-y="240" curve="elbow" corner="horizontal-first" label="H-first"/>
+  <s:arrow x="350" y="60" to-x="550" to-y="240" curve="elbow" corner="vertical-first" label="V-first"/>
+</svg>
+```
+
+Elbow connectors: `horizontal-first` bends horizontal then vertical; `vertical-first` bends vertical then horizontal.
+
+:::
+````
+
+# Labels & callouts
+
+## Callout
+
+The `<s:callout>` component places text at a position, optionally with a background shape and a leader line pointing to a target. It is the workhorse annotation element — _text-first_ with an optional pointer.
+
+**Required:** position (`x`/`y` or `from`), `label`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Label position |
+| `from` | anchor ref | — | Label position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
+| `label` | text | — | Text content |
+| `shape` | `none`, `rect`, `pill`, `circle` | `none` | Background shape around the text |
+| `to`, `to-x`/`to-y` | target | — | Leader line target (omit for standalone label) |
+| `tip-style` | marker id | `s:arrow-closed` | Arrowhead on leader line |
+| `curve` | `straight`, `quad`, `cubic`, `elbow` | `straight` | Leader line path shape |
+
+### Standalone labels and shapes
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:callout x="100" y="60" label="Plain text"/>
+  <s:callout x="300" y="60" label="Rectangle" shape="rect"/>
+  <s:callout x="500" y="60" label="Pill shape" shape="pill"/>
+  <s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+</svg>
+```
+
+Callouts without leader lines: plain text, rectangle background, pill background, and a styled pill with custom colors.
+
+:::
+````
+
+### Callouts with leader lines
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:anchor id="spot" x="150" y="200"/>
+  <s:callout from="#spot" dx="120" dy="-120" label="Feature A" to="#spot"/>
+  <s:callout x="450" y="50" label="Peak" to-x="350" to-y="180" shape="rect" curve="quad"/>
+</svg>
+```
+
+Two callouts with leader lines: one using an anchor reference, another with direct coordinates and a quadratic curve.
+
+:::
+````
+
+## Badge
+
+The `<s:badge>` component is a compact annotation token — always displayed with a pill-shaped background, smaller font, and no leader line. Use badges for short identifiers like panel labels, numbered markers, or channel names.
+
+**Required:** position (`x`/`y` or `from`), `label`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Position |
+| `from` | anchor ref | — | Position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
+| `label` | text | — | Short text (1–4 characters ideal) |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:badge from="#s:top-left" dx="30" dy="25" label="GFP"/>
+  <s:badge x="300" y="150" label="Ch2"/>
+  <s:badge from="#s:bottom-right" dx="-60" dy="-35" label="DAPI"/>
+</svg>
+```
+
+Three badges using a mix of auto-anchor and direct coordinate positioning: a fluorescence channel name, a short identifier, and a stain label.
+
+:::
+````
+
+> [!TIP]
+> Use `<s:badge>` for short identifiers (A, B, ①, DAPI). Use `<s:callout>` for explanatory text, longer labels, or anything that needs a leader line.
+
+# Measurement & scale
+
+## Scale bar
+
+The `<s:scale-bar>` component renders a calibrated bar with end caps and a label — standard in microscopy, maps, and technical imaging.
+
+**Required:** `x`, `y`, `length`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Position (left/top of bar) |
+| `length` | number | — | Bar length in viewBox units |
+| `label` | text | — | Scale text (e.g., "20 μm") |
+| `label-position` | `above`, `below` | `below` | Label placement |
+| `side` | `bottom`, `top`, `left`, `right` | `bottom` | Orientation: `left`/`right` produce vertical bars |
+
+### Horizontal scale bar
+
+````smd demo
+::: figure {pad="0 0 56 0"}
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 356" xmlns:s="https://stencila.io/svg">
+  <s:scale-bar x="40" y="326" length="130" label="20 μm"/>
+</svg>
+```
+
+A microscopy-style scale bar using bottom padding to place the bar below the image.
+
+:::
+````
+
+### Scale bar variations
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:scale-bar x="40" y="270" length="150" label="50 μm"/>
+  <s:scale-bar x="300" y="270" length="150" label="100 nm" label-position="above"/>
+  <s:scale-bar x="560" y="40" length="200" label="1 mm" side="right"/>
+</svg>
+```
+
+Three scale bars: default (label below), label above, and a vertical bar on the right.
+
+:::
+````
+
+## Dimension line
+
+The `<s:dimension>` component draws a measurement line between two points with perpendicular end bars, extension lines, and a label. Use it for engineering-style dimensional annotations.
+
+**Required:** start position (`x`/`y` or `from`) and end position (`to-x`/`to-y` or `to`).
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Start point |
+| `from` | anchor ref | — | Start point from anchor |
+| `to-x`, `to-y` | coordinates | — | End point |
+| `to` | anchor ref | — | End point from anchor |
+| `label` | text | — | Measurement text (e.g., "4.2 cm") |
+| `label-position` | `above`, `below` | `above` | Label placement on the dimension line |
+| `side` | `above`, `below` | `above` | Which side the offset dimension line appears |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:dimension x="100" y="100" to-x="400" to-y="100" label="30 cm" side="above"/>
+  <s:dimension x="450" y="60" to-x="450" to-y="240" label="18 cm" side="below"/>
+</svg>
+```
+
+Horizontal and vertical dimension lines showing measured extents with perpendicular end bars.
+
+:::
+````
+
+# Brackets & braces
+
+The `<s:brace>` component draws a curly brace between two points, with an optional label at the apex. Use it for grouping or spanning annotations.
+
+**Required:** start position (`x`/`y` or `from`) and end position (`to-x`/`to-y` or `to`).
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Start point |
+| `from` | anchor ref | — | Start point from anchor |
+| `to-x`, `to-y` | coordinates | — | End point |
+| `to` | anchor ref | — | End point from anchor |
+| `side` | `above`, `below`, `left`, `right` | `above` | Which side the brace bulges toward |
+| `bulge` | number | 10% of length | Depth of the brace perpendicular to the endpoint line |
+| `label` | text | — | Text at the apex of the brace |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:brace x="100" y="60" to-x="100" to-y="260" side="left" label="Range A"/>
+  <s:brace x="200" y="100" to-x="400" to-y="100" side="above" label="Group A"/>
+  <s:brace x="200" y="200" to-x="400" to-y="200" side="below" label="Group B"/>
+  <s:brace x="500" y="60" to-x="500" to-y="260" side="right" label="Range B"/>
+</svg>
+```
+
+Curly braces: above (Group A), below (Group B), on the left (Range A), and on the right (Range B).
+
+:::
+````
+
+# Region of interest
+
+## ROI rectangle
+
+The `<s:roi-rect>` component outlines a rectangular region of interest with an optional label.
+
+**Required:** position and size via `x`/`y` + `width`/`height`, or bounds via `from`/`to`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Top-left corner |
+| `width`, `height` | dimensions | `50` | Rectangle dimensions |
+| `from`, `to` | anchor refs | — | Bounds from two anchor points |
+| `label` | text | — | Optional label |
+| `label-position` | `above`, `below`, `center`, `left`, `right` | `above` | Label placement |
+| `stroke-style` | `solid`, `dashed`, `dotted` | `solid` | Stroke pattern |
+
+## ROI ellipse
+
+The `<s:roi-ellipse>` component outlines an elliptical or circular region.
+
+**Required:** `cx`, `cy`, `rx`, `ry`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `cx`, `cy` | coordinates | — | Center position |
+| `rx`, `ry` | radii | — | Horizontal and vertical radii |
+| `label` | text | — | Optional label |
+| `label-position` | `above`, `below`, `center`, `left`, `right` | `above` | Label placement |
+| `stroke-style` | `solid`, `dashed`, `dotted` | `solid` | Stroke pattern |
+
+### Highlighting regions
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:roi-rect x="50" y="40" width="160" height="100" label="Region A" stroke-style="dashed"/>
+  <s:roi-rect x="350" y="160" width="120" height="90" label="Region B" label-position="below" stroke-style="dotted"/>
+  <s:roi-ellipse cx="300" cy="150" rx="80" ry="50" label="Zone C"/>
+</svg>
+```
+
+Two ROI rectangles with different stroke styles and label positions, and an elliptical region.
+
+:::
+````
+
+### Using anchors for ROI bounds
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:anchor id="tl" x="180" y="70"/>
+  <s:anchor id="br" x="420" y="230"/>
+  <s:roi-rect from="#tl" to="#br" label="Selection" stroke-style="dashed"/>
+  <s:marker x="180" y="70" symbol="cross" size="14"/>
+  <s:marker x="420" y="230" symbol="cross" size="14"/>
+</svg>
+```
+
+An ROI rectangle defined by two anchor points, with cross markers at each corner.
+
+:::
+````
+
+# Point markers
+
+The `<s:marker>` component stamps a symbol at a location, drawn from a built-in library of glyphs. Use it for marking sampling sites, points of interest, or any location that needs a distinct symbol.
+
+**Required:** `x`, `y`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Position |
+| `symbol` | `circle`, `cross`, `pin`, `star` | `circle` | Symbol glyph |
+| `size` | number | `20` | Symbol size in viewBox units |
+| `label` | text | — | Optional label |
+| `label-position` | `right`, `above`, `below`, `left` | `right` | Label placement |
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:marker x="100" y="100" symbol="pin" label="Site 1" size="24"/>
+  <s:marker x="300" y="180" symbol="star" label="Site 2" size="22"/>
+  <s:marker x="480" y="80" symbol="cross" label="Site 3" size="18"/>
+  <s:marker x="400" y="240" symbol="circle" label="Site 4" label-position="below"/>
+</svg>
+```
+
+Four marker symbols: pin, star, cross, and circle, each with a label.
+
+:::
+````
+
+# Orientation & reference
+
+The `<s:compass>` component renders an orientation indicator. In its default `arrow` variant it draws a single directional arrow — commonly a north arrow for maps or an anatomical axis for medical imaging. The `full` variant shows a four-point cross with all axis labels.
+
+**Required:** `x`, `y`.
+
+| Attribute | Values | Default | Description |
+| --- | --- | --- | --- |
+| `x`, `y` | coordinates | — | Center position |
+| `size` | number | `50` | Overall size in viewBox units |
+| `variant` | `arrow`, `full` | `arrow` | Single-axis arrow or four-point cross |
+| `axes` | axis pairs | `N/S E/W` | Labels as slash-separated pairs (e.g., `"A/P D/V"`) |
+
+The `axes` attribute uses the format `"primary-pos/primary-neg secondary-pos/secondary-neg"`. Each axis is a pair of opposed labels separated by `/`, and two axes are separated by a space:
+
+| `axes` value | Domain | Labels shown |
+| --- | --- | --- |
+| `N/S E/W` | Geographic | N, S, E, W |
+| `A/P D/V` | Anatomical (sagittal) | Anterior, Posterior, Dorsal, Ventral |
+| `L/R S/I` | Anatomical (coronal) | Left, Right, Superior, Inferior |
+
+## Arrow variant (default)
+
+The default `arrow` variant shows a single directional arrow with the positive label of the primary axis:
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:compass x="60" y="250" size="50"/>
+  <s:callout x="100" y="270" label="Geographic north arrow" shape="none"/>
+</svg>
+```
+
+A compass in the default `arrow` variant showing a north indicator.
+
+:::
+````
+
+## Full variant with custom axes
+
+The `full` variant renders both axes as a four-point cross, useful for anatomical imaging orientations:
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:compass x="80" y="240" size="50" variant="full" axes="A/P D/V"/>
+  <s:callout x="160" y="270" label="Anatomical axes" shape="none"/>
+  <s:compass x="500" y="240" size="50" variant="full"/>
+  <s:callout x="500" y="195" label="Cardinal" shape="none"/>
+</svg>
+```
+
+Full compass variants: anatomical axes (A/P, D/V) on the left and default cardinal directions (N/S, E/W) on the right.
+
+:::
+````
+
+# Mixing components with raw SVG
+
+Components and standard SVG work seamlessly together. Use components for the high-level annotations and raw SVG when you need precise control:
+
+````smd demo
+::: figure
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
+  <s:anchor id="target" x="300" y="150"/>
+
+  <!-- Raw SVG for a custom shape -->
+  <rect x="240" y="100" width="120" height="100" rx="12" fill="none" stroke="currentColor" stroke-dasharray="6 3"/>
+
+  <!-- Component callout pointing at the custom shape -->
+  <s:callout x="480" y="50" label="Custom region" to="#target" shape="rect" curve="quad"/>
+
+  <!-- Component scale bar -->
+  <s:scale-bar x="30" y="270" length="100" label="10 mm"/>
+
+  <!-- Component badge -->
+  <s:badge x="300" y="30" label="①"/>
+</svg>
+```
+
+Raw SVG (dashed rounded rectangle) combined with overlay components (callout, scale bar, badge) in the same overlay.
+
+:::
+````
+
+# Comprehensive example
+
+This example brings together multiple component types to annotate a figure in a realistic scientific context:
+
+````smd demo
+::: figure {pad="0 0 46 0"}
+
+![](images/600x300-transparent.png)
+
+```svg overlay
+<svg viewBox="0 0 600 346" xmlns:s="https://stencila.io/svg">
+  <!-- Named anchors for key features -->
+  <s:anchor id="peak" x="250" y="80"/>
+  <s:anchor id="valley" x="420" y="200"/>
+
+  <!-- Region of interest -->
+  <s:roi-rect x="180" y="50" width="160" height="80" label="Primary ROI" stroke-style="dashed"/>
+
+  <!-- Callout with leader line -->
+  <s:callout from="#valley" dx="100" dy="-100" label="Local minimum" to="#valley" shape="rect"/>
+
+  <!-- Arrow connecting features -->
+  <s:arrow from="#peak" to="#valley" curve="quad" label="Transition" tip="both" stroke-width="1.5"/>
+
+  <!-- Point markers -->
+  <s:marker x="250" y="80" symbol="circle" size="12"/>
+  <s:marker x="420" y="200" symbol="circle" size="12"/>
+
+  <!-- Scale bar in padding area -->
+  <s:scale-bar x="40" y="320" length="130" label="20 μm"/>
+
+  <!-- Compass orientation -->
+  <s:compass x="560" y="320" size="36"/>
+</svg>
+```
+
+A comprehensive annotation combining an ROI rectangle, a callout with leader line, a labeled curved arrow, point markers, a scale bar, and a compass indicator.
+
+:::
+````

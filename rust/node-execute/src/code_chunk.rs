@@ -1,4 +1,8 @@
-use stencila_schema::{CodeChunk, ExecutionBounds, LabelType, NodeProperty};
+use std::hash::{Hash, Hasher};
+
+use stencila_schema::{
+    CodeChunk, CompilationDigest, CompilationMessage, ExecutionBounds, LabelType, NodeProperty,
+};
 
 use crate::{interrupt_impl, prelude::*};
 
@@ -57,6 +61,71 @@ impl Executable for CodeChunk {
             executor
                 .labels
                 .insert(id.clone(), (*label_type, label.clone()));
+        }
+
+        // Compile overlay if present
+        if let Some(overlay) = &self.overlay {
+            let new_digest = {
+                let mut hasher = seahash::SeaHasher::new();
+                overlay.hash(&mut hasher);
+                hasher.finish()
+            };
+            let needs_compile = self
+                .options
+                .overlay_compilation_digest
+                .as_ref()
+                .is_none_or(|d| d.state_digest != new_digest);
+
+            if needs_compile {
+                let result = stencila_svg_components::compile(overlay);
+
+                let messages: Option<Vec<CompilationMessage>> = if result.messages.is_empty() {
+                    None
+                } else {
+                    Some(
+                        result
+                            .messages
+                            .into_iter()
+                            .map(|m| CompilationMessage {
+                                level: match m.level {
+                                    stencila_svg_components::diagnostics::MessageLevel::Warning => {
+                                        stencila_schema::MessageLevel::Warning
+                                    }
+                                    stencila_svg_components::diagnostics::MessageLevel::Error => {
+                                        stencila_schema::MessageLevel::Error
+                                    }
+                                },
+                                message: m.message,
+                                ..Default::default()
+                            })
+                            .collect(),
+                    )
+                };
+
+                let digest = CompilationDigest {
+                    state_digest: new_digest,
+                    ..Default::default()
+                };
+
+                executor.patch(
+                    &node_id,
+                    [
+                        set(NodeProperty::OverlayCompiled, result.compiled),
+                        set(NodeProperty::CompilationMessages, messages),
+                        set(NodeProperty::OverlayCompilationDigest, digest),
+                    ],
+                );
+            }
+        } else if self.options.overlay_compiled.is_some() {
+            // Overlay was removed — clear compiled output and related state
+            executor.patch(
+                &node_id,
+                [
+                    none(NodeProperty::OverlayCompiled),
+                    none(NodeProperty::CompilationMessages),
+                    none(NodeProperty::OverlayCompilationDigest),
+                ],
+            );
         }
 
         // Get the programming language, falling back to using the executor's current language

@@ -421,6 +421,7 @@ stencila-code-chunk {
     }
 
     > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg {
+        color: var(--figure-overlay-color);
         stroke: var(--figure-overlay-stroke-color);
         stroke-width: var(--figure-overlay-stroke-width);
         fill: none;
@@ -429,17 +430,9 @@ stencila-code-chunk {
         font-weight: var(--figure-overlay-font-weight);
     }
 
-    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg text:not([fill]) {
-        fill: var(--figure-overlay-text-color);
-    }
-
-    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg text:not([stroke]) {
+    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg text {
+        fill: currentColor;
         stroke: none;
-    }
-
-    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg marker polygon:not([fill]),
-    > [slot="outputs"] > .figure-content-area > :where([slot="overlay"]) svg marker path:not([fill]) {
-        fill: var(--figure-overlay-marker-color);
     }
 }
 

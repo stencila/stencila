@@ -11348,6 +11348,7 @@ dependencies = [
  "stencila-parsers",
  "stencila-prompts",
  "stencila-schema",
+ "stencila-svg-components",
  "stencila-themes",
  "tokio",
  "tracing",
@@ -12004,6 +12005,17 @@ dependencies = [
  "regex",
  "stencila-cli-utils",
  "strum 0.28.0",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "stencila-svg-components"
+version = "0.0.0"
+dependencies = [
+ "glob",
+ "pretty_assertions",
+ "quick-xml 0.37.5",
+ "roxmltree 0.21.1",
  "thiserror 2.0.18",
 ]
 

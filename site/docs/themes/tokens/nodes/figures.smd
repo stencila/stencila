@@ -87,21 +87,19 @@ These tokens apply to both figure overlays and code chunk overlays (when the cod
 
 | Token                              | Description                                              | Default Value                        |
 | ---------------------------------- | -------------------------------------------------------- | ------------------------------------ |
-| `--figure-overlay-color`           | Base color — all other overlay colors derive from this   | `var(--color-gray-600)`              |
+| `--figure-overlay-color`           | Base color — sets the CSS `color` property on the SVG so that `currentColor` references in text, markers, and arrowheads all resolve to the themed overlay color   | `var(--color-gray-600)`              |
 | `--figure-overlay-color-dark`      | Base color in dark mode                                  | `var(--color-gray-400)`              |
 | `--figure-overlay-color-print`     | Base color in print (forced high-contrast)               | `var(--color-gray-800)`              |
-| `--figure-overlay-stroke-color`    | Stroke color for shapes                                  | `var(--figure-overlay-color)`        |
+| `--figure-overlay-stroke-color`    | Stroke color for shapes (override separately from `color` when strokes need a different shade)  | `var(--figure-overlay-color)`        |
 | `--figure-overlay-stroke-color-dark` | Stroke color in dark mode                              | `var(--figure-overlay-color-dark)`   |
 | `--figure-overlay-stroke-width`    | Stroke width (unitless, scales with viewBox)             | `2`                                  |
-| `--figure-overlay-text-color`      | Fill color for `<text>` elements                         | `var(--figure-overlay-color)`        |
-| `--figure-overlay-text-color-dark` | Text fill color in dark mode                             | `var(--figure-overlay-color-dark)`   |
 | `--figure-overlay-font-family`     | Font family for `<text>` elements                        | `var(--font-family-sans)`            |
 | `--figure-overlay-font-size`       | Font size (unitless, scales with viewBox)                | `16`                                 |
 | `--figure-overlay-font-weight`     | Font weight for `<text>` elements                        | `var(--font-weight-semibold)`        |
-| `--figure-overlay-marker-color`    | Fill color for marker children (`<polygon>`, `<path>`)   | `var(--figure-overlay-color)`        |
-| `--figure-overlay-marker-color-dark` | Marker fill color in dark mode                         | `var(--figure-overlay-color-dark)`   |
 
-**Dark mode:** In dark mode, all overlay color tokens automatically switch to their `-dark` variants. The default (gray-100 in dark mode) provides reliable contrast on dark backgrounds and avoids clashing with accent-colored plot elements.
+**How coloring works:** The CSS sets `color: var(--figure-overlay-color)` on the overlay SVG element. Built-in definitions (arrowheads, marker symbols) and generated `<text>` elements use `fill="currentColor"` and `stroke="currentColor"`, the standard SVG idiom. This means `--figure-overlay-color` is the single source of truth for text fills, arrowhead fills, and marker strokes — all via `currentColor`. Strokes on shapes use `--figure-overlay-stroke-color` separately so themes can differentiate if needed.
+
+**Dark mode:** In dark mode, all overlay color tokens automatically switch to their `-dark` variants. The default (gray-400 in dark mode) provides reliable contrast on dark backgrounds and avoids clashing with accent-colored plot elements.
 
 **Print:** In print, all overlay color tokens are forced to `--figure-overlay-color-print` (default: `--color-gray-800`) for reliable high-contrast output regardless of theme customization.
 

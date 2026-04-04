@@ -26,6 +26,7 @@ stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-parsers = { path = "../parsers" }
 stencila-prompts = { path = "../prompts" }
 stencila-schema = { path = "../schema" }
+stencila-svg-components = { path = "../svg-components" }
 stencila-themes = { path = "../themes" }
 tokio = { workspace = true }
 tracing = { workspace = true }
