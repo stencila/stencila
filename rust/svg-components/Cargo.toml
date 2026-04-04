@@ -1,0 +1,16 @@
+[package]
+name = "stencila-svg-components"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+quick-xml = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+glob = { workspace = true }
+pretty_assertions = { workspace = true }
+roxmltree = { workspace = true }
+
+[lints]
+workspace = true
