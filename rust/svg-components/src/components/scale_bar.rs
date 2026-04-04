@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, pass_through_attrs, svg_line,
+    svg_text,
+};
 
 /// Expand `<s:scale-bar>` into standard SVG.
 ///

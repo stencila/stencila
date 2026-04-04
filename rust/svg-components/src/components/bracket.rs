@@ -1,6 +1,9 @@
 use std::fmt::Write;
 
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, fmt_coord, normal_for_side,
+    pass_through_attrs, resolve_position, resolve_target, svg_text, vector_metrics,
+};
 
 /// Expand `<s:bracket>` into a square or round bracket SVG path.
 ///
@@ -55,66 +58,63 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let sx2 = x2 + depth * nx;
     let sy2 = y2 + depth * ny;
 
-    let path = match variant {
-        "round" => {
-            // Round bracket: quadratic curves at the corners
-            let r = depth.min(metrics.len * 0.15); // corner radius
-            // Tangent unit vector along the spine
-            let tx = metrics.dx / metrics.len;
-            let ty = metrics.dy / metrics.len;
+    let path = if variant == "round" {
+        // Round bracket: quadratic curves at the corners
+        let r = depth.min(metrics.len * 0.15); // corner radius
+        // Tangent unit vector along the spine
+        let tx = metrics.dx / metrics.len;
+        let ty = metrics.dy / metrics.len;
 
-            let mut d = String::new();
-            // Start at the chord end of the first arm
-            write!(d, "M {},{}", fmt_coord(x1), fmt_coord(y1)).ok();
-            // Curve into the spine at start
-            write!(
-                d,
-                " Q {},{} {},{}",
-                fmt_coord(sx1),
-                fmt_coord(sy1),
-                fmt_coord(sx1 + r * tx),
-                fmt_coord(sy1 + r * ty)
-            )
-            .ok();
-            // Line along spine to near the end
-            write!(
-                d,
-                " L {},{}",
-                fmt_coord(sx2 - r * tx),
-                fmt_coord(sy2 - r * ty)
-            )
-            .ok();
-            // Curve out at end
-            write!(
-                d,
-                " Q {},{} {},{}",
-                fmt_coord(sx2),
-                fmt_coord(sy2),
-                fmt_coord(x2),
-                fmt_coord(y2)
-            )
-            .ok();
+        let mut d = String::new();
+        // Start at the chord end of the first arm
+        write!(d, "M {},{}", fmt_coord(x1), fmt_coord(y1)).ok();
+        // Curve into the spine at start
+        write!(
+            d,
+            " Q {},{} {},{}",
+            fmt_coord(sx1),
+            fmt_coord(sy1),
+            fmt_coord(sx1 + r * tx),
+            fmt_coord(sy1 + r * ty)
+        )
+        .ok();
+        // Line along spine to near the end
+        write!(
+            d,
+            " L {},{}",
+            fmt_coord(sx2 - r * tx),
+            fmt_coord(sy2 - r * ty)
+        )
+        .ok();
+        // Curve out at end
+        write!(
+            d,
+            " Q {},{} {},{}",
+            fmt_coord(sx2),
+            fmt_coord(sy2),
+            fmt_coord(x2),
+            fmt_coord(y2)
+        )
+        .ok();
 
-            format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
-        }
-        _ => {
-            // Square bracket: right-angle corners
-            let mut d = String::new();
-            write!(d, "M {},{}", fmt_coord(x1), fmt_coord(y1)).ok();
-            write!(d, " L {},{}", fmt_coord(sx1), fmt_coord(sy1)).ok();
-            write!(d, " L {},{}", fmt_coord(sx2), fmt_coord(sy2)).ok();
-            write!(d, " L {},{}", fmt_coord(x2), fmt_coord(y2)).ok();
+        format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
+    } else {
+        // Square bracket: right-angle corners
+        let mut d = String::new();
+        write!(d, "M {},{}", fmt_coord(x1), fmt_coord(y1)).ok();
+        write!(d, " L {},{}", fmt_coord(sx1), fmt_coord(sy1)).ok();
+        write!(d, " L {},{}", fmt_coord(sx2), fmt_coord(sy2)).ok();
+        write!(d, " L {},{}", fmt_coord(x2), fmt_coord(y2)).ok();
 
-            format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
-        }
+        format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
     };
 
     let label_svg = match label {
         Some(label_text) => {
             let label_offset = 12.0;
             // Label at midpoint of spine, offset in the bracket direction
-            let mx = (x1 + x2) / 2.0;
-            let my = (y1 + y2) / 2.0;
+            let mx = f64::midpoint(x1, x2);
+            let my = f64::midpoint(y1, y2);
             let lx = mx + (depth + label_offset) * nx;
             let ly = my + (depth + label_offset) * ny;
             let extra = match side {

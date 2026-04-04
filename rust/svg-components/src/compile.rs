@@ -31,6 +31,7 @@ pub struct CompilationResult {
 /// 4. Scan for `url(#s:...)` and `href="#s:..."` references to built-in defs
 /// 5. Tree-shake and inject only referenced `<defs>` from the built-in library
 /// 6. Serialize back to SVG string
+#[must_use]
 pub fn compile(source: &str) -> CompilationResult {
     let mut messages = Vec::new();
 
@@ -91,19 +92,19 @@ fn has_s_elements(source: &str) -> bool {
     let mut reader = Reader::from_str(source);
     loop {
         match reader.read_event() {
-            Ok(Event::Start(ref e)) | Ok(Event::Empty(ref e)) => {
+            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
                 if element_name(e).starts_with("s:") {
                     return true;
                 }
             }
-            Ok(Event::Eof) => return false,
-            Err(_) => return false,
+            Ok(Event::Eof) | Err(_) => return false,
             _ => {}
         }
     }
 }
 
 /// Expand all `s:` elements in the SVG, leaving standard SVG unchanged.
+#[allow(clippy::too_many_lines)]
 fn expand_s_elements(
     source: &str,
     anchors: &HashMap<String, crate::anchors::Anchor>,
@@ -238,10 +239,10 @@ pub(crate) fn parse_element_attrs(e: &quick_xml::events::BytesStart) -> Attrs {
         .flatten()
         .map(|attr| {
             let key = String::from_utf8_lossy(attr.key.as_ref()).to_string();
-            let val = attr
-                .unescape_value()
-                .map(|v| v.to_string())
-                .unwrap_or_else(|_| String::from_utf8_lossy(&attr.value).to_string());
+            let val = attr.unescape_value().map_or_else(
+                |_| String::from_utf8_lossy(&attr.value).to_string(),
+                |v| v.to_string(),
+            );
             (key, val)
         })
         .collect()
@@ -317,7 +318,7 @@ mod tests {
 
     #[test]
     fn standard_svg_with_s_defs_refs() {
-        let svg = r##"<svg viewBox="0 0 600 400"><line x1="0" y1="0" x2="100" y2="100" marker-end="url(#s:arrow-closed)"/></svg>"##;
+        let svg = r#"<svg viewBox="0 0 600 400"><line x1="0" y1="0" x2="100" y2="100" marker-end="url(#s:arrow-closed)"/></svg>"#;
         let result = compile(svg);
 
         assert!(result.compiled.is_some());
@@ -359,7 +360,7 @@ mod tests {
 
     #[test]
     fn expand_scale_bar() {
-        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:scale-bar x="40" y="326" length="130" label="20 μm"/></svg>"##;
+        let svg = r#"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:scale-bar x="40" y="326" length="130" label="20 μm"/></svg>"#;
         let result = compile(svg);
 
         assert!(result.compiled.is_some());
@@ -410,7 +411,7 @@ mod tests {
 
     #[test]
     fn arrow_elbow_horizontal_first() {
-        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:arrow x="100" y="100" to-x="300" to-y="200" curve="elbow" corner="horizontal-first"/></svg>"##;
+        let svg = r#"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:arrow x="100" y="100" to-x="300" to-y="200" curve="elbow" corner="horizontal-first"/></svg>"#;
         let result = compile(svg);
 
         assert!(result.compiled.is_some());

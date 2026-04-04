@@ -1,6 +1,9 @@
 use std::fmt::Write;
 
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, fmt_coord, normal_for_side,
+    pass_through_attrs, resolve_position, resolve_target, svg_text, vector_metrics,
+};
 
 /// Expand `<s:brace>` into a curly brace SVG path.
 ///

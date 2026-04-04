@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs, resolve_position, resolve_target, svg_text,
+};
 
 /// Expand `<s:roi-rect>` into a rectangle outline.
 ///

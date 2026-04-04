@@ -121,8 +121,7 @@ fn has_existing_defs(svg_content: &str) -> bool {
             Ok(Event::End(_)) => {
                 depth = depth.saturating_sub(1);
             }
-            Ok(Event::Eof) => return false,
-            Err(_) => return false,
+            Ok(Event::Eof) | Err(_) => return false,
             _ => {}
         }
     }

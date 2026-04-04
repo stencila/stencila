@@ -65,7 +65,7 @@ fn extract_viewbox(svg_content: &str) -> Option<(f64, f64, f64, f64)> {
     let mut reader = Reader::from_str(svg_content);
     loop {
         match reader.read_event() {
-            Ok(Event::Start(ref e)) | Ok(Event::Empty(ref e)) => {
+            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
                 let local = e.local_name();
                 if local.as_ref() == b"svg" {
                     for attr in e.attributes().flatten() {
@@ -77,8 +77,7 @@ fn extract_viewbox(svg_content: &str) -> Option<(f64, f64, f64, f64)> {
                 }
                 return None;
             }
-            Ok(Event::Eof) => return None,
-            Err(_) => return None,
+            Ok(Event::Eof) | Err(_) => return None,
             _ => {}
         }
     }
@@ -108,7 +107,7 @@ fn collect_explicit_anchors(
     let mut reader = Reader::from_str(svg_content);
     loop {
         match reader.read_event() {
-            Ok(Event::Start(ref e)) | Ok(Event::Empty(ref e)) => {
+            Ok(Event::Start(ref e) | Event::Empty(ref e)) => {
                 let local = e.local_name();
                 let name = String::from_utf8_lossy(local.as_ref()).to_string();
                 let full = e.name();
@@ -135,8 +134,7 @@ fn collect_explicit_anchors(
                     }
                 }
             }
-            Ok(Event::Eof) => break,
-            Err(_) => break,
+            Ok(Event::Eof) | Err(_) => break,
             _ => {}
         }
     }

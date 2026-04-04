@@ -1,4 +1,9 @@
-use super::*;
+use std::fmt::Write;
+
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, pass_through_attrs,
+    resolve_position, svg_text,
+};
 
 /// Expand `<s:badge>` into standard SVG text with a pill-shaped background.
 ///
@@ -30,7 +35,8 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let mut svg = String::new();
 
     // Pill background
-    svg.push_str(&format!(
+    let _ = write!(
+        svg,
         r#"<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="white" stroke="currentColor"{}/>"#,
         fmt_coord(lx - estimated_width / 2.0),
         fmt_coord(ly - shape_height / 2.0),
@@ -38,7 +44,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         fmt_coord(shape_height),
         fmt_coord(shape_rx),
         pass
-    ));
+    );
 
     // Text label
     svg.push_str(&svg_text(

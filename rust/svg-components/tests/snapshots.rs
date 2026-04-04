@@ -20,6 +20,7 @@ use stencila_svg_components::{compile, diagnostics::MessageLevel};
 /// UPDATE_SNAPSHOTS=true cargo test -p stencila-svg-components
 /// ```
 #[test]
+#[allow(clippy::print_stderr)]
 fn examples() {
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/fixtures/**/*.svg")
@@ -47,10 +48,10 @@ fn examples() {
     for fixture_path in &fixtures {
         let name = fixture_path
             .file_stem()
-            .unwrap()
+            .expect("fixture has file stem")
             .to_string_lossy()
             .to_string();
-        let dir = fixture_path.parent().unwrap();
+        let dir = fixture_path.parent().expect("fixture has parent dir");
 
         let source = std::fs::read_to_string(fixture_path)
             .unwrap_or_else(|e| panic!("failed to read {}: {e}", fixture_path.display()));
@@ -75,12 +76,14 @@ fn examples() {
         }
 
         if compiled_file.exists() {
-            let expected = std::fs::read_to_string(&compiled_file).unwrap();
+            let expected =
+                std::fs::read_to_string(&compiled_file).expect("failed to read compiled file");
             let expected = expected.trim_end().to_string();
 
             if actual_compiled != expected {
                 if update {
-                    std::fs::write(&compiled_file, &actual_compiled).unwrap();
+                    std::fs::write(&compiled_file, &actual_compiled)
+                        .expect("failed to write compiled file");
                 } else {
                     failures.push(format!("{}: compiled SVG differs", fixture_path.display()));
                     // Use pretty_assertions for the diff output
@@ -92,7 +95,8 @@ fn examples() {
                 }
             }
         } else {
-            std::fs::write(&compiled_file, &actual_compiled).unwrap();
+            std::fs::write(&compiled_file, &actual_compiled)
+                .expect("failed to write compiled file");
         }
 
         // --- Messages ---
@@ -115,7 +119,7 @@ fn examples() {
             // Remove stale messages file if present
             if messages_file.exists() {
                 if update {
-                    std::fs::remove_file(&messages_file).unwrap();
+                    std::fs::remove_file(&messages_file).expect("failed to remove messages file");
                 } else {
                     failures.push(format!(
                         "{}: messages file exists but no messages produced",
@@ -124,12 +128,14 @@ fn examples() {
                 }
             }
         } else if messages_file.exists() {
-            let expected = std::fs::read_to_string(&messages_file).unwrap();
+            let expected =
+                std::fs::read_to_string(&messages_file).expect("failed to read messages file");
             let expected = expected.trim_end().to_string();
 
             if actual_messages != expected {
                 if update {
-                    std::fs::write(&messages_file, &actual_messages).unwrap();
+                    std::fs::write(&messages_file, &actual_messages)
+                        .expect("failed to write messages file");
                 } else {
                     failures.push(format!("{}: messages differ", fixture_path.display()));
                     let _ = std::panic::catch_unwind(|| {
@@ -143,7 +149,8 @@ fn examples() {
                 }
             }
         } else {
-            std::fs::write(&messages_file, &actual_messages).unwrap();
+            std::fs::write(&messages_file, &actual_messages)
+                .expect("failed to write messages file");
         }
     }
 

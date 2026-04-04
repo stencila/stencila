@@ -1,4 +1,9 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, ConnectorOpts, CubicControlPoints,
+    QuadControlPoint, attr_str, connector_svg, cubic_control_points, fmt_coord, marker_attrs,
+    pass_through_attrs, quad_control_point, resolve_position, resolve_target, svg_text,
+    vector_metrics,
+};
 
 /// Expand `<s:arrow>` into standard SVG path/line with marker references.
 ///
@@ -106,8 +111,8 @@ fn curve_midpoint_and_tangent(
             } else {
                 (x2, y1)
             };
-            let mx = (x1 + bend_x) / 2.0;
-            let my = (y1 + bend_y) / 2.0;
+            let mx = f64::midpoint(x1, bend_x);
+            let my = f64::midpoint(y1, bend_y);
             // Use the first segment's direction for the tangent
             let tx = bend_x - x1;
             let ty = bend_y - y1;
@@ -126,7 +131,7 @@ fn curve_midpoint_and_tangent(
             } else {
                 0.0
             };
-            ((x1 + x2) / 2.0, (y1 + y2) / 2.0, deg)
+            (f64::midpoint(x1, x2), f64::midpoint(y1, y2), deg)
         }
     }
 }

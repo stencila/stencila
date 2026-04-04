@@ -62,8 +62,8 @@ fn quad_control_point(x1: f64, y1: f64, x2: f64, y2: f64) -> QuadControlPoint {
     let offset = metrics.len * 0.25;
 
     QuadControlPoint {
-        cx: (x1 + x2) / 2.0 + metrics.nx * offset,
-        cy: (y1 + y2) / 2.0 + metrics.ny * offset,
+        cx: f64::midpoint(x1, x2) + metrics.nx * offset,
+        cy: f64::midpoint(y1, y2) + metrics.ny * offset,
     }
 }
 
@@ -129,7 +129,7 @@ pub fn expand_component(name: &str, attrs: &Attrs, ctx: &mut ComponentContext) -
 
 /// Get a string attribute with a default value.
 fn attr_str<'a>(attrs: &'a Attrs, key: &str, default: &'a str) -> &'a str {
-    attrs.get(key).map(|s| s.as_str()).unwrap_or(default)
+    attrs.get(key).map_or(default, std::string::String::as_str)
 }
 
 /// Parse a float attribute, returning `None` if missing or unparseable.

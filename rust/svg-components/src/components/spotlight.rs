@@ -1,4 +1,9 @@
-use super::*;
+use std::fmt::Write;
+
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs,
+};
 
 /// Expand `<s:spotlight>` into an inverse-highlight mask.
 ///
@@ -32,34 +37,31 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     );
 
     // Build the mask cutout shape (white = visible, black = hidden)
-    let cutout = match shape {
-        "rect" => {
-            let w = attr_f64_or(attrs, "width", 100.0);
-            let h = attr_f64_or(attrs, "height", 100.0);
-            mask_id.push_str(&format!("-rect-{}-{}", fmt_coord(w), fmt_coord(h)));
-            format!(
-                r#"<rect x="{}" y="{}" width="{}" height="{}" fill="white"/>"#,
-                fmt_coord(cx - w / 2.0),
-                fmt_coord(cy - h / 2.0),
-                fmt_coord(w),
-                fmt_coord(h),
-            )
-        }
-        _ => {
-            // circle or ellipse
-            let rx = attr_f64(attrs, "rx")
-                .or_else(|| attr_f64(attrs, "r"))
-                .unwrap_or(50.0);
-            let ry = attr_f64(attrs, "ry").unwrap_or(rx);
-            mask_id.push_str(&format!("-ellipse-{}-{}", fmt_coord(rx), fmt_coord(ry)));
-            format!(
-                r#"<ellipse cx="{}" cy="{}" rx="{}" ry="{}" fill="white"/>"#,
-                fmt_coord(cx),
-                fmt_coord(cy),
-                fmt_coord(rx),
-                fmt_coord(ry),
-            )
-        }
+    let cutout = if shape == "rect" {
+        let w = attr_f64_or(attrs, "width", 100.0);
+        let h = attr_f64_or(attrs, "height", 100.0);
+        let _ = write!(mask_id, "-rect-{}-{}", fmt_coord(w), fmt_coord(h));
+        format!(
+            r#"<rect x="{}" y="{}" width="{}" height="{}" fill="white"/>"#,
+            fmt_coord(cx - w / 2.0),
+            fmt_coord(cy - h / 2.0),
+            fmt_coord(w),
+            fmt_coord(h),
+        )
+    } else {
+        // circle or ellipse
+        let rx = attr_f64(attrs, "rx")
+            .or_else(|| attr_f64(attrs, "r"))
+            .unwrap_or(50.0);
+        let ry = attr_f64(attrs, "ry").unwrap_or(rx);
+        let _ = write!(mask_id, "-ellipse-{}-{}", fmt_coord(rx), fmt_coord(ry));
+        format!(
+            r#"<ellipse cx="{}" cy="{}" rx="{}" ry="{}" fill="white"/>"#,
+            fmt_coord(cx),
+            fmt_coord(cy),
+            fmt_coord(rx),
+            fmt_coord(ry),
+        )
     };
 
     // The mask controls where the dimming overlay is visible:

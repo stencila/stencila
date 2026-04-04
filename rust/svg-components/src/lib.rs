@@ -105,6 +105,13 @@
 //! updating coordinates from the group's transform if present — enabling a
 //! visual-edit → decompile → re-compile roundtrip workflow.
 
+#![warn(clippy::pedantic)]
+#![allow(
+    clippy::similar_names,
+    clippy::cast_precision_loss,
+    clippy::cast_possible_truncation
+)]
+
 mod anchors;
 mod compile;
 mod components;

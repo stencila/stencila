@@ -1,4 +1,9 @@
-use super::*;
+use std::fmt::Write;
+
+use super::{
+    Attrs, CompilationMessage, ComponentContext, ConnectorOpts, attr_str, connector_svg, fmt_coord,
+    pass_through_attrs, resolve_position, resolve_target, svg_text,
+};
 
 /// Expand `<s:callout>` into standard SVG text with optional leader line and background shape.
 ///
@@ -43,12 +48,13 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     // doesn't overlap. The `label-position` attribute can override the automatic
     // direction.
     let label_position = attr_str(attrs, "label-position", "auto");
-    let (text_x, text_y) = label_offset(lx, ly, &target, label_position, shape_height);
+    let (text_x, text_y) = label_offset(lx, ly, target.as_ref(), label_position, shape_height);
 
     let mut svg = String::new();
 
     if shape != "none" {
-        svg.push_str(&format!(
+        let _ = write!(
+            svg,
             r#"<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="white" stroke="currentColor"{}/>"#,
             fmt_coord(text_x - estimated_width / 2.0),
             fmt_coord(text_y - shape_height / 2.0 - 2.0),
@@ -56,7 +62,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             fmt_coord(shape_height),
             fmt_coord(shape_rx),
             pass
-        ));
+        );
     }
 
     // Text label
@@ -98,7 +104,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 fn label_offset(
     lx: f64,
     ly: f64,
-    target: &Option<(f64, f64)>,
+    target: Option<&(f64, f64)>,
     position: &str,
     shape_height: f64,
 ) -> (f64, f64) {
@@ -111,7 +117,7 @@ fn label_offset(
         "right" => (lx + vertical_gap, ly),
         // "auto" or unrecognized — smart placement based on leader line direction
         _ => {
-            let Some((tx, ty)) = *target else {
+            let Some(&(tx, ty)) = target else {
                 return (lx, ly);
             };
 

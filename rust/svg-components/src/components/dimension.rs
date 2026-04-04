@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_str, pass_through_attrs, resolve_position,
+    resolve_target, svg_line, svg_text, vector_metrics,
+};
 
 /// Expand `<s:dimension>` into standard SVG.
 ///
@@ -61,8 +64,8 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     // Label at midpoint of offset dimension line
     if !label.is_empty() {
-        let mx = (dx1 + dx2) / 2.0;
-        let my = (dy1 + dy2) / 2.0;
+        let mx = f64::midpoint(dx1, dx2);
+        let my = f64::midpoint(dy1, dy2);
         let label_offset = match label_position {
             "below" => 16.0,
             _ => -8.0,

@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str,
+    pass_through_attrs, svg_line, svg_text,
+};
 
 /// Expand `<s:compass>` into a directional compass rose.
 ///
@@ -29,54 +32,51 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     let mut svg = String::new();
 
-    match variant {
-        "full" => {
-            // Primary axis: up/down (first pair)
-            svg.push_str(&svg_line(x, y - r, x, y + r, &pass));
-            // Secondary axis: left/right (second pair)
-            svg.push_str(&svg_line(x - r, y, x + r, y, ""));
+    if variant == "full" {
+        // Primary axis: up/down (first pair)
+        svg.push_str(&svg_line(x, y - r, x, y + r, &pass));
+        // Secondary axis: left/right (second pair)
+        svg.push_str(&svg_line(x - r, y, x + r, y, ""));
 
-            // Labels at cardinal positions
-            if let Some(up) = axes.first().map(|(p, _)| p.as_str()) {
-                svg.push_str(&svg_text(
-                    x,
-                    y - r - 4.0,
-                    up,
-                    "middle",
-                    12,
-                    r#" font-weight="bold""#,
-                ));
-            }
-            if let Some(down) = axes.first().map(|(_, n)| n.as_str()) {
-                svg.push_str(&svg_text(x, y + r + 14.0, down, "middle", 12, ""));
-            }
-            if let Some(right) = axes.get(1).map(|(p, _)| p.as_str()) {
-                svg.push_str(&svg_text(x + r + 4.0, y + 4.0, right, "start", 12, ""));
-            }
-            if let Some(left) = axes.get(1).map(|(_, n)| n.as_str()) {
-                svg.push_str(&svg_text(x - r - 4.0, y + 4.0, left, "end", 12, ""));
-            }
-        }
-        _ => {
-            // arrow variant: single directional arrow pointing up with label
-            svg.push_str(&svg_line(
+        // Labels at cardinal positions
+        if let Some(up) = axes.first().map(|(p, _)| p.as_str()) {
+            svg.push_str(&svg_text(
                 x,
-                y - r,
-                x,
-                y + r * 0.3,
-                &format!(r#" marker-start="url(#s:arrow-closed)"{pass}"#),
+                y - r - 4.0,
+                up,
+                "middle",
+                12,
+                r#" font-weight="bold""#,
             ));
+        }
+        if let Some(down) = axes.first().map(|(_, n)| n.as_str()) {
+            svg.push_str(&svg_text(x, y + r + 14.0, down, "middle", 12, ""));
+        }
+        if let Some(right) = axes.get(1).map(|(p, _)| p.as_str()) {
+            svg.push_str(&svg_text(x + r + 4.0, y + 4.0, right, "start", 12, ""));
+        }
+        if let Some(left) = axes.get(1).map(|(_, n)| n.as_str()) {
+            svg.push_str(&svg_text(x - r - 4.0, y + 4.0, left, "end", 12, ""));
+        }
+    } else {
+        // arrow variant: single directional arrow pointing up with label
+        svg.push_str(&svg_line(
+            x,
+            y - r,
+            x,
+            y + r * 0.3,
+            &format!(r#" marker-start="url(#s:arrow-closed)"{pass}"#),
+        ));
 
-            if let Some(label) = axes.first().map(|(p, _)| p.as_str()) {
-                svg.push_str(&svg_text(
-                    x,
-                    y - r - 4.0,
-                    label,
-                    "middle",
-                    12,
-                    r#" font-weight="bold""#,
-                ));
-            }
+        if let Some(label) = axes.first().map(|(p, _)| p.as_str()) {
+            svg.push_str(&svg_text(
+                x,
+                y - r - 4.0,
+                label,
+                "middle",
+                12,
+                r#" font-weight="bold""#,
+            ));
         }
     }
 

@@ -1,4 +1,9 @@
-use super::*;
+use std::fmt::Write;
+
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs, svg_line, svg_text,
+};
 
 /// Expand `<s:crosshair>` into a crosshair/reticle SVG.
 ///
@@ -39,12 +44,13 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     // Optional enclosing ring
     if ring {
-        svg.push_str(&format!(
+        let _ = write!(
+            svg,
             r#"<circle cx="{}" cy="{}" r="{}" fill="none" stroke="currentColor"/>"#,
             fmt_coord(cx),
             fmt_coord(cy),
             fmt_coord(size),
-        ));
+        );
     }
 
     // Optional label

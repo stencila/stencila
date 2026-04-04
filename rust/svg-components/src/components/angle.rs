@@ -1,4 +1,7 @@
-use super::*;
+use super::{
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, fmt_coord,
+    pass_through_attrs, resolve_position, resolve_target, svg_text,
+};
 use std::f64::consts::{PI, TAU};
 
 /// Expand `<s:angle>` into an arc showing the angle between two lines.
@@ -63,8 +66,8 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let arc_y2 = vy + r * angle_to.sin();
 
     // SVG arc flags
-    let large_arc = if sweep_angle.abs() > PI { 1 } else { 0 };
-    let sweep_flag = if sweep_angle > 0.0 { 1 } else { 0 };
+    let large_arc = i32::from(sweep_angle.abs() > PI);
+    let sweep_flag = i32::from(sweep_angle > 0.0);
 
     let path = format!(
         r#"<path d="M {},{} A {},{} 0 {} {} {},{}" fill="none" stroke="currentColor"{pass}/>"#,
