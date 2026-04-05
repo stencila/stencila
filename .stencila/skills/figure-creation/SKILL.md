@@ -202,7 +202,7 @@ An overlay is an `svg overlay` fenced code block inside a figure. It renders a t
 - Always declare `xmlns:s="https://stencila.io/svg"` on the `<svg>` element when using components.
 - The `viewBox` defines the coordinate system. Matching image dimensions is convenient (coordinates map to pixels) but any viewBox works.
 - For browser-rendered charts (Plotly, eCharts), set explicit `width`/`height` in the chart config and use a matching `viewBox`.
-- Shapes and text inherit theme defaults. Override per-element with inline SVG attributes when needed.
+- All components support `stroke`, `fill`, and `color` attributes. The `color` shorthand sets both; explicit `fill`/`stroke` override it. Arrow markers automatically match the line's stroke color.
 
 ### Choose the right overlay scope
 

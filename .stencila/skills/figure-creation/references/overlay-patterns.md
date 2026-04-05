@@ -164,6 +164,27 @@ A parent overlay spans the entire grid — useful for cross-panel annotations:
 
 Parent overlays auto-hide when the grid collapses on small screens.
 
+## Custom colors
+
+All components support `stroke`, `fill`, and `color` attributes. The `color` shorthand sets both fill and stroke; explicit `fill` or `stroke` override it. Arrow markers automatically match the stroke of the line they are attached to.
+
+```xml
+<!-- Colored arrow — arrowhead matches automatically -->
+<s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson" stroke-width="2"/>
+
+<!-- Styled callout with custom background and border -->
+<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+
+<!-- Color shorthand sets both fill and stroke on marker -->
+<s:marker x="200" y="100" symbol="circle" color="#2563eb"/>
+
+<!-- Colored ROI -->
+<s:roi-rect x="50" y="40" width="140" height="90" label="Region A" stroke="green" stroke-style="dashed"/>
+
+<!-- Colored dimension line — all parts (main line, caps, extensions) match -->
+<s:dimension x="100" y="300" to-x="400" to-y="300" label="4.2 cm" stroke="#FF0000"/>
+```
+
 ## Mixing components with raw SVG
 
 Components and standard SVG work together in the same overlay:

@@ -18,6 +18,16 @@ All components use the `s:` namespace prefix. Declare `xmlns:s="https://stencila
 
 Single-point components (`marker`, `compass`, `halo`, `crosshair`, `spotlight`, `badge`) use `at`. Two-point components (`arrow`, `brace`, `bracket`, `dimension`, `roi-rect`) use `from`/`to`.
 
+## Common color attributes
+
+All components resolve `stroke` and `fill` through a cascade: explicit attribute → `color` shorthand → component default. Arrow markers automatically inherit the stroke color of the line they are attached to.
+
+| Attribute | Fallback | Default | Description |
+|---|---|---|---|
+| `stroke` | `color` | `currentColor` | Stroke color for all parts of the component |
+| `fill` | `color` | varies (`white` for badge/callout backgrounds, `currentColor` for markers, `none` for outlines) | Fill color |
+| `color` | — | `currentColor` | Shorthand that sets both fill and stroke |
+
 ## Common connector attributes
 
 | Attribute | Values | Default |
@@ -49,8 +59,9 @@ Text label with optional background shape and leader line. Required: position (`
 | `shape` | `none`, `rect`, `pill` | `none` |
 | `to-x,to-y` or `to` | target for leader line | — |
 | `curve` | `straight`, `quad`, `cubic`, `elbow` | `straight` |
-| `tip` | `end`, `start`, `both`, `none` | `end` |
-| `text-anchor` | `start`, `middle`, `end` | `start` |
+| `tip-style` | marker id | `s:arrow-closed` |
+| `fill` | color | `white` |
+| `stroke` | color | `currentColor` |
 
 ## Badge (`<s:badge>`)
 
@@ -59,7 +70,8 @@ Compact pill-shaped label (1–4 chars ideal). Required: position + `label`.
 | Attribute | Values | Default |
 |---|---|---|
 | `label` | text (short) | — |
-| `fill` | color | theme default |
+| `fill` | color | `white` |
+| `stroke` | color | `currentColor` |
 
 ## Scale bar (`<s:scale-bar>`)
 
@@ -78,8 +90,8 @@ Engineering-style dimension with end caps. Required: start + end positions.
 | Attribute | Values | Default |
 |---|---|---|
 | `label` | text | — |
+| `label-position` | `above`, `below` | `above` |
 | `side` | `above`, `below` | `above` |
-| `gap` | number | `0` |
 
 ## Angle arc (`<s:angle>`)
 
