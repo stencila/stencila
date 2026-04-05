@@ -249,7 +249,7 @@ The `<s:arrow>` component draws directional lines and curves between two points.
 | `tip-style` | marker id | `s:arrow-closed` | Arrowhead style |
 | `label` | text | — | Optional label at midpoint |
 | `label-position` | `above`, `below` | `above` | Label offset direction relative to the line |
-| `label-angle` | `along`, `horizontal`, or degrees | `along` | Label rotation: `along` follows the line angle, `horizontal` keeps text level |
+| `label-angle` | `along`, `horizontal`, `vertical`, or degrees | `along` | Label rotation: `along` follows the line angle, `horizontal` keeps text level, `vertical` rotates 90° |
 
 ## Straight arrows
 
@@ -474,6 +474,7 @@ The `<s:dimension>` component draws a measurement line between two points with p
 | `to` | anchor ref | — | End point from anchor |
 | `label` | text | — | Measurement text (e.g., "4.2 cm") |
 | `label-position` | `above`, `below` | `above` | Label placement on the dimension line |
+| `label-angle` | `along`, `horizontal`, `vertical`, or degrees | `along` | Label rotation: `along` follows the line angle, `horizontal` keeps text level, `vertical` rotates 90° |
 | `side` | `above`, `below` | `above` | Which side the offset dimension line appears |
 
 ````smd demo

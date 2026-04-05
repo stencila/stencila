@@ -1,6 +1,6 @@
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_str, pass_through_attrs, resolve_position,
-    resolve_stroke, resolve_target, svg_line, svg_text, vector_metrics,
+    Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, pass_through_attrs,
+    resolve_position, resolve_stroke, resolve_target, svg_line, svg_text, vector_metrics,
 };
 
 /// Expand `<s:dimension>` into standard SVG.
@@ -12,6 +12,7 @@ use super::{
 /// - `dx`/`dy`: offset from anchor
 /// - `label`: text content (e.g. "4.2 cm")
 /// - `label-position`: `above` (default) or `below`
+/// - `label-angle`: `along` (default), `horizontal`, `vertical`, or a number in degrees
 /// - `side`: `above` (default), `below` — offset direction for the dimension line
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let start = resolve_position(attrs, "x", "y", Some("from"), "dx", "dy", ctx.anchors);
@@ -26,6 +27,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     let label = attr_str(attrs, "label", "");
     let label_position = attr_str(attrs, "label-position", "above");
+    let label_angle = attr_str(attrs, "label-angle", "along");
     let side = attr_str(attrs, "side", "above");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
@@ -81,11 +83,71 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     if !label.is_empty() {
         let mx = f64::midpoint(dx1, dx2);
         let my = f64::midpoint(dy1, dy2);
-        let label_offset = match label_position {
-            "below" => 16.0,
-            _ => -8.0,
+
+        // Tangent angle of the dimension line
+        let tangent_deg = if metrics.len > 0.0 {
+            metrics.dy.atan2(metrics.dx).to_degrees()
+        } else {
+            0.0
         };
-        svg.push_str(&svg_text(mx, my + label_offset, label, "middle", 12, ""));
+
+        // Resolve label rotation angle
+        let angle_deg = match label_angle {
+            "horizontal" => 0.0,
+            "vertical" => 90.0,
+            "along" => {
+                let mut deg = tangent_deg;
+                // Keep text right-side-up: flip if pointing leftward
+                if deg > 90.0 {
+                    deg -= 180.0;
+                } else if deg < -90.0 {
+                    deg += 180.0;
+                }
+                deg
+            }
+            other => other.parse::<f64>().unwrap_or(0.0),
+        };
+
+        // Perpendicular offset relative to the label's reading direction
+        let perp_dist = 10.0;
+        let read_rad = angle_deg.to_radians();
+        let lnx = read_rad.sin();
+        let lny = -read_rad.cos();
+
+        let label_sign = if label_position == "below" { -1.0 } else { 1.0 };
+        let lx = mx + lnx * perp_dist * label_sign;
+        let ly = my + lny * perp_dist * label_sign;
+
+        let baseline = if label_position == "below" {
+            "hanging"
+        } else {
+            "auto"
+        };
+
+        if angle_deg.abs() < 0.1 {
+            svg.push_str(&svg_text(
+                lx,
+                ly,
+                label,
+                "middle",
+                12,
+                &format!(r#" dominant-baseline="{baseline}""#),
+            ));
+        } else {
+            svg.push_str(&svg_text(
+                lx,
+                ly,
+                label,
+                "middle",
+                12,
+                &format!(
+                    r#" dominant-baseline="{baseline}" transform="rotate({}, {}, {})""#,
+                    fmt_coord(angle_deg),
+                    fmt_coord(lx),
+                    fmt_coord(ly)
+                ),
+            ));
+        }
     }
 
     svg

@@ -16,7 +16,7 @@ use super::{
 /// - `tip-style`: marker id, defaults to `s:arrow-closed`
 /// - `label`: optional text label placed at midpoint
 /// - `label-position`: `above` (default), `below` — perpendicular offset from the line
-/// - `label-angle`: `along` (default), `horizontal`, or a number in degrees
+/// - `label-angle`: `along` (default), `horizontal`, `vertical`, or a number in degrees
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let start = resolve_position(attrs, "x", "y", Some("from"), "dx", "dy", ctx.anchors);
     let end = resolve_target(attrs, ctx.anchors);
@@ -150,6 +150,7 @@ fn arrow_label_svg(
 ) -> String {
     let angle_deg = match label_angle {
         "horizontal" => 0.0,
+        "vertical" => 90.0,
         "along" => {
             let mut deg = tangent_deg;
             // Keep text right-side-up: flip if pointing leftward
