@@ -12,6 +12,14 @@
 #   skills   — ordered list of skill names (must match directory names in .stencila/skills/)
 
 categories:
+  - slug: documents
+    title: Documents
+    prelude: >-
+      Skills for creating, updating and reviewing documents.
+    skills:
+      - figure-creation
+      - figure-review
+
   - slug: themes
     title: Themes
     prelude: >-

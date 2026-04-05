@@ -12,6 +12,13 @@
 #   workflows  — ordered list of workflow names (must match directory names in .stencila/workflows/)
 
 categories:
+  - slug: documents
+    title: Documents
+    prelude: >-
+      Workflows for creating and refining documents.
+    workflows:
+      - figure-creation-iterative
+
   - slug: themes
     title: Themes
     prelude: >-

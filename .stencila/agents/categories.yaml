@@ -12,6 +12,14 @@
 #   agents   — ordered list of agent names (must match directory names in .stencila/agents/)
 
 categories:
+  - slug: documents
+    title: Documents
+    prelude: >-
+      Agents for creating and reviewing documents.
+    agents:
+      - figure-creator
+      - figure-reviewer
+
   - slug: themes
     title: Themes
     prelude: >-
