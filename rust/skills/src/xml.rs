@@ -1,5 +1,4 @@
 use stencila_codec_markdown::to_markdown;
-use stencila_schema::Skill;
 
 use crate::SkillInstance;
 
@@ -15,16 +14,20 @@ fn escape_xml_attr(s: &str) -> String {
     escape_xml(s).replace('"', "&quot;")
 }
 
-/// Serialize a skill to XML for context injection
+/// Serialize a skill instance to XML for context injection
 ///
 /// Follows the format from <https://agentskills.io/integrate-skills#injecting-into-context>.
-pub fn to_xml(skill: &Skill) -> String {
+///
+/// Includes a `<location>` element with the path to the SKILL.md file
+/// so that relative references within the skill content can be resolved.
+pub fn to_xml(skill: &SkillInstance) -> String {
     let name = escape_xml_attr(&skill.name);
     let description = escape_xml(&skill.description);
     let instructions = escape_xml(&to_markdown(&skill.content));
+    let location = skill.path().display();
 
     let mut xml = format!(
-        "<skill name=\"{name}\">\n  <description>{description}</description>\n  <instructions>\n{instructions}  </instructions>\n"
+        "<skill name=\"{name}\">\n  <description>{description}</description>\n  <location>{location}</location>\n  <instructions>\nNOTE: Any relative file references in these instructions should be resolved relative to the skill location shown above.\n\n{instructions}  </instructions>\n"
     );
 
     if let Some(compat) = &skill.compatibility {
@@ -103,17 +106,20 @@ pub fn metadata_to_xml(skills: &[SkillInstance]) -> String {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_schema::{Block, Paragraph, Text};
+    use stencila_schema::{Block, Paragraph, Skill, Text};
 
-    fn make_test_skill() -> Skill {
-        Skill {
-            name: "data-analysis".into(),
-            description: "Analyze datasets and generate summary statistics.".into(),
-            content: vec![Block::Paragraph(Paragraph::new(vec![
-                stencila_schema::Inline::Text(Text::from("Use pandas for data manipulation.")),
-            ]))],
-            compatibility: Some("Requires Python 3.10+".into()),
-            allowed_tools: Some(vec!["Bash(python:*)".into(), "Read".into()]),
+    fn make_test_skill() -> SkillInstance {
+        SkillInstance {
+            inner: Skill {
+                name: "data-analysis".into(),
+                description: "Analyze datasets and generate summary statistics.".into(),
+                content: vec![Block::Paragraph(Paragraph::new(vec![
+                    stencila_schema::Inline::Text(Text::from("Use pandas for data manipulation.")),
+                ]))],
+                compatibility: Some("Requires Python 3.10+".into()),
+                allowed_tools: Some(vec!["Bash(python:*)".into(), "Read".into()]),
+                ..Default::default()
+            },
             ..Default::default()
         }
     }
@@ -127,6 +133,7 @@ mod tests {
         assert!(xml.contains(
             "<description>Analyze datasets and generate summary statistics.</description>"
         ));
+        assert!(xml.contains("<location>"));
         assert!(xml.contains("<instructions>"));
         assert!(xml.contains("Use pandas for data manipulation."));
         assert!(xml.contains("<compatibility>Requires Python 3.10+</compatibility>"));
@@ -138,13 +145,16 @@ mod tests {
 
     #[test]
     fn xml_escaping() -> eyre::Result<()> {
-        let skill = Skill {
-            name: "test-skill".into(),
-            description: "Handles <html> & \"quotes\"".into(),
-            content: vec![Block::Paragraph(Paragraph::new(vec![
-                stencila_schema::Inline::Text(Text::from("Use x < y && a > b")),
-            ]))],
-            compatibility: Some("Requires foo & bar".into()),
+        let skill = SkillInstance {
+            inner: Skill {
+                name: "test-skill".into(),
+                description: "Handles <html> & \"quotes\"".into(),
+                content: vec![Block::Paragraph(Paragraph::new(vec![
+                    stencila_schema::Inline::Text(Text::from("Use x < y && a > b")),
+                ]))],
+                compatibility: Some("Requires foo & bar".into()),
+                ..Default::default()
+            },
             ..Default::default()
         };
 
