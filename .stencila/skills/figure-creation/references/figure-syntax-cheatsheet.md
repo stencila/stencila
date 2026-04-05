@@ -106,7 +106,20 @@ Add whitespace around content with `{pad="..."}`:
 - `"30 60"` — vertical horizontal
 - `"10 20 30 40"` — top right bottom left
 
-Quote multi-value padding. Padding extends the overlay coordinate space.
+Quote multi-value padding. Padding extends the overlay coordinate space:
+
+```
+viewBox with padding (for image W×H, pad="T R B L"):
+  viewBox = "0 0 (W+L+R) (H+T+B)"
+  Image top-left is at coordinate (L, T)
+  Image-space coordinates shift by +L, +T
+
+Example: 600×300 image, pad="0 0 56 0"
+  → viewBox="0 0 600 356"  (top=0, left=0 so image coords unchanged)
+
+Example: 600×300 image, pad="50 20 56 20"
+  → viewBox="0 0 640 406"  (image top-left at 20,50 — coords shift +20,+50)
+```
 
 ## Overlay block
 

@@ -706,6 +706,12 @@ Add padding on the figure fence using a `pad` attribute:
 
 When using more than one padding value, quote the value so it is parsed as a single attribute.
 
+### How padding affects overlay coordinates
+
+Padding extends the overlay coordinate space. For an image that is W×H pixels with `pad="T R B L"`, the overlay `viewBox` should be `"0 0 (W+L+R) (H+T+B)"` and the image top-left sits at coordinate (L, T). This means all image-space coordinates shift right by L and down by T.
+
+When top and left padding are both zero (the most common case — adding space below or to the right), image coordinates do not change. For example, `{pad="0 0 56 0"}` on a 600×300 image gives `viewBox="0 0 600 356"` and the image still starts at (0, 0). But `{pad="50 20 56 20"}` on the same image gives `viewBox="0 0 640 406"` with the image top-left at (20, 50), so an annotation that was at `x="100" y="80"` in the unpadded image needs to move to `x="120" y="130"`.
+
 ### Padding for a single figure overlay
 
 This example adds bottom padding so a [`<s:scale-bar>`](figure-overlay-components#scale-bar) can sit below the image instead of covering it:

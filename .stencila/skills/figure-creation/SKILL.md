@@ -262,7 +262,17 @@ Add whitespace around content with `{pad="..."}` so overlays can place elements 
 ::: figure {pad="0 0 56 0"}
 ```
 
-Values: `50` (all sides), `"30 60"` (vertical horizontal), `"10 20 30 40"` (top right bottom left). Quote multi-value padding. Padding extends the overlay coordinate space — e.g., `{pad="0 0 56 0"}` on a 600×300 image means the overlay `viewBox` should be `"0 0 600 356"`.
+Values: `50` (all sides), `"30 60"` (vertical horizontal), `"10 20 30 40"` (top right bottom left). Quote multi-value padding.
+
+**Padding and viewBox formula.** For an image W×H with `pad="T R B L"`:
+
+```
+viewBox = "0 0 (W+L+R) (H+T+B)"
+Image top-left is at coordinate (L, T)
+All image-space coordinates shift by +L, +T
+```
+
+When top and left are both 0 (the common case — bottom or right padding only), image coordinates do not change. Example: `{pad="0 0 56 0"}` on a 600×300 image → `viewBox="0 0 600 356"`, image coordinates unchanged. But `{pad="50 20 56 20"}` on the same image → `viewBox="0 0 640 406"`, and the image top-left is now at (20, 50), so all image-space coordinates shift by +20 horizontally and +50 vertically.
 
 ## Examples
 
