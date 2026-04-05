@@ -594,6 +594,8 @@ fn collect_map_placements(rows: &[Vec<char>]) -> Result<Vec<Placement>, LayoutEr
         }
     }
 
+    labels.sort();
+
     labels
         .into_iter()
         .map(|label| derive_placement(rows, label))
