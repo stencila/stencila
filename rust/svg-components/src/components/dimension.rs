@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_str, pass_through_attrs, resolve_position,
-    resolve_target, svg_line, svg_text, vector_metrics,
+    resolve_stroke, resolve_target, svg_line, svg_text, vector_metrics,
 };
 
 /// Expand `<s:dimension>` into standard SVG.
@@ -28,6 +28,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "above");
     let side = attr_str(attrs, "side", "above");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
     let cap_height = 8.0;
     let side_offset = 20.0;
 
@@ -48,18 +49,32 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let dy2 = y2 + oy;
 
     // Main dimension line (offset)
-    let mut svg = svg_line(dx1, dy1, dx2, dy2, &pass);
+    let mut svg = svg_line(dx1, dy1, dx2, dy2, stroke, &pass);
 
     // Extension lines from original points to offset dimension line endpoints
     if metrics.len > 0.0 {
-        svg.push_str(&svg_line(x1, y1, dx1, dy1, ""));
-        svg.push_str(&svg_line(x2, y2, dx2, dy2, ""));
+        svg.push_str(&svg_line(x1, y1, dx1, dy1, stroke, ""));
+        svg.push_str(&svg_line(x2, y2, dx2, dy2, stroke, ""));
 
         // Cap lines (short perpendicular lines at each end of the offset dimension line)
         let cx = nx * cap_height / 2.0;
         let cy = ny * cap_height / 2.0;
-        svg.push_str(&svg_line(dx1 - cx, dy1 - cy, dx1 + cx, dy1 + cy, ""));
-        svg.push_str(&svg_line(dx2 - cx, dy2 - cy, dx2 + cx, dy2 + cy, ""));
+        svg.push_str(&svg_line(
+            dx1 - cx,
+            dy1 - cy,
+            dx1 + cx,
+            dy1 + cy,
+            stroke,
+            "",
+        ));
+        svg.push_str(&svg_line(
+            dx2 - cx,
+            dy2 - cy,
+            dx2 + cx,
+            dy2 + cy,
+            stroke,
+            "",
+        ));
     }
 
     // Label at midpoint of offset dimension line

@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, pass_through_attrs,
-    resolve_position, svg_line, svg_text,
+    resolve_position, resolve_stroke, svg_line, svg_text,
 };
 
 /// Expand `<s:scale-bar>` into standard SVG.
@@ -28,16 +28,17 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "below");
     let side = attr_str(attrs, "side", "bottom");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
     let cap_height = 8.0;
 
     let vertical = matches!(side, "left" | "right");
 
     let mut svg = if vertical {
         // Main vertical bar
-        svg_line(x, y, x, y + length, &pass)
+        svg_line(x, y, x, y + length, stroke, &pass)
     } else {
         // Main horizontal bar
-        svg_line(x, y, x + length, y, &pass)
+        svg_line(x, y, x + length, y, stroke, &pass)
     };
 
     if vertical {
@@ -47,6 +48,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             y,
             x + cap_height / 2.0,
             y,
+            stroke,
             "",
         ));
 
@@ -56,6 +58,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             y + length,
             x + cap_height / 2.0,
             y + length,
+            stroke,
             "",
         ));
     } else {
@@ -65,6 +68,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             y - cap_height / 2.0,
             x,
             y + cap_height / 2.0,
+            stroke,
             "",
         ));
 
@@ -74,6 +78,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             y - cap_height / 2.0,
             x + length,
             y + cap_height / 2.0,
+            stroke,
             "",
         ));
     }

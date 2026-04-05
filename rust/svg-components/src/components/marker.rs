@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_position, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, svg_text,
 };
 
 /// Expand `<s:marker>` into a defs-backed symbol stamp with optional label.
@@ -30,25 +30,21 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "right");
     let background = attr_str(attrs, "background", "white");
 
-    // Filter fill/stroke from pass-through since they're handled explicitly below
+    // Filter fill from pass-through since it's handled explicitly below
+    // (stroke is already excluded by pass_through_attrs)
     let mut filtered = attrs.clone();
     filtered.remove("fill");
-    filtered.remove("stroke");
     let pass = pass_through_attrs(&filtered);
 
     // Resolve fill and stroke: explicit fill/stroke win, then color shorthand, then currentColor
-    let color = attrs.get("color").map(|s| s.as_str());
+    let color = attrs.get("color").map(std::string::String::as_str);
     let fill = attrs
         .get("fill")
-        .map(|s| s.as_str())
+        .map(std::string::String::as_str)
         .or(color)
         .unwrap_or("currentColor");
-    let stroke = attrs
-        .get("stroke")
-        .map(|s| s.as_str())
-        .or(color)
-        .unwrap_or("currentColor");
-    let color_attrs = format!(" fill=\"{}\" stroke=\"{}\"", fill, stroke);
+    let stroke = resolve_stroke(attrs);
+    let color_attrs = format!(" fill=\"{fill}\" stroke=\"{stroke}\"");
 
     // Label position and text anchor
     let (lx, ly, anchor) = if label.is_empty() {
@@ -73,8 +69,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         let label_height = font_size;
 
         // Bounding box of symbol
-        let (mut min_x, mut min_y, mut max_x, mut max_y) =
-            (x - half, y - half, x + half, y + half);
+        let (mut min_x, mut min_y, mut max_x, mut max_y) = (x - half, y - half, x + half, y + half);
 
         // Extend to include label
         if !label.is_empty() {

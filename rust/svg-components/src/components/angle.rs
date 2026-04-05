@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_target, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text,
 };
 use std::f64::consts::{PI, TAU};
 
@@ -48,6 +48,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let r = attr_f64_or(attrs, "r", 30.0);
     let label = attrs.get("label");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     // Compute angles from vertex to each endpoint
     let angle_from = (fy - vy).atan2(fx - vx);
@@ -70,7 +71,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let sweep_flag = i32::from(sweep_angle > 0.0);
 
     let path = format!(
-        r#"<path d="M {},{} A {},{} 0 {} {} {},{}" fill="none" stroke="currentColor"{pass}/>"#,
+        r#"<path d="M {},{} A {},{} 0 {} {} {},{}" fill="none" stroke="{stroke}"{pass}/>"#,
         fmt_coord(arc_x1),
         fmt_coord(arc_y1),
         fmt_coord(r),

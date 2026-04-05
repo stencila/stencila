@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_position, svg_line, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, svg_line, svg_text,
 };
 
 /// Expand `<s:crosshair>` into a crosshair/reticle SVG.
@@ -32,25 +32,27 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attr_str(attrs, "label", "");
     let label_position = attr_str(attrs, "label-position", "right");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     let mut svg = String::new();
 
     // Horizontal crosshair lines (with gap)
-    svg.push_str(&svg_line(cx - size, cy, cx - gap, cy, &pass));
-    svg.push_str(&svg_line(cx + gap, cy, cx + size, cy, ""));
+    svg.push_str(&svg_line(cx - size, cy, cx - gap, cy, stroke, &pass));
+    svg.push_str(&svg_line(cx + gap, cy, cx + size, cy, stroke, ""));
 
     // Vertical crosshair lines (with gap)
-    svg.push_str(&svg_line(cx, cy - size, cx, cy - gap, ""));
-    svg.push_str(&svg_line(cx, cy + gap, cx, cy + size, ""));
+    svg.push_str(&svg_line(cx, cy - size, cx, cy - gap, stroke, ""));
+    svg.push_str(&svg_line(cx, cy + gap, cx, cy + size, stroke, ""));
 
     // Optional enclosing ring
     if ring {
         let _ = write!(
             svg,
-            r#"<circle cx="{}" cy="{}" r="{}" fill="none" stroke="currentColor"/>"#,
+            r#"<circle cx="{}" cy="{}" r="{}" fill="none" stroke="{}"/>"#,
             fmt_coord(cx),
             fmt_coord(cy),
             fmt_coord(size),
+            stroke,
         );
     }
 

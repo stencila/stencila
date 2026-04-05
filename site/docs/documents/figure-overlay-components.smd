@@ -80,6 +80,21 @@ Components are positioned using direct coordinates, anchor references, or a comb
 
 Single-point components like `<s:marker>`, `<s:compass>`, and `<s:halo>` use `at` — meaning "place this here". Two-point components like `<s:arrow>` and `<s:brace>` use `from`/`to` — meaning "draw from here to there".
 
+### Colors
+
+All components support the `stroke` attribute to set the stroke color for every part of the component (main line, extension lines, caps, arcs, paths, etc.). If omitted, the `color` attribute is used as a shorthand; if neither is set, `currentColor` is used:
+
+| Attribute | Fallback | Description |
+| --- | --- | --- |
+| `stroke` | `color`, then `currentColor` | Stroke color applied to all parts of the component |
+| `color` | `currentColor` | Shorthand that sets both fill and stroke (where applicable) |
+
+```xml
+<s:dimension x="100" y="300" to-x="400" to-y="300" label="4.2 cm" stroke="#FF0000"/>
+<s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson"/>
+<s:roi-rect x="50" y="50" width="200" height="100" stroke="green"/>
+```
+
 ### Labels
 
 | Attribute | Values | Description |
@@ -100,7 +115,7 @@ Components that draw lines between two points share these:
 
 ### SVG pass-through
 
-Standard SVG presentation attributes like `stroke`, `fill`, `stroke-width`, `opacity`, `font-size`, and `stroke-dasharray` are passed through to the generated SVG unchanged. Use these when you need a specific color or style that differs from theme defaults:
+Standard SVG presentation attributes like `stroke-width`, `opacity`, `font-size`, and `stroke-dasharray` are passed through to the generated SVG unchanged. Use these when you need a specific style that differs from theme defaults:
 
 ```xml
 <s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson" stroke-width="3"/>

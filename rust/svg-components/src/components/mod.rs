@@ -155,9 +155,9 @@ fn svg_text(x: f64, y: f64, text: &str, anchor: &str, font_size: u32, extra: &st
 }
 
 /// Generate an SVG `<line>` element.
-fn svg_line(x1: f64, y1: f64, x2: f64, y2: f64, extra: &str) -> String {
+fn svg_line(x1: f64, y1: f64, x2: f64, y2: f64, stroke: &str, extra: &str) -> String {
     format!(
-        r#"<line x1="{}" y1="{}" x2="{}" y2="{}" stroke="currentColor"{extra}/>"#,
+        r#"<line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{stroke}"{extra}/>"#,
         fmt_coord(x1),
         fmt_coord(y1),
         fmt_coord(x2),
@@ -173,6 +173,7 @@ struct ConnectorOpts<'a> {
     corner: &'a str,
     marker_start: &'a str,
     marker_end: &'a str,
+    stroke: &'a str,
     pass: &'a str,
 }
 
@@ -186,13 +187,14 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
                 (x2, y1)
             };
             format!(
-                r#"<polyline points="{},{} {},{} {},{}" fill="none" stroke="currentColor"{}{}{}/>"#,
+                r#"<polyline points="{},{} {},{} {},{}" fill="none" stroke="{}"{}{}{}/>"#,
                 fmt_coord(x1),
                 fmt_coord(y1),
                 fmt_coord(mx),
                 fmt_coord(my),
                 fmt_coord(x2),
                 fmt_coord(y2),
+                opts.stroke,
                 opts.marker_start,
                 opts.marker_end,
                 opts.pass
@@ -201,13 +203,14 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
         "quad" => {
             let QuadControlPoint { cx, cy } = quad_control_point(x1, y1, x2, y2);
             format!(
-                r#"<path d="M {},{} Q {},{} {},{}" fill="none" stroke="currentColor"{}{}{}/>"#,
+                r#"<path d="M {},{} Q {},{} {},{}" fill="none" stroke="{}"{}{}{}/>"#,
                 fmt_coord(x1),
                 fmt_coord(y1),
                 fmt_coord(cx),
                 fmt_coord(cy),
                 fmt_coord(x2),
                 fmt_coord(y2),
+                opts.stroke,
                 opts.marker_start,
                 opts.marker_end,
                 opts.pass
@@ -216,7 +219,7 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
         "cubic" => {
             let CubicControlPoints { cx1, cy1, cx2, cy2 } = cubic_control_points(x1, y1, x2, y2);
             format!(
-                r#"<path d="M {},{} C {},{} {},{} {},{}" fill="none" stroke="currentColor"{}{}{}/>"#,
+                r#"<path d="M {},{} C {},{} {},{} {},{}" fill="none" stroke="{}"{}{}{}/>"#,
                 fmt_coord(x1),
                 fmt_coord(y1),
                 fmt_coord(cx1),
@@ -225,6 +228,7 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
                 fmt_coord(cy2),
                 fmt_coord(x2),
                 fmt_coord(y2),
+                opts.stroke,
                 opts.marker_start,
                 opts.marker_end,
                 opts.pass
@@ -233,11 +237,12 @@ fn connector_svg(x1: f64, y1: f64, x2: f64, y2: f64, opts: &ConnectorOpts) -> St
         _ => {
             // straight (default)
             format!(
-                r#"<line x1="{}" y1="{}" x2="{}" y2="{}" stroke="currentColor"{}{}{}/>"#,
+                r#"<line x1="{}" y1="{}" x2="{}" y2="{}" stroke="{}"{}{}{}/>"#,
                 fmt_coord(x1),
                 fmt_coord(y1),
                 fmt_coord(x2),
                 fmt_coord(y2),
+                opts.stroke,
                 opts.marker_start,
                 opts.marker_end,
                 opts.pass
@@ -308,6 +313,14 @@ fn resolve_target(attrs: &Attrs, anchors: &HashMap<String, Anchor>) -> Option<(f
     None
 }
 
+/// Resolve the stroke color: explicit `stroke` attr, then `color` shorthand, then `currentColor`.
+fn resolve_stroke(attrs: &Attrs) -> &str {
+    attrs
+        .get("stroke")
+        .or_else(|| attrs.get("color"))
+        .map_or("currentColor", std::string::String::as_str)
+}
+
 /// Collect SVG presentation attributes to pass through.
 fn pass_through_attrs(attrs: &Attrs) -> String {
     // Known s: component attributes that should NOT be passed through
@@ -352,6 +365,7 @@ fn pass_through_attrs(attrs: &Attrs) -> String {
         "from-x",
         "from-y",
         "vertex",
+        "stroke",
         "color",
         "background",
         "opacity",
@@ -379,5 +393,62 @@ fn fmt_coord(v: f64) -> String {
         format!("{v:.0}")
     } else {
         format!("{v}")
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn attrs(pairs: &[(&str, &str)]) -> Attrs {
+        pairs
+            .iter()
+            .map(|(k, v)| ((*k).to_string(), (*v).to_string()))
+            .collect()
+    }
+
+    #[test]
+    fn resolve_stroke_explicit() {
+        assert_eq!(resolve_stroke(&attrs(&[("stroke", "red")])), "red");
+    }
+
+    #[test]
+    fn resolve_stroke_color_fallback() {
+        assert_eq!(resolve_stroke(&attrs(&[("color", "blue")])), "blue");
+    }
+
+    #[test]
+    fn resolve_stroke_explicit_over_color() {
+        assert_eq!(
+            resolve_stroke(&attrs(&[("stroke", "red"), ("color", "blue")])),
+            "red"
+        );
+    }
+
+    #[test]
+    fn resolve_stroke_default() {
+        assert_eq!(resolve_stroke(&attrs(&[])), "currentColor");
+    }
+
+    #[test]
+    fn svg_line_uses_custom_stroke() {
+        let line = svg_line(0.0, 0.0, 10.0, 10.0, "red", "");
+        assert!(line.contains(r#"stroke="red""#));
+        assert!(!line.contains("currentColor"));
+    }
+
+    #[test]
+    fn svg_line_with_extra_attrs() {
+        let line = svg_line(0.0, 0.0, 10.0, 10.0, "currentColor", r#" stroke-width="2""#);
+        assert!(line.contains(r#"stroke="currentColor""#));
+        assert!(line.contains(r#"stroke-width="2""#));
+    }
+
+    #[test]
+    fn pass_through_excludes_stroke() {
+        let a = attrs(&[("stroke", "red"), ("stroke-width", "2")]);
+        let pass = pass_through_attrs(&a);
+        assert!(!pass.contains(r#"stroke="red""#));
+        assert!(pass.contains(r#"stroke-width="2""#));
     }
 }

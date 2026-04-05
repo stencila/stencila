@@ -10,15 +10,15 @@ use quick_xml::events::Event;
 const BUILTIN_DEFS: &[(&str, &str)] = &[
     (
         "s:arrow-closed",
-        r#"<marker id="s:arrow-closed" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" stroke="none"/></marker>"#,
+        r#"<marker id="s:arrow-closed" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10 z" fill="context-stroke" stroke="none"/></marker>"#,
     ),
     (
         "s:arrow-open",
-        r#"<marker id="s:arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="currentColor" stroke-width="1.5"/></marker>"#,
+        r#"<marker id="s:arrow-open" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path d="M 0 0 L 10 5 L 0 10" fill="none" stroke="context-stroke" stroke-width="1.5"/></marker>"#,
     ),
     (
         "s:arrow-dot",
-        r#"<marker id="s:arrow-dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6"><circle cx="5" cy="5" r="4" fill="currentColor" stroke="none"/></marker>"#,
+        r#"<marker id="s:arrow-dot" viewBox="0 0 10 10" refX="5" refY="5" markerWidth="6" markerHeight="6"><circle cx="5" cy="5" r="4" fill="context-stroke" stroke="none"/></marker>"#,
     ),
     (
         "s:marker-circle",
@@ -58,7 +58,7 @@ const BUILTIN_DEFS: &[(&str, &str)] = &[
     ),
     (
         "s:cap-line",
-        r#"<marker id="s:cap-line" viewBox="0 0 2 10" refX="1" refY="5" markerWidth="2" markerHeight="10" orient="auto"><line x1="1" y1="0" x2="1" y2="10" stroke="currentColor" stroke-width="1.5"/></marker>"#,
+        r#"<marker id="s:cap-line" viewBox="0 0 2 10" refX="1" refY="5" markerWidth="2" markerHeight="10" orient="auto"><line x1="1" y1="0" x2="1" y2="10" stroke="context-stroke" stroke-width="1.5"/></marker>"#,
     ),
 ];
 

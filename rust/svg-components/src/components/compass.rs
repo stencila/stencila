@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, pass_through_attrs,
-    resolve_position, svg_line, svg_text,
+    resolve_position, resolve_stroke, svg_line, svg_text,
 };
 
 /// Expand `<s:compass>` into a directional compass rose.
@@ -27,6 +27,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let variant = attr_str(attrs, "variant", "arrow");
     let axes_str = attr_str(attrs, "axes", "N/S E/W");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     let axes = parse_axes(axes_str);
     let r = size / 2.0;
@@ -35,9 +36,9 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     if variant == "full" {
         // Primary axis: up/down (first pair)
-        svg.push_str(&svg_line(x, y - r, x, y + r, &pass));
+        svg.push_str(&svg_line(x, y - r, x, y + r, stroke, &pass));
         // Secondary axis: left/right (second pair)
-        svg.push_str(&svg_line(x - r, y, x + r, y, ""));
+        svg.push_str(&svg_line(x - r, y, x + r, y, stroke, ""));
 
         // Labels at cardinal positions
         if let Some(up) = axes.first().map(|(p, _)| p.as_str()) {
@@ -66,6 +67,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             y - r,
             x,
             y + r * 0.3,
+            stroke,
             &format!(r#" marker-start="url(#s:arrow-closed)"{pass}"#),
         ));
 

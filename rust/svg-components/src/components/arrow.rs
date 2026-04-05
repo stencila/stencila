@@ -1,8 +1,8 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, ConnectorOpts, CubicControlPoints,
     QuadControlPoint, attr_str, connector_svg, cubic_control_points, fmt_coord, marker_attrs,
-    pass_through_attrs, quad_control_point, resolve_position, resolve_target, svg_text,
-    vector_metrics,
+    pass_through_attrs, quad_control_point, resolve_position, resolve_stroke, resolve_target,
+    svg_text, vector_metrics,
 };
 
 /// Expand `<s:arrow>` into standard SVG path/line with marker references.
@@ -36,6 +36,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "above");
     let label_angle = attr_str(attrs, "label-angle", "along");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     let (ms, me) = marker_attrs(tip, tip_style);
     let path = connector_svg(
@@ -48,6 +49,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             corner,
             marker_start: &ms,
             marker_end: &me,
+            stroke,
             pass: &pass,
         },
     );

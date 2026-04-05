@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, ConnectorOpts, attr_str, connector_svg, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_target, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text,
 };
 
 /// Expand `<s:callout>` into standard SVG text with optional leader line and background shape.
@@ -30,6 +30,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attr_str(attrs, "label", "");
     let shape = attr_str(attrs, "shape", "none");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     let target = resolve_target(attrs, ctx.anchors);
 
@@ -55,12 +56,13 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     if shape != "none" {
         let _ = write!(
             svg,
-            r#"<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="white" stroke="currentColor"{}/>"#,
+            r#"<rect x="{}" y="{}" width="{}" height="{}" rx="{}" fill="white" stroke="{}"{}/>"#,
             fmt_coord(text_x - estimated_width / 2.0),
             fmt_coord(text_y - shape_height / 2.0 - 2.0),
             fmt_coord(estimated_width),
             fmt_coord(shape_height),
             fmt_coord(shape_rx),
+            stroke,
             pass
         );
     }
@@ -88,6 +90,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 corner: "horizontal-first",
                 marker_start: "",
                 marker_end: &marker_end,
+                stroke,
                 pass: "",
             },
         ));

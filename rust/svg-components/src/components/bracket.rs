@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, fmt_coord, normal_for_side,
-    pass_through_attrs, resolve_position, resolve_target, svg_text, vector_metrics,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text, vector_metrics,
 };
 
 /// Expand `<s:bracket>` into a square or round bracket SVG path.
@@ -33,6 +33,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let variant = attr_str(attrs, "variant", "square");
     let label = attrs.get("label");
     let pass = pass_through_attrs(attrs);
+    let stroke = resolve_stroke(attrs);
 
     let metrics = vector_metrics(x1, y1, x2, y2);
 
@@ -97,7 +98,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         )
         .ok();
 
-        format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
+        format!(r#"<path d="{d}" fill="none" stroke="{stroke}"{pass}/>"#)
     } else {
         // Square bracket: right-angle corners
         let mut d = String::new();
@@ -106,7 +107,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         write!(d, " L {},{}", fmt_coord(sx2), fmt_coord(sy2)).ok();
         write!(d, " L {},{}", fmt_coord(x2), fmt_coord(y2)).ok();
 
-        format!(r#"<path d="{d}" fill="none" stroke="currentColor"{pass}/>"#)
+        format!(r#"<path d="{d}" fill="none" stroke="{stroke}"{pass}/>"#)
     };
 
     let label_svg = match label {
