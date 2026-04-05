@@ -72,10 +72,13 @@ Components are positioned using direct coordinates, anchor references, or a comb
 | Attribute | Description |
 | --- | --- |
 | `x`, `y` | Direct coordinates in viewBox units |
-| `from` | Reference to a named anchor (e.g., `from="#peak"` or `from="#s:center"`) |
+| `at` | Anchor reference for single-point components (e.g., `at="#peak"` or `at="#s:bottom-left"`) |
+| `from` | Start anchor reference for two-point components (e.g., `from="#peak"`) |
 | `dx`, `dy` | Offset from the anchor or direct position |
 | `to` | Target anchor reference for leader lines or endpoints |
 | `to-x`, `to-y` | Direct target coordinates |
+
+Single-point components like `<s:marker>`, `<s:compass>`, and `<s:halo>` use `at` — meaning "place this here". Two-point components like `<s:arrow>` and `<s:brace>` use `from`/`to` — meaning "draw from here to there".
 
 ### Labels
 
@@ -386,11 +389,13 @@ Three badges using a mix of auto-anchor and direct coordinate positioning: a flu
 
 The `<s:scale-bar>` component renders a calibrated bar with end caps and a label — standard in microscopy, maps, and technical imaging.
 
-**Required:** `x`, `y`, `length`.
+**Required:** position (`x`/`y` or `at`), `length`.
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `x`, `y` | coordinates | — | Position (left/top of bar) |
+| `at` | anchor ref | — | Position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `length` | number | — | Bar length in viewBox units |
 | `label` | text | — | Scale text (e.g., "20 μm") |
 | `label-position` | `above`, `below` | `below` | Label placement |
@@ -405,11 +410,11 @@ The `<s:scale-bar>` component renders a calibrated bar with end caps and a label
 
 ```svg overlay
 <svg viewBox="0 0 600 356" xmlns:s="https://stencila.io/svg">
-  <s:scale-bar x="40" y="326" length="130" label="20 μm"/>
+  <s:scale-bar at="#s:bottom-left" dx="40" dy="-30" length="130" label="20 μm"/>
 </svg>
 ```
 
-A microscopy-style scale bar using bottom padding to place the bar below the image.
+A microscopy-style scale bar positioned relative to the bottom-left auto-anchor using bottom padding.
 
 :::
 ````
@@ -601,11 +606,13 @@ The `<s:roi-rect>` component outlines a rectangular region of interest with an o
 
 The `<s:roi-ellipse>` component outlines an elliptical or circular region.
 
-**Required:** `cx`, `cy`, `rx`, `ry`.
+**Required:** position (`cx`/`cy` or `at`), `rx`, `ry`.
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `cx`, `cy` | coordinates | — | Center position |
+| `at` | anchor ref | — | Center position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `rx`, `ry` | radii | — | Horizontal and vertical radii |
 | `label` | text | — | Optional label |
 | `label-position` | `above`, `below`, `center`, `left`, `right` | `above` | Label placement |
@@ -622,11 +629,11 @@ The `<s:roi-ellipse>` component outlines an elliptical or circular region.
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
   <s:roi-rect x="50" y="40" width="160" height="100" label="Region A" stroke-style="dashed"/>
   <s:roi-rect x="350" y="160" width="120" height="90" label="Region B" label-position="below" stroke-style="dotted"/>
-  <s:roi-ellipse cx="300" cy="150" rx="80" ry="50" label="Zone C"/>
+  <s:roi-ellipse at="#s:center" rx="80" ry="50" label="Zone C"/>
 </svg>
 ```
 
-Two ROI rectangles with different stroke styles and label positions, and an elliptical region.
+Two ROI rectangles with different stroke styles and label positions, and an elliptical region centered with the `#s:center` auto-anchor.
 
 :::
 ````
@@ -643,12 +650,12 @@ Two ROI rectangles with different stroke styles and label positions, and an elli
   <s:anchor id="tl" x="180" y="70"/>
   <s:anchor id="br" x="420" y="230"/>
   <s:roi-rect from="#tl" to="#br" label="Selection" stroke-style="dashed"/>
-  <s:marker x="180" y="70" symbol="cross" size="14"/>
-  <s:marker x="420" y="230" symbol="cross" size="14"/>
+  <s:marker at="#tl" symbol="cross" size="14"/>
+  <s:marker at="#br" symbol="cross" size="14"/>
 </svg>
 ```
 
-An ROI rectangle defined by two anchor points, with cross markers at each corner.
+An ROI rectangle defined by two anchor points with `from`/`to`, and cross markers at each corner using `at` — no coordinate duplication.
 
 :::
 ````
@@ -687,11 +694,13 @@ Two polygon ROIs: a dashed tissue boundary and a solid region in crimson, each d
 
 The `<s:spotlight>` component creates an inverse highlight — it dims everything _outside_ a specified region, drawing attention to the spotlighted area. It uses an SVG `<mask>` element internally.
 
-**Required:** `cx`, `cy`.
+**Required:** position (`cx`/`cy` or `at`).
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `cx`, `cy` | coordinates | — | Center of the spotlight region |
+| `at` | anchor ref | — | Center position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `r` | number | `50` | Radius for circular spotlight |
 | `rx`, `ry` | numbers | — | Radii for elliptical spotlight (overrides `r`) |
 | `shape` | `circle`, `rect` | `circle` | Spotlight shape |
@@ -705,12 +714,13 @@ The `<s:spotlight>` component creates an inverse highlight — it dims everythin
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:spotlight cx="200" cy="150" r="70"/>
-  <s:callout x="400" y="60" label="Feature of interest" to-x="240" to-y="120" shape="rect"/>
+  <s:anchor id="feature" x="200" y="150"/>
+  <s:spotlight at="#feature" r="70"/>
+  <s:callout x="400" y="60" label="Feature of interest" to="#feature" shape="rect"/>
 </svg>
 ```
 
-A circular spotlight dims the surrounding area to draw attention to a specific feature, with a callout pointing to it.
+A circular spotlight positioned with an anchor dims the surrounding area, with a callout pointing to the same anchor.
 
 :::
 ````
@@ -719,11 +729,13 @@ A circular spotlight dims the surrounding area to draw attention to a specific f
 
 The `<s:marker>` component stamps a symbol at a location, drawn from a built-in library of glyphs. Use it for marking sampling sites, points of interest, or any location that needs a distinct symbol.
 
-**Required:** `x`, `y`.
+**Required:** position (`x`/`y` or `at`).
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `x`, `y` | coordinates | — | Position |
+| `at` | anchor ref | — | Position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `symbol` | `circle`, `cross`, `pin`, `star` | `circle` | Symbol glyph |
 | `size` | number | `20` | Symbol size in viewBox units |
 | `label` | text | — | Optional label |
@@ -752,11 +764,13 @@ Four marker symbols: pin, star, cross, and circle, each with a label.
 
 The `<s:crosshair>` component renders a crosshair/reticle centered on a point, with an optional central gap and enclosing ring. Use it for precise location marking in microscopy, targeting, or alignment contexts.
 
-**Required:** `cx`, `cy`.
+**Required:** position (`cx`/`cy` or `at`).
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `cx`, `cy` | coordinates | — | Center position |
+| `at` | anchor ref | — | Center position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `size` | number | `20` | Arm length from center |
 | `gap` | number | `4` | Gap radius around center (keeps center visible) |
 | `ring` | `true`, `false` | `false` | Draw an enclosing circle at arm endpoints |
@@ -771,11 +785,11 @@ The `<s:crosshair>` component renders a crosshair/reticle centered on a point, w
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
   <s:crosshair cx="150" cy="150" size="25" gap="5" label="Point A"/>
-  <s:crosshair cx="400" cy="150" size="30" gap="6" ring="true" label="Target" stroke="crimson"/>
+  <s:crosshair at="#s:center" size="30" gap="6" ring="true" label="Center target" stroke="crimson"/>
 </svg>
 ```
 
-Two crosshairs: a basic reticle with label, and a ringed crosshair in crimson for a targeting reticle effect.
+Two crosshairs: a basic reticle with direct coordinates, and a ringed crosshair positioned at the center auto-anchor.
 
 :::
 ````
@@ -786,11 +800,13 @@ Two crosshairs: a basic reticle with label, and a ringed crosshair in crimson fo
 
 The `<s:halo>` component renders a semi-transparent glowing ring around a point, drawing attention without obscuring the underlying content. Use it for highlighting points of interest, active selections, or emphasis.
 
-**Required:** `cx`, `cy`.
+**Required:** position (`cx`/`cy` or `at`).
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `cx`, `cy` | coordinates | — | Center position |
+| `at` | anchor ref | — | Center position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `r` | number | `15` | Inner radius of the halo ring |
 | `width` | number | `8` | Ring thickness |
 | `color` | color | `currentColor` | Ring color |
@@ -803,16 +819,19 @@ The `<s:halo>` component renders a semi-transparent glowing ring around a point,
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:halo cx="150" cy="150" r="20" width="10" color="gold" opacity="0.5"/>
-  <s:marker x="150" y="150" symbol="circle" size="12"/>
-  <s:callout x="250" y="100" label="Active site" to-x="170" to-y="140"/>
+  <s:anchor id="site-a" x="150" y="150"/>
+  <s:anchor id="site-b" x="420" y="180"/>
 
-  <s:halo cx="420" cy="180" r="25" width="12" color="crimson" opacity="0.3"/>
-  <s:marker x="420" y="180" symbol="star" size="16"/>
+  <s:halo at="#site-a" r="20" width="10" color="gold" opacity="0.5"/>
+  <s:marker at="#site-a" symbol="circle" size="12"/>
+  <s:callout x="250" y="100" label="Active site" to="#site-a"/>
+
+  <s:halo at="#site-b" r="25" width="12" color="crimson" opacity="0.3"/>
+  <s:marker at="#site-b" symbol="star" size="16"/>
 </svg>
 ```
 
-Two halos highlighting points of interest: a gold halo around a circle marker with a callout, and a crimson halo around a star marker.
+Anchors eliminate coordinate duplication: each halo and marker pair references the same anchor, so moving a point means changing one `<s:anchor>` instead of two components.
 
 :::
 ````
@@ -821,11 +840,13 @@ Two halos highlighting points of interest: a gold halo around a circle marker wi
 
 The `<s:compass>` component renders an orientation indicator. In its default `arrow` variant it draws a single directional arrow — commonly a north arrow for maps or an anatomical axis for medical imaging. The `full` variant shows a four-point cross with all axis labels.
 
-**Required:** `x`, `y`.
+**Required:** position (`x`/`y` or `at`).
 
 | Attribute | Values | Default | Description |
 | --- | --- | --- | --- |
 | `x`, `y` | coordinates | — | Center position |
+| `at` | anchor ref | — | Center position from anchor |
+| `dx`, `dy` | offset | `0` | Offset from anchor |
 | `size` | number | `50` | Overall size in viewBox units |
 | `variant` | `arrow`, `full` | `arrow` | Single-axis arrow or four-point cross |
 | `axes` | axis pairs | `N/S E/W` | Labels as slash-separated pairs (e.g., `"A/P D/V"`) |
@@ -849,12 +870,12 @@ The default `arrow` variant shows a single directional arrow with the positive l
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:compass x="60" y="250" size="50"/>
+  <s:compass at="#s:bottom-left" dx="60" dy="-50" size="50"/>
   <s:callout x="100" y="270" label="Geographic north arrow" shape="none"/>
 </svg>
 ```
 
-A compass in the default `arrow` variant showing a north indicator.
+A compass positioned with the `#s:bottom-left` auto-anchor, showing a north indicator.
 
 :::
 ````
@@ -870,9 +891,9 @@ The `full` variant renders both axes as a four-point cross, useful for anatomica
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:compass x="80" y="240" size="50" variant="full" axes="A/P D/V"/>
+  <s:compass at="#s:bottom-left" dx="80" dy="-60" size="50" variant="full" axes="A/P D/V"/>
   <s:callout x="160" y="270" label="Anatomical axes" shape="none"/>
-  <s:compass x="500" y="240" size="50" variant="full"/>
+  <s:compass at="#s:bottom-right" dx="-100" dy="-60" size="50" variant="full"/>
   <s:callout x="500" y="195" label="Cardinal" shape="none"/>
 </svg>
 ```
@@ -901,8 +922,8 @@ Components and standard SVG work seamlessly together. Use components for the hig
   <!-- Component callout pointing at the custom shape -->
   <s:callout x="480" y="50" label="Custom region" to="#target" shape="rect" curve="quad"/>
 
-  <!-- Component scale bar -->
-  <s:scale-bar x="30" y="270" length="100" label="10 mm"/>
+  <!-- Component scale bar using auto-anchor -->
+  <s:scale-bar at="#s:bottom-left" dx="30" dy="-30" length="100" label="10 mm"/>
 
   <!-- Component badge -->
   <s:badge x="300" y="30" label="①"/>
@@ -938,26 +959,22 @@ This example brings together multiple component types to annotate a figure in a 
   <!-- Arrow connecting features -->
   <s:arrow from="#peak" to="#valley" curve="quad" label="Transition" tip="both" stroke-width="1.5"/>
 
-  <!-- Halo emphasis on key points -->
-  <s:halo cx="250" cy="80" r="10" width="6" color="gold" opacity="0.5"/>
-  <s:halo cx="420" cy="200" r="10" width="6" color="red" opacity="0.5"/>
-
-  <!-- Point markers -->
-  <s:marker x="250" y="80" symbol="circle" size="12"/>
-  <s:marker x="420" y="200" symbol="circle" size="12"/>
+  <!-- Halo and marker at anchors — no coordinate duplication -->
+  <s:halo at="#peak" r="10" width="6" color="gold" opacity="0.5"/>
+  <s:halo at="#valley" r="10" width="6" color="red" opacity="0.5"/>
+  <s:marker at="#peak" symbol="circle" size="12"/>
+  <s:marker at="#valley" symbol="circle" size="12"/>
 
   <!-- Brace -->
   <s:brace x="180" y="230" to-x="340" to-y="230" side="below" label="Observed range"/>
 
-  <!-- Scale bar in padding area -->
-  <s:scale-bar x="40" y="320" length="130" label="20 μm"/>
-
-  <!-- Compass orientation -->
-  <s:compass x="560" y="320" size="36"/>
+  <!-- Scale bar and compass positioned via auto-anchors -->
+  <s:scale-bar at="#s:bottom-left" dx="40" dy="-26" length="130" label="20 μm"/>
+  <s:compass at="#s:bottom-right" dx="-40" dy="-26" size="36"/>
 </svg>
 ```
 
-A comprehensive annotation combining a spotlight, ROI rectangle, callout, curved arrow, halos, markers, a bracket, scale bar, and compass indicator.
+A comprehensive annotation using `at` anchors: halos and markers reference named anchors (no coordinate duplication), while the scale bar and compass use auto-anchors for consistent bottom-edge placement.
 
 :::
 ````

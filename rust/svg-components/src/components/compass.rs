@@ -1,12 +1,12 @@
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str,
-    pass_through_attrs, svg_line, svg_text,
+    Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, pass_through_attrs,
+    resolve_position, svg_line, svg_text,
 };
 
 /// Expand `<s:compass>` into a directional compass rose.
 ///
 /// Supported attributes:
-/// - `x`/`y`: center position
+/// - `x`/`y` or `at`: center position
 /// - `size`: overall size in viewBox units, defaults to 50
 /// - `variant`: `arrow` (default single-axis arrow) or `full` (four-axis cross)
 /// - `axes`: space-separated axis pairs like `"N/S E/W"` or `"A/P D/V"`
@@ -15,9 +15,10 @@ use super::{
 ///   - For `variant="full"`: all four labels are shown at cardinal positions
 /// - `label`: optional additional text label
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(x), Some(y)) = (attr_f64(attrs, "x"), attr_f64(attrs, "y")) else {
+    let Some((x, y)) = resolve_position(attrs, "x", "y", Some("at"), "dx", "dy", ctx.anchors)
+    else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:compass> requires 'x' and 'y' attributes",
+            "<s:compass> requires position (x,y or at)",
         ));
         return String::new();
     };

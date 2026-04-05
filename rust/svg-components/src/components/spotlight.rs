@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs,
+    pass_through_attrs, resolve_position,
 };
 
 /// Expand `<s:spotlight>` into an inverse-highlight mask.
@@ -11,16 +11,17 @@ use super::{
 /// spotlighted area. Uses an SVG `<mask>` element.
 ///
 /// Supported attributes:
-/// - `cx`/`cy`: center of the spotlight region
+/// - `cx`/`cy` or `at`: center of the spotlight region
 /// - `r`: radius for circular spotlight (default: 50)
 /// - `shape`: `circle` (default), `rect`
 /// - `width`/`height`: dimensions for rectangular spotlight
 /// - `opacity`: opacity of the dimmed area (0.0–1.0, default: 0.6)
 /// - `rx`/`ry`: radii for elliptical spotlight (alternative to `r`)
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(cx), Some(cy)) = (attr_f64(attrs, "cx"), attr_f64(attrs, "cy")) else {
+    let Some((cx, cy)) = resolve_position(attrs, "cx", "cy", Some("at"), "dx", "dy", ctx.anchors)
+    else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:spotlight> requires 'cx' and 'cy' attributes",
+            "<s:spotlight> requires position (cx,cy or at)",
         ));
         return String::new();
     };

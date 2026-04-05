@@ -1,20 +1,21 @@
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, svg_text,
+    Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs, resolve_position, svg_text,
 };
 
 /// Expand `<s:marker>` into a defs-backed symbol stamp with optional label.
 ///
 /// Supported attributes:
-/// - `x`/`y`: position
+/// - `x`/`y` or `at`: position
 /// - `symbol`: symbol name (references `#s:marker-{symbol}`), defaults to `circle`
 /// - `size`: symbol size in viewBox units, defaults to 20
 /// - `label`: optional text label
 /// - `label-position`: `right` (default), `above`, `below`, `left`
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(x), Some(y)) = (attr_f64(attrs, "x"), attr_f64(attrs, "y")) else {
+    let Some((x, y)) = resolve_position(attrs, "x", "y", Some("at"), "dx", "dy", ctx.anchors)
+    else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:marker> requires 'x' and 'y' attributes",
+            "<s:marker> requires position (x,y or at)",
         ));
         return String::new();
     };

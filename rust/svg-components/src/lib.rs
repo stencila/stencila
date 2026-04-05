@@ -55,7 +55,8 @@
 //! Several attributes have consistent meaning across all components that use them:
 //!
 //! - `x`, `y` — position coordinates
-//! - `from`, `to` — anchor references (e.g. `from="#peak"`)
+//! - `at` — anchor reference for single-point components (e.g. `at="#peak"`)
+//! - `from`, `to` — anchor references for two-point components (e.g. `from="#peak"`)
 //! - `dx`, `dy` — offset from anchor position
 //! - `label` — text content
 //! - `label-position` — where to place the label relative to the component

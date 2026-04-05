@@ -1,6 +1,6 @@
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs,
+    Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs, resolve_position,
 };
 
 /// Expand `<s:halo>` into a glowing ring around a point.
@@ -9,15 +9,16 @@ use super::{
 /// create a glow/highlight effect around a specific location.
 ///
 /// Supported attributes:
-/// - `cx`/`cy`: center position
+/// - `cx`/`cy` or `at`: center position
 /// - `r`: inner radius of the halo ring (default: 15)
 /// - `width`: ring width (default: 8)
 /// - `color`: ring color (default: currentColor)
 /// - `opacity`: ring opacity (default: 0.4)
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(cx), Some(cy)) = (attr_f64(attrs, "cx"), attr_f64(attrs, "cy")) else {
+    let Some((cx, cy)) = resolve_position(attrs, "cx", "cy", Some("at"), "dx", "dy", ctx.anchors)
+    else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:halo> requires 'cx' and 'cy' attributes",
+            "<s:halo> requires position (cx,cy or at)",
         ));
         return String::new();
     };

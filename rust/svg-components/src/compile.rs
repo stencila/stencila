@@ -492,6 +492,114 @@ mod tests {
     }
 
     #[test]
+    fn compass_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:compass at="#s:bottom-left" dx="40" dy="-40" size="36"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("<line"));
+        assert!(compiled.contains(">N<"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn scale_bar_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:scale-bar at="#s:bottom-left" dx="30" dy="-30" length="100" label="10 mm"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("10 mm"));
+        assert!(compiled.contains("<line"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn marker_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:anchor id="peak" x="250" y="80"/><s:marker at="#peak" symbol="star" label="Peak"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("<use"));
+        assert!(compiled.contains("s:marker-star"));
+        assert!(compiled.contains("Peak"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn crosshair_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:crosshair at="#s:center" size="30"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        // Center of 600x400 is 300,200
+        assert!(compiled.contains("300"));
+        assert!(compiled.contains("200"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn halo_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:anchor id="site" x="150" y="150"/><s:halo at="#site" r="20" color="gold"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("150"));
+        assert!(compiled.contains("gold"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn spotlight_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:spotlight at="#s:center" r="70"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("mask"));
+        assert!(compiled.contains("300"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
+    fn roi_ellipse_with_at_anchor() {
+        let svg = r##"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><s:anchor id="feat" x="300" y="150"/><s:roi-ellipse at="#feat" rx="80" ry="50" label="Zone"/></svg>"##;
+        let result = compile(svg);
+
+        assert!(result.compiled.is_some());
+        let compiled = result
+            .compiled
+            .as_deref()
+            .expect("should have compiled output");
+        assert!(compiled.contains("ellipse"));
+        assert!(compiled.contains("300"));
+        assert!(compiled.contains("Zone"));
+        assert!(result.messages.is_empty());
+    }
+
+    #[test]
     fn mixed_raw_svg_and_components() {
         let svg = r#"<svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg"><rect x="10" y="10" width="100" height="100" fill="red"/><s:callout x="200" y="100" label="Hello"/><circle cx="300" cy="300" r="50"/></svg>"#;
         let result = compile(svg);

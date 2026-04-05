@@ -60,18 +60,17 @@ pub fn expand_rect(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 /// Expand `<s:roi-ellipse>` into an ellipse outline.
 ///
 /// Supported attributes:
-/// - `cx`/`cy`: center position
+/// - `cx`/`cy` or `at`: center position
 /// - `rx`/`ry`: radii
 /// - `label`, `label-position`, `stroke-style`: same as roi-rect
 pub fn expand_ellipse(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(cx), Some(cy), Some(rx), Some(ry)) = (
-        attr_f64(attrs, "cx"),
-        attr_f64(attrs, "cy"),
+    let (Some((cx, cy)), Some(rx), Some(ry)) = (
+        resolve_position(attrs, "cx", "cy", Some("at"), "dx", "dy", ctx.anchors),
         attr_f64(attrs, "rx"),
         attr_f64(attrs, "ry"),
     ) else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:roi-ellipse> requires 'cx', 'cy', 'rx', and 'ry' attributes",
+            "<s:roi-ellipse> requires position (cx,cy or at) and 'rx', 'ry' attributes",
         ));
         return String::new();
     };

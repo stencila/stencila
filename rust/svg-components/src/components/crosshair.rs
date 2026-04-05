@@ -1,8 +1,8 @@
 use std::fmt::Write;
 
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, svg_line, svg_text,
+    Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
+    pass_through_attrs, resolve_position, svg_line, svg_text,
 };
 
 /// Expand `<s:crosshair>` into a crosshair/reticle SVG.
@@ -11,16 +11,17 @@ use super::{
 /// in the center and an optional enclosing ring.
 ///
 /// Supported attributes:
-/// - `cx`/`cy`: center position
+/// - `cx`/`cy` or `at`: center position
 /// - `size`: overall size (arm length from center), default 20
 /// - `gap`: gap radius around center where lines are not drawn, default 4
 /// - `ring`: `true` to draw an enclosing circle at the arm endpoints
 /// - `label`: optional text label
 /// - `label-position`: `right` (default), `above`, `below`, `left`
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(cx), Some(cy)) = (attr_f64(attrs, "cx"), attr_f64(attrs, "cy")) else {
+    let Some((cx, cy)) = resolve_position(attrs, "cx", "cy", Some("at"), "dx", "dy", ctx.anchors)
+    else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:crosshair> requires 'cx' and 'cy' attributes",
+            "<s:crosshair> requires position (cx,cy or at)",
         ));
         return String::new();
     };

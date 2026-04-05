@@ -1,6 +1,6 @@
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, pass_through_attrs, svg_line,
-    svg_text,
+    Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, pass_through_attrs,
+    resolve_position, svg_line, svg_text,
 };
 
 /// Expand `<s:scale-bar>` into standard SVG.
@@ -8,19 +8,18 @@ use super::{
 /// Renders a horizontal or vertical bar with end caps and a centered label.
 ///
 /// Supported attributes:
-/// - `x`/`y`: position (left/top of bar)
+/// - `x`/`y` or `at`: position (left/top of bar)
 /// - `length`: bar length in viewBox units
 /// - `label`: text content (e.g. "20 μm")
 /// - `label-position`: `below` (default) or `above`
 /// - `side`: `bottom` (default), `top`, `left`, `right` — controls orientation
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
-    let (Some(x), Some(y), Some(length)) = (
-        attr_f64(attrs, "x"),
-        attr_f64(attrs, "y"),
+    let (Some((x, y)), Some(length)) = (
+        resolve_position(attrs, "x", "y", Some("at"), "dx", "dy", ctx.anchors),
         attr_f64(attrs, "length"),
     ) else {
         ctx.messages.push(CompilationMessage::error(
-            "<s:scale-bar> requires 'x', 'y', and 'length' attributes",
+            "<s:scale-bar> requires position (x,y or at) and 'length' attribute",
         ));
         return String::new();
     };
