@@ -11,7 +11,7 @@ Use `snap` to verify how changes actually render rather than relying on CSS read
 
 | Parameter | Type | Required | Description |
 | --------- | ---- | :------: | ----------- |
-| `route` | string | | Page to snap — a route on the running Stencila server or a document path on disk. Defaults to `"/"` |
+| `route` | string | | Page to snap — usually a served route on the running Stencila server, such as `"/docs/"`. In Stencila sites, `index.*`, `main.*`, and `README.*` act as index files for their containing directory, so prefer the directory route (for example `"/docs/"`) over file-like routes such as `"/docs/index"` or `"/docs/README"`. Defaults to `"/"` |
 | `screenshot` | boolean | | Whether to capture a screenshot image. Defaults to **false** (structured data only) |
 | `full_page` | boolean | | Capture the full scrollable page instead of just the viewport. Defaults to false |
 | `selector` | string | | CSS selector to capture or measure a specific element. Takes precedence over full-page capture. Missing selectors return a diagnostic instead of erroring |
@@ -37,7 +37,7 @@ The `/_specimen` route is a stable, deterministic page that renders representati
 
 ## User pages
 
-You can also snap the user's actual documents and site pages to verify the theme on real content. Use `route: "/"` for the site root or `route: "/path/to/doc"` for a specific page. Snapping both `/_specimen` and user pages gives the most complete picture.
+You can also snap the user's actual documents and site pages to verify the theme on real content. Use `route: "/"` for the site root or the rendered page route such as `route: "/docs/"` or `route: "/guide/install/"` for a specific page. In Stencila sites, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`. Snapping both `/_specimen` and user pages gives the most complete picture.
 
 ## Measurement presets
 
@@ -142,8 +142,9 @@ snap(route: "/_specimen", screenshot: true, selector: "stencila-code-block")
 snap(route: "/_specimen", screenshot: true, selector: "stencila-table")
 
 # Snap the user's actual document or site pages
+# For index-like source files, snap the directory route they render to
 snap(route: "/", measure: "theme")
-snap(route: "/my-doc", screenshot: true, full_page: true, dark: true)
+snap(route: "/docs/", screenshot: true, full_page: true, dark: true)
 
 # Print mode emulation (A4 dimensions) — incompatible with dark/light
 snap(route: "/_specimen", screenshot: true, print: true)
@@ -155,6 +156,7 @@ snap(route: "/_specimen", measure: "theme", width: 480)
 ## Practical tips
 
 - **Measurement-first workflow**: start with measurement-only runs (the default) to establish baselines, then add screenshots only when visual confirmation is needed.
+- **Prefer rendered directory routes over source filenames**: when a page comes from `index.*`, `main.*`, or `README.*`, snap the containing directory route because those files behave like that directory's `index.html`.
 - **Token verification is the strongest feature**: always use narrow `token_prefix` values like `["text", "heading", "surface"]`. Broad prefixes like `"color"` match 100+ primitive palette tokens and flood context.
 - **Use `measure: "theme"` for holistic layout review** and `measure: "site"` for site chrome (header, nav, footer).
 - **Diagnostics about unmatched selectors are informational** — they describe what the route contains, not bugs in the theme. The `selector_matched` field in the output tells you whether an element was found, even without a screenshot.

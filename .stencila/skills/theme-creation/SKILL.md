@@ -82,7 +82,7 @@ Use the `snap` tool throughout theme creation to verify how changes render. Snap
 5. Responsive check: `snap(route: "/_specimen", device: "mobile", measure: "theme")` — verify layout at a specific viewport. Run separate snaps for each device preset.
 6. Color harmony: `snap(route: "/_specimen", palette: true)` — review the overall color palette.
 
-You can also snap the user's actual document route (e.g., `route: "/"` or `route: "/my-doc"`) alongside `/_specimen` to verify the theme looks correct on real content too.
+You can also snap the user's actual document route (e.g., `route: "/"` or `route: "/docs/"`) alongside `/_specimen` to verify the theme looks correct on real content too. When choosing a route from source files, remember that `index.*`, `main.*`, and `README.*` act as the `index.html` for their containing directory, so `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
 
 ### Screenshot tips
 
@@ -263,7 +263,7 @@ Then add only the module-specific tokens or focused selectors needed for the use
       - `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` — verify dark-mode token values if dark variants were set. Add `screenshot: true` for a visual check.
       - `snap(route: "/_specimen", device: "mobile", measure: "theme")` — verify responsive behavior at mobile viewport. Run separate snaps per device.
       - `snap(route: "/_specimen", palette: true)` — verify color harmony.
-      - Also snap the user's actual document or site route to confirm the theme works on real content.
+      - Also snap the user's actual document or site route to confirm the theme works on real content. Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`.
     - State plainly that Stencila translates themes across targets, but not every web CSS rule or module maps unchanged to PDF, DOCX, email, Python, or R.
     - Recommend concrete checks for each required target:
       - HTML or site preview for screen behavior, responsive layout, and site chrome styling

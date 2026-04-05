@@ -344,8 +344,10 @@ Two panels with individual overlay annotations.
 If a Stencila server and rendered route are available, optionally use `snap` to verify overlay placement and layout:
 
 ```
-snap(route: "/path/to/document", screenshot: true, selector: "stencila-figure")
+snap(route: "/docs/", screenshot: true, selector: "stencila-figure")
 ```
+
+Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
 
 If `snap` is unavailable, mark visual verification as pending. Do not claim rendered correctness unless `snap` was actually run.
 

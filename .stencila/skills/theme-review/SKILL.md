@@ -86,7 +86,7 @@ Use the `snap` tool during review to verify how the theme actually renders, rath
 5. Color harmony: `snap(route: "/_specimen", palette: true)` — verify the overall palette is cohesive.
 6. Spot-check: `snap(route: "/_specimen", selector: "stencila-code-block")` — focus on a specific content type flagged in review.
 
-Also snap the user's actual document route to verify the theme works on real content, not just the specimen.
+Also snap the user's actual document route to verify the theme works on real content, not just the specimen. Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
 
 ### Screenshot tips
 
@@ -259,7 +259,7 @@ Stencila automatically loads `base.css` before any theme CSS — both when rende
       - `snap(route: "/_specimen", dark: true, tokens: true, token_prefix: ["text", "surface"])` — verify dark-mode token values.
       - `snap(route: "/_specimen", device: "mobile", measure: "theme")` — verify responsive behavior. Run separate snaps per device.
       - `snap(route: "/_specimen", palette: true)` — verify color harmony.
-      - Also snap the user's actual document or site route to confirm real-content rendering.
+      - Also snap the user's actual document or site route to confirm real-content rendering. Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`.
     - Recommend concrete checks for each required target:
       - HTML or site preview for screen behavior, responsive layout, and site chrome styling
       - PDF or print preview for page size, margins, header/footer content, first-page overrides, and page-fit of tables/figures/code blocks

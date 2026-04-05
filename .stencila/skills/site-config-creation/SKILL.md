@@ -99,6 +99,7 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 
 5. **Visually verify layout and component changes (when applicable).**
    - If the change affects layout, navigation, or visual components and a Stencila server is running, use `snap` to verify.
+   - Prefer rendered directory routes for index-like source files: `index.*`, `main.*`, and `README.*` act as the `index.html` for their containing directory, so `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
    - See [`references/snap-tool.md`](references/snap-tool.md) for the typical verification workflow.
    - If `snap` is unavailable, mark visual verification as pending and recommend specific commands.
 

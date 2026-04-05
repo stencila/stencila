@@ -183,6 +183,7 @@ Use `snap` on the `/_specimen/` route to verify rendered appearance when a Stenc
      - `snap(route: "/_specimen/", tokens: true, token_prefix: ["layout", "nav"])` — verify layout token values
      - `snap(route: "/_specimen/", palette: true)` — color harmony
    - Also snap the site root (`"/"`) and key content routes.
+   - Prefer rendered directory routes for index-like source files: `index.*`, `main.*`, and `README.*` act as the `index.html` for their containing directory, so `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
    - If snap is unavailable, mark visual verification as "pending" and recommend specific snap commands.
 
 8. Produce structured review output.
