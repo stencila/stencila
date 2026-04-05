@@ -14,7 +14,6 @@
           ]
         }
       ],
-      layout: "2",
       content: [
         {
           type: "Figure",
@@ -96,7 +95,62 @@
             }
           ]
         }
-      ]
+      ],
+      layout: "2"
+    },
+    {
+      type: "Figure",
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A two-panel figure combining a real image with an executable plot." }
+            }
+          ]
+        }
+      ],
+      content: [
+        {
+          type: "Figure",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "First subfigure." }
+                }
+              ]
+            }
+          ],
+          content: [
+            {
+              type: "ImageObject",
+              contentUrl: "example.com/cat.jpg"
+            }
+          ]
+        },
+        {
+          type: "CodeChunk",
+          code: { string: '{\n  "data": [\n    {\n      "type": "bar",\n      "x": ["Capture", "Draft", "Review", "Publish"],\n      "y": [6, 10, 14, 9]\n    }\n  ]\n}' },
+          programmingLanguage: "plotly",
+          labelType: "FigureLabel",
+          caption: [
+            {
+              type: "Paragraph",
+              content: [
+                {
+                  type: "Text",
+                  value: { string: "Second subfigure." }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      layout: "2"
     },
     {
       type: "Figure",
@@ -111,7 +165,6 @@
           ]
         }
       ],
-      layout: "30 70",
       content: [
         {
           type: "CodeChunk",
@@ -167,7 +220,8 @@
             }
           ]
         }
-      ]
+      ],
+      layout: "30 70"
     },
     {
       type: "Figure",
@@ -182,7 +236,6 @@
           ]
         }
       ],
-      layout: "row",
       content: [
         {
           type: "Figure",
@@ -244,7 +297,8 @@
             }
           ]
         }
-      ]
+      ],
+      layout: "row"
     },
     {
       type: "Figure",
@@ -259,7 +313,6 @@
           ]
         }
       ],
-      layout: "a b|a c",
       content: [
         {
           type: "Figure",
@@ -321,7 +374,8 @@
             }
           ]
         }
-      ]
+      ],
+      layout: "a b|a c"
     },
     {
       type: "Figure",
@@ -336,7 +390,6 @@
           ]
         }
       ],
-      layout: "40 g20 40",
       content: [
         {
           type: "Figure",
@@ -378,7 +431,8 @@
             }
           ]
         }
-      ]
+      ],
+      layout: "40 g20 40"
     }
   ]
 }

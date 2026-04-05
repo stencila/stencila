@@ -101,6 +101,60 @@
     },
     {
       "type": "Figure",
+      "layout": "2",
+      "caption": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": "A two-panel figure combining a real image with an executable plot."
+            }
+          ]
+        }
+      ],
+      "content": [
+        {
+          "type": "Figure",
+          "content": [
+            {
+              "type": "ImageObject",
+              "contentUrl": "example.com/cat.jpg"
+            }
+          ],
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "First subfigure."
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "type": "CodeChunk",
+          "programmingLanguage": "plotly",
+          "code": "{\n  \"data\": [\n    {\n      \"type\": \"bar\",\n      \"x\": [\"Capture\", \"Draft\", \"Review\", \"Publish\"],\n      \"y\": [6, 10, 14, 9]\n    }\n  ]\n}",
+          "labelType": "FigureLabel",
+          "caption": [
+            {
+              "type": "Paragraph",
+              "content": [
+                {
+                  "type": "Text",
+                  "value": "Second subfigure."
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Figure",
       "layout": "30 70",
       "caption": [
         {

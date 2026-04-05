@@ -20,7 +20,6 @@
           ]
         }
       ],
-      "stencila:layout": "2",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -110,7 +109,70 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "2"
+    },
+    {
+      "@type": "stencila:Figure",
+      "caption": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A two-panel figure combining a real image with an executable plot."
+              }
+            }
+          ]
+        }
+      ],
+      "stencila:content": [
+        {
+          "@type": "stencila:Figure",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "First subfigure."
+                  }
+                }
+              ]
+            }
+          ],
+          "stencila:content": [
+            {
+              "@type": "ImageObject",
+              "contentUrl": "example.com/cat.jpg"
+            }
+          ]
+        },
+        {
+          "@type": "stencila:CodeChunk",
+          "stencila:code": {
+            "string": "{\n  \"data\": [\n    {\n      \"type\": \"bar\",\n      \"x\": [\"Capture\", \"Draft\", \"Review\", \"Publish\"],\n      \"y\": [6, 10, 14, 9]\n    }\n  ]\n}"
+          },
+          "programmingLanguage": "plotly",
+          "stencila:labelType": "FigureLabel",
+          "caption": [
+            {
+              "@type": "stencila:Paragraph",
+              "stencila:content": [
+                {
+                  "@type": "Text",
+                  "value": {
+                    "string": "Second subfigure."
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ],
+      "stencila:layout": "2"
     },
     {
       "@type": "stencila:Figure",
@@ -127,7 +189,6 @@
           ]
         }
       ],
-      "stencila:layout": "30 70",
       "stencila:content": [
         {
           "@type": "stencila:CodeChunk",
@@ -193,7 +254,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "30 70"
     },
     {
       "@type": "stencila:Figure",
@@ -210,7 +272,6 @@
           ]
         }
       ],
-      "stencila:layout": "row",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -278,7 +339,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "row"
     },
     {
       "@type": "stencila:Figure",
@@ -295,7 +357,6 @@
           ]
         }
       ],
-      "stencila:layout": "a b|a c",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -363,7 +424,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "a b|a c"
     },
     {
       "@type": "stencila:Figure",
@@ -380,7 +442,6 @@
           ]
         }
       ],
-      "stencila:layout": "40 g20 40",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -426,7 +487,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "40 g20 40"
     }
   ]
 }

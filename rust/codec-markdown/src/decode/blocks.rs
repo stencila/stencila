@@ -1217,12 +1217,15 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             }
         }
     } else if let Block::Figure(figure) = parent {
-        if children
+        let code_chunk_count = children
             .iter()
             .filter(|block| matches!(block, Block::CodeChunk(..)))
-            .count()
-            == 1
-        {
+            .count();
+        let has_subfigure = children
+            .iter()
+            .any(|block| matches!(block, Block::Figure(..)));
+
+        if code_chunk_count == 1 && !has_subfigure {
             // The figure has a single code chunk so return the code chunk with label type, label,
             // and caption set
             let chunk = children
@@ -2305,6 +2308,120 @@ mod tests {
                 .flatten()
                 .all(|block| !matches!(block, Block::CodeBlock(CodeBlock { programming_language: Some(lang), .. }) if lang == "svg overlay"))
         );
+    }
+
+    #[test]
+    fn test_decode_figure_with_image_and_code_chunk_subfigures() {
+        let blocks = decode_smd(
+            r#"::: figure [2]
+
+    ::: figure
+
+    ![](example.com/cat.jpg)
+
+    First subfigure.
+
+    :::
+
+    ::: figure
+
+    ```plotly exec
+    {
+      "data": [
+        {
+          "type": "bar",
+          "x": ["Capture", "Draft", "Review", "Publish"],
+          "y": [6, 10, 14, 9]
+        }
+      ]
+    }
+    ```
+
+    Second subfigure.
+
+    :::
+
+A two-panel figure combining a real image with an executable plot.
+
+:::
+"#,
+        );
+
+        let Some(Block::Figure(Figure {
+            content,
+            caption,
+            options,
+            ..
+        })) = blocks.first()
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(content.len(), 2);
+        assert!(matches!(content.first(), Some(Block::Figure(..))));
+        assert!(matches!(content.get(1), Some(Block::CodeChunk(..))));
+        assert!(matches!(
+            caption.as_ref().and_then(|caption| caption.first()),
+            Some(Block::Paragraph(..))
+        ));
+    }
+
+    #[test]
+    fn test_decode_figure_with_code_chunk_and_image_subfigures() {
+        let blocks = decode_smd(
+            r#"::: figure [2]
+
+    ::: figure
+
+    ```plotly exec
+    {
+      "data": [
+        {
+          "type": "bar",
+          "x": ["Capture", "Draft", "Review", "Publish"],
+          "y": [6, 10, 14, 9]
+        }
+      ]
+    }
+    ```
+
+    First subfigure.
+
+    :::
+
+    ::: figure
+
+    ![](example.com/cat.jpg)
+
+    Second subfigure.
+
+    :::
+
+A two-panel figure combining an executable plot with a real image.
+
+:::
+"#,
+        );
+
+        let Some(Block::Figure(Figure {
+            content,
+            caption,
+            options,
+            ..
+        })) = blocks.first()
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(content.len(), 2);
+        assert!(matches!(content.first(), Some(Block::CodeChunk(..))));
+        assert!(matches!(content.get(1), Some(Block::Figure(..))));
+        assert!(matches!(
+            caption.as_ref().and_then(|caption| caption.first()),
+            Some(Block::Paragraph(..))
+        ));
     }
 
     #[test]

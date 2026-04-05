@@ -1,7 +1,7 @@
-¿dtypegArticlegcontent‚¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx!A cat with an annotation overlay.goverlayxá<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+¿dtypegArticlegcontent‚¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx!A cat with an annotation overlay.gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/cat.jpgÿgoverlayxá<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
   <circle cx="400" cy="300" r="80" fill="none" stroke="red" stroke-width="6" />
   <text x="500" y="310" fill="red" font-size="24">Region of interest</text>
-</svg>gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/cat.jpgÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx"A figure with a subfigure overlay.flayouta2gcontent‚¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringkLeft panel.goverlayxâ<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+</svg>ÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringx"A figure with a subfigure overlay.gcontent‚¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringkLeft panel.gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/panel-a.jpgÿgoverlayxâ<svg viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
   <rect x="60" y="40" width="120" height="100" fill="none" stroke="#00f" stroke-width="4" />
   <text x="70" y="32" fill="#00f" font-size="18">Panel A</text>
-</svg>gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/panel-a.jpgÿÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringlRight panel.gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/panel-b.jpgÿÿÿÿ
+</svg>ÿ¿dtypefFiguregcaption¢dtypeiParagraphgcontent¢dtypedTextevalue¡fstringlRight panel.gcontent¿dtypekImageObjectjcontentUrlxhttps://example.org/panel-b.jpgÿÿflayouta2ÿÿ

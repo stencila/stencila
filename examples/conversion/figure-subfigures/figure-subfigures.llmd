@@ -36,6 +36,22 @@ A figure with four subfigures showing colored placeholders.
 
 :::
 
+::: figure [2]
+
+::::: figure
+
+![](example.com/cat.jpg)
+
+First subfigure.
+
+:::::
+
+Figure Second subfigure.
+
+A two-panel figure combining a real image with an executable plot.
+
+:::
+
 ::: figure [30 70]
 
 Figure A light blue histogram of random normal values generated in R.

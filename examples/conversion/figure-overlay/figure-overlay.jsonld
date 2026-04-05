@@ -20,13 +20,13 @@
           ]
         }
       ],
-      "stencila:overlay": "<svg viewBox=\"0 0 800 600\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"400\" cy=\"300\" r=\"80\" fill=\"none\" stroke=\"red\" stroke-width=\"6\" />\n  <text x=\"500\" y=\"310\" fill=\"red\" font-size=\"24\">Region of interest</text>\n</svg>",
       "stencila:content": [
         {
           "@type": "ImageObject",
           "contentUrl": "https://example.org/cat.jpg"
         }
-      ]
+      ],
+      "stencila:overlay": "<svg viewBox=\"0 0 800 600\" xmlns=\"http://www.w3.org/2000/svg\">\n  <circle cx=\"400\" cy=\"300\" r=\"80\" fill=\"none\" stroke=\"red\" stroke-width=\"6\" />\n  <text x=\"500\" y=\"310\" fill=\"red\" font-size=\"24\">Region of interest</text>\n</svg>"
     },
     {
       "@type": "stencila:Figure",
@@ -43,7 +43,6 @@
           ]
         }
       ],
-      "stencila:layout": "2",
       "stencila:content": [
         {
           "@type": "stencila:Figure",
@@ -60,13 +59,13 @@
               ]
             }
           ],
-          "stencila:overlay": "<svg viewBox=\"0 0 400 300\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect x=\"60\" y=\"40\" width=\"120\" height=\"100\" fill=\"none\" stroke=\"#00f\" stroke-width=\"4\" />\n  <text x=\"70\" y=\"32\" fill=\"#00f\" font-size=\"18\">Panel A</text>\n</svg>",
           "stencila:content": [
             {
               "@type": "ImageObject",
               "contentUrl": "https://example.org/panel-a.jpg"
             }
-          ]
+          ],
+          "stencila:overlay": "<svg viewBox=\"0 0 400 300\" xmlns=\"http://www.w3.org/2000/svg\">\n  <rect x=\"60\" y=\"40\" width=\"120\" height=\"100\" fill=\"none\" stroke=\"#00f\" stroke-width=\"4\" />\n  <text x=\"70\" y=\"32\" fill=\"#00f\" font-size=\"18\">Panel A</text>\n</svg>"
         },
         {
           "@type": "stencila:Figure",
@@ -90,7 +89,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:layout": "2"
     }
   ]
 }

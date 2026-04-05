@@ -7,7 +7,6 @@ content:
     - type: Text
       value:
         string: A figure with four subfigures showing colored placeholders.
-  layout: '2'
   content:
   - type: Figure
     caption:
@@ -49,6 +48,46 @@ content:
     content:
     - type: ImageObject
       contentUrl: https://placehold.co/400x300/f39c12/fff
+  layout: '2'
+- type: Figure
+  caption:
+  - type: Paragraph
+    content:
+    - type: Text
+      value:
+        string: A two-panel figure combining a real image with an executable plot.
+  content:
+  - type: Figure
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: First subfigure.
+    content:
+    - type: ImageObject
+      contentUrl: example.com/cat.jpg
+  - type: CodeChunk
+    code:
+      string: |-
+        {
+          "data": [
+            {
+              "type": "bar",
+              "x": ["Capture", "Draft", "Review", "Publish"],
+              "y": [6, 10, 14, 9]
+            }
+          ]
+        }
+    programmingLanguage: plotly
+    labelType: FigureLabel
+    caption:
+    - type: Paragraph
+      content:
+      - type: Text
+        value:
+          string: Second subfigure.
+  layout: '2'
 - type: Figure
   caption:
   - type: Paragraph
@@ -56,7 +95,6 @@ content:
     - type: Text
       value:
         string: A figure with two code chunk subfigures and a transcluded subfigure.
-  layout: 30 70
   content:
   - type: CodeChunk
     code:
@@ -104,6 +142,7 @@ content:
     content:
     - type: IncludeBlock
       source: subfigure.ipynb
+  layout: 30 70
 - type: Figure
   caption:
   - type: Paragraph
@@ -111,7 +150,6 @@ content:
     - type: Text
       value:
         string: A figure using the row preset to place three subfigures side by side.
-  layout: row
   content:
   - type: Figure
     caption:
@@ -143,6 +181,7 @@ content:
     content:
     - type: ImageObject
       contentUrl: https://placehold.co/300x220/2980b9/fff
+  layout: row
 - type: Figure
   caption:
   - type: Paragraph
@@ -150,7 +189,6 @@ content:
     - type: Text
       value:
         string: A figure using an explicit layout map with a vertically spanning left panel.
-  layout: a b|a c
   content:
   - type: Figure
     caption:
@@ -182,6 +220,7 @@ content:
     content:
     - type: ImageObject
       contentUrl: https://placehold.co/420x250/f39c12/fff
+  layout: a b|a c
 - type: Figure
   caption:
   - type: Paragraph
@@ -189,7 +228,6 @@ content:
     - type: Text
       value:
         string: A figure using explicit gap tracks between two equal-width columns.
-  layout: 40 g20 40
   content:
   - type: Figure
     caption:
@@ -211,3 +249,4 @@ content:
     content:
     - type: ImageObject
       contentUrl: https://placehold.co/420x260/2c3e50/fff
+  layout: 40 g20 40

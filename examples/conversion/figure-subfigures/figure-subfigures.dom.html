@@ -81,6 +81,54 @@
         </figcaption>
       </figure>
     </stencila-figure>
+    <stencila-figure id=xxx depth=1 ancestors=Article layout=2>
+      <figure slot=content>
+        <div class=figure-content-area style='display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
+          <div class=figure-content-item style='grid-column:1 / span 1;grid-row:1 / span 1' data-sublabel=A>
+            <stencila-figure id=xxx depth=2 ancestors=Article.Figure>
+              <figure slot=content>
+                <div class=figure-content-area>
+                  <stencila-image-object id=xxx depth=3 ancestors=Article.Figure.Figure content-url='example.com/cat.jpg'>
+                    <img src='example.com/cat.jpg'/>
+                  </stencila-image-object>
+                </div>
+              </figure>
+            </stencila-figure>
+          </div>
+          <div class=figure-content-item style='grid-column:2 / span 1;grid-row:1 / span 1' data-sublabel=B>
+            <stencila-code-chunk id=xxx depth=2 ancestors=Article.Figure code='{
+  "data": [
+    {
+      "type": "bar",
+      "x": ["Capture", "Draft", "Review", "Publish"],
+      "y": [6, 10, 14, 9]
+    }
+  ]
+}' programming-language=plotly label-type=FigureLabel>
+            </stencila-code-chunk>
+          </div>
+        </div>
+        <figcaption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Figure>
+            <p slot=content>
+              <span class=figure-label>Figure</span>:<stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>A two-panel figure combining a real image with an executable plot.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(A)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>First subfigure.</stencila-text>
+              <stencila-strong id=xxx depth=3 ancestors=Article.Figure.Paragraph>
+                <strong>
+                  <stencila-text id=xxx depth=4 ancestors=Article.Figure.Paragraph.Strong>(B)</stencila-text>
+                </strong>
+              </stencila-strong>
+              <stencila-text id=xxx depth=3 ancestors=Article.Figure.Paragraph>Second subfigure.</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </figcaption>
+      </figure>
+    </stencila-figure>
     <stencila-figure id=xxx depth=1 ancestors=Article layout='30 70'>
       <figure slot=content>
         <div class=figure-content-area style='display:grid;grid-template-columns:minmax(0,30fr) minmax(0,70fr);column-gap:var(--figure-subfigure-gap);row-gap:var(--figure-subfigure-gap)'>
