@@ -162,7 +162,7 @@ Symbol glyph at a location. Required: position.
 
 | Attribute | Values | Default |
 |---|---|---|
-| `symbol` | `circle`, `cross`, `pin`, `star` | `circle` |
+| `symbol` | `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down` | `circle` |
 | `size` | number | `20` |
 | `color` | color | `currentColor` |
 | `fill` | color | `currentColor` |
@@ -213,4 +213,4 @@ Arrow markers (for `tip-style` or raw SVG `marker-end`):
 - `s:cap-line` — perpendicular cap
 
 Marker symbols (for `<s:marker>` `symbol` or `<use href="#s:marker-*">`):
-- `s:marker-circle`, `s:marker-cross`, `s:marker-pin`, `s:marker-star`
+- `s:marker-circle`, `s:marker-cross`, `s:marker-diamond`, `s:marker-pin`, `s:marker-plus`, `s:marker-square`, `s:marker-star`, `s:marker-triangle`, `s:marker-triangle-down`

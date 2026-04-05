@@ -33,6 +33,26 @@ const BUILTIN_DEFS: &[(&str, &str)] = &[
         r#"<symbol id="s:marker-pin" viewBox="0 0 20 30"><path d="M10 0 C4.5 0 0 4.5 0 10 C0 18 10 30 10 30 C10 30 20 18 20 10 C20 4.5 15.5 0 10 0 Z"/><circle cx="10" cy="10" r="4" fill="white"/></symbol>"#,
     ),
     (
+        "s:marker-square",
+        r#"<symbol id="s:marker-square" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" stroke-width="2"/></symbol>"#,
+    ),
+    (
+        "s:marker-diamond",
+        r#"<symbol id="s:marker-diamond" viewBox="0 0 20 20"><polygon points="10,2 18,10 10,18 2,10" stroke-width="2"/></symbol>"#,
+    ),
+    (
+        "s:marker-triangle",
+        r#"<symbol id="s:marker-triangle" viewBox="0 0 20 20"><polygon points="10,2 18,18 2,18" stroke-width="2"/></symbol>"#,
+    ),
+    (
+        "s:marker-triangle-down",
+        r#"<symbol id="s:marker-triangle-down" viewBox="0 0 20 20"><polygon points="2,2 18,2 10,18" stroke-width="2"/></symbol>"#,
+    ),
+    (
+        "s:marker-plus",
+        r#"<symbol id="s:marker-plus" viewBox="0 0 20 20"><line x1="10" y1="3" x2="10" y2="17" stroke-width="2"/><line x1="3" y1="10" x2="17" y2="10" stroke-width="2"/></symbol>"#,
+    ),
+    (
         "s:marker-star",
         r#"<symbol id="s:marker-star" viewBox="0 0 20 20"><polygon points="10,1 12.5,7.5 19,7.5 14,12 16,19 10,15 4,19 6,12 1,7.5 7.5,7.5"/></symbol>"#,
     ),

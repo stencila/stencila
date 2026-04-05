@@ -129,8 +129,13 @@ Use with `symbol` on `<s:marker>`, or reference directly with `<use href="#s:mar
 | --- | --- |
 | `s:marker-circle` | Circle |
 | `s:marker-cross` | × cross |
+| `s:marker-diamond` | Diamond (rotated square) |
 | `s:marker-pin` | Map-style pin |
+| `s:marker-plus` | + plus |
+| `s:marker-square` | Square |
 | `s:marker-star` | Star |
+| `s:marker-triangle` | Triangle (pointing up) |
+| `s:marker-triangle-down` | Triangle (pointing down) |
 
 You can also reference any built-in definition from standard SVG elements using `url(#id)` or `href="#id"` syntax:
 
@@ -727,6 +732,8 @@ A circular spotlight positioned with an anchor dims the surrounding area, with a
 
 # Point markers
 
+## Marker
+
 The `<s:marker>` component stamps a symbol at a location, drawn from a built-in library of glyphs. Use it for marking sampling sites, points of interest, or any location that needs a distinct symbol.
 
 **Required:** position (`x`/`y` or `at`).
@@ -736,7 +743,7 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 | `x`, `y` | coordinates | — | Position |
 | `at` | anchor ref | — | Position from anchor |
 | `dx`, `dy` | offset | `0` | Offset from anchor |
-| `symbol` | `circle`, `cross`, `pin`, `star` | `circle` | Symbol glyph |
+| `symbol` | `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down` | `circle` | Symbol glyph |
 | `size` | number | `20` | Symbol size in viewBox units |
 | `color` | color | `currentColor` | Sets both fill and stroke |
 | `fill` | color | `currentColor` | Fill color (overrides `color`) |
@@ -755,14 +762,24 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:marker x="100" y="100" symbol="pin" label="Site 1" size="24"/>
-  <s:marker x="300" y="180" symbol="star" label="Site 2" size="22"/>
-  <s:marker x="480" y="80" symbol="cross" label="Site 3" size="18"/>
-  <s:marker x="400" y="240" symbol="circle" label="Site 4" label-position="below"/>
+  <!-- Filled markers using auto-anchors -->
+  <s:marker at="#s:top-left" dx="60" dy="60" symbol="circle" label="circle" color="#2563eb"/>
+  <s:marker at="#s:top-center" dx="-60" dy="60" symbol="square" label="square" color="#2563eb"/>
+  <s:marker at="#s:top-center" dx="60" dy="60" symbol="diamond" label="diamond" color="#2563eb"/>
+  <s:marker at="#s:top-right" dx="-60" dy="60" symbol="triangle" label="triangle" color="#2563eb"/>
+
+  <!-- Open (outline) variants using auto-anchors -->
+  <s:marker at="#s:mid-left" dx="60" dy="40" symbol="star" label="star (open)" fill="none" color="#dc2626"/>
+  <s:marker at="#s:center" dx="-60" dy="40" symbol="triangle-down" label="triangle-down (open)" fill="none" color="#dc2626"/>
+
+  <!-- Stroke-only symbols and pin using x/y -->
+  <s:marker x="420" y="190" symbol="cross" label="cross" color="#16a34a"/>
+  <s:marker x="520" y="190" symbol="plus" label="plus" color="#16a34a"/>
+  <s:marker at="#s:bottom-center" dy="-30" symbol="pin" label="pin" color="#9333ea" size="24"/>
 </svg>
 ```
 
-Four marker symbols: pin, star, cross, and circle, each with a label.
+All nine marker symbols. Top row: filled markers in blue. Middle row: open (outline) variants using `fill="none"`. Bottom: stroke-only symbols (cross, plus) and a pin.
 
 :::
 ````

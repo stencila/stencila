@@ -109,7 +109,7 @@ Curve types: `straight` (default), `quad`, `cubic`, `elbow`.
 <s:crosshair cx="400" cy="120" size="25" gap="5" ring="true" label="Target"/>
 ```
 
-Symbols: `circle`, `cross`, `pin`, `star`. Use `color` to set both fill and stroke; use `fill`/`stroke` individually to override. Default: `currentColor`.
+Symbols: `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down`. Use `color` to set both fill and stroke; use `fill`/`stroke` individually to override. Default: `currentColor`.
 
 ## Subfigure overlay pattern
 
