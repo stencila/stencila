@@ -41,13 +41,19 @@ Create and iteratively refine a Stencila theme using the `theme-creator` and `th
 
 # Pipeline
 
-This workflow first uses the `theme-creator` agent to draft or revise a theme CSS file, then passes the draft to the `theme-reviewer` agent for review. The reviewer uses the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Routing from `HumanReview` is driven by the first multiple-choice question's option labels, which intentionally match the outgoing edge labels `Accept` and `Revise`. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass). Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the theme artifact before ending the workflow.
+This workflow first uses the `theme-creator` agent to draft or revise a theme CSS file, then passes the draft to the `theme-reviewer` agent for review. The reviewer uses the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback.
+
+The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass). Choosing `Accept and Commit` routes through a `Commit` agent node that stages and commits the theme artifact before ending the workflow.
+
+The `Create` node uses `persist="full"` so the creator agent's LLM session is reused across revision loops, avoiding the cost of re-exploring the workspace and re-reading files on every iteration. The `Review` node intentionally does not persist its session — a fresh session on each pass gives the reviewer unbiased "fresh eyes" on the current draft, avoiding anchoring on prior assessments that could mask regressions. The artifact being reviewed is a single file, so the re-read cost is low. A graph-wide `max-session-turns` default of 10 caps context growth.
 
 ```dot
 digraph theme_creation_iterative {
+  node [max-session-turns="10"]
+
   Start -> Create
 
-  Create [agent="theme-creator", prompt-ref="#creator-prompt"]
+  Create [agent="theme-creator", prompt-ref="#creator-prompt", persist="full"]
   Create -> Review
 
   Review [agent="theme-reviewer", prompt-ref="#reviewer-prompt"]

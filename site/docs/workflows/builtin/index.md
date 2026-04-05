@@ -9,6 +9,12 @@ Builtin workflows ship with Stencila and are available in every workspace withou
 >
 > You can run these workflows in the Stencila TUI by selecting one with the `/workflow` command, or by starting your prompt with `~workflow-name` e.g. `~software-delivery-tdd implement the feature described in DESIGN.md`.
 
+## Documents
+
+Workflows for creating and refining documents.
+
+- [**Figure Creation Iterative Workflow**](./documents/figure-creation-iterative/) — Create and iteratively refine a Stencila figure using the `figure-creator` and `figure-reviewer` agents, route approved drafts through human review with optional commit, and loop on requested revisions
+
 ## Themes
 
 Workflows for creating and refining Stencila themes.

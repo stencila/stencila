@@ -61,11 +61,15 @@ This workflow supports top-down workflow creation — designing the workflow and
 
 The `Design` node uses `context-writable=true` so it can store the dependency lists via `workflow_set_context`, and also uses `workflow_get_output` and `workflow_get_context` to pick up feedback from previous iterations.
 
+The `Design` and `CreateWorkflow` nodes use `persist="full"` so the creator agent's LLM session is reused across revision loops, avoiding the cost of re-exploring the workspace, re-reading files, and re-discovering conventions on every iteration. The `ReviewWorkflow` node intentionally does not persist its session — a fresh session on each pass gives the reviewer unbiased "fresh eyes" on the current draft, avoiding anchoring on prior assessments that could mask regressions. The artifact being reviewed is a single file, so the re-read cost is low. A graph-wide `max-session-turns` default of 10 caps context growth.
+
 ```dot
 digraph workflow_creation_topdown {
+  node [max-session-turns="10"]
+
   Start -> Design
 
-  Design [agent="workflow-creator", prompt-ref="#design-prompt", context-writable=true]
+  Design [agent="workflow-creator", prompt-ref="#design-prompt", context-writable=true, persist="full"]
   Design -> DesignReview
 
   DesignReview [interview-ref="#design-review-interview"]
@@ -99,7 +103,7 @@ digraph workflow_creation_topdown {
   FanInChildWorkflows [label="Collect child workflows"]
   FanInChildWorkflows -> CreateWorkflow
 
-  CreateWorkflow [agent="workflow-creator", prompt-ref="#create-workflow-prompt"]
+  CreateWorkflow [agent="workflow-creator", prompt-ref="#create-workflow-prompt", persist="full"]
   CreateWorkflow -> ReviewWorkflow
 
   ReviewWorkflow [agent="workflow-reviewer", prompt-ref="#review-workflow-prompt"]

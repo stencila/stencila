@@ -9,6 +9,13 @@ Builtin agents ship with Stencila and are available in every workspace without a
 >
 > You can use these agents in the Stencila TUI by selecting one with the `/agent` command, or by starting your prompt with `#agent-name` e.g. `#software-code-reviewer review the changes in src/`. Agents can also be referenced by name in workflow node definitions.
 
+## Documents
+
+Agents for creating and reviewing documents.
+
+- [**Figure Creator Agent**](./documents/figure-creator/) — Creates or updates figures in Stencila Markdown documents, including simple image figures, executable figures, multi-panel layouts, captions, and SVG annotation overlays
+- [**Figure Reviewer**](./documents/figure-reviewer/) — Reviews Stencila figures using the figure-review skill, focusing on structure, captions, overlays, rendering risks, scientific annotation safety, and approval readiness.
+
 ## Themes
 
 Agents for creating and reviewing Stencila themes.

@@ -46,14 +46,19 @@ The `Create` node instructs the `workflow-creator` agent to design a workflow ap
 
 The creator agent has `context-writable=true` so it can store the child goal via `workflow_set_context`. The `Execute` node passes the creator-decided goal to the child workflow. The `Cleanup` shell node removes the ephemeral child directory after execution regardless of outcome.
 
+The `Create` node uses `persist="full"` so the `workflow-creator` agent retains its workspace exploration, agent inventory, and draft across validation-failure retries, avoiding redundant file reads on each loop. A graph-wide `max-session-turns` default of 10 caps context growth.
+
 ```dot
 digraph workflow_create_run {
+  node [max-session-turns="10"]
+
   Start -> Create
 
   Create [
     agent="workflow-creator",
     prompt-ref="#create-prompt",
-    context-writable=true
+    context-writable=true,
+    persist="full"
   ]
   Create -> Validate
 

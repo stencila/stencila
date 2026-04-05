@@ -49,11 +49,15 @@ This workflow supports top-down agent creation — designing the agent and its n
 
 The `Design` node uses `context-writable=true` so it can store the skills list via `workflow_set_context`, and also uses `workflow_get_output` and `workflow_get_context` to pick up feedback from previous iterations, matching the pattern used by the sibling `agent-creation-iterative` and `skill-creation-iterative` workflows.
 
+The `Design` and `CreateAgent` nodes use `persist="full"` so the creator agent's LLM session is reused across revision loops, avoiding the cost of re-exploring the workspace, re-reading files, and re-discovering conventions on every iteration. The `ReviewAgent` node intentionally does not persist its session — a fresh session on each pass gives the reviewer unbiased "fresh eyes" on the current draft, avoiding anchoring on prior assessments that could mask regressions. The artifact being reviewed is a single file, so the re-read cost is low. A graph-wide `max-session-turns` default of 10 caps context growth.
+
 ```dot
 digraph agent_creation_topdown {
+  node [max-session-turns="10"]
+
   Start -> Design
 
-  Design [agent="agent-creator", prompt-ref="#design-prompt", context-writable=true]
+  Design [agent="agent-creator", prompt-ref="#design-prompt", context-writable=true, persist="full"]
   Design -> DesignReview
 
   DesignReview [interview-ref="#design-review-interview"]
@@ -69,7 +73,7 @@ digraph agent_creation_topdown {
   FanInSkills [label="Collect created skills"]
   FanInSkills -> CreateAgent
 
-  CreateAgent [agent="agent-creator", prompt-ref="#create-agent-prompt"]
+  CreateAgent [agent="agent-creator", prompt-ref="#create-agent-prompt", persist="full"]
   CreateAgent -> ReviewAgent
 
   ReviewAgent [agent="agent-reviewer", prompt-ref="#review-agent-prompt"]

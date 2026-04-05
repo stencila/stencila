@@ -37,13 +37,19 @@ Create and iteratively refine a software delivery plan using the `software-plan-
 
 # Pipeline
 
-This workflow first uses the `software-plan-creator` agent to draft or revise the software delivery plan, then passes the draft to the `software-plan-reviewer` agent for review. The reviewer uses the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback. The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the delivery plan artifact before ending the workflow.
+This workflow first uses the `software-plan-creator` agent to draft or revise the software delivery plan, then passes the draft to the `software-plan-reviewer` agent for review. The reviewer uses the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses Revise its response text contains concrete revision feedback.
+
+The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Choosing Revise continues the interview to collect feedback (stored as `human.feedback` for the next creator pass) and loops back to `Create`. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the delivery plan artifact before ending the workflow.
+
+The `Create` node uses `persist="full"` so the creator agent's LLM session is reused across revision loops, avoiding the cost of re-exploring the workspace and re-reading files on every iteration. The `Review` node intentionally does not persist its session — a fresh session on each pass gives the reviewer unbiased "fresh eyes" on the current draft, avoiding anchoring on prior assessments that could mask regressions. The artifact being reviewed is a single file, so the re-read cost is low. A graph-wide `max-session-turns` default of 10 caps context growth.
 
 ```dot
 digraph software_plan_iterative {
+  node [max-session-turns="10"]
+
   Start -> Create
 
-  Create [agent="software-plan-creator", prompt-ref="#creator-prompt"]
+  Create [agent="software-plan-creator", prompt-ref="#creator-prompt", persist="full"]
   Create -> Review
 
   Review [agent="software-plan-reviewer", prompt-ref="#reviewer-prompt"]
