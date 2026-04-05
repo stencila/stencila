@@ -25,16 +25,12 @@ const BUILTIN_DEFS: &[(&str, &str)] = &[
         r#"<symbol id="s:marker-circle" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke-width="2"/></symbol>"#,
     ),
     (
-        "s:marker-cross",
-        r#"<symbol id="s:marker-cross" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke-width="2"/><line x1="16" y1="4" x2="4" y2="16" stroke-width="2"/></symbol>"#,
+        "s:marker-square",
+        r#"<symbol id="s:marker-square" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" stroke-width="2"/></symbol>"#,
     ),
     (
         "s:marker-pin",
         r#"<symbol id="s:marker-pin" viewBox="0 0 20 30"><path d="M10 0 C4.5 0 0 4.5 0 10 C0 18 10 30 10 30 C10 30 20 18 20 10 C20 4.5 15.5 0 10 0 Z"/><circle cx="10" cy="10" r="4" fill="white"/></symbol>"#,
-    ),
-    (
-        "s:marker-square",
-        r#"<symbol id="s:marker-square" viewBox="0 0 20 20"><rect x="3" y="3" width="14" height="14" stroke-width="2"/></symbol>"#,
     ),
     (
         "s:marker-diamond",
@@ -49,8 +45,12 @@ const BUILTIN_DEFS: &[(&str, &str)] = &[
         r#"<symbol id="s:marker-triangle-down" viewBox="0 0 20 20"><polygon points="2,2 18,2 10,18" stroke-width="2"/></symbol>"#,
     ),
     (
+        "s:marker-cross",
+        r#"<symbol id="s:marker-cross" viewBox="0 0 20 20"><polygon points="10,7 13,4.5 15.5,7 13,10 15.5,13 13,15.5 10,13 7,15.5 4.5,13 7,10 4.5,7 7,4.5" stroke-width="2"/></symbol>"#,
+    ),
+    (
         "s:marker-plus",
-        r#"<symbol id="s:marker-plus" viewBox="0 0 20 20"><line x1="10" y1="3" x2="10" y2="17" stroke-width="2"/><line x1="3" y1="10" x2="17" y2="10" stroke-width="2"/></symbol>"#,
+        r#"<symbol id="s:marker-plus" viewBox="0 0 20 20"><polygon points="7,2 13,2 13,7 18,7 18,13 13,13 13,18 7,18 7,13 2,13 2,7 7,7" stroke-width="2"/></symbol>"#,
     ),
     (
         "s:marker-star",

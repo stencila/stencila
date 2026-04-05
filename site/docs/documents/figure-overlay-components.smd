@@ -128,10 +128,10 @@ Use with `symbol` on `<s:marker>`, or reference directly with `<use href="#s:mar
 | Id | Description |
 | --- | --- |
 | `s:marker-circle` | Circle |
-| `s:marker-cross` | × cross |
+| `s:marker-cross` | × cross (rotated plus) |
 | `s:marker-diamond` | Diamond (rotated square) |
 | `s:marker-pin` | Map-style pin |
-| `s:marker-plus` | + plus |
+| `s:marker-plus` | + plus (axis-aligned cross) |
 | `s:marker-square` | Square |
 | `s:marker-star` | Star |
 | `s:marker-triangle` | Triangle (pointing up) |
