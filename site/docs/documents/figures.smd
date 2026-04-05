@@ -503,7 +503,7 @@ Because each overlay is attached to a specific figure or subfigure and uses SVG 
 
 Inside a `::: figure` fence, add a fenced code block with the info string `svg overlay` containing an `<svg>` element. The SVG `viewBox` defines the coordinate system used for your annotations. Matching the dimensions of the underlying content is often the simplest option because coordinates then map directly to image or chart pixels, but it is not required: you can use any `viewBox` that is convenient, such as `0 0 1000 1000`, as long as you author the annotation geometry in that same coordinate space.
 
-Overlay shapes and text inherit theme defaults — stroke color, stroke width, fill, font family, font size, and font weight — from the `--figure-overlay-*` [design tokens](../../themes/tokens/nodes/figures). In common cases you only need to specify geometry; when you need a specific color, weight, dash pattern, or other non-default treatment on an element, set it explicitly as an inline SVG attribute and it will take precedence over the theme default.
+Overlay shapes and text inherit theme defaults — stroke color, stroke width, fill, font family, font size, and font weight — from the `--figure-overlay-*` [design tokens](../themes/tokens/nodes/figures). In common cases you only need to specify geometry; when you need a specific color, weight, dash pattern, or other non-default treatment on an element, set it explicitly as an inline SVG attribute and it will take precedence over the theme default.
 
 ## Simple figure overlay
 

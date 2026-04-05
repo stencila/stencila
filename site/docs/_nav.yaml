@@ -1,10 +1,11 @@
 items:
+  - documents
+  - sites
+  - themes
   - workflows
   - agents
   - skills
   - db
-  - sites
-  - themes
   - formats
   - cli
   - config
