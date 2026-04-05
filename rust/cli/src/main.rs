@@ -47,6 +47,25 @@ async fn main() -> Result<()> {
 
     errors::setup(&error_details, cli.error_link)?;
 
+    // Initialize builtin agents, skills, and workflows cache directories.
+    // Runs concurrently in background so it doesn't block startup.
+    tokio::spawn(async {
+        let (agents, skills, workflows) = tokio::join!(
+            stencila_agents::initialize_builtin(),
+            stencila_skills::initialize_builtin(),
+            stencila_workflows::initialize_builtin(),
+        );
+        if let Err(e) = agents {
+            tracing::error!("Failed to initialize builtin agents: {e}");
+        }
+        if let Err(e) = skills {
+            tracing::error!("Failed to initialize builtin skills: {e}");
+        }
+        if let Err(e) = workflows {
+            tracing::error!("Failed to initialize builtin workflows: {e}");
+        }
+    });
+
     if matches!(cli.command, Some(Command::Lsp)) {
         stencila_lsp::run(log_level.into(), &cli.log_filter).await?
     } else if cli.command.is_none() {

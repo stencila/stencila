@@ -1,6 +1,6 @@
 //! `list_workflows` tool: discover available Stencila Workflows.
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use serde_json::{Value, json};
 use stencila_models3::types::tool::ToolDefinition;
@@ -76,11 +76,56 @@ struct WorkflowSummary {
 }
 
 async fn discover_workflows(cwd: &Path) -> Vec<WorkflowSummary> {
-    let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") else {
-        return Vec::new();
-    };
+    let mut by_name: std::collections::HashMap<String, WorkflowSummary> =
+        std::collections::HashMap::new();
 
-    let workflows_dir = stencila_dir.join("workflows");
+    // Builtin workflows first (lowest precedence).
+    // In debug mode, filter out test-* workflows (in release they are excluded
+    // from the embedded assets by the #[exclude] attribute in the workflows crate).
+    if let Some(builtin_dir) = builtin_workflows_dir() {
+        for wf in list_workflow_dir(&builtin_dir).await {
+            if cfg!(debug_assertions) && wf.name.starts_with("test-") {
+                continue;
+            }
+            by_name.insert(wf.name.clone(), wf);
+        }
+    }
+
+    // Workspace workflows (highest precedence, overwrites builtins)
+    if let Some(stencila_dir) = stencila_dirs::closest_dot_dir(cwd, ".stencila") {
+        let workflows_dir = stencila_dir.join("workflows");
+        for wf in list_workflow_dir(&workflows_dir).await {
+            by_name.insert(wf.name.clone(), wf);
+        }
+    }
+
+    let mut summaries: Vec<WorkflowSummary> = by_name.into_values().collect();
+    summaries.sort_by(|a, b| a.name.cmp(&b.name));
+    summaries
+}
+
+/// Get the directory containing builtin workflows.
+///
+/// In debug mode, reads directly from the repo source tree.
+/// In release mode, reads from the versioned cache directory that is
+/// populated at startup by `stencila_workflows::initialize_builtin()`.
+fn builtin_workflows_dir() -> Option<PathBuf> {
+    if cfg!(debug_assertions) {
+        let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../.stencila/workflows");
+        return dir.exists().then_some(dir);
+    }
+
+    stencila_dirs::get_versioned_app_dir(
+        stencila_dirs::DirType::BuiltinWorkflows,
+        stencila_version::STENCILA_VERSION,
+        false,
+        false,
+    )
+    .ok()
+}
+
+/// List all workflow summaries in a directory.
+async fn list_workflow_dir(workflows_dir: &Path) -> Vec<WorkflowSummary> {
     if !workflows_dir.exists() {
         return Vec::new();
     }
@@ -98,7 +143,6 @@ async fn discover_workflows(cwd: &Path) -> Vec<WorkflowSummary> {
             summaries.push(summary);
         }
     }
-    summaries.sort_by(|a, b| a.name.cmp(&b.name));
     summaries
 }
 

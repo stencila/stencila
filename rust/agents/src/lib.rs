@@ -40,6 +40,7 @@ pub const DEFAULT_WORKFLOW_AGENT_NAME: &str = "general";
 
 /// Agent definition loading and discovery.
 pub mod definition;
+pub use definition::initialize_builtin;
 
 /// Agent validation.
 pub mod validate;

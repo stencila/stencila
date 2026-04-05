@@ -432,7 +432,7 @@ pub async fn list_builtin() -> Vec<AgentInstance> {
 }
 
 /// Initialize the builtin agents directory by writing embedded files to disk.
-async fn initialize_builtin() -> Result<PathBuf> {
+pub async fn initialize_builtin() -> Result<PathBuf> {
     let dir = stencila_dirs::get_versioned_app_dir(
         stencila_dirs::DirType::BuiltinAgents,
         STENCILA_VERSION,
