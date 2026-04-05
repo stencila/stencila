@@ -167,10 +167,11 @@ Symbol glyph at a location. Required: position.
 | `color` | color | `currentColor` |
 | `fill` | color | `currentColor` |
 | `stroke` | color | `currentColor` |
+| `background` | color or `none` | `white` |
 | `label` | text | — |
 | `label-position` | `right`, `above`, `below`, `left` | `right` |
 
-`color` sets both fill and stroke. Use `fill` or `stroke` individually to override one while keeping the other. Use `fill="none"` for outline-only markers.
+`color` sets both fill and stroke. Use `fill` or `stroke` individually to override one while keeping the other. Use `fill="none"` for outline-only markers. A 50% opacity `background` (default white) is rendered behind the symbol and label for legibility; set `background="none"` to disable.
 
 ## Crosshair (`<s:crosshair>`)
 

@@ -748,6 +748,7 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 | `color` | color | `currentColor` | Sets both fill and stroke |
 | `fill` | color | `currentColor` | Fill color (overrides `color`) |
 | `stroke` | color | `currentColor` | Stroke color (overrides `color`) |
+| `background` | color or `none` | `white` | Background behind symbol and label (50% opacity) |
 | `label` | text | — | Optional label |
 | `label-position` | `right`, `above`, `below`, `left` | `right` | Label placement |
 
@@ -763,19 +764,19 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
   <!-- Filled markers using auto-anchors -->
-  <s:marker at="#s:top-left" dx="60" dy="60" symbol="circle" label="circle" color="#2563eb"/>
-  <s:marker at="#s:top-center" dx="-60" dy="60" symbol="square" label="square" color="#2563eb"/>
-  <s:marker at="#s:top-center" dx="60" dy="60" symbol="diamond" label="diamond" color="#2563eb"/>
-  <s:marker at="#s:top-right" dx="-60" dy="60" symbol="triangle" label="triangle" color="#2563eb"/>
+  <s:marker at="#s:top-left" dx="60" dy="60" symbol="circle" label="circle" label-position="above" color="#2563eb"/>
+  <s:marker at="#s:top-center" dx="-60" dy="60" symbol="square" label="square" label-position="above" color="#2563eb"/>
+  <s:marker at="#s:top-center" dx="60" dy="60" symbol="diamond" label="diamond" label-position="above" color="#2563eb"/>
+  <s:marker at="#s:top-right" dx="-60" dy="60" symbol="triangle" label="triangle" label-position="above" color="#2563eb"/>
 
   <!-- Open (outline) variants using auto-anchors -->
-  <s:marker at="#s:mid-left" dx="60" dy="40" symbol="star" label="star (open)" fill="none" color="#dc2626"/>
-  <s:marker at="#s:center" dx="-60" dy="40" symbol="triangle-down" label="triangle-down (open)" fill="none" color="#dc2626"/>
+  <s:marker at="#s:mid-left" dx="60" dy="40" symbol="star" label="star (open)" label-position="below" fill="none" color="#dc2626"/>
+  <s:marker at="#s:center" dx="-60" dy="40" symbol="triangle-down" label="triangle-down (open)" label-position="below" fill="none" color="#dc2626"/>
 
   <!-- Stroke-only symbols and pin using x/y -->
   <s:marker x="420" y="190" symbol="cross" label="cross" color="#16a34a"/>
   <s:marker x="520" y="190" symbol="plus" label="plus" color="#16a34a"/>
-  <s:marker at="#s:bottom-center" dy="-30" symbol="pin" label="pin" color="#9333ea" size="24"/>
+  <s:marker at="#s:bottom-center" dy="-30" symbol="pin" label="pin" label-position="left" color="#9333ea" size="24"/>
 </svg>
 ```
 
