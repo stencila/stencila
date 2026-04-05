@@ -666,6 +666,45 @@ async fn glob_sorted_by_mtime_newest_first() -> Result<(), AgentError> {
     Ok(())
 }
 
+#[tokio::test]
+async fn glob_brace_expansion() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    write_tmp(&tmp.path().join("a.png"), "")?;
+    write_tmp(&tmp.path().join("b.jpg"), "")?;
+    write_tmp(&tmp.path().join("c.txt"), "")?;
+
+    let env = local_env(tmp.path());
+    let result = env.glob_files("*.{png,jpg}", ".").await?;
+
+    assert_eq!(
+        result.len(),
+        2,
+        "should find 2 files with brace expansion, got: {result:?}"
+    );
+    assert!(
+        result.iter().all(|p| p.ends_with(".png") || p.ends_with(".jpg")),
+        "all should be .png or .jpg: {result:?}"
+    );
+    Ok(())
+}
+
+#[tokio::test]
+async fn glob_brace_expansion_no_duplicates() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    write_tmp(&tmp.path().join("a.rs"), "")?;
+
+    let env = local_env(tmp.path());
+    // Both alternatives match the same file
+    let result = env.glob_files("{*.rs,a.*}", ".").await?;
+
+    assert_eq!(
+        result.len(),
+        1,
+        "duplicates should be removed, got: {result:?}"
+    );
+    Ok(())
+}
+
 // =========================================================================
 // Metadata
 // =========================================================================

@@ -6,6 +6,7 @@ use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::UNIX_EPOCH;
 
 use async_trait::async_trait;
 use tokio::io::AsyncReadExt;
@@ -370,24 +371,35 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             });
         }
 
-        let full_pattern = resolved.join(pattern);
-        let pattern_str = full_pattern.to_string_lossy().to_string();
+        let expanded = expand_braces(pattern);
 
         let paths = tokio::task::spawn_blocking(move || -> AgentResult<Vec<String>> {
-            let entries = glob::glob(&pattern_str).map_err(|e| AgentError::ValidationError {
-                reason: e.to_string(),
-            })?;
+            let patterns: Vec<String> = expanded
+                .iter()
+                .map(|p| resolved.join(p).to_string_lossy().into_owned())
+                .collect();
+            let mut entries_vec = Vec::new();
+            for pat in &patterns {
+                let entries = glob::glob(pat).map_err(|e| AgentError::ValidationError {
+                    reason: e.to_string(),
+                })?;
+                entries_vec.push(entries);
+            }
 
             // Collect paths with their modification times for sorting
+            let mut seen = std::collections::HashSet::new();
             let mut with_mtime: Vec<(String, std::time::SystemTime)> = Vec::new();
-            for entry in entries {
+            for entry in entries_vec.into_iter().flatten() {
                 match entry {
                     Ok(p) => {
-                        let mtime = p
-                            .metadata()
-                            .and_then(|m| m.modified())
-                            .unwrap_or(std::time::SystemTime::UNIX_EPOCH);
-                        with_mtime.push((p.to_string_lossy().to_string(), mtime));
+                        let path_str = p.to_string_lossy().to_string();
+                        if seen.insert(path_str.clone()) {
+                            let mtime = p
+                                .metadata()
+                                .and_then(|m| m.modified())
+                                .unwrap_or(UNIX_EPOCH);
+                            with_mtime.push((path_str, mtime));
+                        }
                     }
                     Err(e) => {
                         return Err(AgentError::Io {
@@ -667,4 +679,27 @@ fn sigkill_process_group(pid: u32) {
     unsafe {
         libc::kill(-(pid as i32), libc::SIGKILL);
     }
+}
+
+/// Expand brace patterns (e.g. `*.{png,jpg}`) into multiple glob patterns.
+///
+/// Handles one level of braces. If no braces are found, returns the original
+/// pattern as a single-element vec.
+fn expand_braces(pattern: &str) -> Vec<String> {
+    let Some(open) = pattern.find('{') else {
+        return vec![pattern.to_string()];
+    };
+    let Some(close) = pattern[open..].find('}') else {
+        return vec![pattern.to_string()];
+    };
+    let close = open + close;
+
+    let prefix = &pattern[..open];
+    let suffix = &pattern[close + 1..];
+    let alternatives = &pattern[open + 1..close];
+
+    alternatives
+        .split(',')
+        .flat_map(|alt| expand_braces(&format!("{prefix}{alt}{suffix}")))
+        .collect()
 }
