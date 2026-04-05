@@ -321,6 +321,14 @@ fn resolve_stroke(attrs: &Attrs) -> &str {
         .map_or("currentColor", std::string::String::as_str)
 }
 
+/// Resolve the fill color: explicit `fill` attr, then `color` shorthand, then the given default.
+fn resolve_fill<'a>(attrs: &'a Attrs, default: &'a str) -> &'a str {
+    attrs
+        .get("fill")
+        .or_else(|| attrs.get("color"))
+        .map_or(default, std::string::String::as_str)
+}
+
 /// Collect SVG presentation attributes to pass through.
 fn pass_through_attrs(attrs: &Attrs) -> String {
     // Known s: component attributes that should NOT be passed through
@@ -365,6 +373,7 @@ fn pass_through_attrs(attrs: &Attrs) -> String {
         "from-x",
         "from-y",
         "vertex",
+        "fill",
         "stroke",
         "color",
         "background",
@@ -445,10 +454,35 @@ mod tests {
     }
 
     #[test]
-    fn pass_through_excludes_stroke() {
-        let a = attrs(&[("stroke", "red"), ("stroke-width", "2")]);
+    fn resolve_fill_explicit() {
+        assert_eq!(resolve_fill(&attrs(&[("fill", "red")]), "white"), "red");
+    }
+
+    #[test]
+    fn resolve_fill_color_fallback() {
+        assert_eq!(resolve_fill(&attrs(&[("color", "blue")]), "white"), "blue");
+    }
+
+    #[test]
+    fn resolve_fill_explicit_over_color() {
+        assert_eq!(
+            resolve_fill(&attrs(&[("fill", "red"), ("color", "blue")]), "white"),
+            "red"
+        );
+    }
+
+    #[test]
+    fn resolve_fill_default() {
+        assert_eq!(resolve_fill(&attrs(&[]), "white"), "white");
+        assert_eq!(resolve_fill(&attrs(&[]), "currentColor"), "currentColor");
+    }
+
+    #[test]
+    fn pass_through_excludes_fill_and_stroke() {
+        let a = attrs(&[("fill", "red"), ("stroke", "blue"), ("stroke-width", "2")]);
         let pass = pass_through_attrs(&a);
-        assert!(!pass.contains(r#"stroke="red""#));
+        assert!(!pass.contains(r#"fill="red""#));
+        assert!(!pass.contains(r#"stroke="blue""#));
         assert!(pass.contains(r#"stroke-width="2""#));
     }
 }

@@ -82,17 +82,18 @@ Single-point components like `<s:marker>`, `<s:compass>`, and `<s:halo>` use `at
 
 ### Colors
 
-All components support the `stroke` attribute to set the stroke color for every part of the component (main line, extension lines, caps, arcs, paths, etc.). If omitted, the `color` attribute is used as a shorthand; if neither is set, `currentColor` is used:
+All components support `stroke` and `fill` attributes. If omitted, the `color` attribute is used as a shorthand for both; if none are set, a component-appropriate default is used (`currentColor` for strokes, `white` for label backgrounds, `currentColor` for marker fills). Arrow markers automatically match the stroke color of the line they are attached to.
 
-| Attribute | Fallback | Description |
-| --- | --- | --- |
-| `stroke` | `color`, then `currentColor` | Stroke color applied to all parts of the component |
-| `color` | `currentColor` | Shorthand that sets both fill and stroke (where applicable) |
+| Attribute | Fallback | Default | Description |
+| --- | --- | --- | --- |
+| `stroke` | `color` | `currentColor` | Stroke color applied to all parts of the component |
+| `fill` | `color` | varies by component | Fill color (e.g. background of badges, callouts, marker symbols) |
+| `color` | — | `currentColor` | Shorthand that sets both fill and stroke |
 
 ```xml
-<s:dimension x="100" y="300" to-x="400" to-y="300" label="4.2 cm" stroke="#FF0000"/>
 <s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson"/>
-<s:roi-rect x="50" y="50" width="200" height="100" stroke="green"/>
+<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+<s:marker at="#peak" symbol="circle" color="#2563eb"/>
 ```
 
 ### Labels

@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_stroke, svg_text,
+    pass_through_attrs, resolve_fill, resolve_position, resolve_stroke, svg_text,
 };
 
 /// Expand `<s:marker>` into a defs-backed symbol stamp with optional label.
@@ -30,19 +30,10 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "right");
     let background = attr_str(attrs, "background", "white");
 
-    // Filter fill from pass-through since it's handled explicitly below
-    // (stroke is already excluded by pass_through_attrs)
-    let mut filtered = attrs.clone();
-    filtered.remove("fill");
-    let pass = pass_through_attrs(&filtered);
+    let pass = pass_through_attrs(attrs);
 
     // Resolve fill and stroke: explicit fill/stroke win, then color shorthand, then currentColor
-    let color = attrs.get("color").map(std::string::String::as_str);
-    let fill = attrs
-        .get("fill")
-        .map(std::string::String::as_str)
-        .or(color)
-        .unwrap_or("currentColor");
+    let fill = resolve_fill(attrs, "currentColor");
     let stroke = resolve_stroke(attrs);
     let color_attrs = format!(" fill=\"{fill}\" stroke=\"{stroke}\"");
 
