@@ -51,15 +51,15 @@ The component library provides 16 elements plus a positioning primitive, organiz
 
 | Category | Components | Purpose |
 | --- | --- | --- |
-| **Arrows & connectors** | `<s:arrow>` | Directional lines and curves between two points |
-| **Labels & callouts** | `<s:callout>`, `<s:badge>` | Text labels with optional backgrounds and leader lines |
-| **Measurement & scale** | `<s:scale-bar>`, `<s:dimension>`, `<s:angle>` | Scale bars, dimension lines, and angle arcs |
-| **Brackets & braces** | `<s:brace>`, `<s:bracket>` | Curly braces and square/round brackets for grouping |
-| **Region of interest** | `<s:roi-rect>`, `<s:roi-ellipse>`, `<s:roi-polygon>`, `<s:spotlight>` | Highlighted regions and inverse-highlight masks |
-| **Point markers** | `<s:marker>`, `<s:crosshair>` | Symbol glyphs and reticles at specific locations |
-| **Emphasis & focus** | `<s:halo>` | Glowing rings to draw attention to features |
-| **Orientation & reference** | `<s:compass>` | Compass roses and orientation indicators |
-| **Positioning** | `<s:anchor>` | Named anchor points for relative positioning |
+| **Arrows & connectors** | [`<s:arrow>`](#arrows--connectors) | Directional lines and curves between two points |
+| **Labels & callouts** | [`<s:callout>`](#callout), [`<s:badge>`](#badge) | Text labels with optional backgrounds and leader lines |
+| **Measurement & scale** | [`<s:scale-bar>`](#scale-bar), [`<s:dimension>`](#dimension-line), [`<s:angle>`](#angle-arc) | Scale bars, dimension lines, and angle arcs |
+| **Brackets & braces** | [`<s:brace>`](#braces), [`<s:bracket>`](#brackets) | Curly braces and square/round brackets for grouping |
+| **Region of interest** | [`<s:roi-rect>`](#roi-rectangle), [`<s:roi-ellipse>`](#roi-ellipse), [`<s:roi-polygon>`](#roi-polygon), [`<s:spotlight>`](#spotlight) | Highlighted regions and inverse-highlight masks |
+| **Point markers** | [`<s:marker>`](#point-markers), [`<s:crosshair>`](#crosshair) | Symbol glyphs and reticles at specific locations |
+| **Emphasis & focus** | [`<s:halo>`](#halo) | Glowing rings to draw attention to features |
+| **Orientation & reference** | [`<s:compass>`](#orientation--reference) | Compass roses and orientation indicators |
+| **Positioning** | [`<s:anchor>`](#named-anchors) | Named anchor points for relative positioning |
 
 ## Common attributes
 
