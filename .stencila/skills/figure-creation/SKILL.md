@@ -247,7 +247,7 @@ Benefits: moving a feature means updating one `<s:anchor>`, not every component 
 | `<s:roi-ellipse>` | center, `rx`, `ry`, `label` | Elliptical ROI outlines |
 | `<s:roi-polygon>` | `points`, `label` | Polygonal region outlines |
 | `<s:spotlight>` | center, `r`, `opacity` | Inverse highlight (dims outside) |
-| `<s:marker>` | position, `symbol`, `label` | Symbol glyphs: `circle`, `cross`, `pin`, `star` |
+| `<s:marker>` | position, `symbol`, `color`, `label` | Symbol glyphs: `circle`, `cross`, `pin`, `star` |
 | `<s:crosshair>` | center, `size`, `gap`, `ring`, `label` | Reticle at a precise location |
 | `<s:halo>` | center, `r`, `width`, `color`, `opacity` | Semi-transparent glowing ring |
 | `<s:compass>` | position, `size`, `variant`, `axes` | Orientation indicator |

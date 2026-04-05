@@ -104,11 +104,12 @@ Curve types: `straight` (default), `quad`, `cubic`, `elbow`.
 
 ```xml
 <s:marker x="150" y="100" symbol="pin" label="Site 1" size="24"/>
-<s:marker x="300" y="180" symbol="star" label="Site 2" size="22"/>
+<s:marker x="300" y="180" symbol="star" label="Site 2" size="22" color="#ff6600"/>
+<s:marker x="500" y="120" symbol="circle" fill="red" stroke="none" size="16"/>
 <s:crosshair cx="400" cy="120" size="25" gap="5" ring="true" label="Target"/>
 ```
 
-Symbols: `circle`, `cross`, `pin`, `star`.
+Symbols: `circle`, `cross`, `pin`, `star`. Use `color` to set both fill and stroke; use `fill`/`stroke` individually to override. Default: `currentColor`.
 
 ## Subfigure overlay pattern
 

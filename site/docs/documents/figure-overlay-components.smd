@@ -127,10 +127,10 @@ Use with `symbol` on `<s:marker>`, or reference directly with `<use href="#s:mar
 
 | Id | Description |
 | --- | --- |
-| `s:marker-circle` | Open circle |
+| `s:marker-circle` | Circle |
 | `s:marker-cross` | × cross |
 | `s:marker-pin` | Map-style pin |
-| `s:marker-star` | Filled star |
+| `s:marker-star` | Star |
 
 You can also reference any built-in definition from standard SVG elements using `url(#id)` or `href="#id"` syntax:
 
@@ -738,8 +738,15 @@ The `<s:marker>` component stamps a symbol at a location, drawn from a built-in 
 | `dx`, `dy` | offset | `0` | Offset from anchor |
 | `symbol` | `circle`, `cross`, `pin`, `star` | `circle` | Symbol glyph |
 | `size` | number | `20` | Symbol size in viewBox units |
+| `color` | color | `currentColor` | Sets both fill and stroke |
+| `fill` | color | `currentColor` | Fill color (overrides `color`) |
+| `stroke` | color | `currentColor` | Stroke color (overrides `color`) |
 | `label` | text | — | Optional label |
 | `label-position` | `right`, `above`, `below`, `left` | `right` | Label placement |
+
+> [!tip]
+> 
+> Use `fill="none"` for outline-only markers (e.g., an open circle or outlined star).
 
 ````smd demo
 ::: figure

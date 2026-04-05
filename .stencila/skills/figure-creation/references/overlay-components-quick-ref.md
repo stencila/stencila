@@ -164,8 +164,13 @@ Symbol glyph at a location. Required: position.
 |---|---|---|
 | `symbol` | `circle`, `cross`, `pin`, `star` | `circle` |
 | `size` | number | `20` |
+| `color` | color | `currentColor` |
+| `fill` | color | `currentColor` |
+| `stroke` | color | `currentColor` |
 | `label` | text | — |
 | `label-position` | `right`, `above`, `below`, `left` | `right` |
+
+`color` sets both fill and stroke. Use `fill` or `stroke` individually to override one while keeping the other. Use `fill="none"` for outline-only markers.
 
 ## Crosshair (`<s:crosshair>`)
 

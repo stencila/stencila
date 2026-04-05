@@ -22,19 +22,19 @@ const BUILTIN_DEFS: &[(&str, &str)] = &[
     ),
     (
         "s:marker-circle",
-        r#"<symbol id="s:marker-circle" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" fill="none" stroke="currentColor" stroke-width="2"/></symbol>"#,
+        r#"<symbol id="s:marker-circle" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8" stroke-width="2"/></symbol>"#,
     ),
     (
         "s:marker-cross",
-        r#"<symbol id="s:marker-cross" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke="currentColor" stroke-width="2"/><line x1="16" y1="4" x2="4" y2="16" stroke="currentColor" stroke-width="2"/></symbol>"#,
+        r#"<symbol id="s:marker-cross" viewBox="0 0 20 20"><line x1="4" y1="4" x2="16" y2="16" stroke-width="2"/><line x1="16" y1="4" x2="4" y2="16" stroke-width="2"/></symbol>"#,
     ),
     (
         "s:marker-pin",
-        r#"<symbol id="s:marker-pin" viewBox="0 0 20 30"><path d="M10 0 C4.5 0 0 4.5 0 10 C0 18 10 30 10 30 C10 30 20 18 20 10 C20 4.5 15.5 0 10 0 Z" fill="currentColor"/><circle cx="10" cy="10" r="4" fill="white"/></symbol>"#,
+        r#"<symbol id="s:marker-pin" viewBox="0 0 20 30"><path d="M10 0 C4.5 0 0 4.5 0 10 C0 18 10 30 10 30 C10 30 20 18 20 10 C20 4.5 15.5 0 10 0 Z"/><circle cx="10" cy="10" r="4" fill="white"/></symbol>"#,
     ),
     (
         "s:marker-star",
-        r#"<symbol id="s:marker-star" viewBox="0 0 20 20"><polygon points="10,1 12.5,7.5 19,7.5 14,12 16,19 10,15 4,19 6,12 1,7.5 7.5,7.5" fill="currentColor"/></symbol>"#,
+        r#"<symbol id="s:marker-star" viewBox="0 0 20 20"><polygon points="10,1 12.5,7.5 19,7.5 14,12 16,19 10,15 4,19 6,12 1,7.5 7.5,7.5"/></symbol>"#,
     ),
     (
         "s:cap-line",
