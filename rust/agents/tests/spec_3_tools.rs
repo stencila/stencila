@@ -78,7 +78,10 @@ struct MockExecutionEnvironment {
 #[derive(Clone, Debug)]
 enum MockFileContent {
     Text(String),
-    Image { data: Vec<u8>, media_type: String },
+    Image {
+        data: Vec<u8>,
+        media_type: String,
+    },
 }
 
 impl MockExecutionEnvironment {
@@ -214,6 +217,8 @@ impl ExecutionEnvironment for MockExecutionEnvironment {
             MockFileContent::Image { data, media_type } => Ok(FileContent::Image {
                 data: data.clone(),
                 media_type: media_type.clone(),
+                width: None,
+                height: None,
             }),
         }
     }

@@ -112,7 +112,9 @@ async fn read_file_image_returns_image_content() -> Result<(), AgentError> {
     let env = local_env(tmp.path());
     let content = env.read_file("icon.png", None, None).await?;
     match content {
-        FileContent::Image { data, media_type } => {
+        FileContent::Image {
+            data, media_type, ..
+        } => {
             assert_eq!(data, fake_png);
             assert_eq!(media_type, "image/png");
         }

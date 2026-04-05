@@ -30,8 +30,13 @@ use crate::types::{DirEntry, ExecResult, GrepOptions};
 pub enum FileContent {
     /// Line-numbered text in `NNN | content` format.
     Text(String),
-    /// Raw image bytes with a detected MIME type.
-    Image { data: Vec<u8>, media_type: String },
+    /// Raw image bytes with a detected MIME type and optional pixel dimensions.
+    Image {
+        data: Vec<u8>,
+        media_type: String,
+        width: Option<u32>,
+        height: Option<u32>,
+    },
 }
 
 // ---------------------------------------------------------------------------

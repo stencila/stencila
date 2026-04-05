@@ -14,7 +14,8 @@ pub fn definition() -> ToolDefinition {
         description: "Read the contents of a file. For text files, output includes line \
             numbers formatted as `{line_number} | {content}`. Use offset and limit to \
             read specific portions of large text files. For image files (PNG, JPEG, GIF, \
-            WebP, SVG), the image content is returned directly for visual inspection."
+            WebP, SVG), the image content is returned directly for visual inspection \
+            along with pixel dimensions (width×height) for raster formats."
             .into(),
         parameters: json!({
             "type": "object",
@@ -65,8 +66,18 @@ pub fn executor() -> ToolExecutorFn {
 
                 let output = match content {
                     FileContent::Text(text) => ToolOutput::Text(text),
-                    FileContent::Image { data, media_type } => {
-                        let text = format!("[Image file: {file_path} ({media_type})]");
+                    FileContent::Image {
+                        data,
+                        media_type,
+                        width,
+                        height,
+                    } => {
+                        let dims = match (width, height) {
+                            (Some(w), Some(h)) => format!(", {w}×{h}"),
+                            _ => String::new(),
+                        };
+                        let text =
+                            format!("[Image file: {file_path} ({media_type}{dims})]");
                         if data.len() <= MAX_IMAGE_BYTES {
                             ToolOutput::ImageWithText {
                                 text,

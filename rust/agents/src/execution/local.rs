@@ -3,6 +3,7 @@
 //! Runs tool operations on the local filesystem with the local shell.
 
 use std::collections::HashMap;
+use std::io::Cursor;
 use std::path::{Path, PathBuf};
 use std::sync::Arc;
 use std::sync::atomic::{AtomicBool, Ordering};
@@ -92,7 +93,28 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
             let data = tokio::fs::read(&resolved)
                 .await
                 .map_err(|e| AgentError::from_io(e, &resolved))?;
-            return Ok(FileContent::Image { data, media_type });
+
+            // Extract pixel dimensions for raster images (not SVG)
+            let (width, height) = if media_type != "image/svg+xml" {
+                image::guess_format(&data)
+                    .ok()
+                    .and_then(|format| {
+                        image::ImageReader::with_format(Cursor::new(&data), format)
+                            .into_dimensions()
+                            .ok()
+                    })
+                    .map(|(width, height)| (Some(width), Some(height)))
+                    .unwrap_or((None, None))
+            } else {
+                (None, None)
+            };
+
+            return Ok(FileContent::Image {
+                data,
+                media_type,
+                width,
+                height,
+            });
         }
 
         let raw = tokio::fs::read_to_string(&resolved)

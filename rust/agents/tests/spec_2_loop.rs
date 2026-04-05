@@ -136,6 +136,8 @@ impl ExecutionEnvironment for MockExecEnv {
             Ok(FileContent::Image {
                 data: Self::png_bytes(1, 1)?,
                 media_type: "image/png".into(),
+                width: Some(1),
+                height: Some(1),
             })
         } else {
             Ok(FileContent::Text(format!("     1\t| content of {path}")))

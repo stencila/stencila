@@ -62,8 +62,19 @@ pub fn executor() -> ToolExecutorFn {
                         Ok(FileContent::Text(text)) => {
                             parts.push(format!("{header}\n{text}"));
                         }
-                        Ok(FileContent::Image { media_type, .. }) => {
-                            parts.push(format!("{header}\n[Image file: {path} ({media_type})]"));
+                        Ok(FileContent::Image {
+                            media_type,
+                            width,
+                            height,
+                            ..
+                        }) => {
+                            let dims = match (width, height) {
+                                (Some(w), Some(h)) => format!(", {w}×{h}"),
+                                _ => String::new(),
+                            };
+                            parts.push(format!(
+                                "{header}\n[Image file: {path} ({media_type}{dims})]"
+                            ));
                         }
                         Err(e) => {
                             parts.push(format!("{header}\n[Error: {e}]"));
