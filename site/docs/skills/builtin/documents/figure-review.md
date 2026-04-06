@@ -132,9 +132,11 @@ Use `snap` when a Stencila server and route are available. `snap` is the evidenc
 
 ### Typical `snap` checks for figure review
 
-1. Overall figure capture: `snap(route: "/path/to/document", selector: "stencila-figure", screenshot: true)`
+1. Overall figure capture: `snap(route: "/docs/", selector: "stencila-figure", screenshot: true)`
 2. Focus a specific figure when the route has many figures by using a narrower selector or reviewing one figure at a time
 3. Re-snap after a proposed correction only if the environment supports it and the figure has actually been updated
+
+Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
 
 ### When `snap` is unavailable
 
@@ -292,7 +294,7 @@ Output:
    - use an anchor for the peak annotation rather than repeating the same coordinates across the halo and callout
 7. Verification status:
    - static review complete
-   - run `snap(route: "/path/to/document", selector: "stencila-figure", screenshot: true)` to confirm overlay alignment
+   - run `snap(route: "/docs/", selector: "stencila-figure", screenshot: true)` to confirm overlay alignment
 8. Final verdict or next step:
    - acceptable with revisions and visual verification
 
