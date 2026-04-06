@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, resolve_text, svg_text,
 };
 
 /// Expand `<s:roi-rect>` into a rectangle outline.
@@ -38,6 +38,7 @@ pub fn expand_rect(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let stroke_style = attr_str(attrs, "stroke-style", "solid");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let dash = stroke_dash_attr(stroke_style);
 
     let mut svg = format!(
@@ -53,7 +54,7 @@ pub fn expand_rect(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     if !label.is_empty() {
         let (lx, ly, anchor) = label_coords(x, y, w, h, label_position);
-        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, text_fill, ""));
     }
 
     svg
@@ -82,6 +83,7 @@ pub fn expand_ellipse(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let stroke_style = attr_str(attrs, "stroke-style", "solid");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let dash = stroke_dash_attr(stroke_style);
 
     let mut svg = format!(
@@ -97,7 +99,7 @@ pub fn expand_ellipse(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     if !label.is_empty() {
         let (lx, ly, anchor) = label_coords(cx - rx, cy - ry, rx * 2.0, ry * 2.0, label_position);
-        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, text_fill, ""));
     }
 
     svg
@@ -139,6 +141,7 @@ pub fn expand_polygon(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let stroke_style = attr_str(attrs, "stroke-style", "solid");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let dash = stroke_dash_attr(stroke_style);
 
     let mut svg = format!(
@@ -164,7 +167,7 @@ pub fn expand_polygon(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         let w = max_x - min_x;
         let h = max_y - min_y;
         let (lx, ly, anchor) = label_coords(min_x, min_y, w, h, label_position);
-        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, text_fill, ""));
     }
 
     svg

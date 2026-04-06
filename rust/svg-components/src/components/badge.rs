@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, pass_through_attrs,
-    resolve_fill, resolve_position, resolve_stroke, svg_text,
+    resolve_fill, resolve_position, resolve_stroke, resolve_text, svg_text,
 };
 
 /// Expand `<s:badge>` into standard SVG text with a pill-shaped background.
@@ -29,6 +29,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let pass = pass_through_attrs(attrs);
     let fill = resolve_fill(attrs, "white");
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     let estimated_width = label.chars().count() as f64 * 6.5 + 12.0;
     let shape_height = 18.0;
@@ -57,6 +58,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         label,
         "middle",
         10,
+        text_fill,
         r#" dominant-baseline="middle""#,
     ));
 

@@ -109,7 +109,7 @@ Curve types: `straight` (default), `quad`, `cubic`, `elbow`.
 <s:crosshair cx="400" cy="120" size="25" gap="5" ring="true" label="Target"/>
 ```
 
-Symbols: `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down`. Use `color` to set both fill and stroke; use `fill`/`stroke` individually to override. Default: `currentColor`.
+Symbols: `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down`. Use `color` to set fill, stroke, and text; use `fill`/`stroke`/`text` individually to override. Default: `currentColor`.
 
 ## Subfigure overlay pattern
 
@@ -166,23 +166,23 @@ Parent overlays auto-hide when the grid collapses on small screens.
 
 ## Custom colors
 
-All components support `stroke`, `fill`, and `color` attributes. The `color` shorthand sets both fill and stroke; explicit `fill` or `stroke` override it. Arrow markers automatically match the stroke of the line they are attached to.
+All components support `stroke`, `fill`, `text`, and `color` attributes. The `color` shorthand sets stroke, fill, and text; explicit `fill`, `stroke`, or `text` override it. Arrow markers automatically match the stroke of the line they are attached to.
 
 ```xml
 <!-- Colored arrow — arrowhead matches automatically -->
 <s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson" stroke-width="2"/>
 
-<!-- Styled callout with custom background and border -->
-<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+<!-- Styled callout with custom background, border, and text color -->
+<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9" text="#1a5276"/>
 
-<!-- Color shorthand sets both fill and stroke on marker -->
+<!-- Color shorthand sets fill, stroke, and text on marker -->
 <s:marker x="200" y="100" symbol="circle" color="#2563eb"/>
 
-<!-- Colored ROI -->
-<s:roi-rect x="50" y="40" width="140" height="90" label="Region A" stroke="green" stroke-style="dashed"/>
+<!-- Colored ROI — color shorthand sets both stroke and label text -->
+<s:roi-rect x="50" y="40" width="140" height="90" label="Region A" color="green" stroke-style="dashed"/>
 
-<!-- Colored dimension line — all parts (main line, caps, extensions) match -->
-<s:dimension x="100" y="300" to-x="400" to-y="300" label="4.2 cm" stroke="#FF0000"/>
+<!-- Dimension line with different stroke and text colors -->
+<s:dimension x="100" y="300" to-x="400" to-y="300" label="4.2 cm" stroke="gray" text="navy"/>
 ```
 
 ## Mixing components with raw SVG

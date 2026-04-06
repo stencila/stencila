@@ -82,18 +82,20 @@ Single-point components like `<s:marker>`, `<s:compass>`, and `<s:halo>` use `at
 
 ### Colors
 
-All components support `stroke` and `fill` attributes. If omitted, the `color` attribute is used as a shorthand for both; if none are set, a component-appropriate default is used (`currentColor` for strokes, `white` for label backgrounds, `currentColor` for marker fills). Arrow markers automatically match the stroke color of the line they are attached to.
+All components support `stroke`, `fill`, and `text` attributes. If omitted, the `color` attribute is used as a shorthand for all three; if none are set, a component-appropriate default is used (`currentColor` for strokes, `white` for label backgrounds, `currentColor` for marker fills, `currentColor` for text). Arrow markers automatically match the stroke color of the line they are attached to.
 
 | Attribute | Fallback | Default | Description |
 | --- | --- | --- | --- |
 | `stroke` | `color` | `currentColor` | Stroke color applied to all parts of the component |
 | `fill` | `color` | varies by component | Fill color (e.g. background of badges, callouts, marker symbols) |
-| `color` | — | `currentColor` | Shorthand that sets both fill and stroke |
+| `text` | `color` | `currentColor` | Label text color |
+| `color` | — | `currentColor` | Shorthand that sets stroke, fill, and text |
 
 ```xml
 <s:arrow x="100" y="100" to-x="300" to-y="200" stroke="crimson"/>
-<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+<s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9" text="#1a5276"/>
 <s:marker at="#peak" symbol="circle" color="#2563eb"/>
+<s:dimension x="50" y="200" to-x="250" to-y="200" label="4.2 cm" stroke="gray" text="navy"/>
 ```
 
 ### Labels
@@ -341,11 +343,11 @@ The `<s:callout>` component places text at a position, optionally with a backgro
   <s:callout x="100" y="60" label="Plain text"/>
   <s:callout x="300" y="60" label="Rectangle" shape="rect"/>
   <s:callout x="500" y="60" label="Pill shape" shape="pill"/>
-  <s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9"/>
+  <s:callout x="300" y="160" label="n = 1,024" shape="pill" fill="#e8f4fd" stroke="#4a90d9" text="#1a5276"/>
 </svg>
 ```
 
-Callouts without leader lines: plain text, rectangle background, pill background, and a styled pill with custom colors.
+Callouts without leader lines: plain text, rectangle background, pill background, and a styled pill with custom fill, stroke, and text colors.
 
 :::
 ````
@@ -649,7 +651,7 @@ The `<s:roi-ellipse>` component outlines an elliptical or circular region.
 
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
-  <s:roi-rect x="50" y="40" width="160" height="100" label="Region A" stroke-style="dashed"/>
+  <s:roi-rect x="50" y="40" width="160" height="100" label="Region A" stroke-style="dashed" color="green"/>
   <s:roi-rect x="350" y="160" width="120" height="90" label="Region B" label-position="below" stroke-style="dotted"/>
   <s:roi-ellipse at="#s:center" rx="80" ry="50" label="Zone C"/>
 </svg>
@@ -827,7 +829,7 @@ The `<s:crosshair>` component renders a crosshair/reticle centered on a point, w
 ```svg overlay
 <svg viewBox="0 0 600 300" xmlns:s="https://stencila.io/svg">
   <s:crosshair cx="150" cy="150" size="25" gap="5" label="Point A"/>
-  <s:crosshair at="#s:center" size="30" gap="6" ring="true" label="Center target" stroke="crimson"/>
+  <s:crosshair at="#s:center" size="30" gap="6" ring="true" label="Center target" stroke="crimson" text="darkred"/>
 </svg>
 ```
 

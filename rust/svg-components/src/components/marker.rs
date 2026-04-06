@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_fill, resolve_position, resolve_stroke, svg_text,
+    pass_through_attrs, resolve_fill, resolve_position, resolve_stroke, resolve_text, svg_text,
 };
 
 /// Expand `<s:marker>` into a defs-backed symbol stamp with optional label.
@@ -11,7 +11,8 @@ use super::{
 /// - `x`/`y` or `at`: position
 /// - `symbol`: symbol name (references `#s:marker-{symbol}`), defaults to `circle`
 /// - `size`: symbol size in viewBox units, defaults to 20
-/// - `color`: shorthand that sets both `fill` and `stroke` (overridden by explicit `fill`/`stroke`)
+/// - `color`: shorthand that sets both `fill`, `stroke`, and `text` (overridden by explicit values)
+/// - `text`: label text color (default `currentColor`; falls back to `color`)
 /// - `background`: background color behind symbol and label (default `white`, `none` to disable)
 /// - `label`: optional text label
 /// - `label-position`: `right` (default), `above`, `below`, `left`
@@ -35,6 +36,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     // Resolve fill and stroke: explicit fill/stroke win, then color shorthand, then currentColor
     let fill = resolve_fill(attrs, "currentColor");
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let color_attrs = format!(" fill=\"{fill}\" stroke=\"{stroke}\"");
 
     // Label position and text anchor
@@ -115,7 +117,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     );
 
     if !label.is_empty() {
-        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, text_fill, ""));
     }
 
     svg

@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, pass_through_attrs,
-    resolve_position, resolve_stroke, svg_line, svg_text,
+    resolve_position, resolve_stroke, resolve_text, svg_line, svg_text,
 };
 
 /// Expand `<s:scale-bar>` into standard SVG.
@@ -29,6 +29,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let side = attr_str(attrs, "side", "bottom");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let cap_height = 8.0;
 
     let vertical = matches!(side, "left" | "right");
@@ -95,14 +96,14 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 "left" => "end",
                 _ => "start", // right
             };
-            svg.push_str(&svg_text(text_x, text_y, label, anchor, 12, ""));
+            svg.push_str(&svg_text(text_x, text_y, label, anchor, 12, text_fill, ""));
         } else {
             let text_x = x + length / 2.0;
             let text_y = match label_position {
                 "above" => y - 8.0,
                 _ => y + 16.0, // below (default)
             };
-            svg.push_str(&svg_text(text_x, text_y, label, "middle", 12, ""));
+            svg.push_str(&svg_text(text_x, text_y, label, "middle", 12, text_fill, ""));
         }
     }
 

@@ -2,7 +2,7 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_stroke, svg_line, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_text, svg_line, svg_text,
 };
 
 /// Expand `<s:crosshair>` into a crosshair/reticle SVG.
@@ -33,6 +33,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "right");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     let mut svg = String::new();
 
@@ -64,7 +65,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             "left" => (cx - size - 6.0, cy + 4.0, "end"),
             _ => (cx + size + 6.0, cy + 4.0, "start"), // right (default)
         };
-        svg.push_str(&svg_text(lx, ly, label, anchor, 12, ""));
+        svg.push_str(&svg_text(lx, ly, label, anchor, 12, text_fill, ""));
     }
 
     svg

@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64_or, attr_str, pass_through_attrs,
-    resolve_position, resolve_stroke, svg_line, svg_text,
+    resolve_position, resolve_stroke, resolve_text, svg_line, svg_text,
 };
 
 /// Expand `<s:compass>` into a directional compass rose.
@@ -28,6 +28,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let axes_str = attr_str(attrs, "axes", "N/S E/W");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     let axes = parse_axes(axes_str);
     let r = size / 2.0;
@@ -48,17 +49,18 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 up,
                 "middle",
                 12,
+                text_fill,
                 r#" font-weight="bold""#,
             ));
         }
         if let Some(down) = axes.first().map(|(_, n)| n.as_str()) {
-            svg.push_str(&svg_text(x, y + r + 14.0, down, "middle", 12, ""));
+            svg.push_str(&svg_text(x, y + r + 14.0, down, "middle", 12, text_fill, ""));
         }
         if let Some(right) = axes.get(1).map(|(p, _)| p.as_str()) {
-            svg.push_str(&svg_text(x + r + 4.0, y + 4.0, right, "start", 12, ""));
+            svg.push_str(&svg_text(x + r + 4.0, y + 4.0, right, "start", 12, text_fill, ""));
         }
         if let Some(left) = axes.get(1).map(|(_, n)| n.as_str()) {
-            svg.push_str(&svg_text(x - r - 4.0, y + 4.0, left, "end", 12, ""));
+            svg.push_str(&svg_text(x - r - 4.0, y + 4.0, left, "end", 12, text_fill, ""));
         }
     } else {
         // arrow variant: single directional arrow pointing up with label
@@ -78,6 +80,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 label,
                 "middle",
                 12,
+                text_fill,
                 r#" font-weight="bold""#,
             ));
         }

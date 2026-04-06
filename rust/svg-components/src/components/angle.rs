@@ -1,6 +1,6 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_f64_or, fmt_coord,
-    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, resolve_text, svg_text,
 };
 use std::f64::consts::{PI, TAU};
 
@@ -49,6 +49,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attrs.get("label");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     // Compute angles from vertex to each endpoint
     let angle_from = (fy - vy).atan2(fx - vx);
@@ -95,6 +96,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 label_text,
                 "middle",
                 12,
+                text_fill,
                 r#" dominant-baseline="middle""#,
             )
         }

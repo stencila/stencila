@@ -20,13 +20,14 @@ Single-point components (`marker`, `compass`, `halo`, `crosshair`, `spotlight`, 
 
 ## Common color attributes
 
-All components resolve `stroke` and `fill` through a cascade: explicit attribute → `color` shorthand → component default. Arrow markers automatically inherit the stroke color of the line they are attached to.
+All components resolve `stroke`, `fill`, and `text` through a cascade: explicit attribute → `color` shorthand → component default. Arrow markers automatically inherit the stroke color of the line they are attached to.
 
 | Attribute | Fallback | Default | Description |
 |---|---|---|---|
 | `stroke` | `color` | `currentColor` | Stroke color for all parts of the component |
 | `fill` | `color` | varies (`white` for badge/callout backgrounds, `currentColor` for markers, `none` for outlines) | Fill color |
-| `color` | — | `currentColor` | Shorthand that sets both fill and stroke |
+| `text` | `color` | `currentColor` | Label text color |
+| `color` | — | `currentColor` | Shorthand that sets stroke, fill, and text |
 
 ## Common connector attributes
 
@@ -183,7 +184,7 @@ Symbol glyph at a location. Required: position.
 | `label` | text | — |
 | `label-position` | `right`, `above`, `below`, `left` | `right` |
 
-`color` sets both fill and stroke. Use `fill` or `stroke` individually to override one while keeping the other. Use `fill="none"` for outline-only markers. A 50% opacity `background` (default white) is rendered behind the symbol and label for legibility; set `background="none"` to disable.
+`color` sets fill, stroke, and text. Use `fill`, `stroke`, or `text` individually to override one while keeping the others. Use `fill="none"` for outline-only markers. A 50% opacity `background` (default white) is rendered behind the symbol and label for legibility; set `background="none"` to disable.
 
 ## Crosshair (`<s:crosshair>`)
 

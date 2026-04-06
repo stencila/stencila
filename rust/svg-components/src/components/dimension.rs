@@ -1,6 +1,7 @@
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, pass_through_attrs,
-    resolve_position, resolve_stroke, resolve_target, svg_line, svg_text, vector_metrics,
+    resolve_position, resolve_stroke, resolve_target, resolve_text, svg_line, svg_text,
+    vector_metrics,
 };
 
 /// Expand `<s:dimension>` into standard SVG.
@@ -32,6 +33,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let side = attr_str(attrs, "side", "above");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
     let cap_height = 8.0;
     let side_offset = 20.0;
 
@@ -132,6 +134,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 label,
                 "middle",
                 12,
+                text_fill,
                 &format!(r#" dominant-baseline="{baseline}""#),
             ));
         } else {
@@ -141,6 +144,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 label,
                 "middle",
                 12,
+                text_fill,
                 &format!(
                     r#" dominant-baseline="{baseline}" transform="rotate({}, {}, {})""#,
                     fmt_coord(angle_deg),

@@ -145,9 +145,17 @@ fn attr_f64_or(attrs: &Attrs, key: &str, default: f64) -> f64 {
 // --- SVG element helpers ---
 
 /// Generate an SVG `<text>` element.
-fn svg_text(x: f64, y: f64, text: &str, anchor: &str, font_size: u32, extra: &str) -> String {
+fn svg_text(
+    x: f64,
+    y: f64,
+    text: &str,
+    anchor: &str,
+    font_size: u32,
+    fill: &str,
+    extra: &str,
+) -> String {
     format!(
-        r#"<text x="{}" y="{}" text-anchor="{anchor}" font-size="{font_size}"{extra}>{}</text>"#,
+        r#"<text x="{}" y="{}" text-anchor="{anchor}" font-size="{font_size}" fill="{fill}"{extra}>{}</text>"#,
         fmt_coord(x),
         fmt_coord(y),
         xml_escape(text)
@@ -329,6 +337,14 @@ fn resolve_fill<'a>(attrs: &'a Attrs, default: &'a str) -> &'a str {
         .map_or(default, std::string::String::as_str)
 }
 
+/// Resolve the text color: explicit `text` attr, then `color` shorthand, then `currentColor`.
+fn resolve_text(attrs: &Attrs) -> &str {
+    attrs
+        .get("text")
+        .or_else(|| attrs.get("color"))
+        .map_or("currentColor", std::string::String::as_str)
+}
+
 /// Collect SVG presentation attributes to pass through.
 fn pass_through_attrs(attrs: &Attrs) -> String {
     // Known s: component attributes that should NOT be passed through
@@ -376,6 +392,7 @@ fn pass_through_attrs(attrs: &Attrs) -> String {
         "fill",
         "stroke",
         "color",
+        "text",
         "background",
         "opacity",
     ];
@@ -475,6 +492,29 @@ mod tests {
     fn resolve_fill_default() {
         assert_eq!(resolve_fill(&attrs(&[]), "white"), "white");
         assert_eq!(resolve_fill(&attrs(&[]), "currentColor"), "currentColor");
+    }
+
+    #[test]
+    fn resolve_text_explicit() {
+        assert_eq!(resolve_text(&attrs(&[("text", "red")])), "red");
+    }
+
+    #[test]
+    fn resolve_text_color_fallback() {
+        assert_eq!(resolve_text(&attrs(&[("color", "blue")])), "blue");
+    }
+
+    #[test]
+    fn resolve_text_explicit_over_color() {
+        assert_eq!(
+            resolve_text(&attrs(&[("text", "red"), ("color", "blue")])),
+            "red"
+        );
+    }
+
+    #[test]
+    fn resolve_text_default() {
+        assert_eq!(resolve_text(&attrs(&[])), "currentColor");
     }
 
     #[test]

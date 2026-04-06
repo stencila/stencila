@@ -2,7 +2,8 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, ConnectorOpts, attr_str, connector_svg, fmt_coord,
-    pass_through_attrs, resolve_fill, resolve_position, resolve_stroke, resolve_target, svg_text,
+    pass_through_attrs, resolve_fill, resolve_position, resolve_stroke, resolve_target, resolve_text,
+    svg_text,
 };
 
 /// Expand `<s:callout>` into standard SVG text with optional leader line and background shape.
@@ -32,6 +33,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let pass = pass_through_attrs(attrs);
     let fill = resolve_fill(attrs, "white");
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     let target = resolve_target(attrs, ctx.anchors);
 
@@ -75,7 +77,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     } else {
         r#" dominant-baseline="middle""#.to_string()
     };
-    svg.push_str(&svg_text(text_x, text_y, label, "middle", 12, &text_extra));
+    svg.push_str(&svg_text(text_x, text_y, label, "middle", 12, text_fill, &text_extra));
 
     // Leader line (only if target is specified)
     if let Some((tx, ty)) = target {

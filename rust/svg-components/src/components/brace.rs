@@ -2,7 +2,8 @@ use std::fmt::Write;
 
 use super::{
     Attrs, CompilationMessage, ComponentContext, attr_f64, attr_str, fmt_coord, normal_for_side,
-    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, svg_text, vector_metrics,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, resolve_text, svg_text,
+    vector_metrics,
 };
 
 /// Expand `<s:brace>` into a curly brace SVG path.
@@ -33,6 +34,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label = attrs.get("label");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
+    let text_fill = resolve_text(attrs);
 
     // Direction vector from start to end
     let metrics = vector_metrics(x1, y1, x2, y2);
@@ -106,7 +108,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 ),
                 _ => r#" dominant-baseline="middle""#.to_string(),
             };
-            svg_text(lx, ly, label_text, "middle", 12, &extra)
+            svg_text(lx, ly, label_text, "middle", 12, text_fill, &extra)
         }
         None => String::new(),
     };
