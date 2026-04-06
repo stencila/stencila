@@ -133,10 +133,10 @@ When calibration or orientation information is missing, either ask the user or u
 
 ## Figure syntax
 
-A figure uses a colon fence with the keyword `figure`:
+A figure uses a colon fence with the keyword `figure` and optional label, `#id`, `[layout]`, and `{attrs}`:
 
 ````smd
-::: figure
+::: figure <label> #<id> [<layout>] {pad="<padding>"}
 
 ![](image.png)
 
@@ -147,9 +147,29 @@ The caption text.
 
 Stencila auto-separates content from caption: paragraphs containing only an image (or audio/video) become **content**; all other paragraphs become **caption**. The caption can appear before or after the image.
 
-### Labels and cross-references
+### Labels, IDs, and cross-references
 
-Figures are auto-numbered ("Figure 1", "Figure 2", …). Subfigures get sub-labels (A, B, C, …). Link to a figure with `[Figure 1](#fig-1)` or `[](#fig-1)` (auto-filled). Avoid explicit labels — auto-numbering stays correct when figures are reordered.
+Figures are auto-numbered ("Figure 1", "Figure 2", …). Subfigures get sub-labels (A, B, C, …). Auto-derived IDs use a `fig-` prefix: `fig-1`, `fig-1a`, etc. Link to a figure with `[Figure 1](#fig-1)` or `[](#fig-1)` (auto-filled). Avoid explicit labels — auto-numbering stays correct when figures are reordered.
+
+### Stable IDs
+
+Use `#<id>` on the fence line to give a figure a stable, human-readable ID that survives reordering:
+
+```smd
+::: figure #specimen-1
+
+![](specimen-1.png)
+
+Photograph of the first specimen.
+
+:::
+```
+
+This figure is always reachable at `#specimen-1` regardless of its position. The `#id` can appear in any position relative to label, layout, and attributes.
+
+Prefer stable IDs when:
+- The figure is referenced from other documents, external links, or APIs.
+- You want to use `snap` to target a specific figure — a stable ID gives a reliable CSS selector (e.g. `selector: "[id='specimen-1']"`) that won't break when figures are reordered.
 
 ### Panel labels vs overlay badges
 
@@ -357,6 +377,12 @@ If a Stencila server and rendered route are available, optionally use `snap` to 
 snap(route: "/docs/", screenshot: true, selector: "stencila-figure")
 ```
 
+When a figure has a stable `#id`, use it for a more targeted snap that captures exactly that figure:
+
+```
+snap(route: "/docs/", screenshot: true, selector: "[id='specimen-1']")
+```
+
 Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
 
 If `snap` is unavailable, mark visual verification as pending. Do not claim rendered correctness unless `snap` was actually run.
@@ -371,6 +397,6 @@ For details on snap parameters and usage patterns, see [`references/snap-tool.md
 - **Parent overlay on mobile**: parent-level overlays (spanning the grid) auto-hide when the grid collapses to vertical on small screens. Subfigure overlays are unaffected.
 - **viewBox coordinate system**: the `viewBox` can use any coordinate system — matching image pixel dimensions is convenient but not required. All annotation geometry must use the same coordinate space as the `viewBox`.
 - **Multi-value padding**: quote the `pad` value when using more than one number: `{pad="30 60"}`, not `{pad=30 60}`.
-- **Cross-reference IDs**: IDs use a `fig-` prefix with the label lowercased — `fig-1`, `fig-2a`. If the user provides an explicit label, the ID derives from it.
+- **Cross-reference IDs**: auto-derived IDs use a `fig-` prefix with the label lowercased — `fig-1`, `fig-2a`. Use `#<id>` on the fence line for a stable ID that survives reordering (e.g. `::: figure #specimen-1`).
 - **Namespace declaration**: forgetting `xmlns:s="https://stencila.io/svg"` on the `<svg>` element causes components to be treated as unknown elements and silently ignored.
 - **Mixing components and raw SVG**: components and standard SVG elements work together in the same overlay. Use components for high-level annotations and raw SVG when precise control is needed.

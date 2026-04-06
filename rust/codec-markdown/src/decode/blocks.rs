@@ -10,9 +10,9 @@ use serde_json::json;
 use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
     ascii::{Caseless, multispace0, multispace1, space0},
-    combinator::{alt, delimited, eof, opt, preceded, separated, terminated},
+    combinator::{alt, delimited, eof, opt, preceded, repeat, separated, terminated},
     stream::AsChar,
-    token::{take_till, take_until, take_while},
+    token::{take, take_till, take_until, take_while},
 };
 
 use stencila_codec::{
@@ -826,6 +826,116 @@ fn chat_message(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
+/// A property parsed from a figure or table opening fence line.
+enum FenceProperty<'s> {
+    Id(&'s str),
+    Label(&'s str),
+    Layout(&'s str),
+    Attrs(Vec<(&'s str, Option<Node>)>),
+}
+
+/// Parsed fields from fence properties.
+struct FenceFields {
+    id: Option<String>,
+    label: Option<String>,
+    layout: Option<String>,
+    attrs: IndexMap<String, Option<Node>>,
+}
+
+/// Parse a `#id` property from a fence line.
+fn fence_id<'s>(input: &mut Located<&'s str>) -> ModalResult<FenceProperty<'s>> {
+    preceded(
+        '#',
+        take_while(1.., |c: char| !c.is_whitespace() && c != '[' && c != '{'),
+    )
+    .map(FenceProperty::Id)
+    .parse_next(input)
+}
+
+/// Parse a `[layout]` property from a fence line.
+fn fence_layout<'s>(input: &mut Located<&'s str>) -> ModalResult<FenceProperty<'s>> {
+    delimited('[', take_until(1.., ']'), ']')
+        .map(FenceProperty::Layout)
+        .parse_next(input)
+}
+
+/// Parse a `{attrs}` property from a fence line.
+fn fence_attrs<'s>(input: &mut Located<&'s str>) -> ModalResult<FenceProperty<'s>> {
+    attrs.map(FenceProperty::Attrs).parse_next(input)
+}
+
+/// Parse a label token from a fence line (greedy, stops at special chars).
+fn fence_label<'s>(input: &mut Located<&'s str>) -> ModalResult<FenceProperty<'s>> {
+    take_while(1.., |c: char| {
+        !c.is_whitespace() && c != '#' && c != '[' && c != '{'
+    })
+    .map(FenceProperty::Label)
+    .parse_next(input)
+}
+
+/// Single char fallback to mop up unmatched characters.
+fn fence_char<'s>(input: &mut Located<&'s str>) -> ModalResult<FenceProperty<'s>> {
+    take(1usize)
+        .map(|c: &str| FenceProperty::Label(c))
+        .parse_next(input)
+}
+
+/// Parse figure fence properties: id, label, layout, attrs in any order.
+fn figure_properties<'s>(input: &mut Located<&'s str>) -> ModalResult<Vec<FenceProperty<'s>>> {
+    repeat(
+        0..,
+        preceded(
+            multispace0,
+            alt((fence_id, fence_layout, fence_attrs, fence_label, fence_char)),
+        ),
+    )
+    .parse_next(input)
+}
+
+/// Parse table fence properties: id and label in any order.
+fn table_properties<'s>(input: &mut Located<&'s str>) -> ModalResult<Vec<FenceProperty<'s>>> {
+    repeat(
+        0..,
+        preceded(multispace0, alt((fence_id, fence_label, fence_char))),
+    )
+    .parse_next(input)
+}
+
+/// Collect parsed fence properties into structured fields.
+fn collect_fence_fields(props: Vec<FenceProperty>) -> FenceFields {
+    let mut id = None;
+    let mut label_parts = Vec::new();
+    let mut layout = None;
+    let mut attrs = IndexMap::new();
+    for prop in props {
+        match prop {
+            FenceProperty::Id(v) => {
+                if id.is_none() {
+                    id = Some(v.to_string())
+                }
+            }
+            FenceProperty::Label(v) => label_parts.push(v),
+            FenceProperty::Layout(v) => layout = Some(v.to_string()),
+            FenceProperty::Attrs(a) => {
+                for (k, v) in a {
+                    attrs.insert(k.to_string(), v);
+                }
+            }
+        }
+    }
+    let label = if label_parts.is_empty() {
+        None
+    } else {
+        Some(label_parts.join(" "))
+    };
+    FenceFields {
+        id,
+        label,
+        layout,
+        attrs,
+    }
+}
+
 /// Parse a [`Figure`] node with a label and/or caption
 fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
@@ -833,24 +943,21 @@ fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
             alt((Caseless("figure"), Caseless("fig"), Caseless("fig."))),
             multispace0,
         ),
-        (
-            opt(take_while(1.., |c: char| c != '[' && c != '{')),
-            opt(delimited('[', take_until(1.., ']'), ']')),
-            opt(preceded(multispace0, attrs)),
-        ),
+        figure_properties,
     )
-    .map(|(label, layout, attrs)| {
-        let mut attrs: IndexMap<&str, _> = attrs.unwrap_or_default().into_iter().collect();
-
+    .map(|props| {
+        let mut fields = collect_fence_fields(props);
         Block::Figure(Figure {
-            label: label
-                .and_then(|label: &str| (!label.trim().is_empty()).then_some(label.to_string())),
-            label_automatically: label.is_some().then_some(false),
-            options: Box::new(stencila_codec::stencila_schema::FigureOptions {
-                layout: layout.and_then(|layout: &str| {
-                    (!layout.trim().is_empty()).then_some(layout.to_string())
-                }),
-                padding: attrs.swap_remove("pad").flatten().map(node_to_string),
+            id: fields.id,
+            label: fields.label.clone(),
+            label_automatically: fields.label.is_some().then_some(false),
+            options: Box::new(FigureOptions {
+                layout: fields.layout,
+                padding: fields
+                    .attrs
+                    .swap_remove("pad")
+                    .flatten()
+                    .map(node_to_string),
                 ..Default::default()
             }),
             ..Default::default()
@@ -1124,18 +1231,17 @@ fn page(input: &mut Located<&str>) -> ModalResult<Block> {
 
 /// Parse a [`Table`] with a label and/or caption
 fn table(input: &mut Located<&str>) -> ModalResult<Block> {
-    preceded(
-        (Caseless("table"), multispace0),
-        opt(take_while(1.., |_| true)),
-    )
-    .map(|label: Option<&str>| {
-        Block::Table(Table {
-            label: label.map(|label| label.to_string()),
-            label_automatically: label.is_some().then_some(false),
-            ..Default::default()
+    preceded((Caseless("table"), multispace0), table_properties)
+        .map(|props| {
+            let fields = collect_fence_fields(props);
+            Block::Table(Table {
+                id: fields.id,
+                label: fields.label.clone(),
+                label_automatically: fields.label.is_some().then_some(false),
+                ..Default::default()
+            })
         })
-    })
-    .parse_next(input)
+        .parse_next(input)
 }
 
 /// Parse a divider between sections of content
@@ -2564,7 +2670,7 @@ A two-panel figure combining an executable plot with a real image.
         else {
             panic!("expected figure")
         };
-        assert_eq!(label.as_deref(), Some("1 "));
+        assert_eq!(label.as_deref(), Some("1"));
         assert_eq!(options.layout, None);
         assert_eq!(options.padding.as_deref(), Some("50"));
 
@@ -2582,7 +2688,7 @@ A two-panel figure combining an executable plot with a real image.
         else {
             panic!("expected figure")
         };
-        assert_eq!(label.as_deref(), Some("1 "));
+        assert_eq!(label.as_deref(), Some("1"));
         assert_eq!(options.layout.as_deref(), Some("2"));
         assert_eq!(options.padding.as_deref(), Some("30 60"));
 
@@ -2593,6 +2699,83 @@ A two-panel figure combining an executable plot with a real image.
         };
         assert_eq!(label, None);
         assert_eq!(options.padding.as_deref(), Some("50"));
+    }
+
+    #[test]
+    fn test_figure_with_id() {
+        let Block::Figure(Figure { id, label, .. }) =
+            figure(&mut Located::new("figure #data-plot")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(id.as_deref(), Some("data-plot"));
+        assert_eq!(label, None);
+
+        let Block::Figure(Figure {
+            id, label, options, ..
+        }) = figure(&mut Located::new("figure 1 #data-plot")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(id.as_deref(), Some("data-plot"));
+        assert_eq!(label.as_deref(), Some("1"));
+        assert_eq!(options.layout, None);
+
+        let Block::Figure(Figure { id, label, .. }) =
+            figure(&mut Located::new("figure #data-plot 1")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(id.as_deref(), Some("data-plot"));
+        assert_eq!(label.as_deref(), Some("1"));
+
+        let Block::Figure(Figure {
+            id, label, options, ..
+        }) = figure(&mut Located::new("figure 1 #data-plot [2] {pad=50}")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(id.as_deref(), Some("data-plot"));
+        assert_eq!(label.as_deref(), Some("1"));
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(options.padding.as_deref(), Some("50"));
+
+        let Block::Figure(Figure {
+            id, label, options, ..
+        }) = figure(&mut Located::new("figure #data-plot [2]")).unwrap()
+        else {
+            panic!("expected figure")
+        };
+        assert_eq!(id.as_deref(), Some("data-plot"));
+        assert_eq!(label, None);
+        assert_eq!(options.layout.as_deref(), Some("2"));
+    }
+
+    #[test]
+    fn test_table_with_id() {
+        let Block::Table(Table { id, label, .. }) =
+            table(&mut Located::new("table #summary-table")).unwrap()
+        else {
+            panic!("expected table")
+        };
+        assert_eq!(id.as_deref(), Some("summary-table"));
+        assert_eq!(label, None);
+
+        let Block::Table(Table { id, label, .. }) =
+            table(&mut Located::new("table 1 #summary-table")).unwrap()
+        else {
+            panic!("expected table")
+        };
+        assert_eq!(id.as_deref(), Some("summary-table"));
+        assert_eq!(label.as_deref(), Some("1"));
+
+        let Block::Table(Table { id, label, .. }) =
+            table(&mut Located::new("table #summary-table 1")).unwrap()
+        else {
+            panic!("expected table")
+        };
+        assert_eq!(id.as_deref(), Some("summary-table"));
+        assert_eq!(label.as_deref(), Some("1"));
     }
 
     #[test]

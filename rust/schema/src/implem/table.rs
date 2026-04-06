@@ -161,7 +161,7 @@ impl MarkdownCodec for Table {
 
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, authors, provenance));
+            .merge_losses(lost_options!(self, authors, provenance));
 
         if matches!(context.format, Format::Myst) {
             if self.label.is_some() || self.caption.is_some() {
@@ -194,6 +194,7 @@ impl MarkdownCodec for Table {
             context.exit_node().newline();
         } else {
             let wrapped = if (self.label.is_some() && !self.label_automatically.unwrap_or(true))
+                || self.id.is_some()
                 || self.caption.is_some()
                 || self.notes.is_some()
             {
@@ -204,6 +205,11 @@ impl MarkdownCodec for Table {
                 {
                     context.push_str(" ");
                     context.push_prop_str(NodeProperty::Label, label);
+                }
+
+                if let Some(id) = &self.id {
+                    context.push_str(" #");
+                    context.push_prop_str(NodeProperty::Id, id);
                 }
 
                 context.push_str("\n\n");

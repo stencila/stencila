@@ -463,7 +463,7 @@ impl MarkdownCodec for Figure {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context
             .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id, authors, provenance));
+            .merge_losses(lost_options!(self, authors, provenance));
 
         if matches!(context.format, Format::Myst) {
             context
@@ -511,6 +511,11 @@ impl MarkdownCodec for Figure {
             {
                 context.push_str(" ");
                 context.push_prop_str(NodeProperty::Label, label);
+            }
+
+            if let Some(id) = &self.id {
+                context.push_str(" #");
+                context.push_prop_str(NodeProperty::Id, id);
             }
 
             if let Some(layout) = &self.options.layout {

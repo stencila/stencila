@@ -17,7 +17,7 @@ Use a plain block image when you just want to show a picture. Use a figure when 
 A figure in Stencila Markdown starts with a colon fence line with the keyword `figure` and optional label, layout, and padding. In a basic figure there is usually a single image and a caption paragraph.
 
 ```smd
-::: figure <label> [<layout>] {pad="<padding>"}
+::: figure <label> #<id> [<layout>] {pad="<padding>"}
 
 ![](image.png)
 
@@ -32,17 +32,29 @@ Every figure automatically receives a sequential label — "Figure 1", "Figure 2
 
 You _can_ set an explicit label by placing it after the `figure` keyword. However, it is almost always better to omit explicit labels and let Stencila assign them automatically. Explicit labels do not update when you rearrange your document and can easily get out of sync.
 
-# Cross-referencing
+# IDs and cross-referencing
 
-Every figure with a label automatically receives an `id` that you can use as an internal link target. The id is derived from the label with a `fig-` prefix — for example, a figure labelled "1" gets the id `fig-1`, and a subfigure labelled "1A" gets `fig-1a`.
-
-Link to a figure using a standard Markdown link with a `#` target. Stencila resolves the reference and fills in the link text automatically if it is missing.
+Every figure automatically receives an `id` derived from its label with a `fig-` prefix — a figure labelled "1" gets `fig-1`, a subfigure labelled "1A" gets `fig-1a`. You can link to any figure using a standard Markdown link with a `#` target:
 
 ```smd demo
 See [Figure 1](#fig-1) for an overview.
 
 Subfigure [Figure 4a](#fig-4a) shows the red panel, while [Figure 4c](#fig-4c) shows the blue panel.
 ```
+
+Auto-derived IDs like `fig-1` change whenever you add, remove, or reorder figures. For figures that are referenced from other documents, external links, or APIs, you can assign a stable ID with `#<id>` on the fence line:
+
+```smd
+::: figure #specimen-1
+
+![](specimen-1.png)
+
+Photograph of the first specimen.
+
+:::
+```
+
+This figure is always reachable at `#specimen-1` regardless of its position in the document.
 
 # Captions
 

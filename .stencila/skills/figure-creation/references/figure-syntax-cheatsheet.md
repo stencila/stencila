@@ -6,7 +6,7 @@ description: Quick-reference for Stencila Markdown figure syntax — fences, cap
 ## Basic figure
 
 ```smd
-::: figure
+::: figure <label> #<id> [<layout>] {pad="<padding>"}
 
 ![](image.png)
 
@@ -17,13 +17,23 @@ The caption text.
 
 Content vs caption: paragraphs containing only an image/audio/video become **content**; all other paragraphs become **caption**. Caption can appear before or after content.
 
-## Labels and cross-references
+## Labels, IDs, and cross-references
 
-- Auto-numbered: "Figure 1", "Figure 2", etc.
+- Auto-numbered labels: "Figure 1", "Figure 2", etc.
 - Subfigures: "Figure 1A", "Figure 1B", etc.
-- IDs: `fig-1`, `fig-1a`, `fig-2`, etc.
+- Auto-derived IDs: `fig-1`, `fig-1a`, `fig-2`, etc.
 - Link syntax: `[Figure 1](#fig-1)` or `[](#fig-1)` (auto-filled).
 - Avoid explicit labels — auto-numbering stays correct on reorder.
+
+## Stable IDs
+
+Use `#<id>` on the fence line for a stable, human-readable ID that survives reordering:
+
+```smd
+::: figure #specimen-1
+```
+
+The `#id` can appear in any position relative to label, layout, and attributes. Prefer stable IDs when the figure is referenced externally or when using `snap` to target a specific figure (e.g. `selector: "[id='specimen-1']"`).
 
 ## Executable figure
 

@@ -9,9 +9,7 @@ use std::collections::HashMap;
 use stencila_codec_text::to_text;
 use stencila_node_id::NodeUid;
 use stencila_schema::{
-    Block, Citation, Heading, IfBlockClause, Inline, ListItem, Node, NodePath, NodeProperty,
-    NodeSlot, SuggestionBlock, SuggestionInline, TableCell, TableRow, VisitorMut, WalkControl,
-    WalkNode, WalkthroughStep,
+    Block, Citation, CodeBlock, CodeChunk, Figure, Heading, IfBlockClause, Inline, ListItem, Node, NodePath, NodeProperty, NodeSlot, SuggestionBlock, SuggestionInline, Table, TableCell, TableRow, VisitorMut, WalkControl, WalkNode, WalkthroughStep
 };
 
 /// Stabilize all node UIDs in a document tree.
@@ -298,6 +296,23 @@ impl VisitorMut for Stabilizer {
             return WalkControl::Continue;
         }
 
+        // Handle figures, tables and other block nodes with explicit IDs
+        if let Block::CodeBlock(CodeBlock { id: Some(id), .. })
+        | Block::CodeChunk(CodeChunk { id: Some(id), .. })
+        | Block::Figure(Figure { id: Some(id), .. })
+        | Block::Table(Table { id: Some(id), .. }) = block
+        {
+            let uid = NodeUid::from(id.as_bytes().to_vec());
+            match block {
+                Block::CodeBlock(block) => block.uid = uid,
+                Block::CodeChunk(block) => block.uid = uid,
+                Block::Figure(figure) => figure.uid = uid,
+                Block::Table(table) => table.uid = uid,
+                _ => unreachable!(),
+            }
+            return WalkControl::Continue;
+        }
+
         let uid = self.uid_from_path();
 
         macro_rules! variants {
@@ -451,7 +466,7 @@ impl VisitorMut for Stabilizer {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use stencila_schema::{Article, Heading, Paragraph, Text};
+    use stencila_schema::{Article, Figure, Heading, Paragraph, Table, TableRow, Text};
 
     #[test]
     fn test_stabilize_simple_document() {
@@ -702,5 +717,85 @@ mod tests {
             panic!("Expected Heading");
         };
         assert_eq!(heading2.node_id().uid_str(), "heading-2");
+    }
+
+    #[test]
+    fn test_figure_with_explicit_id() {
+        let article = Article {
+            content: vec![
+                Block::Figure(Figure {
+                    id: Some("data-plot".to_string()),
+                    content: vec![Block::Paragraph(Paragraph {
+                        content: vec![Inline::Text(Text {
+                            value: "image".into(),
+                            ..Default::default()
+                        })],
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                Block::Figure(Figure {
+                    content: vec![],
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut node = Node::Article(article);
+        stabilize(&mut node);
+
+        let Node::Article(stabilized) = node else {
+            panic!("Expected Article");
+        };
+
+        // Figure with explicit id uses it as the UID
+        let Block::Figure(fig1) = &stabilized.content[0] else {
+            panic!("Expected Figure");
+        };
+        assert_eq!(fig1.node_id().uid_str(), "data-plot");
+
+        // Figure without id uses path-based UID
+        let Block::Figure(fig2) = &stabilized.content[1] else {
+            panic!("Expected Figure");
+        };
+        assert_eq!(fig2.node_id().to_string(), "fig_content-1");
+    }
+
+    #[test]
+    fn test_table_with_explicit_id() {
+        let article = Article {
+            content: vec![
+                Block::Table(Table {
+                    id: Some("summary-table".to_string()),
+                    rows: vec![TableRow::default()],
+                    ..Default::default()
+                }),
+                Block::Table(Table {
+                    rows: vec![TableRow::default()],
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        };
+
+        let mut node = Node::Article(article);
+        stabilize(&mut node);
+
+        let Node::Article(stabilized) = node else {
+            panic!("Expected Article");
+        };
+
+        // Table with explicit id uses it as the UID
+        let Block::Table(tbl1) = &stabilized.content[0] else {
+            panic!("Expected Table");
+        };
+        assert_eq!(tbl1.node_id().uid_str(), "summary-table");
+
+        // Table without id uses path-based UID
+        let Block::Table(tbl2) = &stabilized.content[1] else {
+            panic!("Expected Table");
+        };
+        assert_eq!(tbl2.node_id().to_string(), "tbl_content-1");
     }
 }
