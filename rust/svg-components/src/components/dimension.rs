@@ -14,6 +14,7 @@ use super::{
 /// - `label-position`: `above` (default) or `below`
 /// - `label-angle`: `along` (default), `horizontal`, `vertical`, or a number in degrees
 /// - `side`: `above` (default), `below` — offset direction for the dimension line
+#[allow(clippy::too_many_lines)]
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let start = resolve_position(attrs, "x", "y", Some("from"), "dx", "dy", ctx.anchors);
     let end = resolve_target(attrs, ctx.anchors);
