@@ -145,6 +145,15 @@ fn attr_f64_or(attrs: &Attrs, key: &str, default: f64) -> f64 {
 // --- SVG element helpers ---
 
 /// Generate an SVG `<text>` element.
+///
+/// When `fill` is `currentColor` (the default), no fill attribute is emitted —
+/// the site CSS rule (`[slot="overlay"] svg text { fill: currentColor }`)
+/// handles theming so that text matches the overlay's themed color.
+///
+/// When `fill` is an explicit color, an inline `style="fill: ..."` is used
+/// rather than a `fill="..."` presentation attribute, because SVG presentation
+/// attributes have lower specificity than any CSS rule and would be overridden
+/// by the site's theme CSS.
 fn svg_text(
     x: f64,
     y: f64,
@@ -154,8 +163,13 @@ fn svg_text(
     fill: &str,
     extra: &str,
 ) -> String {
+    let fill_attr = if fill != "currentColor" {
+        format!(r#" style="fill: {fill}""#)
+    } else {
+        String::new()
+    };
     format!(
-        r#"<text x="{}" y="{}" text-anchor="{anchor}" font-size="{font_size}" fill="{fill}"{extra}>{}</text>"#,
+        r#"<text x="{}" y="{}" text-anchor="{anchor}" font-size="{font_size}"{fill_attr}{extra}>{}</text>"#,
         fmt_coord(x),
         fmt_coord(y),
         xml_escape(text)
