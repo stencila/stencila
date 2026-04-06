@@ -78,10 +78,7 @@ struct MockExecutionEnvironment {
 #[derive(Clone, Debug)]
 enum MockFileContent {
     Text(String),
-    Image {
-        data: Vec<u8>,
-        media_type: String,
-    },
+    Image { data: Vec<u8>, media_type: String },
 }
 
 impl MockExecutionEnvironment {
@@ -1019,12 +1016,13 @@ fn register_delegation_tools_adds_three() -> AgentResult<()> {
 }
 
 #[test]
-fn register_optional_tools_adds_snap() -> AgentResult<()> {
+fn register_optional_tools_adds_snap_and_inspect_image() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_optional_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 1);
+    assert_eq!(registry.len(), 2);
     assert!(registry.names().contains(&"snap"));
+    assert!(registry.names().contains(&"inspect_image"));
     Ok(())
 }
 

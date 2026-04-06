@@ -645,14 +645,22 @@ async fn agent_task(
 /// Unknown tools (e.g. MCP tools) fall back to a generic summary.
 #[allow(clippy::too_many_lines)]
 fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
-    let obj = arguments.as_object();
+    let args_obj = arguments.as_object();
+
     let str_arg = |key: &str| -> Option<String> {
-        obj.and_then(|o| o.get(key))
+        args_obj
+            .and_then(|o| o.get(key))
             .and_then(Value::as_str)
             .map(strip_cwd)
     };
+    let bool_arg = |key: &str| -> bool {
+        args_obj
+            .and_then(|o| o.get(key))
+            .and_then(Value::as_bool)
+            .unwrap_or(false)
+    };
     let int_arg =
-        |key: &str| -> Option<i64> { obj.and_then(|o| o.get(key)).and_then(Value::as_i64) };
+        |key: &str| -> Option<i64> { args_obj.and_then(|o| o.get(key)).and_then(Value::as_i64) };
 
     match tool_name {
         "read_file" => {
@@ -672,7 +680,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             format!("Edit {path}")
         }
         "apply_patch" => {
-            let summary = obj
+            let summary = args_obj
                 .and_then(|o| o.get("patch"))
                 .and_then(Value::as_str)
                 .map(extract_patch_summary)
@@ -779,18 +787,13 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             }
         }
         "snap" => {
-            let bool_arg = |key: &str| -> bool {
-                obj.and_then(|o| o.get(key))
-                    .and_then(Value::as_bool)
-                    .unwrap_or(false)
-            };
             let route = str_arg("route").unwrap_or_else(|| "/".to_string());
             let mut label = format!("Snap {route}");
             if let Some(device) = str_arg("device") {
                 let _ = write!(label, " ({device})");
             }
             if let Some(selector) = str_arg("selector") {
-                let _ = write!(label, " [{}]", truncate_for_display(&selector, 30));
+                let _ = write!(label, " {}", truncate_for_display(&selector, 30));
             }
             let mut flags = Vec::new();
             if bool_arg("full_page") {
@@ -822,6 +825,37 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             if !flags.is_empty() {
                 let _ = write!(label, ", {}", flags.join(", "));
             }
+            label
+        }
+        "inspect_image" => {
+            let mut label = format!("Inspect image {}", str_arg("file_path").unwrap_or_default());
+
+            let mut modes = Vec::new();
+            if args_obj.and_then(|o| o.get("grid")).is_some() {
+                modes.push("grid");
+            }
+            if args_obj.and_then(|o| o.get("crop")).is_some() {
+                modes.push("crop");
+            }
+            let probe_count = args_obj
+                .and_then(|o| o.get("probes"))
+                .and_then(Value::as_array)
+                .map(Vec::len);
+            let probe_label;
+            if let Some(n) = probe_count {
+                probe_label = format!("{n} probe{}", if n == 1 { "" } else { "s" });
+                modes.push(&probe_label);
+            }
+            if bool_arg("sample_pixels") {
+                modes.push("sample");
+            }
+            if args_obj.and_then(|o| o.get("coordinate_space")).is_some() {
+                modes.push("viewbox");
+            }
+            if !modes.is_empty() {
+                let _ = write!(label, " ({})", modes.join(", "));
+            }
+
             label
         }
         "list_agents" => "List agents".to_string(),

@@ -2,6 +2,7 @@ items:
   - file
   - shell
   - web
+  - images
   - snap
   - orchestration
 

@@ -131,6 +131,13 @@ impl FileToolGuard {
                     .unwrap_or_else(|| working_dir.to_str().unwrap_or("."));
                 self.evaluate_read(path, working_dir, trust_level)
             }
+            "inspect_image" => {
+                let path = match args.get("file_path").and_then(|v| v.as_str()) {
+                    Some(p) => p,
+                    None => return GuardVerdict::Allow,
+                };
+                self.evaluate_read(path, working_dir, trust_level)
+            }
             _ => GuardVerdict::Allow,
         }
     }

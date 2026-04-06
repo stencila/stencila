@@ -684,7 +684,9 @@ async fn glob_brace_expansion() -> Result<(), AgentError> {
         "should find 2 files with brace expansion, got: {result:?}"
     );
     assert!(
-        result.iter().all(|p| p.ends_with(".png") || p.ends_with(".jpg")),
+        result
+            .iter()
+            .all(|p| p.ends_with(".png") || p.ends_with(".jpg")),
         "all should be .png or .jpg: {result:?}"
     );
     Ok(())

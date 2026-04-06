@@ -13,6 +13,7 @@ pub mod delegate;
 pub mod edit_file;
 pub mod glob;
 pub mod grep;
+pub mod inspect_image;
 pub mod list_agents;
 pub mod list_dir;
 pub mod list_workflows;
@@ -175,12 +176,12 @@ pub fn register_default_tools(
 /// `allowed-tools` filter in request building ensures only agents that opt
 /// in will see them.
 ///
-/// Currently includes: `snap`.
+/// Currently includes: `snap`, `inspect_image`.
 pub fn register_optional_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    registry.register_all(vec![RegisteredTool::new(
-        snap::definition(),
-        snap::executor(),
-    )])
+    registry.register_all(vec![
+        RegisteredTool::new(snap::definition(), snap::executor()),
+        RegisteredTool::new(inspect_image::definition(), inspect_image::executor()),
+    ])
 }
 
 /// Register the delegation tools: `list_agents`, `list_workflows`, `delegate`.

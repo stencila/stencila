@@ -76,8 +76,7 @@ pub fn executor() -> ToolExecutorFn {
                             (Some(w), Some(h)) => format!(", {w}×{h}"),
                             _ => String::new(),
                         };
-                        let text =
-                            format!("[Image file: {file_path} ({media_type}{dims})]");
+                        let text = format!("[Image file: {file_path} ({media_type}{dims})]");
                         if data.len() <= MAX_IMAGE_BYTES {
                             ToolOutput::ImageWithText {
                                 text,

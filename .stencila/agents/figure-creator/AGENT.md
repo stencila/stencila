@@ -48,6 +48,7 @@ allowed-tools:
   - apply_patch
   - glob
   - grep
+  - inspect_image
   - snap
   - ask_user
 ---

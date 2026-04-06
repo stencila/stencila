@@ -150,6 +150,7 @@ const FILE_TOOLS: &[&str] = &[
     "edit_file",
     "apply_patch",
     "grep",
+    "inspect_image",
 ];
 
 const WEB_TOOL: &str = "web_fetch";

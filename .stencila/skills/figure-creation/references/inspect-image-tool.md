@@ -1,0 +1,1 @@
+../../../../site/docs/agents/tools/images.md

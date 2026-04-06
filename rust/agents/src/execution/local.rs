@@ -474,6 +474,7 @@ fn image_media_type(path: &Path) -> Option<String> {
         "gif" => Some("image/gif".to_string()),
         "webp" => Some("image/webp".to_string()),
         "svg" => Some("image/svg+xml".to_string()),
+        "tif" | "tiff" => Some("image/tiff".to_string()),
         _ => None,
     }
 }

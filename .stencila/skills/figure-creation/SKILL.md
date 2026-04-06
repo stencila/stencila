@@ -34,7 +34,7 @@ keywords:
   - stencila markdown
   - figure plan
   - figure specification
-allowed-tools: read_file write_file apply_patch glob grep snap ask_user
+allowed-tools: read_file write_file apply_patch glob grep snap inspect_image ask_user
 ---
 
 ## Overview
@@ -57,6 +57,7 @@ Full documentation (large — load only when the condensed references are insuff
 - [`references/figures.smd`](references/figures.smd) — complete figures documentation (763 lines)
 - [`references/figure-overlay-components.smd`](references/figure-overlay-components.smd) — full overlay component reference with demos (980 lines)
 - [`references/snap-tool.md`](references/snap-tool.md) — full `snap` tool reference for visual verification
+- [`references/inspect-image-tool.md`](references/inspect-image-tool.md) — full `inspect_image` tool reference for coordinate inspection
 
 ## Required Inputs
 
@@ -114,7 +115,7 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 5. **Produce the requested output.**
    - For a plan, provide a figure specification covering figure type, panel order, caption approach, overlay strategy, and required missing inputs.
    - For implementation, author the figure using the syntax patterns below.
-6. **Add overlays** if requested — prefer anchor-based positioning over raw coordinates (see "Anchor-first positioning" below).
+6. **Add overlays** if requested — prefer anchor-based positioning over raw coordinates (see "Anchor-first positioning" below). Use `inspect_image` to determine coordinates before writing overlay markup (see "Coordinate inspection" below).
 7. **Verify cross-references and panel labeling.**
    - Confirm figure references still point to the right target.
    - Avoid duplicating automatic subfigure labels with manual overlay badges unless the badge serves a different semantic purpose.
@@ -127,7 +128,7 @@ This is the most important safety rule for overlay annotations:
 - **Do not fabricate scale bar values** without known calibration. If the user has not provided a scale (e.g., "130px = 20 μm"), ask for it.
 - **Do not invent dimension line measurements** from a screenshot or image unless the user explicitly provides a scale.
 - **Do not add compass/north arrows** unless orientation is meaningful and known for the content.
-- **Do not claim precise coordinates** for annotations unless you have reliable information about the image layout.
+- **Do not claim precise coordinates** for annotations unless you have reliable information about the image layout. Use `inspect_image` to determine coordinates from the actual image rather than guessing.
 
 When calibration or orientation information is missing, either ask the user or use placeholder labels that clearly indicate the values need confirmation (e.g., `label="[calibrate: ? μm]"`).
 
@@ -369,9 +370,36 @@ Two panels with individual overlay annotations.
 :::
 `````
 
+## Coordinate inspection
+
+Use `inspect_image` to determine precise coordinates for overlay annotations instead of guessing. This is faster and more accurate than estimating coordinates and iterating with `snap`.
+
+**Typical workflow:**
+
+1. **Grid** — overlay a labeled grid to identify approximate regions:
+   ```
+   inspect_image(file_path: "figure.png", grid: {x_divisions: 10, y_divisions: 10})
+   ```
+2. **Crop + grid** — zoom into the region of interest for precise coordinates:
+   ```
+   inspect_image(file_path: "figure.png", crop: {x: 80, y: 100, width: 140, height: 100}, grid: {x_divisions: 5, y_divisions: 5})
+   ```
+3. **Probe** — verify candidate coordinates before writing the overlay:
+   ```
+   inspect_image(file_path: "figure.png", probes: [{id: "tip", x: 112, y: 160}, {id: "base", x: 185, y: 118}])
+   ```
+
+**With padding:** When the figure uses `{pad="..."}`, pass the same padding to `inspect_image` so coordinates match the overlay's viewBox:
+
+```
+inspect_image(file_path: "figure.png", coordinate_space: {pad: {top: 0, right: 220, bottom: 0, left: 0}}, grid: {x_divisions: 10, y_divisions: 10})
+```
+
+For full details, see [`references/inspect-image-tool.md`](references/inspect-image-tool.md).
+
 ## Visual verification
 
-If a Stencila server and rendered route are available, optionally use `snap` to verify overlay placement and layout:
+If a Stencila server and rendered route are available, use `snap` to verify the final rendered result after authoring overlays:
 
 ```
 snap(route: "/docs/", screenshot: true, selector: "stencila-figure")
@@ -384,6 +412,8 @@ snap(route: "/docs/", screenshot: true, selector: "[id='specimen-1']")
 ```
 
 Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
+
+Use `inspect_image` for coordinate determination and `snap` for final rendered verification — they serve complementary roles. `inspect_image` operates directly on image files without a server, while `snap` captures the fully rendered document including overlays, layout, and theme.
 
 If `snap` is unavailable, mark visual verification as pending. Do not claim rendered correctness unless `snap` was actually run.
 

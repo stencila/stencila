@@ -48,7 +48,7 @@ Create, edit, or plan figures in Stencila Markdown — simple image figures, exe
 
 | Property | Value |
 | -------- | ----- |
-| Allowed tools | `read_file`, `write_file`, `apply_patch`, `glob`, `grep`, `snap`, `ask_user` |
+| Allowed tools | `read_file`, `write_file`, `apply_patch`, `glob`, `grep`, `snap`, `inspect_image`, `ask_user` |
 
 # Instructions
 
@@ -72,6 +72,7 @@ Full documentation (large — load only when the condensed references are insuff
 - [`references/figures.smd`](references/figures.smd) — complete figures documentation (763 lines)
 - [`references/figure-overlay-components.smd`](references/figure-overlay-components.smd) — full overlay component reference with demos (980 lines)
 - [`references/snap-tool.md`](references/snap-tool.md) — full `snap` tool reference for visual verification
+- [`references/inspect-image-tool.md`](references/inspect-image-tool.md) — full `inspect_image` tool reference for coordinate inspection
 
 ## Required Inputs
 
@@ -129,7 +130,7 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
 5. **Produce the requested output.**
    - For a plan, provide a figure specification covering figure type, panel order, caption approach, overlay strategy, and required missing inputs.
    - For implementation, author the figure using the syntax patterns below.
-6. **Add overlays** if requested — prefer anchor-based positioning over raw coordinates (see "Anchor-first positioning" below).
+6. **Add overlays** if requested — prefer anchor-based positioning over raw coordinates (see "Anchor-first positioning" below). Use `inspect_image` to determine coordinates before writing overlay markup (see "Coordinate inspection" below).
 7. **Verify cross-references and panel labeling.**
    - Confirm figure references still point to the right target.
    - Avoid duplicating automatic subfigure labels with manual overlay badges unless the badge serves a different semantic purpose.
@@ -142,16 +143,16 @@ This is the most important safety rule for overlay annotations:
 - **Do not fabricate scale bar values** without known calibration. If the user has not provided a scale (e.g., "130px = 20 μm"), ask for it.
 - **Do not invent dimension line measurements** from a screenshot or image unless the user explicitly provides a scale.
 - **Do not add compass/north arrows** unless orientation is meaningful and known for the content.
-- **Do not claim precise coordinates** for annotations unless you have reliable information about the image layout.
+- **Do not claim precise coordinates** for annotations unless you have reliable information about the image layout. Use `inspect_image` to determine coordinates from the actual image rather than guessing.
 
 When calibration or orientation information is missing, either ask the user or use placeholder labels that clearly indicate the values need confirmation (e.g., `label="[calibrate: ? μm]"`).
 
 ## Figure syntax
 
-A figure uses a colon fence with the keyword `figure`:
+A figure uses a colon fence with the keyword `figure` and optional label, `#id`, `[layout]`, and `{attrs}`:
 
 ````smd
-::: figure
+::: figure <label> #<id> [<layout>] {pad="<padding>"}
 
 ![](image.png)
 
@@ -162,9 +163,29 @@ The caption text.
 
 Stencila auto-separates content from caption: paragraphs containing only an image (or audio/video) become **content**; all other paragraphs become **caption**. The caption can appear before or after the image.
 
-### Labels and cross-references
+### Labels, IDs, and cross-references
 
-Figures are auto-numbered ("Figure 1", "Figure 2", …). Subfigures get sub-labels (A, B, C, …). Link to a figure with `[Figure 1](#fig-1)` or `[](#fig-1)` (auto-filled). Avoid explicit labels — auto-numbering stays correct when figures are reordered.
+Figures are auto-numbered ("Figure 1", "Figure 2", …). Subfigures get sub-labels (A, B, C, …). Auto-derived IDs use a `fig-` prefix: `fig-1`, `fig-1a`, etc. Link to a figure with `[Figure 1](#fig-1)` or `[](#fig-1)` (auto-filled). Avoid explicit labels — auto-numbering stays correct when figures are reordered.
+
+### Stable IDs
+
+Use `#<id>` on the fence line to give a figure a stable, human-readable ID that survives reordering:
+
+```smd
+::: figure #specimen-1
+
+![](specimen-1.png)
+
+Photograph of the first specimen.
+
+:::
+```
+
+This figure is always reachable at `#specimen-1` regardless of its position. The `#id` can appear in any position relative to label, layout, and attributes.
+
+Prefer stable IDs when:
+- The figure is referenced from other documents, external links, or APIs.
+- You want to use `snap` to target a specific figure — a stable ID gives a reliable CSS selector (e.g. `selector: "[id='specimen-1']"`) that won't break when figures are reordered.
 
 ### Panel labels vs overlay badges
 
@@ -217,7 +238,7 @@ An overlay is an `svg overlay` fenced code block inside a figure. It renders a t
 - Always declare `xmlns:s="https://stencila.io/svg"` on the `<svg>` element when using components.
 - The `viewBox` defines the coordinate system. Matching image dimensions is convenient (coordinates map to pixels) but any viewBox works.
 - For browser-rendered charts (Plotly, eCharts), set explicit `width`/`height` in the chart config and use a matching `viewBox`.
-- Shapes and text inherit theme defaults. Override per-element with inline SVG attributes when needed.
+- All components support `stroke`, `fill`, and `color` attributes. The `color` shorthand sets both; explicit `fill`/`stroke` override it. Arrow markers automatically match the line's stroke color.
 
 ### Choose the right overlay scope
 
@@ -262,7 +283,7 @@ Benefits: moving a feature means updating one `<s:anchor>`, not every component 
 | `<s:roi-ellipse>` | center, `rx`, `ry`, `label` | Elliptical ROI outlines |
 | `<s:roi-polygon>` | `points`, `label` | Polygonal region outlines |
 | `<s:spotlight>` | center, `r`, `opacity` | Inverse highlight (dims outside) |
-| `<s:marker>` | position, `symbol`, `label` | Symbol glyphs: `circle`, `cross`, `pin`, `star` |
+| `<s:marker>` | position, `symbol`, `color`, `label` | Symbol glyphs: `circle`, `cross`, `diamond`, `pin`, `plus`, `square`, `star`, `triangle`, `triangle-down` |
 | `<s:crosshair>` | center, `size`, `gap`, `ring`, `label` | Reticle at a precise location |
 | `<s:halo>` | center, `r`, `width`, `color`, `opacity` | Semi-transparent glowing ring |
 | `<s:compass>` | position, `size`, `variant`, `axes` | Orientation indicator |
@@ -277,7 +298,17 @@ Add whitespace around content with `{pad="..."}` so overlays can place elements 
 ::: figure {pad="0 0 56 0"}
 ```
 
-Values: `50` (all sides), `"30 60"` (vertical horizontal), `"10 20 30 40"` (top right bottom left). Quote multi-value padding. Padding extends the overlay coordinate space — e.g., `{pad="0 0 56 0"}` on a 600×300 image means the overlay `viewBox` should be `"0 0 600 356"`.
+Values: `50` (all sides), `"30 60"` (vertical horizontal), `"10 20 30 40"` (top right bottom left). Quote multi-value padding.
+
+**Padding and viewBox formula.** For an image W×H with `pad="T R B L"`:
+
+```
+viewBox = "0 0 (W+L+R) (H+T+B)"
+Image top-left is at coordinate (L, T)
+All image-space coordinates shift by +L, +T
+```
+
+When top and left are both 0 (the common case — bottom or right padding only), image coordinates do not change. Example: `{pad="0 0 56 0"}` on a 600×300 image → `viewBox="0 0 600 356"`, image coordinates unchanged. But `{pad="50 20 56 20"}` on the same image → `viewBox="0 0 640 406"`, and the image top-left is now at (20, 50), so all image-space coordinates shift by +20 horizontally and +50 vertically.
 
 ## Examples
 
@@ -354,13 +385,50 @@ Two panels with individual overlay annotations.
 :::
 `````
 
+## Coordinate inspection
+
+Use `inspect_image` to determine precise coordinates for overlay annotations instead of guessing. This is faster and more accurate than estimating coordinates and iterating with `snap`.
+
+**Typical workflow:**
+
+1. **Grid** — overlay a labeled grid to identify approximate regions:
+   ```
+   inspect_image(file_path: "figure.png", grid: {x_divisions: 10, y_divisions: 10})
+   ```
+2. **Crop + grid** — zoom into the region of interest for precise coordinates:
+   ```
+   inspect_image(file_path: "figure.png", crop: {x: 80, y: 100, width: 140, height: 100}, grid: {x_divisions: 5, y_divisions: 5})
+   ```
+3. **Probe** — verify candidate coordinates before writing the overlay:
+   ```
+   inspect_image(file_path: "figure.png", probes: [{id: "tip", x: 112, y: 160}, {id: "base", x: 185, y: 118}])
+   ```
+
+**With padding:** When the figure uses `{pad="..."}`, pass the same padding to `inspect_image` so coordinates match the overlay's viewBox:
+
+```
+inspect_image(file_path: "figure.png", coordinate_space: {pad: {top: 0, right: 220, bottom: 0, left: 0}}, grid: {x_divisions: 10, y_divisions: 10})
+```
+
+For full details, see [`references/inspect-image-tool.md`](references/inspect-image-tool.md).
+
 ## Visual verification
 
-If a Stencila server and rendered route are available, optionally use `snap` to verify overlay placement and layout:
+If a Stencila server and rendered route are available, use `snap` to verify the final rendered result after authoring overlays:
 
 ```
-snap(route: "/path/to/document", screenshot: true, selector: "stencila-figure")
+snap(route: "/docs/", screenshot: true, selector: "stencila-figure")
 ```
+
+When a figure has a stable `#id`, use it for a more targeted snap that captures exactly that figure:
+
+```
+snap(route: "/docs/", screenshot: true, selector: "[id='specimen-1']")
+```
+
+Prefer the rendered directory route when the source file is `index.*`, `main.*`, or `README.*`; for example, `docs/README.md`, `docs/main.md`, and `docs/index.md` all render at `"/docs/"`.
+
+Use `inspect_image` for coordinate determination and `snap` for final rendered verification — they serve complementary roles. `inspect_image` operates directly on image files without a server, while `snap` captures the fully rendered document including overlays, layout, and theme.
 
 If `snap` is unavailable, mark visual verification as pending. Do not claim rendered correctness unless `snap` was actually run.
 
@@ -374,7 +442,7 @@ For details on snap parameters and usage patterns, see [`references/snap-tool.md
 - **Parent overlay on mobile**: parent-level overlays (spanning the grid) auto-hide when the grid collapses to vertical on small screens. Subfigure overlays are unaffected.
 - **viewBox coordinate system**: the `viewBox` can use any coordinate system — matching image pixel dimensions is convenient but not required. All annotation geometry must use the same coordinate space as the `viewBox`.
 - **Multi-value padding**: quote the `pad` value when using more than one number: `{pad="30 60"}`, not `{pad=30 60}`.
-- **Cross-reference IDs**: IDs use a `fig-` prefix with the label lowercased — `fig-1`, `fig-2a`. If the user provides an explicit label, the ID derives from it.
+- **Cross-reference IDs**: auto-derived IDs use a `fig-` prefix with the label lowercased — `fig-1`, `fig-2a`. Use `#<id>` on the fence line for a stable ID that survives reordering (e.g. `::: figure #specimen-1`).
 - **Namespace declaration**: forgetting `xmlns:s="https://stencila.io/svg"` on the `<svg>` element causes components to be treated as unknown elements and silently ignored.
 - **Mixing components and raw SVG**: components and standard SVG elements work together in the same overlay. Use components for high-level annotations and raw SVG when precise control is needed.
 
