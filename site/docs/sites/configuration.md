@@ -106,6 +106,7 @@ These are the main fields you are most likely to use in `[site]`.
 | `root` | string | Limits published content to a specific directory |
 | `exclude` | array of strings | Excludes matching files from publishing |
 | `search` | boolean or table | Enables and configures client-side search |
+| `sitemap` | boolean or table | Generates sitemap files for crawlers and other tooling |
 | `reviews` | boolean or table | Enables page comments and suggestions |
 | `uploads` | boolean or table | Enables file uploads via GitHub PRs |
 | `remotes` | boolean or table | Enables adding Google Docs or Microsoft 365 files via PRs |
@@ -610,6 +611,45 @@ set as:
 
 Use search when your site is large enough that readers need quick lookup across
 pages.
+
+### `[site.sitemap]`
+
+Sitemap generation writes machine-readable route lists for search engines,
+validators, and other tools that need to discover published pages.
+
+```toml
+# Simple form
+[site]
+sitemap = true
+
+# Detailed form
+[site.sitemap]
+enabled = true
+formats = ["xml", "txt"]
+visibility = "public-only"
+exclude-routes = ["/drafts/**", "/internal/**"]
+include-lastmod = true
+```
+
+The simple boolean form enables sitemap generation with the default format of
+`xml`.
+
+Use the detailed form when you want to control:
+
+- `formats`: generate `xml`, `txt`, or both
+- `visibility`: choose `public-only` or `all`
+- `exclude-routes`: omit matching routes from sitemap output
+- `include-lastmod`: include last-modified timestamps where available
+
+In practice:
+
+- `public-only` includes only public routes and excludes the specimen page
+- `all` also includes restricted routes and the specimen page
+- `txt` produces a plain text sitemap, while `xml` produces the standard XML
+  sitemap format used by most crawlers
+
+Use sitemaps when you want external crawlers or downstream tooling to discover
+your published routes more reliably.
 
 ## Reader interactions and contribution flows
 

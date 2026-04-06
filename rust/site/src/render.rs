@@ -45,6 +45,7 @@ use crate::{
         Breadcrumb, SearchEntry, SearchIndexBuilder, build_breadcrumbs_map,
         extract_entries_with_config, get_breadcrumbs,
     },
+    sitemap::generate_sitemaps,
 };
 
 /// A document rendered to HTML
@@ -662,6 +663,12 @@ where
         && let Err(e) = crate::access::generate_access_index(access_config, &output_dir).await
     {
         tracing::warn!("Failed to write access index: {}", e);
+    }
+
+    // Generate sitemap files if enabled
+    if let Err(e) = generate_sitemaps(&output_dir, &base_url, &site_config, &document_routes).await
+    {
+        tracing::warn!("Failed to write sitemap files: {}", e);
     }
 
     let result = RenderResult {

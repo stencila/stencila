@@ -18,6 +18,7 @@ mod nav_tree;
 
 pub mod files;
 pub mod search;
+pub mod sitemap;
 
 mod list;
 pub use list::{RouteEntry, RouteType, list};

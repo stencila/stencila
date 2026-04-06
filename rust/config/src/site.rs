@@ -31,6 +31,37 @@ pub enum SiteFormat {
     // Future: JsonLd, Docx, Pdf etc
 }
 
+/// Sitemap formats to generate during site rendering
+///
+/// Controls which sitemap files are emitted to the rendered site output.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "lowercase")]
+pub enum SitemapFormat {
+    /// XML sitemap for search engines and crawlers
+    Xml,
+    /// Plain text sitemap with URL lines and optional JSON metadata lines
+    Txt,
+}
+
+/// Route visibility policy for sitemap generation
+///
+/// Controls whether sitemap outputs include only public routes or all routes,
+/// including restricted routes and the specimen page.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "kebab-case")]
+pub enum SitemapVisibility {
+    /// Include only public routes and exclude the specimen page
+    PublicOnly,
+    /// Include all routes, including restricted routes and the specimen page
+    All,
+}
+
+impl Default for SitemapVisibility {
+    fn default() -> Self {
+        Self::PublicOnly
+    }
+}
+
 /// Logo configuration - simple string or responsive object
 ///
 /// Supports both simple usage with a single logo path and advanced usage
@@ -681,6 +712,27 @@ pub struct SiteConfig {
     /// ```
     pub search: Option<SearchSpec>,
 
+    /// Sitemap configuration for generated site routes
+    ///
+    /// When enabled, sitemap files are generated during site rendering using
+    /// the canonical site URL. XML and text sitemap formats are supported.
+    ///
+    /// Can be a simple boolean or a detailed configuration object, e.g.
+    /// ```toml
+    /// # Enable sitemap generation with defaults
+    /// [site]
+    /// sitemap = true
+    ///
+    /// # Customize sitemap generation
+    /// [site.sitemap]
+    /// enabled = true
+    /// formats = ["xml", "txt"]
+    /// visibility = "public-only"
+    /// exclude-routes = ["/drafts/**"]
+    /// include-lastmod = true
+    /// ```
+    pub sitemap: Option<SitemapSpec>,
+
     /// Additional formats to generate alongside HTML
     ///
     /// Controls which format files are generated during site rendering and
@@ -935,6 +987,18 @@ impl SiteConfig {
                 // Default: md is enabled
                 matches!(format, SiteFormat::Md)
             })
+    }
+
+    /// Check if a sitemap format is enabled for generation
+    ///
+    /// Returns true if sitemap generation is enabled and the format is in the
+    /// configured `sitemap.formats` list. When the sitemap is configured in the
+    /// simple boolean form, enabled sitemaps default to `["xml"]`.
+    pub fn is_sitemap_format_enabled(&self, format: SitemapFormat) -> bool {
+        self.sitemap
+            .as_ref()
+            .map(|spec| spec.is_enabled() && spec.formats().contains(&format))
+            .unwrap_or(false)
     }
 
     /// Warn if site features require `workspace.id` but it is not configured
@@ -1358,6 +1422,163 @@ impl SearchSpec {
 impl Default for SearchSpec {
     fn default() -> Self {
         SearchSpec::Enabled(false)
+    }
+}
+
+/// Sitemap specification - handles both boolean and detailed forms
+///
+/// Allows configuration as either:
+/// - Simple boolean: `sitemap = true` or `sitemap = false`
+/// - Detailed config: `[site.sitemap]` with options
+#[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(untagged)]
+pub enum SitemapSpec {
+    /// Simple boolean: sitemap = true/false
+    Enabled(bool),
+    /// Detailed config: [site.sitemap] with options
+    Config(SitemapConfig),
+}
+
+impl SitemapSpec {
+    /// Check if sitemap generation is enabled
+    pub fn is_enabled(&self) -> bool {
+        match self {
+            SitemapSpec::Enabled(enabled) => *enabled,
+            SitemapSpec::Config(config) => config.is_enabled(),
+        }
+    }
+
+    /// Convert to a full SitemapConfig, applying defaults for simple boolean form
+    pub fn to_config(&self) -> SitemapConfig {
+        match self {
+            SitemapSpec::Enabled(enabled) => SitemapConfig {
+                enabled: Some(*enabled),
+                ..Default::default()
+            },
+            SitemapSpec::Config(config) => config.clone(),
+        }
+    }
+
+    /// Get the enabled sitemap formats
+    pub fn formats(&self) -> Vec<SitemapFormat> {
+        self.to_config().formats()
+    }
+
+    /// Get the sitemap visibility policy
+    pub fn visibility(&self) -> SitemapVisibility {
+        self.to_config().visibility()
+    }
+
+    /// Check if route should be excluded from the sitemap
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        self.to_config().is_route_excluded(route)
+    }
+
+    /// Check if last-modified timestamps should be included
+    pub fn include_lastmod(&self) -> bool {
+        self.to_config().include_lastmod()
+    }
+}
+
+impl Default for SitemapSpec {
+    fn default() -> Self {
+        SitemapSpec::Enabled(false)
+    }
+}
+
+/// Configuration for site sitemap generation
+///
+/// Controls which sitemap formats are generated, which routes are included,
+/// and whether last-modified timestamps are emitted where available.
+///
+/// ```toml
+/// # Enable sitemap generation with defaults
+/// [site]
+/// sitemap = true
+///
+/// # Customize sitemap generation
+/// [site.sitemap]
+/// enabled = true
+/// formats = ["xml", "txt"]
+/// visibility = "public-only"
+/// exclude-routes = ["/drafts/**"]
+/// include-lastmod = true
+/// ```
+#[skip_serializing_none]
+#[derive(Debug, Default, Clone, Deserialize, Serialize, PartialEq, JsonSchema)]
+#[serde(default, rename_all = "kebab-case", deny_unknown_fields)]
+pub struct SitemapConfig {
+    /// Enable sitemap generation
+    ///
+    /// When true, sitemap files are generated during site rendering.
+    /// Default: false
+    pub enabled: Option<bool>,
+
+    /// Sitemap formats to generate
+    ///
+    /// Default: `["xml"]`
+    pub formats: Option<Vec<SitemapFormat>>,
+
+    /// Visibility policy for included routes
+    ///
+    /// - `public-only`: only public routes, excludes specimen
+    /// - `all`: includes restricted routes and specimen
+    ///
+    /// Default: `public-only`
+    pub visibility: Option<SitemapVisibility>,
+
+    /// Route patterns to exclude from sitemap generation
+    ///
+    /// Glob patterns for routes that should not be emitted to sitemap files.
+    ///
+    /// Example: `["/drafts/**", "/internal/**"]`
+    pub exclude_routes: Option<Vec<String>>,
+
+    /// Include last-modified timestamps where available
+    ///
+    /// When true, source file modification times are included where they can
+    /// be determined.
+    /// Default: true
+    pub include_lastmod: Option<bool>,
+}
+
+impl SitemapConfig {
+    /// Check if sitemap generation is enabled (defaults to false)
+    pub fn is_enabled(&self) -> bool {
+        self.enabled.unwrap_or(false)
+    }
+
+    /// Get the enabled sitemap formats (defaults to XML)
+    pub fn formats(&self) -> Vec<SitemapFormat> {
+        self.formats
+            .clone()
+            .unwrap_or_else(|| vec![SitemapFormat::Xml])
+    }
+
+    /// Get the sitemap visibility policy (defaults to public-only)
+    pub fn visibility(&self) -> SitemapVisibility {
+        self.visibility.unwrap_or_default()
+    }
+
+    /// Check if a route should be excluded from the sitemap
+    pub fn is_route_excluded(&self, route: &str) -> bool {
+        let Some(patterns) = &self.exclude_routes else {
+            return false;
+        };
+
+        for pattern in patterns {
+            if let Ok(glob) = glob::Pattern::new(pattern)
+                && glob.matches(route)
+            {
+                return true;
+            }
+        }
+        false
+    }
+
+    /// Check if last-modified timestamps should be included
+    pub fn include_lastmod(&self) -> bool {
+        self.include_lastmod.unwrap_or(true)
     }
 }
 
@@ -1878,6 +2099,7 @@ pub fn config_add_redirect_route(
 #[cfg(test)]
 mod tests {
     use super::*;
+    use std::collections::HashMap;
 
     #[test]
     fn test_search_spec_simple_true() -> Result<(), serde_json::Error> {
@@ -1951,5 +2173,78 @@ mod tests {
         let search = config.search.as_ref().expect("search should be Some");
         assert!(search.is_enabled());
         assert!(!search.is_fuzzy_enabled());
+    }
+
+    #[test]
+    fn test_sitemap_spec_simple_true() -> Result<(), serde_json::Error> {
+        let spec: SitemapSpec = serde_json::from_str("true")?;
+        assert!(spec.is_enabled());
+        assert_eq!(spec.formats(), vec![SitemapFormat::Xml]);
+        assert_eq!(spec.visibility(), SitemapVisibility::PublicOnly);
+        assert!(spec.include_lastmod());
+        Ok(())
+    }
+
+    #[test]
+    fn test_sitemap_spec_simple_false() -> Result<(), serde_json::Error> {
+        let spec: SitemapSpec = serde_json::from_str("false")?;
+        assert!(!spec.is_enabled());
+        Ok(())
+    }
+
+    #[test]
+    fn test_sitemap_spec_detailed() -> Result<(), serde_json::Error> {
+        let json = r#"{
+            "enabled": true,
+            "formats": ["txt"],
+            "visibility": "all",
+            "exclude-routes": ["/drafts/**"],
+            "include-lastmod": false
+        }"#;
+        let spec: SitemapSpec = serde_json::from_str(json)?;
+        assert!(spec.is_enabled());
+        assert_eq!(spec.formats(), vec![SitemapFormat::Txt]);
+        assert_eq!(spec.visibility(), SitemapVisibility::All);
+        assert!(spec.is_route_excluded("/drafts/example/"));
+        assert!(!spec.include_lastmod());
+        Ok(())
+    }
+
+    #[test]
+    fn test_sitemap_spec_toml_simple() {
+        let toml_str = r#"
+            [site]
+            sitemap = true
+        "#;
+        let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
+            .expect("Failed to parse TOML")
+            .remove("site")
+            .expect("Missing site key");
+
+        let sitemap = config.sitemap.as_ref().expect("sitemap should be Some");
+        assert!(sitemap.is_enabled());
+        assert_eq!(sitemap.formats(), vec![SitemapFormat::Xml]);
+        assert_eq!(sitemap.visibility(), SitemapVisibility::PublicOnly);
+    }
+
+    #[test]
+    fn test_sitemap_spec_toml_detailed() {
+        let toml_str = r#"
+            [site.sitemap]
+            enabled = true
+            formats = ["txt"]
+            visibility = "all"
+            include-lastmod = false
+        "#;
+        let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
+            .expect("Failed to parse TOML")
+            .remove("site")
+            .expect("Missing site key");
+
+        let sitemap = config.sitemap.as_ref().expect("sitemap should be Some");
+        assert!(sitemap.is_enabled());
+        assert_eq!(sitemap.formats(), vec![SitemapFormat::Txt]);
+        assert_eq!(sitemap.visibility(), SitemapVisibility::All);
+        assert!(!sitemap.include_lastmod());
     }
 }

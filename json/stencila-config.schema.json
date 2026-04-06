@@ -517,6 +517,17 @@
             }
           ]
         },
+        "sitemap": {
+          "description": "Sitemap configuration for generated site routes\n\nWhen enabled, sitemap files are generated during site rendering using\nthe canonical site URL. XML and text sitemap formats are supported.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable sitemap generation with defaults\n[site]\nsitemap = true\n\n# Customize sitemap generation\n[site.sitemap]\nenabled = true\nformats = [\"xml\", \"txt\"]\nvisibility = \"public-only\"\nexclude-routes = [\"/drafts/**\"]\ninclude-lastmod = true\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SitemapSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "formats": {
           "description": "Additional formats to generate alongside HTML\n\nControls which format files are generated during site rendering and\nwhich format-specific buttons are displayed. When a format is not\nin this list, its corresponding button (e.g., copy-markdown) is hidden.\n\nDefault: `[\"md\"]` (generates page.md files), e.g.\n```toml\n# Enable or disable additional formats\n[site]\nformats = [\"md\"]  # Generate page.md files, show copy-markdown button\nformats = []      # No additional formats, hide format buttons\n```",
           "type": [
@@ -2601,6 +2612,105 @@
         }
       },
       "additionalProperties": false
+    },
+    "SitemapSpec": {
+      "description": "Sitemap specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/sitemapspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: sitemap = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Detailed config: [site.sitemap] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SitemapConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SitemapConfig": {
+      "description": "Configuration for site sitemap generation\nhttps://stencila.io/docs/config/sitemapconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Enable sitemap generation\n\nWhen true, sitemap files are generated during site rendering.\nDefault: false",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "formats": {
+          "description": "Sitemap formats to generate\n\nDefault: `[\"xml\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "$ref": "#/definitions/SitemapFormat"
+          }
+        },
+        "visibility": {
+          "description": "Visibility policy for included routes\n\n- `public-only`: only public routes, excludes specimen\n- `all`: includes restricted routes and specimen\n\nDefault: `public-only`",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SitemapVisibility"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "exclude-routes": {
+          "description": "Route patterns to exclude from sitemap generation\n\nGlob patterns for routes that should not be emitted to sitemap files.\n\nExample: `[\"/drafts/**\", \"/internal/**\"]`",
+          "type": [
+            "array",
+            "null"
+          ],
+          "items": {
+            "type": "string"
+          }
+        },
+        "include-lastmod": {
+          "description": "Include last-modified timestamps where available\n\nWhen true, source file modification times are included where they can\nbe determined.\nDefault: true",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "SitemapFormat": {
+      "description": "Sitemap formats to generate during site rendering\nhttps://stencila.io/docs/config/sitemapformat",
+      "oneOf": [
+        {
+          "description": "XML sitemap for search engines and crawlers",
+          "type": "string",
+          "const": "xml"
+        },
+        {
+          "description": "Plain text sitemap with URL lines and optional JSON metadata lines",
+          "type": "string",
+          "const": "txt"
+        }
+      ]
+    },
+    "SitemapVisibility": {
+      "description": "Route visibility policy for sitemap generation\nhttps://stencila.io/docs/config/sitemapvisibility",
+      "oneOf": [
+        {
+          "description": "Include only public routes and exclude the specimen page",
+          "type": "string",
+          "const": "public-only"
+        },
+        {
+          "description": "Include all routes, including restricted routes and the specimen page",
+          "type": "string",
+          "const": "all"
+        }
+      ]
     },
     "SiteFormat": {
       "description": "Additional formats to generate alongside HTML during site rendering\nhttps://stencila.io/docs/config/siteformat",

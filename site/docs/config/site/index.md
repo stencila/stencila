@@ -317,6 +317,12 @@ Glide configuration for client-side navigation
 
 Search configuration for client-side full-text search
 
+# `sitemap`
+
+**Type:** [`SitemapConfig`](sitemap.md) (optional)
+
+Sitemap configuration for generated site routes
+
 # `formats`
 
 **Type:** `array` (optional)
