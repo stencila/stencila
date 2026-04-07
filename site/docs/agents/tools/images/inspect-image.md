@@ -1,15 +1,13 @@
 ---
-title: Image Tools
-description: Tools for inspecting and working with images in Stencila agent workflows.
+title: Inspect Image Tool
+description: Tool for inspecting images in Stencila agent workflows.
 ---
 
-## `inspect_image`
-
-A read-only tool for determining reliable coordinates for points and regions of interest in images. It overlays labeled grids, zooms into crop regions, and places probe crosshair markers — returning an annotated PNG and structured JSON metadata with coordinates in the active coordinate space.
+The `inspect_image` tool is a read-only tool for determining reliable coordinates for points and regions of interest in images. It overlays labeled grids, zooms into crop regions, and places probe crosshair markers — returning an annotated PNG and structured JSON metadata with coordinates in the active coordinate space.
 
 Use `inspect_image` to verify how features map to coordinates before authoring SVG overlay annotations. Start with a grid overlay to get the lay of the land, crop to zoom into regions of interest, then place probes to verify candidate coordinates.
 
-### Parameters
+# Parameters
 
 | Parameter | Type | Required | Description |
 | --------- | ---- | :------: | ----------- |
@@ -21,7 +19,7 @@ Use `inspect_image` to verify how features map to coordinates before authoring S
 | `theme` | string | | Visual theme for grid/probe rendering: `"auto"`, `"light"`, `"dark"`. Default: `"auto"` |
 | `sample_pixels` | boolean | | Include sampled pixel color for each in-image probe. Default: false |
 
-### Coordinate space
+# Coordinate space
 
 The `coordinate_space` parameter maps the image into a custom coordinate system. When omitted, the tool operates in raw image pixel coordinates with origin `(0, 0)` at the top-left pixel.
 
@@ -34,7 +32,7 @@ When `pad` is specified without `viewbox`, the viewbox is auto-computed: the can
 
 When both `viewbox` and `pad` are specified, the image occupies the sub-region of the viewbox after padding is subtracted: `image_width_in_active = viewbox.width - pad.left - pad.right`.
 
-### Grid overlay
+# Grid overlay
 
 The `grid` parameter overlays labeled lines on the image so that feature locations can be estimated by reading axis labels. Provide divisions OR spacing, not both.
 
@@ -49,7 +47,7 @@ The `grid` parameter overlays labeled lines on the image so that feature locatio
 
 **Spacing-based grids** place lines at fixed intervals starting from the origin of the active coordinate space. For example, `spacing: 50` on a 500-unit-wide canvas places vertical lines at 0, 50, 100, ..., 500.
 
-### Crop
+# Crop
 
 The `crop` parameter extracts and enlarges a rectangular region of interest for closer inspection. Coordinate labels continue to represent the active coordinate space, not crop-local coordinates.
 
@@ -63,7 +61,7 @@ The `crop` parameter extracts and enlarges a rectangular region of interest for 
 
 Crop regions may extend into padding areas when a padded coordinate space is active — the padding portion is rendered as a neutral background.
 
-### Probes
+# Probes
 
 The `probes` parameter places visible crosshair markers at candidate coordinates. Each probe is rendered as a numbered crosshair with a small gap at center so the underlying pixel remains visible.
 
@@ -77,7 +75,7 @@ The `probes` parameter places visible crosshair markers at candidate coordinates
 
 Probes outside the inspectable canvas are reported in metadata with `"in_canvas": false` but are not rendered visually.
 
-### Output
+# Output
 
 Every call returns an annotated PNG image and a JSON metadata object with these fields:
 
@@ -87,7 +85,7 @@ Every call returns an annotated PNG image and a JSON metadata object with these 
 - **`crop`** — crop region and zoom factor. Present when crop mode is active.
 - **`probes`** — per-probe results: `id`, `x`, `y`, `in_image`, `in_canvas`, and optionally `pixel` (hex color when `sample_pixels` is true and `in_image` is true). Present when probes are provided.
 
-### Mode composition
+# Mode composition
 
 Grid, crop, and probe modes compose freely in a single call:
 
@@ -96,7 +94,7 @@ Grid, crop, and probe modes compose freely in a single call:
 - **grid + probe** — coarse verification on the full image
 - **crop + grid + probe** — all three together for the most detailed inspection
 
-### Typical workflow
+# Typical workflow
 
 1. Grid — get the lay of the land
 
@@ -129,7 +127,7 @@ Grid, crop, and probe modes compose freely in a single call:
 
 Steps 1–3 replace guessing coordinates, rendering the full document with `snap`, seeing the result is wrong, re-guessing, and re-rendering.
 
-### ViewBox workflow
+# ViewBox workflow
 
 For figures with padding (e.g. right padding for callout labels):
 
@@ -153,7 +151,7 @@ For figures with padding (e.g. right padding for callout labels):
     )
     ```
 
-### Pixel sampling
+# Pixel sampling
 
 When `sample_pixels: true`, each probe that falls within the source image (`in_image: true`) includes a `pixel` field with the sampled color as a `"#rrggbb"` hex string. Probes in padding areas or outside the canvas do not have a `pixel` field.
 
@@ -165,7 +163,7 @@ inspect_image(
 )
 ```
 
-### Practical tips
+# Practical tips
 
 - **Grid-first workflow**: start with a coarse grid to identify regions, then crop + finer grid to read precise coordinates, then probes to verify before authoring markup.
 - **Use coordinate space for SVG overlays**: when annotating figures with Stencila's SVG overlay system, pass the same `viewbox` and `pad` values so grid labels and probe coordinates match the overlay coordinate system directly.

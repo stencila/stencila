@@ -2,7 +2,9 @@ items:
   - file
   - shell
   - web
-  - images
+  - label: Images
+    children:
+      - inspect-image
   - snap
   - orchestration
 

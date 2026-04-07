@@ -1,1 +1,1 @@
-../../../../site/docs/agents/tools/images.md
+../../../../site/docs/agents/tools/images/inspect-image.md
