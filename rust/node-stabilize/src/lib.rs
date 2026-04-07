@@ -9,7 +9,9 @@ use std::collections::HashMap;
 use stencila_codec_text::to_text;
 use stencila_node_id::NodeUid;
 use stencila_schema::{
-    Block, Citation, CodeBlock, CodeChunk, Figure, Heading, IfBlockClause, Inline, ListItem, Node, NodePath, NodeProperty, NodeSlot, SuggestionBlock, SuggestionInline, Table, TableCell, TableRow, VisitorMut, WalkControl, WalkNode, WalkthroughStep
+    Block, Citation, CodeBlock, CodeChunk, Figure, Heading, IfBlockClause, Inline, ListItem, Node,
+    NodePath, NodeProperty, NodeSlot, SuggestionBlock, SuggestionInline, Table, TableCell,
+    TableRow, VisitorMut, WalkControl, WalkNode, WalkthroughStep,
 };
 
 /// Stabilize all node UIDs in a document tree.
