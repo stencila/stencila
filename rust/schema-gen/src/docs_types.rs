@@ -641,7 +641,7 @@ fn generate_nav_yaml(schemas: &std::collections::BTreeMap<String, Schema>) -> St
                 "  - label: \"{}\"\n",
                 category.to_string().to_title_case()
             ));
-            output.push_str("    children:\n");
+            output.push_str("    items:\n");
             for title in titles {
                 output.push_str(&format!("      - \"{}\"\n", title.to_kebab_case()));
             }

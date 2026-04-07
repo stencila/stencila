@@ -3,7 +3,7 @@
 
 items:
   - label: "Works"
-    children:
+    items:
       - "agent"
       - "article"
       - "audio-object"
@@ -50,7 +50,7 @@ items:
       - "workflow"
 
   - label: "Prose"
-    children:
+    items:
       - "admonition"
       - "admonition-type"
       - "annotation"
@@ -88,13 +88,13 @@ items:
       - "underline"
 
   - label: "Math"
-    children:
+    items:
       - "math"
       - "math-block"
       - "math-inline"
 
   - label: "Code"
-    children:
+    items:
       - "code-block"
       - "code-chunk"
       - "code-executable"
@@ -105,7 +105,7 @@ items:
       - "execution-message"
 
   - label: "Data"
-    children:
+    items:
       - "array"
       - "array-hint"
       - "array-validator"
@@ -147,7 +147,7 @@ items:
       - "validator"
 
   - label: "Flow"
-    children:
+    items:
       - "button"
       - "call-argument"
       - "call-block"
@@ -176,14 +176,14 @@ items:
       - "walkthrough-step"
 
   - label: "Style"
-    children:
+    items:
       - "page"
       - "styled"
       - "styled-block"
       - "styled-inline"
 
   - label: "Edits"
-    children:
+    items:
       - "instruction"
       - "instruction-block"
       - "instruction-inline"
@@ -196,7 +196,7 @@ items:
       - "suggestion-status"
 
   - label: "Other"
-    children:
+    items:
       - "brand"
       - "contact-point"
       - "entity"

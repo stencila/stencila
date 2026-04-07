@@ -30,7 +30,7 @@ pub fn generate_nav_yaml(root: &CommandDoc) -> String {
 
     for group in COMMAND_GROUPS {
         output.push_str(&format!("  - label: \"{}\"\n", group.label));
-        output.push_str("    children:\n");
+        output.push_str("    items:\n");
         for cmd_name in group.commands {
             if let Some(cmd) = subcommand_map.get(cmd_name) {
                 write_command_yaml(&mut output, cmd, 6);
@@ -56,7 +56,7 @@ fn write_command_yaml(output: &mut String, cmd: &CommandDoc, indent: usize) {
     } else {
         // Command with subcommands - use nested format
         output.push_str(&format!("{spaces}- name: \"{name}\"\n"));
-        output.push_str(&format!("{spaces}  children:\n"));
+        output.push_str(&format!("{spaces}  items:\n"));
         for sub in &cmd.subcommands {
             write_command_yaml(output, sub, indent + 4);
         }
@@ -130,7 +130,7 @@ mod tests {
 
         // Check nested config command
         assert!(yaml.contains("- name: \"config\""));
-        assert!(yaml.contains("children:"));
+        assert!(yaml.contains("items:"));
         assert!(yaml.contains("- \"check\""));
         assert!(yaml.contains("- \"get\""));
         assert!(yaml.contains("- \"set\""));

@@ -3,7 +3,7 @@
 
 items:
   - label: "Markdown"
-    children:
+    items:
       - { name: "md", label: "Markdown" }
       - { name: "smd", label: "Stencila Markdown" }
       - { name: "myst", label: "MyST Markdown" }
@@ -11,13 +11,13 @@ items:
       - { name: "llmd", label: "LLM Markdown" }
 
   - label: "Markup"
-    children:
+    items:
       - { name: "dom", label: "DOM HTML" }
       - { name: "html", label: "HTML" }
       - { name: "jats", label: "JATS" }
 
   - label: "Typesetting"
-    children:
+    items:
       - { name: "latex", label: "LaTeX" }
       - { name: "tex", label: "TeX" }
       - { name: "rnw", label: "RNW" }
@@ -25,16 +25,16 @@ items:
       - { name: "text", label: "Plain Text" }
 
   - label: "Notebooks"
-    children:
+    items:
       - { name: "ipynb", label: "Jupyter Notebook" }
 
   - label: "Word Processors"
-    children:
+    items:
       - { name: "docx", label: "Word DOCX" }
       - { name: "odt", label: "Open Office ODT" }
 
   - label: "Data & Spreadsheets"
-    children:
+    items:
       - { name: "csv", label: "CSV" }
       - { name: "tsv", label: "TSV" }
       - { name: "xlsx", label: "Excel XLSX" }
@@ -42,26 +42,26 @@ items:
       - { name: "ods", label: "Open Office ODS" }
 
   - label: "Bibliographies"
-    children:
+    items:
       - { name: "csl", label: "CSL-JSON" }
       - { name: "cff", label: "CFF" }
 
   - label: "Email"
-    children:
+    items:
       - { name: "email", label: "Email HTML" }
       - { name: "mjml", label: "MJML" }
 
   - label: "Images"
-    children:
+    items:
       - { name: "png", label: "PNG" }
 
   - label: "Archives & Bundles"
-    children:
+    items:
       - { name: "meca", label: "MECA" }
       - { name: "pmcoa", label: "PMC OA" }
 
   - label: "Serialization"
-    children:
+    items:
       - { name: "json", label: "JSON" }
       - { name: "json5", label: "JSON5" }
       - { name: "jsonld", label: "JSON-LD" }
@@ -71,7 +71,7 @@ items:
       - { name: "yaml", label: "YAML" }
 
   - label: "Interoperability"
-    children:
+    items:
       - { name: "atproto", label: "AT Protocol JSON" }
       - { name: "oxa", label: "OXA JSON" }
       - { name: "pandoc", label: "Pandoc JSON" }

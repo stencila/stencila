@@ -19,49 +19,44 @@ use crate::RouteEntry;
 // Navigation Override Files (_nav.yaml/_nav.toml/_nav.json)
 // =============================================================================
 
-/// Navigation override from a `_nav.*` file
+/// Navigation override node from a `_nav.*` file
 ///
-/// These files can be placed in any directory to control the order and grouping
-/// of navigation items for that directory, overriding alphabetical sorting.
-#[derive(Debug, Deserialize)]
-pub struct NavOverride {
-    pub items: Vec<NavOverrideItem>,
-}
-
-/// A navigation override item
+/// These files can be placed in any directory to control the label, icon, order,
+/// and grouping of navigation items for that directory, overriding alphabetical
+/// sorting.
+///
+/// The file itself describes the current directory's navigation node. Its `items`
+/// are that directory's child entries. Nested items may refer to real route-backed
+/// children using `name`, or define logical groups using `label` and `items`
+/// without a `name`.
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
-pub enum NavOverrideItem {
-    /// Simple route reference (just a command/page name)
-    Route(String),
-    /// Group with label and children
-    Group {
-        label: String,
-        children: Vec<NavOverrideChild>,
+pub enum NavOverride {
+    /// Simple route reference (just a child route/directory name)
+    Name(String),
+
+    /// Node override or logical group
+    Node {
+        /// The child route/directory name this node refers to.
+        ///
+        /// Omit for logical groups, and at the root of `_nav.*` files where the
+        /// current directory is already implied by the file location.
         #[serde(default)]
-        icon: Option<String>,
-    },
-}
+        name: Option<String>,
 
-/// A child item in a navigation override group
-///
-/// Can be either a simple string (route name), an object with an explicit label,
-/// or an object with nested children.
-#[derive(Debug, Deserialize)]
-#[serde(untagged)]
-pub enum NavOverrideChild {
-    /// Simple route reference (just a command/page name)
-    Route(String),
-
-    /// Route with explicit label, different from its name
-    LabeledRoute { name: String, label: String },
-
-    /// Route with nested children (for preserving order of subcommands)
-    Nested {
-        name: String,
-        children: Vec<NavOverrideChild>,
+        /// Display label override, or the label for a logical group.
         #[serde(default)]
         label: Option<String>,
+
+        /// Optional icon override.
+        #[serde(default)]
+        icon: Option<String>,
+
+        /// Child items in their explicit order.
+        ///
+        /// When omitted on the root node, children are auto-generated.
+        #[serde(default)]
+        items: Option<Vec<NavOverride>>,
     },
 }
 
@@ -249,84 +244,81 @@ pub(crate) fn auto_generate_nav(
             return Vec::new();
         }
 
-        let mut items = Vec::new();
-
-        for override_item in config.items {
-            match override_item {
-                NavOverrideItem::Route(name) => {
-                    // Find this route in node.children
-                    if let Some(child_node) = node.children.get(&name) {
-                        let child_path = if segment_path.is_empty() {
-                            name.clone()
-                        } else {
-                            format!("{segment_path}/{name}")
-                        };
-
-                        if child_node.children.is_empty() {
-                            // Leaf node
-                            if let Some(route) = &child_node.route {
-                                items.push(NavItem::Route(route.clone()));
-                            }
-                        } else {
-                            // Has subcommands - recursively build (uses alphabetical order)
-                            let children = build_nav_items(
-                                child_node,
-                                &child_path,
-                                site_root,
-                                depth + 1,
-                                max_depth,
-                            );
-                            if !children.is_empty() || child_node.route.is_some() {
-                                items.push(NavItem::Group {
-                                    id: None,
-                                    label: segment_to_label(&name),
-                                    route: child_node.route.clone(),
-                                    children,
-                                    icon: None,
-                                    section_title: None,
-                                });
-                            } else if let Some(route) = &child_node.route {
-                                items.push(NavItem::Route(route.clone()));
-                            }
-                        }
+        let (label, icon, override_items) = match config {
+            NavOverride::Name(name) => {
+                warn!(
+                    "Ignoring invalid navigation override in {}: root node cannot be a string ({name:?})",
+                    if segment_path.is_empty() {
+                        "/"
+                    } else {
+                        segment_path
                     }
-                }
-                NavOverrideItem::Group {
-                    label,
-                    children,
-                    icon,
-                } => {
-                    // Build a group with the specified children in order
-                    let group_children = build_children_from_override(
-                        &children,
-                        node,
-                        segment_path,
-                        site_root,
-                        depth + 1,
-                        max_depth,
-                    );
-                    if !group_children.is_empty() {
-                        // Route is None - will be set by update_nav_items_with_auto_index
-                        // if auto-index is enabled and creates a page for this group
-                        items.push(NavItem::Group {
-                            id: None,
-                            label,
-                            route: None,
-                            children: group_children,
-                            icon,
-                            section_title: None,
-                        });
-                    }
-                }
+                );
+                return build_nav_items(node, segment_path, site_root, depth, max_depth);
             }
+            NavOverride::Node {
+                name,
+                label,
+                icon,
+                items,
+            } => {
+                if name.is_some() {
+                    warn!(
+                        "Ignoring `name` in navigation override for {}: root node name is implied by directory",
+                        if segment_path.is_empty() {
+                            "/"
+                        } else {
+                            segment_path
+                        }
+                    );
+                }
+                (label, icon, items)
+            }
+        };
+
+        let mut items = if let Some(override_items) = override_items {
+            build_items_from_override(
+                &override_items,
+                node,
+                segment_path,
+                site_root,
+                depth,
+                max_depth,
+            )
+        } else {
+            build_nav_items(node, segment_path, site_root, depth, max_depth)
+        };
+
+        if label.is_none() && icon.is_none() {
+            return items;
         }
 
-        items
+        if items.is_empty() {
+            return items;
+        }
+
+        let node_label = label.unwrap_or_else(|| {
+            segment_path
+                .rsplit('/')
+                .next()
+                .filter(|segment| !segment.is_empty())
+                .map(segment_to_label)
+                .unwrap_or_else(|| "Home".to_string())
+        });
+
+        vec![NavItem::Group {
+            id: None,
+            label: node_label,
+            route: node.route.clone(),
+            children: std::mem::take(&mut items),
+            icon,
+            section_title: None,
+        }]
     }
 
-    /// Build nav items from override children, preserving order
-    fn build_children_from_override(
-        override_children: &[NavOverrideChild],
+    /// Build nav items from override items, preserving order
+    fn build_items_from_override(
+        override_items: &[NavOverride],
         node: &NavNode,
         segment_path: &str,
         site_root: Option<&Path>,
@@ -342,139 +334,185 @@ pub(crate) fn auto_generate_nav(
 
         let mut items = Vec::new();
 
-        for child in override_children {
-            match child {
-                NavOverrideChild::Route(name) => {
-                    if let Some(child_node) = node.children.get(name) {
-                        let child_path = if segment_path.is_empty() {
-                            name.clone()
-                        } else {
-                            format!("{segment_path}/{name}")
-                        };
-
-                        if child_node.children.is_empty() {
-                            // Leaf node
-                            if let Some(route) = &child_node.route {
-                                items.push(NavItem::Route(route.clone()));
-                            }
-                        } else {
-                            // Has nested children - recursively build (uses alphabetical order)
-                            let nested = build_nav_items(
-                                child_node,
-                                &child_path,
-                                site_root,
-                                depth + 1,
-                                max_depth,
-                            );
-                            if !nested.is_empty() || child_node.route.is_some() {
-                                items.push(NavItem::Group {
-                                    id: None,
-                                    label: segment_to_label(name),
-                                    route: child_node.route.clone(),
-                                    children: nested,
-                                    icon: None,
-                                    section_title: None,
-                                });
-                            } else if let Some(route) = &child_node.route {
-                                items.push(NavItem::Route(route.clone()));
-                            }
-                        }
+        for item in override_items {
+            match item {
+                NavOverride::Name(name) => {
+                    if let Some(nav_item) = build_named_override_item(
+                        name,
+                        None,
+                        None,
+                        node,
+                        segment_path,
+                        site_root,
+                        depth,
+                        max_depth,
+                    ) {
+                        items.push(nav_item);
                     }
                 }
-                NavOverrideChild::LabeledRoute { name, label } => {
-                    // Route with explicit label (e.g., for "JATS" instead of "Jats")
-                    if let Some(child_node) = node.children.get(name) {
-                        let child_path = if segment_path.is_empty() {
-                            name.clone()
-                        } else {
-                            format!("{segment_path}/{name}")
-                        };
-
-                        if child_node.children.is_empty() {
-                            // Leaf node with explicit label
-                            if let Some(route) = &child_node.route {
-                                items.push(NavItem::Link {
-                                    id: None,
-                                    label: label.clone(),
-                                    route: route.clone(),
-                                    icon: None,
-                                    description: None,
-                                });
-                            }
-                        } else {
-                            // Has nested children - recursively build with explicit label
-                            let nested = build_nav_items(
-                                child_node,
-                                &child_path,
-                                site_root,
-                                depth + 1,
-                                max_depth,
-                            );
-                            if !nested.is_empty() || child_node.route.is_some() {
-                                items.push(NavItem::Group {
-                                    id: None,
-                                    label: label.clone(),
-                                    route: child_node.route.clone(),
-                                    children: nested,
-                                    icon: None,
-                                    section_title: None,
-                                });
-                            } else if let Some(route) = &child_node.route {
-                                items.push(NavItem::Link {
-                                    id: None,
-                                    label: label.clone(),
-                                    route: route.clone(),
-                                    icon: None,
-                                    description: None,
-                                });
-                            }
-                        }
-                    }
-                }
-                NavOverrideChild::Nested {
+                NavOverride::Node {
                     name,
-                    children: nested_children,
                     label,
+                    icon,
+                    items: nested_items,
                 } => {
-                    if let Some(child_node) = node.children.get(name) {
-                        let child_path = if segment_path.is_empty() {
-                            name.clone()
-                        } else {
-                            format!("{segment_path}/{name}")
-                        };
-
-                        // Build children using the override order
-                        let nested = build_children_from_override(
-                            nested_children,
-                            child_node,
-                            &child_path,
+                    if let Some(name) = name {
+                        if let Some(nav_item) = build_named_override_item(
+                            name,
+                            label.as_ref(),
+                            nested_items.as_deref(),
+                            node,
+                            segment_path,
+                            site_root,
+                            depth,
+                            max_depth,
+                        ) {
+                            items.push(apply_item_icon(nav_item, icon.clone()));
+                        }
+                    } else if let Some(nested_items) = nested_items {
+                        let group_children = build_items_from_override(
+                            nested_items,
+                            node,
+                            segment_path,
                             site_root,
                             depth + 1,
                             max_depth,
                         );
-                        // Use explicit label if provided, otherwise derive from name
-                        let item_label = label
-                            .as_ref()
-                            .cloned()
-                            .unwrap_or_else(|| segment_to_label(name));
-                        if !nested.is_empty() || child_node.route.is_some() {
+
+                        if !group_children.is_empty() {
                             items.push(NavItem::Group {
                                 id: None,
-                                label: item_label,
-                                route: child_node.route.clone(),
-                                children: nested,
-                                icon: None,
+                                label: label.clone().unwrap_or_else(|| "Group".to_string()),
+                                route: None,
+                                children: group_children,
+                                icon: icon.clone(),
                                 section_title: None,
                             });
-                        } else if let Some(route) = &child_node.route {
-                            items.push(NavItem::Route(route.clone()));
                         }
+                    } else {
+                        warn!(
+                            "Ignoring invalid navigation override item in {}: item must have `name` or `items`",
+                            if segment_path.is_empty() {
+                                "/"
+                            } else {
+                                segment_path
+                            }
+                        );
                     }
                 }
             }
         }
 
         items
+    }
+
+    fn build_named_override_item(
+        name: &str,
+        label: Option<&String>,
+        override_items: Option<&[NavOverride]>,
+        node: &NavNode,
+        segment_path: &str,
+        site_root: Option<&Path>,
+        depth: u8,
+        max_depth: &Option<u8>,
+    ) -> Option<NavItem> {
+        let child_node = node.children.get(name)?;
+        let child_path = if segment_path.is_empty() {
+            name.to_string()
+        } else {
+            format!("{segment_path}/{name}")
+        };
+
+        if child_node.children.is_empty() {
+            return match (&child_node.route, label) {
+                (Some(route), Some(label)) => Some(NavItem::Link {
+                    id: None,
+                    label: label.clone(),
+                    route: route.clone(),
+                    icon: None,
+                    description: None,
+                }),
+                (Some(route), None) => Some(NavItem::Route(route.clone())),
+                (None, _) => None,
+            };
+        }
+
+        let children = if let Some(override_items) = override_items {
+            build_items_from_override(
+                override_items,
+                child_node,
+                &child_path,
+                site_root,
+                depth + 1,
+                max_depth,
+            )
+        } else {
+            build_nav_items(child_node, &child_path, site_root, depth + 1, max_depth)
+        };
+
+        if !children.is_empty() || child_node.route.is_some() {
+            Some(NavItem::Group {
+                id: None,
+                label: label.cloned().unwrap_or_else(|| segment_to_label(name)),
+                route: child_node.route.clone(),
+                children,
+                icon: None,
+                section_title: None,
+            })
+        } else if let Some(route) = &child_node.route {
+            match label {
+                Some(label) => Some(NavItem::Link {
+                    id: None,
+                    label: label.clone(),
+                    route: route.clone(),
+                    icon: None,
+                    description: None,
+                }),
+                None => Some(NavItem::Route(route.clone())),
+            }
+        } else {
+            None
+        }
+    }
+
+    fn apply_item_icon(item: NavItem, icon: Option<String>) -> NavItem {
+        match (item, icon) {
+            (
+                NavItem::Group {
+                    id,
+                    label,
+                    route,
+                    children,
+                    section_title,
+                    ..
+                },
+                Some(icon),
+            ) => NavItem::Group {
+                id,
+                label,
+                route,
+                children,
+                icon: Some(icon),
+                section_title,
+            },
+            (
+                NavItem::Link {
+                    id,
+                    label,
+                    route,
+                    description,
+                    ..
+                },
+                Some(icon),
+            ) => NavItem::Link {
+                id,
+                label,
+                route,
+                icon: Some(icon),
+                description,
+            },
+            (item, _) => item,
+        }
     }
 
     // Start building from root's children (depth 1)

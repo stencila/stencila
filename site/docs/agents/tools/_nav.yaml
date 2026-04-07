@@ -2,9 +2,11 @@ items:
   - file
   - shell
   - web
-  - label: Images
-    children:
+  - name: images
+    items:
       - inspect-image
+      - name: lint-svg
+        label: Lint SVG
   - snap
   - orchestration
 

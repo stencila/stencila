@@ -3,18 +3,19 @@
 
 items:
   - label: "Create & Setup"
-    children:
+    items:
       - "new"
       - "init"
       - name: "config"
-        children:
+        items:
+          - "show"
           - "get"
           - "set"
           - "unset"
           - "check"
 
   - label: "Document Management"
-    children:
+    items:
       - "status"
       - "move"
       - "track"
@@ -22,7 +23,7 @@ items:
       - "clean"
 
   - label: "Format & Sync"
-    children:
+    items:
       - "convert"
       - "merge"
       - "sync"
@@ -32,7 +33,7 @@ items:
       - "unwatch"
 
   - label: "Processing"
-    children:
+    items:
       - "compile"
       - "lint"
       - "execute"
@@ -40,25 +41,25 @@ items:
       - "query"
 
   - label: "View & Publish"
-    children:
+    items:
       - "open"
       - name: "publish"
-        children:
+        items:
           - "zenodo"
           - "ghost"
           - "stencila"
       - "demo"
 
   - label: "Resources"
-    children:
+    items:
       - name: "outputs"
-        children:
+        items:
           - "list"
           - "add"
           - "remove"
           - "push"
       - name: "db"
-        children:
+        items:
           - "init"
           - "push"
           - "pull"
@@ -70,33 +71,33 @@ items:
           - "clean"
           - "gc"
       - name: "prompts"
-        children:
+        items:
           - "list"
           - "show"
           - "infer"
           - "update"
           - "reset"
       - name: "models"
-        children:
+        items:
           - "list"
           - "run"
       - name: "kernels"
-        children:
+        items:
           - "list"
           - "info"
           - "packages"
           - "execute"
           - "evaluate"
       - name: "linters"
-        children:
+        items:
           - "list"
           - "lint"
       - name: "formats"
-        children:
+        items:
           - "list"
           - "structuring"
       - name: "themes"
-        children:
+        items:
           - "list"
           - "show"
           - "new"
@@ -104,12 +105,12 @@ items:
           - "validate"
           - "tokens"
       - name: "secrets"
-        children:
+        items:
           - "list"
           - "set"
           - "delete"
       - name: "tools"
-        children:
+        items:
           - "list"
           - "show"
           - "install"
@@ -117,21 +118,21 @@ items:
           - "run"
 
   - label: "Server"
-    children:
+    items:
       - "serve"
       - "snap"
       - "lsp"
 
   - label: "Cloud"
-    children:
+    items:
       - name: "cloud"
-        children:
+        items:
           - "status"
           - "signin"
           - "signout"
           - "logs"
       - name: "site"
-        children:
+        items:
           - "show"
           - "list"
           - "add"
@@ -140,26 +141,26 @@ items:
           - "preview"
           - "push"
           - name: "access"
-            children:
+            items:
               - "team"
               - "password"
           - name: "reviews"
-            children:
+            items:
               - "on"
               - "off"
               - "config"
           - name: "uploads"
-            children:
+            items:
               - "on"
               - "off"
               - "config"
           - name: "domain"
-            children:
+            items:
               - "set"
               - "status"
               - "clear"
           - name: "branch"
-            children:
+            items:
               - "list"
               - "delete"
       - "signin"
@@ -167,7 +168,7 @@ items:
       - "logs"
 
   - label: "Maintenance"
-    children:
+    items:
       - "upgrade"
       - "uninstall"
 
