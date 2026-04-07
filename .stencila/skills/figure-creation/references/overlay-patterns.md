@@ -80,8 +80,11 @@ Curve types: `straight` (default), `quad`, `cubic`, `elbow`.
 <!-- Scale bar -->
 <s:scale-bar x="40" y="280" length="130" label="50 μm"/>
 
-<!-- Dimension line -->
+<!-- Dimension line (side is relative to from→to vector; left/right also supported) -->
 <s:dimension x="100" y="200" to-x="400" to-y="200" label="15.2 mm" side="above"/>
+
+<!-- Dimension with background pill for legibility on photos -->
+<s:dimension x="100" y="200" to-x="400" to-y="200" label="15.2 mm" background="white"/>
 
 <!-- Angle arc -->
 <s:angle x="200" y="200" from-x="300" from-y="200" to-x="250" to-y="120" r="60" label="45°"/>

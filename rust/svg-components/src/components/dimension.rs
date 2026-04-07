@@ -1,20 +1,33 @@
+use std::fmt::Write;
+
 use super::{
-    Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, pass_through_attrs,
-    resolve_position, resolve_stroke, resolve_target, resolve_text, svg_line, svg_text,
-    vector_metrics,
+    Attrs, CompilationMessage, ComponentContext, attr_str, fmt_coord, normal_for_side,
+    pass_through_attrs, resolve_position, resolve_stroke, resolve_target, resolve_text, svg_line,
+    svg_text, vector_metrics,
 };
 
 /// Expand `<s:dimension>` into standard SVG.
 ///
 /// Renders a dimension line between two points with end caps and a label.
+/// The dimension line is offset perpendicular to the from-to vector,
+/// with extension lines connecting back to the original endpoints.
+///
+/// The `side` attribute controls which direction the dimension line is
+/// offset, relative to the directional vector from `from` to `to`:
+/// - For a rightward vector: `above` projects upward, `below` downward
+/// - For a downward vector: `above` projects to the viewer's right
+/// - `left` and `right` follow the same perpendicular-normal logic
+///
+/// This is consistent with `<s:bracket>` and `<s:brace>`.
 ///
 /// Supported attributes:
 /// - `from`/`to` or `x`/`y` + `to-x`/`to-y`: start and end points
 /// - `dx`/`dy`: offset from anchor
 /// - `label`: text content (e.g. "4.2 cm")
-/// - `label-position`: `above` (default) or `below`
-/// - `label-angle`: `along` (default), `horizontal`, `vertical`, or a number in degrees
-/// - `side`: `above` (default), `below` — offset direction for the dimension line
+/// - `label-position`: `above` (default) or `below` — relative to the dimension line
+/// - `label-angle`: `along` (default), `horizontal`, `vertical`, or degrees
+/// - `side`: `above` (default), `below`, `left`, `right` — offset direction
+/// - `background`: color for a semi-transparent pill behind the label (default `none`)
 #[allow(clippy::too_many_lines)]
 pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let start = resolve_position(attrs, "x", "y", Some("from"), "dx", "dy", ctx.anchors);
@@ -31,6 +44,7 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_position = attr_str(attrs, "label-position", "above");
     let label_angle = attr_str(attrs, "label-angle", "along");
     let side = attr_str(attrs, "side", "above");
+    let background = attr_str(attrs, "background", "none");
     let pass = pass_through_attrs(attrs);
     let stroke = resolve_stroke(attrs);
     let text_fill = resolve_text(attrs);
@@ -39,15 +53,11 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
 
     let metrics = vector_metrics(x1, y1, x2, y2);
     let (nx, ny) = (metrics.nx, metrics.ny);
-
-    let side_sign = match side {
-        "below" => -1.0,
-        _ => 1.0,
-    };
+    let (snx, sny) = normal_for_side(&metrics, side);
 
     // Offset dimension line endpoints
-    let ox = nx * side_offset * side_sign;
-    let oy = ny * side_offset * side_sign;
+    let ox = snx * side_offset;
+    let oy = sny * side_offset;
     let dx1 = x1 + ox;
     let dy1 = y1 + oy;
     let dx2 = x2 + ox;
@@ -126,6 +136,41 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         } else {
             "auto"
         };
+
+        // Background pill behind label for legibility on busy backgrounds
+        if background != "none" {
+            let font_size = 12.0;
+            let label_width = label.chars().count() as f64 * font_size * 0.6;
+            let label_height = font_size;
+            let pad = 4.0;
+
+            // Center the rect around the label position, adjusting for baseline
+            let rx = lx - label_width / 2.0 - pad;
+            let ry = if label_position == "below" {
+                ly - pad
+            } else {
+                ly - label_height - pad
+            };
+            let rw = label_width + pad * 2.0;
+            let rh = label_height + pad * 2.0;
+
+            if angle_deg.abs() < 0.1 {
+                let _ = write!(
+                    svg,
+                    r#"<rect x="{}" y="{}" width="{}" height="{}" rx="4" fill="{}" opacity="0.5" stroke="none"/>"#,
+                    fmt_coord(rx), fmt_coord(ry), fmt_coord(rw), fmt_coord(rh),
+                    crate::compile::xml_escape(background),
+                );
+            } else {
+                let _ = write!(
+                    svg,
+                    r#"<rect x="{}" y="{}" width="{}" height="{}" rx="4" fill="{}" opacity="0.5" stroke="none" transform="rotate({}, {}, {})"/>"#,
+                    fmt_coord(rx), fmt_coord(ry), fmt_coord(rw), fmt_coord(rh),
+                    crate::compile::xml_escape(background),
+                    fmt_coord(angle_deg), fmt_coord(lx), fmt_coord(ly),
+                );
+            }
+        }
 
         if angle_deg.abs() < 0.1 {
             svg.push_str(&svg_text(

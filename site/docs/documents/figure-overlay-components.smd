@@ -466,6 +466,8 @@ Three scale bars: default (label below), label above, and a vertical bar on the 
 
 The `<s:dimension>` component draws a measurement line between two points with perpendicular end bars, extension lines, and a label. Use it for engineering-style dimensional annotations.
 
+The `side` attribute controls which direction the dimension line is offset, relative to the directional vector from `from` to `to`. For a rightward vector, `above` projects upward; for a downward vector, `above` projects to the viewer's right. This follows the same perpendicular-normal convention as `<s:bracket>` and `<s:brace>`.
+
 **Required:** start position (`x`/`y` or `from`) and end position (`to-x`/`to-y` or `to`).
 
 | Attribute | Values | Default | Description |
@@ -477,7 +479,8 @@ The `<s:dimension>` component draws a measurement line between two points with p
 | `label` | text | — | Measurement text (e.g., "4.2 cm") |
 | `label-position` | `above`, `below` | `above` | Label placement on the dimension line |
 | `label-angle` | `along`, `horizontal`, `vertical`, or degrees | `along` | Label rotation: `along` follows the line angle, `horizontal` keeps text level, `vertical` rotates 90° |
-| `side` | `above`, `below` | `above` | Which side the offset dimension line appears |
+| `side` | `above`, `below`, `left`, `right` | `above` | Which side the offset dimension line appears |
+| `background` | color or `none` | `none` | Semi-transparent pill behind the label for legibility on busy backgrounds |
 
 ````smd demo
 ::: figure

@@ -86,13 +86,15 @@ Calibrated measurement bar. Required: position + `length`.
 
 ## Dimension line (`<s:dimension>`)
 
-Engineering-style dimension with end caps. Required: start + end positions.
+Engineering-style dimension with end caps. Required: start + end positions. The `side` attribute controls offset direction relative to the from→to vector (consistent with brace/bracket).
 
 | Attribute | Values | Default |
 |---|---|---|
 | `label` | text | — |
 | `label-position` | `above`, `below` | `above` |
-| `side` | `above`, `below` | `above` |
+| `label-angle` | `along`, `horizontal`, `vertical`, degrees | `along` |
+| `side` | `above`, `below`, `left`, `right` | `above` |
+| `background` | color or `none` | `none` |
 
 ## Angle arc (`<s:angle>`)
 
