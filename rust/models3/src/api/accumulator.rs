@@ -218,7 +218,7 @@ impl StreamAccumulator {
     #[must_use]
     pub fn response(&self) -> Response {
         if let Some(ref resp) = self.finish_response {
-            return resp.clone();
+            return self.reconcile_finish_response(resp.clone());
         }
 
         let mut content: Vec<ContentPart> = Vec::new();
@@ -307,5 +307,90 @@ impl StreamAccumulator {
     #[must_use]
     pub fn tool_calls(&self) -> &[ToolCall] {
         &self.tool_calls
+    }
+
+    /// Merge streamed content into a provider-built finish response when the
+    /// provider's final payload is incomplete.
+    ///
+    /// This is primarily a recovery path for providers that emit enough
+    /// streaming events to reconstruct tool calls or text, but then attach a
+    /// partial `Finish.response` that omits some of that content.
+    fn reconcile_finish_response(&self, mut response: Response) -> Response {
+        let has_reasoning = response.message.content.iter().any(|part| {
+            matches!(
+                part,
+                ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
+            )
+        });
+        let has_text = response
+            .message
+            .content
+            .iter()
+            .any(|part| matches!(part, ContentPart::Text { .. }));
+        let has_tool_calls = response
+            .message
+            .content
+            .iter()
+            .any(|part| matches!(part, ContentPart::ToolCall { .. }));
+
+        if !has_reasoning && !self.reasoning.is_empty() {
+            response.message.content.insert(
+                0,
+                ContentPart::Thinking {
+                    thinking: crate::types::content::ThinkingData {
+                        text: self.reasoning.clone(),
+                        signature: None,
+                        redacted: false,
+                    },
+                },
+            );
+        }
+
+        if !has_text && !self.text.is_empty() {
+            response.message.content.push(ContentPart::text(&self.text));
+        }
+
+        if !has_tool_calls {
+            for tc in &self.tool_calls {
+                response.message.content.push(ContentPart::tool_call(
+                    &tc.id,
+                    &tc.name,
+                    tc.arguments.clone(),
+                ));
+            }
+
+            if self.tool_calls.is_empty() {
+                for pending in self.pending_tool_calls.values() {
+                    if pending.name.is_empty() || pending.name == "unknown_tool" {
+                        continue;
+                    }
+
+                    let (arguments, _) = ToolCall::parse_arguments(&pending.arguments_buf);
+                    response.message.content.push(ContentPart::tool_call(
+                        &pending.id,
+                        &pending.name,
+                        arguments,
+                    ));
+                }
+            }
+        }
+
+        if response
+            .message
+            .content
+            .iter()
+            .any(|part| matches!(part, ContentPart::ToolCall { .. }))
+        {
+            response.finish_reason =
+                FinishReason::new(Reason::ToolCalls, response.finish_reason.raw.clone());
+        }
+
+        if response.usage == Usage::default()
+            && let Some(usage) = &self.usage
+        {
+            response.usage = usage.clone();
+        }
+
+        response
     }
 }

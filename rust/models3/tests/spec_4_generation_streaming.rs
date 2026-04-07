@@ -390,6 +390,170 @@ fn accumulator_prefers_finish_response() {
     }
 }
 
+/// If a provider emits a `Finish.response` that omits tool calls seen during
+/// streaming, the accumulator should recover those streamed tool calls instead
+/// of discarding them.
+#[test]
+fn accumulator_reconciles_incomplete_finish_response_with_streamed_tool_calls() {
+    use stencila_models3::types::response::Response;
+    use stencila_models3::types::role::Role;
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-openai-1".into(),
+            name: "shell".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-openai-1".into(),
+            name: "shell".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"command":"pwd"}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    let finish_response = Response {
+        id: "resp_openai_1".into(),
+        model: "gpt-5.4".into(),
+        provider: "openai".into(),
+        message: stencila_models3::types::message::Message::new(Role::Assistant, Vec::new()),
+        finish_reason: FinishReason::new(Reason::Stop, Some("completed".into())),
+        usage: Usage::default(),
+        raw: None,
+        warnings: None,
+        rate_limit: None,
+    };
+
+    let mut finish_event = StreamEvent::finish(
+        FinishReason::new(Reason::Stop, Some("completed".into())),
+        Usage::default(),
+    );
+    finish_event.response = Some(Box::new(finish_response));
+    acc.process(&finish_event);
+
+    let response = acc.response();
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(tool_calls[0].id, "call-openai-1");
+    assert_eq!(tool_calls[0].name, "shell");
+    assert_eq!(
+        tool_calls[0].arguments,
+        serde_json::json!({"command": "pwd"})
+    );
+    assert_eq!(response.finish_reason.reason, Reason::ToolCalls);
+}
+
+/// Pending placeholder tool calls should not be recovered into a finish
+/// response when a finalized streamed tool call already exists.
+#[test]
+fn accumulator_reconcile_ignores_pending_unknown_tool_shadows() {
+    use stencila_models3::types::response::Response;
+    use stencila_models3::types::role::Role;
+    use stencila_models3::types::tool::ToolCall;
+
+    let mut acc = StreamAccumulator::new();
+    acc.process(&StreamEvent::stream_start());
+
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-real".into(),
+            name: "glob".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-real".into(),
+            name: "glob".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"pattern":"**/*.png","path":"."}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallEnd,
+        ToolCall {
+            id: "call-real".into(),
+            name: "glob".into(),
+            arguments: serde_json::json!({"pattern":"**/*.png","path":"."}),
+            raw_arguments: Some(r#"{"pattern":"**/*.png","path":"."}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    // Shadow start that never resolves to a real tool call.
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallStart,
+        ToolCall {
+            id: "call-shadow".into(),
+            name: "unknown_tool".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: None,
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+    acc.process(&StreamEvent::tool_call_event(
+        StreamEventType::ToolCallDelta,
+        ToolCall {
+            id: "call-shadow".into(),
+            name: "unknown_tool".into(),
+            arguments: serde_json::Value::Null,
+            raw_arguments: Some(r#"{"pattern":"**/*.png","path":"."}"#.into()),
+            parse_error: None,
+        },
+        serde_json::Value::Null,
+    ));
+
+    let finish_response = Response {
+        id: "resp_openai_shadow".into(),
+        model: "gpt-5.4".into(),
+        provider: "openai".into(),
+        message: stencila_models3::types::message::Message::new(Role::Assistant, Vec::new()),
+        finish_reason: FinishReason::new(Reason::Stop, Some("completed".into())),
+        usage: Usage::default(),
+        raw: None,
+        warnings: None,
+        rate_limit: None,
+    };
+
+    let mut finish_event = StreamEvent::finish(
+        FinishReason::new(Reason::Stop, Some("completed".into())),
+        Usage::default(),
+    );
+    finish_event.response = Some(Box::new(finish_response));
+    acc.process(&finish_event);
+
+    let response = acc.response();
+    let tool_calls = response.tool_calls();
+    assert_eq!(tool_calls.len(), 1);
+    assert_eq!(tool_calls[0].id, "call-real");
+    assert_eq!(tool_calls[0].name, "glob");
+    assert_eq!(
+        tool_calls[0].arguments,
+        serde_json::json!({"pattern":"**/*.png","path":"."})
+    );
+}
+
 /// Gemini emits ToolCallStart (empty args) + ToolCallEnd (full args), no deltas.
 /// The accumulator must take arguments from the end event.
 #[test]
