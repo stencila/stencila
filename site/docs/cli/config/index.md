@@ -17,6 +17,9 @@ stencila config [COMMAND]
 # Show the current configuration
 stencila config
 
+# Show the current configuration explicitly
+stencila config show
+
 # Show configuration as JSON
 stencila config get --as json
 
@@ -41,9 +44,10 @@ stencila config check
 
 # Subcommands
 
-| Command             | Description                  |
-| ------------------- | ---------------------------- |
-| [`get`](get.md)     | Get configuration value(s)   |
-| [`set`](set.md)     | Set a configuration value    |
-| [`unset`](unset.md) | Remove a configuration value |
-| [`check`](check.md) | Check configuration validity |
+| Command             | Description                    |
+| ------------------- | ------------------------------ |
+| [`show`](show.md)   | Show the current configuration |
+| [`get`](get.md)     | Get configuration value(s)     |
+| [`set`](set.md)     | Set a configuration value      |
+| [`unset`](unset.md) | Remove a configuration value   |
+| [`check`](check.md) | Check configuration validity   |

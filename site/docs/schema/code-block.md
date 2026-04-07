@@ -7,13 +7,17 @@ description: A code block.
 
 The `CodeBlock` type has these properties:
 
-| Name                  | Description                              | Type                                        | Inherited from                   |
-| --------------------- | ---------------------------------------- | ------------------------------------------- | -------------------------------- |
-| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md)          |
-| `code`                | The code.                                | [`Cord`](./cord.md)                         | [`CodeStatic`](./code-static.md) |
-| `programmingLanguage` | The programming language of the code.    | [`String`](./string.md)                     | [`CodeStatic`](./code-static.md) |
-| `authors`             | The authors of the code.                 | [`Author`](./author.md)*                    | [`CodeStatic`](./code-static.md) |
-| `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](./provenance-count.md)* | [`CodeStatic`](./code-static.md) |
+| Name                  | Description                                                    | Type                                              | Inherited from                   |
+| --------------------- | -------------------------------------------------------------- | ------------------------------------------------- | -------------------------------- |
+| `id`                  | The identifier for this item.                                  | [`String`](./string.md)                           | [`Entity`](./entity.md)          |
+| `code`                | The code.                                                      | [`Cord`](./cord.md)                               | [`CodeStatic`](./code-static.md) |
+| `programmingLanguage` | The programming language of the code.                          | [`String`](./string.md)                           | [`CodeStatic`](./code-static.md) |
+| `authors`             | The authors of the code.                                       | [`Author`](./author.md)*                          | [`CodeStatic`](./code-static.md) |
+| `provenance`          | A summary of the provenance of the code.                       | [`ProvenanceCount`](./provenance-count.md)*       | [`CodeStatic`](./code-static.md) |
+| `isDemo`              | Whether the code block is a demo that should also be rendered. | [`Boolean`](./boolean.md)                         | -                                |
+| `compilationDigest`   | A digest of the `code` and `programmingLanguage`.              | [`CompilationDigest`](./compilation-digest.md)    | -                                |
+| `compilationMessages` | Messages generated while compiling the demo content.           | [`CompilationMessage`](./compilation-message.md)* | -                                |
+| `content`             | The content rendered from the code when `isDemo` is true.      | [`Block`](./block.md)*                            | -                                |
 
 # Related
 

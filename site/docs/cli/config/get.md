@@ -17,8 +17,14 @@ stencila config get [OPTIONS] [KEY]
 # Show entire configuration
 stencila config get
 
+# Show entire configuration as YAML (default)
+stencila config get
+
 # Show as JSON
 stencila config get --as json
+
+# Show as TOML
+stencila config get --as toml
 
 # Get a specific value
 stencila config get site.id
@@ -40,4 +46,4 @@ stencila config get packages[0].name
 
 | Name       | Description                                                                                  |
 | ---------- | -------------------------------------------------------------------------------------------- |
-| `-a, --as` | Output format (toml, json, or yaml, default: toml). Possible values: `json`, `yaml`, `toml`. |
+| `-a, --as` | Output format (toml, json, or yaml, default: yaml). Possible values: `json`, `yaml`, `toml`. |

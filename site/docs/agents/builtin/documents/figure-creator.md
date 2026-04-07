@@ -49,7 +49,7 @@ Creates or updates figures in Stencila Markdown documents, including simple imag
 | Model | `large` |
 | Providers | `anthropic`, `openai`, `any` |
 | Reasoning effort | `high` |
-| Tools | `read_file`, `write_file`, `apply_patch`, `glob`, `grep`, `snap`, `ask_user` |
+| Tools | `read_file`, `write_file`, `apply_patch`, `glob`, `grep`, `inspect_image`, `lint_svg`, `snap`, `ask_user` |
 | Skills | [`figure-creation`](/docs/skills/builtin/documents/figure-creation/) |
 
 # Prompt
