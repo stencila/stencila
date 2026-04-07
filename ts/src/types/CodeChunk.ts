@@ -3,6 +3,7 @@
 import { Block } from "./Block.js";
 import { CodeExecutable } from "./CodeExecutable.js";
 import { CompilationDigest } from "./CompilationDigest.js";
+import { CompilationMessage } from "./CompilationMessage.js";
 import { Cord } from "./Cord.js";
 import { LabelType } from "./LabelType.js";
 import { Node } from "./Node.js";
@@ -48,6 +49,11 @@ export class CodeChunk extends CodeExecutable {
    * A digest of the overlay property.
    */
   overlayCompilationDigest?: CompilationDigest;
+
+  /**
+   * Messages generated while compiling the overlay.
+   */
+  overlayCompilationMessages?: CompilationMessage[];
 
   /**
    * Outputs from executing the chunk.

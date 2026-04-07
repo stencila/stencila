@@ -1,6 +1,8 @@
 use std::hash::{Hash, Hasher};
 
-use stencila_schema::{CompilationDigest, CompilationMessage, Figure, LabelType, NodeProperty};
+use stencila_schema::{
+    CodeLocation, CompilationDigest, CompilationMessage, Figure, LabelType, NodeProperty,
+};
 
 use crate::prelude::*;
 
@@ -55,7 +57,7 @@ impl Executable for Figure {
                 .is_none_or(|d| d.state_digest != new_digest);
 
             if needs_compile {
-                let result = stencila_svg_components::compile(overlay);
+                let result = stencila_svg_components::compile_and_lint(overlay);
 
                 let messages: Option<Vec<CompilationMessage>> = if result.messages.is_empty() {
                     None
@@ -64,17 +66,30 @@ impl Executable for Figure {
                         result
                             .messages
                             .into_iter()
-                            .map(|m| CompilationMessage {
-                                level: match m.level {
+                            .map(|m| {
+                                let level = match m.level {
                                     stencila_svg_components::diagnostics::MessageLevel::Warning => {
                                         stencila_schema::MessageLevel::Warning
                                     }
                                     stencila_svg_components::diagnostics::MessageLevel::Error => {
                                         stencila_schema::MessageLevel::Error
                                     }
-                                },
-                                message: m.message,
-                                ..Default::default()
+                                };
+                                let code_location = match (m.start_line, m.start_column) {
+                                    (Some(line), Some(col)) => Some(CodeLocation {
+                                        start_line: Some(line),
+                                        start_column: Some(col),
+                                        ..Default::default()
+                                    }),
+                                    _ => None,
+                                };
+                                CompilationMessage {
+                                    error_type: Some("Overlay Component".into()),
+                                    level,
+                                    message: m.message,
+                                    code_location,
+                                    ..Default::default()
+                                }
                             })
                             .collect(),
                     )

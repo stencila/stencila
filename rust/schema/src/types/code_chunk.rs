@@ -276,6 +276,13 @@ pub struct CodeChunkOptions {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub overlay_compilation_digest: Option<CompilationDigest>,
 
+    /// Messages generated while compiling the overlay.
+    #[serde(alias = "overlay-compilation-messages", alias = "overlay_compilation_messages", alias = "overlayCompilationMessage", alias = "overlay-compilation-message", alias = "overlay_compilation_message")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(compilation)]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub overlay_compilation_messages: Option<Vec<CompilationMessage>>,
+
     /// Whether the code should be treated as side-effect free when executed.
     #[serde(alias = "execution-pure", alias = "execution_pure")]
     #[strip(execution)]

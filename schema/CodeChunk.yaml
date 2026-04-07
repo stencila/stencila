@@ -116,6 +116,15 @@ properties:
     $comment: Used to avoid unnecessary recompilation of the overlay.
     $ref: CompilationDigest
     strip: [compilation]
+  overlayCompilationMessages:
+    '@id': stencila:overlayCompilationMessages
+    description: Messages generated while compiling the overlay.
+    strip: [compilation]
+    type: array
+    items:
+      $ref: CompilationMessage
+    dom:
+      elem: span
   outputs:
     "@id": stencila:outputs
     description: Outputs from executing the chunk.

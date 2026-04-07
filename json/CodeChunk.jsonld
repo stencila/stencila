@@ -623,6 +623,18 @@
       }
     },
     {
+      "@id": "stencila:overlayCompilationMessages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "overlayCompilationMessages",
+      "rdfs:comment": "Messages generated while compiling the overlay.",
+      "schema:domainIncludes": {
+        "@id": "stencila:CodeChunk"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:CompilationMessage"
+      }
+    },
+    {
       "@id": "stencila:outputs",
       "@type": "rdfs:Property",
       "rdfs:label": "outputs",

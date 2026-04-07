@@ -1614,6 +1614,9 @@ class CodeChunk(CodeExecutable):
     overlay_compilation_digest: CompilationDigest | None = None
     """A digest of the overlay property."""
 
+    overlay_compilation_messages: list[CompilationMessage] | None = None
+    """Messages generated while compiling the overlay."""
+
     outputs: list[Node] | None = None
     """Outputs from executing the chunk."""
 

@@ -617,6 +617,27 @@
       ],
       "$ref": "CompilationDigest.schema.json"
     },
+    "overlayCompilationMessages": {
+      "@id": "stencila:overlayCompilationMessages",
+      "description": "Messages generated while compiling the overlay.",
+      "aliases": [
+        "overlay-compilation-messages",
+        "overlay_compilation_messages",
+        "overlayCompilationMessage",
+        "overlay-compilation-message",
+        "overlay_compilation_message"
+      ],
+      "strip": [
+        "compilation"
+      ],
+      "dom": {
+        "elem": "span"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "CompilationMessage.schema.json"
+      }
+    },
     "outputs": {
       "@id": "stencila:outputs",
       "description": "Outputs from executing the chunk.",

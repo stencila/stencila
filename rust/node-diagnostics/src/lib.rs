@@ -9,7 +9,7 @@ use strum::Display;
 use stencila_codec_info::{PoshMap, Position8, Positions, Range8};
 use stencila_format::Format;
 use stencila_schema::{
-    Bibliography, Block, Citation, CodeLocation, CompilationMessage, Cord, ExecutionMessage,
+    Bibliography, Block, Citation, CodeLocation, CompilationMessage, ExecutionMessage,
     IfBlockClause, Inline, MessageLevel, Node, NodeId, NodeProperty, NodeType, Visitor,
     WalkControl, WalkNode,
 };
@@ -358,7 +358,7 @@ impl Collector {
         node_property: &Option<NodeProperty>,
         messages: &Option<Vec<CompilationMessage>>,
         lang: Option<&str>,
-        code: Option<&Cord>,
+        code: Option<&str>,
     ) {
         let (node_id, prefix) = if let Some((node_id, source)) = &self.within {
             (node_id.clone(), format!("Within `{source}`: "))
@@ -401,7 +401,7 @@ impl Collector {
         node_property: &Option<NodeProperty>,
         messages: &Option<Vec<ExecutionMessage>>,
         lang: Option<&str>,
-        code: Option<&Cord>,
+        code: Option<&str>,
     ) {
         let (node_id, prefix) = if let Some((node_id, source)) = &self.within {
             (node_id.clone(), format!("Within `{source}`: "))
@@ -438,7 +438,7 @@ impl Collector {
         compilation_messages: &Option<Vec<CompilationMessage>>,
         execution_messages: &Option<Vec<ExecutionMessage>>,
         lang: Option<&str>,
-        code: Option<&Cord>,
+        code: Option<&str>,
     ) {
         self.compilation_messages(
             node_type,
@@ -511,6 +511,29 @@ macro_rules! cms_ems {
     }};
 }
 
+macro_rules! code_chunk {
+    ($self:expr, $node:expr) => {{
+        $self.compilation_and_execution_messages(
+            $node.node_type(),
+            $node.node_id(),
+            &Some(NodeProperty::Code),
+            &$node.options.compilation_messages,
+            &$node.options.execution_messages,
+            $node.programming_language.as_deref(),
+            Some(&$node.code),
+        );
+
+        $self.compilation_messages(
+            $node.node_type(),
+            $node.node_id(),
+            &Some(NodeProperty::Overlay),
+            &$node.options.overlay_compilation_messages,
+            Some("svg"),
+            $node.overlay.as_deref(),
+        );
+    }};
+}
+
 impl Visitor for Collector {
     #[rustfmt::skip]
     fn visit_node(&mut self, node: &Node) -> WalkControl {
@@ -527,7 +550,8 @@ impl Visitor for Collector {
             Node::Chat(node) => cms_ems!(self, node, None, None, None),
             Node::ChatMessage(node) => cms_ems!(self, node, None, None, None),
             Node::CodeBlock(node) => cms!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
-            Node::CodeChunk(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
+            Node::CodeChunk(node) => code_chunk!(self, node),
+            Node::Figure(node) => cms!(self, node, Some(NodeProperty::Overlay), Some("svg"), node.options.overlay.as_deref()),
             Node::ForBlock(node) => cms_ems!(self, node, Some(NodeProperty::Code), node.programming_language.as_deref(), Some(&node.code)),
             Node::IfBlock(node) => cms_ems!(self, node, None, None, None),
             Node::IncludeBlock(node) => cms_ems!(self, node, Some(NodeProperty::Source), None, None),
@@ -548,7 +572,8 @@ impl Visitor for Collector {
             Block::AppendixBreak(block) => cms!(self, block, None, None, None),
             Block::CallBlock(block) => cms_ems!(self, block, None, None, None),
             Block::ChatMessage(block) => cms_ems!(self, block, None, None, None),
-            Block::CodeChunk(block) => cms_ems!(self, block, Some(NodeProperty::Code), block.programming_language.as_deref(), Some(&block.code)),
+            Block::CodeChunk(block) => code_chunk!(self, block),
+            Block::Figure(block) => cms!(self, block, Some(NodeProperty::Overlay), Some("svg"), block.options.overlay.as_deref()),
             Block::ForBlock(block) => cms_ems!(self, block, Some(NodeProperty::Code), block.programming_language.as_deref(), Some(&block.code)),
             Block::IfBlock(block) => cms_ems!(self, block, None, None, None),
             Block::IncludeBlock(block) => {
