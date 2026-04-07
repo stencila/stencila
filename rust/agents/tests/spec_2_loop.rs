@@ -2976,6 +2976,97 @@ async fn streaming_real_incremental_deltas() -> AgentResult<()> {
 }
 
 #[tokio::test]
+async fn streaming_preserves_partial_text_when_final_response_text_is_empty() -> AgentResult<()> {
+    use stencila_models3::types::stream_event::StreamEvent as SE;
+
+    // Regression test: if a streaming provider delivers correct text deltas
+    // but returns a final Response without text, preserve the streamed text
+    // in AssistantTextEnd and session history instead of blanking it.
+    struct EmptyFinalTextClient;
+
+    #[async_trait]
+    impl LlmClient for EmptyFinalTextClient {
+        async fn complete(&self, _request: Request) -> Result<Response, SdkError> {
+            Err(SdkError::Configuration {
+                message: "use stream_complete".into(),
+            })
+        }
+
+        async fn stream_complete(
+            &self,
+            _request: Request,
+            on_event: &(dyn Fn(SE) + Send + Sync),
+        ) -> Result<Response, SdkError> {
+            on_event(SE::stream_start());
+            on_event(SE::text_delta("Hello"));
+            on_event(SE::text_delta(", world!"));
+            on_event(SE::finish(
+                FinishReason::new(Reason::Stop, None),
+                Usage::default(),
+            ));
+
+            Ok(Response {
+                id: "resp_empty_text".into(),
+                model: "test-model".into(),
+                provider: "test".into(),
+                message: Message::new(Role::Assistant, Vec::new()),
+                finish_reason: FinishReason::new(Reason::Stop, None),
+                usage: Usage::default(),
+                raw: None,
+                warnings: None,
+                rate_limit: None,
+            })
+        }
+    }
+
+    let client: Arc<dyn LlmClient> = Arc::new(EmptyFinalTextClient);
+    let env: Arc<dyn ExecutionEnvironment> = Arc::new(MockExecEnv::new());
+    let profile = TestProfile::new()?;
+    let (mut session, mut rx) = ApiSession::new(
+        Box::new(profile),
+        env,
+        client,
+        SessionConfig::default(),
+        "test prompt".into(),
+        0,
+        ApiSessionInit::default(),
+    );
+
+    session.submit("Stream me").await?;
+
+    let events = drain_events(&mut rx).await;
+    let text_end = events
+        .iter()
+        .find(|e| e.kind == EventKind::AssistantTextEnd)
+        .ok_or_else(|| AgentError::Io {
+            message: "missing AssistantTextEnd event".into(),
+        })?;
+    let full_text = text_end
+        .data
+        .get("text")
+        .and_then(|v| v.as_str())
+        .unwrap_or("");
+    assert_eq!(full_text, "Hello, world!");
+
+    match &session.history()[1] {
+        stencila_agents::types::Turn::Assistant {
+            content,
+            response_content_parts,
+            ..
+        } => {
+            assert_eq!(content, "Hello, world!");
+            assert_eq!(
+                response_content_parts,
+                &vec![ContentPart::text("Hello, world!")]
+            );
+        }
+        other => panic!("expected assistant turn, got {other:?}"),
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn non_streaming_profile_falls_back_to_complete() -> AgentResult<()> {
     // When supports_streaming() is false, the session should use complete()
     // instead of stream_complete(), still synthesizing a single delta.

@@ -1008,7 +1008,16 @@ impl ApiSession {
             compaction_attempted = false;
 
             // 6. Record assistant turn
-            let text = response.text();
+            let streamed_text = partial_text
+                .lock()
+                .map(|text| text.clone())
+                .unwrap_or_default();
+            let response_text = response.text();
+            let text = if response_text.is_empty() && !streamed_text.is_empty() {
+                streamed_text
+            } else {
+                response_text
+            };
             let tool_calls = response.tool_calls();
             let reasoning = response.reasoning();
             let thinking_parts: Vec<ContentPart> = response
@@ -1029,9 +1038,12 @@ impl ApiSession {
             self.events
                 .emit_assistant_text_end(&text, reasoning.clone());
 
-            let response_content_parts = response.message.content.clone();
+            let mut response_content_parts = response.message.content.clone();
+            if response_content_parts.is_empty() && !text.is_empty() {
+                response_content_parts.push(ContentPart::text(&text));
+            }
             self.history.push(Turn::Assistant {
-                content: text,
+                content: text.clone(),
                 tool_calls: tool_calls.clone(),
                 reasoning,
                 thinking_parts,
