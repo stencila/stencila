@@ -49,6 +49,7 @@ allowed-tools:
   - glob
   - grep
   - inspect_image
+  - lint_svg
   - snap
   - ask_user
 ---

@@ -14,6 +14,7 @@ pub mod edit_file;
 pub mod glob;
 pub mod grep;
 pub mod inspect_image;
+pub mod lint_svg;
 pub mod list_agents;
 pub mod list_dir;
 pub mod list_workflows;
@@ -181,6 +182,7 @@ pub fn register_optional_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
     registry.register_all(vec![
         RegisteredTool::new(snap::definition(), snap::executor()),
         RegisteredTool::new(inspect_image::definition(), inspect_image::executor()),
+        RegisteredTool::new(lint_svg::definition(), lint_svg::executor()),
     ])
 }
 

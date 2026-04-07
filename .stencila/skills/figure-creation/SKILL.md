@@ -34,7 +34,7 @@ keywords:
   - stencila markdown
   - figure plan
   - figure specification
-allowed-tools: read_file write_file apply_patch glob grep snap inspect_image ask_user
+allowed-tools: read_file write_file apply_patch glob grep snap inspect_image lint_svg ask_user
 ---
 
 ## Overview
@@ -56,8 +56,9 @@ Full documentation (large — load only when the condensed references are insuff
 
 - [`references/figures.smd`](references/figures.smd) — complete figures documentation (763 lines)
 - [`references/figure-overlay-components.smd`](references/figure-overlay-components.smd) — full overlay component reference with demos (980 lines)
-- [`references/snap-tool.md`](references/snap-tool.md) — full `snap` tool reference for visual verification
 - [`references/inspect-image-tool.md`](references/inspect-image-tool.md) — full `inspect_image` tool reference for coordinate inspection
+- [`references/lint-svg-tool.md`](references/lint-svg-tool.md) — full `lint_svg` tool reference for overlay static analysis
+- [`references/snap-tool.md`](references/snap-tool.md) — full `snap` tool reference for visual verification
 
 ## Required Inputs
 
@@ -116,10 +117,11 @@ When used standalone, these inputs come from the user or the agent's prompt. Whe
    - For a plan, provide a figure specification covering figure type, panel order, caption approach, overlay strategy, and required missing inputs.
    - For implementation, author the figure using the syntax patterns below.
 6. **Add overlays** if requested — prefer anchor-based positioning over raw coordinates (see "Anchor-first positioning" below). Use `inspect_image` to determine coordinates before writing overlay markup (see "Coordinate inspection" below).
-7. **Verify cross-references and panel labeling.**
+7. **Lint overlays** after authoring or editing overlay markup. Run `lint_svg` to catch layout collisions, dangling anchor references, out-of-bounds components, and invalid attributes before visual verification (see "Overlay linting" below).
+8. **Verify cross-references and panel labeling.**
    - Confirm figure references still point to the right target.
    - Avoid duplicating automatic subfigure labels with manual overlay badges unless the badge serves a different semantic purpose.
-8. **Optionally verify rendering** with `snap` if a Stencila server and route are available (see "Visual verification" below).
+9. **Optionally verify rendering** with `snap` if a Stencila server and route are available (see "Visual verification" below).
 
 ## Do not invent measurements
 
@@ -396,6 +398,24 @@ inspect_image(file_path: "figure.png", coordinate_space: {pad: {top: 0, right: 2
 ```
 
 For full details, see [`references/inspect-image-tool.md`](references/inspect-image-tool.md).
+
+## Overlay linting
+
+After authoring or editing an overlay, run `lint_svg` to catch common errors before visual verification. Pass the SVG overlay source string to the tool:
+
+```
+lint_svg(svg_content: "<svg viewBox=\"0 0 600 400\" xmlns:s=\"https://stencila.io/svg\">...</svg>")
+```
+
+The linter checks for:
+- **Collisions** — overlapping labels, labels crossing lines from other components
+- **Out-of-bounds** — components extending outside the `viewBox`
+- **Dangling references** — `from="#missing"` pointing to undefined anchors
+- **Unused anchors** — `<s:anchor>` defined but never referenced
+- **Missing namespace** — forgetting `xmlns:s` on the `<svg>` element
+- **Invalid attributes** — unknown attributes or invalid enum values (e.g. `curve="wobbly"`)
+
+Fix any errors and warnings before proceeding to visual verification with `snap`. To suppress a collision warning for an intentional overlap, place `<!-- lint-ignore collision -->` before the component.
 
 ## Visual verification
 

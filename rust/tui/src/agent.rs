@@ -840,10 +840,14 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let probe_count = args_obj
                 .and_then(|o| o.get("probes"))
                 .and_then(Value::as_array)
-                .map(Vec::len);
+                .map(Vec::len)
+                .unwrap_or_default();
             let probe_label;
-            if let Some(n) = probe_count {
-                probe_label = format!("{n} probe{}", if n == 1 { "" } else { "s" });
+            if probe_count > 0 {
+                probe_label = format!(
+                    "{probe_count} probe{}",
+                    if probe_count == 1 { "" } else { "s" }
+                );
                 modes.push(&probe_label);
             }
             if bool_arg("sample_pixels") {
@@ -858,6 +862,7 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
 
             label
         }
+        "lint_svg" => "Lint SVG".to_string(),
         "list_agents" => "List agents".to_string(),
         "list_workflows" => "List workflows".to_string(),
         "delegate" => {

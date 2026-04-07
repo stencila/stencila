@@ -9241,6 +9241,7 @@ dependencies = [
  "stencila-schema",
  "stencila-skills",
  "stencila-snap",
+ "stencila-svg-components",
  "stencila-version",
  "strum 0.28.0",
  "tempfile",
@@ -11010,6 +11011,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "stencila-linter-svg"
+version = "0.0.0"
+dependencies = [
+ "stencila-linter",
+ "stencila-svg-components",
+ "tracing",
+]
+
+[[package]]
 name = "stencila-linters"
 version = "0.0.0"
 dependencies = [
@@ -11024,6 +11034,7 @@ dependencies = [
  "stencila-linter-pyright",
  "stencila-linter-ruff",
  "stencila-linter-styler",
+ "stencila-linter-svg",
  "tokio",
  "tracing",
 ]

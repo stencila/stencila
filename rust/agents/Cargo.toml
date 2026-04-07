@@ -48,6 +48,7 @@ stencila-interviews = { path = "../interviews" }
 stencila-mcp = { path = "../mcp", optional = true }
 stencila-skills = { path = "../skills", optional = true }
 stencila-snap = { path = "../snap" }
+stencila-svg-components = { path = "../svg-components" }
 stencila-version = { path = "../version" }
 strum = { workspace = true }
 
