@@ -93,8 +93,6 @@
     "@types/prismjs": "1.26.6",
     "glob": "13.0.6",
     "postcss-import": "16.1.1",
-    "tsx": "4.21.0",
-    "vite": "8.0.3",
-    "vite-plugin-compression2": "2.5.3"
+    "tsx": "4.21.0"
   }
 }
