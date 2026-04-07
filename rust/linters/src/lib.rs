@@ -18,6 +18,7 @@ use stencila_linter_lintr::LintRLinter;
 use stencila_linter_pyright::PyrightLinter;
 use stencila_linter_ruff::RuffLinter;
 use stencila_linter_styler::StyleRLinter;
+use stencila_linter_svg::SvgLint;
 
 // Disabled until linter configuration and custom dictionaries
 // are introduced because can be very noisy for large documents
@@ -41,6 +42,8 @@ pub async fn list() -> Vec<Box<dyn Linter>> {
         Box::<LintRLinter>::default(),
         // Content validation
         Box::<LinksLinter>::default(),
+        // SVG overlay validation
+        Box::<SvgLint>::default(),
         // Grammar and spelling
         #[cfg(feature = "stencila-linter-harper")]
         Box::<HarperLinter>::default(),

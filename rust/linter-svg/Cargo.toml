@@ -1,0 +1,12 @@
+[package]
+name = "stencila-linter-svg"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+stencila-linter = { path = "../linter" }
+stencila-svg-components = { path = "../svg-components" }
+tracing = { workspace = true }
+
+[lints]
+workspace = true

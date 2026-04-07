@@ -15,6 +15,7 @@ stencila-linter-lintr = { path = "../linter-lintr" }
 stencila-linter-pyright = { path = "../linter-pyright" }
 stencila-linter-ruff = { path = "../linter-ruff" }
 stencila-linter-styler = { path = "../linter-styler" }
+stencila-linter-svg = { path = "../linter-svg" }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
