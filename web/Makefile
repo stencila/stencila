@@ -45,6 +45,7 @@ audit: install
 	cd .. && npm run audit
 
 # Build the distribution
+# If there is no VERSION or BASE_URL, vite.config.ts defaults to /~static/dev/
 build: install
 	@if [ -n "$(BASE_URL)" ]; then \
 		BASE_URL=$(BASE_URL) npm run build; \
@@ -53,7 +54,6 @@ build: install
 	elif [ -n "$(VERSION)" ]; then \
 		BASE_URL=https://stencila.dev/web/v$(VERSION) npm run build; \
 	else \
-		# No VERSION or BASE_URL: vite.config.ts defaults to /~static/dev/ \
 		npm run build; \
 	fi
 
