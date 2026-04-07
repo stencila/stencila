@@ -3,6 +3,12 @@
 name: Release Web
 
 on:
+  # Run a dev release on each push to main
+  push:
+    branches:
+      - main
+    paths:
+      - "web/**"
   # Allow this workflow to be triggered by the `version.yml` workflow
   # or manually at https://github.com/stencila/stencila/actions/workflows/release-cli.yml
   workflow_dispatch:
@@ -38,4 +44,4 @@ jobs:
           CF_ACCOUNT_ID: ${{ secrets.CF_ACCOUNT_ID }}
           R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
           R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
-          VERSION: ${{ inputs.tag }}
+          VERSION: ${{ inputs.tag || 'dev' }}
