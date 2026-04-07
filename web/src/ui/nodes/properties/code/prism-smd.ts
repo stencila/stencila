@@ -82,9 +82,9 @@ Prism.languages.insertBefore('smd', 'code', {
             punctuation: /[{}=]/,
             'attr-name': /[\w-]+(?=\s*=)/,
             string: /"(?:\\.|[^"\\])*"/,
-            number: /(?<=\=\s*)-?(?:\d+\.\d+|\d+)/,
-            boolean: /(?<=\=\s*)\b(?:true|false)\b/,
-            'attr-value': /(?<=\=\s*)[^\s{}"]+/,
+            number: /(?<==\s*)-?(?:\d+\.\d+|\d+)/,
+            boolean: /(?<==\s*)\b(?:true|false)\b/,
+            'attr-value': /(?<==\s*)[^\s{}"]+/,
           },
         },
         'attr-value':
