@@ -406,6 +406,7 @@ pub(crate) fn auto_generate_nav(
         items
     }
 
+    #[allow(clippy::too_many_arguments)]
     fn build_named_override_item(
         name: &str,
         label: Option<&String>,
