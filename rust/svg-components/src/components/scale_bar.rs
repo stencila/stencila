@@ -103,7 +103,9 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 "above" => y - 8.0,
                 _ => y + 16.0, // below (default)
             };
-            svg.push_str(&svg_text(text_x, text_y, label, "middle", 12, text_fill, ""));
+            svg.push_str(&svg_text(
+                text_x, text_y, label, "middle", 12, text_fill, "",
+            ));
         }
     }
 

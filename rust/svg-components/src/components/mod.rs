@@ -20,7 +20,7 @@ use crate::compile::xml_escape;
 use crate::diagnostics::CompilationMessage;
 
 /// Parsed attributes from an `s:` element.
-pub type Attrs = HashMap<String, String>;
+pub(crate) type Attrs = HashMap<String, String>;
 
 #[derive(Clone, Copy)]
 struct VectorMetrics {
@@ -128,17 +128,17 @@ pub fn expand_component(name: &str, attrs: &Attrs, ctx: &mut ComponentContext) -
 // --- Attribute parsing helpers ---
 
 /// Get a string attribute with a default value.
-fn attr_str<'a>(attrs: &'a Attrs, key: &str, default: &'a str) -> &'a str {
+pub(crate) fn attr_str<'a>(attrs: &'a Attrs, key: &str, default: &'a str) -> &'a str {
     attrs.get(key).map_or(default, std::string::String::as_str)
 }
 
 /// Parse a float attribute, returning `None` if missing or unparseable.
-fn attr_f64(attrs: &Attrs, key: &str) -> Option<f64> {
+pub(crate) fn attr_f64(attrs: &Attrs, key: &str) -> Option<f64> {
     attrs.get(key).and_then(|v| v.parse::<f64>().ok())
 }
 
 /// Parse a float attribute with a default value.
-fn attr_f64_or(attrs: &Attrs, key: &str, default: f64) -> f64 {
+pub(crate) fn attr_f64_or(attrs: &Attrs, key: &str, default: f64) -> f64 {
     attr_f64(attrs, key).unwrap_or(default)
 }
 
@@ -163,10 +163,10 @@ fn svg_text(
     fill: &str,
     extra: &str,
 ) -> String {
-    let fill_attr = if fill != "currentColor" {
-        format!(r#" style="fill: {fill}""#)
-    } else {
+    let fill_attr = if fill == "currentColor" {
         String::new()
+    } else {
+        format!(r#" style="fill: {fill}""#)
     };
     format!(
         r#"<text x="{}" y="{}" text-anchor="{anchor}" font-size="{font_size}"{fill_attr}{extra}>{}</text>"#,
@@ -290,7 +290,7 @@ fn marker_attrs(tip: &str, tip_style: &str) -> (String, String) {
 ///
 /// Checks for `{prefix}` as `x`/`y` direct coordinates, or `{prefix}` as an anchor
 /// reference with optional `dx`/`dy` offsets.
-fn resolve_position(
+pub(crate) fn resolve_position(
     attrs: &Attrs,
     x_attr: &str,
     y_attr: &str,
@@ -320,7 +320,10 @@ fn resolve_position(
 }
 
 /// Helper to resolve a target position (to-x/to-y or to anchor ref).
-fn resolve_target(attrs: &Attrs, anchors: &HashMap<String, Anchor>) -> Option<(f64, f64)> {
+pub(crate) fn resolve_target(
+    attrs: &Attrs,
+    anchors: &HashMap<String, Anchor>,
+) -> Option<(f64, f64)> {
     let x = attr_f64(attrs, "to-x");
     let y = attr_f64(attrs, "to-y");
 

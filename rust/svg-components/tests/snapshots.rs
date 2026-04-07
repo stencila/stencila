@@ -2,7 +2,7 @@ use std::{env, path::PathBuf};
 
 use glob::glob;
 use pretty_assertions::assert_eq;
-use stencila_svg_components::{compile, diagnostics::MessageLevel};
+use stencila_svg_components::{compile, diagnostics::MessageLevel, lint};
 
 /// Test compilation of all fixture SVG files.
 ///
@@ -151,6 +151,54 @@ fn examples() {
         } else {
             std::fs::write(&messages_file, &actual_messages)
                 .expect("failed to write messages file");
+        }
+
+        // --- Lint messages ---
+
+        let lint_file = dir.join(format!("{name}.lint"));
+        let lint_result = lint(source);
+        let actual_lint: String = lint_result
+            .messages
+            .iter()
+            .map(|m| {
+                let level = match m.level {
+                    MessageLevel::Error => "error",
+                    MessageLevel::Warning => "warning",
+                };
+                let line = m.start_line.unwrap_or_default();
+                let column = m.start_column.unwrap_or_default();
+                format!("{level}:{line}:{column} {}", m.message)
+            })
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        if actual_lint.is_empty() {
+            if lint_file.exists() {
+                if update {
+                    std::fs::remove_file(&lint_file).expect("failed to remove lint file");
+                } else {
+                    failures.push(format!(
+                        "{}: lint file exists but no lint messages produced",
+                        fixture_path.display()
+                    ));
+                }
+            }
+        } else if lint_file.exists() {
+            let expected = std::fs::read_to_string(&lint_file).expect("failed to read lint file");
+            let expected = expected.trim_end().to_string();
+
+            if actual_lint != expected {
+                if update {
+                    std::fs::write(&lint_file, &actual_lint).expect("failed to write lint file");
+                } else {
+                    failures.push(format!("{}: lint messages differ", fixture_path.display()));
+                    let _ = std::panic::catch_unwind(|| {
+                        assert_eq!(actual_lint, expected, "{} lint", fixture_path.display());
+                    });
+                }
+            }
+        } else {
+            std::fs::write(&lint_file, &actual_lint).expect("failed to write lint file");
         }
     }
 

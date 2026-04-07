@@ -1,0 +1,29 @@
+<svg viewBox="0 0 300 200" xmlns:s="https://stencila.io/svg">
+
+  <!-- Dangling anchor reference (Error) -->
+  <s:callout from="#nonexistent" label="Oops" dx="50" dy="-30"/>
+
+  <!-- Unused anchor (Warning) -->
+  <s:anchor id="lonely" x="50" y="50"/>
+
+  <!-- Unknown attribute (Warning) -->
+  <s:badge x="150" y="100" label="Test" bogus="yes" fake="no"/>
+
+  <!-- Invalid enum value (Warning) -->
+  <s:arrow x="10" y="10" to-x="290" to-y="10" curve="wobbly" tip="maybe"/>
+
+  <!-- Label collision: two badges at nearly the same position (Warning) -->
+  <s:badge x="150" y="50" label="First badge here"/>
+  <s:badge x="151" y="50" label="Second badge here"/>
+
+  <!-- Out-of-bounds: badge way outside viewBox (Warning) -->
+  <s:badge x="-100" y="50" label="Off screen"/>
+
+  <!-- Text/line collision: badge label on top of arrow line (Warning) -->
+  <s:badge x="150" y="10" label="On the line"/>
+
+  <!-- Anchor crowding: 3+ components within 5px (Warning) -->
+  <s:badge x="250" y="180" label="A"/>
+  <s:badge x="251" y="181" label="B"/>
+  <s:badge x="252" y="180" label="C"/>
+</svg>

@@ -2,8 +2,7 @@ use super::{
     Attrs, CompilationMessage, ComponentContext, ConnectorOpts, CubicControlPoints,
     QuadControlPoint, attr_str, connector_svg, cubic_control_points, fmt_coord, marker_attrs,
     pass_through_attrs, quad_control_point, resolve_position, resolve_stroke, resolve_target,
-    resolve_text,
-    svg_text, vector_metrics,
+    resolve_text, svg_text, vector_metrics,
 };
 
 /// Expand `<s:arrow>` into standard SVG path/line with marker references.
@@ -59,7 +58,15 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     let label_svg = match label {
         Some(text) => {
             let (mx, my, tangent_deg) = curve_midpoint_and_tangent(x1, y1, x2, y2, curve, corner);
-            arrow_label_svg(mx, my, tangent_deg, text, label_position, label_angle, text_fill)
+            arrow_label_svg(
+                mx,
+                my,
+                tangent_deg,
+                text,
+                label_position,
+                label_angle,
+                text_fill,
+            )
         }
         None => String::new(),
     };

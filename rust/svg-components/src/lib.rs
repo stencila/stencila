@@ -114,9 +114,26 @@
 )]
 
 mod anchors;
+mod bbox;
 mod compile;
+mod component_attrs;
+mod component_bbox;
 mod components;
 mod defs;
 pub mod diagnostics;
+mod lint;
 
 pub use compile::{CompilationResult, compile};
+pub use lint::{LintResult, lint};
+
+/// Compile and lint an SVG overlay in a single call.
+///
+/// Runs both the compilation pipeline and the static analysis linter,
+/// merging all diagnostic messages into the returned `CompilationResult`.
+#[must_use]
+pub fn compile_and_lint(source: &str) -> CompilationResult {
+    let mut result = compile(source);
+    let lint_result = lint(source);
+    result.messages.extend(lint_result.messages);
+    result
+}

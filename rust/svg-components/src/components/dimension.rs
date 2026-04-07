@@ -158,16 +158,24 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
                 let _ = write!(
                     svg,
                     r#"<rect x="{}" y="{}" width="{}" height="{}" rx="4" fill="{}" opacity="0.5" stroke="none"/>"#,
-                    fmt_coord(rx), fmt_coord(ry), fmt_coord(rw), fmt_coord(rh),
+                    fmt_coord(rx),
+                    fmt_coord(ry),
+                    fmt_coord(rw),
+                    fmt_coord(rh),
                     crate::compile::xml_escape(background),
                 );
             } else {
                 let _ = write!(
                     svg,
                     r#"<rect x="{}" y="{}" width="{}" height="{}" rx="4" fill="{}" opacity="0.5" stroke="none" transform="rotate({}, {}, {})"/>"#,
-                    fmt_coord(rx), fmt_coord(ry), fmt_coord(rw), fmt_coord(rh),
+                    fmt_coord(rx),
+                    fmt_coord(ry),
+                    fmt_coord(rw),
+                    fmt_coord(rh),
                     crate::compile::xml_escape(background),
-                    fmt_coord(angle_deg), fmt_coord(lx), fmt_coord(ly),
+                    fmt_coord(angle_deg),
+                    fmt_coord(lx),
+                    fmt_coord(ly),
                 );
             }
         }

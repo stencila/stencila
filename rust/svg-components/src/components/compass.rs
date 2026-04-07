@@ -54,13 +54,37 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
             ));
         }
         if let Some(down) = axes.first().map(|(_, n)| n.as_str()) {
-            svg.push_str(&svg_text(x, y + r + 14.0, down, "middle", 12, text_fill, ""));
+            svg.push_str(&svg_text(
+                x,
+                y + r + 14.0,
+                down,
+                "middle",
+                12,
+                text_fill,
+                "",
+            ));
         }
         if let Some(right) = axes.get(1).map(|(p, _)| p.as_str()) {
-            svg.push_str(&svg_text(x + r + 4.0, y + 4.0, right, "start", 12, text_fill, ""));
+            svg.push_str(&svg_text(
+                x + r + 4.0,
+                y + 4.0,
+                right,
+                "start",
+                12,
+                text_fill,
+                "",
+            ));
         }
         if let Some(left) = axes.get(1).map(|(_, n)| n.as_str()) {
-            svg.push_str(&svg_text(x - r - 4.0, y + 4.0, left, "end", 12, text_fill, ""));
+            svg.push_str(&svg_text(
+                x - r - 4.0,
+                y + 4.0,
+                left,
+                "end",
+                12,
+                text_fill,
+                "",
+            ));
         }
     } else {
         // arrow variant: single directional arrow pointing up with label

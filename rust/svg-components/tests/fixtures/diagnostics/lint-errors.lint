@@ -1,0 +1,13 @@
+error:3:2 <s:callout> references anchor '#nonexistent' which does not exist
+warning:9:2 <s:badge> has unknown attribute 'bogus'
+warning:9:2 <s:badge> has unknown attribute 'fake'
+warning:12:2 <s:arrow> attribute 'curve' has invalid value 'wobbly'; expected one of: straight, elbow, quad, cubic
+warning:12:2 <s:arrow> attribute 'tip' has invalid value 'maybe'; expected one of: end, start, both, none
+warning:0:0 Anchor 'lonely' is defined but never referenced
+warning:15:2 Label collision: <s:badge> and <s:badge> labels overlap
+warning:25:2 Label collision: <s:badge> and <s:badge> labels overlap
+warning:25:2 Label collision: <s:badge> and <s:badge> labels overlap
+warning:26:2 Label collision: <s:badge> and <s:badge> labels overlap
+warning:22:2 Text/line collision: <s:badge> label overlaps <s:arrow> line
+warning:19:2 <s:badge> label extends outside the viewBox
+warning:25:2 Anchor crowding: 3 components at approximately (250, 180): badge, badge, badge

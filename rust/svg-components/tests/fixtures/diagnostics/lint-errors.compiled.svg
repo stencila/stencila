@@ -1,0 +1,29 @@
+<svg viewBox="0 0 300 200" xmlns:s="https://stencila.io/svg">
+
+  <!-- Dangling anchor reference (Error) -->
+  <g s:component="callout" s:dx="50" s:dy="-30" s:from="#nonexistent" s:label="Oops"></g>
+
+  <!-- Unused anchor (Warning) -->
+  
+
+  <!-- Unknown attribute (Warning) -->
+  <g s:component="badge" s:bogus="yes" s:fake="no" s:label="Test" s:x="150" s:y="100"><rect x="131" y="91" width="38" height="18" rx="9" fill="white" stroke="currentColor" bogus="yes" fake="no"/><text x="150" y="100" text-anchor="middle" font-size="10" dominant-baseline="middle">Test</text></g>
+
+  <!-- Invalid enum value (Warning) -->
+  <g s:component="arrow" s:curve="wobbly" s:tip="maybe" s:to-x="290" s:to-y="10" s:x="10" s:y="10"><line x1="10" y1="10" x2="290" y2="10" stroke="currentColor"/></g>
+
+  <!-- Label collision: two badges at nearly the same position (Warning) -->
+  <g s:component="badge" s:label="First badge here" s:x="150" s:y="50"><rect x="92" y="41" width="116" height="18" rx="9" fill="white" stroke="currentColor"/><text x="150" y="50" text-anchor="middle" font-size="10" dominant-baseline="middle">First badge here</text></g>
+  <g s:component="badge" s:label="Second badge here" s:x="151" s:y="50"><rect x="89.75" y="41" width="122.5" height="18" rx="9" fill="white" stroke="currentColor"/><text x="151" y="50" text-anchor="middle" font-size="10" dominant-baseline="middle">Second badge here</text></g>
+
+  <!-- Out-of-bounds: badge way outside viewBox (Warning) -->
+  <g s:component="badge" s:label="Off screen" s:x="-100" s:y="50"><rect x="-138.5" y="41" width="77" height="18" rx="9" fill="white" stroke="currentColor"/><text x="-100" y="50" text-anchor="middle" font-size="10" dominant-baseline="middle">Off screen</text></g>
+
+  <!-- Text/line collision: badge label on top of arrow line (Warning) -->
+  <g s:component="badge" s:label="On the line" s:x="150" s:y="10"><rect x="108.25" y="1" width="83.5" height="18" rx="9" fill="white" stroke="currentColor"/><text x="150" y="10" text-anchor="middle" font-size="10" dominant-baseline="middle">On the line</text></g>
+
+  <!-- Anchor crowding: 3+ components within 5px (Warning) -->
+  <g s:component="badge" s:label="A" s:x="250" s:y="180"><rect x="240.75" y="171" width="18.5" height="18" rx="9" fill="white" stroke="currentColor"/><text x="250" y="180" text-anchor="middle" font-size="10" dominant-baseline="middle">A</text></g>
+  <g s:component="badge" s:label="B" s:x="251" s:y="181"><rect x="241.75" y="172" width="18.5" height="18" rx="9" fill="white" stroke="currentColor"/><text x="251" y="181" text-anchor="middle" font-size="10" dominant-baseline="middle">B</text></g>
+  <g s:component="badge" s:label="C" s:x="252" s:y="180"><rect x="242.75" y="171" width="18.5" height="18" rx="9" fill="white" stroke="currentColor"/><text x="252" y="180" text-anchor="middle" font-size="10" dominant-baseline="middle">C</text></g>
+</svg>
