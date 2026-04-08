@@ -11,6 +11,15 @@ anyOf:
         description: Do not generate `Annotation` nodes in inline content.
         skip: true
 
+  - $ref: Boundary
+    proptest:
+      min:
+        description: Do not generate `Boundary` nodes in inline content.
+        skip: true
+      low:
+        description: Do not generate `Boundary` nodes in inline content.
+        skip: true
+
   - $ref: AudioObject
     proptest:
       min:

@@ -21,9 +21,14 @@ export class Comment extends CreativeWork {
   parentItem?: Comment;
 
   /**
-   * The part or facet of the item that is being commented on.
+   * The location where the commented region begins.
    */
-  commentAspect?: string;
+  startLocation?: string;
+
+  /**
+   * The location where the commented region ends.
+   */
+  endLocation?: string;
 
   constructor(content: Block[], options?: Partial<Comment>) {
     super();

@@ -57,6 +57,9 @@
       "$ref": "BooleanValidator.schema.json"
     },
     {
+      "$ref": "Boundary.schema.json"
+    },
+    {
       "$ref": "Brand.schema.json"
     },
     {

@@ -21,6 +21,7 @@ impl Inline {
         variants!(
             Annotation,
             AudioObject,
+            Boundary,
             Button,
             Citation,
             CitationGroup,
@@ -72,6 +73,7 @@ impl Inline {
         variants!(
             Annotation,
             AudioObject,
+            Boundary,
             Button,
             Citation,
             CitationGroup,
@@ -146,6 +148,7 @@ impl ReadNode for Inline {
 
         load_map_variants!(
             AudioObject,
+            Boundary,
             Button,
             Citation,
             CitationGroup,
@@ -289,6 +292,7 @@ impl TryFrom<Node> for Inline {
         inlines!(
             Annotation,
             AudioObject,
+            Boundary,
             Button,
             Citation,
             CitationGroup,

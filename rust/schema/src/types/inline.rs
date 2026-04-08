@@ -5,6 +5,7 @@ use crate::prelude::*;
 use super::annotation::Annotation;
 use super::audio_object::AudioObject;
 use super::boolean::Boolean;
+use super::boundary::Boundary;
 use super::button::Button;
 use super::citation::Citation;
 use super::citation_group::CitationGroup;
@@ -50,6 +51,12 @@ pub enum Inline {
     #[cfg_attr(feature = "proptest-high", proptest(skip))]
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     Annotation(Annotation),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    #[cfg_attr(feature = "proptest-low", proptest(skip))]
+    #[cfg_attr(feature = "proptest-high", proptest(skip))]
+    #[cfg_attr(feature = "proptest-max", proptest(skip))]
+    Boundary(Boundary),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     #[cfg_attr(feature = "proptest-low", proptest(skip))]

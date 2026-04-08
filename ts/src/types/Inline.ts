@@ -4,6 +4,7 @@ import { hydrate } from "../hydrate.js";
 
 import { type Annotation } from "./Annotation.js";
 import { type AudioObject } from "./AudioObject.js";
+import { type Boundary } from "./Boundary.js";
 import { type Button } from "./Button.js";
 import { type Citation } from "./Citation.js";
 import { type CitationGroup } from "./CitationGroup.js";
@@ -42,6 +43,7 @@ import { type VideoObject } from "./VideoObject.js";
  */
 export type Inline =
   Annotation |
+  Boundary |
   AudioObject |
   Button |
   Citation |
@@ -88,6 +90,7 @@ export function inline(other: Inline): Inline {
   }
   switch(other.type) {
     case "Annotation":
+    case "Boundary":
     case "AudioObject":
     case "Button":
     case "Citation":

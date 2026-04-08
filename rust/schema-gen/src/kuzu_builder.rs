@@ -167,6 +167,7 @@ impl<'a> KuzuSchemaBuilder<'a> {
                 "Agent",
                 "AppendixBreak",
                 "Bibliography",
+                "Boundary",
                 "Brand",
                 "Button",
                 "CallArgument",

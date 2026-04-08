@@ -2,6 +2,7 @@
 
 export type InlineType =
   | "Annotation"
+  | "Boundary"
   | "AudioObject"
   | "Button"
   | "Citation"
@@ -41,6 +42,7 @@ export type InlineType =
 
 export const InlineTypeList = [
   "Annotation",
+  "Boundary",
   "AudioObject",
   "Button",
   "Citation",

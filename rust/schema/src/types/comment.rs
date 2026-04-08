@@ -284,9 +284,13 @@ pub struct CommentOptions {
     #[serde(alias = "parent-item", alias = "parent_item")]
     pub parent_item: Option<Comment>,
 
-    /// The part or facet of the item that is being commented on.
-    #[serde(alias = "comment-aspect", alias = "comment_aspect")]
-    pub comment_aspect: Option<String>,
+    /// The location where the commented region begins.
+    #[serde(alias = "start-location", alias = "start_location")]
+    pub start_location: Option<String>,
+
+    /// The location where the commented region ends.
+    #[serde(alias = "end-location", alias = "end_location")]
+    pub end_location: Option<String>,
 }
 
 impl Comment {

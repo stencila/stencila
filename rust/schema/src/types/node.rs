@@ -15,6 +15,7 @@ use super::author_role::AuthorRole;
 use super::bibliography::Bibliography;
 use super::boolean::Boolean;
 use super::boolean_validator::BooleanValidator;
+use super::boundary::Boundary;
 use super::brand::Brand;
 use super::button::Button;
 use super::call_argument::CallArgument;
@@ -187,6 +188,8 @@ pub enum Node {
     Bibliography(Bibliography),
 
     BooleanValidator(BooleanValidator),
+
+    Boundary(Boundary),
 
     Brand(Brand),
 

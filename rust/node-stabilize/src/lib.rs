@@ -162,6 +162,7 @@ impl VisitorMut for Stabilizer {
             AuthorRole,
             Bibliography,
             BooleanValidator,
+            Boundary,
             Brand,
             Button,
             CallArgument,
@@ -389,6 +390,7 @@ impl VisitorMut for Stabilizer {
         variants!(
             Annotation,
             AudioObject,
+            Boundary,
             Button,
             Citation,
             CitationGroup,

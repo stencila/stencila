@@ -8,7 +8,7 @@
   ],
   "category": "works",
   "description": "A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.",
-  "$comment": "Use the `about` property to define the item that a comment is on and\n`commentAspect` to point to a specific part of aspect of that item.\nThe `content` property should be used for the structured content of the\ncomment, in preference to the schema.org `text` property (which is expected to\nbe plain text). Replies to a comment can be added to its `comments` property\nor have their `parentItem` set to the parent comment.\n",
+  "$comment": "Use the `about` property to define the item that a comment is on and\n`startLocation`/`endLocation` to identify the region being commented on.\nThe `content` property should be used for the structured content of the\ncomment, in preference to the schema.org `text` property (which is expected to\nbe plain text). Replies to a comment can be added to its `comments` property\nor have their `parentItem` set to the parent comment.\n",
   "required": [
     "type",
     "content"
@@ -686,13 +686,23 @@
       ],
       "$ref": "Comment.schema.json"
     },
-    "commentAspect": {
-      "@id": "stencila:commentAspect",
-      "description": "The part or facet of the item that is being commented on.",
-      "$comment": "This property is analogous to the `reviewAspect` property of the `reviewAspect`\ntype. It is a string to allow flexibility in how the aspect is expressed\ndepending on the item e.g \"technique\", for a comment on a painting, or\n\"some_code.py#L10-L20\" for a comment on a software code repository.\n",
+    "startLocation": {
+      "@id": "stencila:startLocation",
+      "description": "The location where the commented region begins.",
+      "$comment": "A flexible location string. Use `#id` format (with leading `#`) to reference\na node by `id` within the current document (e.g. a `Boundary` node or a figure).\nUse `file:line:column` format for source code locations. When set without\n`endLocation`, the comment targets a single point or node.\n",
       "aliases": [
-        "comment-aspect",
-        "comment_aspect"
+        "start-location",
+        "start_location"
+      ],
+      "type": "string"
+    },
+    "endLocation": {
+      "@id": "stencila:endLocation",
+      "description": "The location where the commented region ends.",
+      "$comment": "A flexible location string with the same format as `startLocation`. When both\n`startLocation` and `endLocation` are set, the comment targets a range. Both\nmay be omitted when the comment applies to the document as a whole.\n",
+      "aliases": [
+        "end-location",
+        "end_location"
       ],
       "type": "string"
     }

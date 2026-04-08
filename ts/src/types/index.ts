@@ -17,6 +17,7 @@ export * from "./AuthorRoleName.js";
 export * from "./Bibliography.js";
 export * from "./Block.js";
 export * from "./BooleanValidator.js";
+export * from "./Boundary.js";
 export * from "./Brand.js";
 export * from "./Button.js";
 export * from "./CallArgument.js";

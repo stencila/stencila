@@ -1379,6 +1379,15 @@ class BooleanValidator(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class Boundary(Entity):
+    """
+    A positional marker within inline content used to define the boundary of a cross-block range. Boundaries are referenced by their `id` from other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to delimit regions that may span across multiple blocks.
+    """
+
+    type: Literal["Boundary"] = "Boundary"
+
+
+@dataclass(kw_only=True, repr=False)
 class Brand(Thing):
     """
     A brand used by an organization or person for labeling a product, product group, or similar.
@@ -1716,8 +1725,11 @@ class Comment(CreativeWork):
     parent_item: Comment | None = None
     """The parent comment of this comment."""
 
-    comment_aspect: str | None = None
-    """The part or facet of the item that is being commented on."""
+    start_location: str | None = None
+    """The location where the commented region begins."""
+
+    end_location: str | None = None
+    """The location where the commented region ends."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3721,6 +3733,7 @@ Union type for hints of the value and/or structure of data.
 
 Inline = Union[
     Annotation,
+    Boundary,
     AudioObject,
     Button,
     Citation,
@@ -3794,6 +3807,7 @@ Node = Union[
     AuthorRole,
     Bibliography,
     BooleanValidator,
+    Boundary,
     Brand,
     Button,
     CallArgument,
@@ -4020,6 +4034,7 @@ TYPES = [
     AuthorRole,
     Bibliography,
     BooleanValidator,
+    Boundary,
     Brand,
     Button,
     CallArgument,

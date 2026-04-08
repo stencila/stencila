@@ -857,10 +857,22 @@
       }
     },
     {
-      "@id": "stencila:commentAspect",
+      "@id": "stencila:startLocation",
       "@type": "rdfs:Property",
-      "rdfs:label": "commentAspect",
-      "rdfs:comment": "The part or facet of the item that is being commented on.",
+      "rdfs:label": "startLocation",
+      "rdfs:comment": "The location where the commented region begins.",
+      "schema:domainIncludes": {
+        "@id": "schema:Comment"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:endLocation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "endLocation",
+      "rdfs:comment": "The location where the commented region ends.",
       "schema:domainIncludes": {
         "@id": "schema:Comment"
       },

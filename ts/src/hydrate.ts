@@ -57,6 +57,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Bibliography.prototype);
     case "BooleanValidator":
       return Object.setPrototypeOf(value, types.BooleanValidator.prototype);
+    case "Boundary":
+      return Object.setPrototypeOf(value, types.Boundary.prototype);
     case "Brand":
       return Object.setPrototypeOf(value, types.Brand.prototype);
     case "Button":

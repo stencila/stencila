@@ -188,7 +188,7 @@ impl Visitor for Inspector<'_, '_> {
                 match inline {
                     $(Inline::$variant(node) => node.inspect(self),)*
                     Inline::Citation(citation) => { self.visit_citation(citation); },
-                    Inline::SuggestionInline(..) | Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
+                    Inline::Boundary(..) | Inline::SuggestionInline(..) | Inline::Null(..) | Inline::Boolean(..) | Inline::Integer(..) | Inline::UnsignedInteger(..) | Inline::Number(..) => {}
                 }
             };
         }

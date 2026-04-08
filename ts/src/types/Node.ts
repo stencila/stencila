@@ -14,6 +14,7 @@ import { type AudioObject } from "./AudioObject.js";
 import { type AuthorRole } from "./AuthorRole.js";
 import { type Bibliography } from "./Bibliography.js";
 import { type BooleanValidator } from "./BooleanValidator.js";
+import { type Boundary } from "./Boundary.js";
 import { type Brand } from "./Brand.js";
 import { type Button } from "./Button.js";
 import { type CallArgument } from "./CallArgument.js";
@@ -165,6 +166,7 @@ export type Node =
   AuthorRole |
   Bibliography |
   BooleanValidator |
+  Boundary |
   Brand |
   Button |
   CallArgument |
@@ -311,6 +313,7 @@ export function node(other: Node): Node {
     case "AuthorRole":
     case "Bibliography":
     case "BooleanValidator":
+    case "Boundary":
     case "Brand":
     case "Button":
     case "CallArgument":

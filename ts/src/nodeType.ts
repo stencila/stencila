@@ -19,6 +19,7 @@ export type NodeType =
   | "AuthorRole"
   | "Bibliography"
   | "BooleanValidator"
+  | "Boundary"
   | "Brand"
   | "Button"
   | "CallArgument"
@@ -165,6 +166,7 @@ export const NodeTypeList = [
   "AuthorRole",
   "Bibliography",
   "BooleanValidator",
+  "Boundary",
   "Brand",
   "Button",
   "CallArgument",

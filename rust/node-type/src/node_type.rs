@@ -26,6 +26,7 @@ pub enum NodeType {
     AuthorRole,
     Bibliography,
     BooleanValidator,
+    Boundary,
     Brand,
     Button,
     CallArgument,
@@ -173,7 +174,7 @@ impl NodeType {
     /// Is the node type an inline content type?
     pub fn is_inline(&self) -> bool {
         use NodeType::*;
-        matches!(self, Annotation|AudioObject|Button|Citation|CitationGroup|CodeExpression|CodeInline|Date|DateTime|Duration|Emphasis|ImageObject|Icon|InstructionInline|Link|MathInline|MediaObject|Note|Parameter|QuoteInline|Sentence|StyledInline|Strikeout|Strong|Subscript|SuggestionInline|Superscript|Text|Time|Timestamp|Underline|VideoObject|Null|Boolean|Integer|UnsignedInteger|Number)
+        matches!(self, Annotation|Boundary|AudioObject|Button|Citation|CitationGroup|CodeExpression|CodeInline|Date|DateTime|Duration|Emphasis|ImageObject|Icon|InstructionInline|Link|MathInline|MediaObject|Note|Parameter|QuoteInline|Sentence|StyledInline|Strikeout|Strong|Subscript|SuggestionInline|Superscript|Text|Time|Timestamp|Underline|VideoObject|Null|Boolean|Integer|UnsignedInteger|Number)
     }
 
     /// Is the node type a primitive type?
@@ -203,6 +204,7 @@ impl TryFrom<&NodeId> for NodeType {
             "bib" => Bibliography,
             "boo" => Boolean,
             "bov" => BooleanValidator,
+            "bdy" => Boundary,
             "bra" => Brand,
             "but" => Button,
             "cla" => CallArgument,
