@@ -148,11 +148,26 @@ impl PandocEncodeContext {
     }
 }
 
+/// Data collected from a Pandoc comment-start span during decoding
+pub(super) struct PendingComment {
+    /// The Pandoc comment id (e.g. "0", "1")
+    pub pandoc_id: String,
+    /// The comment author name
+    pub author: Option<String>,
+    /// The comment date string
+    pub date: Option<String>,
+    /// The comment body as Pandoc inlines (may contain LineBreak)
+    pub body_inlines: Vec<pandoc::Inline>,
+    /// The Pandoc id of the parent comment (set when this is a reply)
+    pub parent_pandoc_id: Option<String>,
+}
+
 /// The context for decoding from Pandoc AST
 #[derive(Default)]
 pub(super) struct PandocDecodeContext {
     pub format: Format,
     pub losses: Losses,
+    pub pending_comments: Vec<PendingComment>,
 }
 
 /// Create an empty Pandoc `Attr` tuple

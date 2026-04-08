@@ -101,6 +101,11 @@ impl Codec for DocxCodec {
                 .push(format!("--extract-media={}", media_dir.path().display()));
         }
 
+        // Default to preserving track changes (insertions, deletions, comments)
+        if !options.tool_args.join(" ").contains("--track-changes") {
+            options.tool_args.push("--track-changes=all".to_string());
+        }
+
         let format = options.format.clone().unwrap_or(Format::Docx);
         let cache = options.cache.clone();
 

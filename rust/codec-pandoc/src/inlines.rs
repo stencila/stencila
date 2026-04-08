@@ -6,7 +6,9 @@ use stencila_codec_text_trait::to_text;
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    shared::{PandocDecodeContext, PandocEncodeContext, attrs_classes, attrs_empty},
+    shared::{
+        PandocDecodeContext, PandocEncodeContext, PendingComment, attrs_classes, attrs_empty,
+    },
 };
 
 pub(super) fn inlines_to_pandoc(
@@ -146,10 +148,20 @@ fn inline_from_pandoc(inline: pandoc::Inline, context: &mut PandocDecodeContext)
         // Other
         pandoc::Inline::Note(blocks) => note_from_pandoc(blocks, context),
         pandoc::Inline::Span(attrs, inlines ) => {
+            if attrs.classes.iter().any(|c| c == "comment-start") {
+                return comment_start_from_pandoc(attrs, inlines, context);
+            }
+            if attrs.classes.iter().any(|c| c == "comment-end") {
+                return comment_end_from_pandoc(attrs, inlines, context);
+            }
             if inlines.is_empty() {
                 return None
             }
-            styled_inline_from_pandoc(attrs, inlines, context)
+            if attrs.classes.iter().any(|c| c == "insertion" || c == "deletion") {
+                suggestion_inline_from_pandoc(attrs, inlines, context)
+            } else {
+                styled_inline_from_pandoc(attrs, inlines, context)
+            }
         },
         // Note: Stencila does not have raw inline yet, so use code
         pandoc::Inline::RawInline(format, content) => inline_from_pandoc_raw_inline(format, content, context),
@@ -420,6 +432,24 @@ fn styled_inline_from_pandoc(
     ))
 }
 
+fn suggestion_inline_from_pandoc(
+    attrs: Attr,
+    inlines: Vec<pandoc::Inline>,
+    context: &mut PandocDecodeContext,
+) -> Inline {
+    let suggestion_type = if attrs.classes.iter().any(|c| c == "insertion") {
+        SuggestionType::Insert
+    } else {
+        SuggestionType::Delete
+    };
+
+    Inline::SuggestionInline(SuggestionInline {
+        suggestion_type: Some(suggestion_type),
+        content: inlines_from_pandoc(inlines, context),
+        ..Default::default()
+    })
+}
+
 fn code_expression_to_pandoc(
     expr: &CodeExpression,
     context: &mut PandocEncodeContext,
@@ -546,6 +576,114 @@ fn inline_from_pandoc_raw_inline(
         code: content.into(),
         ..Default::default()
     })
+}
+
+/// Get a value from the key-value attributes of a Pandoc [`Attr`].
+///
+/// Unlike [`get_attr`], this always searches `attrs.attributes` — even for
+/// "id" — because Pandoc comment spans store the comment identifier as a
+/// regular attribute, not in `attrs.identifier`.
+fn get_kv_attr(attrs: &Attr, name: &str) -> Option<String> {
+    attrs
+        .attributes
+        .iter()
+        .find_map(|(k, v)| (k == name).then(|| v.clone()))
+}
+
+/// Handle a Pandoc `comment-start` span.
+///
+/// Emits a [`Boundary`] inline node and collects the comment metadata
+/// and body inlines into the decode context for later assembly.
+fn comment_start_from_pandoc(
+    attrs: Attr,
+    body_inlines: Vec<pandoc::Inline>,
+    context: &mut PandocDecodeContext,
+) -> Option<Inline> {
+    let pandoc_id = get_kv_attr(&attrs, "id").unwrap_or_default();
+    let author = get_kv_attr(&attrs, "author");
+    let date = get_kv_attr(&attrs, "date");
+
+    let boundary_id = format!("comment-{pandoc_id}-start");
+
+    context.pending_comments.push(PendingComment {
+        pandoc_id,
+        author,
+        date,
+        body_inlines,
+        parent_pandoc_id: None,
+    });
+
+    Some(Inline::Boundary(Boundary {
+        id: Some(boundary_id),
+        ..Default::default()
+    }))
+}
+
+/// Handle a Pandoc `comment-end` span.
+///
+/// Emits [`Boundary`] inline nodes for this comment and any nested
+/// comment-end spans (which indicate reply relationships).
+fn comment_end_from_pandoc(
+    attrs: Attr,
+    inlines: Vec<pandoc::Inline>,
+    context: &mut PandocDecodeContext,
+) -> Option<Inline> {
+    let pandoc_id = get_kv_attr(&attrs, "id").unwrap_or_default();
+    let boundary_id = format!("comment-{pandoc_id}-end");
+
+    // Process any nested comment-end spans — these are replies to this comment
+    for inline in inlines {
+        if let pandoc::Inline::Span(nested_attrs, nested_inlines) = inline
+            && nested_attrs.classes.iter().any(|c| c == "comment-end")
+        {
+            let nested_id = get_kv_attr(&nested_attrs, "id").unwrap_or_default();
+
+            // Mark the nested comment as a reply to this one
+            if let Some(pending) = context
+                .pending_comments
+                .iter_mut()
+                .find(|c| c.pandoc_id == nested_id)
+            {
+                pending.parent_pandoc_id = Some(pandoc_id.clone());
+            }
+
+            // Recursively handle deeper nesting
+            comment_end_from_pandoc(nested_attrs, nested_inlines, context);
+        }
+    }
+
+    Some(Inline::Boundary(Boundary {
+        id: Some(boundary_id),
+        ..Default::default()
+    }))
+}
+
+/// Convert Pandoc inlines into blocks, splitting on [`LineBreak`] to create
+/// separate paragraphs.
+pub(super) fn pandoc_inlines_to_blocks(
+    inlines: Vec<pandoc::Inline>,
+    context: &mut PandocDecodeContext,
+) -> Vec<Block> {
+    // Split the inlines at each LineBreak into groups, one per paragraph
+    let mut groups: Vec<Vec<pandoc::Inline>> = vec![Vec::new()];
+    for inline in inlines {
+        if matches!(inline, pandoc::Inline::LineBreak) {
+            groups.push(Vec::new());
+        } else if let Some(current) = groups.last_mut() {
+            current.push(inline);
+        }
+    }
+
+    groups
+        .into_iter()
+        .filter(|group| !group.is_empty())
+        .map(|group| {
+            Block::Paragraph(Paragraph {
+                content: inlines_from_pandoc(group, context),
+                ..Default::default()
+            })
+        })
+        .collect()
 }
 
 pub(super) fn string_from_pandoc_inlines(inlines: Vec<pandoc::Inline>) -> String {
