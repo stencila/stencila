@@ -1,0 +1,12 @@
+title: SuggestionType
+"@id": stencila:SuggestionType
+extends: Enumeration
+category: edits
+description: The type of a suggestion.
+anyOf:
+  - const: Insert
+    "@id": stencila:Insert
+    description: The suggestion is an insertion of new content.
+  - const: Delete
+    "@id": stencila:Delete
+    description: The suggestion is a deletion of existing content.

@@ -5,6 +5,7 @@ category: edits
 abstract: true
 description: Abstract base type for nodes that indicate a suggested change to content.
 core:
+  - suggestionType
   - suggestionStatus
   - authors
   - provenance
@@ -12,6 +13,13 @@ core:
   - executionEnded
   - feedback
 properties:
+  suggestionType:
+    '@id': stencila:suggestionType
+    description: The type of suggestion including whether it is an insertion or a deletion.
+    strip: [metadata]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    $ref: SuggestionType
   suggestionStatus:
     '@id': stencila:suggestionStatus
     description: The status of the suggestion including whether it is the original, or is accepted, or rejected.

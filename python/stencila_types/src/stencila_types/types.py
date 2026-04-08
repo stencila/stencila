@@ -514,6 +514,15 @@ class SuggestionStatus(StrEnum):
     Rejected = "Rejected"
 
 
+class SuggestionType(StrEnum):
+    """
+    The type of a suggestion.
+    """
+
+    Insert = "Insert"
+    Delete = "Delete"
+
+
 class TableCellType(StrEnum):
     """
     Indicates whether the cell is a header or data.
@@ -1064,6 +1073,9 @@ class Suggestion(Entity):
     """
 
     type: Literal["Suggestion"] = "Suggestion"
+
+    suggestion_type: SuggestionType | None = None
+    """The type of suggestion including whether it is an insertion or a deletion."""
 
     suggestion_status: SuggestionStatus | None = None
     """The status of the suggestion including whether it is the original, or is accepted, or rejected."""

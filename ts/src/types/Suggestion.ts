@@ -5,6 +5,7 @@ import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 import { SuggestionStatus } from "./SuggestionStatus.js";
+import { SuggestionType } from "./SuggestionType.js";
 import { Timestamp } from "./Timestamp.js";
 
 /**
@@ -13,6 +14,11 @@ import { Timestamp } from "./Timestamp.js";
 export class Suggestion extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Suggestion";
+
+  /**
+   * The type of suggestion including whether it is an insertion or a deletion.
+   */
+  suggestionType?: SuggestionType;
 
   /**
    * The status of the suggestion including whether it is the original, or is accepted, or rejected.

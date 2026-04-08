@@ -292,6 +292,7 @@ pub enum NodeProperty {
     Style,
     StyleLanguage,
     SuggestionStatus,
+    SuggestionType,
     Suggestions,
     Target,
     TargetNodes,

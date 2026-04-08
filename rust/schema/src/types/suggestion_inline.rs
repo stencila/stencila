@@ -8,6 +8,7 @@ use super::inline::Inline;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 use super::suggestion_status::SuggestionStatus;
+use super::suggestion_type::SuggestionType;
 use super::timestamp::Timestamp;
 
 /// Abstract base type for nodes that indicate a suggested change to inline content.
@@ -27,6 +28,12 @@ pub struct SuggestionInline {
     #[html(attr = "id")]
     #[jats(attr = "id")]
     pub id: Option<String>,
+
+    /// The type of suggestion including whether it is an insertion or a deletion.
+    #[serde(alias = "suggestion-type", alias = "suggestion_type")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    pub suggestion_type: Option<SuggestionType>,
 
     /// The status of the suggestion including whether it is the original, or is accepted, or rejected.
     #[serde(alias = "suggestion-status", alias = "suggestion_status")]

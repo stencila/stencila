@@ -18,6 +18,18 @@
       }
     },
     {
+      "@id": "stencila:suggestionType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "suggestionType",
+      "rdfs:comment": "The type of suggestion including whether it is an insertion or a deletion.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Suggestion"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:SuggestionType"
+      }
+    },
+    {
       "@id": "stencila:suggestionStatus",
       "@type": "rdfs:Property",
       "rdfs:label": "suggestionStatus",

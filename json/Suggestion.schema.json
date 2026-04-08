@@ -14,6 +14,7 @@
   ],
   "core": [
     "id",
+    "suggestionType",
     "suggestionStatus",
     "authors",
     "provenance",
@@ -42,6 +43,27 @@
         "attr": "id"
       },
       "type": "string"
+    },
+    "suggestionType": {
+      "@id": "stencila:suggestionType",
+      "description": "The type of suggestion including whether it is an insertion or a deletion.",
+      "aliases": [
+        "suggestion-type",
+        "suggestion_type"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "$ref": "SuggestionType.schema.json"
     },
     "suggestionStatus": {
       "@id": "stencila:suggestionStatus",
