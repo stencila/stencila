@@ -256,6 +256,22 @@ fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecod
             Inline::VideoObject(obj) => Block::VideoObject(obj),
             inline => Block::Paragraph(Paragraph::new(vec![inline])),
         }
+    }
+    // If the paragraph only has a single suggestion inline, promote it to a
+    // suggestion block wrapping a paragraph with the suggestion's content.
+    else if let (1, Some(Inline::SuggestionInline(..))) = (inlines.len(), inlines.first()) {
+        match inlines.swap_remove(0) {
+            Inline::SuggestionInline(suggestion) => Block::SuggestionBlock(SuggestionBlock {
+                suggestion_type: suggestion.suggestion_type,
+                suggestion_status: suggestion.suggestion_status,
+                authors: suggestion.authors,
+                provenance: suggestion.provenance,
+                feedback: suggestion.feedback,
+                content: vec![Block::Paragraph(Paragraph::new(suggestion.content))],
+                ..Default::default()
+            }),
+            inline => Block::Paragraph(Paragraph::new(vec![inline])),
+        }
     } else {
         Block::Paragraph(Paragraph::new(inlines))
     }
