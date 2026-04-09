@@ -43,6 +43,7 @@ pub(crate) async fn render_specimen_page<F, Fut>(
     routes_set: &std::collections::HashSet<String>,
     nav_items: &Vec<stencila_config::NavItem>,
     resolved_logo: Option<&stencila_config::LogoConfig>,
+    workspace_id: Option<&str>,
     decode_document_fn: &F,
 ) -> Result<String>
 where
@@ -103,7 +104,7 @@ where
         nav_items,
         &breadcrumbs_map,
         resolved_logo,
-        None, // no workspace_id
+        workspace_id,
         None, // no git_repo_root
         None, // no git_origin
         None, // no git_branch

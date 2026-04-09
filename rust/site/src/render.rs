@@ -565,6 +565,7 @@ where
         &routes_set,
         &nav_items,
         resolved_logo.as_ref().as_ref(),
+        workspace_id.as_deref(),
         decode_fn.as_ref(),
     )
     .await
