@@ -124,12 +124,16 @@ The agent session provides the same agentic loop as the CLI — tool calls are e
 
 Agents automatically discover and include project documentation in their system prompt. The following files are recognized:
 
-| File | Providers |
-| ---- | --------- |
-| `AGENTS.md` | All |
-| `CLAUDE.md` | Anthropic |
-| `.codex/instructions.md` | OpenAI |
-| `GEMINI.md` | Gemini |
+::: table #tbl-1
+
+| File                     | Providers |
+| ------------------------ | --------- |
+| `AGENTS.md`              | All       |
+| `CLAUDE.md`              | Anthropic |
+| `.codex/instructions.md` | OpenAI    |
+| `GEMINI.md`              | Gemini    |
+
+:::
 
 These files are loaded from the git root through every directory on the path to the working directory. Root-level files load first; subdirectory files are appended with higher precedence. The total budget is configurable (default 32KB) and content is truncated with a marker if exceeded.
 
@@ -166,11 +170,17 @@ When agents make git commits, Stencila can be attributed in the commit. Configur
 commit_attribution = "co-author"   # default
 ```
 
-| Mode | Effect |
-| ---- | ------ |
-| `author` | Sets Stencila as the commit author |
+::: table #tbl-2
+
+| Mode                  | Effect                                                |
+| --------------------- | ----------------------------------------------------- |
+| `author`              | Sets Stencila as the commit author                    |
 | `co-author` (default) | Adds a `Co-authored-by` trailer to the commit message |
-| `committer` | Sets Stencila as the commit committer |
-| `none` | No Stencila attribution in commits |
+| `committer`           | Sets Stencila as the commit committer                 |
+| `none`                | No Stencila attribution in commits                    |
+
+:::
 
 Agents are always instructed not to make commits unless explicitly asked to by the user.
+
+[>>0]: A comment.
