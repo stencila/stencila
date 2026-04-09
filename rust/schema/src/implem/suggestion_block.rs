@@ -14,21 +14,17 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id));
-
-        // If rendering, or format is anything other than Stencila Markdown or
-        // MyST, then encode `content` only (if any)
+        // If rendering, or format is anything other than Stencila Markdown, skip encoding
+        // and record as loss
         if context.render || !matches!(context.format, Format::Smd) {
-            context
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
-                })
-                .exit_node();
+            context.losses.add(self.node_type().to_string());
 
             return;
         }
+
+        context
+            .enter_node(self.node_type(), self.node_id())
+            .merge_losses(lost_options!(self, id));
 
         let fence = if self.suggestion_type == Some(SuggestionType::Delete) {
             ":--"

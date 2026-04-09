@@ -4,6 +4,14 @@ use crate::{SuggestionInline, SuggestionType, prelude::*};
 
 impl MarkdownCodec for SuggestionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        // If rendering, or format is anything other than Stencila Markdown, skip encoding
+        // and record as loss
+        if context.render || !matches!(context.format, Format::Smd) {
+            context.losses.add(self.node_type().to_string());
+
+            return;
+        }
+
         let is_delete = self.suggestion_type == Some(SuggestionType::Delete);
         let (open, close) = if is_delete {
             ("{--", "--}")
