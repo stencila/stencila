@@ -14,7 +14,7 @@ use winnow::{
 use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
-        AudioObject, BooleanValidator, Button, Citation, CitationGroup, CitationMode,
+        AudioObject, BooleanValidator, Boundary, Button, Citation, CitationGroup, CitationMode,
         CodeExpression, CodeInline, Cord, DateTimeValidator, DateValidator, DurationValidator,
         Emphasis, EnumValidator, Icon, ImageObject, Inline, IntegerValidator, Link, MathInline,
         Node, NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline,
@@ -471,6 +471,7 @@ pub(super) fn inlines(input: &str, format: &Format) -> Vec<(Inline, Range<usize>
         code_attrs,
         double_braces,
         suggestion_inline,
+        comment_boundary,
         citation_group,
         citation_parenthetical,
         citation_narrative,
@@ -1046,6 +1047,39 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
             Inline::SuggestionInline(SuggestionInline {
                 suggestion_type: Some(SuggestionType::Delete),
                 content: inlines_only(content),
+                ..Default::default()
+            })
+        }),
+    ))
+    .parse_next(input)
+}
+
+/// Parse a comment boundary marker `{>>id}` (start) or `{<<id}` (end)
+fn comment_boundary(input: &mut Located<&str>) -> ModalResult<Inline> {
+    alt((
+        delimited(
+            "{>>",
+            take_while(1.., |c: char| {
+                c.is_alphanumeric() || c == '.' || c == '-' || c == '_'
+            }),
+            "}",
+        )
+        .map(|id: &str| {
+            Inline::Boundary(Boundary {
+                id: Some(format!("comment-{id}-start")),
+                ..Default::default()
+            })
+        }),
+        delimited(
+            "{<<",
+            take_while(1.., |c: char| {
+                c.is_alphanumeric() || c == '.' || c == '-' || c == '_'
+            }),
+            "}",
+        )
+        .map(|id: &str| {
+            Inline::Boundary(Boundary {
+                id: Some(format!("comment-{id}-end")),
                 ..Default::default()
             })
         }),

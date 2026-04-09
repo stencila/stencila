@@ -1,0 +1,15 @@
+A paragraph with {>>c1}a comment on some content{<<c1} and {>>c2}an overlapping comment in it.
+
+A paragraph that is {>>c3}within the overlapping comment{<<c2}.
+
+A paragraph with a point comment{<<c3}.
+
+[>>c1]: This is the first comment.
+
+[>>c1.1]: A reply to the first comment.
+
+[>>c2]: This is the second comment, spanning multiple paragraphs.
+
+    It has multiple paragraphs.
+
+[>>c3]: A third comment.

@@ -7,7 +7,7 @@ use stencila_cli_utils::color_print::cstr;
 use stencila_format::Format;
 use stencila_node_supplements::{embed_supplements, extract_supplements};
 
-use stencila_node_suggestions::{review::interactive_review, ResolveSuggestions, SuggestionAction};
+use stencila_node_suggestions::{ResolveSuggestions, SuggestionAction, review::interactive_review};
 
 use crate::options::{DecodeOptions, EncodeOptions, StripOptions, SuggestionOptions};
 

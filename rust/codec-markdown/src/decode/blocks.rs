@@ -75,7 +75,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         // Handle colon fences (paragraphs starting with `:::`, `:++`, or `:--`)
         if let Some((true, children, position)) = para.map(|(children, position, text)| {
             (
-                text.starts_with(":::") || text.starts_with(":++") || text.starts_with(":--") || text.starts_with("/"),
+                text.starts_with(":::")
+                    || text.starts_with(":++")
+                    || text.starts_with(":--")
+                    || text.starts_with("/"),
                 children,
                 position,
             )
@@ -1150,9 +1153,7 @@ fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
                 Option<SuggestionStatus>,
                 Option<&str>,
             )| {
-                let feedback = feedback
-                    .map(|f| f.trim())
-                    .filter(|f| !f.is_empty());
+                let feedback = feedback.map(|f| f.trim()).filter(|f| !f.is_empty());
 
                 Block::SuggestionBlock(SuggestionBlock {
                     suggestion_type: Some(suggestion_type),

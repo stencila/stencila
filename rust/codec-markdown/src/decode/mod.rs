@@ -13,8 +13,8 @@ use stencila_codec::{
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Agent, Article, Block, Chat, CodeBlock, CodeChunk, Inline, Node, NodeId, NodeType, Null,
-        Prompt, Skill, VisitorMut, WalkControl, Workflow,
+        Agent, Article, Block, Chat, CodeBlock, CodeChunk, Comment, CommentOptions, Inline, Node,
+        NodeId, NodeType, Null, Prompt, Skill, VisitorMut, WalkControl, Workflow,
     },
 };
 
@@ -60,6 +60,13 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         _ => preprocess(content),
     };
 
+    // Extract comment definitions before MDAST parsing
+    let (md, comment_definitions) = if matches!(format, Format::Smd) {
+        extract_comment_definitions(&md)
+    } else {
+        (md, HashMap::new())
+    };
+
     // Parse Markdown to a MDAST root node and get its children
     let (children, position) =
         match to_mdast(&md, &parse_options(&format)).map_err(|error| eyre!(error))? {
@@ -69,6 +76,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
 
     // Transform MDAST to blocks
     let mut context = Context::new(format);
+    context.comment_definitions = comment_definitions;
     let content = mds_to_blocks(children, &mut context);
 
     // Decode frontmatter (which may have a `type`, but defaults to `Article`)
@@ -127,6 +135,59 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
     // Link footnotes to the `Note` inlines in the content
     if !context.footnotes.is_empty() {
         context.walk(&mut node);
+    }
+
+    // Build Comment nodes from extracted definitions and assign to article
+    if !context.comment_definitions.is_empty() {
+        if let Node::Article(ref mut article) = node {
+            let mut top_level: Vec<Comment> = Vec::new();
+            let mut replies: Vec<(String, Comment)> = Vec::new();
+
+            // Sort keys for deterministic ordering
+            let mut ids: Vec<String> = context.comment_definitions.keys().cloned().collect();
+            ids.sort();
+
+            for id in ids {
+                let content_md = context.comment_definitions.remove(&id).unwrap_or_default();
+                let content = decode_blocks(&content_md, &mut context);
+                let is_reply = id.contains('.');
+
+                let comment = Comment {
+                    id: Some(id.clone()),
+                    content,
+                    options: Box::new(CommentOptions {
+                        start_location: if !is_reply {
+                            Some(format!("#comment-{id}-start"))
+                        } else {
+                            None
+                        },
+                        end_location: if !is_reply {
+                            Some(format!("#comment-{id}-end"))
+                        } else {
+                            None
+                        },
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                };
+
+                if is_reply {
+                    let parent_id = id.rsplitn(2, '.').last().unwrap_or(&id).to_string();
+                    replies.push((parent_id, comment));
+                } else {
+                    top_level.push(comment);
+                }
+            }
+
+            // Nest replies into their parent comments
+            for (parent_id, reply) in replies {
+                nest_reply(&mut top_level, &parent_id, reply);
+            }
+
+            if !top_level.is_empty() {
+                article.options.comments = Some(top_level);
+            }
+        }
     }
 
     // Map the position of the root node
@@ -391,6 +452,9 @@ struct Context {
     /// Footnote content
     footnotes: HashMap<String, Vec<Block>>,
 
+    /// Comment definitions extracted during preprocessing
+    comment_definitions: HashMap<String, String>,
+
     /// Losses during decoding
     losses: Losses,
 
@@ -491,5 +555,90 @@ impl VisitorMut for Context {
         }
 
         WalkControl::Continue
+    }
+}
+
+/// Extract comment definitions from markdown text
+///
+/// Finds `[>>id]: content` blocks (similar to footnote definitions) and
+/// removes them from the markdown, returning the cleaned text and a map
+/// of comment id to raw markdown content.
+fn extract_comment_definitions(input: &str) -> (String, HashMap<String, String>) {
+    static COMMENT_DEF_REGEX: LazyLock<Regex> =
+        LazyLock::new(|| Regex::new(r"^\[>>([a-zA-Z0-9._-]+)\]:\s*(.*)$").expect("invalid regex"));
+
+    let mut cleaned = String::new();
+    let mut defs: HashMap<String, String> = HashMap::new();
+    let mut current_id: Option<String> = None;
+    let mut current_content = String::new();
+    let mut in_fenced_code = false;
+
+    for line in input.lines() {
+        // Track fenced code blocks to avoid matching inside them
+        let trimmed = line.trim_start();
+        if trimmed.starts_with("```") || trimmed.starts_with("~~~") {
+            in_fenced_code = !in_fenced_code;
+        }
+
+        if !in_fenced_code {
+            if let Some(caps) = COMMENT_DEF_REGEX.captures(line) {
+                // Flush previous definition
+                if let Some(id) = current_id.take() {
+                    defs.insert(id, current_content.trim().to_string());
+                    current_content.clear();
+                }
+                current_id = Some(caps[1].to_string());
+                let first_line = &caps[2];
+                if !first_line.is_empty() {
+                    current_content.push_str(first_line);
+                    current_content.push('\n');
+                }
+                continue;
+            }
+
+            if current_id.is_some() {
+                if line.starts_with("    ") {
+                    // Continuation line (4-space indent)
+                    current_content.push_str(&line[4..]);
+                    current_content.push('\n');
+                    continue;
+                } else if line.trim().is_empty() {
+                    // Blank line within definition (paragraph separator)
+                    current_content.push('\n');
+                    continue;
+                } else {
+                    // Non-continuation line: flush the definition
+                    if let Some(id) = current_id.take() {
+                        defs.insert(id, current_content.trim().to_string());
+                        current_content.clear();
+                    }
+                }
+            }
+        }
+
+        cleaned.push_str(line);
+        cleaned.push('\n');
+    }
+
+    // Flush final definition
+    if let Some(id) = current_id {
+        defs.insert(id, current_content.trim().to_string());
+    }
+
+    (cleaned, defs)
+}
+
+/// Nest a reply comment into its parent's `comments` array
+fn nest_reply(comments: &mut [Comment], parent_id: &str, reply: Comment) {
+    for comment in comments.iter_mut() {
+        if comment.id.as_deref() == Some(parent_id) {
+            let replies = comment.options.comments.get_or_insert_with(Vec::new);
+            replies.push(reply);
+            return;
+        }
+        // Search nested replies
+        if let Some(ref mut nested) = comment.options.comments {
+            nest_reply(nested, parent_id, reply.clone());
+        }
     }
 }

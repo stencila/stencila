@@ -493,6 +493,15 @@ impl MarkdownCodec for Article {
 
         context.append_footnotes();
 
+        if matches!(context.format, Format::Smd) {
+            if let Some(comments) = &self.options.comments {
+                for comment in comments {
+                    comment.to_markdown(context);
+                }
+            }
+            context.append_comments();
+        }
+
         context.exit_node_final();
     }
 }

@@ -90,6 +90,9 @@ pub struct MarkdownEncodeContext {
 
     /// The footnotes for the context
     pub footnotes: Vec<Self>,
+
+    /// The comment definitions for the context
+    pub comments: Vec<Self>,
 }
 
 impl MarkdownEncodeContext {
@@ -496,6 +499,36 @@ impl MarkdownEncodeContext {
                 );
             }
             self.content.push_str(&footnote.content);
+        }
+    }
+
+    /// Append comment definitions to the end of the content
+    pub fn append_comments(&mut self) {
+        if self.comments.is_empty() {
+            return;
+        }
+
+        if !self.content.ends_with("\n\n") {
+            if self.content.ends_with('\n') {
+                self.content.push('\n');
+            } else {
+                self.content.push_str("\n\n");
+            }
+        }
+
+        for comment in self.comments.drain(..) {
+            let offset = self.content.chars().count();
+            for entry in comment.mapping.entries() {
+                self.mapping.add(
+                    offset + entry.range.start,
+                    offset + entry.range.end,
+                    entry.node_type,
+                    entry.node_id.clone(),
+                    entry.property,
+                    None,
+                );
+            }
+            self.content.push_str(&comment.content);
         }
     }
 
