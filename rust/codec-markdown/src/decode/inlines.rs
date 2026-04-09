@@ -18,8 +18,9 @@ use stencila_codec::{
         CodeExpression, CodeInline, Cord, DateTimeValidator, DateValidator, DurationValidator,
         Emphasis, EnumValidator, Icon, ImageObject, Inline, IntegerValidator, Link, MathInline,
         Node, NodeType, Note, NoteType, NumberValidator, Parameter, ParameterOptions, QuoteInline,
-        Strikeout, StringValidator, Strong, StyledInline, Subscript, Superscript, Text,
-        TimeValidator, TimestampValidator, Underline, Validator, VideoObject,
+        Strikeout, StringValidator, Strong, StyledInline, Subscript, SuggestionInline,
+        SuggestionType, Superscript, Text, TimeValidator, TimestampValidator, Underline, Validator,
+        VideoObject,
     },
 };
 use stencila_codec_text_trait::to_text;
@@ -469,6 +470,7 @@ pub(super) fn inlines(input: &str, format: &Format) -> Vec<(Inline, Range<usize>
     let common = alt((
         code_attrs,
         double_braces,
+        suggestion_inline,
         citation_group,
         citation_parenthetical,
         citation_narrative,
@@ -1025,6 +1027,30 @@ fn styled_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
             })
         })
         .parse_next(input)
+}
+
+/// Parse a string into a `SuggestionInline` node using Critic Markup syntax
+///
+/// Insertions: `{++inserted text++}`
+/// Deletions: `{--deleted text--}`
+fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
+    alt((
+        delimited("{++", take_until(0.., "++}"), "++}").map(|content: &str| {
+            Inline::SuggestionInline(SuggestionInline {
+                suggestion_type: Some(SuggestionType::Insert),
+                content: inlines_only(content),
+                ..Default::default()
+            })
+        }),
+        delimited("{--", take_until(0.., "--}"), "--}").map(|content: &str| {
+            Inline::SuggestionInline(SuggestionInline {
+                suggestion_type: Some(SuggestionType::Delete),
+                content: inlines_only(content),
+                ..Default::default()
+            })
+        }),
+    ))
+    .parse_next(input)
 }
 
 /// Parse a string into a `Strikeout` node

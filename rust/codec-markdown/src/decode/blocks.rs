@@ -24,8 +24,9 @@ use stencila_codec::{
         HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
         Node, Page, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
-        StyledBlock, SuggestionBlock, SuggestionStatus, Table, TableCell, TableCellOptions,
-        TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough, WalkthroughStep,
+        StyledBlock, SuggestionBlock, SuggestionStatus, SuggestionType, Table, TableCell,
+        TableCellOptions, TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough,
+        WalkthroughStep,
     },
 };
 
@@ -71,10 +72,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             para = Some((children, position, value));
         }
 
-        // Handle colon fences (paragraphs starting with `:::`)
+        // Handle colon fences (paragraphs starting with `:::`, `:++`, or `:--`)
         if let Some((true, children, position)) = para.map(|(children, position, text)| {
             (
-                text.starts_with(":::") || text.starts_with("/"),
+                text.starts_with(":::") || text.starts_with(":++") || text.starts_with(":--") || text.starts_with("/"),
                 children,
                 position,
             )
@@ -84,7 +85,7 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
             // which are otherwise consumed into non text nodes are included in parse value
             let value = mds_to_string(children);
 
-            if let Ok(divider) = divider(&mut value.as_str()) {
+            if let Ok(divider) = divider(&mut value.as_str(), !boundaries.is_empty()) {
                 let children = pop_blocks(&mut blocks, &mut boundaries);
 
                 match divider {
@@ -233,8 +234,6 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                             Some(content) => content.capacity() != 1,
                             None => false,
                         }
-                    } else if let Block::SuggestionBlock(SuggestionBlock { content, .. }) = &block {
-                        content.capacity() != 1
                     } else {
                         !matches!(
                             block,
@@ -485,10 +484,11 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     blocks
 }
 
-/// Parse a "div": a paragraph starting with at least three semicolons
+/// Parse a "div": a paragraph starting with at least three colons, or `:++`/`:--` for suggestions
 fn block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         chat,
+        suggestion_block_critic,
         preceded(
             (take_while(3.., ':'), space0),
             alt((
@@ -1128,7 +1128,45 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
-/// Parse a [`SuggestionBlock`] node
+/// Parse a [`SuggestionBlock`] node using Critic Markup fence syntax (`:++` or `:--`)
+fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
+    (
+        alt((
+            ":++".value(SuggestionType::Insert),
+            ":--".value(SuggestionType::Delete),
+        )),
+        opt(preceded(
+            multispace0,
+            alt((
+                "accept".value(SuggestionStatus::Accepted),
+                "reject".value(SuggestionStatus::Rejected),
+            )),
+        )),
+        opt(preceded(multispace0, take_while(1.., |_| true))),
+    )
+        .map(
+            |(suggestion_type, suggestion_status, feedback): (
+                SuggestionType,
+                Option<SuggestionStatus>,
+                Option<&str>,
+            )| {
+                let feedback = feedback
+                    .map(|f| f.trim())
+                    .filter(|f| !f.is_empty());
+
+                Block::SuggestionBlock(SuggestionBlock {
+                    suggestion_type: Some(suggestion_type),
+                    suggestion_status,
+                    feedback: feedback.map(String::from),
+                    content: Vec::new(),
+                    ..Default::default()
+                })
+            },
+        )
+        .parse_next(input)
+}
+
+/// Parse a [`SuggestionBlock`] node using `::: suggest` syntax
 fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("suggest", multispace0),
@@ -1244,17 +1282,38 @@ fn table(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
-/// Parse a divider between sections of content
-fn divider(input: &mut &str) -> ModalResult<Divider> {
-    delimited(
-        (take_while(3.., ':'), space0),
+/// Parse a divider between sections of content.
+///
+/// The `has_open_block` parameter controls whether `:++`/`:--` are recognized as
+/// end dividers. These tokens serve as both openers and closers for suggestion blocks,
+/// so they should only match as closers when there is an open block to close.
+fn divider(input: &mut &str, has_open_block: bool) -> ModalResult<Divider> {
+    if has_open_block {
         alt((
-            alt(("else", "{else}")).map(|_| Divider::Else),
-            "".map(|_| Divider::End),
-        )),
-        (space0, eof),
-    )
-    .parse_next(input)
+            // Critic Markup style suggestion block closers: `:++` or `:--`
+            delimited(alt((":++", ":--")), space0, eof).map(|_| Divider::End),
+            // Standard colon fence dividers
+            delimited(
+                (take_while(3.., ':'), space0),
+                alt((
+                    alt(("else", "{else}")).map(|_| Divider::Else),
+                    "".map(|_| Divider::End),
+                )),
+                (space0, eof),
+            ),
+        ))
+        .parse_next(input)
+    } else {
+        delimited(
+            (take_while(3.., ':'), space0),
+            alt((
+                alt(("else", "{else}")).map(|_| Divider::Else),
+                "".map(|_| Divider::End),
+            )),
+            (space0, eof),
+        )
+        .parse_next(input)
+    }
 }
 
 #[derive(Debug, PartialEq)]
@@ -3162,17 +3221,23 @@ A two-panel figure combining an executable plot with a real image.
 
     #[test]
     fn test_divider() {
-        assert_eq!(divider(&mut "::: else").unwrap(), Divider::Else);
-        assert_eq!(divider(&mut "::::: else  ").unwrap(), Divider::Else);
+        assert_eq!(divider(&mut "::: else", true).unwrap(), Divider::Else);
+        assert_eq!(divider(&mut "::::: else  ", true).unwrap(), Divider::Else);
 
-        assert_eq!(divider(&mut ":::").unwrap(), Divider::End);
-        assert_eq!(divider(&mut "::::").unwrap(), Divider::End);
-        assert_eq!(divider(&mut "::::::").unwrap(), Divider::End);
+        assert_eq!(divider(&mut ":::", true).unwrap(), Divider::End);
+        assert_eq!(divider(&mut "::::", true).unwrap(), Divider::End);
+        assert_eq!(divider(&mut "::::::", true).unwrap(), Divider::End);
 
-        assert!(divider(&mut "::: some chars").is_err());
-        assert!(divider(&mut "::: with :::").is_err());
-        assert!(divider(&mut "::").is_err());
-        assert!(divider(&mut ":").is_err());
+        // Critic Markup fences only match as dividers when there is an open block
+        assert_eq!(divider(&mut ":++", true).unwrap(), Divider::End);
+        assert_eq!(divider(&mut ":--", true).unwrap(), Divider::End);
+        assert!(divider(&mut ":++", false).is_err());
+        assert!(divider(&mut ":--", false).is_err());
+
+        assert!(divider(&mut "::: some chars", true).is_err());
+        assert!(divider(&mut "::: with :::", true).is_err());
+        assert!(divider(&mut "::", true).is_err());
+        assert!(divider(&mut ":", true).is_err());
     }
 
     // Mermaid code block should be treated as executable CodeChunk by default

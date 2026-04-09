@@ -1,6 +1,6 @@
 use stencila_codec_info::lost_options;
 
-use crate::{SuggestionBlock, prelude::*};
+use crate::{SuggestionBlock, SuggestionType, prelude::*};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -30,7 +30,13 @@ impl MarkdownCodec for SuggestionBlock {
             return;
         }
 
-        context.push_colons().push_str(" suggest");
+        let fence = if self.suggestion_type == Some(SuggestionType::Delete) {
+            ":--"
+        } else {
+            ":++"
+        };
+
+        context.push_str(fence);
 
         if let Some(status) = &self.suggestion_status {
             context
@@ -44,23 +50,13 @@ impl MarkdownCodec for SuggestionBlock {
                 .push_prop_str(NodeProperty::Feedback, feedback);
         }
 
-        if self.content.is_empty() {
-            context.push_str(" :::");
-        } else {
-            if self.content.len() == 1 {
-                context.push_str(" >>>");
-            }
-
-            context
-                .push_str("\n\n")
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
-                });
-
-            if self.content.len() > 1 {
-                context.push_colons().newline();
-            }
-        }
+        context
+            .push_str("\n\n")
+            .push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            })
+            .push_str(fence)
+            .newline();
 
         context.exit_node().newline();
     }
