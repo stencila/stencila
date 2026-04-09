@@ -7,7 +7,9 @@ use stencila_cli_utils::color_print::cstr;
 use stencila_format::Format;
 use stencila_node_supplements::{embed_supplements, extract_supplements};
 
-use crate::options::{DecodeOptions, EncodeOptions, StripOptions};
+use stencila_node_suggestions::{review::interactive_review, ResolveSuggestions, SuggestionAction};
+
+use crate::options::{DecodeOptions, EncodeOptions, StripOptions, SuggestionOptions};
 
 /// Convert a document to another format
 #[derive(Debug, Parser)]
@@ -30,6 +32,9 @@ pub struct Cli {
 
     #[command(flatten)]
     strip_options: StripOptions, // Place here because decode -> structuring -> stripping -> encoding
+
+    #[command(flatten)]
+    suggestion_options: SuggestionOptions,
 
     #[command(flatten)]
     encode_options: EncodeOptions,
@@ -99,6 +104,7 @@ impl Cli {
             decode_options,
             encode_options,
             strip_options,
+            suggestion_options,
             from_tool,
             tool,
             tool_args,
@@ -115,6 +121,16 @@ impl Cli {
             .build(input_path.as_deref(), strip_options.clone())
             .with_tool(from_tool, Vec::new());
         let mut node = stencila_codecs::from_identifier(input, Some(decode_options)).await?;
+
+        // Resolve suggestions if requested
+        if suggestion_options.accept_suggestions {
+            node.resolve_suggestions(&SuggestionAction::AcceptAll);
+        } else if suggestion_options.reject_suggestions {
+            node.resolve_suggestions(&SuggestionAction::RejectAll);
+        } else if suggestion_options.review_suggestions {
+            let action = interactive_review(&mut node).await?;
+            node.resolve_suggestions(&action);
+        }
 
         if outputs.is_empty() || outputs.iter().all(|path| path.to_string_lossy() == "-") {
             stencila_codecs::to_stdout(

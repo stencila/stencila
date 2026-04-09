@@ -54,6 +54,7 @@ stencila-models3 = { path = "../models3", features = ["cli"] }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-execute = { path = "../node-execute" }
 stencila-node-strip = { path = "../node-strip" }
+stencila-node-suggestions = { path = "../node-suggestions" }
 stencila-node-supplements = { path = "../node-supplements" }
 stencila-prompts = { path = "../prompts" }
 stencila-skills = { path = "../skills", features = ["cli"] }

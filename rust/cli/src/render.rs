@@ -13,9 +13,11 @@ use stencila_spread::{
     infer_spread_mode,
 };
 
+use stencila_node_suggestions::{SuggestionAction, review::interactive_review};
+
 use crate::{
     open,
-    options::{DecodeOptions, EncodeOptions, StripOptions},
+    options::{DecodeOptions, EncodeOptions, StripOptions, SuggestionOptions},
 };
 
 /// Render a document
@@ -72,6 +74,9 @@ pub struct Cli {
 
     #[command(flatten)]
     strip_options: StripOptions,
+
+    #[command(flatten)]
+    suggestion_options: SuggestionOptions,
 
     /// Arguments to pass to the document
     ///
@@ -232,6 +237,20 @@ impl Cli {
         }
     }
 
+    /// Resolve suggestions in a document based on suggestion options
+    async fn resolve_suggestions(&self, doc: &Document) -> Result<()> {
+        if self.suggestion_options.accept_suggestions {
+            doc.resolve_suggestions(&SuggestionAction::AcceptAll).await;
+        } else if self.suggestion_options.reject_suggestions {
+            doc.resolve_suggestions(&SuggestionAction::RejectAll).await;
+        } else if self.suggestion_options.review_suggestions {
+            let root = doc.root().await;
+            let action = interactive_review(&root).await?;
+            doc.resolve_suggestions(&action).await;
+        }
+        Ok(())
+    }
+
     #[allow(clippy::print_stderr)]
     pub async fn run(self) -> Result<()> {
         let input = &self.input;
@@ -360,6 +379,9 @@ impl Cli {
                     .await?;
                 let (errors, ..) = doc.diagnostics_print().await?;
 
+                // Resolve suggestions if requested
+                self.resolve_suggestions(&doc).await?;
+
                 // Error handling
                 if !self
                     .handle_execution_errors(errors, &format!("run {}", run.index))
@@ -420,6 +442,9 @@ impl Cli {
             // Call document with arguments
             doc.call(&arguments, self.execute_options.clone()).await?;
             let (errors, ..) = doc.diagnostics_print().await?;
+
+            // Resolve suggestions if requested
+            self.resolve_suggestions(&doc).await?;
 
             // Cache the document
             if self.cache && !input_is_stdin {

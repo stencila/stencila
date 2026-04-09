@@ -1,0 +1,12 @@
+[package]
+name = "stencila-node-suggestions"
+version = "0.0.0"
+edition = "2024"
+
+[dependencies]
+eyre = { workspace = true }
+stencila-ask = { path = "../ask" }
+schema = { path = "../schema", package = "stencila-schema" }
+
+[lints]
+workspace = true

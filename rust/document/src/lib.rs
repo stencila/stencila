@@ -9,6 +9,7 @@ use clap::ValueEnum;
 use eyre::{OptionExt, Result, bail, eyre};
 use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
+use stencila_node_suggestions::{ResolveSuggestions, SuggestionAction};
 use strum::{Display, EnumString};
 use tokio::{
     self,
@@ -539,6 +540,11 @@ impl Document {
     /// some part of the document tree.
     pub async fn root(&self) -> Node {
         self.root.read().await.clone()
+    }
+
+    /// Resolve suggestions in the document's root node
+    pub async fn resolve_suggestions(&self, action: &SuggestionAction) {
+        self.root.write().await.resolve_suggestions(action);
     }
 
     /// Find and clone a node within the root node of the document

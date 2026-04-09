@@ -9367,6 +9367,7 @@ dependencies = [
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-strip",
+ "stencila-node-suggestions",
  "stencila-node-supplements",
  "stencila-prompts",
  "stencila-publish",
@@ -10566,6 +10567,7 @@ dependencies = [
  "stencila-node-first",
  "stencila-node-map",
  "stencila-node-strip",
+ "stencila-node-suggestions",
  "stencila-remotes",
  "stencila-schema",
  "stencila-site",
@@ -11544,6 +11546,15 @@ dependencies = [
  "strsim",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "stencila-node-suggestions"
+version = "0.0.0"
+dependencies = [
+ "eyre",
+ "stencila-ask",
+ "stencila-schema",
 ]
 
 [[package]]

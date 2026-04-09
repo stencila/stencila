@@ -30,6 +30,41 @@ pub struct StripOptions {
     strip_props: Vec<String>,
 }
 
+/// Command line arguments for resolving suggestions
+///
+/// It is necessary to have this as a separate `struct` (rather than adding
+/// these fields to `EncodeOptions`) to avoid duplication when flattened
+/// into `Convert` and other commands.
+#[derive(Debug, Default, Clone, Args)]
+pub struct SuggestionOptions {
+    /// Accept all suggestions (insertions are kept, deletions are removed)
+    #[arg(
+        long,
+        alias = "accept",
+        conflicts_with_all = ["reject_suggestions", "review_suggestions"],
+        help_heading = "Suggestion Options"
+    )]
+    pub accept_suggestions: bool,
+
+    /// Reject all suggestions (insertions are removed, deletions are kept)
+    #[arg(
+        long,
+        alias = "reject",
+        conflicts_with_all = ["accept_suggestions", "review_suggestions"],
+        help_heading = "Suggestion Options"
+    )]
+    pub reject_suggestions: bool,
+
+    /// Interactively review each suggestion
+    #[arg(
+        long,
+        alias = "review",
+        conflicts_with_all = ["accept_suggestions", "reject_suggestions"],
+        help_heading = "Suggestion Options"
+    )]
+    pub review_suggestions: bool,
+}
+
 /// Command line arguments for decoding nodes from other formats
 #[derive(Debug, Args)]
 pub struct DecodeOptions {

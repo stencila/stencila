@@ -44,6 +44,7 @@ stencila-node-find = { path = "../node-find" }
 stencila-node-first = { path = "../node-first" }
 stencila-node-map = { path = "../node-map" }
 stencila-node-strip = { path = "../node-strip" }
+stencila-node-suggestions = { path = "../node-suggestions" }
 stencila-remotes = { path = "../remotes" }
 stencila-schema = { path = "../schema" }
 stencila-site = { path = "../site" }
