@@ -1,0 +1,78 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 78
+expression: review
+---
+{
+  "source": {
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "A paragraph.\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 0,
+        "end": 2
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-2",
+        "start": 2,
+        "end": 2
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-3",
+        "start": 2,
+        "end": 11
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-4",
+        "start": 11,
+        "end": 11
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-5",
+        "start": 11,
+        "end": 12
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-6",
+        "start": 0,
+        "end": 13
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-7",
+        "start": 0,
+        "end": 14
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "comment",
+      "nodeId": "node-8",
+      "range": {
+        "startLocation": "#comment-c1-start",
+        "endLocation": "#comment-c1-end",
+        "startOffset": 2,
+        "endOffset": 11,
+        "startLine": 1,
+        "startColumn": 3,
+        "endLine": 1,
+        "endColumn": 12
+      },
+      "selectedText": "paragraph",
+      "bodyMarkdown": "A comment on the paragraph",
+      "resolution": "anchored"
+    }
+  ],
+  "diagnostics": []
+}

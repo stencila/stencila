@@ -1,0 +1,195 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 78
+expression: review
+---
+{
+  "source": {
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "A  in a paragraph.\n\nA suggested deletion in a paragraph.\n\nA suggested deleted paragraph.\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 0,
+        "end": 2
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-2",
+        "start": 2,
+        "end": 2
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-3",
+        "start": 2,
+        "end": 18
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-4",
+        "start": 0,
+        "end": 19
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-5",
+        "start": 20,
+        "end": 22
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-6",
+        "start": 22,
+        "end": 46
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-7",
+        "start": 22,
+        "end": 46
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-8",
+        "start": 46,
+        "end": 56
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-9",
+        "start": 20,
+        "end": 57
+      },
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-10",
+        "start": 58,
+        "end": 57
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-11",
+        "start": 58,
+        "end": 88
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-12",
+        "start": 58,
+        "end": 89
+      },
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-13",
+        "start": 58,
+        "end": 89
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-14",
+        "start": 0,
+        "end": 90
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "suggestion",
+      "nodeId": "node-2",
+      "parentNodeId": "node-4",
+      "range": {
+        "startOffset": 2,
+        "endOffset": 2,
+        "startLine": 1,
+        "startColumn": 3,
+        "endLine": 1,
+        "endColumn": 3
+      },
+      "selectedText": "",
+      "replacementText": "suggested insertion",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 1,
+        "endLine": 1,
+        "replacementLines": "A suggested insertion in a paragraph.",
+        "body": "```suggestion\nA suggested insertion in a paragraph.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-7",
+      "parentNodeId": "node-9",
+      "range": {
+        "startOffset": 22,
+        "endOffset": 46,
+        "startLine": 3,
+        "startColumn": 3,
+        "endLine": 3,
+        "endColumn": 27
+      },
+      "selectedText": "suggested deletion in a ",
+      "replacementText": "suggested deletion in a ",
+      "bodyMarkdown": "",
+      "suggestionType": "Delete",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "delete",
+        "startLine": 3,
+        "endLine": 3,
+        "replacementLines": "A paragraph.",
+        "body": "```suggestion\nA paragraph.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-10",
+      "parentNodeId": "node-14",
+      "range": {
+        "startOffset": 58,
+        "endOffset": 57,
+        "startLine": 5,
+        "startColumn": 1,
+        "endLine": 4,
+        "endColumn": 1
+      },
+      "replacementText": "A suggested new paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored"
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-13",
+      "parentNodeId": "node-14",
+      "range": {
+        "startOffset": 58,
+        "endOffset": 89,
+        "startLine": 5,
+        "startColumn": 1,
+        "endLine": 6,
+        "endColumn": 1
+      },
+      "selectedText": "A suggested deleted paragraph.\n",
+      "replacementText": "A suggested deleted paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Delete",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "delete",
+        "startLine": 5,
+        "endLine": 6,
+        "replacementLines": "",
+        "body": "```suggestion\n\n```"
+      }
+    }
+  ],
+  "diagnostics": []
+}

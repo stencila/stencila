@@ -1,0 +1,170 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 78
+expression: review
+---
+{
+  "source": {
+    "path": "docs/review-comments.md",
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "---\npath: docs/review-comments.md\n---\n\n# Intro\n\nThis paragraph has a focused comment.\n\n## Explicit locations\n\nThis paragraph is followed by an explicit-location comment.\n\npath: docs/review-comments.md start-location: docs/review-comments.md:11:1 end-location: docs/review-comments.md:11:60\n\nA file-and-line anchored comment on the whole paragraph.\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 41,
+        "end": 46
+      },
+      {
+        "nodeType": "Heading",
+        "nodeId": "node-2",
+        "start": 39,
+        "end": 47
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-3",
+        "start": 48,
+        "end": 69
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-4",
+        "start": 69,
+        "end": 69
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-5",
+        "start": 69,
+        "end": 84
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-6",
+        "start": 84,
+        "end": 84
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-7",
+        "start": 84,
+        "end": 85
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-8",
+        "start": 48,
+        "end": 86
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-9",
+        "start": 90,
+        "end": 108
+      },
+      {
+        "nodeType": "Heading",
+        "nodeId": "node-10",
+        "start": 87,
+        "end": 109
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-11",
+        "start": 110,
+        "end": 109
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-12",
+        "start": 110,
+        "end": 169
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-13",
+        "start": 169,
+        "end": 169
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-14",
+        "start": 110,
+        "end": 170
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-15",
+        "start": 171,
+        "end": 289
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-16",
+        "start": 171,
+        "end": 290
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-17",
+        "start": 291,
+        "end": 347
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-18",
+        "start": 291,
+        "end": 348
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-19",
+        "start": 0,
+        "end": 349
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "comment",
+      "sourcePath": "docs/review-comments.md",
+      "nodeId": "node-20",
+      "range": {
+        "startLocation": "#comment-c1-start",
+        "endLocation": "#comment-c1-end",
+        "startOffset": 69,
+        "endOffset": 84,
+        "startLine": 7,
+        "startColumn": 22,
+        "endLine": 7,
+        "endColumn": 37
+      },
+      "selectedText": "focused comment",
+      "bodyMarkdown": "First comment on selected text",
+      "resolution": "anchored"
+    },
+    {
+      "kind": "comment",
+      "sourcePath": "docs/review-comments.md",
+      "nodeId": "node-21",
+      "range": {
+        "startLocation": "#comment-c2-start",
+        "endLocation": "#comment-c2-end"
+      },
+      "bodyMarkdown": "",
+      "resolution": "unanchored"
+    }
+  ],
+  "diagnostics": [
+    {
+      "level": "warning",
+      "code": "unresolved-boundary",
+      "message": "Boundary reference(s) could not be resolved",
+      "itemNodeId": "node-21"
+    }
+  ]
+}

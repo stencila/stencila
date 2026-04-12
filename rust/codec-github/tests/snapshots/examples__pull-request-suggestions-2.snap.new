@@ -1,0 +1,190 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 78
+expression: review
+---
+{
+  "source": {
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "A introduction paragraph.\n\nA repeated repeated phrase appears here.\n\nA repeated repeated phrase appears here.\n\nFinal paragraph with .\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 0,
+        "end": 2
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-2",
+        "start": 2,
+        "end": 2
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-3",
+        "start": 2,
+        "end": 25
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-4",
+        "start": 0,
+        "end": 26
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-5",
+        "start": 27,
+        "end": 67
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-6",
+        "start": 27,
+        "end": 68
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-7",
+        "start": 69,
+        "end": 71
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-8",
+        "start": 71,
+        "end": 80
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-9",
+        "start": 71,
+        "end": 80
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-10",
+        "start": 80,
+        "end": 109
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-11",
+        "start": 69,
+        "end": 110
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-12",
+        "start": 111,
+        "end": 132
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-13",
+        "start": 132,
+        "end": 132
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-14",
+        "start": 132,
+        "end": 133
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-15",
+        "start": 111,
+        "end": 134
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-16",
+        "start": 0,
+        "end": 135
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "suggestion",
+      "nodeId": "node-2",
+      "parentNodeId": "node-4",
+      "range": {
+        "startOffset": 2,
+        "endOffset": 2,
+        "startLine": 1,
+        "startColumn": 3,
+        "endLine": 1,
+        "endColumn": 3
+      },
+      "selectedText": "",
+      "replacementText": "brief ",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 1,
+        "endLine": 1,
+        "replacementLines": "A brief introduction paragraph.",
+        "body": "```suggestion\nA brief introduction paragraph.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-9",
+      "parentNodeId": "node-11",
+      "range": {
+        "startOffset": 69,
+        "endOffset": 110,
+        "startLine": 5,
+        "startColumn": 1,
+        "endLine": 6,
+        "endColumn": 1
+      },
+      "selectedText": "A repeated repeated phrase appears here.\n",
+      "replacementText": "repeated ",
+      "bodyMarkdown": "",
+      "suggestionType": "Delete",
+      "resolution": "anchored"
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-13",
+      "parentNodeId": "node-15",
+      "range": {
+        "startOffset": 132,
+        "endOffset": 132,
+        "startLine": 7,
+        "startColumn": 22,
+        "endLine": 7,
+        "endColumn": 22
+      },
+      "selectedText": "",
+      "replacementText": "appended words",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 7,
+        "endLine": 7,
+        "replacementLines": "Final paragraph with appended words.",
+        "body": "```suggestion\nFinal paragraph with appended words.\n```"
+      }
+    }
+  ],
+  "diagnostics": [
+    {
+      "level": "warning",
+      "code": "coarse-parent-range",
+      "message": "Suggestion resolved to parent node range, not exact target",
+      "itemNodeId": "node-9"
+    }
+  ]
+}

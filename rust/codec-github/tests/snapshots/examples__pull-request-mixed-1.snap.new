@@ -1,0 +1,208 @@
+---
+source: rust/codec-github/tests/examples.rs
+assertion_line: 78
+expression: review
+---
+{
+  "source": {
+    "repository": "stencila/stencila",
+    "path": "rust/codec-github/tests/examples/mixed-1.smd",
+    "commit": "abcdef1234567890",
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "---\nrepository: stencila/stencila\npath: rust/codec-github/tests/examples/mixed-1.smd\ncommit: abcdef1234567890\n---\n\nA paragraph with commented text and a insertion.\n\nA second paragraph with a removable phrase.\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 115,
+        "end": 132
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-2",
+        "start": 132,
+        "end": 132
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-3",
+        "start": 132,
+        "end": 146
+      },
+      {
+        "nodeType": "Boundary",
+        "nodeId": "node-4",
+        "start": 146,
+        "end": 146
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-5",
+        "start": 146,
+        "end": 153
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-6",
+        "start": 153,
+        "end": 153
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-7",
+        "start": 153,
+        "end": 163
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-8",
+        "start": 115,
+        "end": 164
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-9",
+        "start": 165,
+        "end": 191
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-10",
+        "start": 191,
+        "end": 201
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-11",
+        "start": 191,
+        "end": 201
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-12",
+        "start": 201,
+        "end": 208
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-13",
+        "start": 165,
+        "end": 209
+      },
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-14",
+        "start": 210,
+        "end": 209
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-15",
+        "start": 0,
+        "end": 210
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "comment",
+      "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
+      "nodeId": "node-16",
+      "range": {
+        "startLocation": "#comment-c1-start",
+        "endLocation": "#comment-c1-end",
+        "startOffset": 132,
+        "endOffset": 146,
+        "startLine": 7,
+        "startColumn": 18,
+        "endLine": 7,
+        "endColumn": 32
+      },
+      "selectedText": "commented text",
+      "bodyMarkdown": "Inline comment beside suggestion",
+      "resolution": "anchored"
+    },
+    {
+      "kind": "suggestion",
+      "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
+      "nodeId": "node-6",
+      "parentNodeId": "node-8",
+      "range": {
+        "startOffset": 153,
+        "endOffset": 153,
+        "startLine": 7,
+        "startColumn": 39,
+        "endLine": 7,
+        "endColumn": 39
+      },
+      "selectedText": "",
+      "replacementText": "small ",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 7,
+        "endLine": 7,
+        "replacementLines": "A paragraph with commented text and a small insertion.",
+        "body": "```suggestion\nA paragraph with commented text and a small insertion.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
+      "nodeId": "node-11",
+      "parentNodeId": "node-13",
+      "range": {
+        "startOffset": 191,
+        "endOffset": 201,
+        "startLine": 9,
+        "startColumn": 27,
+        "endLine": 9,
+        "endColumn": 37
+      },
+      "selectedText": "removable ",
+      "replacementText": "removable ",
+      "bodyMarkdown": "",
+      "suggestionType": "Delete",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "delete",
+        "startLine": 9,
+        "endLine": 9,
+        "replacementLines": "A second paragraph with a phrase.",
+        "body": "```suggestion\nA second paragraph with a phrase.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
+      "nodeId": "node-14",
+      "parentNodeId": "node-15",
+      "range": {
+        "startOffset": 209,
+        "endOffset": 209,
+        "startLine": 10,
+        "startColumn": 2,
+        "endLine": 10,
+        "endColumn": 1
+      },
+      "selectedText": "",
+      "replacementText": "A proposed new paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 10,
+        "endLine": 10,
+        "replacementLines": "A proposed new paragraph.",
+        "body": "```suggestion\nA proposed new paragraph.\n```"
+      }
+    }
+  ],
+  "diagnostics": []
+}
