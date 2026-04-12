@@ -1,6 +1,6 @@
 use std::{path::Path, str::FromStr};
 
-use eyre::{Report, eyre};
+use eyre::{Report, bail, eyre};
 use url::Url;
 
 use stencila_codec::{
@@ -176,13 +176,13 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::push(node, path, title, url, dry_run).await,
             Self::Microsoft365 => stencila_codec_m365::push(node, path, title, url, dry_run).await,
             Self::GitHubIssues => {
-                eyre::bail!("GitHub Issues remote is read-only and does not support push")
+                bail!("GitHub Issues remote is read-only and does not support push")
             }
             Self::GitHubPullRequests => {
                 stencila_codec_github::push_pull_request(node, path, title, url, dry_run).await
             }
             Self::StencilaEmail => {
-                eyre::bail!("Email Attachments remote is read-only and does not support push")
+                bail!("Email Attachments remote is read-only and does not support push")
             }
         }
     }
@@ -204,7 +204,7 @@ impl RemoteService {
                 .map_err(|error| eyre!(error)),
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
             Self::GitHubPullRequests => {
-                eyre::bail!("GitHub pull request remote is push-only and does not support pull")
+                bail!("GitHub pull request remote is push-only and does not support pull")
             }
             Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,
         }
@@ -218,9 +218,7 @@ impl RemoteService {
             Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
             Self::GitHubIssues => stencila_codec_github::issues::modified_at(url).await,
-            Self::GitHubPullRequests => {
-                eyre::bail!("GitHub pull request remote does not support modified_at")
-            }
+            Self::GitHubPullRequests => stencila_codec_github::prs::modified_at(url).await,
             Self::StencilaEmail => stencila_cloud::email::modified_at(url).await,
         }
     }

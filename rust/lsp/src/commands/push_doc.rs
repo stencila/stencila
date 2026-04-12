@@ -144,6 +144,7 @@ pub(crate) async fn push_doc(
                     if force_new { None } else { url },
                 )
             }
+            "ghpr" => (RemoteService::GitHubPullRequests, None),
             _ => {
                 // Try to parse as URL
                 let url = Url::parse(target_str)
@@ -354,6 +355,15 @@ pub(crate) async fn push_doc(
             return Ok(None);
         }
     };
+
+    if matches!(service, RemoteService::GitHubPullRequests) {
+        progress.send((100, None)).ok();
+        return Ok(Some(json!({
+            "url": url.to_string(),
+            "tracked": false,
+            "service": "ghpr"
+        })));
+    }
 
     // Track the remote
     progress.send((80, Some("recording".to_string()))).ok();

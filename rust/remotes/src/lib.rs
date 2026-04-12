@@ -313,6 +313,40 @@ pub enum RemoteStatus {
     Synced,
 }
 
+/// Additional remote-side activity information for a local-path/remote pair.
+///
+/// This complements [`RemoteStatus`] for remotes where remote activity is useful
+/// to surface separately from push/pull synchronization semantics. It is
+/// especially useful for write-only review-oriented remotes such as GitHub pull
+/// requests, where the remote may have new review activity even though there is
+/// no pull workflow.
+#[derive(Debug, Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub enum RemoteActivity {
+    /// Remote activity could not be determined.
+    #[default]
+    Unknown,
+
+    /// No remote activity is known since the last relevant sync point.
+    Unchanged,
+
+    /// The remote has changed since the last relevant sync point.
+    Changed,
+}
+
+/// Derived status information for one remote.
+#[derive(Debug, Default, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct RemoteStatusInfo {
+    /// The remote's last known modification or activity time, if available.
+    pub remote_modified_at: Option<u64>,
+
+    /// The derived synchronization status for this local-path/remote pair.
+    pub status: RemoteStatus,
+
+    /// Additional remote-side activity information, if available.
+    pub activity: Option<RemoteActivity>,
+}
+
 /// Tolerance in seconds for local file modification time comparisons
 pub const LOCAL_TOLERANCE_SECS: u64 = 5;
 
@@ -330,12 +364,12 @@ pub const REMOTE_TOLERANCE_SECS: u64 = 30;
 /// - applies tolerance windows to account for filesystem and service timing skew
 /// - adapts status interpretation for capability-limited remotes such as write-only ones
 ///
-/// Returns a map from remote URL to `(remote_modified_at, status)`.
+/// Returns a map from remote URL to [`RemoteStatusInfo`].
 pub async fn calculate_remote_statuses(
     remotes: &IndexMap<Url, RemoteInfo>,
     local_status: RemoteStatus,
     local_modified_at: Option<u64>,
-) -> IndexMap<Url, (Option<u64>, RemoteStatus)> {
+) -> IndexMap<Url, RemoteStatusInfo> {
     use futures::future::join_all;
 
     if remotes.is_empty() {
@@ -465,7 +499,29 @@ pub async fn calculate_remote_statuses(
             }
         };
 
-        (url.clone(), (remote_modified_at, status))
+        let activity = if is_write_only {
+            match (remote_modified_at, remote.pushed_at) {
+                (Some(remote_mod), Some(pushed)) => {
+                    if remote_mod > pushed.saturating_add(REMOTE_TOLERANCE_SECS) {
+                        Some(RemoteActivity::Changed)
+                    } else {
+                        Some(RemoteActivity::Unchanged)
+                    }
+                }
+                _ => Some(RemoteActivity::Unknown),
+            }
+        } else {
+            None
+        };
+
+        (
+            url.clone(),
+            RemoteStatusInfo {
+                remote_modified_at,
+                status,
+                activity,
+            },
+        )
     });
 
     // Execute all futures in parallel and collect results into a IndexMap

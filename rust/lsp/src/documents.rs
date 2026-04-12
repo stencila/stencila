@@ -10,7 +10,7 @@ use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 
 use stencila_document::{Document, DocumentTrackingEntries, RemoteStatus};
-use stencila_remotes::{RemoteService, WatchDirection, calculate_remote_statuses};
+use stencila_remotes::{RemoteActivity, RemoteService, WatchDirection, calculate_remote_statuses};
 use stencila_schema::NodeId;
 
 /// Enriched document tracking with service information for display
@@ -38,6 +38,8 @@ pub struct EnrichedDocumentRemote {
 
     // Sync status (calculated by comparing with remote)
     pub status: Option<RemoteStatus>,
+    pub activity: Option<RemoteActivity>,
+    pub remote_modified_at: Option<u64>,
 
     // Watch status fields
     pub watch_status: Option<String>,
@@ -208,7 +210,10 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
                         };
 
                     // Get the actual status calculated by remote_statuses()
-                    let status = remote_statuses.get(&url).map(|(_, status)| *status);
+                    let (status, activity, remote_modified_at) = remote_statuses
+                        .get(&url)
+                        .map(|info| (Some(info.status), info.activity, info.remote_modified_at))
+                        .unwrap_or((None, None, None));
 
                     let enriched_remote = EnrichedDocumentRemote {
                         pulled_at: remote.pulled_at,
@@ -218,6 +223,8 @@ pub async fn list() -> EnrichedDocumentTrackingEntries {
                         service_name,
                         display_name,
                         status,
+                        activity,
+                        remote_modified_at,
                         watch_status,
                         watch_status_summary,
                         watch_last_error,

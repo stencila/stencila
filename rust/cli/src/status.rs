@@ -23,7 +23,7 @@ use stencila_cli_utils::{
 use stencila_codec_utils::modification_time;
 use stencila_dirs::closest_workspace_dir;
 use stencila_remotes::{
-    RemoteService, RemoteStatus, calculate_remote_statuses, get_all_remote_entries,
+    RemoteActivity, RemoteService, RemoteStatus, calculate_remote_statuses, get_all_remote_entries,
     get_remotes_for_path, remove_deleted_watches,
 };
 
@@ -268,10 +268,10 @@ impl Cli {
                 has_remotes = true;
 
                 // Get remote status and modified time from fetched metadata
-                let (remote_modified_at, remote_status) = remote_statuses
-                    .get(&url)
-                    .cloned()
-                    .unwrap_or((None, RemoteStatus::Unknown));
+                let remote_status_info = remote_statuses.get(&url).cloned().unwrap_or_default();
+                let remote_modified_at = remote_status_info.remote_modified_at;
+                let remote_status = remote_status_info.status;
+                let remote_activity = remote_status_info.activity;
 
                 // Track remote status for legend
                 if !matches!(remote_status, Unknown) {
@@ -364,16 +364,21 @@ impl Cli {
                     remote_display += &format!(" ({args})")
                 };
 
+                let status_text = if matches!(remote_status, RemoteStatus::Unknown) {
+                    String::new()
+                } else {
+                    let mut text = remote_status.to_string();
+                    if matches!(remote_activity, Some(RemoteActivity::Changed)) {
+                        text.push_str(" + review activity");
+                    }
+                    text
+                };
+
                 table.add_row([
                     // Remote name with optional spread variant
                     Cell::new(remote_display),
                     // Remote status
-                    Cell::new(if matches!(remote_status, RemoteStatus::Unknown) {
-                        String::new()
-                    } else {
-                        remote_status.to_string()
-                    })
-                    .fg(status_color(&remote_status)),
+                    Cell::new(status_text).fg(status_color(&remote_status)),
                     // Remote modification time
                     Cell::new(humanize_timestamp(remote_modified_at)?)
                         .set_alignment(CellAlignment::Right),
