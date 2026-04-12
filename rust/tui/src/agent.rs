@@ -667,7 +667,16 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             let path = str_arg("file_path").unwrap_or_default();
             let mut label = format!("Read {path}");
             if let Some(offset) = int_arg("offset") {
-                let _ = write!(label, ":{offset}");
+                if let Some(limit) = int_arg("limit") {
+                    let end = if limit > 0 {
+                        offset.saturating_add(limit - 1)
+                    } else {
+                        offset
+                    };
+                    let _ = write!(label, ":{offset}-{end}");
+                } else {
+                    let _ = write!(label, ":{offset}");
+                }
             }
             label
         }
@@ -1238,6 +1247,18 @@ mod tests {
     fn format_read_file_with_offset() {
         let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42});
         assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42");
+    }
+
+    #[test]
+    fn format_read_file_with_offset_and_limit() {
+        let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42, "limit": 10});
+        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42-51");
+    }
+
+    #[test]
+    fn format_read_file_with_zero_limit() {
+        let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42, "limit": 0});
+        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42-42");
     }
 
     #[test]
