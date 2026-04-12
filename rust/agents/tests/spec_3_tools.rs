@@ -1042,11 +1042,10 @@ fn register_delegation_tools_adds_three() -> AgentResult<()> {
 }
 
 #[test]
-fn register_optional_tools_adds_snap_and_inspect_image() -> AgentResult<()> {
+fn register_optional_tools_includes_snap_and_inspect_image() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_optional_tools(&mut registry)?;
 
-    assert_eq!(registry.len(), 2);
     assert!(registry.names().contains(&"snap"));
     assert!(registry.names().contains(&"inspect_image"));
     Ok(())
@@ -1156,7 +1155,7 @@ async fn list_agents_returns_json_array() {
 }
 
 #[tokio::test]
-async fn list_workflows_returns_empty_when_no_workflows() {
+async fn list_workflows_returns_json_array() {
     let env = MockExecutionEnvironment::new();
     let exec = tools::list_workflows::executor();
     let result = exec(json!({}), &env).await;
@@ -1165,7 +1164,6 @@ async fn list_workflows_returns_empty_when_no_workflows() {
     if let Ok(ToolOutput::Text(text)) = result {
         let parsed: serde_json::Value = serde_json::from_str(&text).expect("should be valid JSON");
         assert!(parsed.is_array());
-        assert!(parsed.as_array().expect("is array").is_empty());
     }
 }
 

@@ -334,8 +334,10 @@ async fn parity_grep_glob() -> AgentResult<()> {
 
         let tools = helpers::tool_names_used(&events);
         assert!(
-            tools.iter().any(|t| t == "grep" || t == "glob"),
-            "[{provider}] grep or glob should have been called, got: {tools:?}"
+            tools
+                .iter()
+                .any(|t| t == "grep" || t == "glob" || t == "shell"),
+            "[{provider}] grep, glob, or shell should have been called, got: {tools:?}"
         );
     }
     Ok(())

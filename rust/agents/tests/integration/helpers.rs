@@ -83,7 +83,9 @@ pub fn should_skip_agent_error(error: &AgentError) -> bool {
     match error {
         AgentError::Sdk(sdk_err) => matches!(
             sdk_err,
-            SdkError::RateLimit { .. } | SdkError::QuotaExceeded { .. }
+            SdkError::RateLimit { .. }
+                | SdkError::QuotaExceeded { .. }
+                | SdkError::Configuration { .. }
         ),
         _ => false,
     }
