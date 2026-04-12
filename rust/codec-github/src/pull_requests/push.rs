@@ -25,6 +25,7 @@ enum SubmitReviewMode {
 #[derive(Debug)]
 enum SubmitReviewError {
     NeedsAnchorCommit,
+    UnresolvedInlinePath,
     Other(stencila_codec::eyre::Report),
 }
 
@@ -34,6 +35,11 @@ impl SubmitReviewError {
             Self::NeedsAnchorCommit => eyre!(
                 "GitHub could not resolve inline review comment anchors and an anchor commit is required"
             ),
+            Self::UnresolvedInlinePath => {
+                eyre!(
+                    "GitHub could not resolve inline review comment paths in the pull request diff"
+                )
+            }
             Self::Other(error) => error,
         }
     }
@@ -48,6 +54,16 @@ fn is_missing_anchor_error(message: &str) -> bool {
         "review comments is invalid",
         "line must be part of the diff",
         "diff hunk",
+    ]
+    .iter()
+    .any(|needle| message.contains(needle))
+}
+
+fn is_unresolved_inline_path_error(message: &str) -> bool {
+    let message = message.to_ascii_lowercase();
+    [
+        "path could not be resolved",
+        "pull request review comment path is invalid",
     ]
     .iter()
     .any(|needle| message.contains(needle))
@@ -187,6 +203,31 @@ async fn push_pull_request_inner(
                     repo,
                     pr.number,
                     &created_anchor_commit_sha,
+                    items,
+                    source_path,
+                    SubmitReviewMode::AllowFallback,
+                )
+                .await
+                {
+                    Ok(outcome) => outcome,
+                    Err(error) => {
+                        if existing_pr_number.is_none()
+                            && let Err(cleanup_err) = close_pr(owner, repo, pr.number).await
+                        {
+                            tracing::warn!(
+                                "Cleanup after comment submission failure also failed: {cleanup_err}"
+                            );
+                        }
+                        return Err(error.into_report());
+                    }
+                }
+            }
+            Err(SubmitReviewError::UnresolvedInlinePath) => {
+                match submit_github_review(
+                    owner,
+                    repo,
+                    pr.number,
+                    &initial_review_commit_sha,
                     items,
                     source_path,
                     SubmitReviewMode::AllowFallback,
@@ -1020,7 +1061,19 @@ async fn submit_github_review(
                     return Err(SubmitReviewError::NeedsAnchorCommit);
                 }
 
-                if !is_missing_anchor_error(&e.message) {
+                if matches!(mode, SubmitReviewMode::RequireInline)
+                    && is_unresolved_inline_path_error(&e.message)
+                {
+                    tracing::debug!(
+                        "GitHub rejected inline comments because the path could not be resolved; signalling fallback-only submission: {}",
+                        e.message
+                    );
+                    return Err(SubmitReviewError::UnresolvedInlinePath);
+                }
+
+                if !is_missing_anchor_error(&e.message)
+                    && !is_unresolved_inline_path_error(&e.message)
+                {
                     return Err(SubmitReviewError::Other(eyre!(
                         "Failed to submit pull request comments: {e}"
                     )));
@@ -1240,6 +1293,26 @@ mod tests {
         ));
         assert!(!is_missing_anchor_error(
             "Validation Failed: body is too long"
+        ));
+    }
+
+    #[test]
+    fn test_is_unresolved_inline_path_error_matches_path_signals() {
+        assert!(is_unresolved_inline_path_error(
+            "{\"message\":\"Unprocessable Entity\",\"errors\":[\"Path could not be resolved\"]}"
+        ));
+        assert!(is_unresolved_inline_path_error(
+            "Validation Failed: pull request review comment path is invalid"
+        ));
+    }
+
+    #[test]
+    fn test_is_unresolved_inline_path_error_rejects_unrelated_422s() {
+        assert!(!is_unresolved_inline_path_error(
+            "Validation Failed: commit_id is not part of the pull request"
+        ));
+        assert!(!is_unresolved_inline_path_error(
+            "Validation Failed: line must be part of the diff"
         ));
     }
 
