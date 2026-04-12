@@ -7,7 +7,15 @@ use stencila_codec::{
     PushDryRunOptions, PushResult, eyre::Result, stencila_format::Format, stencila_schema::Node,
 };
 
-/// Remote document services
+/// Supported remote services and endpoint families.
+///
+/// A [`RemoteService`] classifies the kind of external endpoint a remote URL
+/// refers to and exposes the capabilities needed to interact with it.
+///
+/// Most variants correspond to services that host remote document versions of a
+/// local Stencila document. Some, such as GitHub pull requests, are better
+/// understood as remote review or exchange endpoints that still participate in
+/// the same local-path-to-remote mapping model.
 #[derive(Debug, Clone, Copy)]
 pub enum RemoteService {
     /// Google Docs / Drive
@@ -18,6 +26,9 @@ pub enum RemoteService {
 
     /// GitHub Issues
     GitHubIssues,
+
+    /// GitHub Pull Requests
+    GitHubPullRequests,
 
     /// Stencila Email
     StencilaEmail,
@@ -31,10 +42,11 @@ impl FromStr for RemoteService {
             "gdoc" | "gdocs" => Ok(RemoteService::GoogleDocs),
             "m365" => Ok(RemoteService::Microsoft365),
             "ghi" => Ok(RemoteService::GitHubIssues),
+            "ghpr" => Ok(RemoteService::GitHubPullRequests),
             "email" => Ok(RemoteService::StencilaEmail),
             _ => {
                 let url = Url::parse(s).map_err(|_| {
-                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'ghi', 'email', or a full URL.")
+                        eyre!("Invalid target or service: `{s}`. Use 'gdoc', 'm365', 'ghi', 'ghpr', 'email', or a full URL.")
                     })?;
                 RemoteService::from_url(&url)
                     .ok_or_else(|| eyre!("URL {url} is not from a supported remote service"))
@@ -44,37 +56,40 @@ impl FromStr for RemoteService {
 }
 
 impl RemoteService {
-    /// Get the CLI value name
+    /// The shorthand name used in CLI arguments.
     pub fn cli_name(&self) -> &str {
         match self {
             Self::GoogleDocs => "gdoc",
             Self::Microsoft365 => "m365",
             Self::GitHubIssues => "ghi",
+            Self::GitHubPullRequests => "ghpr",
             Self::StencilaEmail => "email",
         }
     }
 
-    /// Get the display name for user-facing messages
+    /// A singular display name for user-facing messages.
     pub fn display_name(&self) -> &str {
         match self {
             Self::GoogleDocs => "Google Doc",
             Self::Microsoft365 => "Microsoft 365 doc",
             Self::GitHubIssues => "GitHub Issue",
+            Self::GitHubPullRequests => "GitHub pull request",
             Self::StencilaEmail => "Stencila Email attachment",
         }
     }
 
-    /// Get the plural display name for user-facing messages
+    /// A plural display name for user-facing messages.
     pub fn display_name_plural(&self) -> &str {
         match self {
             Self::GoogleDocs => "Google Docs",
             Self::Microsoft365 => "Microsoft 365",
             Self::GitHubIssues => "GitHub Issues",
+            Self::GitHubPullRequests => "GitHub pull requests",
             Self::StencilaEmail => "Stencila Email",
         }
     }
 
-    /// Check if a URL matches this remote service
+    /// Whether a URL belongs to this remote service family.
     pub fn matches_url(&self, url: &Url) -> bool {
         match self {
             Self::GoogleDocs => url.host_str() == Some("docs.google.com"),
@@ -91,16 +106,20 @@ impl RemoteService {
             Self::GitHubIssues => {
                 url.host_str() == Some("github.com") && url.path().contains("/issues/")
             }
+            Self::GitHubPullRequests => {
+                url.host_str() == Some("github.com") && url.path().contains("/pull/")
+            }
             Self::StencilaEmail => stencila_cloud::email::matches_url(url),
         }
     }
 
-    /// Get the remote service from a URL
+    /// Infer the remote service from a URL.
     pub fn from_url(url: &Url) -> Option<Self> {
         [
             Self::GoogleDocs,
             Self::Microsoft365,
             Self::GitHubIssues,
+            Self::GitHubPullRequests,
             Self::StencilaEmail,
         ]
         .iter()
@@ -108,37 +127,43 @@ impl RemoteService {
         .copied()
     }
 
-    /// Get the format used by this remote service for pull/push operations
+    /// The interchange format used when pulling from or pushing to this service.
+    ///
+    /// This is the format used at the service boundary before conversion to or
+    /// from the local source format.
     pub fn pull_format(&self) -> Format {
         match self {
             Self::GoogleDocs => Format::Docx,
             Self::Microsoft365 => Format::Docx,
             Self::GitHubIssues => Format::Docx,
+            Self::GitHubPullRequests => Format::Docx,
             Self::StencilaEmail => Format::Docx,
         }
     }
 
-    /// Check if this remote service is read-only (pull only, no push support)
+    /// Whether this service supports pull but not push.
     ///
-    /// Read-only remotes like GitHub Issues and Cloud Email can only be pulled from.
+    /// Read-only remotes can be used as sources of document content but not as
+    /// destinations for outbound updates.
     pub fn is_read_only(&self) -> bool {
         matches!(self, Self::GitHubIssues | Self::StencilaEmail)
     }
 
-    /// Check if this remote service is write-only (push only, no pull support)
+    /// Whether this service supports push but not pull.
     ///
-    /// Write-only remotes can only be pushed to.
-    /// Status calculations should not show "Diverged" or "Ahead" for these
-    /// since pulling is not supported.
-    ///
-    /// Note: Currently no remote services are write-only. Stencila Sites
-    /// are now managed via `stencila site push` instead of `stencila push`.
+    /// Write-only remotes participate in the remote model but cannot be treated
+    /// as bidirectional synchronization targets. Status calculations therefore
+    /// avoid states that imply a meaningful pull path.
     pub fn is_write_only(&self) -> bool {
-        // No remote services are currently write-only
-        false
+        matches!(self, Self::GitHubPullRequests)
     }
 
-    /// Push a document to this remote service
+    /// Push a document to this remote service.
+    ///
+    /// The exact behavior is service-specific. For classic document remotes this
+    /// usually updates or creates a remote document. For review-oriented remotes
+    /// such as GitHub pull requests, a push may also project document comments
+    /// and suggestions into service-native review constructs.
     pub async fn push(
         &self,
         node: &Node,
@@ -153,19 +178,22 @@ impl RemoteService {
             Self::GitHubIssues => {
                 eyre::bail!("GitHub Issues remote is read-only and does not support push")
             }
+            Self::GitHubPullRequests => {
+                stencila_codec_github::push_pull_request(node, path, title, url, dry_run).await
+            }
             Self::StencilaEmail => {
                 eyre::bail!("Email Attachments remote is read-only and does not support push")
             }
         }
     }
 
-    /// Pull a document from this remote service
+    /// Pull a document from this remote service.
     ///
-    /// Downloads the document and saves it to the specified path.
+    /// Downloads the service representation and saves it to the specified path.
     ///
-    /// The `target_path` is the path to the local document being updated.
-    /// Most services ignore this, but GitHub Issues and Cloud Email use it to select
-    /// the correct DOCX when multiple are attached.
+    /// `target_path` is the path to the local document being updated. Most
+    /// services ignore it, but multi-attachment or multi-document remotes such as
+    /// GitHub Issues and Stencila Email use it to choose the correct source item.
     pub async fn pull(&self, url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<()> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::pull(url, dest)
@@ -175,24 +203,32 @@ impl RemoteService {
                 .await
                 .map_err(|error| eyre!(error)),
             Self::GitHubIssues => stencila_codec_github::issues::pull(url, dest, target_path).await,
+            Self::GitHubPullRequests => {
+                eyre::bail!("GitHub pull request remote is push-only and does not support pull")
+            }
             Self::StencilaEmail => stencila_cloud::email::pull(url, dest, target_path, None).await,
         }
     }
 
-    /// Time that a remote was last modified as a Unix timestamp
+    /// Get the remote modification time as a Unix timestamp.
+    ///
+    /// Not all services expose a meaningful or supported remote modification time.
     pub async fn modified_at(&self, url: &Url) -> Result<u64> {
         match self {
             Self::GoogleDocs => stencila_codec_gdoc::modified_at(url).await,
             Self::Microsoft365 => stencila_codec_m365::modified_at(url).await,
             Self::GitHubIssues => stencila_codec_github::issues::modified_at(url).await,
+            Self::GitHubPullRequests => {
+                eyre::bail!("GitHub pull request remote does not support modified_at")
+            }
             Self::StencilaEmail => stencila_cloud::email::modified_at(url).await,
         }
     }
 
-    /// Pull all documents from a multi-file remote using embedded path metadata
+    /// Pull all documents from a multi-document remote using embedded path metadata.
     ///
-    /// Returns (target_path, temp_file) pairs for the caller to convert/merge,
-    /// or None if the remote doesn't support batch pull.
+    /// Returns `(target_path, temp_file)` pairs for the caller to convert or
+    /// merge, or `None` if the service does not support batch pull.
     pub async fn pull_all(
         &self,
         url: &Url,

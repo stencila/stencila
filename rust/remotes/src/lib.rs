@@ -1,36 +1,72 @@
-//! # Remote Tracking Module
+//! Resolve, track, and describe Stencila document remotes.
 //!
-//! This module manages remote synchronization for Stencila documents.
+//! A remote is an external endpoint linked to a local document path that Stencila
+//! can push to, pull from, or both. In many cases that endpoint is a remote
+//! document hosted by another service and in another format, such as Google Docs
+//! or Microsoft 365. In other cases it is a document exchange or review surface,
+//! such as a GitHub pull request, where pushing a document can also produce or
+//! update review artifacts like comments and suggestions.
 //!
-//! ## Core Types
+//! In that sense, remotes play a similar role for documents that Git plays for
+//! source code and DVC plays for data: they connect a local document in the
+//! workspace to a corresponding remote representation or exchange endpoint in
+//! another system.
 //!
-//! - [`RemoteInfo`]: Unified type containing all remote data (config, timestamps, watch info)
-//! - [`RemoteEntries`]: Maps file paths → remote URLs → RemoteInfo
+//! This crate is the coordination layer for that model. It does not implement the
+//! service-specific push and pull logic itself; instead it:
 //!
-//! ## Data Sources
+//! - identifies which remote service a URL belongs to using [`RemoteService`]
+//! - resolves which remotes apply to a local path
+//! - merges shared configuration with local tracking state into [`RemoteInfo`]
+//! - records pull and push timestamps for future status checks
+//! - calculates synchronization status for display in the CLI and LSP
+//! - manages optional watch metadata for cloud-automated synchronization
 //!
-//! Remote information is combined from two sources:
+//! # Shared configuration vs local state
 //!
-//! 1. **`stencila.toml`**: Configuration (paths, URLs, watch IDs)
-//! 2. **`.stencila/remotes.json`**: Tracking timestamps (pulled_at, pushed_at)
+//! The remote model is intentionally split across two data sources:
+//!
+//! 1. `stencila.toml` stores the declarative, team-shareable mapping from local
+//!    workspace paths to remote targets, plus any persisted watch identifiers.
+//! 2. `.stencila/remotes.json` stores local operational state such as pull/push
+//!    timestamps and spread-variant argument bindings.
+//!
+//! These are merged at runtime into [`RemoteInfo`].
 //!
 //! ```text
-//! stencila.toml          .stencila/remotes.json
-//! (config + watch)       (timestamps)
-//!       \                      /
-//!        \                    /
-//!         \                  /
-//!          v                v
-//!          RemoteInfo
-//!     (unified type)
+//! stencila.toml             .stencila/remotes.json
+//! (shared intent)           (local tracking state)
+//!       \                         /
+//!        \                       /
+//!         \                     /
+//!          v                   v
+//!               RemoteInfo
 //! ```
 //!
-//! ## Key Functions
+//! # Scope of this crate
 //!
-//! - [`get_remotes_for_path()`]: Get all remotes configured for a specific file
-//! - [`get_all_remote_entries()`]: Get all files with remotes
-//! - [`update_remote_timestamp()`]: Update pull/push timestamps
-//! - [`calculate_remote_statuses()`]: Calculate sync status for remotes
+//! This crate is about document remotes. Stencila Sites are managed separately
+//! and are not part of this crate's main conceptual model.
+//!
+//! Not all remotes support the same capabilities:
+//!
+//! - some are bidirectional
+//! - some are pull-only
+//! - some are push-only
+//! - some support watch-based automation
+//!
+//! The important invariant is not symmetry, but that a remote is a stable
+//! external target associated with a local document path.
+//!
+//! # Key types and entry points
+//!
+//! - [`RemoteService`]: classification and capability dispatch for supported services
+//! - [`RemoteInfo`]: merged view of configured and tracked data for one remote
+//! - [`RemoteEntries`]: all tracked/configured remotes indexed by local path and URL
+//! - [`get_remotes_for_path`]: resolve remotes for one local path
+//! - [`get_all_remote_entries`]: enumerate all known remotes in a workspace
+//! - [`update_remote_timestamp`]: record successful pull/push activity
+//! - [`calculate_remote_statuses`]: compare local and remote state to derive status
 
 use std::{
     collections::{BTreeMap, HashSet},
@@ -38,7 +74,7 @@ use std::{
 };
 
 use clap::ValueEnum;
-use eyre::Result;
+use eyre::{Result, bail};
 use indexmap::IndexMap;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
@@ -52,47 +88,68 @@ use stencila_dirs::{closest_stencila_dir, closest_workspace_dir};
 mod service;
 pub use service::RemoteService;
 
-/// Type alias for remote tracking entries in .stencila/remotes.json
+/// Remote entries indexed by local path and remote URL.
 ///
-/// Maps file paths to a map of remote URLs to tracking data.
-/// URLs are serialized as strings in JSON but use Url type in Rust.
+/// The outer map is keyed by workspace-relative file paths. The inner map is
+/// keyed by remote URLs. Each value is a [`RemoteInfo`] describing the merged
+/// configured and tracked state for that local-path/remote pair.
+///
+/// In persisted JSON, URLs are serialized as strings even though Rust uses [`Url`].
 pub type RemoteEntries = BTreeMap<PathBuf, IndexMap<Url, RemoteInfo>>;
 
-/// Remote information combining config and tracking data
+/// The merged view of one configured or tracked remote for a local path.
 ///
-/// This unified type contains all information about a remote:
-/// - Configuration from stencila.toml (url, path, etc.)
-/// - Tracking timestamps from .stencila/remotes.json
-/// - Watch configuration from stencila.toml
+/// [`RemoteInfo`] combines:
+///
+/// - declarative configuration from `stencila.toml`
+/// - local tracking state from `.stencila/remotes.json`
+/// - optional watch metadata associated with the remote mapping
+///
+/// It is the primary type used by the CLI and LSP when listing remotes,
+/// choosing targets, or calculating status.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RemoteInfo {
-    /// Remote URL from config
+    /// The remote endpoint URL.
+    ///
+    /// This may identify a remote document directly, or another remote exchange
+    /// surface such as a review-oriented target.
     #[serde(skip, default = "RemoteInfo::default_url")]
     pub url: Url,
 
-    /// File path from stencila.toml (workspace-relative)
+    /// The configured workspace-relative path pattern that matched this remote.
+    ///
+    /// This usually comes from `stencila.toml` and may be a file path or a
+    /// directory-like path that matched the local file being resolved.
     #[serde(skip, default = "RemoteInfo::default_path")]
     pub path: String,
 
-    /// Last time pulled from this remote (Unix timestamp in seconds)
+    /// The last successful pull time recorded for this local-path/remote pair.
+    ///
+    /// Stored as a Unix timestamp in seconds in `.stencila/remotes.json`.
     pub pulled_at: Option<u64>,
 
-    /// Last time pushed to this remote (Unix timestamp in seconds)
+    /// The last successful push time recorded for this local-path/remote pair.
+    ///
+    /// Stored as a Unix timestamp in seconds in `.stencila/remotes.json`.
     pub pushed_at: Option<u64>,
 
-    /// The watch ID from Stencila Cloud if watching is enabled
+    /// The cloud watch identifier, if watch automation is enabled for this remote.
     pub watch_id: Option<String>,
 
-    /// The watch direction (from stencila.toml or Cloud API)
+    /// The watch direction, if known.
+    ///
+    /// This may come from configuration or from the cloud API when watch details
+    /// are enriched elsewhere.
     pub watch_direction: Option<WatchDirection>,
 
-    /// Arguments used when pushing to this remote (for spread variants)
+    /// Bound arguments for a spread-generated remote variant, if any.
     ///
-    /// When a document is pushed with spread parameters, each variant is tracked
-    /// with its specific argument values. This allows matching variants on
-    /// subsequent pushes.
+    /// When a document is pushed as multiple spread variants, each resulting
+    /// remote target can be tracked with the concrete argument values that
+    /// produced it. This allows later pushes to match a local run to the same
+    /// remote variant.
     pub arguments: Option<std::collections::HashMap<String, String>>,
 }
 
@@ -107,13 +164,16 @@ impl RemoteInfo {
         ".".to_string()
     }
 
-    /// Check if this remote is being watched
+    /// Whether this remote currently has an associated watch identifier.
     pub fn is_watched(&self) -> bool {
         self.watch_id.is_some()
     }
 }
 
-/// The direction of synchronization for a watched remote
+/// Direction of synchronization for a watched remote.
+///
+/// A watch is optional cloud-managed automation attached to a remote mapping.
+/// The direction determines which side initiates synchronized change handling.
 #[derive(
     Debug,
     Default,
@@ -130,18 +190,21 @@ impl RemoteInfo {
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
 pub enum WatchDirection {
-    /// Bi-directional sync: changes from remote create PRs, changes to repo push to remote
+    /// Bidirectional automation.
+    ///
+    /// Remote changes can create pull requests, and repository changes can be
+    /// pushed back to the remote.
     #[default]
     Bi,
 
-    /// One-way sync from remote: only remote changes create PRs
+    /// One-way automation from remote to repository.
     FromRemote,
 
-    /// One-way sync to remote: only repo changes push to remote
+    /// One-way automation from repository to remote.
     ToRemote,
 }
 
-/// The pull request mode for a watched remote
+/// Pull request mode used by watch automation.
 #[derive(
     Debug,
     Default,
@@ -158,19 +221,22 @@ pub enum WatchDirection {
 #[serde(rename_all = "kebab-case")]
 #[strum(serialize_all = "kebab-case")]
 pub enum WatchPrMode {
-    /// Create PRs as drafts (default)
+    /// Create pull requests as drafts.
     #[default]
     Draft,
 
-    /// Create PRs ready for review
+    /// Create pull requests ready for review.
     Ready,
 }
 
-/// Create a watch and save the watch ID to config
+/// Create cloud watch automation for a remote and persist its watch ID.
 ///
-/// This is a shared helper for push, pull, and watch commands.
-/// Validation (e.g., file on default branch for push) should be done
-/// by the caller before calling this function.
+/// This helper is shared by the push, pull, and watch commands. It creates the
+/// watch through Stencila Cloud and stores the returned watch ID in
+/// `stencila.toml` so the watch becomes part of the shared remote mapping.
+///
+/// Preconditions, such as validating that a file is eligible to participate in
+/// watch automation, are the responsibility of the caller.
 ///
 /// # Arguments
 ///
@@ -220,29 +286,30 @@ pub async fn create_and_save_watch(
     Ok(response.id)
 }
 
-/// Remote tracking status indicating synchronization state
+/// Synchronization status for a local-path/remote pair.
 ///
-/// This enum represents the synchronization status between a local file
-/// and its remote counterpart (e.g., Google Docs, Microsoft 365, etc.)
+/// The meaning of each status depends on the remote's capabilities. For example,
+/// write-only remotes do not meaningfully support all status transitions that a
+/// bidirectional document remote does.
 #[derive(Debug, Default, Display, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum RemoteStatus {
-    /// Status is unknown (no modification times available)
+    /// The relationship could not be determined.
     #[default]
     Unknown,
 
-    /// There is an entry for the file but that path no longer exists in the workspace directory
+    /// The local path no longer exists in the workspace.
     Deleted,
 
-    /// Remote has changes that need to be pulled
+    /// The remote appears newer than the local file and may need to be pulled.
     Ahead,
 
-    /// Local file has changes that need to be pushed
+    /// The local file appears newer than the remote and may need to be pushed.
     Behind,
 
-    /// Both local and remote have changes since last sync
+    /// Both local and remote appear to have changed since the last known sync point.
     Diverged,
 
-    /// Local and remote are in sync
+    /// Local and remote appear synchronized within the configured tolerances.
     Synced,
 }
 
@@ -253,15 +320,17 @@ pub const LOCAL_TOLERANCE_SECS: u64 = 5;
 /// (accounts for cloud service processing delays)
 pub const REMOTE_TOLERANCE_SECS: u64 = 30;
 
-/// Calculate synchronization status for all remotes
+/// Calculate synchronization status for a set of remotes for one local path.
 ///
-/// This function:
-/// - Fetches remote modification timestamps from each remote service in parallel
-/// - Compares remote modification times with local modification times
-/// - Considers `pushed_at` and `pulled_at` timestamps to detect divergence
-/// - Applies tolerance values to account for timing variances
+/// For each remote this function:
 ///
-/// Returns a map of URL to (remote_modified_at, status) tuples
+/// - fetches remote modification metadata in parallel where supported
+/// - compares remote and local modification times
+/// - uses recorded `pushed_at` and `pulled_at` timestamps as the last known sync point
+/// - applies tolerance windows to account for filesystem and service timing skew
+/// - adapts status interpretation for capability-limited remotes such as write-only ones
+///
+/// Returns a map from remote URL to `(remote_modified_at, status)`.
 pub async fn calculate_remote_statuses(
     remotes: &IndexMap<Url, RemoteInfo>,
     local_status: RemoteStatus,
@@ -287,8 +356,11 @@ pub async fn calculate_remote_statuses(
                 Some(RemoteService::GitHubIssues) => {
                     stencila_codec_github::issues::modified_at(url).await
                 }
+                Some(RemoteService::GitHubPullRequests) => {
+                    bail!("GitHub pull request remotes do not support remote status checks")
+                }
                 Some(RemoteService::StencilaEmail) => stencila_cloud::email::modified_at(url).await,
-                None => eyre::bail!("Unsupported remote service: {url}"),
+                None => bail!("Unsupported remote service: {url}"),
             }
         }
         .await
@@ -400,7 +472,9 @@ pub async fn calculate_remote_statuses(
     join_all(futures).await.into_iter().collect()
 }
 
-/// Read remote entries from `.stencila/remotes.json`
+/// Read remote tracking state from `.stencila/remotes.json`.
+///
+/// This file stores local operational state and may legitimately be absent.
 pub async fn read_remote_entries(stencila_dir: &Path) -> Result<RemoteEntries> {
     let remotes_file = stencila_dir.join("remotes.json");
 
@@ -414,7 +488,7 @@ pub async fn read_remote_entries(stencila_dir: &Path) -> Result<RemoteEntries> {
     Ok(entries)
 }
 
-/// Write remote entries to `.stencila/remotes.json`
+/// Write remote tracking state to `.stencila/remotes.json`.
 pub async fn write_remote_entries(stencila_dir: &Path, entries: &RemoteEntries) -> Result<()> {
     let remotes_file = stencila_dir.join("remotes.json");
 
@@ -424,11 +498,11 @@ pub async fn write_remote_entries(stencila_dir: &Path, entries: &RemoteEntries) 
     Ok(())
 }
 
-/// Remove remote tracking entries for a specific Stencila Site
+/// Remove tracking entries associated with a deleted Stencila Site.
 ///
-/// This function removes all entries from `.stencila/remotes.json` that are
-/// associated with the given site ID. This should be called when a site is
-/// deleted to clean up implicit remote tracking.
+/// Sites are managed separately from document remotes, but older or implicit
+/// tracking entries may still exist in `.stencila/remotes.json`. This helper
+/// cleans up those local tracking records.
 ///
 /// # Arguments
 ///
@@ -491,14 +565,12 @@ fn resolve_workspace_path(path_key: &str, workspace_dir: &Path) -> PathBuf {
     }
 }
 
-/// Find all remotes that match a given file path from config
+/// Find configured remotes whose path mapping applies to a file.
 ///
-/// Matches based on:
-/// - Exact file match
-/// - Directory match (implicitly recursive)
-/// - Optional: glob pattern match (future enhancement)
+/// Matching currently supports exact file matches and directory-style prefix
+/// matches. Directory paths are treated as implicitly recursive.
 ///
-/// Returns tuples of (path_key, url, watch_id)
+/// Returns `(path_key, url, watch_id)` tuples derived from `stencila.toml`.
 fn find_remotes_for_path(
     file_path: &Path,
     config: &Config,
@@ -566,10 +638,18 @@ fn path_matches(config_path: &Path, file_path: &Path, workspace_dir: &Path) -> R
     Ok(false)
 }
 
-/// Get all remotes for a file path, combining config and tracking data
+/// Resolve all configured remotes for a local path.
 ///
-/// This is the main function to use when resolving remotes for push/pull operations.
-/// It loads the config, finds matching remotes, and merges with tracking timestamps.
+/// This is the main entry point for push, pull, open, and status operations that
+/// start from a local file path. It:
+///
+/// - loads the shared remote mappings from `stencila.toml`
+/// - finds mappings that apply to the supplied path
+/// - merges those mappings with local tracking state from `.stencila/remotes.json`
+///
+/// It returns only remotes that are configured for the path. For tracked-but-not-
+/// configured remotes, such as spread-generated variants, use
+/// [`get_tracked_remotes_for_path`].
 pub async fn get_remotes_for_path(
     path: &Path,
     workspace_dir_opt: Option<&Path>,
@@ -624,14 +704,15 @@ pub async fn get_remotes_for_path(
     Ok(results)
 }
 
-/// Get all tracked remotes for a path from the tracking file
+/// Get all tracked remotes for a local path from `.stencila/remotes.json`.
 ///
-/// Unlike `get_remotes_for_path`, this function reads directly from `.stencila/remotes.json`
-/// and returns all tracked remotes for the given path, including spread variants that may
-/// not have corresponding entries in `stencila.toml`.
+/// Unlike [`get_remotes_for_path`], this function does not require a matching
+/// `stencila.toml` entry. It returns all tracked remotes for the path, including
+/// spread-generated variants that may exist only in local operational state.
 ///
-/// This is useful for spread push operations where variants are tracked in the remotes file
-/// but not configured in the TOML config.
+/// This is primarily useful for workflows that need to reconnect to previously
+/// created remote variants even when there is no explicit shared configuration
+/// entry for each variant.
 pub async fn get_tracked_remotes_for_path(path: &Path) -> Result<Vec<RemoteInfo>> {
     let workspace = closest_workspace_dir(path, false).await?;
     let stencila_dir = match closest_stencila_dir(path, false).await {
@@ -672,7 +753,11 @@ pub async fn get_tracked_remotes_for_path(path: &Path) -> Result<Vec<RemoteInfo>
     Ok(results)
 }
 
-/// Update remote tracking timestamps after push or pull
+/// Update local tracking timestamps after a successful push or pull.
+///
+/// This writes to `.stencila/remotes.json`, creating the local-path/remote pair
+/// if necessary. It records operational state only; it does not create shared
+/// remote configuration unless that has already been done elsewhere.
 pub async fn update_remote_timestamp(
     path: &Path,
     url: &str,
@@ -754,10 +839,10 @@ pub async fn update_remote_timestamp(
     Ok(())
 }
 
-/// Update remote tracking with spread arguments after push
+/// Update local tracking state for a spread-generated remote variant.
 ///
-/// This is used when pushing spread variants to track each variant's URL
-/// along with its specific argument values.
+/// In addition to recording `pushed_at`, this stores the concrete argument values
+/// that produced the remote so later runs can match the same variant.
 pub async fn update_spread_remote_timestamp(
     path: &Path,
     url: &str,
@@ -830,10 +915,7 @@ pub async fn update_spread_remote_timestamp(
     Ok(())
 }
 
-/// Find a remote matching the given arguments
-///
-/// Searches through a list of remotes to find one with matching argument values.
-/// Returns the first remote that has arguments matching exactly.
+/// Find the tracked remote variant whose bound arguments match exactly.
 pub fn find_remote_for_arguments<'a>(
     remotes: &'a [RemoteInfo],
     arguments: &std::collections::HashMap<String, String>,
@@ -847,10 +929,10 @@ pub fn find_remote_for_arguments<'a>(
     })
 }
 
-/// Expand a path into a list of files
+/// Expand a configured path into concrete files.
 ///
-/// If the path is a file, returns it as-is.
-/// If the path is a directory, recursively finds all files within it.
+/// If the path is a file, returns it unchanged. If it is a directory, returns
+/// all descendant files, excluding hidden entries.
 pub fn expand_path_to_files(path: &Path) -> Result<Vec<PathBuf>> {
     if path.is_file() {
         return Ok(vec![path.to_path_buf()]);
@@ -887,15 +969,16 @@ fn collect_files_recursive(dir: &Path, files: &mut Vec<PathBuf>) -> Result<()> {
     Ok(())
 }
 
-/// Get all remote entries for files with configured remotes
+/// Enumerate all known remotes in a workspace.
 ///
-/// This function enumerates all files that have remote configurations in stencila.toml
-/// and combines tracking data from two sources:
-/// 1. stencila.toml - Remote configurations and watch IDs
-/// 2. .stencila/remotes.json - Pull/push timestamps
+/// This function starts from `stencila.toml`, expands configured file and
+/// directory mappings into concrete paths, then merges in local tracking data
+/// from `.stencila/remotes.json`.
 ///
-/// Returns `None` if no remotes are configured in stencila.toml.
-/// Returns `Some(RemoteEntries)` with all files and their remote data.
+/// It also includes tracked remotes that are not currently represented by an
+/// explicit config entry, such as spread-generated variants.
+///
+/// Returns `None` when the workspace has no known remotes.
 pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<RemoteEntries>> {
     // Load config to get remote configurations
     let config = stencila_config::get()?;
@@ -995,10 +1078,10 @@ pub async fn get_all_remote_entries(workspace_dir: &Path) -> Result<Option<Remot
     }
 }
 
-/// Update the watch ID for a remote in stencila.toml configuration
+/// Update the persisted watch ID for a configured remote.
 ///
-/// This stores or removes a watch ID in the configuration file for a specific
-/// remote URL. Watch IDs are assigned by Stencila Cloud when watching is enabled.
+/// This modifies `stencila.toml`, not `.stencila/remotes.json`, because watch IDs
+/// are part of the shared remote mapping rather than local operational state.
 ///
 /// # Arguments
 ///
@@ -1010,11 +1093,12 @@ pub async fn update_watch_id(path: &Path, url: &str, watch_id: Option<String>) -
     Ok(())
 }
 
-/// Remove watch_ids that no longer exist on Stencila Cloud
+/// Remove persisted watch IDs that no longer exist in Stencila Cloud.
 ///
-/// Takes a set of valid watch IDs and removes any watch_id from the stencila.toml
-/// config that is not in the provided set. Returns a list of removed watches
-/// for display purposes.
+/// This reconciles locally configured watch IDs against a set of valid watch IDs
+/// returned by the cloud API. Any missing IDs are removed from `stencila.toml`.
+///
+/// Returns details of removed watches for display to the user.
 pub async fn remove_deleted_watches(
     path: &Path,
     valid_watch_ids: &HashSet<String>,
