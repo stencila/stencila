@@ -4,9 +4,12 @@ use serde::{Deserialize, Serialize};
 use stencila_codec::eyre::{Result, bail, eyre};
 use stencila_codec::{PushDryRunFile, PushDryRunOptions, PushResult};
 
-use super::export::{
-    PullRequestComment, PullRequestCommentKind, PullRequestCommentResolution, PullRequestExport,
-    PullRequestSide, PullRequestTarget,
+use super::{
+    activity::parse_github_pull_request_url,
+    export::{
+        PullRequestComment, PullRequestCommentKind, PullRequestCommentResolution,
+        PullRequestExport, PullRequestSide, PullRequestTarget,
+    },
 };
 use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
 
@@ -30,11 +33,13 @@ async fn push_pull_request_inner(
     repo: &str,
     source_path: &str,
     source_commit: &str,
+    branch_base_sha: &str,
     base_branch: &str,
     branch_name: &str,
     source_text: &str,
     has_source_changes: bool,
     items: &[PullRequestComment],
+    existing_pr_number: Option<u64>,
 ) -> Result<(
     PullRequestResponse,
     Option<String>,
@@ -46,11 +51,7 @@ async fn push_pull_request_inner(
     let use_dummy_change =
         has_source_changes && !has_comments && should_use_dummy_change(source_text);
 
-    let mut current_sha = if has_source_changes || matches!(source_commit, "dirty" | "untracked") {
-        resolve_default_branch_head(owner, repo).await?
-    } else {
-        source_commit.to_string()
-    };
+    let mut current_sha = branch_base_sha.to_string();
 
     let content_commit_sha = if has_source_changes {
         let content_commit_sha = if use_dummy_change {
@@ -88,18 +89,26 @@ async fn push_pull_request_inner(
         None
     };
 
-    let pr: PullRequestResponse = post_json(
-        &api_url(&format!("/repos/{owner}/{repo}/pulls")),
-        &CreatePullRequest {
-            title: &pr_title(source_path, has_comments),
-            body: pr_body(has_source_changes, has_comments, use_dummy_change),
-            head: branch_name,
-            base: base_branch,
-        },
-        owner,
-        repo,
-    )
-    .await?;
+    let pr = if let Some(pr_number) = existing_pr_number {
+        let pr_url = format!("https://github.com/{owner}/{repo}/pull/{pr_number}");
+        PullRequestResponse {
+            number: pr_number,
+            html_url: pr_url,
+        }
+    } else {
+        post_json(
+            &api_url(&format!("/repos/{owner}/{repo}/pulls")),
+            &CreatePullRequest {
+                title: &pr_title(source_path, has_comments),
+                body: pr_body(has_source_changes, has_comments, use_dummy_change),
+                head: branch_name,
+                base: base_branch,
+            },
+            owner,
+            repo,
+        )
+        .await?
+    };
 
     let (comments_posted, fallbacks) = if let Some(anchor_commit_sha) = anchor_commit_sha.as_deref()
     {
@@ -140,13 +149,19 @@ async fn push_pull_request_inner(
 /// an optional anchor commit, and optional submitted comments.
 pub async fn push_pull_request_export(
     export: &mut PullRequestExport,
+    existing_pr_url: Option<&url::Url>,
 ) -> Result<PullRequestPushResult> {
-    let repo_url = export
-        .source
-        .repository
-        .as_deref()
-        .ok_or_else(|| eyre!("PullRequestExport.source.repository is required"))?;
-    let (owner, repo) = parse_repo(repo_url)?;
+    let (owner, repo) = if let Some(url) = existing_pr_url {
+        let pr_ref = parse_github_pull_request_url(url)?;
+        (pr_ref.owner, pr_ref.repo)
+    } else {
+        let repo_url = export
+            .source
+            .repository
+            .as_deref()
+            .ok_or_else(|| eyre!("PullRequestExport.source.repository is required"))?;
+        parse_repo(repo_url)?
+    };
 
     let source_path = export
         .source
@@ -167,58 +182,100 @@ pub async fn push_pull_request_export(
         bail!("No GitHub PR actions are needed")
     }
 
-    let branch_base_sha =
-        if has_source_changes || matches!(source_commit.as_str(), "dirty" | "untracked") {
-            resolve_default_branch_head(&owner, &repo).await?
+    let (pr_number, pr_url, branch_base_sha, base_branch, branch_name, created_branch) =
+        if let Some(url) = existing_pr_url {
+            let pr_ref = parse_github_pull_request_url(url)?;
+            let pr: ExistingPullRequestResponse = get_json(
+                &api_url(&format!(
+                    "/repos/{owner}/{repo}/pulls/{}",
+                    pr_ref.pull_number
+                )),
+                &owner,
+                &repo,
+            )
+            .await?;
+
+            if pr.state != "open" {
+                bail!(
+                    "GitHub pull request #{} is not open and cannot be updated",
+                    pr.number
+                );
+            }
+
+            (
+                Some(pr.number),
+                Some(pr.html_url),
+                pr.head.sha,
+                pr.base.ref_,
+                pr.head.ref_,
+                false,
+            )
         } else {
-            source_commit.clone()
+            let branch_base_sha =
+                if has_source_changes || matches!(source_commit.as_str(), "dirty" | "untracked") {
+                    resolve_default_branch_head(&owner, &repo).await?
+                } else {
+                    source_commit.clone()
+                };
+
+            let repo_info: RepoInfoResponse =
+                get_json(&api_url(&format!("/repos/{owner}/{repo}")), &owner, &repo).await?;
+            let base_branch = repo_info.default_branch;
+
+            let timestamp = std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .unwrap_or_default()
+                .as_secs();
+            let branch_name = format!(
+                "stencila/ghpr-{}-{timestamp}",
+                short_commit(&branch_base_sha)
+            );
+
+            let _ref_resp: RefResponse = post_json(
+                &api_url(&format!("/repos/{owner}/{repo}/git/refs")),
+                &CreateRefRequest {
+                    ref_: &format!("refs/heads/{branch_name}"),
+                    sha: &branch_base_sha,
+                },
+                &owner,
+                &repo,
+            )
+            .await?;
+
+            (None, None, branch_base_sha, base_branch, branch_name, true)
         };
-
-    let repo_info: RepoInfoResponse =
-        get_json(&api_url(&format!("/repos/{owner}/{repo}")), &owner, &repo).await?;
-    let base_branch = &repo_info.default_branch;
-
-    let timestamp = std::time::SystemTime::now()
-        .duration_since(std::time::UNIX_EPOCH)
-        .unwrap_or_default()
-        .as_secs();
-    let branch_name = format!(
-        "stencila/ghpr-{}-{timestamp}",
-        short_commit(&branch_base_sha)
-    );
-
-    let _ref_resp: RefResponse = post_json(
-        &api_url(&format!("/repos/{owner}/{repo}/git/refs")),
-        &CreateRefRequest {
-            ref_: &format!("refs/heads/{branch_name}"),
-            sha: &branch_base_sha,
-        },
-        &owner,
-        &repo,
-    )
-    .await?;
 
     let push_result = push_pull_request_inner(
         &owner,
         &repo,
         source_path,
         &source_commit,
-        base_branch,
+        &branch_base_sha,
+        &base_branch,
         &branch_name,
         &export.content.text,
         plan.has_source_changes || has_dummy_change,
         &export.items,
+        pr_number,
     )
     .await;
 
     let (pr, content_commit, anchor_commit, comments_posted, fallbacks) = match push_result {
         Ok(result) => result,
         Err(error) => {
-            if let Err(cleanup_err) = delete_branch(&owner, &repo, &branch_name).await {
+            if created_branch
+                && let Err(cleanup_err) = delete_branch(&owner, &repo, &branch_name).await
+            {
                 tracing::warn!("Cleanup after failure also failed: {cleanup_err}");
             }
             return Err(error);
         }
+    };
+
+    let pr = if let (Some(number), Some(html_url)) = (pr_number, pr_url) {
+        PullRequestResponse { number, html_url }
+    } else {
+        pr
     };
 
     export.target = PullRequestTarget {
@@ -312,6 +369,23 @@ struct CreatePullRequest<'a> {
 struct PullRequestResponse {
     number: u64,
     html_url: String,
+}
+
+/// Response from `GET /repos/{owner}/{repo}/pulls/{pull_number}`.
+#[derive(Deserialize)]
+struct ExistingPullRequestResponse {
+    number: u64,
+    html_url: String,
+    state: String,
+    head: PullRequestBranchRef,
+    base: PullRequestBranchRef,
+}
+
+#[derive(Deserialize)]
+struct PullRequestBranchRef {
+    #[serde(rename = "ref")]
+    ref_: String,
+    sha: String,
 }
 
 /// Request body for `POST /repos/{owner}/{repo}/pulls/{pull_number}/reviews`.
@@ -779,10 +853,11 @@ async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str) -> Result<
     #[derive(Serialize)]
     struct UpdateRefRequest<'a> {
         sha: &'a str,
+        force: bool,
     }
 
     let url = api_url(&format!("/repos/{owner}/{repo}/git/refs/heads/{branch}"));
-    patch_json(&url, &UpdateRefRequest { sha }, owner, repo).await
+    patch_json(&url, &UpdateRefRequest { sha, force: false }, owner, repo).await
 }
 
 /// Submit GitHub inline comments for a PR, with 422 fallback.

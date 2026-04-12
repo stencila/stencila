@@ -541,12 +541,6 @@ impl Cli {
         };
 
         if matches!(service, RemoteService::GitHubPullRequests) {
-            if existing_url.is_some() {
-                bail!(
-                    "`ghpr` does not update an existing remote URL. Use `--to ghpr` without a URL so Stencila can create or reuse the GitHub PR workflow from repository provenance."
-                );
-            }
-
             if self.watch {
                 bail!(
                     "`--watch` is not supported with `--to ghpr`. GitHub PR pushes are repository-native and do not currently create Stencila Cloud watches."
@@ -589,11 +583,14 @@ impl Cli {
                 source_path,
                 used_generated_source_path,
                 used_dummy_change,
-                pr_number,
                 fallbacks,
                 ..
             } => {
-                message!("✅ Created GitHub pull request {}", url);
+                if existing_url.is_some() {
+                    message!("✅ Updated GitHub pull request {}", url);
+                } else {
+                    message!("✅ Created GitHub pull request {}", url);
+                }
                 if used_generated_source_path {
                     message!(
                         "ℹ️ No source path was embedded in the document, so `ghpr` created `{}`",
