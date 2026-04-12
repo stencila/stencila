@@ -706,18 +706,11 @@ fn pr_body(
     }
 }
 
-/// Create an anchor commit that makes every line of each reviewed file visible
-/// in the PR diff.
+/// Create an anchor commit with minimal end-of-file newline changes.
 ///
-/// GitHub only allows inline review comments on lines that appear in the PR
-/// diff for the submitted `commit_id`. To ensure all lines are commentable,
-/// we rewrite each file so that every line differs from the original — by
-/// appending a zero-width space (U+200B) to each line. This causes GitHub
-/// to show the entire file on the `RIGHT` side of the diff. The actual
-/// review content is in the review comments, not in the file modification.
-///
-/// `files` is a list of `(path, content)` pairs for every file that needs
-/// to appear in the diff.
+/// This mirrors the working site review PR approach: cycle each reviewed file
+/// through a small newline-only change so the PR has a minimal diff while still
+/// providing a file change for GitHub review comments to attach to.
 async fn create_anchor_commit(
     owner: &str,
     repo: &str,
@@ -731,18 +724,21 @@ async fn create_anchor_commit(
     )
     .await?;
 
-    // Rewrite every line of every file so the entire content appears in the
-    // PR diff. Appending a zero-width space to each line creates a per-line
-    // diff that makes every line commentable on the RIGHT side.
     let tree_entries: Vec<TreeEntry> = files
         .iter()
         .map(|(path, content)| {
-            let anchor_content: String = content
-                .lines()
-                .map(|line| format!("{line}\u{200B}"))
-                .collect::<Vec<_>>()
-                .join("\n")
-                + "\n";
+            let line_ending = if content.contains("\r\n") {
+                "\r\n"
+            } else {
+                "\n"
+            };
+            let double_ending = format!("{line_ending}{line_ending}");
+            let anchor_content = if content.ends_with(&double_ending) {
+                content[..content.len() - line_ending.len()].to_string()
+            } else {
+                format!("{content}{line_ending}")
+            };
+
             TreeEntry {
                 path: path.clone(),
                 mode: "100644".to_string(),
@@ -803,6 +799,27 @@ async fn submit_github_review(
     let (comments, fallback_items) = convert_to_review_comments(items, source_path);
     let mut all_fallback_items = fallback_items;
 
+    tracing::debug!(
+        pr_number,
+        anchor_commit_sha,
+        comment_count = comments.len(),
+        fallback_count = all_fallback_items.len(),
+        comment_paths = ?comments.iter().map(|comment| (&comment.path, comment.start_line, comment.line)).collect::<Vec<_>>(),
+        resolutions = ?items
+            .iter()
+            .map(|item| {
+                (
+                    item.source_path.as_deref().unwrap_or(source_path),
+                    item.range.start_line,
+                    item.range.end_line,
+                    &item.resolution,
+                    item.github_suggestion.is_some(),
+                )
+            })
+            .collect::<Vec<_>>(),
+        "Preparing GitHub PR review submission"
+    );
+
     let review_url = api_url(&format!("/repos/{owner}/{repo}/pulls/{pr_number}/reviews"));
 
     // First attempt: submit with inline comments
@@ -832,7 +849,7 @@ async fn submit_github_review(
         match result {
             Ok(_) => true,
             Err(e) if e.status == Some(422) => {
-                tracing::warn!(
+                tracing::debug!(
                     "GitHub rejected inline comments with 422, falling back to body-only submission: {}",
                     e.message
                 );
@@ -943,7 +960,7 @@ pub(crate) fn convert_to_review_comments<'a>(
             body,
             line,
             start_line,
-            side: start_line.map(|_| "RIGHT".to_string()).unwrap_or_default(),
+            side: "RIGHT".to_string(),
             start_side: start_line.map(|_| "RIGHT".into()),
         });
     }
@@ -1151,7 +1168,7 @@ mod tests {
         assert_eq!(comments.len(), 1);
         assert_eq!(comments[0].line, 4);
         assert_eq!(comments[0].start_line, None);
-        assert_eq!(comments[0].side, "");
+        assert_eq!(comments[0].side, "RIGHT");
         assert_eq!(comments[0].start_side, None);
         assert!(fallbacks.is_empty());
     }

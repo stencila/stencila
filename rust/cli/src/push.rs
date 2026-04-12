@@ -541,19 +541,6 @@ impl Cli {
         };
 
         if matches!(service, RemoteService::GitHubPullRequests) {
-            if !path.extension().is_some_and(|extension| extension == "md") {
-                let stem = path
-                    .file_stem()
-                    .and_then(|stem| stem.to_str())
-                    .filter(|stem| !stem.is_empty())
-                    .unwrap_or("document");
-                let example_source_path = format!("{stem}.md");
-                message!(
-                    "ℹ️ `ghpr` will derive pull request content from document provenance or encode a new source file such as `{}` when no source path is embedded.",
-                    example_source_path
-                );
-            }
-
             if existing_url.is_some() {
                 bail!(
                     "`ghpr` does not update an existing remote URL. Use `--to ghpr` without a URL so Stencila can create or reuse the GitHub PR workflow from repository provenance."
@@ -603,33 +590,26 @@ impl Cli {
                 used_generated_source_path,
                 used_dummy_change,
                 pr_number,
-                pull_request_branch,
-                comments_posted,
                 fallbacks,
+                ..
             } => {
-                message!("✅ Successfully created GitHub pull request {}", url);
-                message!(
-                    "ℹ️ PR #{} on branch `{}` for source path `{}`",
-                    pr_number,
-                    pull_request_branch,
-                    source_path
-                );
+                message!("✅ Created GitHub pull request {}", url);
                 if used_generated_source_path {
                     message!(
-                        "ℹ️ No source path was embedded in the document, so `ghpr` generated `{}`",
+                        "ℹ️ No source path was embedded in the document, so `ghpr` created `{}`",
                         source_path
                     );
                 }
                 if used_dummy_change {
                     message!(
-                        "ℹ️ Added a placeholder file change because no substantive content diff was detected"
+                        "ℹ️ Added a placeholder change because there was no source diff to open the PR with"
                     );
                 }
-                if comments_posted > 0 {
-                    message!("💬 Posted {} inline review comments", comments_posted);
-                }
                 if fallbacks > 0 {
-                    message!("⚠️ {} review items were added as fallback text", fallbacks);
+                    message!(
+                        "⚠️ {} review items could not be anchored inline and were added to the review body",
+                        fallbacks
+                    );
                 }
                 url
             }
