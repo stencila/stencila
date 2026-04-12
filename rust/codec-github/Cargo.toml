@@ -7,6 +7,7 @@ edition = "2024"
 base64 = { workspace = true }
 chrono = { workspace = true }
 directories = { workspace = true }
+futures = { workspace = true }
 glob = { workspace = true }
 governor = { workspace = true }
 indexmap = { workspace = true }
@@ -15,6 +16,7 @@ regex = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+serde_with = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
@@ -24,7 +26,10 @@ stencila-codec-docx = { path = "../codec-docx" }
 stencila-codec-ipynb = { path = "../codec-ipynb" }
 stencila-codec-latex = { path = "../codec-latex" }
 stencila-codec-markdown = { path = "../codec-markdown" }
+stencila-codec-markdown-trait = { path = "../codec-markdown-trait" }
 stencila-codec-xlsx = { path = "../codec-xlsx" }
+stencila-node-strip = { path = "../node-strip" }
+stencila-node-suggestions = { path = "../node-suggestions" }
 stencila-secrets = { path = "../secrets" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }

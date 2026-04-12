@@ -1,0 +1,17 @@
+---
+repository: stencila/stencila
+path: rust/codec-github/tests/examples/mixed-1.smd
+commit: abcdef1234567890
+---
+
+A paragraph with {>>c1}commented text{<<c1} and a {++small ++}insertion.
+
+A second paragraph with a {--removable --}phrase.
+
+:++
+
+A proposed new paragraph.
+
+:++
+
+[>>c1]: Inline comment beside suggestion

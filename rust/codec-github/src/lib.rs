@@ -17,20 +17,17 @@ use stencila_codec_latex::LatexCodec;
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_codec_xlsx::XlsxCodec;
 
-pub mod client;
-pub mod decode;
+mod client;
+mod files;
 pub mod issues;
-pub mod responses;
-pub mod search_code;
-pub mod search_repos;
-pub mod search_users;
+pub mod pull_requests;
+mod search;
+
+use search::{CodeSearchItem, RepositorySearchItem, UserSearchItem};
 
 pub use client::{request, search_url};
-pub use issues::{GitHubIssueRef, parse_github_issue_url};
-pub use responses::{SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse};
-pub use search_code::CodeSearchItem;
-pub use search_repos::RepositorySearchItem;
-pub use search_users::UserSearchItem;
+pub use pull_requests::{export_pull_request, push_pull_request};
+pub use search::{SearchCodeResponse, SearchRepositoriesResponse, SearchUsersResponse};
 
 /// A codec for decoding GitHub REST API responses to Stencila Schema nodes
 ///
@@ -72,7 +69,7 @@ impl Codec for GithubCodec {
 impl GithubCodec {
     /// Check if an identifier is a supported GitHub URL
     pub fn supports_identifier(identifier: &str) -> bool {
-        decode::extract_github_identifier(identifier).is_some()
+        files::extract_github_identifier(identifier).is_some()
     }
 
     /// Decode a Stencila [`Node`] from a GitHub identifier (URL)
@@ -80,12 +77,12 @@ impl GithubCodec {
         identifier: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
-        let Some(file_info) = decode::extract_github_identifier(identifier) else {
+        let Some(file_info) = files::extract_github_identifier(identifier) else {
             bail!("Not a recognized GitHub URL")
         };
 
         // Fetch the raw content
-        let content_bytes = decode::fetch_github_file(&file_info).await?;
+        let content_bytes = files::fetch_github_file(&file_info).await?;
 
         // Determine the format from the file path
         let path = PathBuf::from(&file_info.path);

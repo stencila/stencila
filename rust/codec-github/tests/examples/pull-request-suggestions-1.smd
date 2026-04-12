@@ -1,0 +1,15 @@
+A {++suggested insertion++} in a paragraph.
+
+A {--suggested deletion in a --}paragraph.
+
+:++
+
+A suggested new paragraph.
+
+:++
+
+:--
+
+A suggested deleted paragraph.
+
+:--

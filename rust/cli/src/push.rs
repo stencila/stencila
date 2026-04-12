@@ -45,7 +45,7 @@ pub struct Cli {
     #[arg(long, conflicts_with_all = ["path", "url", "to", "new", "watch", "spread"])]
     outputs: bool,
 
-    /// Push to remote document services (Google Docs, Microsoft 365)
+    /// Push to remote document services (Google Docs, Microsoft 365, GitHub PR)
     #[arg(long)]
     remotes: bool,
 
@@ -66,7 +66,7 @@ pub struct Cli {
 
     /// Select which remote service to push to
     ///
-    /// Use a service shorthand (e.g., "gdoc" or "m365") to select from tracked
+    /// Use a service shorthand (e.g., "gdoc", "m365", or "ghpr") to select from tracked
     /// remotes, or to create a new document when no remote is tracked.
     #[arg(long, short, conflicts_with = "url")]
     to: Option<String>,
@@ -168,6 +168,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Push to Microsoft 365</dim>
   <b>stencila push</> <g>document.smd</> <c>--to</> <g>m365</>
+
+  <dim># Push to GitHub as a pull request</dim>
+  <b>stencila push</> <g>document.docx</> <c>--to</> <g>ghpr</>
 
   <dim># Push with execution first</dim>
   <b>stencila push</> <g>report.smd</> <c>--</> <c>arg1=value1</>
@@ -295,8 +298,8 @@ impl Cli {
                 if url_str.contains('=') {
                     eyre!(
                         "Invalid URL: `{url_str}`\n\n\
-                         If this is an execution argument, use `--` to separate it:\n   \
-                         stencila push {path_display} -- {url_str}"
+                             If this is an execution argument, use `--` to separate it:\n   \
+                             stencila push {path_display} -- {url_str}"
                     )
                 } else {
                     eyre!("Invalid URL: {url_str}")
@@ -310,6 +313,7 @@ impl Cli {
             match service_str.as_str() {
                 "gdoc" | "gdocs" => (Some(RemoteService::GoogleDocs), None, self.args),
                 "m365" => (Some(RemoteService::Microsoft365), None, self.args),
+                "ghpr" => (Some(RemoteService::GitHubPullRequests), None, self.args),
                 "site" | "sites" => {
                     bail!(
                         "Stencila Sites pushes should use `stencila site push` instead of `stencila push --to site`"
@@ -327,7 +331,7 @@ impl Cli {
                             bail!("URL {url} is not from a supported remote service");
                         }
                     } else {
-                        bail!("Unknown service: `{service_str}`. Use 'gdoc' or 'm365'.");
+                        bail!("Unknown service: `{service_str}`. Use 'gdoc', 'm365', or 'ghpr'.");
                     }
                 }
             }
@@ -365,7 +369,7 @@ impl Cli {
 
             if remote_infos.is_empty() {
                 bail!(
-                    "No remotes configured for `{path_display}`. Specify a service to push to: `--to <gdoc|m365>`\n\nNote: For Stencila Sites, use `stencila site push` instead.",
+                    "No remotes configured for `{path_display}`. Specify a service to push to: `--to <gdoc|m365|ghpr>`\n\nNote: For Stencila Sites, use `stencila site push` instead.",
                 );
             }
 
@@ -464,7 +468,7 @@ impl Cli {
 
             if remote_infos.is_empty() {
                 bail!(
-                    "No remotes configured for `{path_display}`. Add remotes to stencila.toml or specify a service (gdoc/m365) to push to.\n\nNote: For Stencila Sites, use `stencila site push` instead.",
+                    "No remotes configured for `{path_display}`. Add remotes to stencila.toml or specify a service (gdoc/m365/ghpr) to push to.\n\nNote: For Stencila Sites, use `stencila site push` instead.",
                 );
             }
 
@@ -483,7 +487,7 @@ impl Cli {
                     .collect::<Vec<_>>()
                     .join("\n");
                 bail!(
-                    "No supported remotes configured for `{path_display}`:\n{urls_list}\n\nSpecify a service (gdoc/m365) to push to.",
+                    "No supported remotes configured for `{path_display}`:\n{urls_list}\n\nSpecify a service (gdoc/m365/ghpr) to push to.",
                 );
             }
 
@@ -536,6 +540,33 @@ impl Cli {
                 .map(|info| info.url.clone())
         };
 
+        if matches!(service, RemoteService::GitHubPullRequests) {
+            if !path.extension().is_some_and(|extension| extension == "md") {
+                let stem = path
+                    .file_stem()
+                    .and_then(|stem| stem.to_str())
+                    .filter(|stem| !stem.is_empty())
+                    .unwrap_or("document");
+                let example_source_path = format!("{stem}.md");
+                message!(
+                    "ℹ️ `ghpr` will derive pull request content from document provenance or encode a new source file such as `{}` when no source path is embedded.",
+                    example_source_path
+                );
+            }
+
+            if existing_url.is_some() {
+                bail!(
+                    "`ghpr` does not update an existing remote URL. Use `--to ghpr` without a URL so Stencila can create or reuse the GitHub PR workflow from repository provenance."
+                );
+            }
+
+            if self.watch {
+                bail!(
+                    "`--watch` is not supported with `--to ghpr`. GitHub PR pushes are repository-native and do not currently create Stencila Cloud watches."
+                );
+            }
+        }
+
         // Display appropriate message
         if existing_url.is_some() {
             message!(
@@ -564,6 +595,42 @@ impl Cli {
         let url = match result {
             PushResult::Uploaded(url) => {
                 message!("✅ Successfully pushed to {}", url);
+                url
+            }
+            PushResult::GitHubPullRequest {
+                url,
+                source_path,
+                used_generated_source_path,
+                used_dummy_change,
+                pr_number,
+                pull_request_branch,
+                comments_posted,
+                fallbacks,
+            } => {
+                message!("✅ Successfully created GitHub pull request {}", url);
+                message!(
+                    "ℹ️ PR #{} on branch `{}` for source path `{}`",
+                    pr_number,
+                    pull_request_branch,
+                    source_path
+                );
+                if used_generated_source_path {
+                    message!(
+                        "ℹ️ No source path was embedded in the document, so `ghpr` generated `{}`",
+                        source_path
+                    );
+                }
+                if used_dummy_change {
+                    message!(
+                        "ℹ️ Added a placeholder file change because no substantive content diff was detected"
+                    );
+                }
+                if comments_posted > 0 {
+                    message!("💬 Posted {} inline review comments", comments_posted);
+                }
+                if fallbacks > 0 {
+                    message!("⚠️ {} review items were added as fallback text", fallbacks);
+                }
                 url
             }
             PushResult::DryRun { url, .. } => {
@@ -1039,6 +1106,7 @@ impl Cli {
             RemoteService::StencilaEmail => 10,
             // GitHubIssues is read-only, this branch should never be reached
             RemoteService::GitHubIssues => 5,
+            RemoteService::GitHubPullRequests => 5,
         };
         if creates.len() > threshold {
             let answer = ask_with(

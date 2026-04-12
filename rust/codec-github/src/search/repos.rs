@@ -4,7 +4,7 @@ use stencila_codec::stencila_schema::{
     StringOrNumber,
 };
 
-use crate::search_code::{SimpleUser, TextMatch};
+use super::types::{SimpleUser, TextMatch};
 
 /// Repository search result item from GitHub search API
 #[derive(Deserialize)]

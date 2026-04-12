@@ -5,7 +5,7 @@ use stencila_codec::stencila_schema::{
     ContactPoint, ImageObject, Node, Organization, OrganizationOptions, Person, PersonOptions,
 };
 
-use crate::search_code::TextMatch;
+use super::types::TextMatch;
 
 /// User search result item from GitHub search API
 #[derive(Deserialize)]

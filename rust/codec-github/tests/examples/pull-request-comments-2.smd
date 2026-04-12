@@ -1,0 +1,20 @@
+---
+path: docs/review-comments.md
+---
+
+# Intro
+
+This paragraph has a {>>c1}focused comment{<<c1}.
+
+## Explicit locations
+
+{>>c2-start}This paragraph is followed by an explicit-location comment.{<<c2-end}
+
+[>>c1]: First comment on selected text
+
+[>>c2]:
+path: docs/review-comments.md
+start-location: docs/review-comments.md:11:1
+end-location: docs/review-comments.md:11:60
+
+A file-and-line anchored comment on the whole paragraph.

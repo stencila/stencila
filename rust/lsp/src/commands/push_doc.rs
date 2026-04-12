@@ -356,15 +356,6 @@ pub(crate) async fn push_doc(
         }
     };
 
-    if matches!(service, RemoteService::GitHubPullRequests) {
-        progress.send((100, None)).ok();
-        return Ok(Some(json!({
-            "url": url.to_string(),
-            "tracked": false,
-            "service": "ghpr"
-        })));
-    }
-
     // Track the remote
     progress.send((80, Some("recording".to_string()))).ok();
     if let Some(doc_path) = doc.path()
