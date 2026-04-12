@@ -1,3 +1,30 @@
+//! Push comment-bearing Stencila exports to GitHub pull requests.
+//!
+//! The submission strategy in this module distinguishes between two separate
+//! kinds of synthetic Git changes that GitHub may require:
+//!
+//! 1. **Placeholder content changes**: when a review/export has no substantive
+//!    source diff at all, GitHub still needs some file change before a pull
+//!    request can be opened. In that case Stencila can add a stable placeholder
+//!    marker to create a temporary non-empty diff.
+//! 2. **Localized review anchors**: for existing files with only narrow diff
+//!    hunks, GitHub may reject inline review comments or suggestions that are
+//!    too far from the nearest hunk with HTTP 422 errors. Probe runs using
+//!    `rust/codec-github/tests/probe-pr-review-distance.sh` found that a PR on
+//!    an existing 50-line file with only line 25 changed accepted inline
+//!    comments on lines 22..28 but rejected comments from line 21 outward,
+//!    while newly added files accepted comments across the file. This implies
+//!    that a single dummy change at the end of a file is insufficient to anchor
+//!    arbitrary review items in existing files.
+//!
+//! To handle that, this module creates temporary anchor commits containing
+//! reversible synthetic marker lines inserted near review target lines, submits
+//! the GitHub review against that anchor commit, and then creates a cleanup
+//! commit that removes the markers again. This keeps the branch content clean
+//! while still giving GitHub localized diff hunks close enough for inline
+//! anchoring. If GitHub still rejects inline placement, the submission layer
+//! falls back to body-only review items rather than losing the feedback.
+
 use base64::Engine;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
@@ -14,7 +41,41 @@ use super::{
 };
 use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
 
-const DUMMY_CHANGE_MARKER: &str = "<!-- Stencila ghpr placeholder change -->";
+/// Marker inserted into a temporary synthetic content commit when Stencila
+/// needs GitHub to open a pull request for a review document that has no real
+/// source changes.
+///
+/// This is distinct from localized review anchor markers. The dummy marker is
+/// only used to force the creation of a non-empty PR diff in otherwise noop
+/// export flows; without some file change, GitHub cannot open a PR. Keep the
+/// marker stable so Stencila can detect and avoid duplicating it.
+const PR_PLACEHOLDER_CHANGE_MARKER: &str = "<!-- Stencila ghpr placeholder change -->";
+
+/// Prefix for temporary synthetic marker lines inserted by anchor commits.
+///
+/// These markers create localized diff hunks near review target lines so
+/// GitHub can accept inline PR comments and suggestions on existing files with
+/// otherwise distant or absent hunks. They are removed in a follow-up cleanup
+/// commit so they do not remain in the document content shown on the branch.
+const ANCHOR_MARKER_PREFIX: &str = "<!-- Stencila ghpr anchor:";
+
+/// Suffix for temporary synthetic marker lines inserted by anchor commits.
+///
+/// Kept as a separate constant alongside the prefix so marker detection and
+/// removal can remain explicit and stable.
+const ANCHOR_MARKER_SUFFIX: &str = " -->";
+
+/// Preferred one-line offset for placing a synthetic anchor marker adjacent to
+/// the review target line.
+///
+/// Probe runs in `rust/codec-github/tests/probe-pr-review-distance.sh` showed
+/// that GitHub can sometimes accept comments up to three lines away from the
+/// nearest diff hunk, but live testing against existing pull requests showed
+/// that comments on the first line can still fail with "Line could not be
+/// resolved" when the synthetic hunk is placed too far away. To maximize the
+/// chance of inline resolution, anchor markers are now placed as close as
+/// possible to the target line, preferring one line after it when available.
+const ANCHOR_MARKER_OFFSET: u32 = 1;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SubmitReviewMode {
@@ -72,6 +133,7 @@ fn is_missing_anchor_error(message: &str) -> bool {
         "pull request review comment path is invalid",
         "pull_request_review_thread.line",
         "review comments is invalid",
+        "line could not be resolved",
         "line must be part of the diff",
         "diff hunk",
     ]
@@ -123,19 +185,31 @@ async fn push_pull_request_inner(
 )> {
     let has_comments = !items.is_empty();
     let use_dummy_change =
-        has_source_changes && !has_comments && should_use_dummy_change(source_text);
+        has_source_changes && !has_comments && should_create_placeholder_change(source_text);
 
     let mut current_sha = branch_base_sha.to_string();
 
     let content_commit_sha = if has_source_changes {
         let content_commit_sha = if use_dummy_change {
-            create_dummy_content_commit(owner, repo, &current_sha, source_path, source_text).await?
+            tracing::debug!(
+                source_path,
+                parent_sha = %current_sha,
+                "Creating placeholder content commit so GitHub can open a pull request without a substantive source diff"
+            );
+            create_placeholder_content_commit(owner, repo, &current_sha, source_path, source_text)
+                .await?
         } else {
+            tracing::debug!(
+                source_path,
+                parent_sha = %current_sha,
+                "Creating content commit for substantive Stencila document changes"
+            );
             create_content_commit(
                 owner,
                 repo,
                 &current_sha,
                 &[(source_path.to_string(), source_text.to_string())],
+                "feat: apply Stencila document changes",
             )
             .await?
         };
@@ -182,14 +256,22 @@ async fn push_pull_request_inner(
             };
             let file_contents =
                 review_file_contents(owner, repo, source_path, anchor_content_ref, items).await?;
+            let anchored_file_contents =
+                anchor_review_file_contents(&file_contents, source_path, items);
+            tracing::debug!(
+                source_path,
+                parent_sha = %current_sha,
+                anchor_ref = anchor_content_ref,
+                "Creating initial localized review-anchor commit before first inline review submission"
+            );
             let created_anchor_commit_sha =
-                create_anchor_commit(owner, repo, &current_sha, &file_contents).await?;
+                create_anchor_commit(owner, repo, &current_sha, &anchored_file_contents).await?;
             update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
             anchor_commit_sha = Some(created_anchor_commit_sha.clone());
             created_anchor_commit_sha
         };
 
-        match submit_github_review(
+        let outcome = match submit_github_review(
             owner,
             repo,
             pr.number,
@@ -212,9 +294,20 @@ async fn push_pull_request_inner(
                     items,
                 )
                 .await?;
-                let created_anchor_commit_sha =
-                    create_anchor_commit(owner, repo, &initial_review_commit_sha, &file_contents)
-                        .await?;
+                let anchored_file_contents =
+                    anchor_review_file_contents(&file_contents, source_path, items);
+                tracing::debug!(
+                    source_path,
+                    parent_sha = %initial_review_commit_sha,
+                    "Creating retry localized review-anchor commit after GitHub rejected the initial inline review submission"
+                );
+                let created_anchor_commit_sha = create_anchor_commit(
+                    owner,
+                    repo,
+                    &initial_review_commit_sha,
+                    &anchored_file_contents,
+                )
+                .await?;
                 update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
                 anchor_commit_sha = Some(created_anchor_commit_sha.clone());
 
@@ -277,7 +370,23 @@ async fn push_pull_request_inner(
                 }
                 return Err(error.into_report());
             }
+        };
+
+        if let Some(anchor_sha) = anchor_commit_sha.as_ref() {
+            let anchored_file_contents =
+                review_file_contents(owner, repo, source_path, anchor_sha, items).await?;
+            let cleanup_file_contents = cleanup_review_file_contents(&anchored_file_contents);
+            tracing::debug!(
+                source_path,
+                anchor_commit_sha = anchor_sha,
+                "Creating cleanup commit to remove temporary review-anchor markers after review submission"
+            );
+            let cleanup_commit_sha =
+                create_cleanup_commit(owner, repo, anchor_sha, &cleanup_file_contents).await?;
+            update_ref(owner, repo, branch_name, &cleanup_commit_sha).await?;
         }
+
+        outcome
     } else {
         (0, 0)
     };
@@ -315,14 +424,13 @@ pub async fn push_pull_request_export(
         .path
         .as_deref()
         .ok_or_else(|| eyre!("PullRequestExport.source.path is required"))?;
-
     let source_commit = export
         .source
         .commit
         .clone()
         .ok_or_else(|| eyre!("PullRequestExport.source.commit is required"))?;
 
-    let has_dummy_change = plan_requires_dummy_content_commit(export, has_source_changes);
+    let has_dummy_change = plan_requires_placeholder_content_commit(export, has_source_changes);
     let plan = plan_pull_request_push_with_source_changes(export, Some(has_source_changes))?;
     if plan.is_noop() && !has_dummy_change {
         bail!("No GitHub PR actions are needed")
@@ -394,7 +502,7 @@ pub async fn push_pull_request_export(
     let push_result = push_pull_request_inner(
         &owner,
         &repo,
-        source_path,
+        &source_path,
         &source_commit,
         &branch_base_sha,
         &base_branch,
@@ -444,8 +552,8 @@ pub async fn push_pull_request_export(
         anchor_commit,
         comments_posted,
         fallbacks,
-        source_path: source_path.to_string(),
-        used_generated_source_path: false,
+        source_path: source_path.into(),
+        used_generated_source_path: source_path != source_path,
         used_dummy_change: has_dummy_change,
     })
 }
@@ -774,15 +882,15 @@ async fn resolve_default_branch_head(owner: &str, repo: &str) -> Result<String> 
     Ok(branch.commit.sha)
 }
 
-fn plan_requires_dummy_content_commit(
+fn plan_requires_placeholder_content_commit(
     export: &PullRequestExport,
     has_source_changes: bool,
 ) -> bool {
     !has_source_changes && export.items.is_empty()
 }
 
-fn should_use_dummy_change(source_text: &str) -> bool {
-    !source_text.contains(DUMMY_CHANGE_MARKER)
+fn should_create_placeholder_change(source_text: &str) -> bool {
+    !source_text.contains(PR_PLACEHOLDER_CHANGE_MARKER)
 }
 
 fn review_paths(export: &PullRequestExport, source_path: &str) -> Vec<String> {
@@ -830,6 +938,7 @@ async fn create_content_commit(
     repo: &str,
     parent_sha: &str,
     files: &[(String, String)],
+    message: &str,
 ) -> Result<String> {
     let parent_commit: CommitResponse = get_json(
         &api_url(&format!("/repos/{owner}/{repo}/git/commits/{parent_sha}")),
@@ -862,7 +971,7 @@ async fn create_content_commit(
     let commit: CommitResponse = post_json(
         &api_url(&format!("/repos/{owner}/{repo}/git/commits")),
         &CreateCommitRequest {
-            message: "feat: apply Stencila document changes",
+            message,
             tree: &tree.sha,
             parents: vec![parent_sha],
         },
@@ -874,7 +983,7 @@ async fn create_content_commit(
     Ok(commit.sha)
 }
 
-async fn create_dummy_content_commit(
+async fn create_placeholder_content_commit(
     owner: &str,
     repo: &str,
     parent_sha: &str,
@@ -882,11 +991,11 @@ async fn create_dummy_content_commit(
     content: &str,
 ) -> Result<String> {
     let dummy_content = if content.is_empty() {
-        format!("\n{DUMMY_CHANGE_MARKER}\n")
+        format!("\n{PR_PLACEHOLDER_CHANGE_MARKER}\n")
     } else if content.ends_with('\n') {
-        format!("{content}{DUMMY_CHANGE_MARKER}\n")
+        format!("{content}{PR_PLACEHOLDER_CHANGE_MARKER}\n")
     } else {
-        format!("{content}\n{DUMMY_CHANGE_MARKER}\n")
+        format!("{content}\n{PR_PLACEHOLDER_CHANGE_MARKER}\n")
     };
 
     create_content_commit(
@@ -894,8 +1003,126 @@ async fn create_dummy_content_commit(
         repo,
         parent_sha,
         &[(path.to_string(), dummy_content)],
+        "chore: add placeholder change to open pull request",
     )
     .await
+}
+
+fn line_ending(content: &str) -> &str {
+    if content.contains("\r\n") {
+        "\r\n"
+    } else {
+        "\n"
+    }
+}
+
+fn anchor_marker(line_number: u32) -> String {
+    format!("{ANCHOR_MARKER_PREFIX}{line_number}{ANCHOR_MARKER_SUFFIX}")
+}
+
+fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
+    let mut lines: Vec<u32> = items
+        .iter()
+        .filter_map(|item| item.range.start_line.or(item.range.end_line))
+        .collect();
+    lines.sort_unstable();
+    lines.dedup();
+    lines
+}
+
+fn insert_anchor_markers(content: &str, lines: &[u32]) -> String {
+    if lines.is_empty() {
+        return content.to_string();
+    }
+
+    let ending = line_ending(content);
+    let mut split_lines: Vec<String> = content.split_inclusive(ending).map(String::from).collect();
+
+    if !content.is_empty() && !content.ends_with(ending) {
+        if let Some(last) = split_lines.last_mut() {
+            if last.ends_with('\n') || last.ends_with('\r') {
+                // already split as expected
+            }
+        }
+    }
+
+    let total_lines = content.lines().count();
+    let mut insertions: Vec<(usize, String)> = Vec::new();
+
+    for &line in lines {
+        if total_lines == 0 {
+            insertions.push((0, format!("{}{}", anchor_marker(line), ending)));
+            continue;
+        }
+
+        let preferred_after = line.saturating_add(ANCHOR_MARKER_OFFSET);
+        let anchor_at = if preferred_after <= total_lines as u32 {
+            preferred_after as usize
+        } else if line > 1 {
+            line.saturating_sub(1) as usize
+        } else {
+            1
+        };
+
+        insertions.push((anchor_at, format!("{}{}", anchor_marker(line), ending)));
+    }
+
+    insertions.sort_by_key(|(index, _)| *index);
+
+    let mut offset = 0usize;
+    for (index, marker_line) in insertions {
+        split_lines.insert(index + offset, marker_line);
+        offset += 1;
+    }
+
+    split_lines.concat()
+}
+
+fn remove_anchor_markers(content: &str) -> String {
+    let ending = line_ending(content);
+    let filtered: Vec<&str> = content
+        .split_inclusive(ending)
+        .filter(|line| {
+            let trimmed = line.trim_end_matches(['\r', '\n']);
+            !(trimmed.starts_with(ANCHOR_MARKER_PREFIX) && trimmed.ends_with(ANCHOR_MARKER_SUFFIX))
+        })
+        .collect();
+
+    if filtered.is_empty()
+        && content
+            .trim_end_matches(['\r', '\n'])
+            .starts_with(ANCHOR_MARKER_PREFIX)
+    {
+        String::new()
+    } else {
+        filtered.concat()
+    }
+}
+
+fn anchor_review_file_contents(
+    files: &[(String, String)],
+    source_path: &str,
+    items: &[PullRequestComment],
+) -> Vec<(String, String)> {
+    files
+        .iter()
+        .map(|(path, content)| {
+            let path_items: Vec<PullRequestComment> = items
+                .iter()
+                .filter(|item| item.source_path.as_deref().unwrap_or(source_path) == path)
+                .cloned()
+                .collect();
+            let anchor_lines = collect_anchor_lines(&path_items);
+            (path.clone(), insert_anchor_markers(content, &anchor_lines))
+        })
+        .collect()
+}
+
+fn cleanup_review_file_contents(files: &[(String, String)]) -> Vec<(String, String)> {
+    files
+        .iter()
+        .map(|(path, content)| (path.clone(), remove_anchor_markers(content)))
+        .collect()
 }
 
 fn pr_title(source_path: &str, has_review_items: bool) -> String {
@@ -924,12 +1151,29 @@ fn pr_body(
     }
 }
 
-/// Create an anchor commit with minimal end-of-file newline changes.
+/// Create an anchor commit with localized synthetic hunks near review target lines.
 ///
-/// This mirrors the working site review PR approach: cycle each reviewed file
-/// through a small newline-only change so the PR has a minimal diff while still
-/// providing a file change for GitHub review comments to attach to.
+/// For existing files with localized diff hunks, GitHub may reject inline
+/// review comments more than a few lines away from the nearest diff hunk. The
+/// anchor strategy therefore inserts reversible marker lines close to each
+/// review target line rather than touching only the end of the file.
 async fn create_anchor_commit(
+    owner: &str,
+    repo: &str,
+    parent_sha: &str,
+    files: &[(String, String)],
+) -> Result<String> {
+    create_content_commit(
+        owner,
+        repo,
+        parent_sha,
+        files,
+        "chore: add temporary review anchors",
+    )
+    .await
+}
+
+async fn create_cleanup_commit(
     owner: &str,
     repo: &str,
     parent_sha: &str,
@@ -944,25 +1188,11 @@ async fn create_anchor_commit(
 
     let tree_entries: Vec<TreeEntry> = files
         .iter()
-        .map(|(path, content)| {
-            let line_ending = if content.contains("\r\n") {
-                "\r\n"
-            } else {
-                "\n"
-            };
-            let double_ending = format!("{line_ending}{line_ending}");
-            let anchor_content = if content.ends_with(&double_ending) {
-                content[..content.len() - line_ending.len()].to_string()
-            } else {
-                format!("{content}{line_ending}")
-            };
-
-            TreeEntry {
-                path: path.clone(),
-                mode: "100644".to_string(),
-                type_: "blob".to_string(),
-                content: anchor_content,
-            }
+        .map(|(path, content)| TreeEntry {
+            path: path.clone(),
+            mode: "100644".to_string(),
+            type_: "blob".to_string(),
+            content: content.clone(),
         })
         .collect();
 
@@ -980,7 +1210,7 @@ async fn create_anchor_commit(
     let commit: CommitResponse = post_json(
         &api_url(&format!("/repos/{owner}/{repo}/git/commits")),
         &CreateCommitRequest {
-            message: "chore: anchor commit for Stencila pull request comments",
+            message: "chore: remove temporary Stencila review anchors",
             tree: &tree.sha,
             parents: vec![parent_sha],
         },
@@ -1013,7 +1243,7 @@ async fn submit_github_review(
     owner: &str,
     repo: &str,
     pr_number: u64,
-    anchor_commit_sha: &str,
+    review_commit_sha: &str,
     items: &[PullRequestComment],
     source_path: &str,
     mode: SubmitReviewMode,
@@ -1023,7 +1253,7 @@ async fn submit_github_review(
 
     tracing::debug!(
         pr_number,
-        anchor_commit_sha,
+        review_commit_sha,
         comment_count = comments.len(),
         fallback_count = all_fallback_items.len(),
         comment_paths = ?comments.iter().map(|comment| (&comment.path, comment.start_line, comment.line)).collect::<Vec<_>>(),
@@ -1058,7 +1288,7 @@ async fn submit_github_review(
         let result: std::result::Result<ReviewResponse, _> = post_json_with_status(
             &review_url,
             &CreateReviewRequest {
-                commit_id: anchor_commit_sha.to_string(),
+                commit_id: review_commit_sha.to_string(),
                 event: "COMMENT".into(),
                 body: initial_body,
                 comments: comments.clone(),
@@ -1136,7 +1366,7 @@ async fn submit_github_review(
         let _review: ReviewResponse = post_json(
             &review_url,
             &CreateReviewRequest {
-                commit_id: anchor_commit_sha.to_string(),
+                commit_id: review_commit_sha.to_string(),
                 event: "COMMENT".into(),
                 body: fallback_body,
                 comments: vec![],
@@ -1303,6 +1533,9 @@ mod tests {
         ));
         assert!(is_missing_anchor_error(
             "Validation Failed: pull request review thread diff hunk can't be blank"
+        ));
+        assert!(is_missing_anchor_error(
+            "{\"message\":\"Unprocessable Entity\",\"errors\":[\"Line could not be resolved\"],\"documentation_url\":\"https://docs.github.com/rest/pulls/reviews#create-a-review-for-a-pull-request\",\"status\":\"422\"}"
         ));
         assert!(is_missing_anchor_error(
             "{\"message\":\"Validation Failed\",\"errors\":[{\"resource\":\"PullRequestReviewComment\",\"code\":\"custom\",\"field\":\"pull_request_review_thread.line\",\"message\":\"could not be resolved\"}],\"documentation_url\":\"https://docs.github.com/rest/pulls/comments#create-a-review-comment-for-a-pull-request\",\"status\":\"422\"}"
@@ -1596,7 +1829,7 @@ mod tests {
     }
 
     #[test]
-    fn test_plan_requires_dummy_content_commit_for_empty_review() {
+    fn test_plan_requires_placeholder_content_commit_for_empty_review() {
         let export = PullRequestExport {
             source: PullRequestSource {
                 repository: Some("stencila/stencila".into()),
@@ -1613,14 +1846,62 @@ mod tests {
             diagnostics: vec![],
         };
 
-        assert!(plan_requires_dummy_content_commit(&export, false));
-        assert!(!plan_requires_dummy_content_commit(&export, true));
+        assert!(plan_requires_placeholder_content_commit(&export, false));
+        assert!(!plan_requires_placeholder_content_commit(&export, true));
     }
 
     #[test]
-    fn test_should_use_dummy_change_marker_detection() {
-        assert!(should_use_dummy_change("plain source"));
-        assert!(!should_use_dummy_change(DUMMY_CHANGE_MARKER));
+    fn test_should_create_placeholder_change_marker_detection() {
+        assert!(should_create_placeholder_change("plain source"));
+        assert!(!should_create_placeholder_change(
+            PR_PLACEHOLDER_CHANGE_MARKER
+        ));
+    }
+
+    #[test]
+    fn test_anchor_review_file_contents_inserts_markers_near_target_lines() {
+        let files = vec![(
+            "docs/example.md".to_string(),
+            (1..=10)
+                .map(|line| format!("{line:02}\n"))
+                .collect::<String>(),
+        )];
+        let items = vec![PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(2),
+                end_line: Some(2),
+                ..Default::default()
+            },
+            selected_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        }];
+
+        let anchored = anchor_review_file_contents(&files, "docs/example.md", &items);
+        let content = &anchored[0].1;
+
+        assert!(content.contains("<!-- Stencila ghpr anchor:2 -->"));
+        assert!(content.contains("03\n<!-- Stencila ghpr anchor:2 -->\n04\n"));
+    }
+
+    #[test]
+    fn test_cleanup_review_file_contents_removes_markers() {
+        let files = vec![(
+            "docs/example.md".to_string(),
+            "01\n02\n<!-- Stencila ghpr anchor:2 -->\n03\n".to_string(),
+        )];
+
+        let cleaned = cleanup_review_file_contents(&files);
+
+        assert_eq!(cleaned[0].1, "01\n02\n03\n");
     }
 
     #[test]
