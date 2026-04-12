@@ -71,7 +71,9 @@ impl MarkdownCodec for IfBlock {
 
         // If rendering, or format anything other than Stencila Markdown,
         // encode the first active clause only
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             for clause in &self.clauses {
                 if clause.is_active.unwrap_or_default() {
                     context.push_prop_fn(NodeProperty::Content, |context| {

@@ -39,7 +39,9 @@ impl MarkdownCodec for Section {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             context
                 .merge_losses(lost_options!(self, section_type))
                 .push_prop_fn(NodeProperty::Content, |context| {

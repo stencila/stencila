@@ -14,9 +14,24 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
+        if matches!(context.mode, MarkdownEncodeMode::Clean) {
+            context.enter_node(self.node_type(), self.node_id());
+
+            if self.suggestion_type == Some(SuggestionType::Delete) {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                });
+            }
+
+            context.exit_node();
+            return;
+        }
+
         // If rendering, or format is anything other than Stencila Markdown, skip encoding
         // and record as loss
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             context.losses.add(self.node_type().to_string());
 
             return;

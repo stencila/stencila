@@ -15,7 +15,7 @@ pub use stencila_codec_html_trait::{HtmlCodec, HtmlEncodeContext};
 pub use stencila_codec_info::Losses;
 pub use stencila_codec_jats_trait::JatsCodec;
 pub use stencila_codec_latex_trait::{LatexCodec, LatexEncodeContext};
-pub use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
+pub use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, MarkdownEncodeMode};
 pub use stencila_codec_text_trait::TextCodec;
 pub use stencila_format::Format;
 pub use stencila_node_id::{NodeId, NodeUid};

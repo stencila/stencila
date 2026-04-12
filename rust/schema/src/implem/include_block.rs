@@ -55,7 +55,9 @@ impl MarkdownCodec for IncludeBlock {
             .merge_losses(lost_exec_options!(self));
 
         // If rendering, or format is LLM Markdown, encode only the included `content` (if any)
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || matches!(context.format, Format::Llmd)
+        {
             if let Some(content) = &self.content {
                 context.push_prop_fn(NodeProperty::Content, |context| {
                     content.to_markdown(context)

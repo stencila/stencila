@@ -55,7 +55,9 @@ impl MarkdownCodec for PromptBlock {
 
         // If rendering, or format is any format other than Stencila Markdown,
         // do not encode anything
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             context.exit_node();
             return;
         }

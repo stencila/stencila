@@ -131,7 +131,7 @@ impl MarkdownCodec for Heading {
             )
             .push_str(" ");
 
-        if context.render {
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
             if matches!(self.label_type, Some(LabelType::AppendixLabel)) {
                 context
                     .push_prop_str(NodeProperty::LabelType, "Appendix")

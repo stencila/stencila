@@ -64,7 +64,9 @@ impl MarkdownCodec for RawBlock {
 
         // If rendering, or if format is LLM Markdown, encode `content` if
         // `format` is any Markdown flavor, HTML or LaTeX
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || matches!(context.format, Format::Llmd)
+        {
             let format = Format::from_name(&self.format);
             if format.is_markdown_flavor() || matches!(format, Format::Html | Format::Latex) {
                 context.push_str(&self.content);

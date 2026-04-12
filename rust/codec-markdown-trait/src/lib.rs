@@ -41,13 +41,43 @@ where
 /// Encode a node that implements `MarkdownCodec` to Markdown with options
 ///
 /// A convenience function to save the caller from having to create a context etc.
-pub fn to_markdown_with<T>(node: &T, format: Format, render: bool) -> String
+pub fn to_markdown_with<T>(node: &T, format: Format, mode: MarkdownEncodeMode) -> String
 where
     T: MarkdownCodec,
 {
-    let mut context = MarkdownEncodeContext::new(Some(format), Some(render));
+    let mut context = MarkdownEncodeContext::new(Some(format), Some(mode));
     node.to_markdown(&mut context);
     context.content.trim().to_string()
+}
+
+/// The strategy used when encoding a document node to Markdown.
+///
+/// This controls whether encoding should preserve the authored source form,
+/// produce a cleaned source projection for mapping and review workflows, or
+/// emit rendered document content.
+#[derive(Default, Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MarkdownEncodeMode {
+    /// Encode the authored Markdown source as faithfully as possible.
+    ///
+    /// This is the default mode. It preserves Stencila authoring constructs,
+    /// including comments, boundaries, and suggestion markup when those are
+    /// supported by the target format.
+    #[default]
+    Normal,
+
+    /// Encode a clean source projection while preserving node-to-text mapping.
+    ///
+    /// This mode omits review-oriented syntax such as comments, comment
+    /// boundaries, and suggestion markers, while still entering and exiting
+    /// nodes so mappings remain available for downstream consumers such as diff
+    /// and review tooling.
+    Clean,
+
+    /// Encode rendered document content instead of the authored source.
+    ///
+    /// In this mode executable and interactive nodes prefer their rendered or
+    /// resolved content over the original source syntax.
+    Render,
 }
 
 #[derive(Default)]
@@ -55,8 +85,8 @@ pub struct MarkdownEncodeContext {
     /// The format to render to
     pub format: Format,
 
-    /// Encode the outputs, rather than the source, of executable nodes
-    pub render: bool,
+    /// The encoding strategy to use for Markdown output.
+    pub mode: MarkdownEncodeMode,
 
     /// The encoded Markdown content
     pub content: String,
@@ -96,10 +126,10 @@ pub struct MarkdownEncodeContext {
 }
 
 impl MarkdownEncodeContext {
-    pub fn new(format: Option<Format>, render: Option<bool>) -> Self {
+    pub fn new(format: Option<Format>, mode: Option<MarkdownEncodeMode>) -> Self {
         Self {
             format: format.unwrap_or(Format::Smd), // Default to Stencila Markdown
-            render: render.unwrap_or_default(),
+            mode: mode.unwrap_or_default(),
             ..Default::default()
         }
     }

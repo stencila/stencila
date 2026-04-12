@@ -2,7 +2,16 @@ use crate::{Boundary, prelude::*};
 
 impl MarkdownCodec for Boundary {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Clean) {
+            context
+                .enter_node(self.node_type(), self.node_id())
+                .exit_node();
+            return;
+        }
+
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             return;
         }
 

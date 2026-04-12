@@ -96,7 +96,7 @@ impl MarkdownCodec for Citation {
 
         let brackets = matches!(self.citation_mode, None | Some(CitationMode::Parenthetical));
 
-        if context.render {
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
             if let Some(content) = &self.options.content {
                 // Normally the citation will have content rendered in the citation
                 // style so use that.

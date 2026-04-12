@@ -8,7 +8,8 @@ impl MarkdownCodec for Excerpt {
 
         // If not rendering and format is Stencila or LLM Markdown then wrap the excerpt in ::: excerpt.
         // For LLMs this is important for citation of excerpts.
-        let wrap = !context.render && matches!(context.format, Format::Smd | Format::Llmd);
+        let wrap = !matches!(context.mode, MarkdownEncodeMode::Render)
+            && matches!(context.format, Format::Smd | Format::Llmd);
         if wrap {
             context.push_colons().push_str(" excerpt");
 

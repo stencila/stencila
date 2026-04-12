@@ -17,7 +17,9 @@ impl MarkdownCodec for Page {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         context.enter_node(self.node_type(), self.node_id());
 
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             context
                 .push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)

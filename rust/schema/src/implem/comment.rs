@@ -2,7 +2,11 @@ use crate::{Comment, prelude::*};
 
 impl MarkdownCodec for Comment {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(
+            context.mode,
+            MarkdownEncodeMode::Clean | MarkdownEncodeMode::Render
+        ) || !matches!(context.format, Format::Smd)
+        {
             return;
         }
 

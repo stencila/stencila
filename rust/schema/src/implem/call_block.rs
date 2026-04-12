@@ -28,7 +28,9 @@ impl MarkdownCodec for CallBlock {
             .merge_losses(lost_options!(self, id));
 
         // If rendering, or format is anything other than Stencila Markdown, then encode `content` only (if any)
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             if let Some(content) = &self.content {
                 context.push_prop_fn(NodeProperty::Content, |context| {
                     content.to_markdown(context)

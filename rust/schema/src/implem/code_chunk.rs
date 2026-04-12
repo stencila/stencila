@@ -379,7 +379,8 @@ impl MarkdownCodec for CodeChunk {
 
         // If rendering, or format is LLM Markdown, and if outputs are not intended to
         // be hidden, then encode `outputs` only
-        if (context.render || matches!(context.format, Format::Llmd))
+        if (matches!(context.mode, MarkdownEncodeMode::Render)
+            || matches!(context.format, Format::Llmd))
             && !self.is_hidden.unwrap_or_default()
         {
             if matches!(self.label_type, Some(LabelType::TableLabel)) {

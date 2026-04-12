@@ -59,7 +59,9 @@ impl MarkdownCodec for ForBlock {
         // If rendering, or format anything other than Stencila Markdown,
         // encode iterations only (unwrapping the `Section` representing each as
         // is usually the case). If non iterations, render any `otherwise`
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             for iteration in self.iterations.iter().flatten() {
                 if let Block::Section(Section { content, .. }) = iteration {
                     content.to_markdown(context);

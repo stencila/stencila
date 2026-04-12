@@ -81,7 +81,7 @@ impl MarkdownCodec for CitationGroup {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        if context.render {
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
             if let Some(content) = &self.content {
                 // Normally the citation group will have content rendered in the citation
                 // style so use that.

@@ -63,7 +63,9 @@ impl MarkdownCodec for Supplement {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             // Just encode the label (with url if any) caption
 
             let label = self.label.as_deref().unwrap_or("Supplement");

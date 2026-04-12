@@ -529,7 +529,9 @@ impl MarkdownCodec for InstructionBlock {
         // If rendering, or format is anything other than Stencila Markdown or
         // MyST, then encode `content` (if any), otherwise the first accepted suggestion,
         // otherwise the first non-rejected suggestion
-        if context.render || !matches!(context.format, Format::Smd | Format::Myst) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd | Format::Myst)
+        {
             if let Some(content) = &self.content {
                 context.push_prop_fn(NodeProperty::Content, |context| {
                     content.to_markdown(context)

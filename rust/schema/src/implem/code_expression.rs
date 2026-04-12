@@ -70,7 +70,9 @@ impl MarkdownCodec for CodeExpression {
             .merge_losses(lost_exec_options!(self));
 
         // If rendering, or format is LLM Markdown, then encode `output` only
-        if context.render || matches!(context.format, Format::Llmd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || matches!(context.format, Format::Llmd)
+        {
             if let Some(output) = &self.output {
                 context.push_prop_fn(NodeProperty::Output, |context| output.to_markdown(context));
             }

@@ -12,7 +12,9 @@ impl LatexCodec for AppendixBreak {
 impl MarkdownCodec for AppendixBreak {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         // If rendering, or format is anything other than Stencila Markdown, then skip
-        if context.render || !matches!(context.format, Format::Smd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd)
+        {
             return;
         }
 

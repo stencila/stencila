@@ -1,6 +1,6 @@
 use std::collections::BTreeMap;
 
-use stencila_codec_markdown_trait::to_markdown_with;
+use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
 use stencila_codec_text_trait::to_text;
 
 use crate::{
@@ -409,7 +409,7 @@ impl MarkdownCodec for Article {
 
                 if let Some(title) = &self.title {
                     let new_markdown =
-                        to_markdown_with(title, context.format.clone(), context.render);
+                        to_markdown_with(title, context.format.clone(), MarkdownEncodeMode::Render);
 
                     // Only update if the content has actually changed
                     let should_update =
@@ -430,8 +430,11 @@ impl MarkdownCodec for Article {
                 }
 
                 if let Some(r#abstract) = &self.r#abstract {
-                    let new_markdown =
-                        to_markdown_with(r#abstract, context.format.clone(), context.render);
+                    let new_markdown = to_markdown_with(
+                        r#abstract,
+                        context.format.clone(),
+                        MarkdownEncodeMode::Render,
+                    );
 
                     // Only update if the content has actually changed
                     let should_update =
@@ -481,7 +484,7 @@ impl MarkdownCodec for Article {
             self.content.to_markdown(context)
         });
 
-        if context.render
+        if matches!(context.mode, MarkdownEncodeMode::Render)
             && let Some(references) = &self.references
             && !references.is_empty()
         {
@@ -493,7 +496,9 @@ impl MarkdownCodec for Article {
 
         context.append_footnotes();
 
-        if matches!(context.format, Format::Smd) {
+        if matches!(context.format, Format::Smd)
+            && !matches!(context.mode, MarkdownEncodeMode::Clean)
+        {
             if let Some(comments) = &self.options.comments {
                 for comment in comments {
                     comment.to_markdown(context);

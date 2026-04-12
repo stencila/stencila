@@ -70,7 +70,9 @@ impl MarkdownCodec for StyledBlock {
 
         // If rendering, or format is anything other than Stencila or Quarto
         // Markdown, then encode `content` only (if any)
-        if context.render || !matches!(context.format, Format::Smd | Format::Qmd) {
+        if matches!(context.mode, MarkdownEncodeMode::Render)
+            || !matches!(context.format, Format::Smd | Format::Qmd)
+        {
             context.push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)
             });
