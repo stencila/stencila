@@ -1,4 +1,5 @@
 use base64::Engine;
+use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 use stencila_codec::eyre::{Result, bail, eyre};
@@ -14,6 +15,43 @@ use super::{
 use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
 
 const DUMMY_CHANGE_MARKER: &str = "<!-- Stencila ghpr placeholder change -->";
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum SubmitReviewMode {
+    RequireInline,
+    AllowFallback,
+}
+
+#[derive(Debug)]
+enum SubmitReviewError {
+    NeedsAnchorCommit,
+    Other(stencila_codec::eyre::Report),
+}
+
+impl SubmitReviewError {
+    fn into_report(self) -> stencila_codec::eyre::Report {
+        match self {
+            Self::NeedsAnchorCommit => eyre!(
+                "GitHub could not resolve inline review comment anchors and an anchor commit is required"
+            ),
+            Self::Other(error) => error,
+        }
+    }
+}
+
+fn is_missing_anchor_error(message: &str) -> bool {
+    let message = message.to_ascii_lowercase();
+    [
+        "pull request review thread diff hunk can't be blank",
+        "pull request review comment position is invalid",
+        "pull request review comment path is invalid",
+        "review comments is invalid",
+        "line must be part of the diff",
+        "diff hunk",
+    ]
+    .iter()
+    .any(|needle| message.contains(needle))
+}
 
 // ---------------------------------------------------------------------------
 // GitHub API request/response types
@@ -72,22 +110,7 @@ async fn push_pull_request_inner(
         None
     };
 
-    let anchor_commit_sha = if has_comments {
-        let anchor_content_ref =
-            if has_source_changes || matches!(source_commit, "dirty" | "untracked") {
-                current_sha.as_str()
-            } else {
-                source_commit
-            };
-        let file_contents =
-            review_file_contents(owner, repo, source_path, anchor_content_ref, items).await?;
-        let anchor_commit_sha =
-            create_anchor_commit(owner, repo, &current_sha, &file_contents).await?;
-        update_ref(owner, repo, branch_name, &anchor_commit_sha).await?;
-        Some(anchor_commit_sha)
-    } else {
-        None
-    };
+    let mut anchor_commit_sha = None;
 
     let pr = if let Some(pr_number) = existing_pr_number {
         let pr_url = format!("https://github.com/{owner}/{repo}/pull/{pr_number}");
@@ -110,26 +133,88 @@ async fn push_pull_request_inner(
         .await?
     };
 
-    let (comments_posted, fallbacks) = if let Some(anchor_commit_sha) = anchor_commit_sha.as_deref()
-    {
+    let (comments_posted, fallbacks) = if has_comments {
+        let initial_review_commit_sha = if has_source_changes {
+            content_commit_sha
+                .clone()
+                .unwrap_or_else(|| current_sha.clone())
+        } else {
+            let anchor_content_ref = if matches!(source_commit, "dirty" | "untracked") {
+                current_sha.as_str()
+            } else {
+                source_commit
+            };
+            let file_contents =
+                review_file_contents(owner, repo, source_path, anchor_content_ref, items).await?;
+            let created_anchor_commit_sha =
+                create_anchor_commit(owner, repo, &current_sha, &file_contents).await?;
+            update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+            anchor_commit_sha = Some(created_anchor_commit_sha.clone());
+            created_anchor_commit_sha
+        };
+
         match submit_github_review(
             owner,
             repo,
             pr.number,
-            anchor_commit_sha,
+            &initial_review_commit_sha,
             items,
             source_path,
+            SubmitReviewMode::RequireInline,
         )
         .await
         {
             Ok(outcome) => outcome,
+            Err(SubmitReviewError::NeedsAnchorCommit)
+                if has_source_changes && anchor_commit_sha.is_none() =>
+            {
+                let file_contents = review_file_contents(
+                    owner,
+                    repo,
+                    source_path,
+                    &initial_review_commit_sha,
+                    items,
+                )
+                .await?;
+                let created_anchor_commit_sha =
+                    create_anchor_commit(owner, repo, &initial_review_commit_sha, &file_contents)
+                        .await?;
+                update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+                anchor_commit_sha = Some(created_anchor_commit_sha.clone());
+
+                match submit_github_review(
+                    owner,
+                    repo,
+                    pr.number,
+                    &created_anchor_commit_sha,
+                    items,
+                    source_path,
+                    SubmitReviewMode::AllowFallback,
+                )
+                .await
+                {
+                    Ok(outcome) => outcome,
+                    Err(error) => {
+                        if existing_pr_number.is_none()
+                            && let Err(cleanup_err) = close_pr(owner, repo, pr.number).await
+                        {
+                            tracing::warn!(
+                                "Cleanup after comment submission failure also failed: {cleanup_err}"
+                            );
+                        }
+                        return Err(error.into_report());
+                    }
+                }
+            }
             Err(error) => {
-                if let Err(cleanup_err) = close_pr(owner, repo, pr.number).await {
+                if existing_pr_number.is_none()
+                    && let Err(cleanup_err) = close_pr(owner, repo, pr.number).await
+                {
                     tracing::warn!(
                         "Cleanup after comment submission failure also failed: {cleanup_err}"
                     );
                 }
-                return Err(error);
+                return Err(error.into_report());
             }
         }
     } else {
@@ -150,6 +235,7 @@ async fn push_pull_request_inner(
 pub async fn push_pull_request_export(
     export: &mut PullRequestExport,
     existing_pr_url: Option<&url::Url>,
+    has_source_changes: bool,
 ) -> Result<PullRequestPushResult> {
     let (owner, repo) = if let Some(url) = existing_pr_url {
         let pr_ref = parse_github_pull_request_url(url)?;
@@ -175,7 +261,6 @@ pub async fn push_pull_request_export(
         .clone()
         .ok_or_else(|| eyre!("PullRequestExport.source.commit is required"))?;
 
-    let has_source_changes = plan_requires_content_commit(export, &source_commit);
     let has_dummy_change = plan_requires_dummy_content_commit(export, has_source_changes);
     let plan = plan_pull_request_push_with_source_changes(export, Some(has_source_changes))?;
     if plan.is_noop() && !has_dummy_change {
@@ -277,6 +362,8 @@ pub async fn push_pull_request_export(
     } else {
         pr
     };
+
+    let anchor_commit = anchor_commit.or_else(|| export.target.anchor_commit.clone());
 
     export.target = PullRequestTarget {
         repository: Some(format!("https://github.com/{owner}/{repo}")),
@@ -626,10 +713,6 @@ async fn resolve_default_branch_head(owner: &str, repo: &str) -> Result<String> 
     Ok(branch.commit.sha)
 }
 
-fn plan_requires_content_commit(_export: &PullRequestExport, source_commit: &str) -> bool {
-    matches!(source_commit, "dirty" | "untracked")
-}
-
 fn plan_requires_dummy_content_commit(
     export: &PullRequestExport,
     has_source_changes: bool,
@@ -860,9 +943,11 @@ async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str) -> Result<
     patch_json(&url, &UpdateRefRequest { sha, force: false }, owner, repo).await
 }
 
-/// Submit GitHub inline comments for a PR, with 422 fallback.
+/// Submit GitHub inline comments for a PR.
 ///
-/// Returns `(inline_comment_count, fallback_count)` on success.
+/// In `RequireInline` mode, a GitHub 422 response indicating unresolved diff anchors is returned
+/// as `NeedsAnchorCommit` so the caller can synthesize an anchor commit and retry. In
+/// `AllowFallback` mode, the same condition degrades to a body-only review submission.
 async fn submit_github_review(
     owner: &str,
     repo: &str,
@@ -870,7 +955,8 @@ async fn submit_github_review(
     anchor_commit_sha: &str,
     items: &[PullRequestComment],
     source_path: &str,
-) -> Result<(usize, usize)> {
+    mode: SubmitReviewMode,
+) -> Result<(usize, usize), SubmitReviewError> {
     let (comments, fallback_items) = convert_to_review_comments(items, source_path);
     let mut all_fallback_items = fallback_items;
 
@@ -923,12 +1009,27 @@ async fn submit_github_review(
 
         match result {
             Ok(_) => true,
-            Err(e) if e.status == Some(422) => {
+            Err(e) if e.status == Some(StatusCode::UNPROCESSABLE_ENTITY.as_u16()) => {
+                if matches!(mode, SubmitReviewMode::RequireInline)
+                    && is_missing_anchor_error(&e.message)
+                {
+                    tracing::debug!(
+                        "GitHub rejected inline comments with 422; signalling that an anchor commit is required: {}",
+                        e.message
+                    );
+                    return Err(SubmitReviewError::NeedsAnchorCommit);
+                }
+
+                if !is_missing_anchor_error(&e.message) {
+                    return Err(SubmitReviewError::Other(eyre!(
+                        "Failed to submit pull request comments: {e}"
+                    )));
+                }
+
                 tracing::debug!(
                     "GitHub rejected inline comments with 422, falling back to body-only submission: {}",
                     e.message
                 );
-                // Move all inline-targeted items to fallback
                 let inline_as_fallback: Vec<&PullRequestComment> = items
                     .iter()
                     .filter(|item| {
@@ -939,7 +1040,9 @@ async fn submit_github_review(
                 all_fallback_items.extend(inline_as_fallback);
                 false
             }
-            Err(e) => bail!("Failed to submit pull request comments: {e}"),
+            Err(e) => Err(SubmitReviewError::Other(eyre!(
+                "Failed to submit pull request comments: {e}"
+            )))?,
         }
     } else {
         false
@@ -968,7 +1071,8 @@ async fn submit_github_review(
             owner,
             repo,
         )
-        .await?;
+        .await
+        .map_err(SubmitReviewError::Other)?;
     }
 
     let inline_count = if submitted_inline { comments.len() } else { 0 };
@@ -1118,6 +1222,26 @@ mod tests {
     };
 
     use super::*;
+
+    #[test]
+    fn test_is_missing_anchor_error_matches_anchor_signals() {
+        assert!(is_missing_anchor_error(
+            "{\"message\":\"Pull request review comment line must be part of the diff\"}"
+        ));
+        assert!(is_missing_anchor_error(
+            "Validation Failed: pull request review thread diff hunk can't be blank"
+        ));
+    }
+
+    #[test]
+    fn test_is_missing_anchor_error_rejects_unrelated_422s() {
+        assert!(!is_missing_anchor_error(
+            "Validation Failed: commit_id is not part of the pull request"
+        ));
+        assert!(!is_missing_anchor_error(
+            "Validation Failed: body is too long"
+        ));
+    }
 
     #[test]
     fn test_parse_repo_https() {
@@ -1439,6 +1563,66 @@ mod tests {
         operations.push("create_pr");
 
         assert_eq!(operations, vec!["anchor_commit", "create_pr"]);
+    }
+
+    #[test]
+    fn test_existing_pr_failures_do_not_close_pr() {
+        let mut operations = Vec::new();
+        let existing_pr_number = Some(42_u64);
+        let comment_submission_failed = true;
+
+        if comment_submission_failed && existing_pr_number.is_none() {
+            operations.push("close_pr");
+        }
+
+        assert!(operations.is_empty());
+    }
+
+    #[test]
+    fn test_new_pr_failures_still_close_pr() {
+        let mut operations = Vec::new();
+        let existing_pr_number = None::<u64>;
+        let comment_submission_failed = true;
+
+        if comment_submission_failed && existing_pr_number.is_none() {
+            operations.push("close_pr");
+        }
+
+        assert_eq!(operations, vec!["close_pr"]);
+    }
+
+    #[test]
+    fn test_existing_anchor_commit_is_preserved_when_no_new_anchor_is_created() {
+        let mut export = PullRequestExport {
+            source: PullRequestSource {
+                repository: Some("stencila/stencila".into()),
+                path: Some("docs/example.md".into()),
+                commit: Some("abcdef1234567890".into()),
+                format: Format::Smd,
+            },
+            target: PullRequestTarget {
+                anchor_commit: Some("existing-anchor-sha".into()),
+                side: Some(PullRequestSide::Right),
+                ..Default::default()
+            },
+            content: PullRequestSourceContent {
+                text: "plain source".into(),
+                mapping: None,
+            },
+            items: vec![],
+            diagnostics: vec![],
+        };
+
+        let new_anchor_commit: Option<String> = None;
+        let anchor_commit = new_anchor_commit.or_else(|| export.target.anchor_commit.clone());
+        export.target.anchor_commit = anchor_commit.clone();
+        export.target.side = anchor_commit.as_ref().map(|_| PullRequestSide::Right);
+
+        assert_eq!(
+            export.target.anchor_commit.as_deref(),
+            Some("existing-anchor-sha")
+        );
+        assert!(matches!(export.target.side, Some(PullRequestSide::Right)));
     }
 
     #[test]

@@ -156,7 +156,7 @@ pub async fn push_pull_request(
         return Ok(pull_request_push_dry_run(&plan, options));
     }
 
-    let result = push_pull_request_export(&mut export, _url).await?;
+    let result = push_pull_request_export(&mut export, _url, has_source_changes).await?;
     if source.generated_path {
         tracing::info!(
             source_path = %result.source_path,
