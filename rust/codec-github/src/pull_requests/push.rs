@@ -47,10 +47,30 @@ impl SubmitReviewError {
 
 fn is_missing_anchor_error(message: &str) -> bool {
     let message = message.to_ascii_lowercase();
+
+    // GitHub may reject inline review comments that are too far from the
+    // nearest diff hunk with a 422 payload like:
+    //
+    //   {"message":"Validation Failed","errors":[{"resource":"PullRequestReviewComment","code":"custom","field":"pull_request_review_thread.line","message":"could not be resolved"}]}
+    //
+    // This behavior was probed using
+    // `rust/codec-github/tests/probe-pr-review-distance.sh` against a real
+    // repository. For an existing 50-line file with only line 25 changed in
+    // the PR, GitHub accepted comments on lines 22..28 but rejected comments
+    // on lines 21, 29, 20, 30, 15, 35, 10, 40, 1, and 50 with the above 422.
+    // This distance-related anchoring failure appears to affect existing files
+    // with localized diff hunks. In contrast, probe runs against newly added
+    // files accepted comments across the file, which is consistent with the
+    // whole new file being part of the diff. This has implications for anchor
+    // commits: a single dummy change at the end of the file is not sufficient
+    // to anchor arbitrary comments or suggestions in that file, and even a
+    // real change elsewhere in the file may still be too far away. Anchoring
+    // needs diff hunks close enough to the intended lines.
     [
         "pull request review thread diff hunk can't be blank",
         "pull request review comment position is invalid",
         "pull request review comment path is invalid",
+        "pull_request_review_thread.line",
         "review comments is invalid",
         "line must be part of the diff",
         "diff hunk",
@@ -1283,6 +1303,9 @@ mod tests {
         ));
         assert!(is_missing_anchor_error(
             "Validation Failed: pull request review thread diff hunk can't be blank"
+        ));
+        assert!(is_missing_anchor_error(
+            "{\"message\":\"Validation Failed\",\"errors\":[{\"resource\":\"PullRequestReviewComment\",\"code\":\"custom\",\"field\":\"pull_request_review_thread.line\",\"message\":\"could not be resolved\"}],\"documentation_url\":\"https://docs.github.com/rest/pulls/comments#create-a-review-comment-for-a-pull-request\",\"status\":\"422\"}"
         ));
     }
 
