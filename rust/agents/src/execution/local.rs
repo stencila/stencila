@@ -10,7 +10,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::time::UNIX_EPOCH;
 
 use async_trait::async_trait;
-use tokio::io::AsyncReadExt;
+use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
 use super::{
     EnvVarPolicy, ExecutionEnvironment, FileContent, filter_env_vars, resolve_and_canonicalize,
@@ -199,7 +199,7 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
         #[cfg(unix)]
         let mut cmd = {
             let mut c = tokio::process::Command::new("/bin/bash");
-            c.arg("-c").arg(command);
+            c.stdin(std::process::Stdio::piped());
             c
         };
         #[cfg(windows)]
@@ -233,6 +233,19 @@ impl ExecutionEnvironment for LocalExecutionEnvironment {
         let mut child = cmd.spawn().map_err(|e| AgentError::Io {
             message: format!("failed to spawn command: {e}"),
         })?;
+
+        #[cfg(unix)]
+        if let Some(mut stdin) = child.stdin.take() {
+            stdin
+                .write_all(command.as_bytes())
+                .await
+                .map_err(|e| AgentError::Io {
+                    message: format!("failed to write command to shell stdin: {e}"),
+                })?;
+            stdin.write_all(b"\n").await.map_err(|e| AgentError::Io {
+                message: format!("failed to finalize shell command on stdin: {e}"),
+            })?;
+        }
 
         let child_pid = child.id();
 

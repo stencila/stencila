@@ -300,6 +300,25 @@ async fn exec_command_success() -> Result<(), AgentError> {
 }
 
 #[tokio::test]
+async fn exec_command_backticks_are_preserved() -> Result<(), AgentError> {
+    let tmp = tmp()?;
+    let env = local_env(tmp.path());
+    let result = env
+        .exec_command(
+            "printf '%s\\n' 'fix(test): preserve `backticks`'",
+            10_000,
+            None,
+            None,
+        )
+        .await?;
+
+    assert_eq!(result.stdout.trim(), "fix(test): preserve `backticks`");
+    assert_eq!(result.exit_code, 0);
+    assert!(!result.timed_out);
+    Ok(())
+}
+
+#[tokio::test]
 async fn exec_command_exit_code() -> Result<(), AgentError> {
     let tmp = tmp()?;
     let env = local_env(tmp.path());

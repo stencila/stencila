@@ -689,6 +689,32 @@ async fn shell_per_call_timeout_overrides_default() -> AgentResult<()> {
     Ok(())
 }
 
+#[tokio::test]
+async fn shell_preserves_backticks_in_commit_message_command() -> AgentResult<()> {
+    let command = "git commit -m 'fix(test): preserve `backticks` in subject'";
+    let env = MockExecutionEnvironment::new().with_command(
+        command,
+        ExecResult {
+            stdout: "[main abc1234] fix(test): preserve `backticks` in subject\n".into(),
+            stderr: String::new(),
+            exit_code: 0,
+            timed_out: false,
+            duration_ms: 12,
+        },
+    );
+    let exec = tools::shell::executor();
+    let result = exec(json!({"command": command}), &env).await?;
+
+    let calls = env.recorded_exec_calls();
+    assert_eq!(calls.len(), 1);
+    assert_eq!(calls[0].command, command);
+
+    let text = result.as_text();
+    assert!(text.contains("Exit code: 0"));
+    assert!(text.contains("preserve `backticks` in subject"));
+    Ok(())
+}
+
 // =========================================================================
 // grep tests (3)
 // =========================================================================
