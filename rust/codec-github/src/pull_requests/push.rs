@@ -51,19 +51,12 @@ use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_
 /// marker stable so Stencila can detect and avoid duplicating it.
 const PR_PLACEHOLDER_CHANGE_MARKER: &str = "<!-- Stencila ghpr placeholder change -->";
 
-/// Prefix for temporary synthetic marker lines inserted by anchor commits.
+/// Core label used inside temporary synthetic anchor marker comments.
 ///
-/// These markers create localized diff hunks near review target lines so
-/// GitHub can accept inline PR comments and suggestions on existing files with
-/// otherwise distant or absent hunks. They are removed in a follow-up cleanup
-/// commit so they do not remain in the document content shown on the branch.
-const ANCHOR_MARKER_PREFIX: &str = "<!-- Stencila ghpr anchor:";
-
-/// Suffix for temporary synthetic marker lines inserted by anchor commits.
-///
-/// Kept as a separate constant alongside the prefix so marker detection and
-/// removal can remain explicit and stable.
-const ANCHOR_MARKER_SUFFIX: &str = " -->";
+/// Marker rendering is selected per file type so Stencila can create explicit,
+/// reversible synthetic diff hunks without assuming HTML comment syntax for all
+/// source formats.
+const ANCHOR_MARKER_LABEL: &str = "Stencila comment anchor #";
 
 /// Preferred one-line offset for placing a synthetic anchor marker adjacent to
 /// the review target line.
@@ -502,7 +495,7 @@ pub async fn push_pull_request_export(
     let push_result = push_pull_request_inner(
         &owner,
         &repo,
-        &source_path,
+        source_path,
         &source_commit,
         &branch_base_sha,
         &base_branch,
@@ -553,7 +546,7 @@ pub async fn push_pull_request_export(
         comments_posted,
         fallbacks,
         source_path: source_path.into(),
-        used_generated_source_path: source_path != source_path,
+        used_generated_source_path: false,
         used_dummy_change: has_dummy_change,
     })
 }
@@ -1016,8 +1009,97 @@ fn line_ending(content: &str) -> &str {
     }
 }
 
-fn anchor_marker(line_number: u32) -> String {
-    format!("{ANCHOR_MARKER_PREFIX}{line_number}{ANCHOR_MARKER_SUFFIX}")
+const ANCHOR_COMMENT_STYLES: [AnchorCommentStyle; 4] = [
+    AnchorCommentStyle::Html,
+    AnchorCommentStyle::SlashSlash,
+    AnchorCommentStyle::Hash,
+    AnchorCommentStyle::SlashStar,
+];
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum AnchorCommentStyle {
+    Html,
+    SlashSlash,
+    Hash,
+    SlashStar,
+}
+
+impl AnchorCommentStyle {
+    fn render(self, line_number: u32) -> String {
+        match self {
+            Self::Html => format!("<!-- {ANCHOR_MARKER_LABEL}{line_number} -->"),
+            Self::SlashSlash => format!("// {ANCHOR_MARKER_LABEL}{line_number}"),
+            Self::Hash => format!("# {ANCHOR_MARKER_LABEL}{line_number}"),
+            Self::SlashStar => format!("/* {ANCHOR_MARKER_LABEL}{line_number} */"),
+        }
+    }
+
+    fn matches(self, line: &str) -> bool {
+        let line = line.trim();
+        match self {
+            Self::Html => {
+                line.starts_with("<!-- ")
+                    && line.ends_with(" -->")
+                    && line.contains(ANCHOR_MARKER_LABEL)
+            }
+            Self::SlashSlash => line.starts_with("// ") && line.contains(ANCHOR_MARKER_LABEL),
+            Self::Hash => line.starts_with("# ") && line.contains(ANCHOR_MARKER_LABEL),
+            Self::SlashStar => {
+                line.starts_with("/* ")
+                    && line.ends_with(" */")
+                    && line.contains(ANCHOR_MARKER_LABEL)
+            }
+        }
+    }
+}
+
+fn anchor_comment_style(path: &str) -> AnchorCommentStyle {
+    let lower = path.to_ascii_lowercase();
+
+    if [
+        ".md", ".mdx", ".smd", ".html", ".htm", ".xml", ".svg", ".xhtml",
+    ]
+    .iter()
+    .any(|ext| lower.ends_with(ext))
+    {
+        AnchorCommentStyle::Html
+    } else if [
+        ".rs", ".js", ".jsx", ".ts", ".tsx", ".java", ".c", ".cc", ".cpp", ".cxx", ".h", ".hh",
+        ".hpp", ".hxx", ".go", ".swift", ".kt", ".kts", ".scala", ".dart",
+    ]
+    .iter()
+    .any(|ext| lower.ends_with(ext))
+    {
+        AnchorCommentStyle::SlashSlash
+    } else if [
+        ".py",
+        ".sh",
+        ".bash",
+        ".zsh",
+        ".rb",
+        ".pl",
+        ".r",
+        ".yaml",
+        ".yml",
+        ".toml",
+        ".ini",
+        ".cfg",
+        ".conf",
+        ".gitignore",
+        ".dockerignore",
+        "makefile",
+    ]
+    .iter()
+    .any(|ext| lower.ends_with(ext) || lower.rsplit('/').next() == Some(*ext))
+    {
+        AnchorCommentStyle::Hash
+    } else {
+        AnchorCommentStyle::SlashStar
+    }
+}
+
+fn anchor_marker(path: &str, line_number: u32) -> String {
+    anchor_comment_style(path).render(line_number)
 }
 
 fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
@@ -1030,7 +1112,7 @@ fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
     lines
 }
 
-fn insert_anchor_markers(content: &str, lines: &[u32]) -> String {
+fn insert_anchor_markers(content: &str, path: &str, lines: &[u32]) -> String {
     if lines.is_empty() {
         return content.to_string();
     }
@@ -1038,12 +1120,12 @@ fn insert_anchor_markers(content: &str, lines: &[u32]) -> String {
     let ending = line_ending(content);
     let mut split_lines: Vec<String> = content.split_inclusive(ending).map(String::from).collect();
 
-    if !content.is_empty() && !content.ends_with(ending) {
-        if let Some(last) = split_lines.last_mut() {
-            if last.ends_with('\n') || last.ends_with('\r') {
-                // already split as expected
-            }
-        }
+    if !content.is_empty()
+        && !content.ends_with(ending)
+        && let Some(last) = split_lines.last_mut()
+        && (last.ends_with('\n') || last.ends_with('\r'))
+    {
+        // already split as expected
     }
 
     let total_lines = content.lines().count();
@@ -1051,7 +1133,7 @@ fn insert_anchor_markers(content: &str, lines: &[u32]) -> String {
 
     for &line in lines {
         if total_lines == 0 {
-            insertions.push((0, format!("{}{}", anchor_marker(line), ending)));
+            insertions.push((0, format!("{}{}", anchor_marker(path, line), ending)));
             continue;
         }
 
@@ -1064,15 +1146,16 @@ fn insert_anchor_markers(content: &str, lines: &[u32]) -> String {
             1
         };
 
-        insertions.push((anchor_at, format!("{}{}", anchor_marker(line), ending)));
+        insertions.push((
+            anchor_at,
+            format!("{}{}", anchor_marker(path, line), ending),
+        ));
     }
 
     insertions.sort_by_key(|(index, _)| *index);
 
-    let mut offset = 0usize;
-    for (index, marker_line) in insertions {
+    for (offset, (index, marker_line)) in insertions.into_iter().enumerate() {
         split_lines.insert(index + offset, marker_line);
-        offset += 1;
     }
 
     split_lines.concat()
@@ -1084,14 +1167,16 @@ fn remove_anchor_markers(content: &str) -> String {
         .split_inclusive(ending)
         .filter(|line| {
             let trimmed = line.trim_end_matches(['\r', '\n']);
-            !(trimmed.starts_with(ANCHOR_MARKER_PREFIX) && trimmed.ends_with(ANCHOR_MARKER_SUFFIX))
+            !ANCHOR_COMMENT_STYLES
+                .iter()
+                .any(|style| style.matches(trimmed))
         })
         .collect();
 
     if filtered.is_empty()
-        && content
-            .trim_end_matches(['\r', '\n'])
-            .starts_with(ANCHOR_MARKER_PREFIX)
+        && ANCHOR_COMMENT_STYLES
+            .iter()
+            .any(|style| style.matches(content.trim_end_matches(['\r', '\n'])))
     {
         String::new()
     } else {
@@ -1113,7 +1198,10 @@ fn anchor_review_file_contents(
                 .cloned()
                 .collect();
             let anchor_lines = collect_anchor_lines(&path_items);
-            (path.clone(), insert_anchor_markers(content, &anchor_lines))
+            (
+                path.clone(),
+                insert_anchor_markers(content, path, &anchor_lines),
+            )
         })
         .collect()
 }
@@ -1888,20 +1976,50 @@ mod tests {
         let anchored = anchor_review_file_contents(&files, "docs/example.md", &items);
         let content = &anchored[0].1;
 
-        assert!(content.contains("<!-- Stencila ghpr anchor:2 -->"));
-        assert!(content.contains("03\n<!-- Stencila ghpr anchor:2 -->\n04\n"));
+        assert!(content.contains("<!-- Stencila comment anchor #2 -->"));
+        assert!(content.contains("03\n<!-- Stencila comment anchor #2 -->\n04\n"));
     }
 
     #[test]
     fn test_cleanup_review_file_contents_removes_markers() {
         let files = vec![(
             "docs/example.md".to_string(),
-            "01\n02\n<!-- Stencila ghpr anchor:2 -->\n03\n".to_string(),
+            "01\n02\n<!-- Stencila comment anchor #2 -->\n03\n".to_string(),
         )];
 
         let cleaned = cleanup_review_file_contents(&files);
 
         assert_eq!(cleaned[0].1, "01\n02\n03\n");
+    }
+
+    #[test]
+    fn test_anchor_review_file_contents_uses_line_comment_style_for_rust() {
+        let files = vec![(
+            "src/lib.rs".to_string(),
+            (1..=4).map(|line| format!("{line}\n")).collect::<String>(),
+        )];
+        let items = vec![PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(1),
+                end_line: Some(1),
+                ..Default::default()
+            },
+            selected_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        }];
+
+        let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items);
+
+        assert!(anchored[0].1.contains("// Stencila comment anchor #1"));
     }
 
     #[test]
