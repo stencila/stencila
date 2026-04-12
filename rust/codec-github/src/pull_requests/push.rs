@@ -1546,7 +1546,7 @@ mod tests {
     }
 
     #[test]
-    fn test_review_only_push_creates_anchor_before_pr() {
+    fn test_review_only_push_plan_includes_anchor_commit() {
         let mut operations = Vec::new();
 
         let has_source_changes = false;
