@@ -1,6 +1,5 @@
 ---
 source: rust/codec-github/tests/examples.rs
-assertion_line: 78
 expression: review
 ---
 {
