@@ -46,6 +46,7 @@ pub async fn interactive_review(node: &Node) -> Result<SuggestionAction> {
         let type_label = match info.suggestion_type {
             SuggestionType::Insert => "insertion",
             SuggestionType::Delete => "deletion",
+            SuggestionType::Replace => "replacement",
         };
 
         let prompt = format!("Suggested {}: {}", type_label, info.preview);

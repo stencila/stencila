@@ -41,6 +41,14 @@ pub struct PullRequestExport {
     pub diagnostics: Vec<PullRequestExportDiagnostic>,
 }
 
+fn suggestion_original_inlines(suggestion: &SuggestionInline) -> Option<&[Inline]> {
+    suggestion.original.as_deref()
+}
+
+fn suggestion_original_blocks(suggestion: &SuggestionBlock) -> Option<&[Block]> {
+    suggestion.original.as_deref()
+}
+
 /// The GitHub pull request submission context.
 ///
 /// Empty in pure exports; populated progressively as target selection,
@@ -416,26 +424,59 @@ impl Visitor for BoundaryCollector {
 struct InsertContext {
     /// suggestion UID → preceding sibling text content
     preceding: HashMap<String, String>,
+    /// suggestion UID → preceding sibling block content encoded as markdown
+    preceding_blocks: HashMap<String, String>,
 }
 
 impl InsertContext {
     fn build(node: &Node) -> Self {
         let mut preceding = HashMap::new();
+        let mut preceding_blocks = HashMap::new();
+
+        // Pull request exports currently operate on article documents, so only
+        // article block content is traversed here. If additional root node
+        // types gain review export support in future, extend this entry point
+        // to walk their block content too.
         if let Node::Article(article) = node {
-            for block in &article.content {
-                Self::collect_block(block, &mut preceding);
-            }
+            Self::collect_blocks(&article.content, &mut preceding, &mut preceding_blocks);
         }
-        InsertContext { preceding }
+
+        InsertContext {
+            preceding,
+            preceding_blocks,
+        }
     }
 
-    fn collect_block(block: &Block, preceding: &mut HashMap<String, String>) {
+    fn collect_blocks(
+        blocks: &[Block],
+        preceding: &mut HashMap<String, String>,
+        preceding_blocks: &mut HashMap<String, String>,
+    ) {
+        let mut blocks_before: Vec<Block> = Vec::new();
+
+        for block in blocks {
+            match block {
+                Block::SuggestionBlock(suggestion) => {
+                    let uid = suggestion.node_id().uid_str().to_string();
+                    preceding_blocks.insert(uid, blocks_to_markdown(&blocks_before));
+                }
+                _ => {
+                    Self::collect_block(block, preceding, preceding_blocks);
+                    blocks_before.push(block.clone());
+                }
+            }
+        }
+    }
+
+    fn collect_block(
+        block: &Block,
+        preceding: &mut HashMap<String, String>,
+        preceding_blocks: &mut HashMap<String, String>,
+    ) {
         match block {
             Block::Paragraph(para) => Self::collect_inlines(&para.content, preceding),
             Block::Section(Section { content, .. }) => {
-                for block in content {
-                    Self::collect_block(block, preceding);
-                }
+                Self::collect_blocks(content, preceding, preceding_blocks);
             }
             _ => {}
         }
@@ -592,14 +633,19 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         let node_id = suggestion.node_id().uid_str().to_string();
         let replacement_text = blocks_to_markdown(&suggestion.content);
         let parent_uid = self.resolve_parent_node_id(Some(&node_id));
-        let range = self.resolve_suggestion_block_range(&node_id, suggestion);
+        let range =
+            self.resolve_suggestion_block_range(&node_id, parent_uid.as_deref(), suggestion);
 
         PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: self.root_path.clone(),
             node_id: Some(node_id.clone()),
             parent_node_id: parent_uid,
-            selected_text: slice_text(self.source_text, &range),
+            selected_text: if suggestion.suggestion_type == Some(SuggestionType::Insert) {
+                Some(String::new())
+            } else {
+                slice_text(self.source_text, &range)
+            },
             preceding_text: None,
             replacement_text: Some(replacement_text),
             body_markdown: suggestion.feedback.clone().unwrap_or_default(),
@@ -614,7 +660,8 @@ impl<'source, 'mapping, 'boundaries, 'insert>
     fn resolve_suggestion_block_range(
         &mut self,
         node_id: &str,
-        _suggestion: &SuggestionBlock,
+        parent_uid: Option<&str>,
+        suggestion: &SuggestionBlock,
     ) -> PullRequestCommentRange {
         let Some(mapping) = self.mapping else {
             self.diagnostics.push(PullRequestExportDiagnostic {
@@ -626,13 +673,76 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             return PullRequestCommentRange::default();
         };
 
-        let offsets = mapping
+        let suggestion_range = mapping
             .entries()
             .iter()
             .find(|entry| entry.node_id.uid_str() == node_id && entry.property.is_none())
             .and_then(|entry| mapping.range_of_node(&entry.node_id));
 
-        let Some(offsets) = offsets else {
+        let parent_range = parent_uid.and_then(|pid| {
+            mapping
+                .entries()
+                .iter()
+                .find(|entry| entry.node_id.uid_str() == pid && entry.property.is_none())
+                .and_then(|entry| mapping.range_of_node(&entry.node_id))
+        });
+
+        if suggestion.suggestion_type == Some(SuggestionType::Insert)
+            && let Some(offsets) = suggestion_range.as_ref()
+            && offsets.start <= offsets.end
+            && offsets.start == offsets.end
+        {
+            let mut range = PullRequestCommentRange::default();
+            apply_offsets(self.source_text, &mut range, offsets.clone());
+            range.end_column = range.start_column;
+            return range;
+        }
+
+        if let Some(parent_offsets) = parent_range {
+            if suggestion.suggestion_type == Some(SuggestionType::Insert)
+                && let Some(offsets) = suggestion_range.as_ref()
+                && offsets.start > offsets.end
+            {
+                let mut range = PullRequestCommentRange::default();
+                apply_offsets(
+                    self.source_text,
+                    &mut range,
+                    parent_offsets.end..parent_offsets.end,
+                );
+                range.end_column = range.start_column;
+                return range;
+            }
+
+            if suggestion.suggestion_type != Some(SuggestionType::Insert)
+                && let Some(offsets) =
+                    self.refine_block_with_text_match(parent_offsets.clone(), suggestion)
+            {
+                let mut range = PullRequestCommentRange::default();
+                apply_offsets(self.source_text, &mut range, offsets);
+                return range;
+            }
+
+            if suggestion.suggestion_type == Some(SuggestionType::Insert)
+                && let Some(offsets) =
+                    self.refine_block_insert_position(node_id, parent_offsets.clone())
+            {
+                let mut range = PullRequestCommentRange::default();
+                apply_offsets(self.source_text, &mut range, offsets);
+                return range;
+            }
+
+            let mut range = PullRequestCommentRange::default();
+            apply_offsets(self.source_text, &mut range, parent_offsets);
+            self.diagnostics.push(PullRequestExportDiagnostic {
+                level: PullRequestExportDiagnosticLevel::Warning,
+                code: "coarse-parent-range".into(),
+                message: "Suggestion resolved to parent node range, not exact target".into(),
+                item_node_id: Some(node_id.to_string()),
+            });
+            return range;
+        }
+
+        let Some(offsets) = suggestion_range else {
             self.diagnostics.push(PullRequestExportDiagnostic {
                 level: PullRequestExportDiagnosticLevel::Warning,
                 code: "unresolved-suggestion".into(),
@@ -643,7 +753,18 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         };
 
         let mut range = PullRequestCommentRange::default();
-        apply_offsets(self.source_text, &mut range, offsets);
+        apply_offsets(self.source_text, &mut range, offsets.clone());
+
+        if suggestion.suggestion_type == Some(SuggestionType::Insert) {
+            self.diagnostics.push(PullRequestExportDiagnostic {
+                level: PullRequestExportDiagnosticLevel::Warning,
+                code: "suggestion-syntax-range".into(),
+                message: "Suggestion resolved to its encoded syntax range, not content range"
+                    .into(),
+                item_node_id: Some(node_id.to_string()),
+            });
+        }
+
         range
     }
 
@@ -757,7 +878,10 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
         let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
         let parent_text = self.source_text.get(byte_start..byte_end)?;
-        let search_text = inlines_to_markdown(&suggestion.content);
+        let search_text = suggestion_original_inlines(suggestion).map_or_else(
+            || inlines_to_markdown(&suggestion.content),
+            inlines_to_markdown,
+        );
 
         if search_text.is_empty() {
             return None;
@@ -772,6 +896,66 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         }
 
         // Convert byte position within parent_text back to absolute char index
+        let chars_before_match = parent_text[..first.0].chars().count();
+        let match_char_len = search_text.chars().count();
+        let abs_start = parent_char_offsets.start + chars_before_match;
+        let abs_end = abs_start + match_char_len;
+        Some(abs_start..abs_end)
+    }
+
+    fn refine_block_insert_position(
+        &self,
+        node_id: &str,
+        parent_char_offsets: Range<usize>,
+    ) -> Option<Range<usize>> {
+        let preceding = self.insert_context.preceding_blocks.get(node_id)?;
+
+        let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
+        let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
+        let parent_text = self.source_text.get(byte_start..byte_end)?;
+
+        if preceding.is_empty() {
+            return Some(parent_char_offsets.start..parent_char_offsets.start);
+        }
+
+        if parent_text.ends_with(preceding) {
+            return Some(parent_char_offsets.end..parent_char_offsets.end);
+        }
+
+        let mut matches = parent_text.match_indices(preceding.as_str());
+        let first = matches.next()?;
+        if matches.next().is_some() {
+            return None;
+        }
+
+        let chars_to_insert_point = parent_text[..first.0 + preceding.len()].chars().count();
+        let abs = parent_char_offsets.start + chars_to_insert_point;
+        Some(abs..abs)
+    }
+
+    fn refine_block_with_text_match(
+        &self,
+        parent_char_offsets: Range<usize>,
+        suggestion: &SuggestionBlock,
+    ) -> Option<Range<usize>> {
+        let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
+        let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
+        let parent_text = self.source_text.get(byte_start..byte_end)?;
+        let search_text = suggestion_original_blocks(suggestion).map_or_else(
+            || blocks_to_markdown(&suggestion.content),
+            blocks_to_markdown,
+        );
+
+        if search_text.is_empty() {
+            return None;
+        }
+
+        let mut matches = parent_text.match_indices(&search_text);
+        let first = matches.next()?;
+        if matches.next().is_some() {
+            return None;
+        }
+
         let chars_before_match = parent_text[..first.0].chars().count();
         let match_char_len = search_text.chars().count();
         let abs_start = parent_char_offsets.start + chars_before_match;
@@ -1081,6 +1265,7 @@ fn classify_suggestion_edit(item: &PullRequestComment) -> SuggestionEditKind {
     match item.suggestion_type {
         Some(SuggestionType::Insert) => SuggestionEditKind::Insert,
         Some(SuggestionType::Delete) => SuggestionEditKind::Delete,
+        Some(SuggestionType::Replace) => SuggestionEditKind::Replace,
         _ => {
             // Infer from text content
             match (&item.selected_text, &item.replacement_text) {

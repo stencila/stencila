@@ -1,6 +1,5 @@
 ---
 source: rust/codec-github/tests/examples.rs
-assertion_line: 78
 expression: review
 ---
 {
@@ -190,7 +189,7 @@ expression: review
         "startLine": 10,
         "startColumn": 2,
         "endLine": 10,
-        "endColumn": 1
+        "endColumn": 2
       },
       "selectedText": "",
       "replacementText": "A proposed new paragraph.",

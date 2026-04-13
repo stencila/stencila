@@ -1670,7 +1670,7 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                 "**Suggest deleting** this text".to_string()
             }
         }
-        None => {
+        Some(SuggestionType::Replace) | None => {
             let replacement = replacement
                 .map(inline_code)
                 .unwrap_or_else(|| "text".to_string());
@@ -1739,10 +1739,8 @@ fn suggestion_summary_kind(item: &PullRequestComment) -> Option<SuggestionType> 
     match item.suggestion_type {
         Some(SuggestionType::Insert) => Some(SuggestionType::Insert),
         Some(SuggestionType::Delete) => Some(SuggestionType::Delete),
+        Some(SuggestionType::Replace) => Some(SuggestionType::Replace),
         None => {
-            // `SuggestionType` does not yet include a dedicated Replace variant,
-            // so summary generation infers insert/delete from the available text
-            // spans and treats all remaining cases as replace wording.
             let replacement = item.replacement_text.as_deref().map(str::trim);
             let selected = item.selected_text.as_deref().map(str::trim);
 
@@ -1751,7 +1749,7 @@ fn suggestion_summary_kind(item: &PullRequestComment) -> Option<SuggestionType> 
             } else if matches!(selected, None | Some("")) {
                 Some(SuggestionType::Insert)
             } else {
-                None
+                Some(SuggestionType::Replace)
             }
         }
     }

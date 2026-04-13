@@ -33,7 +33,7 @@ pub trait ResolveSuggestions {
 impl ResolveSuggestions for Node {
     fn resolve_suggestions(&mut self, action: &SuggestionAction) {
         if let Node::Article(article) = self {
-            article.content.resolve_suggestions(action)
+            article.content.resolve_suggestions(action);
         }
     }
 }
@@ -81,18 +81,27 @@ fn resolve_suggestion_block(mut sb: SuggestionBlock, action: &SuggestionAction) 
         .as_ref()
         .is_none_or(|t| *t == SuggestionType::Insert);
 
-    let keep_content = matches!(
-        (single, is_insert),
-        (SingleAction::Accept, true) | (SingleAction::Reject, false)
-    );
+    let is_replace = sb.suggestion_type == Some(SuggestionType::Replace);
+
+    let keep_content = match (single, sb.suggestion_type) {
+        (SingleAction::Accept, Some(SuggestionType::Delete))
+        | (SingleAction::Reject, Some(SuggestionType::Replace)) => false,
+        (SingleAction::Reject, Some(SuggestionType::Delete))
+        | (SingleAction::Accept, Some(SuggestionType::Replace)) => true,
+        (SingleAction::Accept, _) => is_insert,
+        (SingleAction::Reject, _) => !is_insert,
+        (SingleAction::Skip, _) => unreachable!("handled above"),
+    };
 
     if keep_content {
-        // Splice the suggestion's content in place, recursing into it
         let mut content = sb.content;
         content.resolve_suggestions(action);
         content
+    } else if is_replace {
+        let mut original = sb.original.unwrap_or_default();
+        original.resolve_suggestions(action);
+        original
     } else {
-        // Remove entirely
         vec![]
     }
 }
@@ -138,15 +147,26 @@ fn resolve_suggestion_inline(mut si: SuggestionInline, action: &SuggestionAction
         .as_ref()
         .is_none_or(|t| *t == SuggestionType::Insert);
 
-    let keep_content = matches!(
-        (single, is_insert),
-        (SingleAction::Accept, true) | (SingleAction::Reject, false)
-    );
+    let is_replace = si.suggestion_type == Some(SuggestionType::Replace);
+
+    let keep_content = match (single, si.suggestion_type) {
+        (SingleAction::Accept, Some(SuggestionType::Delete))
+        | (SingleAction::Reject, Some(SuggestionType::Replace)) => false,
+        (SingleAction::Reject, Some(SuggestionType::Delete))
+        | (SingleAction::Accept, Some(SuggestionType::Replace)) => true,
+        (SingleAction::Accept, _) => is_insert,
+        (SingleAction::Reject, _) => !is_insert,
+        (SingleAction::Skip, _) => unreachable!("handled above"),
+    };
 
     if keep_content {
         let mut content = si.content;
         content.resolve_suggestions(action);
         content
+    } else if is_replace {
+        let mut original = si.original.unwrap_or_default();
+        original.resolve_suggestions(action);
+        original
     } else {
         vec![]
     }
@@ -204,6 +224,9 @@ impl ResolveSuggestions for Block {
             Block::StyledBlock(n) => n.content.resolve_suggestions(action),
             Block::SuggestionBlock(n) => {
                 // Recurse into nested content (the flatmap in Vec<Block> handles the suggestion itself)
+                if let Some(original) = &mut n.original {
+                    original.resolve_suggestions(action);
+                }
                 n.content.resolve_suggestions(action);
             }
             Block::Table(n) => {
@@ -263,6 +286,9 @@ impl ResolveSuggestions for Inline {
             Inline::Subscript(n) => n.content.resolve_suggestions(action),
             Inline::SuggestionInline(n) => {
                 // Recurse into nested content (the flatmap in Vec<Inline> handles the suggestion itself)
+                if let Some(original) = &mut n.original {
+                    original.resolve_suggestions(action);
+                }
                 n.content.resolve_suggestions(action);
             }
             Inline::Superscript(n) => n.content.resolve_suggestions(action),
@@ -339,6 +365,28 @@ mod tests {
         Inline::SuggestionInline(SuggestionInline {
             suggestion_type: Some(SuggestionType::Delete),
             content,
+            ..Default::default()
+        })
+    }
+
+    fn replace_block(original: Vec<Block>, content: Vec<Block>) -> Block {
+        Block::SuggestionBlock(SuggestionBlock {
+            suggestion_type: Some(SuggestionType::Replace),
+            content,
+            options: Box::new(schema::SuggestionBlockOptions {
+                original: Some(original),
+            }),
+            ..Default::default()
+        })
+    }
+
+    fn replace_inline(original: Vec<Inline>, content: Vec<Inline>) -> Inline {
+        Inline::SuggestionInline(SuggestionInline {
+            suggestion_type: Some(SuggestionType::Replace),
+            content,
+            options: Box::new(schema::SuggestionInlineOptions {
+                original: Some(original),
+            }),
             ..Default::default()
         })
     }
@@ -514,5 +562,53 @@ mod tests {
         ])];
         blocks.resolve_suggestions(&SuggestionAction::AcceptAll);
         assert_eq!(blocks.len(), 2);
+    }
+
+    #[test]
+    fn accept_replace_block_splices_new_content() {
+        let mut blocks = vec![replace_block(
+            vec![para(vec![text_inline("old")])],
+            vec![para(vec![text_inline("new")])],
+        )];
+        blocks.resolve_suggestions(&SuggestionAction::AcceptAll);
+        assert_eq!(blocks.len(), 1);
+        let Block::Paragraph(paragraph) = &blocks[0] else {
+            panic!("expected Paragraph")
+        };
+        assert_eq!(paragraph.content, vec![text_inline("new")]);
+    }
+
+    #[test]
+    fn reject_replace_block_splices_original_content() {
+        let mut blocks = vec![replace_block(
+            vec![para(vec![text_inline("old")])],
+            vec![para(vec![text_inline("new")])],
+        )];
+        blocks.resolve_suggestions(&SuggestionAction::RejectAll);
+        assert_eq!(blocks.len(), 1);
+        let Block::Paragraph(paragraph) = &blocks[0] else {
+            panic!("expected Paragraph")
+        };
+        assert_eq!(paragraph.content, vec![text_inline("old")]);
+    }
+
+    #[test]
+    fn accept_replace_inline_splices_new_content() {
+        let mut inlines = vec![replace_inline(
+            vec![text_inline("old")],
+            vec![text_inline("new")],
+        )];
+        inlines.resolve_suggestions(&SuggestionAction::AcceptAll);
+        assert_eq!(inlines, vec![text_inline("new")]);
+    }
+
+    #[test]
+    fn reject_replace_inline_splices_original_content() {
+        let mut inlines = vec![replace_inline(
+            vec![text_inline("old")],
+            vec![text_inline("new")],
+        )];
+        inlines.resolve_suggestions(&SuggestionAction::RejectAll);
+        assert_eq!(inlines, vec![text_inline("old")]);
     }
 }

@@ -1,0 +1,122 @@
+---
+source: rust/codec-github/tests/examples.rs
+expression: review
+---
+{
+  "source": {
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "A following paragraph.\n\n## A section\n\nA section paragraph.\n\n",
+    "mapping": [
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-1",
+        "start": 0,
+        "end": 0
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-2",
+        "start": 0,
+        "end": 22
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-3",
+        "start": 0,
+        "end": 23
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-4",
+        "start": 27,
+        "end": 36
+      },
+      {
+        "nodeType": "Heading",
+        "nodeId": "node-5",
+        "start": 24,
+        "end": 37
+      },
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-6",
+        "start": 38,
+        "end": 37
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-7",
+        "start": 38,
+        "end": 58
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-8",
+        "start": 38,
+        "end": 59
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-9",
+        "start": 0,
+        "end": 60
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "suggestion",
+      "nodeId": "node-1",
+      "parentNodeId": "node-9",
+      "range": {
+        "startOffset": 0,
+        "endOffset": 0,
+        "startLine": 1,
+        "startColumn": 1,
+        "endLine": 1,
+        "endColumn": 1
+      },
+      "selectedText": "",
+      "replacementText": "An inserted opening paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 1,
+        "endLine": 1,
+        "replacementLines": "An inserted opening paragraph.A following paragraph.",
+        "body": "```suggestion\nAn inserted opening paragraph.A following paragraph.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-6",
+      "parentNodeId": "node-9",
+      "range": {
+        "startOffset": 60,
+        "endOffset": 60,
+        "startLine": 7,
+        "startColumn": 1,
+        "endLine": 7,
+        "endColumn": 1
+      },
+      "selectedText": "",
+      "replacementText": "An inserted section opening paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Insert",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 7,
+        "endLine": 7,
+        "replacementLines": "An inserted section opening paragraph.",
+        "body": "```suggestion\nAn inserted section opening paragraph.\n```"
+      }
+    }
+  ],
+  "diagnostics": []
+}

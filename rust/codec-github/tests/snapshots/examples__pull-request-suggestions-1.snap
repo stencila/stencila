@@ -1,6 +1,5 @@
 ---
 source: rust/codec-github/tests/examples.rs
-assertion_line: 78
 expression: review
 ---
 {
@@ -155,17 +154,25 @@ expression: review
       "nodeId": "node-10",
       "parentNodeId": "node-14",
       "range": {
-        "startOffset": 58,
-        "endOffset": 57,
-        "startLine": 5,
-        "startColumn": 1,
-        "endLine": 4,
-        "endColumn": 1
+        "startOffset": 89,
+        "endOffset": 89,
+        "startLine": 6,
+        "startColumn": 2,
+        "endLine": 6,
+        "endColumn": 2
       },
+      "selectedText": "",
       "replacementText": "A suggested new paragraph.",
       "bodyMarkdown": "",
       "suggestionType": "Insert",
-      "resolution": "anchored"
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "insert",
+        "startLine": 6,
+        "endLine": 6,
+        "replacementLines": "A suggested new paragraph.",
+        "body": "```suggestion\nA suggested new paragraph.\n```"
+      }
     },
     {
       "kind": "suggestion",
@@ -173,13 +180,13 @@ expression: review
       "parentNodeId": "node-14",
       "range": {
         "startOffset": 58,
-        "endOffset": 89,
+        "endOffset": 88,
         "startLine": 5,
         "startColumn": 1,
-        "endLine": 6,
-        "endColumn": 1
+        "endLine": 5,
+        "endColumn": 31
       },
-      "selectedText": "A suggested deleted paragraph.\n",
+      "selectedText": "A suggested deleted paragraph.",
       "replacementText": "A suggested deleted paragraph.",
       "bodyMarkdown": "",
       "suggestionType": "Delete",
@@ -187,7 +194,7 @@ expression: review
       "githubSuggestion": {
         "editKind": "delete",
         "startLine": 5,
-        "endLine": 6,
+        "endLine": 5,
         "replacementLines": "",
         "body": "```suggestion\n\n```"
       }
