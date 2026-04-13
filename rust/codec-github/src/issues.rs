@@ -23,7 +23,7 @@ use stencila_codec::{
     stencila_schema::Primitive,
 };
 
-use crate::client::{CLIENT, apply_rate_limiting, get_token};
+use crate::client::{CLIENT, GitHubAuthPolicy, apply_rate_limiting, get_token};
 
 /// Regex for matching DOCX markdown links in GitHub issue bodies
 ///
@@ -49,7 +49,12 @@ pub async fn pull(url: &Url, dest: &Path, target_path: Option<&Path>) -> Result<
     let issue_ref = parse_github_issue_url(url)?;
 
     // Get token (optional for public repos)
-    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
+    let token = get_token(
+        Some(&issue_ref.owner),
+        Some(&issue_ref.repo),
+        GitHubAuthPolicy::PreferUser,
+    )
+    .await;
 
     // Fetch issue body and all comments
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;
@@ -198,7 +203,12 @@ pub async fn pull_all(url: &Url) -> Result<Vec<(PathBuf, tempfile::NamedTempFile
     let issue_ref = parse_github_issue_url(url)?;
 
     // Get token (optional for public repos)
-    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
+    let token = get_token(
+        Some(&issue_ref.owner),
+        Some(&issue_ref.repo),
+        GitHubAuthPolicy::PreferUser,
+    )
+    .await;
 
     // Fetch issue body and all comments
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;
@@ -597,7 +607,12 @@ pub async fn modified_at(url: &Url) -> Result<u64> {
     let issue_ref = parse_github_issue_url(url)?;
 
     // Get token (optional for public repos)
-    let token = get_token(Some(&issue_ref.owner), Some(&issue_ref.repo)).await;
+    let token = get_token(
+        Some(&issue_ref.owner),
+        Some(&issue_ref.repo),
+        GitHubAuthPolicy::PreferUser,
+    )
+    .await;
 
     // Fetch issue body and all comments
     let all_content = fetch_all_issue_content(&issue_ref, token.as_deref()).await?;

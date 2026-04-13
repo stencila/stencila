@@ -19,6 +19,13 @@ use stencila_version::STENCILA_USER_AGENT;
 
 const API_BASE_URL: &str = "https://api.github.com";
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum GitHubAuthPolicy {
+    PreferUser,
+    #[allow(dead_code)]
+    PreferRepoInstallation,
+}
+
 // Rate limits based on GitHub API documentation with conservative margins
 //
 // https://docs.github.com/en/rest/using-the-rest-api/rate-limits-for-the-rest-api?apiVersion=2022-11-28
@@ -90,14 +97,16 @@ pub(crate) async fn apply_rate_limiting(url: &str, authenticated: bool) -> Resul
 
 /// Get GitHub API token with optional repo-specific resolution
 ///
-/// When `owner` and `repo` are provided, tries:
-/// 1. GITHUB_TOKEN env var / keyring
-/// 2. Stencila Cloud repo-specific installation token
-/// 3. Stencila Cloud user's GitHub OAuth token
+/// When `owner` and `repo` are provided, token resolution order depends on
+/// `policy` after first checking the local `GITHUB_TOKEN` env var / keyring.
 ///
 /// When not provided (for search/general APIs), just tries:
 /// 1. GITHUB_TOKEN env var / keyring
-pub(crate) async fn get_token(owner: Option<&str>, repo: Option<&str>) -> Option<String> {
+pub(crate) async fn get_token(
+    owner: Option<&str>,
+    repo: Option<&str>,
+    policy: GitHubAuthPolicy,
+) -> Option<String> {
     // First try local secret/env var
     if let Ok(token) = stencila_secrets::env_or_get(GITHUB_TOKEN) {
         return Some(token);
@@ -105,15 +114,29 @@ pub(crate) async fn get_token(owner: Option<&str>, repo: Option<&str>) -> Option
 
     // If repo context provided, try Cloud tokens
     if let (Some(owner), Some(repo)) = (owner, repo) {
-        // Try repo-specific installation token
-        if let Ok(token) = stencila_cloud::get_repo_token(owner, repo).await {
-            return Some(token);
-        }
-    }
+        let user_token = async { stencila_cloud::get_token("github").await.ok() };
+        let repo_token = async { stencila_cloud::get_repo_token(owner, repo).await.ok() };
 
-    // Fall back to user's connected GitHub OAuth token
-    if let Ok(token) = stencila_cloud::get_token("github").await {
-        return Some(token);
+        match policy {
+            GitHubAuthPolicy::PreferUser => {
+                if let Some(token) = user_token.await {
+                    return Some(token);
+                }
+                if let Some(token) = repo_token.await {
+                    return Some(token);
+                }
+            }
+            GitHubAuthPolicy::PreferRepoInstallation => {
+                if let Some(token) = repo_token.await {
+                    return Some(token);
+                }
+                if let Some(token) = user_token.await {
+                    return Some(token);
+                }
+            }
+        }
+
+        return None;
     }
 
     None
@@ -145,7 +168,7 @@ where
 {
     tracing::debug!("Making GitHub API request");
 
-    let token = get_token(None, None).await;
+    let token = get_token(None, None, GitHubAuthPolicy::PreferUser).await;
 
     apply_rate_limiting(url, token.is_some()).await?;
 
@@ -168,11 +191,16 @@ where
 /// Unlike [`request`], this accepts explicit `owner`/`repo` for token resolution,
 /// which enables repo-specific installation tokens via Stencila Cloud.
 #[tracing::instrument(skip(owner, repo))]
-pub(crate) async fn get_json<T>(url: &str, owner: &str, repo: &str) -> Result<T>
+pub(crate) async fn get_json<T>(
+    url: &str,
+    owner: &str,
+    repo: &str,
+    policy: GitHubAuthPolicy,
+) -> Result<T>
 where
     T: DeserializeOwned,
 {
-    let token = get_token(Some(owner), Some(repo)).await;
+    let token = get_token(Some(owner), Some(repo), policy).await;
 
     apply_rate_limiting(url, token.is_some()).await?;
 
@@ -198,8 +226,9 @@ async fn send_authenticated(
     url: &str,
     owner: &str,
     repo: &str,
+    policy: GitHubAuthPolicy,
 ) -> Result<reqwest::Response> {
-    let token = get_token(Some(owner), Some(repo))
+    let token = get_token(Some(owner), Some(repo), policy)
         .await
         .ok_or_else(|| stencila_codec::eyre::eyre!("GitHub authentication required"))?;
 
@@ -216,12 +245,19 @@ async fn send_authenticated(
 /// Serializes `body` as JSON, attaches a `Bearer` token resolved for the
 /// given `owner`/`repo` context, and returns the deserialized response.
 #[tracing::instrument(skip(body, owner, repo))]
-pub(crate) async fn post_json<B, T>(url: &str, body: &B, owner: &str, repo: &str) -> Result<T>
+pub(crate) async fn post_json<B, T>(
+    url: &str,
+    body: &B,
+    owner: &str,
+    repo: &str,
+    policy: GitHubAuthPolicy,
+) -> Result<T>
 where
     B: Serialize,
     T: DeserializeOwned,
 {
-    let response = send_authenticated(CLIENT.post(url).json(body), url, owner, repo).await?;
+    let response =
+        send_authenticated(CLIENT.post(url).json(body), url, owner, repo, policy).await?;
 
     if let Err(error) = response.error_for_status_ref() {
         let status = response.status();
@@ -243,12 +279,13 @@ pub(crate) async fn post_json_with_status<B, T>(
     body: &B,
     owner: &str,
     repo: &str,
+    policy: GitHubAuthPolicy,
 ) -> std::result::Result<T, PostError>
 where
     B: Serialize,
     T: DeserializeOwned,
 {
-    let response = send_authenticated(CLIENT.post(url).json(body), url, owner, repo)
+    let response = send_authenticated(CLIENT.post(url).json(body), url, owner, repo, policy)
         .await
         .map_err(|e| PostError {
             status: None,
@@ -272,11 +309,18 @@ where
 
 /// Make an authenticated PATCH request to GitHub's API with a JSON body.
 #[tracing::instrument(skip(body, owner, repo))]
-pub(crate) async fn patch_json<B>(url: &str, body: &B, owner: &str, repo: &str) -> Result<()>
+pub(crate) async fn patch_json<B>(
+    url: &str,
+    body: &B,
+    owner: &str,
+    repo: &str,
+    policy: GitHubAuthPolicy,
+) -> Result<()>
 where
     B: Serialize,
 {
-    let response = send_authenticated(CLIENT.patch(url).json(body), url, owner, repo).await?;
+    let response =
+        send_authenticated(CLIENT.patch(url).json(body), url, owner, repo, policy).await?;
 
     if let Err(error) = response.error_for_status_ref() {
         let body_text = response.text().await.unwrap_or_default();
@@ -288,8 +332,13 @@ where
 
 /// Make an authenticated DELETE request to GitHub's API.
 #[tracing::instrument(skip(owner, repo))]
-pub(crate) async fn delete(url: &str, owner: &str, repo: &str) -> Result<()> {
-    let response = send_authenticated(CLIENT.delete(url), url, owner, repo).await?;
+pub(crate) async fn delete(
+    url: &str,
+    owner: &str,
+    repo: &str,
+    policy: GitHubAuthPolicy,
+) -> Result<()> {
+    let response = send_authenticated(CLIENT.delete(url), url, owner, repo, policy).await?;
 
     if let Err(error) = response.error_for_status_ref() {
         let body_text = response.text().await.unwrap_or_default();

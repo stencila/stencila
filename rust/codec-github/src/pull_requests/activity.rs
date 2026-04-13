@@ -11,7 +11,7 @@ use url::Url;
 
 use stencila_codec::eyre::{Result, bail, eyre};
 
-use crate::client::{CLIENT, apply_rate_limiting, get_token};
+use crate::client::{CLIENT, GitHubAuthPolicy, apply_rate_limiting, get_token};
 
 /// Reference to a GitHub pull request.
 #[derive(Debug, Clone)]
@@ -278,7 +278,12 @@ async fn fetch_issue_comment_timestamps(
 pub async fn modified_at(url: &Url) -> Result<u64> {
     let pr_ref = parse_github_pull_request_url(url)?;
 
-    let token = get_token(Some(&pr_ref.owner), Some(&pr_ref.repo)).await;
+    let token = get_token(
+        Some(&pr_ref.owner),
+        Some(&pr_ref.repo),
+        GitHubAuthPolicy::PreferRepoInstallation,
+    )
+    .await;
 
     let pr_updated_at = fetch_pull_request_updated_at(&pr_ref, token.as_deref()).await?;
     let review_comment_timestamps =

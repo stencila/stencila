@@ -42,6 +42,7 @@ use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
 
 use stencila_codec::eyre::{Result, bail, eyre};
+use stencila_codec::stencila_schema::SuggestionType;
 use stencila_codec::{PushDryRunFile, PushDryRunOptions, PushResult};
 
 use super::{
@@ -51,8 +52,17 @@ use super::{
         PullRequestExport, PullRequestSide, PullRequestTarget,
     },
 };
-use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
-use stencila_codec::stencila_schema::SuggestionType;
+use crate::client::{
+    GitHubAuthPolicy, api_url, delete, get_json, patch_json, post_json, post_json_with_status,
+};
+
+// Prefer the user's GitHub identity for substantive PR creation and content
+// commits so authorship matches the human who initiated the push, but prefer
+// the repository installation identity for synthetic anchor commits and review
+// submission so the temporary anchoring machinery is clearly attributable to
+// automation.
+const PR_AUTH_POLICY: GitHubAuthPolicy = GitHubAuthPolicy::PreferUser;
+const ANCHOR_AUTH_POLICY: GitHubAuthPolicy = GitHubAuthPolicy::PreferRepoInstallation;
 
 /// Maximum number of trailing line endings used for placeholder PR-opening
 /// changes.
@@ -233,7 +243,8 @@ async fn push_pull_request_inner(
                 repo,
                 &current_sha,
                 &[(source_path.to_string(), source_text.to_string())],
-                "Apply document content changes",
+                "Document content changes",
+                PR_AUTH_POLICY,
             )
             .await?
         };
@@ -263,6 +274,7 @@ async fn push_pull_request_inner(
             },
             owner,
             repo,
+            PR_AUTH_POLICY,
         )
         .await?
     };
@@ -488,6 +500,7 @@ pub async fn push_pull_request_export(
                 )),
                 &owner,
                 &repo,
+                PR_AUTH_POLICY,
             )
             .await?;
 
@@ -514,8 +527,13 @@ pub async fn push_pull_request_export(
                     source_commit.clone()
                 };
 
-            let repo_info: RepoInfoResponse =
-                get_json(&api_url(&format!("/repos/{owner}/{repo}")), &owner, &repo).await?;
+            let repo_info: RepoInfoResponse = get_json(
+                &api_url(&format!("/repos/{owner}/{repo}")),
+                &owner,
+                &repo,
+                PR_AUTH_POLICY,
+            )
+            .await?;
             let base_branch = repo_info.default_branch;
 
             let timestamp = std::time::SystemTime::now()
@@ -535,6 +553,7 @@ pub async fn push_pull_request_export(
                 },
                 &owner,
                 &repo,
+                PR_AUTH_POLICY,
             )
             .await?;
 
@@ -884,7 +903,7 @@ async fn fetch_file_at_ref(owner: &str, repo: &str, path: &str, git_ref: &str) -
     let url = api_url(&format!(
         "/repos/{owner}/{repo}/contents/{path}?ref={git_ref}"
     ));
-    let resp: ContentsResponse = get_json(&url, owner, repo).await?;
+    let resp: ContentsResponse = get_json(&url, owner, repo, PR_AUTH_POLICY).await?;
 
     let content = resp
         .content
@@ -909,8 +928,13 @@ async fn resolve_default_branch_head(owner: &str, repo: &str) -> Result<String> 
         commit: RefObject,
     }
 
-    let repo_info: RepoInfoResponse =
-        get_json(&api_url(&format!("/repos/{owner}/{repo}")), owner, repo).await?;
+    let repo_info: RepoInfoResponse = get_json(
+        &api_url(&format!("/repos/{owner}/{repo}")),
+        owner,
+        repo,
+        PR_AUTH_POLICY,
+    )
+    .await?;
     let branch: BranchResponse = get_json(
         &api_url(&format!(
             "/repos/{owner}/{repo}/branches/{}",
@@ -918,6 +942,7 @@ async fn resolve_default_branch_head(owner: &str, repo: &str) -> Result<String> 
         )),
         owner,
         repo,
+        PR_AUTH_POLICY,
     )
     .await?;
 
@@ -1015,11 +1040,13 @@ async fn create_content_commit(
     parent_sha: &str,
     files: &[(String, String)],
     message: &str,
+    policy: GitHubAuthPolicy,
 ) -> Result<String> {
     let parent_commit: CommitResponse = get_json(
         &api_url(&format!("/repos/{owner}/{repo}/git/commits/{parent_sha}")),
         owner,
         repo,
+        policy,
     )
     .await?;
 
@@ -1041,6 +1068,7 @@ async fn create_content_commit(
         },
         owner,
         repo,
+        PR_AUTH_POLICY,
     )
     .await?;
 
@@ -1053,6 +1081,7 @@ async fn create_content_commit(
         },
         owner,
         repo,
+        PR_AUTH_POLICY,
     )
     .await?;
 
@@ -1074,6 +1103,7 @@ async fn create_placeholder_content_commit(
         parent_sha,
         &[(path.to_string(), dummy_content)],
         "Add placeholder change to open pull request",
+        PR_AUTH_POLICY,
     )
     .await
 }
@@ -1318,6 +1348,7 @@ async fn create_anchor_commit(
         parent_sha,
         files,
         "Add temporary review anchors",
+        ANCHOR_AUTH_POLICY,
     )
     .await
 }
@@ -1331,7 +1362,14 @@ async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str, force: boo
     }
 
     let url = api_url(&format!("/repos/{owner}/{repo}/git/refs/heads/{branch}"));
-    patch_json(&url, &UpdateRefRequest { sha, force }, owner, repo).await
+    patch_json(
+        &url,
+        &UpdateRefRequest { sha, force },
+        owner,
+        repo,
+        PR_AUTH_POLICY,
+    )
+    .await
 }
 
 /// Submit GitHub inline comments for a PR.
@@ -1395,6 +1433,7 @@ async fn submit_github_review(
             },
             owner,
             repo,
+            ANCHOR_AUTH_POLICY,
         )
         .await;
 
@@ -1473,6 +1512,7 @@ async fn submit_github_review(
             },
             owner,
             repo,
+            ANCHOR_AUTH_POLICY,
         )
         .await
         .map_err(SubmitReviewError::Other)?;
@@ -1491,13 +1531,20 @@ async fn close_pr(owner: &str, repo: &str, pr_number: u64) -> Result<()> {
     }
 
     let url = api_url(&format!("/repos/{owner}/{repo}/pulls/{pr_number}"));
-    patch_json(&url, &ClosePrRequest { state: "closed" }, owner, repo).await
+    patch_json(
+        &url,
+        &ClosePrRequest { state: "closed" },
+        owner,
+        repo,
+        PR_AUTH_POLICY,
+    )
+    .await
 }
 
 /// Delete a branch ref.
 async fn delete_branch(owner: &str, repo: &str, branch: &str) -> Result<()> {
     let url = api_url(&format!("/repos/{owner}/{repo}/git/refs/heads/{branch}"));
-    delete(&url, owner, repo).await
+    delete(&url, owner, repo, PR_AUTH_POLICY).await
 }
 
 /// Convert resolved [`PullRequestComment`]s into GitHub review comments and fallback items.
