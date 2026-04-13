@@ -24,7 +24,8 @@
     "provenance",
     "executionDuration",
     "executionEnded",
-    "feedback"
+    "feedback",
+    "original"
   ],
   "properties": {
     "type": {
@@ -192,6 +193,17 @@
           "description": "Generate up to four arbitrary, non-recursive, block nodes",
           "strategy": "vec_blocks_non_recursive(4)"
         }
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Block.schema.json"
+      }
+    },
+    "original": {
+      "@id": "stencila:original",
+      "description": "The original content that is suggested to be replaced or deleted.",
+      "dom": {
+        "elem": "div"
       },
       "type": "array",
       "items": {

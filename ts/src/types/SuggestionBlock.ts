@@ -15,6 +15,11 @@ export class SuggestionBlock extends Suggestion {
    */
   content: Block[];
 
+  /**
+   * The original content that is suggested to be replaced or deleted.
+   */
+  original?: Block[];
+
   constructor(content: Block[], options?: Partial<SuggestionBlock>) {
     super();
     this.type = "SuggestionBlock";

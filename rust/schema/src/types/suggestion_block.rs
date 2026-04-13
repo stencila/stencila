@@ -77,6 +77,11 @@ pub struct SuggestionBlock {
     #[dom(elem = "div")]
     pub content: Vec<Block>,
 
+    /// The original content that is suggested to be replaced or deleted.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "div")]
+    pub original: Option<Vec<Block>>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid

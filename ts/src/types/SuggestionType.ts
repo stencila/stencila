@@ -4,6 +4,7 @@
  */
 export type SuggestionType =
   'Insert' |
-  'Delete';
+  'Delete' |
+  'Replace';
 
 

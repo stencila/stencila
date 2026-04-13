@@ -521,6 +521,7 @@ class SuggestionType(StrEnum):
 
     Insert = "Insert"
     Delete = "Delete"
+    Replace = "Replace"
 
 
 class TableCellType(StrEnum):
@@ -3255,6 +3256,9 @@ class SuggestionBlock(Suggestion):
     content: list[Block]
     """The content that is suggested to be inserted, modified, replaced, or deleted."""
 
+    original: list[Block] | None = None
+    """The original content that is suggested to be replaced or deleted."""
+
 
 @dataclass(kw_only=True, repr=False)
 class SuggestionInline(Suggestion):
@@ -3266,6 +3270,9 @@ class SuggestionInline(Suggestion):
 
     content: list[Inline]
     """The content that is suggested to be inserted, modified, replaced, or deleted."""
+
+    original: list[Inline] | None = None
+    """The original content that is suggested to be replaced or deleted."""
 
 
 @dataclass(kw_only=True, repr=False)

@@ -10,3 +10,6 @@ anyOf:
   - const: Delete
     "@id": stencila:Delete
     description: The suggestion is a deletion of existing content.
+  - const: Replace
+    "@id": stencila:Replace
+    description: The suggestion is a replacement of existing content with new content.

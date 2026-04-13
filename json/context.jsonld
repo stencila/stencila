@@ -416,6 +416,7 @@
     "operatingSystem": "schema:operatingSystem",
     "orcid": "stencila:orcid",
     "order": "schema:itemListOrder",
+    "original": "stencila:original",
     "otherIds": "stencila:otherIds",
     "otherwise": "stencila:otherwise",
     "output": "stencila:output",

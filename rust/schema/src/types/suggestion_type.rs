@@ -12,4 +12,7 @@ pub enum SuggestionType {
 
     /// The suggestion is a deletion of existing content.
     Delete,
+
+    /// The suggestion is a replacement of existing content with new content.
+    Replace,
 }

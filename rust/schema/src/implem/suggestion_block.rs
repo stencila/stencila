@@ -17,9 +17,16 @@ impl MarkdownCodec for SuggestionBlock {
         if matches!(context.mode, MarkdownEncodeMode::Clean) {
             context.enter_node(self.node_type(), self.node_id());
 
-            if self.suggestion_type == Some(SuggestionType::Delete) {
+            if matches!(
+                self.suggestion_type,
+                Some(SuggestionType::Delete | SuggestionType::Replace)
+            ) {
                 context.push_prop_fn(NodeProperty::Content, |context| {
-                    self.content.to_markdown(context)
+                    if self.suggestion_type == Some(SuggestionType::Replace) {
+                        self.original.to_markdown(context)
+                    } else {
+                        self.content.to_markdown(context)
+                    }
                 });
             }
 
@@ -41,10 +48,10 @@ impl MarkdownCodec for SuggestionBlock {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id));
 
-        let fence = if self.suggestion_type == Some(SuggestionType::Delete) {
-            ":--"
-        } else {
-            ":++"
+        let fence = match self.suggestion_type {
+            Some(SuggestionType::Delete) => ":--",
+            Some(SuggestionType::Replace) => ":~~",
+            _ => ":++",
         };
 
         context.push_str(fence);
@@ -61,8 +68,16 @@ impl MarkdownCodec for SuggestionBlock {
                 .push_prop_str(NodeProperty::Feedback, feedback);
         }
 
+        context.push_str("\n\n");
+
+        if self.suggestion_type == Some(SuggestionType::Replace) {
+            context.push_prop_fn(NodeProperty::Content, |context| {
+                self.original.to_markdown(context)
+            });
+            context.push_str("\n\n:~>\n\n");
+        }
+
         context
-            .push_str("\n\n")
             .push_prop_fn(NodeProperty::Content, |context| {
                 self.content.to_markdown(context)
             })

@@ -222,6 +222,7 @@ pub enum NodeProperty {
     OperatingSystem,
     Orcid,
     Order,
+    Original,
     OtherIds,
     Otherwise,
     Output,

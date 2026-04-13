@@ -8,6 +8,8 @@ markdown:
   derive: false
 required:
   - content
+core:
+  - original
 properties:
   content:
     '@id': stencila:content
@@ -30,3 +32,11 @@ properties:
       max:
         description: Generate up to four arbitrary, non-recursive, inline nodes
         strategy: vec_inlines_non_recursive(4)
+  original:
+    '@id': stencila:original
+    description: The original content that is suggested to be replaced or deleted.
+    type: array
+    items:
+      $ref: Inline
+    dom:
+      elem: span

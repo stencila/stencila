@@ -15,6 +15,11 @@ export class SuggestionInline extends Suggestion {
    */
   content: Inline[];
 
+  /**
+   * The original content that is suggested to be replaced or deleted.
+   */
+  original?: Inline[];
+
   constructor(content: Inline[], options?: Partial<SuggestionInline>) {
     super();
     this.type = "SuggestionInline";

@@ -77,6 +77,11 @@ pub struct SuggestionInline {
     #[dom(elem = "span")]
     pub content: Vec<Inline>,
 
+    /// The original content that is suggested to be replaced or deleted.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[dom(elem = "span")]
+    pub original: Option<Vec<Inline>>,
+
     /// A unique identifier for a node within a document
     #[serde(skip)]
     pub uid: NodeUid

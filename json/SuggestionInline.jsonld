@@ -335,6 +335,23 @@
       "schema:rangeIncludes": {
         "@id": "stencila:Inline"
       }
+    },
+    {
+      "@id": "stencila:original",
+      "@type": "rdfs:Property",
+      "rdfs:label": "original",
+      "rdfs:comment": "The original content that is suggested to be replaced or deleted.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:SuggestionBlock"
+        },
+        {
+          "@id": "stencila:SuggestionInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Inline"
+      }
     }
   ]
 }
