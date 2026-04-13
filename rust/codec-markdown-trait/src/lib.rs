@@ -70,7 +70,11 @@ pub enum MarkdownEncodeMode {
     /// This mode omits review-oriented syntax such as comments, comment
     /// boundaries, and suggestion markers, while still entering and exiting
     /// nodes so mappings remain available for downstream consumers such as diff
-    /// and review tooling.
+    /// and review tooling. For suggestions, "clean" means flattening the node
+    /// to the underlying reviewed source content rather than preserving
+    /// unresolved review markup: insertions contribute no content, while
+    /// deletions and replacements encode the original content without
+    /// suggestion markers.
     Clean,
 
     /// Encode rendered document content instead of the authored source.

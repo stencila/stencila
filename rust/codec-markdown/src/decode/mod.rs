@@ -138,55 +138,55 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
     }
 
     // Build Comment nodes from extracted definitions and assign to article
-    if !context.comment_definitions.is_empty() {
-        if let Node::Article(ref mut article) = node {
-            let mut top_level: Vec<Comment> = Vec::new();
-            let mut replies: Vec<(String, Comment)> = Vec::new();
+    if !context.comment_definitions.is_empty()
+        && let Node::Article(ref mut article) = node
+    {
+        let mut top_level: Vec<Comment> = Vec::new();
+        let mut replies: Vec<(String, Comment)> = Vec::new();
 
-            // Sort keys for deterministic ordering
-            let mut ids: Vec<String> = context.comment_definitions.keys().cloned().collect();
-            ids.sort();
+        // Sort keys for deterministic ordering
+        let mut ids: Vec<String> = context.comment_definitions.keys().cloned().collect();
+        ids.sort();
 
-            for id in ids {
-                let content_md = context.comment_definitions.remove(&id).unwrap_or_default();
-                let content = decode_blocks(&content_md, &mut context);
-                let is_reply = id.contains('.');
+        for id in ids {
+            let content_md = context.comment_definitions.remove(&id).unwrap_or_default();
+            let content = decode_blocks(&content_md, &mut context);
+            let is_reply = id.contains('.');
 
-                let comment = Comment {
-                    id: Some(id.clone()),
-                    content,
-                    options: Box::new(CommentOptions {
-                        start_location: if !is_reply {
-                            Some(format!("#comment-{id}-start"))
-                        } else {
-                            None
-                        },
-                        end_location: if !is_reply {
-                            Some(format!("#comment-{id}-end"))
-                        } else {
-                            None
-                        },
-                        ..Default::default()
-                    }),
+            let comment = Comment {
+                id: Some(id.clone()),
+                content,
+                options: Box::new(CommentOptions {
+                    start_location: if !is_reply {
+                        Some(format!("#comment-{id}-start"))
+                    } else {
+                        None
+                    },
+                    end_location: if !is_reply {
+                        Some(format!("#comment-{id}-end"))
+                    } else {
+                        None
+                    },
                     ..Default::default()
-                };
+                }),
+                ..Default::default()
+            };
 
-                if is_reply {
-                    let parent_id = id.rsplitn(2, '.').last().unwrap_or(&id).to_string();
-                    replies.push((parent_id, comment));
-                } else {
-                    top_level.push(comment);
-                }
+            if is_reply {
+                let parent_id = id.rsplitn(2, '.').last().unwrap_or(&id).to_string();
+                replies.push((parent_id, comment));
+            } else {
+                top_level.push(comment);
             }
+        }
 
-            // Nest replies into their parent comments
-            for (parent_id, reply) in replies {
-                nest_reply(&mut top_level, &parent_id, reply);
-            }
+        // Nest replies into their parent comments
+        for (parent_id, reply) in replies {
+            nest_reply(&mut top_level, &parent_id, reply);
+        }
 
-            if !top_level.is_empty() {
-                article.options.comments = Some(top_level);
-            }
+        if !top_level.is_empty() {
+            article.options.comments = Some(top_level);
         }
     }
 

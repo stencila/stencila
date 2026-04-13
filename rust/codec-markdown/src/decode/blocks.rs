@@ -64,21 +64,22 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     for md in mds.into_iter() {
         let mut is_handled = false;
 
-        // Get children, position and starting text of the paragraph (if the block is one) for checks below
+        // Get paragraph children and position for fence checks below
         let mut para = None;
-        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md
-            && let Some(mdast::Node::Text(mdast::Text { value, .. })) = children.first()
-        {
-            para = Some((children, position, value));
+        if let mdast::Node::Paragraph(mdast::Paragraph { children, position }) = &md {
+            para = Some((children, position));
         }
 
-        // Handle colon fences (paragraphs starting with `:::`, `:++`, or `:--`)
-        if let Some((true, children, position)) = para.map(|(children, position, text)| {
+        // Handle fence paragraphs starting with `:::`, `:++`, `:--`, `:~~`, `:~>`, or `/`
+        if let Some((true, children, position)) = para.map(|(children, position)| {
+            let value = mds_to_string(children);
             (
-                text.starts_with(":::")
-                    || text.starts_with(":++")
-                    || text.starts_with(":--")
-                    || text.starts_with("/"),
+                value.starts_with(":::")
+                    || value.starts_with(":++")
+                    || value.starts_with(":--")
+                    || value.starts_with(":~~")
+                    || value.starts_with(":~>")
+                    || value.starts_with("/"),
                 children,
                 position,
             )
@@ -133,6 +134,17 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                                     "Found an `::: else` without a preceding `::: if` or `::: for`"
                                 ),
                             }
+                        }
+
+                        boundaries.push(blocks.len());
+                    }
+                    Divider::Next => {
+                        if let Some(position) = position {
+                            context.map_end(position.end.offset);
+                        }
+
+                        if let Some(last_block) = blocks.last_mut() {
+                            finalize(last_block, children, context);
                         }
 
                         boundaries.push(blocks.len());
@@ -267,7 +279,10 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
         }
 
         // Handle walkthrough steps
-        if para.map(|(.., text)| text == "...").unwrap_or_default() {
+        if para
+            .map(|(children, ..)| mds_to_string(children) == "...")
+            .unwrap_or_default()
+        {
             let content = pop_blocks(&mut blocks, &mut boundaries);
 
             if let Some(Block::Walkthrough(walkthrough)) = blocks.last_mut() {
@@ -339,15 +354,15 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     context.map_extend(current_id, next_id);
                 }
 
-                if let Some(
-                    Block::InstructionBlock(InstructionBlock {
+                match blocks.get_mut(index) {
+                    Some(Block::InstructionBlock(InstructionBlock {
                         content: Some(content),
                         ..
-                    })
-                    | Block::SuggestionBlock(SuggestionBlock { content, .. }),
-                ) = blocks.get_mut(index)
-                {
-                    content.push(next);
+                    })) => content.push(next),
+                    Some(Block::SuggestionBlock(suggestion)) => {
+                        suggestion_content_mut(suggestion).push(next)
+                    }
+                    _ => {}
                 }
 
                 step = false;
@@ -393,7 +408,8 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 Some(next),
             ) = (blocks.get(index), blocks.get(index + 1))
                 && !matches!(next, Block::SuggestionBlock(..))
-                && let Some(SuggestionBlock { content, .. }) = suggestions.last()
+                && let Some(suggestion) = suggestions.last()
+                && let content = suggestion_content(suggestion)
                 && content.capacity() == 1
                 && content.is_empty()
             {
@@ -413,9 +429,9 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                     suggestions: Some(suggestions),
                     ..
                 })) = blocks.get_mut(index)
-                    && let Some(SuggestionBlock { content, .. }) = suggestions.last_mut()
+                    && let Some(suggestion) = suggestions.last_mut()
                 {
-                    content.push(next);
+                    suggestion_content_mut(suggestion).push(next);
                 }
 
                 step = false;
@@ -457,6 +473,9 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
                 }) = block
                 {
                     for suggestion in suggestions {
+                        if let Some(original) = &mut suggestion.original {
+                            fold_blocks(original, context);
+                        }
                         fold_blocks(&mut suggestion.content, context);
                     }
                 } else if let Block::Walkthrough(Walkthrough { steps, .. }) = block {
@@ -487,7 +506,31 @@ pub(super) fn mds_to_blocks(mds: Vec<mdast::Node>, context: &mut Context) -> Vec
     blocks
 }
 
-/// Parse a "div": a paragraph starting with at least three colons, or `:++`/`:--` for suggestions
+fn suggestion_waiting_for_original(suggestion: &SuggestionBlock) -> bool {
+    suggestion.suggestion_type == Some(SuggestionType::Replace)
+        && suggestion
+            .original
+            .as_ref()
+            .is_some_and(|original| original.is_empty())
+}
+
+fn suggestion_content_mut(suggestion: &mut SuggestionBlock) -> &mut Vec<Block> {
+    if suggestion_waiting_for_original(suggestion) {
+        suggestion.original.get_or_insert_default()
+    } else {
+        &mut suggestion.content
+    }
+}
+
+fn suggestion_content(suggestion: &SuggestionBlock) -> &Vec<Block> {
+    if suggestion_waiting_for_original(suggestion) {
+        suggestion.original.as_ref().unwrap_or(&suggestion.content)
+    } else {
+        &suggestion.content
+    }
+}
+
+/// Parse a "div": a paragraph starting with at least three colons, or `:++`/`:--`/`:~~` for suggestions
 fn block(input: &mut Located<&str>) -> ModalResult<Block> {
     alt((
         chat,
@@ -1131,12 +1174,13 @@ fn instruction_block(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
-/// Parse a [`SuggestionBlock`] node using Critic Markup fence syntax (`:++` or `:--`)
+/// Parse a [`SuggestionBlock`] node using Critic Markup fence syntax (`:++`, `:--`, or `:~~`)
 fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
     (
         alt((
             ":++".value(SuggestionType::Insert),
             ":--".value(SuggestionType::Delete),
+            ":~~".value(SuggestionType::Replace),
         )),
         opt(preceded(
             multispace0,
@@ -1155,13 +1199,19 @@ fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
             )| {
                 let feedback = feedback.map(|f| f.trim()).filter(|f| !f.is_empty());
 
-                Block::SuggestionBlock(SuggestionBlock {
+                let mut block = SuggestionBlock {
                     suggestion_type: Some(suggestion_type),
                     suggestion_status,
                     feedback: feedback.map(String::from),
                     content: Vec::new(),
                     ..Default::default()
-                })
+                };
+
+                if suggestion_type == SuggestionType::Replace {
+                    block.original = Some(Vec::new());
+                }
+
+                Block::SuggestionBlock(block)
             },
         )
         .parse_next(input)
@@ -1285,14 +1335,15 @@ fn table(input: &mut Located<&str>) -> ModalResult<Block> {
 
 /// Parse a divider between sections of content.
 ///
-/// The `has_open_block` parameter controls whether `:++`/`:--` are recognized as
+/// The `has_open_block` parameter controls whether `:++`/`:--`/`:~~` are recognized as
 /// end dividers. These tokens serve as both openers and closers for suggestion blocks,
 /// so they should only match as closers when there is an open block to close.
 fn divider(input: &mut &str, has_open_block: bool) -> ModalResult<Divider> {
     if has_open_block {
         alt((
-            // Critic Markup style suggestion block closers: `:++` or `:--`
-            delimited(alt((":++", ":--")), space0, eof).map(|_| Divider::End),
+            // Critic Markup style suggestion block dividers: `:++`, `:--`, `:~~` or `:~>`
+            delimited(alt((":++", ":--", ":~~")), space0, eof).map(|_| Divider::End),
+            delimited(":~>", space0, eof).map(|_| Divider::Next),
             // Standard colon fence dividers
             delimited(
                 (take_while(3.., ':'), space0),
@@ -1320,13 +1371,19 @@ fn divider(input: &mut &str, has_open_block: bool) -> ModalResult<Divider> {
 #[derive(Debug, PartialEq)]
 enum Divider {
     Else,
+    Next,
     End,
 }
 
 /// Finalize a block by assigning children etc
 fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
-    if let Block::SuggestionBlock(SuggestionBlock { content, .. })
-    | Block::ChatMessage(ChatMessage { content, .. })
+    if let Block::SuggestionBlock(suggestion) = parent {
+        if suggestion_waiting_for_original(suggestion) {
+            suggestion.original = Some(children);
+        } else {
+            suggestion.content = children;
+        }
+    } else if let Block::ChatMessage(ChatMessage { content, .. })
     | Block::Claim(Claim { content, .. })
     | Block::Page(Page { content, .. })
     | Block::Section(Section { content, .. })
@@ -3232,8 +3289,12 @@ A two-panel figure combining an executable plot with a real image.
         // Critic Markup fences only match as dividers when there is an open block
         assert_eq!(divider(&mut ":++", true).unwrap(), Divider::End);
         assert_eq!(divider(&mut ":--", true).unwrap(), Divider::End);
+        assert_eq!(divider(&mut ":~~", true).unwrap(), Divider::End);
+        assert_eq!(divider(&mut ":~>", true).unwrap(), Divider::Next);
         assert!(divider(&mut ":++", false).is_err());
         assert!(divider(&mut ":--", false).is_err());
+        assert!(divider(&mut ":~~", false).is_err());
+        assert!(divider(&mut ":~>", false).is_err());
 
         assert!(divider(&mut "::: some chars", true).is_err());
         assert!(divider(&mut "::: with :::", true).is_err());

@@ -1034,8 +1034,22 @@ fn styled_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
 ///
 /// Insertions: `{++inserted text++}`
 /// Deletions: `{--deleted text--}`
+/// Replacements: `{~~old text~>new text~~}`
 fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
     alt((
+        (
+            delimited("{~~", take_until(0.., "~>"), "~>"),
+            take_until(0.., "~~}"),
+            "~~}",
+        )
+            .map(|(original, content, _): (&str, &str, &str)| {
+                Inline::SuggestionInline(SuggestionInline {
+                    suggestion_type: Some(SuggestionType::Replace),
+                    content: inlines_only(content),
+                    original: Some(inlines_only(original)),
+                    ..Default::default()
+                })
+            }),
         delimited("{++", take_until(0.., "++}"), "++}").map(|content: &str| {
             Inline::SuggestionInline(SuggestionInline {
                 suggestion_type: Some(SuggestionType::Insert),
