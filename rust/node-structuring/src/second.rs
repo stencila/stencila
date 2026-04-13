@@ -8,7 +8,7 @@ use stencila_schema::{
     Subscript, Superscript, Text, Underline, VisitorMut, WalkControl,
 };
 
-use crate::{FirstWalk, should_remove_inline};
+use crate::{FirstWalk, should_remove_inline, suggestions::normalize_suggestion_inlines};
 
 /// Second structuring walk
 ///
@@ -108,6 +108,10 @@ impl SecondWalk {
 
     /// Visit a vector of inlines
     fn visit_inlines(&mut self, inlines: &mut Vec<Inline>) {
+        if self.options.should_perform(NormalizeSuggestions) {
+            normalize_suggestion_inlines(inlines);
+        }
+
         if self.options.should_perform(TextToCitations)
             || self.options.should_perform(MathToCitations)
         {

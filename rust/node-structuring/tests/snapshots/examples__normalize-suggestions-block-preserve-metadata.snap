@@ -1,0 +1,47 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Delete",
+      "suggestionStatus": "Accepted",
+      "feedback": "same feedback",
+      "content": [],
+      "original": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "old1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "old2"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        { "type": "Text", "value": "before " },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "content": [{ "type": "Text", "value": "new1 " }]
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "content": [{ "type": "Text", "value": "new2" }]
+        },
+        { "type": "Text", "value": " after" }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

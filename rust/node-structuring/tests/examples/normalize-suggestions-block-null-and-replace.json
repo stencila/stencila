@@ -1,0 +1,35 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "SuggestionBlock",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "unknown" }] }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Replace",
+      "original": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "old" }] }
+      ],
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "new" }] }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Insert",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "tail" }] }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

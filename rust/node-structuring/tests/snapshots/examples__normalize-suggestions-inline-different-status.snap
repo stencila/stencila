@@ -1,0 +1,47 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "suggestionStatus": "Accepted",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "new1"
+              }
+            }
+          ]
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "suggestionStatus": "Rejected",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "new2"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

@@ -1,0 +1,59 @@
+---
+source: rust/node-structuring/tests/examples.rs
+expression: node
+---
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "before "
+          }
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Replace",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "new1 "
+              }
+            },
+            {
+              "type": "Text",
+              "value": {
+                "string": "new2"
+              }
+            }
+          ],
+          "original": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "old "
+              }
+            }
+          ]
+        },
+        {
+          "type": "Text",
+          "value": {
+            "string": " after"
+          }
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

@@ -1,0 +1,31 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "suggestionStatus": "Accepted",
+          "feedback": "same feedback",
+          "content": [{ "type": "Text", "value": "new1" }]
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "suggestionStatus": "Accepted",
+          "feedback": "same feedback",
+          "content": [{ "type": "Text", "value": "new2" }]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

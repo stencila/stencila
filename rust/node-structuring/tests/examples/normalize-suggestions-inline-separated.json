@@ -1,0 +1,28 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "content": [{ "type": "Text", "value": "new1" }]
+        },
+        { "type": "Text", "value": " gap " },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Delete",
+          "content": [{ "type": "Text", "value": "old" }]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

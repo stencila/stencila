@@ -1085,6 +1085,15 @@ pub enum StructuringOperation {
     /// standalone citations, and None for citations within citation groups.
     NormalizeCitations,
 
+    /// Normalize adjacent suggestions into combined suggestion chains
+    ///
+    /// Merges adjacent suggestion nodes of the same kind and combines adjacent
+    /// insert/delete chains into a single replace suggestion. This reduces
+    /// fragmented edit markup such as insert+delete+insert into a normalized
+    /// single suggestion node while preserving both the replacement content and
+    /// the original content.
+    NormalizeSuggestions,
+
     /// Remove content before the first primary heading
     ///
     /// In scholarly articles, author bylines and affiliations usually occur

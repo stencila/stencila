@@ -5,7 +5,7 @@ use stencila_schema::{
     ListItem, Node, Section, SectionType, StyledBlock, TableCell, VisitorMut, WalkControl,
 };
 
-use crate::should_remove_block;
+use crate::{should_remove_block, suggestions::normalize_suggestion_blocks};
 
 /// Third structuring walk
 ///
@@ -96,6 +96,10 @@ impl ThirdWalk {
     /// This method transforms a flat list of blocks containing headings into
     /// a hierarchical structure of sections based on heading levels.
     fn visit_blocks(&mut self, blocks: &mut Vec<Block>, parent_is_section: bool) -> WalkControl {
+        if self.options.should_perform(NormalizeSuggestions) {
+            normalize_suggestion_blocks(blocks);
+        }
+
         let mut blocks_new = Vec::new();
         let mut index = 0;
 

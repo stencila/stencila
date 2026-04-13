@@ -1,0 +1,32 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "SuggestionInline",
+          "content": [{ "type": "Text", "value": "unknown" }]
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Replace",
+          "original": [{ "type": "Text", "value": "old" }],
+          "content": [{ "type": "Text", "value": "new" }]
+        },
+        {
+          "type": "SuggestionInline",
+          "suggestionType": "Insert",
+          "content": [{ "type": "Text", "value": " tail" }]
+        }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

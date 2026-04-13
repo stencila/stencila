@@ -1,0 +1,30 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Delete",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "old" }] }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [{ "type": "Text", "value": "gap" }]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Insert",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "new" }] }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

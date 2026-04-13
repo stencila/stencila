@@ -1,0 +1,30 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Delete",
+      "suggestionStatus": "Accepted",
+      "feedback": "same feedback",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "old1" }] }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Delete",
+      "suggestionStatus": "Accepted",
+      "feedback": "same feedback",
+      "content": [
+        { "type": "Paragraph", "content": [{ "type": "Text", "value": "old2" }] }
+      ]
+    }
+  ],
+  "options": {
+    "extra": {
+      "structuring": [
+        "normalize-suggestions"
+      ]
+    }
+  }
+}

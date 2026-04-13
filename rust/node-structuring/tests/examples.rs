@@ -65,6 +65,13 @@ async fn examples() -> Result<()> {
         } else {
             // Fall back to operation from filename for single operation tests
             let op = id.split("-").take(3).collect_vec().join("-");
+            let op = if op == "normalize-suggestions-inline" || op == "normalize-suggestions-block"
+            {
+                "normalize-suggestions".to_string()
+            } else {
+                op
+            };
+
             if let Ok(operation) = StructuringOperation::from_str(&op) {
                 vec![operation]
             } else {
