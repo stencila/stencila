@@ -17,17 +17,18 @@ impl MarkdownCodec for SuggestionBlock {
         if matches!(context.mode, MarkdownEncodeMode::Clean) {
             context.enter_node(self.node_type(), self.node_id());
 
-            if matches!(
-                self.suggestion_type,
-                Some(SuggestionType::Delete | SuggestionType::Replace)
-            ) {
-                context.push_prop_fn(NodeProperty::Content, |context| {
-                    if self.suggestion_type == Some(SuggestionType::Replace) {
-                        self.original.to_markdown(context)
-                    } else {
+            match self.suggestion_type {
+                Some(SuggestionType::Delete) => {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
                         self.content.to_markdown(context)
-                    }
-                });
+                    });
+                }
+                Some(SuggestionType::Replace) => {
+                    context.push_prop_fn(NodeProperty::Original, |context| {
+                        self.original.to_markdown(context)
+                    });
+                }
+                _ => {}
             }
 
             context.exit_node();
@@ -70,19 +71,25 @@ impl MarkdownCodec for SuggestionBlock {
 
         context.push_str("\n\n");
 
-        if self.suggestion_type == Some(SuggestionType::Replace) {
-            context.push_prop_fn(NodeProperty::Content, |context| {
-                self.original.to_markdown(context)
-            });
-            context.push_str("\n\n:~>\n\n");
+        match self.suggestion_type {
+            Some(SuggestionType::Replace) => {
+                context
+                    .push_prop_fn(NodeProperty::Original, |context| {
+                        self.original.to_markdown(context)
+                    })
+                    .push_str("\n\n:~>\n\n")
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        self.content.to_markdown(context)
+                    });
+            }
+            _ => {
+                context.push_prop_fn(NodeProperty::Content, |context| {
+                    self.content.to_markdown(context)
+                });
+            }
         }
 
-        context
-            .push_prop_fn(NodeProperty::Content, |context| {
-                self.content.to_markdown(context)
-            })
-            .push_str(fence)
-            .newline();
+        context.push_str(fence).newline();
 
         context.exit_node().newline();
     }

@@ -5,16 +5,23 @@ use crate::{SuggestionInline, SuggestionType, prelude::*};
 impl MarkdownCodec for SuggestionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(context.mode, MarkdownEncodeMode::Clean) {
-            context
-                .enter_node(self.node_type(), self.node_id())
-                .push_prop_fn(NodeProperty::Content, |context| {
-                    if self.suggestion_type == Some(SuggestionType::Delete) {
+            context.enter_node(self.node_type(), self.node_id());
+
+            match self.suggestion_type {
+                Some(SuggestionType::Delete) => {
+                    context.push_prop_fn(NodeProperty::Content, |context| {
                         self.content.to_markdown(context);
-                    } else if self.suggestion_type == Some(SuggestionType::Replace) {
+                    });
+                }
+                Some(SuggestionType::Replace) => {
+                    context.push_prop_fn(NodeProperty::Original, |context| {
                         self.original.to_markdown(context);
-                    }
-                })
-                .exit_node();
+                    });
+                }
+                _ => {}
+            }
+
+            context.exit_node();
             return;
         }
 
@@ -28,36 +35,33 @@ impl MarkdownCodec for SuggestionInline {
             return;
         }
 
-        let (open, middle, close) = match self.suggestion_type {
-            Some(SuggestionType::Delete) => ("{--", None, "--}"),
-            Some(SuggestionType::Replace) => ("{~~", Some("~>"), "~~}"),
-            _ => ("{++", None, "++}"),
+        let (open, close) = match self.suggestion_type {
+            Some(SuggestionType::Delete) => ("{--", "--}"),
+            Some(SuggestionType::Replace) => ("{~~", "~~}"),
+            _ => ("{++", "++}"),
         };
 
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, id))
-            .push_str(open)
-            .push_prop_fn(NodeProperty::Content, |context| {
-                if self.suggestion_type == Some(SuggestionType::Replace) {
-                    self.original.to_markdown(context);
-                } else {
-                    self.content.to_markdown(context);
-                }
-            });
+            .push_str(open);
 
-        if let Some(middle) = middle {
-            context
-                .push_str(middle)
-                .push_prop_fn(NodeProperty::Content, |context| {
+        match self.suggestion_type {
+            Some(SuggestionType::Replace) => {
+                context
+                    .push_prop_fn(NodeProperty::Original, |context| {
+                        self.original.to_markdown(context)
+                    })
+                    .push_str("~>")
+                    .push_prop_fn(NodeProperty::Content, |context| {
+                        self.content.to_markdown(context)
+                    });
+            }
+            _ => {
+                context.push_prop_fn(NodeProperty::Content, |context| {
                     self.content.to_markdown(context)
                 });
-        }
-
-        if self.suggestion_type != Some(SuggestionType::Replace) {
-            context.push_prop_fn(NodeProperty::Content, |context| {
-                self.content.to_markdown(context)
-            });
+            }
         }
 
         context.push_str(close).exit_node();
