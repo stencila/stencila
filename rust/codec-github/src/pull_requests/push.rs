@@ -19,9 +19,9 @@
 //!
 //! To handle that, this module creates temporary anchor commits containing
 //! reversible localized whitespace-only changes near review target lines,
-//! submits the GitHub review against that anchor commit, and then creates a
-//! cleanup commit that restores the exact pre-anchor file contents. This keeps
-//! the branch content clean while still giving GitHub localized diff hunks
+//! submits the GitHub review against that anchor commit, and then rewinds the
+//! branch ref back to the pre-anchor commit with a force update. This keeps the
+//! visible branch history cleaner while still giving GitHub localized diff hunks
 //! close enough for inline anchoring without inserting extra lines that could
 //! shift later review targets. If GitHub still rejects inline placement, the
 //! submission layer falls back to body-only review items rather than losing the
@@ -67,10 +67,6 @@ const PR_PLACEHOLDER_MAX_TRAILING_LINE_ENDINGS: usize = 2;
 /// lines that could shift GitHub's review line mapping for subsequent comment
 /// targets.
 const ANCHOR_TRAILING_WHITESPACE: &str = " ";
-
-/// Whether to create a cleanup commit that restores pre-anchor file contents
-/// after submitting the GitHub review.
-const CREATE_ANCHOR_CLEANUP_COMMIT: bool = true;
 
 /// Estimated maximum distance at which a synthetic anchor hunk can still
 /// satisfy GitHub inline review placement for nearby target lines.
@@ -241,7 +237,7 @@ async fn push_pull_request_inner(
             )
             .await?
         };
-        update_ref(owner, repo, branch_name, &content_commit_sha).await?;
+        update_ref(owner, repo, branch_name, &content_commit_sha, false).await?;
         current_sha = content_commit_sha.clone();
         Some(content_commit_sha)
     } else {
@@ -272,7 +268,7 @@ async fn push_pull_request_inner(
     };
 
     let (comments_posted, fallbacks) = if has_comments {
-        let (initial_review_commit_sha, cleanup_file_contents) = if has_source_changes {
+        let initial_review_commit_sha = if has_source_changes {
             let content_commit_sha = content_commit_sha
                 .clone()
                 .unwrap_or_else(|| current_sha.clone());
@@ -293,11 +289,11 @@ async fn push_pull_request_inner(
                 let created_anchor_commit_sha =
                     create_anchor_commit(owner, repo, &content_commit_sha, &anchored_file_contents)
                         .await?;
-                update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+                update_ref(owner, repo, branch_name, &created_anchor_commit_sha, false).await?;
                 anchor_commit_sha = Some(created_anchor_commit_sha.clone());
-                (created_anchor_commit_sha, content_files)
+                created_anchor_commit_sha
             } else {
-                (content_commit_sha, Vec::new())
+                content_commit_sha
             }
         } else {
             let anchor_content_ref = if matches!(source_commit, "dirty" | "untracked") {
@@ -317,9 +313,9 @@ async fn push_pull_request_inner(
             );
             let created_anchor_commit_sha =
                 create_anchor_commit(owner, repo, &current_sha, &anchored_file_contents).await?;
-            update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+            update_ref(owner, repo, branch_name, &created_anchor_commit_sha, false).await?;
             anchor_commit_sha = Some(created_anchor_commit_sha.clone());
-            (created_anchor_commit_sha, file_contents)
+            created_anchor_commit_sha
         };
 
         let outcome = match submit_github_review(
@@ -359,7 +355,7 @@ async fn push_pull_request_inner(
                     &anchored_file_contents,
                 )
                 .await?;
-                update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+                update_ref(owner, repo, branch_name, &created_anchor_commit_sha, false).await?;
                 anchor_commit_sha = Some(created_anchor_commit_sha.clone());
 
                 match submit_github_review(
@@ -423,15 +419,13 @@ async fn push_pull_request_inner(
             }
         };
 
-        if CREATE_ANCHOR_CLEANUP_COMMIT && let Some(anchor_sha) = anchor_commit_sha.as_ref() {
+        if anchor_commit_sha.is_some() {
             tracing::debug!(
                 source_path,
-                anchor_commit_sha = anchor_sha,
-                "Creating cleanup commit to restore pre-anchor file contents after review submission"
+                restore_sha = %current_sha,
+                "Force-updating branch ref to remove temporary review-anchor commit after review submission"
             );
-            let cleanup_commit_sha =
-                create_cleanup_commit(owner, repo, anchor_sha, &cleanup_file_contents).await?;
-            update_ref(owner, repo, branch_name, &cleanup_commit_sha).await?;
+            update_ref(owner, repo, branch_name, &current_sha, true).await?;
         }
 
         outcome
@@ -1273,57 +1267,8 @@ async fn create_anchor_commit(
     .await
 }
 
-async fn create_cleanup_commit(
-    owner: &str,
-    repo: &str,
-    parent_sha: &str,
-    files: &[(String, String)],
-) -> Result<String> {
-    let parent_commit: CommitResponse = get_json(
-        &api_url(&format!("/repos/{owner}/{repo}/git/commits/{parent_sha}")),
-        owner,
-        repo,
-    )
-    .await?;
-
-    let tree_entries: Vec<TreeEntry> = files
-        .iter()
-        .map(|(path, content)| TreeEntry {
-            path: path.clone(),
-            mode: "100644".to_string(),
-            type_: "blob".to_string(),
-            content: content.clone(),
-        })
-        .collect();
-
-    let tree: TreeResponse = post_json(
-        &api_url(&format!("/repos/{owner}/{repo}/git/trees")),
-        &CreateTreeRequest {
-            base_tree: &parent_commit.tree.sha,
-            tree: tree_entries,
-        },
-        owner,
-        repo,
-    )
-    .await?;
-
-    let commit: CommitResponse = post_json(
-        &api_url(&format!("/repos/{owner}/{repo}/git/commits")),
-        &CreateCommitRequest {
-            message: "Remove temporary review anchors",
-            tree: &tree.sha,
-            parents: vec![parent_sha],
-        },
-        owner,
-        repo,
-    )
-    .await?;
-
-    Ok(commit.sha)
-}
-
 /// Update a branch ref to point at a new commit SHA.
-async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str) -> Result<()> {
+async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str, force: bool) -> Result<()> {
     #[derive(Serialize)]
     struct UpdateRefRequest<'a> {
         sha: &'a str,
@@ -1331,7 +1276,7 @@ async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str) -> Result<
     }
 
     let url = api_url(&format!("/repos/{owner}/{repo}/git/refs/heads/{branch}"));
-    patch_json(&url, &UpdateRefRequest { sha, force: false }, owner, repo).await
+    patch_json(&url, &UpdateRefRequest { sha, force }, owner, repo).await
 }
 
 /// Submit GitHub inline comments for a PR.
@@ -1672,12 +1617,10 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                         inline_code(&after)
                     )
                 }
+            } else if let Some(prefix) = &prefix {
+                format!("{prefix}insert {inserted}")
             } else {
-                if let Some(prefix) = &prefix {
-                    format!("{prefix}insert {inserted}")
-                } else {
-                    format!("**Suggest inserting** {inserted}")
-                }
+                format!("**Suggest inserting** {inserted}")
             }
         }
         Some(SuggestionType::Delete) => {
@@ -1687,12 +1630,10 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                 } else {
                     format!("**Suggest deleting** {}", inline_code(&target))
                 }
+            } else if let Some(prefix) = &prefix {
+                format!("{prefix}delete this text")
             } else {
-                if let Some(prefix) = &prefix {
-                    format!("{prefix}delete this text")
-                } else {
-                    "**Suggest deleting** this text".to_string()
-                }
+                "**Suggest deleting** this text".to_string()
             }
         }
         Some(SuggestionType::Replace) | None => {
@@ -1711,12 +1652,10 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                         inline_code(&target)
                     )
                 }
+            } else if let Some(prefix) = &prefix {
+                format!("{prefix}replace this text **with** {replacement}")
             } else {
-                if let Some(prefix) = &prefix {
-                    format!("{prefix}replace this text **with** {replacement}")
-                } else {
-                    format!("**Suggest replacing** this text **with** {replacement}")
-                }
+                format!("**Suggest replacing** this text **with** {replacement}")
             }
         }
     }
