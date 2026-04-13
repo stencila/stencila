@@ -1,0 +1,13 @@
+An {~~original~>replacement~~} in a paragraph.
+
+A paragraph before a block replacement.
+
+:~~
+
+Original paragraph.
+
+:~>
+
+Replacement paragraph.
+
+:~~

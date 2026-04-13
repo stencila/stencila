@@ -1,0 +1,135 @@
+---
+source: rust/codec-github/tests/examples.rs
+expression: review
+---
+{
+  "source": {
+    "format": "smd"
+  },
+  "target": {},
+  "content": {
+    "text": "An original in a paragraph.\n\nA paragraph before a block replacement.\n\nOriginal paragraph.\n",
+    "mapping": [
+      {
+        "nodeType": "Text",
+        "nodeId": "node-1",
+        "start": 0,
+        "end": 3
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-2",
+        "start": 3,
+        "end": 11
+      },
+      {
+        "nodeType": "SuggestionInline",
+        "nodeId": "node-3",
+        "start": 3,
+        "end": 11
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-4",
+        "start": 11,
+        "end": 27
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-5",
+        "start": 0,
+        "end": 28
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-6",
+        "start": 29,
+        "end": 68
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-7",
+        "start": 29,
+        "end": 69
+      },
+      {
+        "nodeType": "Text",
+        "nodeId": "node-8",
+        "start": 70,
+        "end": 89
+      },
+      {
+        "nodeType": "Paragraph",
+        "nodeId": "node-9",
+        "start": 70,
+        "end": 90
+      },
+      {
+        "nodeType": "SuggestionBlock",
+        "nodeId": "node-10",
+        "start": 70,
+        "end": 90
+      },
+      {
+        "nodeType": "Article",
+        "nodeId": "node-11",
+        "start": 0,
+        "end": 91
+      }
+    ]
+  },
+  "items": [
+    {
+      "kind": "suggestion",
+      "nodeId": "node-3",
+      "parentNodeId": "node-5",
+      "range": {
+        "startOffset": 3,
+        "endOffset": 11,
+        "startLine": 1,
+        "startColumn": 4,
+        "endLine": 1,
+        "endColumn": 12
+      },
+      "selectedText": "original",
+      "precedingText": "An ",
+      "replacementText": "replacement",
+      "bodyMarkdown": "",
+      "suggestionType": "Replace",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "replace",
+        "startLine": 1,
+        "endLine": 1,
+        "replacementLines": "An replacement in a paragraph.",
+        "body": "```suggestion\nAn replacement in a paragraph.\n```"
+      }
+    },
+    {
+      "kind": "suggestion",
+      "nodeId": "node-10",
+      "parentNodeId": "node-11",
+      "range": {
+        "startOffset": 70,
+        "endOffset": 89,
+        "startLine": 5,
+        "startColumn": 1,
+        "endLine": 5,
+        "endColumn": 20
+      },
+      "selectedText": "Original paragraph.",
+      "replacementText": "Replacement paragraph.",
+      "bodyMarkdown": "",
+      "suggestionType": "Replace",
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "replace",
+        "startLine": 5,
+        "endLine": 5,
+        "replacementLines": "Replacement paragraph.",
+        "body": "```suggestion\nReplacement paragraph.\n```"
+      }
+    }
+  ],
+  "diagnostics": []
+}
