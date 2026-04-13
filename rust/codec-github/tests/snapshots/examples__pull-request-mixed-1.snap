@@ -1,5 +1,6 @@
 ---
 source: rust/codec-github/tests/examples.rs
+assertion_line: 78
 expression: review
 ---
 {
@@ -138,6 +139,7 @@ expression: review
         "endColumn": 39
       },
       "selectedText": "",
+      "precedingText": "A paragraph with commented text and a ",
       "replacementText": "small ",
       "bodyMarkdown": "",
       "suggestionType": "Insert",
@@ -164,6 +166,7 @@ expression: review
         "endColumn": 37
       },
       "selectedText": "removable ",
+      "precedingText": "A second paragraph with a ",
       "replacementText": "removable ",
       "bodyMarkdown": "",
       "suggestionType": "Delete",

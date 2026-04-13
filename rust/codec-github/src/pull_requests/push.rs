@@ -52,6 +52,7 @@ use super::{
     },
 };
 use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
+use stencila_codec::stencila_schema::SuggestionType;
 
 /// Maximum number of trailing line endings used for placeholder PR-opening
 /// changes.
@@ -87,6 +88,30 @@ const ANCHOR_COVERAGE_DISTANCE: u32 = 3;
 enum SubmitReviewMode {
     RequireInline,
     AllowFallback,
+}
+
+fn short_snippet_from_end(text: &str) -> Option<String> {
+    if text.is_empty() {
+        return None;
+    }
+
+    let collapsed = collapse_whitespace(text);
+    let chars: Vec<char> = collapsed.chars().collect();
+    let len = chars.len();
+    let start = len.saturating_sub(60);
+    let snippet: String = chars[start..].iter().collect();
+
+    Some(if start > 0 {
+        format!("…{snippet}")
+    } else {
+        snippet
+    })
+}
+
+#[derive(Debug, Clone, Copy)]
+enum CommentBodyMode {
+    Anchored,
+    Fallback,
 }
 
 #[derive(Debug)]
@@ -1510,10 +1535,7 @@ pub(crate) fn convert_to_review_comments<'a>(
         let start_line = item.range.start_line.filter(|&sl| sl != line);
 
         // Build comment body
-        let body = match &item.github_suggestion {
-            Some(gs) => gs.body.clone(),
-            None => format_comment_body(item),
-        };
+        let body = format_review_item_body(item, CommentBodyMode::Anchored);
 
         comments.push((
             index,
@@ -1545,26 +1567,194 @@ pub(crate) fn convert_to_review_comments<'a>(
     (comments, fallbacks)
 }
 
-/// Format a plain comment body (non-suggestion items).
-fn format_comment_body(item: &PullRequestComment) -> String {
-    let mut body = item.body_markdown.clone();
+fn format_review_item_body(item: &PullRequestComment, mode: CommentBodyMode) -> String {
+    if let Some(github_suggestion) = &item.github_suggestion {
+        let lead = format_item_lead(item, mode, None);
 
-    // For suggestions without a GitHubSuggestion block, include the
-    // replacement text explicitly so the reviewer can see the intent.
+        if item.body_markdown.is_empty() {
+            return format!("{lead}:\n\n{}", github_suggestion.body);
+        }
+
+        return format!(
+            "{lead}:\n\n{}\n\n{}",
+            item.body_markdown, github_suggestion.body
+        );
+    }
+
+    let lead = format_item_lead(item, mode, None);
+    let mut parts = vec![format!("{lead}:")];
+
+    if !item.body_markdown.is_empty() {
+        parts.push(item.body_markdown.clone());
+    }
+
     if matches!(item.kind, PullRequestCommentKind::Suggestion)
         && let Some(replacement) = &item.replacement_text
     {
-        if !body.is_empty() {
-            body.push_str("\n\n");
+        parts.push(format!(
+            "Suggested replacement: {}",
+            inline_code(replacement)
+        ));
+    }
+
+    if parts.len() == 1 {
+        parts.push("(empty comment)".to_string());
+    }
+
+    parts.join("\n\n")
+}
+
+fn format_item_lead(
+    item: &PullRequestComment,
+    mode: CommentBodyMode,
+    default_path: Option<&str>,
+) -> String {
+    let location = matches!(mode, CommentBodyMode::Fallback)
+        .then(|| format_location_phrase(item, default_path))
+        .flatten();
+
+    match item.kind {
+        PullRequestCommentKind::Comment => {
+            let target = comment_target_phrase(item);
+            match location {
+                Some(location) => format!("**Comment on** {target} **{location}**"),
+                None => format!("**Comment on** {target}"),
+            }
         }
-        body.push_str(&format!("**Suggested replacement:** `{replacement}`"));
+        PullRequestCommentKind::Suggestion => {
+            let summary = suggestion_summary_phrase(item);
+            match location {
+                Some(location) => format!("{summary} **{location}**"),
+                None => summary,
+            }
+        }
+    }
+}
+
+fn comment_target_phrase(item: &PullRequestComment) -> String {
+    if let Some(target) = short_target_snippet(item) {
+        inline_code(&target)
+    } else if item.range.start_line.is_some() && item.range.end_line.is_some() {
+        "these lines".to_string()
+    } else {
+        "this text".to_string()
+    }
+}
+
+fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
+    let replacement = item
+        .replacement_text
+        .as_deref()
+        .filter(|text| !text.trim().is_empty());
+    let selected = short_target_snippet(item);
+    let preceding = short_preceding_snippet(item);
+
+    match suggestion_summary_kind(item) {
+        Some(SuggestionType::Insert) => {
+            let inserted = replacement
+                .map(inline_code)
+                .unwrap_or_else(|| "text".to_string());
+            if let Some(after) = preceding.or(selected) {
+                format!(
+                    "**Suggest inserting** {inserted} **after** {}",
+                    inline_code(&after)
+                )
+            } else {
+                format!("**Suggest inserting** {inserted}")
+            }
+        }
+        Some(SuggestionType::Delete) => {
+            if let Some(target) = selected {
+                format!("**Suggest deleting** {}", inline_code(&target))
+            } else {
+                "**Suggest deleting** this text".to_string()
+            }
+        }
+        None => {
+            let replacement = replacement
+                .map(inline_code)
+                .unwrap_or_else(|| "text".to_string());
+            if let Some(target) = selected {
+                format!(
+                    "**Suggest replacing** {} **with** {replacement}",
+                    inline_code(&target)
+                )
+            } else {
+                format!("**Suggest replacing** this text **with** {replacement}")
+            }
+        }
+    }
+}
+
+fn short_target_snippet(item: &PullRequestComment) -> Option<String> {
+    let selected = item.selected_text.as_deref()?.trim();
+    short_snippet(selected)
+}
+
+fn short_preceding_snippet(item: &PullRequestComment) -> Option<String> {
+    let preceding = item.preceding_text.as_deref()?.trim();
+    short_snippet_from_end(preceding)
+}
+
+fn short_snippet(text: &str) -> Option<String> {
+    if text.is_empty() {
+        return None;
     }
 
-    if body.is_empty() {
-        body = "(empty comment)".to_string();
-    }
+    let collapsed = collapse_whitespace(text);
+    let mut chars = collapsed.chars();
+    let truncated: String = chars.by_ref().take(60).collect();
 
-    body
+    Some(if chars.next().is_some() {
+        format!("{truncated}…")
+    } else {
+        truncated
+    })
+}
+
+fn collapse_whitespace(text: &str) -> String {
+    text.split_whitespace().collect::<Vec<_>>().join(" ")
+}
+
+fn inline_code(text: &str) -> String {
+    let escaped = text.replace('`', "\\`");
+    format!("`{escaped}`")
+}
+
+fn format_location_phrase(item: &PullRequestComment, default_path: Option<&str>) -> Option<String> {
+    let path = item.source_path.as_deref().or(default_path)?;
+
+    match (item.range.start_line, item.range.end_line) {
+        (Some(start), Some(end)) if start == end => {
+            Some(format!("in {} at line {start}", inline_code(path)))
+        }
+        (Some(start), Some(end)) => {
+            Some(format!("in {} at lines {start}–{end}", inline_code(path)))
+        }
+        _ => Some(format!("in {}", inline_code(path))),
+    }
+}
+
+fn suggestion_summary_kind(item: &PullRequestComment) -> Option<SuggestionType> {
+    match item.suggestion_type {
+        Some(SuggestionType::Insert) => Some(SuggestionType::Insert),
+        Some(SuggestionType::Delete) => Some(SuggestionType::Delete),
+        None => {
+            // `SuggestionType` does not yet include a dedicated Replace variant,
+            // so summary generation infers insert/delete from the available text
+            // spans and treats all remaining cases as replace wording.
+            let replacement = item.replacement_text.as_deref().map(str::trim);
+            let selected = item.selected_text.as_deref().map(str::trim);
+
+            if matches!(replacement, Some("")) {
+                Some(SuggestionType::Delete)
+            } else if matches!(selected, None | Some("")) {
+                Some(SuggestionType::Insert)
+            } else {
+                None
+            }
+        }
+    }
 }
 
 /// Format fallback items as a Markdown section for the review body.
@@ -1576,30 +1766,22 @@ pub(crate) fn format_fallback_body(items: &[&PullRequestComment], default_path: 
     parts.push("### Items that could not be anchored inline\n".to_string());
 
     for item in items {
-        let kind = match item.kind {
-            PullRequestCommentKind::Comment => "Comment",
-            PullRequestCommentKind::Suggestion => "Suggestion",
-        };
-
-        let file_path = item.source_path.as_deref().unwrap_or(default_path);
-
-        let location = match (item.range.start_line, item.range.end_line) {
-            (Some(start), Some(end)) if start == end => format!("{file_path}:{start}"),
-            (Some(start), Some(end)) => format!("{file_path}:{start}-{end}"),
-            _ => file_path.to_string(),
-        };
-
-        parts.push(format!("- **{kind}** at `{location}`"));
+        parts.push(format!(
+            "- {}",
+            format_item_lead(item, CommentBodyMode::Fallback, Some(default_path))
+        ));
 
         if !item.body_markdown.is_empty() {
-            parts.push(format!(
-                "  > {}",
-                item.body_markdown.replace('\n', "\n  > ")
-            ));
+            parts.push(format!("  {}", item.body_markdown.replace('\n', "\n  ")));
         }
 
-        if let Some(replacement) = &item.replacement_text {
-            parts.push(format!("  Suggested: `{replacement}`"));
+        if matches!(item.kind, PullRequestCommentKind::Suggestion)
+            && let Some(replacement) = &item.replacement_text
+        {
+            parts.push(format!(
+                "  Suggested replacement: {}",
+                inline_code(replacement)
+            ));
         }
     }
 
@@ -1722,6 +1904,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: Some("Hello world".into()),
+                preceding_text: None,
                 replacement_text: None,
                 body_markdown: "Nice opening.".into(),
                 suggestion_type: None,
@@ -1736,6 +1919,7 @@ mod tests {
                 parent_node_id: None,
                 range: PullRequestCommentRange::default(),
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: Some("replacement".into()),
                 body_markdown: "Unresolved suggestion.".into(),
                 suggestion_type: None,
@@ -1752,7 +1936,10 @@ mod tests {
         assert_eq!(comments[0].start_line, Some(1));
         assert_eq!(comments[0].side, "RIGHT");
         assert_eq!(comments[0].start_side, Some("RIGHT".into()));
-        assert_eq!(comments[0].body, "Nice opening.");
+        assert_eq!(
+            comments[0].body,
+            "**Comment on** `Hello world`:\n\nNice opening."
+        );
 
         assert_eq!(fallbacks.len(), 1);
         assert!(matches!(
@@ -1778,6 +1965,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: Some("text".into()),
+            preceding_text: None,
             replacement_text: None,
             body_markdown: "Single line".into(),
             suggestion_type: None,
@@ -1810,6 +1998,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: Some("replacement".into()),
                 body_markdown: "late suggestion".into(),
                 suggestion_type: None,
@@ -1828,6 +2017,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: None,
                 body_markdown: "early comment".into(),
                 suggestion_type: None,
@@ -1846,6 +2036,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: Some("mid".into()),
                 body_markdown: "mid suggestion".into(),
                 suggestion_type: None,
@@ -1893,6 +2084,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: None,
                 body_markdown: "Comment".into(),
                 suggestion_type: None,
@@ -1946,6 +2138,7 @@ mod tests {
                     ..Default::default()
                 },
                 selected_text: None,
+                preceding_text: None,
                 replacement_text: None,
                 body_markdown: "Comment".into(),
                 suggestion_type: None,
@@ -2055,6 +2248,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: String::new(),
             suggestion_type: None,
@@ -2086,6 +2280,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: String::new(),
             suggestion_type: None,
@@ -2112,6 +2307,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: String::new(),
             suggestion_type: None,
@@ -2150,6 +2346,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: String::new(),
             suggestion_type: None,
@@ -2218,6 +2415,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: String::new(),
             suggestion_type: None,
@@ -2361,6 +2559,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: Some("better text".into()),
             body_markdown: "Please rephrase.".into(),
             suggestion_type: None,
@@ -2370,10 +2569,11 @@ mod tests {
         };
 
         let body = format_fallback_body(&[&item], "docs/example.md");
-        assert!(body.contains("Suggestion"));
-        assert!(body.contains("docs/example.md:5"));
+        assert!(
+            body.contains("**Suggest inserting** `better text` **in `docs/example.md` at line 5**")
+        );
         assert!(body.contains("Please rephrase."));
-        assert!(body.contains("`better text`"));
+        assert!(body.contains("Suggested replacement: `better text`"));
     }
 
     #[test]
@@ -2389,6 +2589,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: "Default path item.".into(),
             suggestion_type: None,
@@ -2408,6 +2609,7 @@ mod tests {
                 ..Default::default()
             },
             selected_text: None,
+            preceding_text: None,
             replacement_text: None,
             body_markdown: "Secondary file item.".into(),
             suggestion_type: None,
@@ -2419,9 +2621,131 @@ mod tests {
         let body = format_fallback_body(&[&item_default, &item_secondary], "docs/main.md");
 
         // Item without source_path should use the default path
-        assert!(body.contains("docs/main.md:1"));
+        assert!(body.contains("**Comment on** these lines **in `docs/main.md` at line 1**"));
         // Item with its own source_path should use that, not the default
-        assert!(body.contains("other/file.md:10-12"));
-        assert!(!body.contains("docs/main.md:10"));
+        assert!(body.contains("**Comment on** these lines **in `other/file.md` at lines 10–12**"));
+        assert!(!body.contains("**in `docs/main.md` at lines 10–12**"));
+    }
+
+    #[test]
+    fn test_format_review_item_body_for_anchored_suggestion_replace() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            source_path: Some("docs/example.md".into()),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(5),
+                end_line: Some(5),
+                start_offset: Some(10),
+                end_offset: Some(13),
+                ..Default::default()
+            },
+            selected_text: Some("abc".into()),
+            preceding_text: None,
+            replacement_text: Some("def".into()),
+            body_markdown: "This reads more clearly.".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
+        assert_eq!(
+            body,
+            "**Suggest replacing** `abc` **with** `def`:\n\nThis reads more clearly.\n\nSuggested replacement: `def`"
+        );
+    }
+
+    #[test]
+    fn test_format_review_item_body_for_github_suggestion_insert() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            source_path: Some("docs/example.md".into()),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(5),
+                end_line: Some(5),
+                ..Default::default()
+            },
+            selected_text: Some("abc".into()),
+            preceding_text: None,
+            replacement_text: Some("def".into()),
+            body_markdown: "This adds the missing term.".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: Some(crate::pull_requests::export::GitHubSuggestion {
+                edit_kind: crate::pull_requests::export::SuggestionEditKind::Insert,
+                start_line: 5,
+                end_line: 5,
+                replacement_lines: "abcdef".into(),
+                body: "```suggestion\nabcdef\n```".into(),
+            }),
+        };
+
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
+        assert_eq!(
+            body,
+            "**Suggest replacing** `abc` **with** `def`:\n\nThis adds the missing term.\n\n```suggestion\nabcdef\n```"
+        );
+    }
+
+    #[test]
+    fn test_format_review_item_body_for_insert_uses_preceding_text() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            source_path: Some("docs/example.md".into()),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(5),
+                end_line: Some(5),
+                ..Default::default()
+            },
+            selected_text: None,
+            preceding_text: Some("abc".into()),
+            replacement_text: Some("def".into()),
+            body_markdown: "This adds the missing term.".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
+        assert_eq!(
+            body,
+            "**Suggest inserting** `def` **after** `abc`:\n\nThis adds the missing term.\n\nSuggested replacement: `def`"
+        );
+    }
+
+    #[test]
+    fn test_short_preceding_snippet_ellides_at_start() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange::default(),
+            selected_text: None,
+            preceding_text: Some(
+                "This is some text that should be ellided so we keep the text immediately before"
+                    .into(),
+            ),
+            replacement_text: Some("added".into()),
+            body_markdown: String::new(),
+            suggestion_type: Some(SuggestionType::Insert),
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let lead = format_item_lead(&item, CommentBodyMode::Anchored, None);
+        assert!(lead.contains("**after** `…"));
+        assert!(lead.contains("immediately before`"));
+        assert!(!lead.contains("This is some text"));
     }
 }
