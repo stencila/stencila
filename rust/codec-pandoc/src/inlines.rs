@@ -443,8 +443,16 @@ fn suggestion_inline_from_pandoc(
         SuggestionType::Delete
     };
 
+    let authors = get_kv_attr(&attrs, "author").map(|name| {
+        vec![Author::Person(Person {
+            given_names: Some(vec![name]),
+            ..Default::default()
+        })]
+    });
+
     Inline::SuggestionInline(SuggestionInline {
         suggestion_type: Some(suggestion_type),
+        authors,
         content: inlines_from_pandoc(inlines, context),
         ..Default::default()
     })
