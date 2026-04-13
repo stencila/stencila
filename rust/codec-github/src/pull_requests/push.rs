@@ -18,12 +18,14 @@
 //!    arbitrary review items in existing files.
 //!
 //! To handle that, this module creates temporary anchor commits containing
-//! reversible synthetic marker lines inserted near review target lines, submits
-//! the GitHub review against that anchor commit, and then creates a cleanup
-//! commit that removes the markers again. This keeps the branch content clean
-//! while still giving GitHub localized diff hunks close enough for inline
-//! anchoring. If GitHub still rejects inline placement, the submission layer
-//! falls back to body-only review items rather than losing the feedback.
+//! reversible localized whitespace-only changes near review target lines,
+//! submits the GitHub review against that anchor commit, and then creates a
+//! cleanup commit that restores the exact pre-anchor file contents. This keeps
+//! the branch content clean while still giving GitHub localized diff hunks
+//! close enough for inline anchoring without inserting extra lines that could
+//! shift later review targets. If GitHub still rejects inline placement, the
+//! submission layer falls back to body-only review items rather than losing the
+//! feedback.
 //!
 //! For exports that combine substantive source changes with review items,
 //! anchor planning is proactive rather than purely reactive. Before the first
@@ -51,34 +53,26 @@ use super::{
 };
 use crate::client::{api_url, delete, get_json, patch_json, post_json, post_json_with_status};
 
-/// Marker inserted into a temporary synthetic content commit when Stencila
-/// needs GitHub to open a pull request for a review document that has no real
-/// source changes.
+/// Maximum number of trailing line endings used for placeholder PR-opening
+/// changes.
 ///
-/// This is distinct from localized review anchor markers. The dummy marker is
-/// only used to force the creation of a non-empty PR diff in otherwise noop
-/// export flows; without some file change, GitHub cannot open a PR. Keep the
-/// marker stable so Stencila can detect and avoid duplicating it.
-const PR_PLACEHOLDER_CHANGE_MARKER: &str = "<!-- Stencila ghpr placeholder change -->";
+/// Placeholder changes now use only end-of-file newline count changes rather
+/// than visible marker lines so the temporary diff remains minimally intrusive.
+const PR_PLACEHOLDER_MAX_TRAILING_LINE_ENDINGS: usize = 2;
 
-/// Core label used inside temporary synthetic anchor marker comments.
+/// Synthetic trailing whitespace appended to anchor lines.
 ///
-/// Marker rendering is selected per file type so Stencila can create explicit,
-/// reversible synthetic diff hunks without assuming HTML comment syntax for all
-/// source formats.
-const ANCHOR_MARKER_LABEL: &str = "Stencila comment anchor #";
+/// Trailing whitespace creates a localized diff hunk without inserting extra
+/// lines that could shift GitHub's review line mapping for subsequent comment
+/// targets.
+const ANCHOR_TRAILING_WHITESPACE: &str = " ";
 
-/// Preferred one-line offset for placing a synthetic anchor marker adjacent to
-/// the review target line.
+/// Whether to create a cleanup commit that restores pre-anchor file contents
+/// after submitting the GitHub review.
 ///
-/// Probe runs in `rust/codec-github/tests/probe-pr-review-distance.sh` showed
-/// that GitHub can sometimes accept comments up to three lines away from the
-/// nearest diff hunk, but live testing against existing pull requests showed
-/// that comments on the first line can still fail with "Line could not be
-/// resolved" when the synthetic hunk is placed too far away. To maximize the
-/// chance of inline resolution, anchor markers are now placed as close as
-/// possible to the target line, preferring one line after it when available.
-const ANCHOR_MARKER_OFFSET: u32 = 1;
+/// Temporarily disabled while validating whether post-review cleanup commits
+/// confuse GitHub's comment display and line mapping for anchored reviews.
+const CREATE_ANCHOR_CLEANUP_COMMIT: bool = false;
 
 /// Estimated maximum distance at which a synthetic anchor hunk can still
 /// satisfy GitHub inline review placement for nearby target lines.
@@ -256,7 +250,7 @@ async fn push_pull_request_inner(
     };
 
     let (comments_posted, fallbacks) = if has_comments {
-        let initial_review_commit_sha = if has_source_changes {
+        let (initial_review_commit_sha, cleanup_file_contents) = if has_source_changes {
             let content_commit_sha = content_commit_sha
                 .clone()
                 .unwrap_or_else(|| current_sha.clone());
@@ -279,9 +273,9 @@ async fn push_pull_request_inner(
                         .await?;
                 update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
                 anchor_commit_sha = Some(created_anchor_commit_sha.clone());
-                created_anchor_commit_sha
+                (created_anchor_commit_sha, content_files)
             } else {
-                content_commit_sha
+                (content_commit_sha, Vec::new())
             }
         } else {
             let anchor_content_ref = if matches!(source_commit, "dirty" | "untracked") {
@@ -303,7 +297,7 @@ async fn push_pull_request_inner(
                 create_anchor_commit(owner, repo, &current_sha, &anchored_file_contents).await?;
             update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
             anchor_commit_sha = Some(created_anchor_commit_sha.clone());
-            created_anchor_commit_sha
+            (created_anchor_commit_sha, file_contents)
         };
 
         let outcome = match submit_github_review(
@@ -407,14 +401,11 @@ async fn push_pull_request_inner(
             }
         };
 
-        if let Some(anchor_sha) = anchor_commit_sha.as_ref() {
-            let anchored_file_contents =
-                review_file_contents(owner, repo, source_path, anchor_sha, items).await?;
-            let cleanup_file_contents = cleanup_review_file_contents(&anchored_file_contents);
+        if CREATE_ANCHOR_CLEANUP_COMMIT && let Some(anchor_sha) = anchor_commit_sha.as_ref() {
             tracing::debug!(
                 source_path,
                 anchor_commit_sha = anchor_sha,
-                "Creating cleanup commit to remove temporary review-anchor markers after review submission"
+                "Creating cleanup commit to restore pre-anchor file contents after review submission"
             );
             let cleanup_commit_sha =
                 create_cleanup_commit(owner, repo, anchor_sha, &cleanup_file_contents).await?;
@@ -924,8 +915,42 @@ fn plan_requires_placeholder_content_commit(
     !has_source_changes && export.items.is_empty()
 }
 
+fn trailing_line_ending_count(content: &str, ending: &str) -> usize {
+    let mut count = 0;
+    let mut remaining = content;
+
+    while let Some(prefix) = remaining.strip_suffix(ending) {
+        count += 1;
+        remaining = prefix;
+    }
+
+    count
+}
+
+/// Create a minimal reversible placeholder content change for opening a PR.
+///
+/// Rather than inserting a visible marker line, this toggles the number of
+/// trailing end-of-file line endings through a small cycle:
+///
+/// - 0 trailing line endings -> 1
+/// - 1 trailing line ending -> 2
+/// - 2 trailing line endings -> 0
+///
+/// This keeps placeholder-only diffs minimally intrusive while still ensuring
+/// that repeated placeholder commits can produce a detectable content change.
+fn placeholder_content_change(content: &str) -> String {
+    let ending = line_ending(content);
+    let trailing = trailing_line_ending_count(content, ending);
+
+    if trailing < PR_PLACEHOLDER_MAX_TRAILING_LINE_ENDINGS {
+        format!("{content}{ending}")
+    } else {
+        content.trim_end_matches(['\r', '\n']).to_string()
+    }
+}
+
 fn should_create_placeholder_change(source_text: &str) -> bool {
-    !source_text.contains(PR_PLACEHOLDER_CHANGE_MARKER)
+    placeholder_content_change(source_text) != source_text
 }
 
 fn review_paths(export: &PullRequestExport, source_path: &str) -> Vec<String> {
@@ -1025,13 +1050,7 @@ async fn create_placeholder_content_commit(
     path: &str,
     content: &str,
 ) -> Result<String> {
-    let dummy_content = if content.is_empty() {
-        format!("\n{PR_PLACEHOLDER_CHANGE_MARKER}\n")
-    } else if content.ends_with('\n') {
-        format!("{content}{PR_PLACEHOLDER_CHANGE_MARKER}\n")
-    } else {
-        format!("{content}\n{PR_PLACEHOLDER_CHANGE_MARKER}\n")
-    };
+    let dummy_content = placeholder_content_change(content);
 
     create_content_commit(
         owner,
@@ -1049,99 +1068,6 @@ fn line_ending(content: &str) -> &str {
     } else {
         "\n"
     }
-}
-
-const ANCHOR_COMMENT_STYLES: [AnchorCommentStyle; 4] = [
-    AnchorCommentStyle::Html,
-    AnchorCommentStyle::SlashSlash,
-    AnchorCommentStyle::Hash,
-    AnchorCommentStyle::SlashStar,
-];
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AnchorCommentStyle {
-    Html,
-    SlashSlash,
-    Hash,
-    SlashStar,
-}
-
-impl AnchorCommentStyle {
-    fn render(self, line_number: u32) -> String {
-        match self {
-            Self::Html => format!("<!-- {ANCHOR_MARKER_LABEL}{line_number} -->"),
-            Self::SlashSlash => format!("// {ANCHOR_MARKER_LABEL}{line_number}"),
-            Self::Hash => format!("# {ANCHOR_MARKER_LABEL}{line_number}"),
-            Self::SlashStar => format!("/* {ANCHOR_MARKER_LABEL}{line_number} */"),
-        }
-    }
-
-    fn matches(self, line: &str) -> bool {
-        let line = line.trim();
-        match self {
-            Self::Html => {
-                line.starts_with("<!-- ")
-                    && line.ends_with(" -->")
-                    && line.contains(ANCHOR_MARKER_LABEL)
-            }
-            Self::SlashSlash => line.starts_with("// ") && line.contains(ANCHOR_MARKER_LABEL),
-            Self::Hash => line.starts_with("# ") && line.contains(ANCHOR_MARKER_LABEL),
-            Self::SlashStar => {
-                line.starts_with("/* ")
-                    && line.ends_with(" */")
-                    && line.contains(ANCHOR_MARKER_LABEL)
-            }
-        }
-    }
-}
-
-fn anchor_comment_style(path: &str) -> AnchorCommentStyle {
-    let lower = path.to_ascii_lowercase();
-
-    if [
-        ".md", ".mdx", ".smd", ".html", ".htm", ".xml", ".svg", ".xhtml",
-    ]
-    .iter()
-    .any(|ext| lower.ends_with(ext))
-    {
-        AnchorCommentStyle::Html
-    } else if [
-        ".rs", ".js", ".jsx", ".ts", ".tsx", ".java", ".c", ".cc", ".cpp", ".cxx", ".h", ".hh",
-        ".hpp", ".hxx", ".go", ".swift", ".kt", ".kts", ".scala", ".dart",
-    ]
-    .iter()
-    .any(|ext| lower.ends_with(ext))
-    {
-        AnchorCommentStyle::SlashSlash
-    } else if [
-        ".py",
-        ".sh",
-        ".bash",
-        ".zsh",
-        ".rb",
-        ".pl",
-        ".r",
-        ".yaml",
-        ".yml",
-        ".toml",
-        ".ini",
-        ".cfg",
-        ".conf",
-        ".gitignore",
-        ".dockerignore",
-        "makefile",
-    ]
-    .iter()
-    .any(|ext| lower.ends_with(ext) || lower.rsplit('/').next() == Some(*ext))
-    {
-        AnchorCommentStyle::Hash
-    } else {
-        AnchorCommentStyle::SlashStar
-    }
-}
-
-fn anchor_marker(path: &str, line_number: u32) -> String {
-    anchor_comment_style(path).render(line_number)
 }
 
 fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
@@ -1214,76 +1140,33 @@ fn filter_anchor_lines_needing_markers(lines: &[u32], changed_lines: &[u32]) -> 
     planned
 }
 
-fn insert_anchor_markers(content: &str, path: &str, lines: &[u32]) -> String {
+fn insert_anchor_markers(content: &str, _path: &str, lines: &[u32]) -> String {
     if lines.is_empty() {
         return content.to_string();
     }
 
     let ending = line_ending(content);
-    let mut split_lines: Vec<String> = content.split_inclusive(ending).map(String::from).collect();
-
-    if !content.is_empty()
-        && !content.ends_with(ending)
-        && let Some(last) = split_lines.last_mut()
-        && (last.ends_with('\n') || last.ends_with('\r'))
-    {
-        // already split as expected
-    }
-
-    let total_lines = content.lines().count();
-    let mut insertions: Vec<(usize, String)> = Vec::new();
+    let mut split_lines: Vec<String> = if content.is_empty() {
+        vec![String::new()]
+    } else {
+        content.split_inclusive(ending).map(String::from).collect()
+    };
 
     for &line in lines {
-        if total_lines == 0 {
-            insertions.push((0, format!("{}{}", anchor_marker(path, line), ending)));
+        let Some(index) = line.checked_sub(1).map(|line| line as usize) else {
             continue;
-        }
-
-        let preferred_after = line.saturating_add(ANCHOR_MARKER_OFFSET);
-        let anchor_at = if preferred_after <= total_lines as u32 {
-            preferred_after as usize
-        } else if line > 1 {
-            line.saturating_sub(1) as usize
-        } else {
-            1
         };
 
-        insertions.push((
-            anchor_at,
-            format!("{}{}", anchor_marker(path, line), ending),
-        ));
-    }
-
-    insertions.sort_by_key(|(index, _)| *index);
-
-    for (offset, (index, marker_line)) in insertions.into_iter().enumerate() {
-        split_lines.insert(index + offset, marker_line);
+        if let Some(existing) = split_lines.get_mut(index) {
+            if let Some(stripped) = existing.strip_suffix(ending) {
+                *existing = format!("{stripped}{ANCHOR_TRAILING_WHITESPACE}{ending}");
+            } else {
+                existing.push_str(ANCHOR_TRAILING_WHITESPACE);
+            }
+        }
     }
 
     split_lines.concat()
-}
-
-fn remove_anchor_markers(content: &str) -> String {
-    let ending = line_ending(content);
-    let filtered: Vec<&str> = content
-        .split_inclusive(ending)
-        .filter(|line| {
-            let trimmed = line.trim_end_matches(['\r', '\n']);
-            !ANCHOR_COMMENT_STYLES
-                .iter()
-                .any(|style| style.matches(trimmed))
-        })
-        .collect();
-
-    if filtered.is_empty()
-        && ANCHOR_COMMENT_STYLES
-            .iter()
-            .any(|style| style.matches(content.trim_end_matches(['\r', '\n'])))
-    {
-        String::new()
-    } else {
-        filtered.concat()
-    }
 }
 
 /// Add synthetic review anchors only where the current file contents still
@@ -1319,13 +1202,6 @@ fn anchor_review_file_contents(
         .collect()
 }
 
-fn cleanup_review_file_contents(files: &[(String, String)]) -> Vec<(String, String)> {
-    files
-        .iter()
-        .map(|(path, content)| (path.clone(), remove_anchor_markers(content)))
-        .collect()
-}
-
 fn pr_title(source_path: &str, has_review_items: bool) -> String {
     if has_review_items {
         format!("Review of {source_path}")
@@ -1356,8 +1232,9 @@ fn pr_body(
 ///
 /// For existing files with localized diff hunks, GitHub may reject inline
 /// review comments more than a few lines away from the nearest diff hunk. The
-/// anchor strategy therefore inserts reversible marker lines close to each
-/// review target line rather than touching only the end of the file.
+/// anchor strategy therefore applies reversible whitespace-only changes to
+/// anchor lines rather than touching only the end of the file or inserting
+/// extra marker lines that would shift later review targets.
 async fn create_anchor_commit(
     owner: &str,
     repo: &str,
@@ -1610,10 +1487,10 @@ pub(crate) fn convert_to_review_comments<'a>(
     items: &'a [PullRequestComment],
     default_path: &str,
 ) -> (Vec<GitHubPullRequestComment>, Vec<&'a PullRequestComment>) {
-    let mut comments = Vec::new();
+    let mut comments: Vec<(usize, GitHubPullRequestComment)> = Vec::new();
     let mut fallbacks = Vec::new();
 
-    for item in items {
+    for (index, item) in items.iter().enumerate() {
         // Only fully `Anchored` items become inline comments. `FallbackLine`
         // items have weaker confidence and are safer as fallback text.
         let line = match item.range.end_line {
@@ -1638,15 +1515,32 @@ pub(crate) fn convert_to_review_comments<'a>(
             None => format_comment_body(item),
         };
 
-        comments.push(GitHubPullRequestComment {
-            path,
-            body,
-            line,
-            start_line,
-            side: "RIGHT".to_string(),
-            start_side: start_line.map(|_| "RIGHT".into()),
-        });
+        comments.push((
+            index,
+            GitHubPullRequestComment {
+                path,
+                body,
+                line,
+                start_line,
+                side: "RIGHT".to_string(),
+                start_side: start_line.map(|_| "RIGHT".into()),
+            },
+        ));
     }
+
+    comments.sort_by(|(left_index, left), (right_index, right)| {
+        left.path
+            .cmp(&right.path)
+            .then_with(|| {
+                left.start_line
+                    .unwrap_or(left.line)
+                    .cmp(&right.start_line.unwrap_or(right.line))
+            })
+            .then_with(|| left.line.cmp(&right.line))
+            .then_with(|| left_index.cmp(right_index))
+    });
+
+    let comments = comments.into_iter().map(|(_, comment)| comment).collect();
 
     (comments, fallbacks)
 }
@@ -1903,6 +1797,77 @@ mod tests {
     }
 
     #[test]
+    fn test_convert_to_review_comments_orders_by_start_line_not_kind() {
+        let items = vec![
+            PullRequestComment {
+                kind: PullRequestCommentKind::Suggestion,
+                source_path: Some("docs/example.md".into()),
+                node_id: None,
+                parent_node_id: None,
+                range: PullRequestCommentRange {
+                    start_line: Some(6),
+                    end_line: Some(7),
+                    ..Default::default()
+                },
+                selected_text: None,
+                replacement_text: Some("replacement".into()),
+                body_markdown: "late suggestion".into(),
+                suggestion_type: None,
+                suggestion_status: None,
+                resolution: PullRequestCommentResolution::Anchored,
+                github_suggestion: None,
+            },
+            PullRequestComment {
+                kind: PullRequestCommentKind::Comment,
+                source_path: Some("docs/example.md".into()),
+                node_id: None,
+                parent_node_id: None,
+                range: PullRequestCommentRange {
+                    start_line: Some(1),
+                    end_line: Some(1),
+                    ..Default::default()
+                },
+                selected_text: None,
+                replacement_text: None,
+                body_markdown: "early comment".into(),
+                suggestion_type: None,
+                suggestion_status: None,
+                resolution: PullRequestCommentResolution::Anchored,
+                github_suggestion: None,
+            },
+            PullRequestComment {
+                kind: PullRequestCommentKind::Suggestion,
+                source_path: Some("docs/example.md".into()),
+                node_id: None,
+                parent_node_id: None,
+                range: PullRequestCommentRange {
+                    start_line: Some(3),
+                    end_line: Some(3),
+                    ..Default::default()
+                },
+                selected_text: None,
+                replacement_text: Some("mid".into()),
+                body_markdown: "mid suggestion".into(),
+                suggestion_type: None,
+                suggestion_status: None,
+                resolution: PullRequestCommentResolution::Anchored,
+                github_suggestion: None,
+            },
+        ];
+
+        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+
+        assert!(fallbacks.is_empty());
+        assert_eq!(comments.len(), 3);
+        assert_eq!(comments[0].start_line, None);
+        assert_eq!(comments[0].line, 1);
+        assert_eq!(comments[1].start_line, None);
+        assert_eq!(comments[1].line, 3);
+        assert_eq!(comments[2].start_line, Some(6));
+        assert_eq!(comments[2].line, 7);
+    }
+
+    #[test]
     fn test_plan_pull_request_push_mixed_flow() {
         let export = PullRequestExport {
             source: PullRequestSource {
@@ -2052,11 +2017,23 @@ mod tests {
     }
 
     #[test]
-    fn test_should_create_placeholder_change_marker_detection() {
+    fn test_placeholder_content_change_toggles_trailing_line_endings() {
+        assert_eq!(placeholder_content_change("plain source"), "plain source\n");
+        assert_eq!(
+            placeholder_content_change("plain source\n"),
+            "plain source\n\n"
+        );
+        assert_eq!(
+            placeholder_content_change("plain source\n\n"),
+            "plain source"
+        );
+    }
+
+    #[test]
+    fn test_should_create_placeholder_change_for_reversible_newline_toggle() {
         assert!(should_create_placeholder_change("plain source"));
-        assert!(!should_create_placeholder_change(
-            PR_PLACEHOLDER_CHANGE_MARKER
-        ));
+        assert!(should_create_placeholder_change("plain source\n"));
+        assert!(should_create_placeholder_change("plain source\n\n"));
     }
 
     #[test]
@@ -2089,20 +2066,7 @@ mod tests {
         let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
         let content = &anchored[0].1;
 
-        assert!(content.contains("<!-- Stencila comment anchor #2 -->"));
-        assert!(content.contains("03\n<!-- Stencila comment anchor #2 -->\n04\n"));
-    }
-
-    #[test]
-    fn test_cleanup_review_file_contents_removes_markers() {
-        let files = vec![(
-            "docs/example.md".to_string(),
-            "01\n02\n<!-- Stencila comment anchor #2 -->\n03\n".to_string(),
-        )];
-
-        let cleaned = cleanup_review_file_contents(&files);
-
-        assert_eq!(cleaned[0].1, "01\n02\n03\n");
+        assert_eq!(content, "01\n02 \n03\n04\n05\n06\n07\n08\n09\n10\n");
     }
 
     #[test]
@@ -2132,7 +2096,7 @@ mod tests {
 
         let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items, None);
 
-        assert!(anchored[0].1.contains("// Stencila comment anchor #1"));
+        assert_eq!(anchored[0].1, "1 \n2\n3\n4\n");
     }
 
     #[test]
@@ -2208,10 +2172,25 @@ mod tests {
         );
         let content = &anchored[0].1;
 
-        assert_eq!(content.matches("Stencila comment anchor #").count(), 3);
-        assert!(content.contains("Stencila comment anchor #2"));
-        assert!(content.contains("Stencila comment anchor #6"));
-        assert!(content.contains("Stencila comment anchor #10"));
+        assert_eq!(content.lines().count(), 12);
+        assert!(
+            content
+                .lines()
+                .nth(1)
+                .is_some_and(|line| line.ends_with(' '))
+        );
+        assert!(
+            content
+                .lines()
+                .nth(5)
+                .is_some_and(|line| line.ends_with(' '))
+        );
+        assert!(
+            content
+                .lines()
+                .nth(9)
+                .is_some_and(|line| line.ends_with(' '))
+        );
     }
 
     #[test]
@@ -2250,15 +2229,25 @@ mod tests {
         let anchored = anchor_review_file_contents(
             &files,
             "docs/example.md",
-            &[make_item(5), make_item(7), make_item(11)],
+            &[make_item(5), make_item(7)],
             Some(&base_files),
         );
         let content = &anchored[0].1;
 
-        assert_eq!(content.matches("Stencila comment anchor #").count(), 1);
-        assert!(content.contains("Stencila comment anchor #11"));
-        assert!(!content.contains("Stencila comment anchor #5"));
-        assert!(!content.contains("Stencila comment anchor #7"));
+        assert_eq!(content.lines().count(), 10);
+        assert!(
+            !content
+                .lines()
+                .nth(4)
+                .is_some_and(|line| line.ends_with(' '))
+        );
+        assert!(
+            !content
+                .lines()
+                .nth(6)
+                .is_some_and(|line| line.ends_with(' '))
+        );
+        assert_eq!(content, &files[0].1);
     }
 
     #[test]
