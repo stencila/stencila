@@ -3254,10 +3254,10 @@ class SuggestionBlock(Suggestion):
     type: Literal["SuggestionBlock"] = "SuggestionBlock"
 
     content: list[Block]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
+    """The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted."""
 
     original: list[Block] | None = None
-    """The original content that is suggested to be replaced or deleted."""
+    """The original content. For replacements, this is the content being replaced; for deletions, this should be absent."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3269,10 +3269,10 @@ class SuggestionInline(Suggestion):
     type: Literal["SuggestionInline"] = "SuggestionInline"
 
     content: list[Inline]
-    """The content that is suggested to be inserted, modified, replaced, or deleted."""
+    """The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted."""
 
     original: list[Inline] | None = None
-    """The original content that is suggested to be replaced or deleted."""
+    """The original content. For replacements, this is the content being replaced; for deletions, this should be absent."""
 
 
 @dataclass(kw_only=True, repr=False)

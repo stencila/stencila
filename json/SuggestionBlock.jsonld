@@ -200,7 +200,7 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "The content that is suggested to be inserted, modified, replaced, or deleted.",
+      "rdfs:comment": "The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
@@ -340,7 +340,7 @@
       "@id": "stencila:original",
       "@type": "rdfs:Property",
       "rdfs:label": "original",
-      "rdfs:comment": "The original content that is suggested to be replaced or deleted.",
+      "rdfs:comment": "The original content. For replacements, this is the content being replaced; for deletions, this should be absent.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:SuggestionBlock"

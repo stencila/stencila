@@ -11,12 +11,12 @@ export class SuggestionInline extends Suggestion {
   type: "SuggestionInline";
 
   /**
-   * The content that is suggested to be inserted, modified, replaced, or deleted.
+   * The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted.
    */
   content: Inline[];
 
   /**
-   * The original content that is suggested to be replaced or deleted.
+   * The original content. For replacements, this is the content being replaced; for deletions, this should be absent.
    */
   original?: Inline[];
 

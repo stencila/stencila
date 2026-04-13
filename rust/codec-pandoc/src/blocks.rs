@@ -261,15 +261,25 @@ fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecod
     // suggestion block wrapping a paragraph with the suggestion's content.
     else if let (1, Some(Inline::SuggestionInline(..))) = (inlines.len(), inlines.first()) {
         match inlines.swap_remove(0) {
-            Inline::SuggestionInline(suggestion) => Block::SuggestionBlock(SuggestionBlock {
-                suggestion_type: suggestion.suggestion_type,
-                suggestion_status: suggestion.suggestion_status,
-                authors: suggestion.authors,
-                provenance: suggestion.provenance,
-                feedback: suggestion.feedback,
-                content: vec![Block::Paragraph(Paragraph::new(suggestion.content))],
-                ..Default::default()
-            }),
+            Inline::SuggestionInline(suggestion) => {
+                // Pandoc currently emits insertions/deletions rather than replacements,
+                // so `original` is normally `None` here. Preserve it defensively in case
+                // replacement-style inline suggestions are introduced in future.
+                let original = suggestion
+                    .original
+                    .map(|original| vec![Block::Paragraph(Paragraph::new(original))]);
+
+                Block::SuggestionBlock(SuggestionBlock {
+                    suggestion_type: suggestion.suggestion_type,
+                    suggestion_status: suggestion.suggestion_status,
+                    authors: suggestion.authors,
+                    provenance: suggestion.provenance,
+                    feedback: suggestion.feedback,
+                    content: vec![Block::Paragraph(Paragraph::new(suggestion.content))],
+                    original,
+                    ..Default::default()
+                })
+            }
             inline => Block::Paragraph(Paragraph::new(vec![inline])),
         }
     } else {

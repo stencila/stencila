@@ -13,7 +13,7 @@ core:
 properties:
   content:
     '@id': stencila:content
-    description: The content that is suggested to be inserted, modified, replaced, or deleted.
+    description: The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted.
     type: array
     items:
       $ref: Block
@@ -34,7 +34,7 @@ properties:
         strategy: vec_blocks_non_recursive(4)
   original:
     '@id': stencila:original
-    description: The original content that is suggested to be replaced or deleted.
+    description: The original content. For replacements, this is the content being replaced; for deletions, this should be absent.
     type: array
     items:
       $ref: Block

@@ -101,7 +101,7 @@ New paragraph.
 }
 
 #[test]
-fn replacement_block_can_have_empty_original() -> Result<()> {
+fn replacement_block_can_have_empty_content() -> Result<()> {
     let blocks = decode_blocks(
         r#":~~
 
@@ -128,7 +128,7 @@ Inserted paragraph.
 }
 
 #[test]
-fn replacement_block_can_have_empty_content() -> Result<()> {
+fn replacement_block_can_have_empty_original() -> Result<()> {
     let blocks = decode_blocks(
         r#":~~
 

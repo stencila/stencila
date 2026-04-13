@@ -70,14 +70,14 @@ pub struct SuggestionBlock {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     pub feedback: Option<String>,
 
-    /// The content that is suggested to be inserted, modified, replaced, or deleted.
+    /// The suggested content. For insertions and replacements, this is the new content; for deletions, this is the content being deleted.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
     #[dom(elem = "div")]
     pub content: Vec<Block>,
 
-    /// The original content that is suggested to be replaced or deleted.
+    /// The original content. For replacements, this is the content being replaced; for deletions, this should be absent.
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[dom(elem = "div")]
     pub original: Option<Vec<Block>>,
