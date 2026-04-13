@@ -12,7 +12,7 @@ use stencila_codec::{
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{
-        Block, Boundary, Comment, Inline, Node, Section, SuggestionBlock, SuggestionInline,
+        Author, Block, Boundary, Comment, Inline, Node, Section, SuggestionBlock, SuggestionInline,
         Visitor, WalkControl,
     },
 };
@@ -39,6 +39,13 @@ pub struct PullRequestExport {
     pub content: PullRequestSourceContent,
     pub items: Vec<PullRequestComment>,
     pub diagnostics: Vec<PullRequestExportDiagnostic>,
+}
+
+fn author_name(authors: Option<&[Author]>) -> Option<String> {
+    authors
+        .and_then(|authors| authors.first())
+        .map(Author::name)
+        .filter(|name| !name.trim().is_empty())
 }
 
 fn suggestion_original_inlines(suggestion: &SuggestionInline) -> Option<&[Inline]> {
@@ -109,6 +116,7 @@ pub enum PullRequestCommentKind {
 pub struct PullRequestComment {
     pub kind: PullRequestCommentKind,
     pub source_path: Option<String>,
+    pub author_name: Option<String>,
     pub node_id: Option<String>,
     pub parent_node_id: Option<String>,
     pub range: PullRequestCommentRange,
@@ -584,6 +592,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             source_path: source_path_from_location(comment.options.start_location.as_deref())
                 .or_else(|| comment.options.path.clone())
                 .or_else(|| self.root_path.clone()),
+            author_name: author_name(comment.authors.as_deref()),
             node_id: Some(node_id.clone()),
             parent_node_id: self.resolve_parent_node_id(Some(&node_id)),
             selected_text: slice_text(self.source_text, &range),
@@ -615,6 +624,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: self.root_path.clone(),
+            author_name: author_name(suggestion.authors.as_deref()),
             node_id: Some(node_id.clone()),
             parent_node_id: parent_uid,
             selected_text: slice_text(self.source_text, &range),
@@ -639,6 +649,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: self.root_path.clone(),
+            author_name: author_name(suggestion.authors.as_deref()),
             node_id: Some(node_id.clone()),
             parent_node_id: parent_uid,
             selected_text: if suggestion.suggestion_type == Some(SuggestionType::Insert) {

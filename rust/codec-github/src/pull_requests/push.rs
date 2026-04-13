@@ -70,10 +70,7 @@ const ANCHOR_TRAILING_WHITESPACE: &str = " ";
 
 /// Whether to create a cleanup commit that restores pre-anchor file contents
 /// after submitting the GitHub review.
-///
-/// Temporarily disabled while validating whether post-review cleanup commits
-/// confuse GitHub's comment display and line mapping for anchored reviews.
-const CREATE_ANCHOR_CLEANUP_COMMIT: bool = false;
+const CREATE_ANCHOR_CLEANUP_COMMIT: bool = true;
 
 /// Estimated maximum distance at which a synthetic anchor hunk can still
 /// satisfy GitHub inline review placement for nearby target lines.
@@ -1615,10 +1612,15 @@ fn format_item_lead(
 
     match item.kind {
         PullRequestCommentKind::Comment => {
+            let from = item
+                .author_name
+                .as_deref()
+                .map(|name| format!(" from _{name}_"))
+                .unwrap_or_default();
             let target = comment_target_phrase(item);
             match location {
-                Some(location) => format!("**Comment on** {target} **{location}**"),
-                None => format!("**Comment on** {target}"),
+                Some(location) => format!("**Comment{from} on** {target} **{location}**"),
+                None => format!("**Comment{from} on** {target}"),
             }
         }
         PullRequestCommentKind::Suggestion => {
@@ -1648,6 +1650,10 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
         .filter(|text| !text.trim().is_empty());
     let selected = short_target_snippet(item);
     let preceding = short_preceding_snippet(item);
+    let prefix = item
+        .author_name
+        .as_deref()
+        .map(|name| format!("**Suggestion from _{name}_**: "));
 
     match suggestion_summary_kind(item) {
         Some(SuggestionType::Insert) => {
@@ -1655,19 +1661,38 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                 .map(inline_code)
                 .unwrap_or_else(|| "text".to_string());
             if let Some(after) = preceding.or(selected) {
-                format!(
-                    "**Suggest inserting** {inserted} **after** {}",
-                    inline_code(&after)
-                )
+                if let Some(prefix) = &prefix {
+                    format!(
+                        "{prefix}insert {inserted} **after** {}",
+                        inline_code(&after)
+                    )
+                } else {
+                    format!(
+                        "**Suggest inserting** {inserted} **after** {}",
+                        inline_code(&after)
+                    )
+                }
             } else {
-                format!("**Suggest inserting** {inserted}")
+                if let Some(prefix) = &prefix {
+                    format!("{prefix}insert {inserted}")
+                } else {
+                    format!("**Suggest inserting** {inserted}")
+                }
             }
         }
         Some(SuggestionType::Delete) => {
             if let Some(target) = selected {
-                format!("**Suggest deleting** {}", inline_code(&target))
+                if let Some(prefix) = &prefix {
+                    format!("{prefix}delete {}", inline_code(&target))
+                } else {
+                    format!("**Suggest deleting** {}", inline_code(&target))
+                }
             } else {
-                "**Suggest deleting** this text".to_string()
+                if let Some(prefix) = &prefix {
+                    format!("{prefix}delete this text")
+                } else {
+                    "**Suggest deleting** this text".to_string()
+                }
             }
         }
         Some(SuggestionType::Replace) | None => {
@@ -1675,12 +1700,23 @@ fn suggestion_summary_phrase(item: &PullRequestComment) -> String {
                 .map(inline_code)
                 .unwrap_or_else(|| "text".to_string());
             if let Some(target) = selected {
-                format!(
-                    "**Suggest replacing** {} **with** {replacement}",
-                    inline_code(&target)
-                )
+                if let Some(prefix) = &prefix {
+                    format!(
+                        "{prefix}replace {} **with** {replacement}",
+                        inline_code(&target)
+                    )
+                } else {
+                    format!(
+                        "**Suggest replacing** {} **with** {replacement}",
+                        inline_code(&target)
+                    )
+                }
             } else {
-                format!("**Suggest replacing** this text **with** {replacement}")
+                if let Some(prefix) = &prefix {
+                    format!("{prefix}replace this text **with** {replacement}")
+                } else {
+                    format!("**Suggest replacing** this text **with** {replacement}")
+                }
             }
         }
     }
@@ -1890,6 +1926,7 @@ mod tests {
             PullRequestComment {
                 kind: PullRequestCommentKind::Comment,
                 source_path: Some("docs/example.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -1913,6 +1950,7 @@ mod tests {
             PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
                 source_path: Some("docs/example.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange::default(),
@@ -1947,10 +1985,44 @@ mod tests {
     }
 
     #[test]
+    fn test_convert_to_review_comments_includes_author_in_lead() {
+        let items = vec![PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: Some("docs/example.md".into()),
+            author_name: Some("Alice Smith".into()),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(2),
+                end_line: Some(2),
+                ..Default::default()
+            },
+            selected_text: Some("Hello world".into()),
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: "Nice opening.".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        }];
+
+        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+
+        assert!(fallbacks.is_empty());
+        assert_eq!(comments.len(), 1);
+        assert_eq!(
+            comments[0].body,
+            "**Comment from _Alice Smith_ on** `Hello world`:\n\nNice opening."
+        );
+    }
+
+    #[test]
     fn test_convert_to_review_comments_single_line_has_no_side() {
         let items = vec![PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: Some("docs/example.md".into()),
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -1988,6 +2060,7 @@ mod tests {
             PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
                 source_path: Some("docs/example.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -2007,6 +2080,7 @@ mod tests {
             PullRequestComment {
                 kind: PullRequestCommentKind::Comment,
                 source_path: Some("docs/example.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -2026,6 +2100,7 @@ mod tests {
             PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
                 source_path: Some("docs/example.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -2073,6 +2148,7 @@ mod tests {
             items: vec![PullRequestComment {
                 kind: PullRequestCommentKind::Comment,
                 source_path: None,
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -2129,6 +2205,7 @@ mod tests {
             items: vec![PullRequestComment {
                 kind: PullRequestCommentKind::Comment,
                 source_path: Some("other/file.md".into()),
+                author_name: None,
                 node_id: None,
                 parent_node_id: None,
                 range: PullRequestCommentRange {
@@ -2238,6 +2315,7 @@ mod tests {
         let items = vec![PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2270,6 +2348,7 @@ mod tests {
         let items = vec![PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2297,6 +2376,7 @@ mod tests {
         let make_item = |line| PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2336,6 +2416,7 @@ mod tests {
         let make_item = |line| PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2405,6 +2486,7 @@ mod tests {
         let make_item = |line| PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2549,6 +2631,7 @@ mod tests {
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2579,6 +2662,7 @@ mod tests {
         let item_default = PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2599,6 +2683,7 @@ mod tests {
         let item_secondary = PullRequestComment {
             kind: PullRequestCommentKind::Comment,
             source_path: Some("other/file.md".into()),
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2630,6 +2715,7 @@ mod tests {
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: Some("docs/example.md".into()),
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2661,6 +2747,7 @@ mod tests {
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: Some("docs/example.md".into()),
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2696,6 +2783,7 @@ mod tests {
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: Some("docs/example.md".into()),
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
@@ -2721,10 +2809,41 @@ mod tests {
     }
 
     #[test]
+    fn test_format_item_lead_includes_author_for_suggestion() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            source_path: Some("docs/example.md".into()),
+            author_name: Some("Alice Smith".into()),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(5),
+                end_line: Some(5),
+                ..Default::default()
+            },
+            selected_text: Some("abc".into()),
+            preceding_text: None,
+            replacement_text: Some("def".into()),
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let lead = format_item_lead(&item, CommentBodyMode::Anchored, None);
+        assert_eq!(
+            lead,
+            "**Suggestion from _Alice Smith_**: replace `abc` **with** `def`"
+        );
+    }
+
+    #[test]
     fn test_short_preceding_snippet_ellides_at_start() {
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: None,
+            author_name: None,
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange::default(),
