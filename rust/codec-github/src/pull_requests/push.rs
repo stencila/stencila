@@ -24,6 +24,16 @@
 //! while still giving GitHub localized diff hunks close enough for inline
 //! anchoring. If GitHub still rejects inline placement, the submission layer
 //! falls back to body-only review items rather than losing the feedback.
+//!
+//! For exports that combine substantive source changes with review items,
+//! anchor planning is proactive rather than purely reactive. Before the first
+//! review submission, Stencila compares the pre-change and post-change file
+//! contents, estimates which review targets are already covered by nearby
+//! substantive diff hunks, and only inserts synthetic anchors for uncovered
+//! targets. This avoids an unnecessary first failed GitHub review submission in
+//! common mixed-content cases while still minimizing temporary anchor markers.
+//! The retry-on-422 path remains as a safety net because GitHub's inline review
+//! anchoring behavior is empirical rather than fully specified.
 
 use base64::Engine;
 use reqwest::StatusCode;
@@ -74,7 +84,9 @@ const ANCHOR_MARKER_OFFSET: u32 = 1;
 /// satisfy GitHub inline review placement for nearby target lines.
 ///
 /// Used to coalesce nearby review targets so Stencila inserts the minimum
-/// number of temporary markers needed for a localized anchor commit.
+/// number of temporary markers needed for a localized anchor commit. The same
+/// distance is also used during proactive mixed-content planning to decide
+/// whether a substantive content hunk already covers a review target.
 const ANCHOR_COVERAGE_DISTANCE: u32 = 3;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -245,9 +257,32 @@ async fn push_pull_request_inner(
 
     let (comments_posted, fallbacks) = if has_comments {
         let initial_review_commit_sha = if has_source_changes {
-            content_commit_sha
+            let content_commit_sha = content_commit_sha
                 .clone()
-                .unwrap_or_else(|| current_sha.clone())
+                .unwrap_or_else(|| current_sha.clone());
+
+            let content_files =
+                review_file_contents(owner, repo, source_path, &content_commit_sha, items).await?;
+            let base_files =
+                review_file_contents(owner, repo, source_path, branch_base_sha, items).await?;
+            let anchored_file_contents =
+                anchor_review_file_contents(&content_files, source_path, items, Some(&base_files));
+
+            if anchored_file_contents != content_files {
+                tracing::debug!(
+                    source_path,
+                    parent_sha = %content_commit_sha,
+                    "Creating initial localized review-anchor commit before first inline review submission because some review targets are not covered by substantive content hunks"
+                );
+                let created_anchor_commit_sha =
+                    create_anchor_commit(owner, repo, &content_commit_sha, &anchored_file_contents)
+                        .await?;
+                update_ref(owner, repo, branch_name, &created_anchor_commit_sha).await?;
+                anchor_commit_sha = Some(created_anchor_commit_sha.clone());
+                created_anchor_commit_sha
+            } else {
+                content_commit_sha
+            }
         } else {
             let anchor_content_ref = if matches!(source_commit, "dirty" | "untracked") {
                 current_sha.as_str()
@@ -257,7 +292,7 @@ async fn push_pull_request_inner(
             let file_contents =
                 review_file_contents(owner, repo, source_path, anchor_content_ref, items).await?;
             let anchored_file_contents =
-                anchor_review_file_contents(&file_contents, source_path, items);
+                anchor_review_file_contents(&file_contents, source_path, items, None);
             tracing::debug!(
                 source_path,
                 parent_sha = %current_sha,
@@ -295,7 +330,7 @@ async fn push_pull_request_inner(
                 )
                 .await?;
                 let anchored_file_contents =
-                    anchor_review_file_contents(&file_contents, source_path, items);
+                    anchor_review_file_contents(&file_contents, source_path, items, None);
                 tracing::debug!(
                     source_path,
                     parent_sha = %initial_review_commit_sha,
@@ -1131,6 +1166,54 @@ fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
     minimized
 }
 
+/// Estimate which line numbers belong to substantive content changes.
+///
+/// This intentionally uses a lightweight line-by-line comparison rather than a
+/// full diff hunk algorithm. For proactive mixed-content anchor planning, the
+/// goal is to conservatively detect nearby changed lines that are likely to
+/// give GitHub enough diff context for inline review anchoring. Cases missed by
+/// this estimate still fall back to the existing retry path that creates an
+/// anchor commit after a 422 response.
+fn changed_lines(before: &str, after: &str) -> Vec<u32> {
+    let before_lines: Vec<&str> = before.lines().collect();
+    let after_lines: Vec<&str> = after.lines().collect();
+    let max_len = before_lines.len().max(after_lines.len());
+
+    (0..max_len)
+        .filter_map(|index| {
+            (before_lines.get(index) != after_lines.get(index)).then_some(index as u32 + 1)
+        })
+        .collect()
+}
+
+fn is_line_covered_by_hunk(line: u32, changed_lines: &[u32]) -> bool {
+    changed_lines
+        .iter()
+        .any(|changed| line.abs_diff(*changed) <= ANCHOR_COVERAGE_DISTANCE)
+}
+
+/// Remove review targets that are already covered by substantive content hunks
+/// or by a previously planned synthetic marker.
+///
+/// This keeps mixed-content anchor commits as small as possible by skipping
+/// markers that would be redundant for GitHub inline review placement.
+fn filter_anchor_lines_needing_markers(lines: &[u32], changed_lines: &[u32]) -> Vec<u32> {
+    let mut planned = Vec::new();
+
+    for &line in lines {
+        let covered_by_content = is_line_covered_by_hunk(line, changed_lines);
+        let covered_by_marker = planned
+            .last()
+            .is_some_and(|previous| line.abs_diff(*previous) <= ANCHOR_COVERAGE_DISTANCE);
+
+        if !covered_by_content && !covered_by_marker {
+            planned.push(line);
+        }
+    }
+
+    planned
+}
+
 fn insert_anchor_markers(content: &str, path: &str, lines: &[u32]) -> String {
     if lines.is_empty() {
         return content.to_string();
@@ -1203,10 +1286,16 @@ fn remove_anchor_markers(content: &str) -> String {
     }
 }
 
+/// Add synthetic review anchors only where the current file contents still
+/// need localized diff hunks for inline review placement.
+///
+/// When `base_files` is provided, anchor planning treats nearby substantive
+/// content changes as coverage and avoids adding redundant temporary markers.
 fn anchor_review_file_contents(
     files: &[(String, String)],
     source_path: &str,
     items: &[PullRequestComment],
+    base_files: Option<&[(String, String)]>,
 ) -> Vec<(String, String)> {
     files
         .iter()
@@ -1217,6 +1306,11 @@ fn anchor_review_file_contents(
                 .cloned()
                 .collect();
             let anchor_lines = collect_anchor_lines(&path_items);
+            let changed_lines = base_files
+                .and_then(|files| files.iter().find(|(base_path, _)| base_path == path))
+                .map(|(_, base_content)| changed_lines(base_content, content))
+                .unwrap_or_default();
+            let anchor_lines = filter_anchor_lines_needing_markers(&anchor_lines, &changed_lines);
             (
                 path.clone(),
                 insert_anchor_markers(content, path, &anchor_lines),
@@ -1992,7 +2086,7 @@ mod tests {
             github_suggestion: None,
         }];
 
-        let anchored = anchor_review_file_contents(&files, "docs/example.md", &items);
+        let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
         let content = &anchored[0].1;
 
         assert!(content.contains("<!-- Stencila comment anchor #2 -->"));
@@ -2036,7 +2130,7 @@ mod tests {
             github_suggestion: None,
         }];
 
-        let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items);
+        let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items, None);
 
         assert!(anchored[0].1.contains("// Stencila comment anchor #1"));
     }
@@ -2110,6 +2204,7 @@ mod tests {
                 make_item(6),
                 make_item(10),
             ],
+            None,
         );
         let content = &anchored[0].1;
 
@@ -2117,6 +2212,53 @@ mod tests {
         assert!(content.contains("Stencila comment anchor #2"));
         assert!(content.contains("Stencila comment anchor #6"));
         assert!(content.contains("Stencila comment anchor #10"));
+    }
+
+    #[test]
+    fn test_anchor_review_file_contents_skips_markers_near_content_changes() {
+        let base_files = vec![(
+            "docs/example.md".to_string(),
+            ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10"].join("\n") + "\n",
+        )];
+        let files = vec![(
+            "docs/example.md".to_string(),
+            [
+                "01", "changed", "03", "04", "05", "06", "updated", "08", "09", "10",
+            ]
+            .join("\n")
+                + "\n",
+        )];
+        let make_item = |line| PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(line),
+                end_line: Some(line),
+                ..Default::default()
+            },
+            selected_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let anchored = anchor_review_file_contents(
+            &files,
+            "docs/example.md",
+            &[make_item(5), make_item(7), make_item(11)],
+            Some(&base_files),
+        );
+        let content = &anchored[0].1;
+
+        assert_eq!(content.matches("Stencila comment anchor #").count(), 1);
+        assert!(content.contains("Stencila comment anchor #11"));
+        assert!(!content.contains("Stencila comment anchor #5"));
+        assert!(!content.contains("Stencila comment anchor #7"));
     }
 
     #[test]
