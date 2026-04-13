@@ -70,6 +70,13 @@ const ANCHOR_MARKER_LABEL: &str = "Stencila comment anchor #";
 /// possible to the target line, preferring one line after it when available.
 const ANCHOR_MARKER_OFFSET: u32 = 1;
 
+/// Estimated maximum distance at which a synthetic anchor hunk can still
+/// satisfy GitHub inline review placement for nearby target lines.
+///
+/// Used to coalesce nearby review targets so Stencila inserts the minimum
+/// number of temporary markers needed for a localized anchor commit.
+const ANCHOR_COVERAGE_DISTANCE: u32 = 3;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SubmitReviewMode {
     RequireInline,
@@ -1109,7 +1116,19 @@ fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
         .collect();
     lines.sort_unstable();
     lines.dedup();
-    lines
+
+    let mut minimized = Vec::new();
+    for line in lines {
+        let covered = minimized
+            .last()
+            .is_some_and(|previous| line.saturating_sub(*previous) <= ANCHOR_COVERAGE_DISTANCE);
+
+        if !covered {
+            minimized.push(line);
+        }
+    }
+
+    minimized
 }
 
 fn insert_anchor_markers(content: &str, path: &str, lines: &[u32]) -> String {
@@ -2020,6 +2039,84 @@ mod tests {
         let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items);
 
         assert!(anchored[0].1.contains("// Stencila comment anchor #1"));
+    }
+
+    #[test]
+    fn test_collect_anchor_lines_coalesces_nearby_targets() {
+        let make_item = |line| PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(line),
+                end_line: Some(line),
+                ..Default::default()
+            },
+            selected_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let lines = collect_anchor_lines(&[
+            make_item(2),
+            make_item(3),
+            make_item(5),
+            make_item(6),
+            make_item(10),
+        ]);
+
+        assert_eq!(lines, vec![2, 6, 10]);
+    }
+
+    #[test]
+    fn test_anchor_review_file_contents_minimizes_markers_for_nearby_targets() {
+        let files = vec![(
+            "docs/example.md".to_string(),
+            (1..=12)
+                .map(|line| format!("{line:02}\n"))
+                .collect::<String>(),
+        )];
+        let make_item = |line| PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(line),
+                end_line: Some(line),
+                ..Default::default()
+            },
+            selected_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        let anchored = anchor_review_file_contents(
+            &files,
+            "docs/example.md",
+            &[
+                make_item(2),
+                make_item(3),
+                make_item(5),
+                make_item(6),
+                make_item(10),
+            ],
+        );
+        let content = &anchored[0].1;
+
+        assert_eq!(content.matches("Stencila comment anchor #").count(), 3);
+        assert!(content.contains("Stencila comment anchor #2"));
+        assert!(content.contains("Stencila comment anchor #6"));
+        assert!(content.contains("Stencila comment anchor #10"));
     }
 
     #[test]
