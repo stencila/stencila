@@ -61,12 +61,12 @@ use stencila_codec::stencila_schema::SuggestionType;
 /// than visible marker lines so the temporary diff remains minimally intrusive.
 const PR_PLACEHOLDER_MAX_TRAILING_LINE_ENDINGS: usize = 2;
 
-/// Synthetic trailing whitespace appended to anchor lines.
+/// Invisible marker appended to anchor lines.
 ///
-/// Trailing whitespace creates a localized diff hunk without inserting extra
+/// A zero-width space creates a localized diff hunk without inserting extra
 /// lines that could shift GitHub's review line mapping for subsequent comment
-/// targets.
-const ANCHOR_TRAILING_WHITESPACE: &str = " ";
+/// targets, and is visually lighter than altering visible content lines.
+const ANCHOR_MARKER: &str = "\u{200B}";
 
 /// Estimated maximum distance at which a synthetic anchor hunk can still
 /// satisfy GitHub inline review placement for nearby target lines.
@@ -1086,10 +1086,65 @@ fn line_ending(content: &str) -> &str {
     }
 }
 
-fn collect_anchor_lines(items: &[PullRequestComment]) -> Vec<u32> {
+fn collect_anchor_target_lines(items: &[PullRequestComment]) -> Vec<u32> {
     let mut lines: Vec<u32> = items
         .iter()
         .filter_map(|item| item.range.start_line.or(item.range.end_line))
+        .collect();
+    lines.sort_unstable();
+    lines.dedup();
+
+    lines
+}
+
+fn is_blank_line(line: &str, ending: &str) -> bool {
+    line.strip_suffix(ending).unwrap_or(line).trim().is_empty()
+}
+
+fn choose_anchor_line(target_line: u32, split_lines: &[String], ending: &str) -> u32 {
+    let Some(target_index) = target_line.checked_sub(1).map(|line| line as usize) else {
+        return target_line;
+    };
+
+    let max_distance = ANCHOR_COVERAGE_DISTANCE as usize;
+
+    for distance in 1..=max_distance {
+        if let Some(index) = target_index.checked_sub(distance)
+            && split_lines
+                .get(index)
+                .is_some_and(|line| is_blank_line(line, ending))
+        {
+            return index as u32 + 1;
+        }
+
+        let after_index = target_index + distance;
+        if split_lines
+            .get(after_index)
+            .is_some_and(|line| is_blank_line(line, ending))
+        {
+            return after_index as u32 + 1;
+        }
+    }
+
+    target_line
+}
+
+fn collect_anchor_lines(content: &str, items: &[PullRequestComment]) -> Vec<u32> {
+    let target_lines = collect_anchor_target_lines(items);
+    if target_lines.is_empty() {
+        return Vec::new();
+    }
+
+    let ending = line_ending(content);
+    let split_lines: Vec<String> = if content.is_empty() {
+        vec![String::new()]
+    } else {
+        content.split_inclusive(ending).map(String::from).collect()
+    };
+
+    let mut lines: Vec<u32> = target_lines
+        .into_iter()
+        .map(|line| choose_anchor_line(line, &split_lines, ending))
         .collect();
     lines.sort_unstable();
     lines.dedup();
@@ -1175,9 +1230,9 @@ fn insert_anchor_markers(content: &str, _path: &str, lines: &[u32]) -> String {
 
         if let Some(existing) = split_lines.get_mut(index) {
             if let Some(stripped) = existing.strip_suffix(ending) {
-                *existing = format!("{stripped}{ANCHOR_TRAILING_WHITESPACE}{ending}");
+                *existing = format!("{stripped}{ANCHOR_MARKER}{ending}");
             } else {
-                existing.push_str(ANCHOR_TRAILING_WHITESPACE);
+                existing.push_str(ANCHOR_MARKER);
             }
         }
     }
@@ -1204,7 +1259,7 @@ fn anchor_review_file_contents(
                 .filter(|item| item.source_path.as_deref().unwrap_or(source_path) == path)
                 .cloned()
                 .collect();
-            let anchor_lines = collect_anchor_lines(&path_items);
+            let anchor_lines = collect_anchor_lines(content, &path_items);
             let changed_lines = base_files
                 .and_then(|files| files.iter().find(|(base_path, _)| base_path == path))
                 .map(|(_, base_content)| changed_lines(base_content, content))
@@ -2244,12 +2299,10 @@ mod tests {
     }
 
     #[test]
-    fn test_anchor_review_file_contents_inserts_markers_near_target_lines() {
+    fn test_anchor_review_file_contents_prefers_blank_line_before_target() {
         let files = vec![(
             "docs/example.md".to_string(),
-            (1..=10)
-                .map(|line| format!("{line:02}\n"))
-                .collect::<String>(),
+            ["01", "", "03", "04", "05"].join("\n") + "\n",
         )];
         let items = vec![PullRequestComment {
             kind: PullRequestCommentKind::Comment,
@@ -2275,11 +2328,49 @@ mod tests {
         let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
         let content = &anchored[0].1;
 
-        assert_eq!(content, "01\n02 \n03\n04\n05\n06\n07\n08\n09\n10\n");
+        assert_eq!(
+            content.as_str(),
+            format!("01\n{}\n03\n04\n05\n", ANCHOR_MARKER)
+        );
     }
 
     #[test]
-    fn test_anchor_review_file_contents_uses_line_comment_style_for_rust() {
+    fn test_anchor_review_file_contents_falls_back_to_blank_line_after_target() {
+        let files = vec![(
+            "docs/example.md".to_string(),
+            ["01", "02", "03", "", "05"].join("\n") + "\n",
+        )];
+        let items = vec![PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(3),
+                end_line: Some(3),
+                ..Default::default()
+            },
+            selected_text: None,
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        }];
+
+        let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
+
+        assert_eq!(
+            anchored[0].1,
+            format!("01\n02\n03\n{}\n05\n", ANCHOR_MARKER)
+        );
+    }
+
+    #[test]
+    fn test_anchor_review_file_contents_falls_back_to_target_line_when_no_nearby_blank_line() {
         let files = vec![(
             "src/lib.rs".to_string(),
             (1..=4).map(|line| format!("{line}\n")).collect::<String>(),
@@ -2307,7 +2398,7 @@ mod tests {
 
         let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items, None);
 
-        assert_eq!(anchored[0].1, "1 \n2\n3\n4\n");
+        assert_eq!(anchored[0].1, format!("1{ANCHOR_MARKER}\n2\n3\n4\n"));
     }
 
     #[test]
@@ -2333,24 +2424,31 @@ mod tests {
             github_suggestion: None,
         };
 
-        let lines = collect_anchor_lines(&[
-            make_item(2),
-            make_item(3),
-            make_item(5),
-            make_item(6),
-            make_item(10),
-        ]);
+        let content = ["01", "", "03", "", "05", "06", "", "08", "09", "10"].join("\n") + "\n";
 
-        assert_eq!(lines, vec![2, 6, 10]);
+        let lines = collect_anchor_lines(
+            &content,
+            &[
+                make_item(2),
+                make_item(3),
+                make_item(5),
+                make_item(6),
+                make_item(10),
+            ],
+        );
+
+        assert_eq!(lines, vec![2, 7]);
     }
 
     #[test]
     fn test_anchor_review_file_contents_minimizes_markers_for_nearby_targets() {
         let files = vec![(
             "docs/example.md".to_string(),
-            (1..=12)
-                .map(|line| format!("{line:02}\n"))
-                .collect::<String>(),
+            [
+                "01", "", "03", "", "05", "", "07", "08", "09", "10", "11", "12",
+            ]
+            .join("\n")
+                + "\n",
         )];
         let make_item = |line| PullRequestComment {
             kind: PullRequestCommentKind::Comment,
@@ -2386,26 +2484,14 @@ mod tests {
             None,
         );
         let content = &anchored[0].1;
+        let marker_lines: Vec<usize> = content
+            .lines()
+            .enumerate()
+            .filter_map(|(index, line)| line.contains(ANCHOR_MARKER).then_some(index + 1))
+            .collect();
 
         assert_eq!(content.lines().count(), 12);
-        assert!(
-            content
-                .lines()
-                .nth(1)
-                .is_some_and(|line| line.ends_with(' '))
-        );
-        assert!(
-            content
-                .lines()
-                .nth(5)
-                .is_some_and(|line| line.ends_with(' '))
-        );
-        assert!(
-            content
-                .lines()
-                .nth(9)
-                .is_some_and(|line| line.ends_with(' '))
-        );
+        assert_eq!(marker_lines, vec![2, 10]);
     }
 
     #[test]
@@ -2456,13 +2542,13 @@ mod tests {
             !content
                 .lines()
                 .nth(4)
-                .is_some_and(|line| line.ends_with(' '))
+                .is_some_and(|line| line.ends_with(ANCHOR_MARKER))
         );
         assert!(
             !content
                 .lines()
                 .nth(6)
-                .is_some_and(|line| line.ends_with(' '))
+                .is_some_and(|line| line.ends_with(ANCHOR_MARKER))
         );
         assert_eq!(content, &files[0].1);
     }
