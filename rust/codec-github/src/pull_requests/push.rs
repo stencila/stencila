@@ -237,7 +237,7 @@ async fn push_pull_request_inner(
                 repo,
                 &current_sha,
                 &[(source_path.to_string(), source_text.to_string())],
-                "feat: apply Stencila document changes",
+                "Apply document content changes",
             )
             .await?
         };
@@ -1079,7 +1079,7 @@ async fn create_placeholder_content_commit(
         repo,
         parent_sha,
         &[(path.to_string(), dummy_content)],
-        "chore: add placeholder change to open pull request",
+        "Add placeholder change to open pull request",
     )
     .await
 }
@@ -1268,7 +1268,7 @@ async fn create_anchor_commit(
         repo,
         parent_sha,
         files,
-        "chore: add temporary review anchors",
+        "Add temporary review anchors",
     )
     .await
 }
@@ -1310,7 +1310,7 @@ async fn create_cleanup_commit(
     let commit: CommitResponse = post_json(
         &api_url(&format!("/repos/{owner}/{repo}/git/commits")),
         &CreateCommitRequest {
-            message: "chore: remove temporary Stencila review anchors",
+            message: "Remove temporary review anchors",
             tree: &tree.sha,
             parents: vec![parent_sha],
         },
