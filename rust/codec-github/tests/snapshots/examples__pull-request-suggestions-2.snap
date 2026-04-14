@@ -1,6 +1,5 @@
 ---
 source: rust/codec-github/tests/examples.rs
-assertion_line: 78
 expression: review
 ---
 {
@@ -125,7 +124,6 @@ expression: review
       "selectedText": "",
       "precedingText": "A ",
       "replacementText": "brief ",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -151,7 +149,6 @@ expression: review
       "selectedText": "A repeated repeated phrase appears here.\n",
       "precedingText": "A ",
       "replacementText": "repeated ",
-      "bodyMarkdown": "",
       "suggestionType": "Delete",
       "resolution": "anchored"
     },
@@ -170,7 +167,6 @@ expression: review
       "selectedText": "",
       "precedingText": "Final paragraph with ",
       "replacementText": "appended words",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {

@@ -121,7 +121,7 @@ expression: review
         "endColumn": 32
       },
       "selectedText": "commented text",
-      "bodyMarkdown": "Inline comment beside suggestion",
+      "content": "Inline comment beside suggestion",
       "resolution": "anchored"
     },
     {
@@ -140,7 +140,6 @@ expression: review
       "selectedText": "",
       "precedingText": "A paragraph with commented text and a ",
       "replacementText": "small ",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -167,7 +166,6 @@ expression: review
       "selectedText": "removable ",
       "precedingText": "A second paragraph with a ",
       "replacementText": "removable ",
-      "bodyMarkdown": "",
       "suggestionType": "Delete",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -193,7 +191,6 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "A proposed new paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {

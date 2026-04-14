@@ -69,7 +69,7 @@ expression: review
         "endColumn": 12
       },
       "selectedText": "paragraph",
-      "bodyMarkdown": "A comment on the paragraph",
+      "content": "A comment on the paragraph",
       "resolution": "anchored"
     }
   ],

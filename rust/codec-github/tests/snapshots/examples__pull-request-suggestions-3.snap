@@ -81,7 +81,6 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "An inserted opening paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -106,7 +105,6 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "An inserted section opening paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {

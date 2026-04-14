@@ -106,9 +106,9 @@ pub enum PullRequestCommentKind {
 
 /// A normalized pull request comment derived from either a `Comment` or `SuggestionInline` node.
 ///
-/// For comments, `body_markdown` holds the comment text and `replacement_text` is `None`.
-/// For suggestions, `replacement_text` holds the proposed content and `body_markdown`
-/// holds optional feedback. `selected_text` is the original source text at the
+/// For comments, `content` holds the comment text and `replacement_text` is `None`.
+/// For suggestions, `replacement_text` holds the proposed content and `content`
+/// is `None`. `selected_text` is the original source text at the
 /// resolved range (when resolution succeeds).
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize)]
@@ -123,7 +123,7 @@ pub struct PullRequestComment {
     pub selected_text: Option<String>,
     pub preceding_text: Option<String>,
     pub replacement_text: Option<String>,
-    pub body_markdown: String,
+    pub content: Option<String>,
     pub suggestion_type: Option<SuggestionType>,
     pub suggestion_status: Option<SuggestionStatus>,
     pub resolution: PullRequestCommentResolution,
@@ -598,7 +598,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             selected_text: slice_text(self.source_text, &range),
             preceding_text: None,
             replacement_text: None,
-            body_markdown: blocks_to_markdown(&comment.content),
+            content: Some(blocks_to_markdown(&comment.content)),
             suggestion_type: None,
             suggestion_status: None,
             resolution: resolution_for_range(&range),
@@ -630,7 +630,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             selected_text: slice_text(self.source_text, &range),
             preceding_text: self.insert_context.preceding.get(&node_id).cloned(),
             replacement_text: Some(replacement_text),
-            body_markdown: suggestion.feedback.clone().unwrap_or_default(),
+            content: None,
             suggestion_type: suggestion.suggestion_type,
             suggestion_status: suggestion.suggestion_status,
             resolution: resolution_for_range(&range),
@@ -659,7 +659,7 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             },
             preceding_text: None,
             replacement_text: Some(replacement_text),
-            body_markdown: suggestion.feedback.clone().unwrap_or_default(),
+            content: None,
             suggestion_type: suggestion.suggestion_type,
             suggestion_status: suggestion.suggestion_status,
             resolution: resolution_for_range(&range),
@@ -1355,14 +1355,7 @@ fn build_github_suggestion(
         }
     };
 
-    let body = if item.body_markdown.is_empty() {
-        format!("```suggestion\n{replacement_lines}\n```")
-    } else {
-        format!(
-            "{}\n\n```suggestion\n{replacement_lines}\n```",
-            item.body_markdown
-        )
-    };
+    let body = format!("```suggestion\n{replacement_lines}\n```");
 
     Some(GitHubSuggestion {
         edit_kind,

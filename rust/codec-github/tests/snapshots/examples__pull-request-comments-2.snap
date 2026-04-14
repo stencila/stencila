@@ -143,7 +143,7 @@ expression: review
         "endColumn": 37
       },
       "selectedText": "focused comment",
-      "bodyMarkdown": "First comment on selected text",
+      "content": "First comment on selected text",
       "resolution": "anchored"
     },
     {
@@ -154,7 +154,7 @@ expression: review
         "startLocation": "#comment-c2-start",
         "endLocation": "#comment-c2-end"
       },
-      "bodyMarkdown": "",
+      "content": "",
       "resolution": "unanchored"
     }
   ],

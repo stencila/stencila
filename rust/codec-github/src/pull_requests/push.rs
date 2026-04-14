@@ -178,7 +178,11 @@ fn review_item_fingerprint(item: &PullRequestComment, default_path: &str) -> Str
     feed(
         &mut hasher,
         "body_markdown",
-        &normalize_multiline_text(&item.body_markdown),
+        &item
+            .content
+            .as_deref()
+            .map(normalize_multiline_text)
+            .unwrap_or_default(),
     );
     feed(
         &mut hasher,
@@ -1914,25 +1918,27 @@ fn format_review_item_body(
     default_path: &str,
 ) -> String {
     let marker = review_item_marker(item, default_path);
+    let content = item.content.as_deref().filter(|text| !text.is_empty());
 
     if let Some(github_suggestion) = &item.github_suggestion {
         let lead = format_item_lead(item, mode, None);
 
-        if item.body_markdown.is_empty() {
+        if content.is_none() {
             return format!("{lead}:\n\n{}\n\n{marker}", github_suggestion.body);
         }
 
         return format!(
             "{lead}:\n\n{}\n\n{}\n\n{marker}",
-            item.body_markdown, github_suggestion.body
+            content.unwrap_or_default(),
+            github_suggestion.body
         );
     }
 
     let lead = format_item_lead(item, mode, None);
     let mut parts = vec![format!("{lead}:")];
 
-    if !item.body_markdown.is_empty() {
-        parts.push(item.body_markdown.clone());
+    if let Some(content) = content {
+        parts.push(content.to_string());
     }
 
     if matches!(item.kind, PullRequestCommentKind::Suggestion)
@@ -2151,8 +2157,8 @@ pub(crate) fn format_fallback_body(items: &[&PullRequestComment], default_path: 
             format_item_lead(item, CommentBodyMode::Fallback, Some(default_path))
         ));
 
-        if !item.body_markdown.is_empty() {
-            parts.push(format!("  {}", item.body_markdown.replace('\n', "\n  ")));
+        if let Some(content) = item.content.as_deref().filter(|text| !text.is_empty()) {
+            parts.push(format!("  {}", content.replace('\n', "\n  ")));
         }
 
         if matches!(item.kind, PullRequestCommentKind::Suggestion)
@@ -2184,6 +2190,59 @@ mod tests {
     };
 
     use super::*;
+
+    fn assert_contains_all(haystack: &str, needles: &[&str]) {
+        for needle in needles {
+            assert!(
+                haystack.contains(needle),
+                "expected `{haystack}` to contain `{needle}`"
+            );
+        }
+    }
+
+    fn comment_item() -> PullRequestComment {
+        PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange::default(),
+            selected_text: None,
+            preceding_text: None,
+            replacement_text: None,
+            content: None,
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        }
+    }
+
+    fn suggestion_item() -> PullRequestComment {
+        PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            ..comment_item()
+        }
+    }
+
+    fn export_with_items(content: &str, items: Vec<PullRequestComment>) -> PullRequestExport {
+        PullRequestExport {
+            source: PullRequestSource {
+                repository: Some("stencila/stencila".into()),
+                path: Some("docs/example.md".into()),
+                commit: Some("abcdef1234567890".into()),
+                format: Format::Smd,
+            },
+            target: PullRequestTarget::default(),
+            content: PullRequestSourceContent {
+                text: content.into(),
+                mapping: None,
+            },
+            items,
+            diagnostics: vec![],
+        }
+    }
 
     #[test]
     fn test_is_missing_anchor_error_matches_anchor_signals() {
@@ -2289,7 +2348,7 @@ mod tests {
                 selected_text: Some("Hello world".into()),
                 preceding_text: None,
                 replacement_text: None,
-                body_markdown: "Nice opening.".into(),
+                content: Some("Nice opening.".into()),
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
@@ -2305,7 +2364,7 @@ mod tests {
                 selected_text: None,
                 preceding_text: None,
                 replacement_text: Some("replacement".into()),
-                body_markdown: "Unresolved suggestion.".into(),
+                content: None,
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Unanchored,
@@ -2320,12 +2379,15 @@ mod tests {
         assert_eq!(comments[0].start_line, Some(1));
         assert_eq!(comments[0].side, "RIGHT");
         assert_eq!(comments[0].start_side, Some("RIGHT".into()));
-        assert!(
-            comments[0]
-                .body
-                .starts_with("**Comment on** `Hello world`:\n\nNice opening.")
+        assert_contains_all(
+            &comments[0].body,
+            &[
+                "**Comment on**",
+                "`Hello world`",
+                "Nice opening.",
+                REVIEW_ITEM_MARKER_PREFIX,
+            ],
         );
-        assert!(comments[0].body.contains(REVIEW_ITEM_MARKER_PREFIX));
 
         assert_eq!(fallbacks.len(), 1);
         assert!(matches!(
@@ -2350,7 +2412,7 @@ mod tests {
             selected_text: Some("Hello world".into()),
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Nice opening.".into(),
+            content: Some("Nice opening.".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -2361,12 +2423,15 @@ mod tests {
 
         assert!(fallbacks.is_empty());
         assert_eq!(comments.len(), 1);
-        assert!(
-            comments[0]
-                .body
-                .starts_with("**Comment from _Alice Smith_ on** `Hello world`:\n\nNice opening.")
+        assert_contains_all(
+            &comments[0].body,
+            &[
+                "**Comment from _Alice Smith_ on**",
+                "`Hello world`",
+                "Nice opening.",
+                REVIEW_ITEM_MARKER_PREFIX,
+            ],
         );
-        assert!(comments[0].body.contains(REVIEW_ITEM_MARKER_PREFIX));
     }
 
     #[test]
@@ -2389,7 +2454,7 @@ mod tests {
             selected_text: Some("text".into()),
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Single line".into(),
+            content: Some("Single line".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -2423,7 +2488,7 @@ mod tests {
                 selected_text: None,
                 preceding_text: None,
                 replacement_text: Some("replacement".into()),
-                body_markdown: "late suggestion".into(),
+                content: None,
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
@@ -2443,7 +2508,7 @@ mod tests {
                 selected_text: None,
                 preceding_text: None,
                 replacement_text: None,
-                body_markdown: "early comment".into(),
+                content: Some("early comment".into()),
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
@@ -2463,7 +2528,7 @@ mod tests {
                 selected_text: None,
                 preceding_text: None,
                 replacement_text: Some("mid".into()),
-                body_markdown: "mid suggestion".into(),
+                content: None,
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
@@ -2485,41 +2550,19 @@ mod tests {
 
     #[test]
     fn test_plan_pull_request_push_mixed_flow() {
-        let export = PullRequestExport {
-            source: PullRequestSource {
-                repository: Some("stencila/stencila".into()),
-                path: Some("docs/example.md".into()),
-                commit: Some("abcdef1234567890".into()),
-                format: Format::Smd,
-            },
-            target: PullRequestTarget::default(),
-            content: PullRequestSourceContent {
-                text: "before [[edit]] after".into(),
-                mapping: None,
-            },
-            items: vec![PullRequestComment {
-                kind: PullRequestCommentKind::Comment,
-                source_path: None,
-                author_name: None,
-                node_id: None,
-                parent_node_id: None,
+        let export = export_with_items(
+            "before [[edit]] after",
+            vec![PullRequestComment {
                 range: PullRequestCommentRange {
                     end_line: Some(1),
                     start_offset: Some(0),
                     end_offset: Some(5),
                     ..Default::default()
                 },
-                selected_text: None,
-                preceding_text: None,
-                replacement_text: None,
-                body_markdown: "Comment".into(),
-                suggestion_type: None,
-                suggestion_status: None,
-                resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
+                content: Some("Comment".into()),
+                ..comment_item()
             }],
-            diagnostics: vec![],
-        };
+        );
 
         let plan = plan_pull_request_push_with_source_changes(&export, Some(true))
             .expect("plan should succeed");
@@ -2542,39 +2585,18 @@ mod tests {
 
     #[test]
     fn test_plan_pull_request_push_review_only() {
-        let export = PullRequestExport {
-            source: PullRequestSource {
-                repository: Some("stencila/stencila".into()),
-                path: Some("docs/example.md".into()),
-                commit: Some("abcdef1234567890".into()),
-                format: Format::Smd,
-            },
-            target: PullRequestTarget::default(),
-            content: PullRequestSourceContent {
-                text: "plain source".into(),
-                mapping: None,
-            },
-            items: vec![PullRequestComment {
-                kind: PullRequestCommentKind::Comment,
+        let export = export_with_items(
+            "plain source",
+            vec![PullRequestComment {
                 source_path: Some("other/file.md".into()),
-                author_name: None,
-                node_id: None,
-                parent_node_id: None,
                 range: PullRequestCommentRange {
                     end_line: Some(2),
                     ..Default::default()
                 },
-                selected_text: None,
-                preceding_text: None,
-                replacement_text: None,
-                body_markdown: "Comment".into(),
-                suggestion_type: None,
-                suggestion_status: None,
-                resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
+                content: Some("Comment".into()),
+                ..comment_item()
             }],
-            diagnostics: vec![],
-        };
+        );
 
         let plan = plan_pull_request_push_with_source_changes(&export, Some(false))
             .expect("plan should succeed");
@@ -2590,21 +2612,7 @@ mod tests {
 
     #[test]
     fn test_plan_pull_request_push_noop() {
-        let export = PullRequestExport {
-            source: PullRequestSource {
-                repository: Some("stencila/stencila".into()),
-                path: Some("docs/example.md".into()),
-                commit: Some("abcdef1234567890".into()),
-                format: Format::Smd,
-            },
-            target: PullRequestTarget::default(),
-            content: PullRequestSourceContent {
-                text: "plain source".into(),
-                mapping: None,
-            },
-            items: vec![],
-            diagnostics: vec![],
-        };
+        let export = export_with_items("plain source", vec![]);
 
         let plan = plan_pull_request_push_with_source_changes(&export, Some(false))
             .expect("plan should succeed");
@@ -2616,21 +2624,7 @@ mod tests {
 
     #[test]
     fn test_plan_requires_placeholder_content_commit_for_empty_review() {
-        let export = PullRequestExport {
-            source: PullRequestSource {
-                repository: Some("stencila/stencila".into()),
-                path: Some("docs/example.md".into()),
-                commit: Some("abcdef1234567890".into()),
-                format: Format::Smd,
-            },
-            target: PullRequestTarget::default(),
-            content: PullRequestSourceContent {
-                text: "plain source".into(),
-                mapping: None,
-            },
-            items: vec![],
-            diagnostics: vec![],
-        };
+        let export = export_with_items("plain source", vec![]);
 
         assert!(plan_requires_placeholder_content_commit(&export, false));
         assert!(!plan_requires_placeholder_content_commit(&export, true));
@@ -2676,7 +2670,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: None,
-            body_markdown: String::new(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -2712,7 +2706,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: None,
-            body_markdown: String::new(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -2747,7 +2741,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: None,
-            body_markdown: String::new(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -2762,24 +2756,12 @@ mod tests {
     #[test]
     fn test_collect_anchor_lines_coalesces_nearby_targets() {
         let make_item = |line| PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
             range: PullRequestCommentRange {
                 start_line: Some(line),
                 end_line: Some(line),
                 ..Default::default()
             },
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
+            ..comment_item()
         };
 
         let content = ["01", "", "03", "", "05", "06", "", "08", "09", "10"].join("\n") + "\n";
@@ -2809,24 +2791,12 @@ mod tests {
                 + "\n",
         )];
         let make_item = |line| PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
             range: PullRequestCommentRange {
                 start_line: Some(line),
                 end_line: Some(line),
                 ..Default::default()
             },
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
+            ..comment_item()
         };
 
         let anchored = anchor_review_file_contents(
@@ -2867,24 +2837,12 @@ mod tests {
                 + "\n",
         )];
         let make_item = |line| PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
             range: PullRequestCommentRange {
                 start_line: Some(line),
                 end_line: Some(line),
                 ..Default::default()
             },
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
+            ..comment_item()
         };
 
         let anchored = anchor_review_file_contents(
@@ -2913,26 +2871,8 @@ mod tests {
 
     #[test]
     fn test_pr_body_variants() {
-        let comment = PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
-            range: PullRequestCommentRange::default(),
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
-        };
-        let suggestion = PullRequestComment {
-            kind: PullRequestCommentKind::Suggestion,
-            ..comment.clone()
-        };
+        let comment = comment_item();
+        let suggestion = suggestion_item();
 
         assert!(pr_body("review.smd", "docs/example.md", true, false, &[suggestion.clone(), comment.clone()])
             .contains("contains edits, suggestions, and comments for `docs/example.md`, extracted from `review.smd`"));
@@ -2959,26 +2899,8 @@ mod tests {
             pr_title("docs/example.md", true, false, &[]),
             "Edits for docs/example.md"
         );
-        let comment = PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
-            range: PullRequestCommentRange::default(),
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
-        };
-        let suggestion = PullRequestComment {
-            kind: PullRequestCommentKind::Suggestion,
-            ..comment.clone()
-        };
+        let comment = comment_item();
+        let suggestion = suggestion_item();
         assert_eq!(
             pr_title("docs/example.md", false, false, &[suggestion, comment]),
             "Suggestions and comments for docs/example.md"
@@ -2987,26 +2909,8 @@ mod tests {
 
     #[test]
     fn test_review_body_intro_variants() {
-        let comment = PullRequestComment {
-            kind: PullRequestCommentKind::Comment,
-            source_path: None,
-            author_name: None,
-            node_id: None,
-            parent_node_id: None,
-            range: PullRequestCommentRange::default(),
-            selected_text: None,
-            preceding_text: None,
-            replacement_text: None,
-            body_markdown: String::new(),
-            suggestion_type: None,
-            suggestion_status: None,
-            resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
-        };
-        let suggestion = PullRequestComment {
-            kind: PullRequestCommentKind::Suggestion,
-            ..comment.clone()
-        };
+        let comment = comment_item();
+        let suggestion = suggestion_item();
 
         assert!(
             review_body_intro(
@@ -3118,7 +3022,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: Some("better text".into()),
-            body_markdown: "Please rephrase.".into(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
@@ -3126,11 +3030,16 @@ mod tests {
         };
 
         let body = format_fallback_body(&[&item], "docs/example.md");
-        assert!(
-            body.contains("**Suggest inserting** `better text` **in `docs/example.md` at line 5**")
+        assert_contains_all(
+            &body,
+            &[
+                "**Suggest inserting**",
+                "`better text`",
+                "`docs/example.md`",
+                "line 5",
+                "Suggested replacement: `better text`",
+            ],
         );
-        assert!(body.contains("Please rephrase."));
-        assert!(body.contains("Suggested replacement: `better text`"));
     }
 
     #[test]
@@ -3149,7 +3058,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Default path item.".into(),
+            content: Some("Default path item.".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
@@ -3170,7 +3079,7 @@ mod tests {
             selected_text: None,
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Secondary file item.".into(),
+            content: Some("Secondary file item.".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
@@ -3180,9 +3089,20 @@ mod tests {
         let body = format_fallback_body(&[&item_default, &item_secondary], "docs/main.md");
 
         // Item without source_path should use the default path
-        assert!(body.contains("**Comment on** these lines **in `docs/main.md` at line 1**"));
+        assert_contains_all(
+            &body,
+            &["**Comment on**", "these lines", "`docs/main.md`", "line 1"],
+        );
         // Item with its own source_path should use that, not the default
-        assert!(body.contains("**Comment on** these lines **in `other/file.md` at lines 10–12**"));
+        assert_contains_all(
+            &body,
+            &[
+                "**Comment on**",
+                "these lines",
+                "`other/file.md`",
+                "lines 10–12",
+            ],
+        );
         assert!(!body.contains("**in `docs/main.md` at lines 10–12**"));
     }
 
@@ -3204,7 +3124,7 @@ mod tests {
             selected_text: Some("abc".into()),
             preceding_text: None,
             replacement_text: Some("def".into()),
-            body_markdown: "This reads more clearly.".into(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -3212,10 +3132,16 @@ mod tests {
         };
 
         let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
-        assert!(body.starts_with(
-            "**Suggest replacing** `abc` **with** `def`:\n\nThis reads more clearly.\n\nSuggested replacement: `def`"
-        ));
-        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
+        assert_contains_all(
+            &body,
+            &[
+                "**Suggest replacing**",
+                "`abc`",
+                "`def`",
+                "Suggested replacement: `def`",
+                REVIEW_ITEM_MARKER_PREFIX,
+            ],
+        );
     }
 
     #[test]
@@ -3234,7 +3160,7 @@ mod tests {
             selected_text: Some("abc".into()),
             preceding_text: None,
             replacement_text: Some("def".into()),
-            body_markdown: "This adds the missing term.".into(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -3248,10 +3174,16 @@ mod tests {
         };
 
         let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
-        assert!(body.starts_with(
-            "**Suggest replacing** `abc` **with** `def`:\n\nThis adds the missing term.\n\n```suggestion\nabcdef\n```"
-        ));
-        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
+        assert_contains_all(
+            &body,
+            &[
+                "**Suggest replacing**",
+                "`abc`",
+                "`def`",
+                "```suggestion\nabcdef\n```",
+                REVIEW_ITEM_MARKER_PREFIX,
+            ],
+        );
     }
 
     #[test]
@@ -3270,7 +3202,7 @@ mod tests {
             selected_text: None,
             preceding_text: Some("abc".into()),
             replacement_text: Some("def".into()),
-            body_markdown: "This adds the missing term.".into(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -3278,10 +3210,16 @@ mod tests {
         };
 
         let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
-        assert!(body.starts_with(
-            "**Suggest inserting** `def` **after** `abc`:\n\nThis adds the missing term.\n\nSuggested replacement: `def`"
-        ));
-        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
+        assert_contains_all(
+            &body,
+            &[
+                "**Suggest inserting**",
+                "`abc`",
+                "`def`",
+                "Suggested replacement: `def`",
+                REVIEW_ITEM_MARKER_PREFIX,
+            ],
+        );
     }
 
     #[test]
@@ -3307,7 +3245,7 @@ mod tests {
             selected_text: Some("Selected text".into()),
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Same body".into(),
+            content: Some("Same body".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -3340,7 +3278,7 @@ mod tests {
                 selected_text: Some("old text".into()),
                 preceding_text: preceding_text.map(str::to_string),
                 replacement_text: Some("new text".into()),
-                body_markdown: "Please update this".into(),
+                content: None,
                 suggestion_type: Some(SuggestionType::Replace),
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
@@ -3388,7 +3326,7 @@ mod tests {
             selected_text: Some("selected".into()),
             preceding_text: None,
             replacement_text: None,
-            body_markdown: "Fallback body".into(),
+            content: Some("Fallback body".into()),
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
@@ -3416,7 +3354,7 @@ mod tests {
             selected_text: Some("abc".into()),
             preceding_text: None,
             replacement_text: Some("def".into()),
-            body_markdown: String::new(),
+            content: None,
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
@@ -3445,7 +3383,7 @@ mod tests {
                     .into(),
             ),
             replacement_text: Some("added".into()),
-            body_markdown: String::new(),
+            content: None,
             suggestion_type: Some(SuggestionType::Insert),
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,

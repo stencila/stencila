@@ -94,7 +94,6 @@ expression: review
       "selectedText": "original",
       "precedingText": "An ",
       "replacementText": "replacement",
-      "bodyMarkdown": "",
       "suggestionType": "Replace",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -119,7 +118,6 @@ expression: review
       },
       "selectedText": "Original paragraph.",
       "replacementText": "Replacement paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Replace",
       "resolution": "anchored",
       "githubSuggestion": {

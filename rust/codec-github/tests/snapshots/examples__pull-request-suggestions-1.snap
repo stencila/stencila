@@ -112,7 +112,6 @@ expression: review
       "selectedText": "",
       "precedingText": "A ",
       "replacementText": "suggested insertion",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -138,7 +137,6 @@ expression: review
       "selectedText": "suggested deletion in a ",
       "precedingText": "A ",
       "replacementText": "suggested deletion in a ",
-      "bodyMarkdown": "",
       "suggestionType": "Delete",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -163,7 +161,6 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "A suggested new paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Insert",
       "resolution": "anchored",
       "githubSuggestion": {
@@ -188,7 +185,6 @@ expression: review
       },
       "selectedText": "A suggested deleted paragraph.",
       "replacementText": "A suggested deleted paragraph.",
-      "bodyMarkdown": "",
       "suggestionType": "Delete",
       "resolution": "anchored",
       "githubSuggestion": {
