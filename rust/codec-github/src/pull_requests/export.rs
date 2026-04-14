@@ -1,3 +1,10 @@
+//! Extract comment-bearing Stencila documents into GitHub pull request exports.
+//!
+//! This module performs the pure, serializable part of the `ghpr` pipeline:
+//! it derives repository provenance, encodes the reviewed source text, resolves
+//! source ranges for comments and suggestions, and normalizes them into a
+//! transport structure that the push layer can later submit to GitHub.
+
 use std::ops::Range;
 use std::{
     collections::{BTreeMap, HashMap, HashSet},

@@ -1,3 +1,10 @@
+//! Orchestrate the end-to-end `ghpr` pull request export and push workflow.
+//!
+//! This module bridges local document state, repository provenance, source
+//! re-encoding, export generation, and push planning. It decides whether local
+//! source changes need to be committed, infers sensible defaults for new review
+//! documents, and then hands the prepared export to the push layer.
+
 use std::path::{Path, PathBuf};
 
 use stencila_codec::{

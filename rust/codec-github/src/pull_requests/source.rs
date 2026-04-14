@@ -1,3 +1,10 @@
+//! Derive GitHub pull request source provenance from document nodes.
+//!
+//! The values extracted here describe where the reviewed document originally
+//! came from in a Git repository. They are used by both export and workflow
+//! code to recover the repository, path, commit, and format context needed to
+//! create repository-native pull requests.
+
 use serde::Serialize;
 use serde_with::skip_serializing_none;
 use stencila_codec::{
