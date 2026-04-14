@@ -72,11 +72,11 @@ expression: review
       "nodeId": "node-1",
       "parentNodeId": "node-9",
       "range": {
-        "startOffset": 0,
-        "endOffset": 0,
-        "startLine": 1,
+        "startOffset": 24,
+        "endOffset": 24,
+        "startLine": 3,
         "startColumn": 1,
-        "endLine": 1,
+        "endLine": 3,
         "endColumn": 1
       },
       "selectedText": "",
@@ -85,10 +85,10 @@ expression: review
       "resolution": "anchored",
       "githubSuggestion": {
         "editKind": "insert",
-        "startLine": 1,
-        "endLine": 1,
-        "replacementLines": "An inserted opening paragraph.A following paragraph.",
-        "body": "```suggestion\nAn inserted opening paragraph.A following paragraph.\n```"
+        "startLine": 3,
+        "endLine": 3,
+        "replacementLines": "An inserted opening paragraph.",
+        "body": "```suggestion\nAn inserted opening paragraph.\n```"
       }
     },
     {

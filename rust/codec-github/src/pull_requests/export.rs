@@ -48,6 +48,12 @@ pub struct PullRequestExport {
     pub diagnostics: Vec<PullRequestExportDiagnostic>,
 }
 
+enum SuggestionRangePreference {
+    Node,
+    Content,
+    Original,
+}
+
 fn author_name(authors: Option<&[Author]>) -> Option<String> {
     authors
         .and_then(|authors| authors.first())
@@ -111,17 +117,20 @@ pub enum PullRequestCommentKind {
     Suggestion,
 }
 
-/// A normalized pull request comment derived from either a `Comment` or `SuggestionInline` node.
+/// A normalized pull request comment derived from either a `Comment`,
+/// `SuggestionInline`, or `SuggestionBlock` node.
 ///
-/// For comments, `content` holds the comment text and `replacement_text` is `None`.
-/// For suggestions, `replacement_text` holds the proposed content and `content`
-/// is `None`. `selected_text` is the original source text at the
+/// For comments, `content` holds the comment text and `replacement_text` is
+/// `None`. For suggestions, `replacement_text` holds the proposed content and
+/// `content` is `None`. `selected_text` is the original source text at the
 /// resolved range (when resolution succeeds).
 #[skip_serializing_none]
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PullRequestComment {
     pub kind: PullRequestCommentKind,
+    pub resolution: PullRequestCommentResolution,
+    
     pub source_path: Option<String>,
     pub author_name: Option<String>,
     pub node_id: Option<String>,
@@ -133,7 +142,6 @@ pub struct PullRequestComment {
     pub content: Option<String>,
     pub suggestion_type: Option<SuggestionType>,
     pub suggestion_status: Option<SuggestionStatus>,
-    pub resolution: PullRequestCommentResolution,
     pub github_suggestion: Option<GitHubSuggestion>,
 }
 
@@ -257,14 +265,14 @@ pub fn export_pull_request(
 
     // Pre-walks: collect indices used by the staged resolver
     let boundary_index = BoundaryIndex::build(node);
-    let insert_context = InsertContext::build(node);
+    let suggestion_fallback_context = SuggestionFallbackContext::build(node);
 
     let mut extractor = PullRequestExtractor::new(
         source.path.clone(),
         &source_text,
         mapping.as_ref(),
         &boundary_index,
-        &insert_context,
+        &suggestion_fallback_context,
     );
 
     for comment in root_comments(node) {
@@ -427,23 +435,31 @@ impl Visitor for BoundaryCollector {
     }
 }
 
-/// Pre-computed text context for resolving insert suggestion positions.
+/// Pre-computed text context used only by fallback suggestion anchoring.
 ///
-/// For each `SuggestionInline`, stores the concatenated text of the
-/// inline nodes that precede it within the same parent container. This
-/// allows finding the insertion point in the original source text by
-/// searching for where the preceding text ends.
+/// The preferred anchoring strategy for suggestions is to use the mapping
+/// generated while encoding review markup in clean Markdown mode. In that
+/// mode, suggestion nodes map directly to the reviewed source span:
 ///
-/// Built by a direct tree walk (not the `Visitor` trait) so we can
-/// inspect inline content vectors directly.
-struct InsertContext {
+/// - insert suggestions map to the insertion point itself
+/// - delete suggestions map to the content being removed
+/// - replace suggestions map to the original content being replaced
+///
+/// This context exists only for the fallback strategy used when that direct
+/// mapping is missing or insufficient. For each suggestion node it stores the
+/// encoded sibling content that precedes the suggestion within the same parent,
+/// so a best-effort insertion point can be recovered by text matching.
+///
+/// Built by a direct tree walk (not the `Visitor` trait) so we can inspect
+/// inline and block content vectors directly.
+struct SuggestionFallbackContext {
     /// suggestion UID → preceding sibling text content
     preceding: HashMap<String, String>,
     /// suggestion UID → preceding sibling block content encoded as markdown
     preceding_blocks: HashMap<String, String>,
 }
 
-impl InsertContext {
+impl SuggestionFallbackContext {
     fn build(node: &Node) -> Self {
         let mut preceding = HashMap::new();
         let mut preceding_blocks = HashMap::new();
@@ -456,7 +472,7 @@ impl InsertContext {
             Self::collect_blocks(&article.content, &mut preceding, &mut preceding_blocks);
         }
 
-        InsertContext {
+        SuggestionFallbackContext {
             preceding,
             preceding_blocks,
         }
@@ -534,7 +550,7 @@ struct PullRequestExtractor<'source, 'mapping, 'boundaries, 'insert> {
     source_text: &'source str,
     mapping: Option<&'mapping Mapping>,
     boundary_index: &'boundaries BoundaryIndex,
-    insert_context: &'insert InsertContext,
+    suggestion_fallback_context: &'insert SuggestionFallbackContext,
     /// Node-id stack tracking the current walk depth, for parent resolution.
     stack: Vec<String>,
     /// Node IDs already emitted, to prevent duplicates from root-level collection.
@@ -546,19 +562,21 @@ struct PullRequestExtractor<'source, 'mapping, 'boundaries, 'insert> {
 impl<'source, 'mapping, 'boundaries, 'insert>
     PullRequestExtractor<'source, 'mapping, 'boundaries, 'insert>
 {
+    /// Create an extractor that prefers direct mapping-based anchoring and
+    /// retains fallback context only for degraded suggestion resolution.
     fn new(
         root_path: Option<String>,
         source_text: &'source str,
         mapping: Option<&'mapping Mapping>,
         boundary_index: &'boundaries BoundaryIndex,
-        insert_context: &'insert InsertContext,
+        suggestion_fallback_context: &'insert SuggestionFallbackContext,
     ) -> Self {
         Self {
             root_path,
             source_text,
             mapping,
             boundary_index,
-            insert_context,
+            suggestion_fallback_context,
             stack: Vec::new(),
             seen_items: HashSet::new(),
             items: Vec::new(),
@@ -574,6 +592,56 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         }
 
         self.items.push(item);
+    }
+
+    fn range_from_char_offsets(&self, offsets: Range<usize>) -> PullRequestCommentRange {
+        let mut range = PullRequestCommentRange::default();
+        apply_offsets(self.source_text, &mut range, offsets);
+        range
+    }
+
+    fn push_warning(&mut self, code: &str, message: &str, item_node_id: &str) {
+        self.diagnostics.push(PullRequestExportDiagnostic {
+            level: PullRequestExportDiagnosticLevel::Warning,
+            code: code.into(),
+            message: message.into(),
+            item_node_id: Some(item_node_id.to_string()),
+        });
+    }
+
+    fn missing_mapping_range(&mut self, node_id: &str) -> PullRequestCommentRange {
+        self.push_warning(
+            "missing-mapping",
+            "No mapping available for suggestion position resolution",
+            node_id,
+        );
+        PullRequestCommentRange::default()
+    }
+
+    fn coarse_parent_range(
+        &mut self,
+        node_id: &str,
+        parent_offsets: Range<usize>,
+    ) -> PullRequestCommentRange {
+        let range = self.range_from_char_offsets(parent_offsets);
+        self.push_warning(
+            "coarse-parent-range",
+            "Suggestion resolved to parent node range, not exact target",
+            node_id,
+        );
+        range
+    }
+
+    fn missing_direct_suggestion_mapping_range(
+        &mut self,
+        node_id: &str,
+    ) -> PullRequestCommentRange {
+        self.push_warning(
+            "missing-direct-suggestion-mapping",
+            "Suggestion node did not resolve through clean-markdown mapping and no parent fallback was available",
+            node_id,
+        );
+        PullRequestCommentRange::default()
     }
 
     fn resolve_parent_node_id(&self, current: Option<&str>) -> Option<String> {
@@ -635,7 +703,11 @@ impl<'source, 'mapping, 'boundaries, 'insert>
             node_id: Some(node_id.clone()),
             parent_node_id: parent_uid,
             selected_text: slice_text(self.source_text, &range),
-            preceding_text: self.insert_context.preceding.get(&node_id).cloned(),
+            preceding_text: self
+                .suggestion_fallback_context
+                .preceding
+                .get(&node_id)
+                .cloned(),
             replacement_text: Some(replacement_text),
             content: None,
             suggestion_type: suggestion.suggestion_type,
@@ -681,204 +753,263 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         parent_uid: Option<&str>,
         suggestion: &SuggestionBlock,
     ) -> PullRequestCommentRange {
-        let Some(mapping) = self.mapping else {
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "missing-mapping".into(),
-                message: "No mapping available for suggestion position resolution".into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return PullRequestCommentRange::default();
+        let Some(_mapping) = self.mapping else {
+            return self.missing_mapping_range(node_id);
         };
-
-        let suggestion_range = mapping
-            .entries()
-            .iter()
-            .find(|entry| entry.node_id.uid_str() == node_id && entry.property.is_none())
-            .and_then(|entry| mapping.range_of_node(&entry.node_id));
-
-        let parent_range = parent_uid.and_then(|pid| {
-            mapping
-                .entries()
-                .iter()
-                .find(|entry| entry.node_id.uid_str() == pid && entry.property.is_none())
-                .and_then(|entry| mapping.range_of_node(&entry.node_id))
-        });
 
         if suggestion.suggestion_type == Some(SuggestionType::Insert)
-            && let Some(offsets) = suggestion_range.as_ref()
-            && offsets.start <= offsets.end
-            && offsets.start == offsets.end
+            && let Some(offsets) = self.resolve_github_compatible_block_insert_range(node_id)
         {
-            let mut range = PullRequestCommentRange::default();
-            apply_offsets(self.source_text, &mut range, offsets.clone());
-            range.end_column = range.start_column;
-            return range;
+            return self.range_from_char_offsets(offsets);
         }
+
+        if suggestion.suggestion_type == Some(SuggestionType::Insert)
+            && let Some(parent_offsets) = self.resolve_mapped_node_range_by_uid(parent_uid)
+            && let Some(offsets) =
+                self.refine_block_insert_position_with_fallback_context(node_id, parent_offsets)
+        {
+            return self.range_from_char_offsets(offsets);
+        }
+
+        // Preferred strategy: use the direct clean-markdown mapping of the
+        // suggestion node itself. In clean mode, suggestion nodes map to the
+        // reviewed source span rather than their review-markup syntax.
+        if let Some(offsets) = self.resolve_optimal_suggestion_block_range(node_id, suggestion) {
+            return self.range_from_char_offsets(offsets);
+        }
+
+        // Fallback strategy: use the enclosing parent span and refine within it
+        // using text matching or preceding-sibling context. This is retained as
+        // a compatibility path when direct mapping is absent or incomplete.
+        let parent_range = self.resolve_mapped_node_range_by_uid(parent_uid);
 
         if let Some(parent_offsets) = parent_range {
-            if suggestion.suggestion_type == Some(SuggestionType::Insert)
-                && let Some(offsets) = suggestion_range.as_ref()
-                && offsets.start > offsets.end
-            {
-                let mut range = PullRequestCommentRange::default();
-                apply_offsets(
-                    self.source_text,
-                    &mut range,
-                    parent_offsets.end..parent_offsets.end,
-                );
-                range.end_column = range.start_column;
-                return range;
-            }
-
             if suggestion.suggestion_type != Some(SuggestionType::Insert)
-                && let Some(offsets) =
-                    self.refine_block_with_text_match(parent_offsets.clone(), suggestion)
+                && let Some(offsets) = self
+                    .refine_block_range_with_fallback_text_match(parent_offsets.clone(), suggestion)
             {
-                let mut range = PullRequestCommentRange::default();
-                apply_offsets(self.source_text, &mut range, offsets);
-                return range;
+                return self.range_from_char_offsets(offsets);
             }
 
             if suggestion.suggestion_type == Some(SuggestionType::Insert)
-                && let Some(offsets) =
-                    self.refine_block_insert_position(node_id, parent_offsets.clone())
+                && let Some(offsets) = self.refine_block_insert_position_with_fallback_context(
+                    node_id,
+                    parent_offsets.clone(),
+                )
             {
-                let mut range = PullRequestCommentRange::default();
-                apply_offsets(self.source_text, &mut range, offsets);
-                return range;
+                return self.range_from_char_offsets(offsets);
             }
 
-            let mut range = PullRequestCommentRange::default();
-            apply_offsets(self.source_text, &mut range, parent_offsets);
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "coarse-parent-range".into(),
-                message: "Suggestion resolved to parent node range, not exact target".into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return range;
+            return self.coarse_parent_range(node_id, parent_offsets);
         }
 
-        let Some(offsets) = suggestion_range else {
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "unresolved-suggestion".into(),
-                message: "Unable to resolve a source range for suggestion".into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return PullRequestCommentRange::default();
-        };
-
-        let mut range = PullRequestCommentRange::default();
-        apply_offsets(self.source_text, &mut range, offsets.clone());
-
-        if suggestion.suggestion_type == Some(SuggestionType::Insert) {
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "suggestion-syntax-range".into(),
-                message: "Suggestion resolved to its encoded syntax range, not content range"
-                    .into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-        }
-
-        range
+        self.missing_direct_suggestion_mapping_range(node_id)
     }
 
-    /// Resolve a suggestion's source range using the parent node's mapping
-    /// and local text matching within that span.
+    /// Resolve a suggestion's source range.
+    ///
+    /// Preferred strategy: use the direct clean-markdown mapping recorded for
+    /// the suggestion node itself. In clean mode, suggestion nodes map to the
+    /// reviewed source span: insertions to an insertion point, deletions to the
+    /// deleted content, and replacements to the original content.
+    ///
+    /// When property-level mapping is available, we refine the node-level span
+    /// further to align with GitHub review semantics:
+    ///
+    /// - inserts use the end of the preceding sibling content when available,
+    ///   otherwise the clean-mapped node span
+    /// - deletes prefer the `Content` property and trim a trailing newline so the
+    ///   anchor targets the deleted content rather than the following block break
+    /// - replaces prefer the `Original` property for the same reason
+    ///
+    /// Fallback strategy: if that direct mapping is unavailable, use the mapped
+    /// parent range and attempt to refine within it using text matching or
+    /// preceding-sibling context.
     fn resolve_suggestion_range(
         &mut self,
         node_id: &str,
         parent_uid: Option<&str>,
         suggestion: &SuggestionInline,
     ) -> PullRequestCommentRange {
-        let Some(mapping) = self.mapping else {
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "missing-mapping".into(),
-                message: "No mapping available for suggestion position resolution".into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return PullRequestCommentRange::default();
+        let Some(_mapping) = self.mapping else {
+            return self.missing_mapping_range(node_id);
         };
 
-        // Prefer the parent node's range with text refinement.
-        // The suggestion node's own mapping range covers the encoded syntax
-        // (e.g. `[[suggest brown ]]`), not the reviewed content span, so we
-        // try the parent-based path first and only fall back to the suggestion's
-        // own range as a last resort.
-        let parent_range = parent_uid.and_then(|pid| {
-            mapping
-                .entries()
-                .iter()
-                .find(|entry| entry.node_id.uid_str() == pid && entry.property.is_none())
-                .and_then(|entry| mapping.range_of_node(&entry.node_id))
-        });
+        if suggestion.suggestion_type == Some(SuggestionType::Insert)
+            && let Some(parent_offsets) = self.resolve_mapped_node_range_by_uid(parent_uid)
+            && let Some(insert_pos) =
+                self.refine_inline_insert_position_with_fallback_context(node_id, parent_offsets)
+        {
+            return self.range_from_char_offsets(insert_pos);
+        }
+
+        if let Some(offsets) = self.resolve_optimal_suggestion_inline_range(node_id, suggestion) {
+            return self.range_from_char_offsets(offsets);
+        }
+
+        let parent_range = self.resolve_mapped_node_range_by_uid(parent_uid);
 
         if let Some(parent_offsets) = parent_range {
-            // For non-insert suggestions, search for the content
-            // text directly in the parent's source span
             if suggestion.suggestion_type != Some(SuggestionType::Insert) {
-                let refined = self.refine_with_text_match(parent_offsets.clone(), suggestion);
+                let refined = self.refine_inline_range_with_fallback_text_match(
+                    parent_offsets.clone(),
+                    suggestion,
+                );
                 if let Some(offsets) = refined {
-                    let mut range = PullRequestCommentRange::default();
-                    apply_offsets(self.source_text, &mut range, offsets);
-                    return range;
+                    return self.range_from_char_offsets(offsets);
                 }
             }
 
-            // For insert suggestions, find the insertion point
-            // using preceding sibling text context
             if suggestion.suggestion_type == Some(SuggestionType::Insert)
-                && let Some(insert_pos) =
-                    self.refine_insert_position(node_id, parent_offsets.clone())
+                && let Some(insert_pos) = self.refine_inline_insert_position_with_fallback_context(
+                    node_id,
+                    parent_offsets.clone(),
+                )
             {
-                let mut range = PullRequestCommentRange::default();
-                apply_offsets(self.source_text, &mut range, insert_pos);
-                return range;
+                return self.range_from_char_offsets(insert_pos);
             }
 
             // Fall back to the full parent range
-            let mut range = PullRequestCommentRange::default();
-            apply_offsets(self.source_text, &mut range, parent_offsets);
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "coarse-parent-range".into(),
-                message: "Suggestion resolved to parent node range, not exact target".into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return range;
+            return self.coarse_parent_range(node_id, parent_offsets);
         }
 
-        // Last resort: the suggestion node's own range (covers encoded syntax)
-        let suggestion_range = mapping
+        self.missing_direct_suggestion_mapping_range(node_id)
+    }
+
+    /// Resolve the clean-markdown-mapped range of a suggestion node by UID.
+    fn resolve_suggestion_node_range(&self, node_uid: &str) -> Option<Range<usize>> {
+        let offsets = self.resolve_mapped_node_range_by_uid(Some(node_uid))?;
+
+        if offsets.start > offsets.end {
+            let anchor = offsets.end.saturating_add(1);
+            return Some(anchor..anchor);
+        }
+
+        Some(offsets)
+    }
+
+    /// Resolve the preferred range for an inline suggestion using direct mapping.
+    fn resolve_optimal_suggestion_inline_range(
+        &self,
+        node_uid: &str,
+        suggestion: &SuggestionInline,
+    ) -> Option<Range<usize>> {
+        self.resolve_optimal_suggestion_range(node_uid, suggestion.suggestion_type)
+    }
+
+    /// Resolve a GitHub-compatible range for a block insertion suggestion.
+    ///
+    /// GitHub suggestions operate on line replacements. For inserted blocks we
+    /// want the anchor to sit on the blank separator line that follows the new
+    /// block content so that the suggestion inserts a new block, rather than
+    /// replacing text on the preceding content line.
+    fn resolve_github_compatible_block_insert_range(&self, node_uid: &str) -> Option<Range<usize>> {
+        let node_range = self.resolve_suggestion_node_range(node_uid)?;
+        let start_byte = char_index_to_byte(self.source_text, node_range.start);
+        let tail = self.source_text.get(start_byte..)?;
+        let relative = tail.find("\n\n")?;
+        let anchor_byte = start_byte + relative + 2;
+        let anchor_char = self.source_text[..anchor_byte].chars().count();
+
+        Some(anchor_char..anchor_char)
+    }
+
+    /// Resolve the preferred range for a block suggestion using direct mapping.
+    fn resolve_optimal_suggestion_block_range(
+        &self,
+        node_uid: &str,
+        suggestion: &SuggestionBlock,
+    ) -> Option<Range<usize>> {
+        self.resolve_optimal_suggestion_range(node_uid, suggestion.suggestion_type)
+    }
+
+    fn resolve_optimal_suggestion_range(
+        &self,
+        node_uid: &str,
+        suggestion_type: Option<SuggestionType>,
+    ) -> Option<Range<usize>> {
+        let preference = match suggestion_type {
+            Some(SuggestionType::Delete) => SuggestionRangePreference::Content,
+            Some(SuggestionType::Replace) => SuggestionRangePreference::Original,
+            _ => SuggestionRangePreference::Node,
+        };
+
+        self.resolve_suggestion_range_by_preference(node_uid, preference)
+    }
+
+    fn resolve_suggestion_range_by_preference(
+        &self,
+        node_uid: &str,
+        preference: SuggestionRangePreference,
+    ) -> Option<Range<usize>> {
+        match preference {
+            SuggestionRangePreference::Node => self.resolve_suggestion_node_range(node_uid),
+            SuggestionRangePreference::Content => self
+                .resolve_mapped_property_range_by_uid(node_uid, NodeProperty::Content)
+                .map(|range| trim_trailing_newline_range(self.source_text, range))
+                .or_else(|| self.resolve_suggestion_node_range(node_uid)),
+            SuggestionRangePreference::Original => self
+                .resolve_mapped_property_range_by_uid(node_uid, NodeProperty::Original)
+                .map(|range| trim_trailing_newline_range(self.source_text, range))
+                .or_else(|| self.resolve_suggestion_node_range(node_uid)),
+        }
+    }
+
+    /// Resolve a mapped node range by exported UID.
+    ///
+    /// The mapping stores internal `NodeId` values, while pull request items use
+    /// the external UID string. This helper bridges that gap so callers can use
+    /// direct mapping lookup without re-scanning or re-implementing the logic.
+    fn resolve_mapped_node_range_by_uid(&self, node_uid: Option<&str>) -> Option<Range<usize>> {
+        let mapping = self.mapping?;
+        let node_uid = node_uid?;
+
+        mapping
             .entries()
             .iter()
-            .find(|entry| entry.node_id.uid_str() == node_id && entry.property.is_none())
-            .and_then(|entry| mapping.range_of_node(&entry.node_id));
+            .find(|entry| entry.node_id.uid_str() == node_uid && entry.property.is_none())
+            .and_then(|entry| mapping.range_of_node(&entry.node_id))
+    }
 
-        if let Some(offsets) = suggestion_range {
-            let mut range = PullRequestCommentRange::default();
-            apply_offsets(self.source_text, &mut range, offsets);
-            self.diagnostics.push(PullRequestExportDiagnostic {
-                level: PullRequestExportDiagnosticLevel::Warning,
-                code: "suggestion-syntax-range".into(),
-                message: "Suggestion resolved to its encoded syntax range, not content range"
-                    .into(),
-                item_node_id: Some(node_id.to_string()),
-            });
-            return range;
+    /// Resolve a mapped property range by exported UID and property.
+    fn resolve_mapped_property_range_by_uid(
+        &self,
+        node_uid: &str,
+        property: NodeProperty,
+    ) -> Option<Range<usize>> {
+        let mapping = self.mapping?;
+
+        mapping
+            .entries()
+            .iter()
+            .find(|entry| entry.node_id.uid_str() == node_uid && entry.property == Some(property))
+            .and_then(|entry| mapping.range_of_property(&entry.node_id, property))
+    }
+
+    fn refine_range_with_unique_text_match(
+        &self,
+        parent_char_offsets: Range<usize>,
+        search_text: &str,
+    ) -> Option<Range<usize>> {
+        if search_text.is_empty() {
+            return None;
         }
 
-        self.diagnostics.push(PullRequestExportDiagnostic {
-            level: PullRequestExportDiagnosticLevel::Warning,
-            code: "unresolved-suggestion".into(),
-            message: "Unable to resolve a source range for suggestion".into(),
-            item_node_id: Some(node_id.to_string()),
-        });
-        PullRequestCommentRange::default()
+        let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
+        let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
+        let parent_text = self.source_text.get(byte_start..byte_end)?;
+
+        let mut matches = parent_text.match_indices(search_text);
+        let first = matches.next()?;
+        if matches.next().is_some() {
+            return None;
+        }
+
+        let chars_before_match = parent_text[..first.0].chars().count();
+        let match_char_len = search_text.chars().count();
+        let abs_start = parent_char_offsets.start + chars_before_match;
+        let abs_end = abs_start + match_char_len;
+        Some(abs_start..abs_end)
     }
 
     /// Attempt to find the suggestion's content text within the
@@ -887,56 +1018,40 @@ impl<'source, 'mapping, 'boundaries, 'insert>
     /// The content *is* the text to be deleted/replaced, so a match gives
     /// the exact target range. Only returns a match if it is unique within
     /// the parent span to avoid mis-anchoring on repeated phrases.
-    fn refine_with_text_match(
+    fn refine_inline_range_with_fallback_text_match(
         &self,
         parent_char_offsets: Range<usize>,
         suggestion: &SuggestionInline,
     ) -> Option<Range<usize>> {
-        // Convert character indices to byte offsets for string slicing
-        let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
-        let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
-        let parent_text = self.source_text.get(byte_start..byte_end)?;
         let search_text = suggestion_original_inlines(suggestion).map_or_else(
             || inlines_to_markdown(&suggestion.content),
             inlines_to_markdown,
         );
 
-        if search_text.is_empty() {
-            return None;
-        }
-
-        // Count occurrences — only use if exactly one match
-        let mut matches = parent_text.match_indices(&search_text);
-        let first = matches.next()?;
-        if matches.next().is_some() {
-            // Ambiguous — multiple matches within the parent span
-            return None;
-        }
-
-        // Convert byte position within parent_text back to absolute char index
-        let chars_before_match = parent_text[..first.0].chars().count();
-        let match_char_len = search_text.chars().count();
-        let abs_start = parent_char_offsets.start + chars_before_match;
-        let abs_end = abs_start + match_char_len;
-        Some(abs_start..abs_end)
+        self.refine_range_with_unique_text_match(parent_char_offsets, &search_text)
     }
 
-    fn refine_block_insert_position(
+    fn refine_block_insert_position_with_fallback_context(
         &self,
         node_id: &str,
         parent_char_offsets: Range<usize>,
     ) -> Option<Range<usize>> {
-        let preceding = self.insert_context.preceding_blocks.get(node_id)?;
+        let preceding = self
+            .suggestion_fallback_context
+            .preceding_blocks
+            .get(node_id)?;
+
+        let node_offsets = self.resolve_suggestion_node_range(node_id)?;
+
+        if node_offsets.start == node_offsets.end {
+            return Some(node_offsets);
+        }
 
         let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
         let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
         let parent_text = self.source_text.get(byte_start..byte_end)?;
 
         if preceding.is_empty() {
-            return Some(parent_char_offsets.start..parent_char_offsets.start);
-        }
-
-        if parent_text.ends_with(preceding) {
             return Some(parent_char_offsets.end..parent_char_offsets.end);
         }
 
@@ -951,34 +1066,17 @@ impl<'source, 'mapping, 'boundaries, 'insert>
         Some(abs..abs)
     }
 
-    fn refine_block_with_text_match(
+    fn refine_block_range_with_fallback_text_match(
         &self,
         parent_char_offsets: Range<usize>,
         suggestion: &SuggestionBlock,
     ) -> Option<Range<usize>> {
-        let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
-        let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
-        let parent_text = self.source_text.get(byte_start..byte_end)?;
         let search_text = suggestion_original_blocks(suggestion).map_or_else(
             || blocks_to_markdown(&suggestion.content),
             blocks_to_markdown,
         );
 
-        if search_text.is_empty() {
-            return None;
-        }
-
-        let mut matches = parent_text.match_indices(&search_text);
-        let first = matches.next()?;
-        if matches.next().is_some() {
-            return None;
-        }
-
-        let chars_before_match = parent_text[..first.0].chars().count();
-        let match_char_len = search_text.chars().count();
-        let abs_start = parent_char_offsets.start + chars_before_match;
-        let abs_end = abs_start + match_char_len;
-        Some(abs_start..abs_end)
+        self.refine_range_with_unique_text_match(parent_char_offsets, &search_text)
     }
 
     /// Find the insertion point for an insert suggestion by
@@ -986,19 +1084,19 @@ impl<'source, 'mapping, 'boundaries, 'insert>
     ///
     /// For insert suggestions the content to be inserted does not exist
     /// in the original source, so content-based text matching cannot
-    /// work. Instead, we use the pre-computed [`InsertContext`] to find
+    /// work. Instead, we use the pre-computed [`SuggestionFallbackContext`] to find
     /// the text that appears immediately before the suggestion in the
     /// document tree, search for it within the parent's source span,
     /// and place a zero-width insertion point right after it.
     ///
     /// Returns `None` if the preceding text cannot be uniquely located,
     /// causing resolution to fall back to the coarse parent range.
-    fn refine_insert_position(
+    fn refine_inline_insert_position_with_fallback_context(
         &self,
         node_id: &str,
         parent_char_offsets: Range<usize>,
     ) -> Option<Range<usize>> {
-        let preceding = self.insert_context.preceding.get(node_id)?;
+        let preceding = self.suggestion_fallback_context.preceding.get(node_id)?;
 
         let byte_start = char_index_to_byte(self.source_text, parent_char_offsets.start);
         let byte_end = char_index_to_byte(self.source_text, parent_char_offsets.end);
@@ -1264,6 +1362,31 @@ fn slice_text(source_text: &str, range: &PullRequestCommentRange) -> Option<Stri
     source_text.get(start..end).map(str::to_string)
 }
 
+/// Trim trailing newline characters from a mapped character range when present.
+///
+/// Clean-markdown mapping for block content can legitimately include the line
+/// break that separates a block from whatever follows. For GitHub inline review
+/// anchors we generally want the content span itself, excluding that separator.
+fn trim_trailing_newline_range(source_text: &str, range: Range<usize>) -> Range<usize> {
+    if range.start >= range.end {
+        return range;
+    }
+
+    let mut end = range.end;
+
+    while end > range.start {
+        let end_byte = char_index_to_byte(source_text, end);
+        let start_byte = char_index_to_byte(source_text, end.saturating_sub(1));
+
+        match source_text.get(start_byte..end_byte) {
+            Some("\n") => end = end.saturating_sub(1),
+            _ => break,
+        }
+    }
+
+    range.start..end
+}
+
 /// Classify a range's resolution confidence based on which fields were populated.
 fn resolution_for_range(range: &PullRequestCommentRange) -> PullRequestCommentResolution {
     if range.start_offset.is_some() && range.start_line.is_some() {
@@ -1338,6 +1461,21 @@ fn build_github_suggestion(
     let replacement_text = item.replacement_text.as_deref()?;
 
     let edit_kind = classify_suggestion_edit(item);
+
+    if edit_kind == SuggestionEditKind::Insert
+        && item.selected_text.as_deref() == Some("")
+        && item.preceding_text.is_none()
+    {
+        let body = format!("```suggestion\n{replacement_text}\n```");
+
+        return Some(GitHubSuggestion {
+            edit_kind,
+            start_line,
+            end_line,
+            replacement_lines: replacement_text.to_string(),
+            body,
+        });
+    }
 
     let (line_start, line_end) = expand_to_line_boundaries(source_text, start_offset, end_offset);
 

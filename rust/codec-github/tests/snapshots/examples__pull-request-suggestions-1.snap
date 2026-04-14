@@ -152,12 +152,12 @@ expression: review
       "nodeId": "node-10",
       "parentNodeId": "node-14",
       "range": {
-        "startOffset": 89,
-        "endOffset": 89,
-        "startLine": 6,
-        "startColumn": 2,
-        "endLine": 6,
-        "endColumn": 2
+        "startOffset": 58,
+        "endOffset": 58,
+        "startLine": 5,
+        "startColumn": 1,
+        "endLine": 5,
+        "endColumn": 1
       },
       "selectedText": "",
       "replacementText": "A suggested new paragraph.",
@@ -165,8 +165,8 @@ expression: review
       "resolution": "anchored",
       "githubSuggestion": {
         "editKind": "insert",
-        "startLine": 6,
-        "endLine": 6,
+        "startLine": 5,
+        "endLine": 5,
         "replacementLines": "A suggested new paragraph.",
         "body": "```suggestion\nA suggested new paragraph.\n```"
       }
@@ -177,20 +177,20 @@ expression: review
       "parentNodeId": "node-14",
       "range": {
         "startOffset": 58,
-        "endOffset": 88,
+        "endOffset": 89,
         "startLine": 5,
         "startColumn": 1,
-        "endLine": 5,
-        "endColumn": 31
+        "endLine": 6,
+        "endColumn": 2
       },
-      "selectedText": "A suggested deleted paragraph.",
+      "selectedText": "A suggested deleted paragraph.\n",
       "replacementText": "A suggested deleted paragraph.",
       "suggestionType": "Delete",
       "resolution": "anchored",
       "githubSuggestion": {
         "editKind": "delete",
         "startLine": 5,
-        "endLine": 5,
+        "endLine": 6,
         "replacementLines": "",
         "body": "```suggestion\n\n```"
       }

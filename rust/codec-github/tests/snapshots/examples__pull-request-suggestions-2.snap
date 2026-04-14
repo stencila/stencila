@@ -139,18 +139,25 @@ expression: review
       "nodeId": "node-9",
       "parentNodeId": "node-11",
       "range": {
-        "startOffset": 69,
-        "endOffset": 110,
+        "startOffset": 71,
+        "endOffset": 80,
         "startLine": 5,
-        "startColumn": 1,
-        "endLine": 6,
-        "endColumn": 1
+        "startColumn": 3,
+        "endLine": 5,
+        "endColumn": 12
       },
-      "selectedText": "A repeated repeated phrase appears here.\n",
+      "selectedText": "repeated ",
       "precedingText": "A ",
       "replacementText": "repeated ",
       "suggestionType": "Delete",
-      "resolution": "anchored"
+      "resolution": "anchored",
+      "githubSuggestion": {
+        "editKind": "delete",
+        "startLine": 5,
+        "endLine": 5,
+        "replacementLines": "A repeated phrase appears here.",
+        "body": "```suggestion\nA repeated phrase appears here.\n```"
+      }
     },
     {
       "kind": "suggestion",
@@ -178,12 +185,5 @@ expression: review
       }
     }
   ],
-  "diagnostics": [
-    {
-      "level": "warning",
-      "code": "coarse-parent-range",
-      "message": "Suggestion resolved to parent node range, not exact target",
-      "itemNodeId": "node-9"
-    }
-  ]
+  "diagnostics": []
 }
