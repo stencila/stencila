@@ -62,7 +62,7 @@ use crate::client::{
 // submission so the temporary anchoring machinery is clearly attributable to
 // automation.
 const PR_AUTH_POLICY: GitHubAuthPolicy = GitHubAuthPolicy::PreferUser;
-const ANCHOR_AUTH_POLICY: GitHubAuthPolicy = GitHubAuthPolicy::PreferRepoInstallation;
+const ANCHOR_AUTH_POLICY: GitHubAuthPolicy = GitHubAuthPolicy::RequireRepoInstallation;
 
 /// Maximum number of trailing line endings used for placeholder PR-opening
 /// changes.

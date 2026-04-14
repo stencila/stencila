@@ -13,7 +13,7 @@ use reqwest::{
 use serde::{Serialize, de::DeserializeOwned};
 use tokio::time::Instant;
 
-use stencila_codec::eyre::{Result, bail};
+use stencila_codec::eyre::{Report, Result, bail, eyre};
 use stencila_secrets::GITHUB_TOKEN;
 use stencila_version::STENCILA_USER_AGENT;
 
@@ -22,8 +22,14 @@ const API_BASE_URL: &str = "https://api.github.com";
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(crate) enum GitHubAuthPolicy {
     PreferUser,
-    #[allow(dead_code)]
     PreferRepoInstallation,
+    RequireRepoInstallation,
+}
+
+fn repo_installation_required_error(owner: &str, repo: &str) -> Report {
+    eyre!(
+        "This GitHub feature requires the Stencila GitHub App to be installed on {owner}/{repo}. Install it at https://github.com/apps/stencila/installations/select_target"
+    )
 }
 
 // Rate limits based on GitHub API documentation with conservative margins
@@ -98,7 +104,9 @@ pub(crate) async fn apply_rate_limiting(url: &str, authenticated: bool) -> Resul
 /// Get GitHub API token with optional repo-specific resolution
 ///
 /// When `owner` and `repo` are provided, token resolution order depends on
-/// `policy` after first checking the local `GITHUB_TOKEN` env var / keyring.
+/// `policy`. `RequireRepoInstallation` bypasses the local `GITHUB_TOKEN` env
+/// var / keyring and any user token fallback so only a repo installation token
+/// can satisfy the request.
 ///
 /// When not provided (for search/general APIs), just tries:
 /// 1. GITHUB_TOKEN env var / keyring
@@ -107,8 +115,10 @@ pub(crate) async fn get_token(
     repo: Option<&str>,
     policy: GitHubAuthPolicy,
 ) -> Option<String> {
-    // First try local secret/env var
-    if let Ok(token) = stencila_secrets::env_or_get(GITHUB_TOKEN) {
+    // First try local secret/env var unless the policy requires the GitHub App
+    if !matches!(policy, GitHubAuthPolicy::RequireRepoInstallation)
+        && let Ok(token) = stencila_secrets::env_or_get(GITHUB_TOKEN)
+    {
         return Some(token);
     }
 
@@ -131,6 +141,11 @@ pub(crate) async fn get_token(
                     return Some(token);
                 }
                 if let Some(token) = user_token.await {
+                    return Some(token);
+                }
+            }
+            GitHubAuthPolicy::RequireRepoInstallation => {
+                if let Some(token) = repo_token.await {
                     return Some(token);
                 }
             }
@@ -230,7 +245,14 @@ async fn send_authenticated(
 ) -> Result<reqwest::Response> {
     let token = get_token(Some(owner), Some(repo), policy)
         .await
-        .ok_or_else(|| stencila_codec::eyre::eyre!("GitHub authentication required"))?;
+        .ok_or_else(|| match policy {
+            GitHubAuthPolicy::RequireRepoInstallation => {
+                repo_installation_required_error(owner, repo)
+            }
+            GitHubAuthPolicy::PreferUser | GitHubAuthPolicy::PreferRepoInstallation => {
+                eyre!("GitHub authentication required")
+            }
+        })?;
 
     apply_rate_limiting(url, true).await?;
 
