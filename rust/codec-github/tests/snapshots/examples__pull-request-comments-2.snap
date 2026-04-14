@@ -130,6 +130,7 @@ expression: review
   "items": [
     {
       "kind": "comment",
+      "resolution": "anchored",
       "sourcePath": "docs/review-comments.md",
       "nodeId": "node-20",
       "range": {
@@ -143,19 +144,18 @@ expression: review
         "endColumn": 37
       },
       "selectedText": "focused comment",
-      "content": "First comment on selected text",
-      "resolution": "anchored"
+      "content": "First comment on selected text"
     },
     {
       "kind": "comment",
+      "resolution": "unanchored",
       "sourcePath": "docs/review-comments.md",
       "nodeId": "node-21",
       "range": {
         "startLocation": "#comment-c2-start",
         "endLocation": "#comment-c2-end"
       },
-      "content": "",
-      "resolution": "unanchored"
+      "content": ""
     }
   ],
   "diagnostics": [

@@ -108,6 +108,7 @@ expression: review
   "items": [
     {
       "kind": "comment",
+      "resolution": "anchored",
       "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
       "nodeId": "node-16",
       "range": {
@@ -121,11 +122,11 @@ expression: review
         "endColumn": 32
       },
       "selectedText": "commented text",
-      "content": "Inline comment beside suggestion",
-      "resolution": "anchored"
+      "content": "Inline comment beside suggestion"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
       "nodeId": "node-6",
       "parentNodeId": "node-8",
@@ -140,18 +141,11 @@ expression: review
       "selectedText": "",
       "precedingText": "A paragraph with commented text and a ",
       "replacementText": "small ",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 7,
-        "endLine": 7,
-        "replacementLines": "A paragraph with commented text and a small insertion.",
-        "body": "```suggestion\nA paragraph with commented text and a small insertion.\n```"
-      }
+      "suggestionType": "Insert"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
       "nodeId": "node-11",
       "parentNodeId": "node-13",
@@ -166,18 +160,11 @@ expression: review
       "selectedText": "removable ",
       "precedingText": "A second paragraph with a ",
       "replacementText": "removable ",
-      "suggestionType": "Delete",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "delete",
-        "startLine": 9,
-        "endLine": 9,
-        "replacementLines": "A second paragraph with a phrase.",
-        "body": "```suggestion\nA second paragraph with a phrase.\n```"
-      }
+      "suggestionType": "Delete"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "sourcePath": "rust/codec-github/tests/examples/mixed-1.smd",
       "nodeId": "node-14",
       "parentNodeId": "node-15",
@@ -191,15 +178,7 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "A proposed new paragraph.",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 10,
-        "endLine": 10,
-        "replacementLines": "A proposed new paragraph.",
-        "body": "```suggestion\nA proposed new paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     }
   ],
   "diagnostics": []

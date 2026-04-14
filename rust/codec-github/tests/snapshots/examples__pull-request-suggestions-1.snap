@@ -99,6 +99,7 @@ expression: review
   "items": [
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-2",
       "parentNodeId": "node-4",
       "range": {
@@ -112,18 +113,11 @@ expression: review
       "selectedText": "",
       "precedingText": "A ",
       "replacementText": "suggested insertion",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 1,
-        "endLine": 1,
-        "replacementLines": "A suggested insertion in a paragraph.",
-        "body": "```suggestion\nA suggested insertion in a paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-7",
       "parentNodeId": "node-9",
       "range": {
@@ -137,18 +131,11 @@ expression: review
       "selectedText": "suggested deletion in a ",
       "precedingText": "A ",
       "replacementText": "suggested deletion in a ",
-      "suggestionType": "Delete",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "delete",
-        "startLine": 3,
-        "endLine": 3,
-        "replacementLines": "A paragraph.",
-        "body": "```suggestion\nA paragraph.\n```"
-      }
+      "suggestionType": "Delete"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-10",
       "parentNodeId": "node-14",
       "range": {
@@ -161,18 +148,11 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "A suggested new paragraph.",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 5,
-        "endLine": 5,
-        "replacementLines": "A suggested new paragraph.",
-        "body": "```suggestion\nA suggested new paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-13",
       "parentNodeId": "node-14",
       "range": {
@@ -185,15 +165,7 @@ expression: review
       },
       "selectedText": "A suggested deleted paragraph.\n",
       "replacementText": "A suggested deleted paragraph.",
-      "suggestionType": "Delete",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "delete",
-        "startLine": 5,
-        "endLine": 6,
-        "replacementLines": "",
-        "body": "```suggestion\n\n```"
-      }
+      "suggestionType": "Delete"
     }
   ],
   "diagnostics": []

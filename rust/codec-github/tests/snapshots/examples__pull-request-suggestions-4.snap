@@ -81,6 +81,7 @@ expression: review
   "items": [
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-3",
       "parentNodeId": "node-5",
       "range": {
@@ -94,18 +95,11 @@ expression: review
       "selectedText": "original",
       "precedingText": "An ",
       "replacementText": "replacement",
-      "suggestionType": "Replace",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "replace",
-        "startLine": 1,
-        "endLine": 1,
-        "replacementLines": "An replacement in a paragraph.",
-        "body": "```suggestion\nAn replacement in a paragraph.\n```"
-      }
+      "suggestionType": "Replace"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-10",
       "parentNodeId": "node-11",
       "range": {
@@ -118,15 +112,7 @@ expression: review
       },
       "selectedText": "Original paragraph.\n",
       "replacementText": "Replacement paragraph.",
-      "suggestionType": "Replace",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "replace",
-        "startLine": 5,
-        "endLine": 6,
-        "replacementLines": "Replacement paragraph.",
-        "body": "```suggestion\nReplacement paragraph.\n```"
-      }
+      "suggestionType": "Replace"
     }
   ],
   "diagnostics": []

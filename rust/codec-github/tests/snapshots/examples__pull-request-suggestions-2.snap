@@ -111,6 +111,7 @@ expression: review
   "items": [
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-2",
       "parentNodeId": "node-4",
       "range": {
@@ -124,18 +125,11 @@ expression: review
       "selectedText": "",
       "precedingText": "A ",
       "replacementText": "brief ",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 1,
-        "endLine": 1,
-        "replacementLines": "A brief introduction paragraph.",
-        "body": "```suggestion\nA brief introduction paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-9",
       "parentNodeId": "node-11",
       "range": {
@@ -149,18 +143,11 @@ expression: review
       "selectedText": "repeated ",
       "precedingText": "A ",
       "replacementText": "repeated ",
-      "suggestionType": "Delete",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "delete",
-        "startLine": 5,
-        "endLine": 5,
-        "replacementLines": "A repeated phrase appears here.",
-        "body": "```suggestion\nA repeated phrase appears here.\n```"
-      }
+      "suggestionType": "Delete"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-13",
       "parentNodeId": "node-15",
       "range": {
@@ -174,15 +161,7 @@ expression: review
       "selectedText": "",
       "precedingText": "Final paragraph with ",
       "replacementText": "appended words",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 7,
-        "endLine": 7,
-        "replacementLines": "Final paragraph with appended words.",
-        "body": "```suggestion\nFinal paragraph with appended words.\n```"
-      }
+      "suggestionType": "Insert"
     }
   ],
   "diagnostics": []

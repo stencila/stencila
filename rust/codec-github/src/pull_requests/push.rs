@@ -52,6 +52,7 @@ use super::{
         PullRequestComment, PullRequestCommentKind, PullRequestCommentResolution,
         PullRequestExport, PullRequestSide, PullRequestTarget,
     },
+    suggestions::github_suggestion_for_item,
 };
 use crate::client::{
     GitHubAuthPolicy, api_url, delete, get_json, patch_json, post_json, post_json_with_status,
@@ -371,6 +372,7 @@ struct CreateRefRequest<'a> {
 async fn push_pull_request_inner(
     owner: &str,
     repo: &str,
+    export: &PullRequestExport,
     file_path: &str,
     source_path: &str,
     source_commit: &str,
@@ -515,16 +517,17 @@ async fn push_pull_request_inner(
             created_anchor_commit_sha
         };
 
-        let outcome = match submit_github_review(
+        let outcome = match submit_github_review(SubmitGitHubReviewParams {
             owner,
             repo,
-            pr.number,
-            &initial_review_commit_sha,
-            &items,
+            pr_number: pr.number,
+            review_commit_sha: &initial_review_commit_sha,
+            export,
+            items: &items,
             source_path,
             file_path,
-            SubmitReviewMode::RequireInline,
-        )
+            mode: SubmitReviewMode::RequireInline,
+        })
         .await
         {
             Ok(outcome) => outcome,
@@ -556,16 +559,17 @@ async fn push_pull_request_inner(
                 update_ref(owner, repo, branch_name, &created_anchor_commit_sha, false).await?;
                 anchor_commit_sha = Some(created_anchor_commit_sha.clone());
 
-                match submit_github_review(
+                match submit_github_review(SubmitGitHubReviewParams {
                     owner,
                     repo,
-                    pr.number,
-                    &created_anchor_commit_sha,
-                    &items,
+                    pr_number: pr.number,
+                    review_commit_sha: &created_anchor_commit_sha,
+                    export,
+                    items: &items,
                     source_path,
                     file_path,
-                    SubmitReviewMode::AllowFallback,
-                )
+                    mode: SubmitReviewMode::AllowFallback,
+                })
                 .await
                 {
                     Ok(outcome) => outcome,
@@ -582,16 +586,17 @@ async fn push_pull_request_inner(
                 }
             }
             Err(SubmitReviewError::UnresolvedInlinePath) => {
-                match submit_github_review(
+                match submit_github_review(SubmitGitHubReviewParams {
                     owner,
                     repo,
-                    pr.number,
-                    &initial_review_commit_sha,
-                    &items,
+                    pr_number: pr.number,
+                    review_commit_sha: &initial_review_commit_sha,
+                    export,
+                    items: &items,
                     source_path,
                     file_path,
-                    SubmitReviewMode::AllowFallback,
-                )
+                    mode: SubmitReviewMode::AllowFallback,
+                })
                 .await
                 {
                     Ok(outcome) => outcome,
@@ -752,6 +757,7 @@ pub async fn push_pull_request_export(
     let push_result = push_pull_request_inner(
         &owner,
         &repo,
+        export,
         file_path,
         source_path,
         &source_commit,
@@ -1676,16 +1682,21 @@ async fn update_ref(owner: &str, repo: &str, branch: &str, sha: &str, force: boo
 /// as `NeedsAnchorCommit` so the caller can synthesize an anchor commit and retry. In
 /// `AllowFallback` mode, the same condition degrades to a body-only review submission.
 async fn submit_github_review(
-    owner: &str,
-    repo: &str,
-    pr_number: u64,
-    review_commit_sha: &str,
-    items: &[PullRequestComment],
-    source_path: &str,
-    file_path: &str,
-    mode: SubmitReviewMode,
+    params: SubmitGitHubReviewParams<'_>,
 ) -> Result<(usize, usize), SubmitReviewError> {
-    let (comments, fallback_items) = convert_to_review_comments(items, source_path);
+    let SubmitGitHubReviewParams {
+        owner,
+        repo,
+        pr_number,
+        review_commit_sha,
+        export,
+        items,
+        source_path,
+        file_path,
+        mode,
+    } = params;
+
+    let (comments, fallback_items) = convert_to_review_comments(export, items, source_path);
     let mut all_fallback_items = fallback_items;
 
     tracing::debug!(
@@ -1702,7 +1713,7 @@ async fn submit_github_review(
                     item.range.start_line,
                     item.range.end_line,
                     &item.resolution,
-                    item.github_suggestion.is_some(),
+                    github_suggestion_for_item(export, item).is_some(),
                 )
             })
             .collect::<Vec<_>>(),
@@ -1824,6 +1835,18 @@ async fn submit_github_review(
     Ok((inline_count, all_fallback_items.len()))
 }
 
+struct SubmitGitHubReviewParams<'a> {
+    owner: &'a str,
+    repo: &'a str,
+    pr_number: u64,
+    review_commit_sha: &'a str,
+    export: &'a PullRequestExport,
+    items: &'a [PullRequestComment],
+    source_path: &'a str,
+    file_path: &'a str,
+    mode: SubmitReviewMode,
+}
+
 /// Close a pull request.
 async fn close_pr(owner: &str, repo: &str, pr_number: u64) -> Result<()> {
     #[derive(Serialize)]
@@ -1854,6 +1877,7 @@ async fn delete_branch(owner: &str, repo: &str, branch: &str) -> Result<()> {
 /// and valid line numbers become inline review comments. All others are collected
 /// as fallback items to be included in the review body.
 pub(crate) fn convert_to_review_comments<'a>(
+    export: &PullRequestExport,
     items: &'a [PullRequestComment],
     default_path: &str,
 ) -> (Vec<GitHubPullRequestComment>, Vec<&'a PullRequestComment>) {
@@ -1880,7 +1904,7 @@ pub(crate) fn convert_to_review_comments<'a>(
         let start_line = item.range.start_line.filter(|&sl| sl != line);
 
         // Build comment body
-        let body = format_review_item_body(item, CommentBodyMode::Anchored, default_path);
+        let body = format_review_item_body(export, item, CommentBodyMode::Anchored, default_path);
 
         comments.push((
             index,
@@ -1913,6 +1937,7 @@ pub(crate) fn convert_to_review_comments<'a>(
 }
 
 fn format_review_item_body(
+    export: &PullRequestExport,
     item: &PullRequestComment,
     mode: CommentBodyMode,
     default_path: &str,
@@ -1920,7 +1945,7 @@ fn format_review_item_body(
     let marker = review_item_marker(item, default_path);
     let content = item.content.as_deref().filter(|text| !text.is_empty());
 
-    if let Some(github_suggestion) = &item.github_suggestion {
+    if let Some(github_suggestion) = github_suggestion_for_item(export, item) {
         let lead = format_item_lead(item, mode, None);
 
         if content.is_none() {
@@ -2215,7 +2240,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }
     }
 
@@ -2352,7 +2376,6 @@ mod tests {
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
             },
             PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
@@ -2368,11 +2391,14 @@ mod tests {
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Unanchored,
-                github_suggestion: None,
             },
         ];
 
-        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+        let (comments, fallbacks) = convert_to_review_comments(
+            &export_with_items("", items.clone()),
+            &items,
+            "docs/example.md",
+        );
 
         assert_eq!(comments.len(), 1);
         assert_eq!(comments[0].line, 3);
@@ -2416,10 +2442,13 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }];
 
-        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+        let (comments, fallbacks) = convert_to_review_comments(
+            &export_with_items("", items.clone()),
+            &items,
+            "docs/example.md",
+        );
 
         assert!(fallbacks.is_empty());
         assert_eq!(comments.len(), 1);
@@ -2458,10 +2487,13 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }];
 
-        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+        let (comments, fallbacks) = convert_to_review_comments(
+            &export_with_items("", items.clone()),
+            &items,
+            "docs/example.md",
+        );
 
         assert_eq!(comments.len(), 1);
         assert_eq!(comments[0].line, 4);
@@ -2492,7 +2524,6 @@ mod tests {
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
             },
             PullRequestComment {
                 kind: PullRequestCommentKind::Comment,
@@ -2512,7 +2543,6 @@ mod tests {
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
             },
             PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
@@ -2532,11 +2562,14 @@ mod tests {
                 suggestion_type: None,
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: None,
             },
         ];
 
-        let (comments, fallbacks) = convert_to_review_comments(&items, "docs/example.md");
+        let (comments, fallbacks) = convert_to_review_comments(
+            &export_with_items("", items.clone()),
+            &items,
+            "docs/example.md",
+        );
 
         assert!(fallbacks.is_empty());
         assert_eq!(comments.len(), 3);
@@ -2674,7 +2707,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }];
 
         let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
@@ -2710,7 +2742,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }];
 
         let anchored = anchor_review_file_contents(&files, "docs/example.md", &items, None);
@@ -2745,7 +2776,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         }];
 
         let anchored = anchor_review_file_contents(&files, "src/lib.rs", &items, None);
@@ -3026,7 +3056,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
-            github_suggestion: None,
         };
 
         let body = format_fallback_body(&[&item], "docs/example.md");
@@ -3062,7 +3091,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
-            github_suggestion: None,
         };
 
         let item_secondary = PullRequestComment {
@@ -3083,7 +3111,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
-            github_suggestion: None,
         };
 
         let body = format_fallback_body(&[&item_default, &item_secondary], "docs/main.md");
@@ -3108,6 +3135,7 @@ mod tests {
 
     #[test]
     fn test_format_review_item_body_for_anchored_suggestion_replace() {
+        let content = "0123456789abcxyz\n";
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: Some("docs/example.md".into()),
@@ -3128,17 +3156,18 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        let export = export_with_items(content, vec![item.clone()]);
+        let body =
+            format_review_item_body(&export, &item, CommentBodyMode::Anchored, "docs/example.md");
         assert_contains_all(
             &body,
             &[
                 "**Suggest replacing**",
                 "`abc`",
                 "`def`",
-                "Suggested replacement: `def`",
+                "```suggestion\n0123456789defxyz\n```",
                 REVIEW_ITEM_MARKER_PREFIX,
             ],
         );
@@ -3146,6 +3175,7 @@ mod tests {
 
     #[test]
     fn test_format_review_item_body_for_github_suggestion_insert() {
+        let content = "prefixabc\n";
         let item = PullRequestComment {
             kind: PullRequestCommentKind::Suggestion,
             source_path: Some("docs/example.md".into()),
@@ -3153,34 +3183,31 @@ mod tests {
             node_id: None,
             parent_node_id: None,
             range: PullRequestCommentRange {
-                start_line: Some(5),
-                end_line: Some(5),
+                start_line: Some(1),
+                end_line: Some(1),
+                start_offset: Some(6),
+                end_offset: Some(9),
                 ..Default::default()
             },
             selected_text: Some("abc".into()),
             preceding_text: None,
             replacement_text: Some("def".into()),
             content: None,
-            suggestion_type: None,
+            suggestion_type: Some(SuggestionType::Insert),
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: Some(crate::pull_requests::export::GitHubSuggestion {
-                edit_kind: crate::pull_requests::export::SuggestionEditKind::Insert,
-                start_line: 5,
-                end_line: 5,
-                replacement_lines: "abcdef".into(),
-                body: "```suggestion\nabcdef\n```".into(),
-            }),
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        let export = export_with_items(content, vec![item.clone()]);
+        let body =
+            format_review_item_body(&export, &item, CommentBodyMode::Anchored, "docs/example.md");
         assert_contains_all(
             &body,
             &[
-                "**Suggest replacing**",
-                "`abc`",
+                "**Suggest inserting**",
                 "`def`",
-                "```suggestion\nabcdef\n```",
+                "**after** `abc`",
+                "```suggestion\nprefixdef\n```",
                 REVIEW_ITEM_MARKER_PREFIX,
             ],
         );
@@ -3206,10 +3233,14 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        let body = format_review_item_body(
+            &export_with_items("", vec![item.clone()]),
+            &item,
+            CommentBodyMode::Anchored,
+            "docs/example.md",
+        );
         assert_contains_all(
             &body,
             &[
@@ -3249,7 +3280,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         };
 
         assert_eq!(
@@ -3264,7 +3294,7 @@ mod tests {
             |start_line: u32,
              end_line: u32,
              preceding_text: Option<&str>,
-             github_suggestion_body: Option<&str>| PullRequestComment {
+             _github_suggestion_body: Option<&str>| PullRequestComment {
                 kind: PullRequestCommentKind::Suggestion,
                 source_path: Some("docs/example.md".into()),
                 author_name: None,
@@ -3282,15 +3312,6 @@ mod tests {
                 suggestion_type: Some(SuggestionType::Replace),
                 suggestion_status: None,
                 resolution: PullRequestCommentResolution::Anchored,
-                github_suggestion: github_suggestion_body.map(|body| {
-                    crate::pull_requests::export::GitHubSuggestion {
-                        edit_kind: crate::pull_requests::export::SuggestionEditKind::Replace,
-                        start_line,
-                        end_line,
-                        replacement_lines: "new text".into(),
-                        body: body.into(),
-                    }
-                }),
             };
 
         assert_eq!(
@@ -3330,7 +3351,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Unanchored,
-            github_suggestion: None,
         };
 
         let body = format_fallback_body(&[&item], "docs/example.md");
@@ -3358,7 +3378,6 @@ mod tests {
             suggestion_type: None,
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         };
 
         let lead = format_item_lead(&item, CommentBodyMode::Anchored, None);
@@ -3387,7 +3406,6 @@ mod tests {
             suggestion_type: Some(SuggestionType::Insert),
             suggestion_status: None,
             resolution: PullRequestCommentResolution::Anchored,
-            github_suggestion: None,
         };
 
         let lead = format_item_lead(&item, CommentBodyMode::Anchored, None);

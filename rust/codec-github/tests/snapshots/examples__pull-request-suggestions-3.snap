@@ -69,6 +69,7 @@ expression: review
   "items": [
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-1",
       "parentNodeId": "node-9",
       "range": {
@@ -81,18 +82,11 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "An inserted opening paragraph.",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 3,
-        "endLine": 3,
-        "replacementLines": "An inserted opening paragraph.",
-        "body": "```suggestion\nAn inserted opening paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     },
     {
       "kind": "suggestion",
+      "resolution": "anchored",
       "nodeId": "node-6",
       "parentNodeId": "node-9",
       "range": {
@@ -105,15 +99,7 @@ expression: review
       },
       "selectedText": "",
       "replacementText": "An inserted section opening paragraph.",
-      "suggestionType": "Insert",
-      "resolution": "anchored",
-      "githubSuggestion": {
-        "editKind": "insert",
-        "startLine": 7,
-        "endLine": 7,
-        "replacementLines": "An inserted section opening paragraph.",
-        "body": "```suggestion\nAn inserted section opening paragraph.\n```"
-      }
+      "suggestionType": "Insert"
     }
   ],
   "diagnostics": []

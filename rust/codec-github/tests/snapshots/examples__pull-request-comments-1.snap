@@ -57,6 +57,7 @@ expression: review
   "items": [
     {
       "kind": "comment",
+      "resolution": "anchored",
       "nodeId": "node-8",
       "range": {
         "startLocation": "#comment-c1-start",
@@ -69,8 +70,7 @@ expression: review
         "endColumn": 12
       },
       "selectedText": "paragraph",
-      "content": "A comment on the paragraph",
-      "resolution": "anchored"
+      "content": "A comment on the paragraph"
     }
   ],
   "diagnostics": []
