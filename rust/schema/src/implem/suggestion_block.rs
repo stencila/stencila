@@ -14,7 +14,11 @@ impl SuggestionBlock {
 
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        if matches!(context.mode, MarkdownEncodeMode::Clean) {
+        if matches!(
+            context.mode,
+            MarkdownEncodeMode::Clean | MarkdownEncodeMode::Render
+        ) || !matches!(context.format, Format::Smd)
+        {
             context.enter_node(self.node_type(), self.node_id());
 
             match self.suggestion_type {
@@ -32,16 +36,6 @@ impl MarkdownCodec for SuggestionBlock {
             }
 
             context.exit_node();
-            return;
-        }
-
-        // If rendering, or format is anything other than Stencila Markdown, skip encoding
-        // and record as loss
-        if matches!(context.mode, MarkdownEncodeMode::Render)
-            || !matches!(context.format, Format::Smd)
-        {
-            context.losses.add(self.node_type().to_string());
-
             return;
         }
 
