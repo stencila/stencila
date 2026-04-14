@@ -40,6 +40,7 @@
 use base64::Engine;
 use reqwest::StatusCode;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 
 use stencila_codec::eyre::{Result, bail, eyre};
 use stencila_codec::stencila_schema::SuggestionType;
@@ -87,10 +88,175 @@ const ANCHOR_MARKER: &str = "\u{200B}";
 /// whether a substantive content hunk already covers a review target.
 const ANCHOR_COVERAGE_DISTANCE: u32 = 3;
 
+/// Invisible marker embedded in Stencila-authored GitHub review item bodies so
+/// subsequent pushes can detect already-posted items without relying on
+/// persistent Stencila node IDs.
+const REVIEW_ITEM_MARKER_PREFIX: &str = "stencila-gh-review-item:sha256:";
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum SubmitReviewMode {
     RequireInline,
     AllowFallback,
+}
+
+async fn list_review_comments(
+    owner: &str,
+    repo: &str,
+    pr_number: u64,
+) -> Result<Vec<ExistingReviewComment>> {
+    let mut comments = Vec::new();
+    let mut page = 1u32;
+
+    loop {
+        let batch: Vec<ExistingReviewComment> = get_json(
+            &api_url(&format!(
+                "/repos/{owner}/{repo}/pulls/{pr_number}/comments?per_page=100&page={page}"
+            )),
+            owner,
+            repo,
+            ANCHOR_AUTH_POLICY,
+        )
+        .await?;
+
+        let count = batch.len();
+        comments.extend(batch);
+
+        if count < 100 {
+            break;
+        }
+
+        page += 1;
+    }
+
+    Ok(comments)
+}
+
+fn normalize_line_endings(text: &str) -> String {
+    text.replace("\r\n", "\n").replace('\r', "\n")
+}
+
+fn normalize_multiline_text(text: &str) -> String {
+    normalize_line_endings(text)
+        .lines()
+        .map(str::trim_end)
+        .collect::<Vec<_>>()
+        .join("\n")
+        .trim()
+        .to_string()
+}
+
+fn normalize_inlineish_text(text: &str) -> String {
+    collapse_whitespace(&normalize_line_endings(text))
+}
+
+fn normalize_review_path(path: &str) -> String {
+    path.trim().trim_start_matches("./").to_string()
+}
+
+fn review_item_fingerprint(item: &PullRequestComment, default_path: &str) -> String {
+    let path = item.source_path.as_deref().unwrap_or(default_path);
+    let mut hasher = Sha256::new();
+
+    let feed = |hasher: &mut Sha256, label: &str, value: &str| {
+        hasher.update(label.as_bytes());
+        hasher.update([0]);
+        hasher.update(value.as_bytes());
+        hasher.update([0xff]);
+    };
+
+    feed(&mut hasher, "kind", &format!("{:?}", item.kind));
+    feed(&mut hasher, "path", &normalize_review_path(path));
+    feed(
+        &mut hasher,
+        "selected_text",
+        &item
+            .selected_text
+            .as_deref()
+            .map(normalize_inlineish_text)
+            .unwrap_or_default(),
+    );
+    feed(
+        &mut hasher,
+        "body_markdown",
+        &normalize_multiline_text(&item.body_markdown),
+    );
+    feed(
+        &mut hasher,
+        "replacement_text",
+        &item
+            .replacement_text
+            .as_deref()
+            .map(normalize_multiline_text)
+            .unwrap_or_default(),
+    );
+    feed(
+        &mut hasher,
+        "suggestion_type",
+        &item
+            .suggestion_type
+            .map(|suggestion_type| format!("{:?}", suggestion_type))
+            .unwrap_or_default(),
+    );
+
+    format!("{:x}", hasher.finalize())
+}
+
+fn review_item_marker(item: &PullRequestComment, default_path: &str) -> String {
+    format!(
+        "<!-- {REVIEW_ITEM_MARKER_PREFIX}{} -->",
+        review_item_fingerprint(item, default_path)
+    )
+}
+
+fn extract_review_item_marker(body: &str) -> Option<&str> {
+    let start = body.find(REVIEW_ITEM_MARKER_PREFIX)? + REVIEW_ITEM_MARKER_PREFIX.len();
+    let suffix = &body[start..];
+    let end = suffix.find("-->")?;
+    let marker = suffix[..end].trim();
+    (!marker.is_empty()).then_some(marker)
+}
+
+async fn deduplicate_review_items(
+    owner: &str,
+    repo: &str,
+    pr_number: u64,
+    items: &[PullRequestComment],
+    default_path: &str,
+) -> Result<Vec<PullRequestComment>> {
+    let existing_comments = list_review_comments(owner, repo, pr_number).await?;
+    let existing_markers = existing_comments
+        .iter()
+        .filter_map(|comment| extract_review_item_marker(&comment.body))
+        .collect::<std::collections::HashSet<_>>();
+
+    if existing_markers.is_empty() {
+        tracing::debug!(
+            pr_number,
+            existing_comment_count = existing_comments.len(),
+            "No previously marked Stencila review comments found on PR; skipping marker-based deduplication"
+        );
+        return Ok(items.to_vec());
+    }
+
+    let deduplicated = items
+        .iter()
+        .filter(|item| {
+            !existing_markers.contains(review_item_fingerprint(item, default_path).as_str())
+        })
+        .cloned()
+        .collect::<Vec<_>>();
+
+    tracing::debug!(
+        pr_number,
+        existing_comment_count = existing_comments.len(),
+        existing_marker_count = existing_markers.len(),
+        incoming_item_count = items.len(),
+        retained_item_count = deduplicated.len(),
+        duplicate_item_count = items.len().saturating_sub(deduplicated.len()),
+        "Deduplicated review items against existing Stencila PR comments"
+    );
+
+    Ok(deduplicated)
 }
 
 fn short_snippet_from_end(text: &str) -> Option<String> {
@@ -286,6 +452,14 @@ async fn push_pull_request_inner(
         .await?
     };
 
+    let items = if let Some(pr_number) = existing_pr_number {
+        deduplicate_review_items(owner, repo, pr_number, items, source_path).await?
+    } else {
+        items.to_vec()
+    };
+
+    let has_comments = !items.is_empty();
+
     let (comments_posted, fallbacks) = if has_comments {
         let initial_review_commit_sha = if has_source_changes {
             let content_commit_sha = content_commit_sha
@@ -293,11 +467,11 @@ async fn push_pull_request_inner(
                 .unwrap_or_else(|| current_sha.clone());
 
             let content_files =
-                review_file_contents(owner, repo, source_path, &content_commit_sha, items).await?;
+                review_file_contents(owner, repo, source_path, &content_commit_sha, &items).await?;
             let base_files =
-                review_file_contents(owner, repo, source_path, branch_base_sha, items).await?;
+                review_file_contents(owner, repo, source_path, branch_base_sha, &items).await?;
             let anchored_file_contents =
-                anchor_review_file_contents(&content_files, source_path, items, Some(&base_files));
+                anchor_review_file_contents(&content_files, source_path, &items, Some(&base_files));
 
             if anchored_file_contents != content_files {
                 tracing::debug!(
@@ -321,9 +495,9 @@ async fn push_pull_request_inner(
                 source_commit
             };
             let file_contents =
-                review_file_contents(owner, repo, source_path, anchor_content_ref, items).await?;
+                review_file_contents(owner, repo, source_path, anchor_content_ref, &items).await?;
             let anchored_file_contents =
-                anchor_review_file_contents(&file_contents, source_path, items, None);
+                anchor_review_file_contents(&file_contents, source_path, &items, None);
             tracing::debug!(
                 source_path,
                 parent_sha = %current_sha,
@@ -342,7 +516,7 @@ async fn push_pull_request_inner(
             repo,
             pr.number,
             &initial_review_commit_sha,
-            items,
+            &items,
             source_path,
             file_path,
             SubmitReviewMode::RequireInline,
@@ -358,11 +532,11 @@ async fn push_pull_request_inner(
                     repo,
                     source_path,
                     &initial_review_commit_sha,
-                    items,
+                    &items,
                 )
                 .await?;
                 let anchored_file_contents =
-                    anchor_review_file_contents(&file_contents, source_path, items, None);
+                    anchor_review_file_contents(&file_contents, source_path, &items, None);
                 tracing::debug!(
                     source_path,
                     parent_sha = %initial_review_commit_sha,
@@ -383,7 +557,7 @@ async fn push_pull_request_inner(
                     repo,
                     pr.number,
                     &created_anchor_commit_sha,
-                    items,
+                    &items,
                     source_path,
                     file_path,
                     SubmitReviewMode::AllowFallback,
@@ -409,7 +583,7 @@ async fn push_pull_request_inner(
                     repo,
                     pr.number,
                     &initial_review_commit_sha,
-                    items,
+                    &items,
                     source_path,
                     file_path,
                     SubmitReviewMode::AllowFallback,
@@ -744,6 +918,16 @@ pub struct GitHubPullRequestComment {
 struct ReviewResponse {
     #[allow(dead_code)]
     id: u64,
+}
+
+/// Response item from `GET /repos/{owner}/{repo}/pulls/{pull_number}/comments`.
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
+struct ExistingReviewComment {
+    path: String,
+    body: String,
+    line: Option<u32>,
+    start_line: Option<u32>,
 }
 
 /// Response from `GET /repos/{owner}/{repo}` — only the fields we need.
@@ -1692,7 +1876,7 @@ pub(crate) fn convert_to_review_comments<'a>(
         let start_line = item.range.start_line.filter(|&sl| sl != line);
 
         // Build comment body
-        let body = format_review_item_body(item, CommentBodyMode::Anchored);
+        let body = format_review_item_body(item, CommentBodyMode::Anchored, default_path);
 
         comments.push((
             index,
@@ -1724,16 +1908,22 @@ pub(crate) fn convert_to_review_comments<'a>(
     (comments, fallbacks)
 }
 
-fn format_review_item_body(item: &PullRequestComment, mode: CommentBodyMode) -> String {
+fn format_review_item_body(
+    item: &PullRequestComment,
+    mode: CommentBodyMode,
+    default_path: &str,
+) -> String {
+    let marker = review_item_marker(item, default_path);
+
     if let Some(github_suggestion) = &item.github_suggestion {
         let lead = format_item_lead(item, mode, None);
 
         if item.body_markdown.is_empty() {
-            return format!("{lead}:\n\n{}", github_suggestion.body);
+            return format!("{lead}:\n\n{}\n\n{marker}", github_suggestion.body);
         }
 
         return format!(
-            "{lead}:\n\n{}\n\n{}",
+            "{lead}:\n\n{}\n\n{}\n\n{marker}",
             item.body_markdown, github_suggestion.body
         );
     }
@@ -1757,6 +1947,8 @@ fn format_review_item_body(item: &PullRequestComment, mode: CommentBodyMode) -> 
     if parts.len() == 1 {
         parts.push("(empty comment)".to_string());
     }
+
+    parts.push(marker);
 
     parts.join("\n\n")
 }
@@ -1971,6 +2163,8 @@ pub(crate) fn format_fallback_body(items: &[&PullRequestComment], default_path: 
                 inline_code(replacement)
             ));
         }
+
+        parts.push(format!("  {}", review_item_marker(item, default_path)));
     }
 
     parts.join("\n")
@@ -2126,10 +2320,12 @@ mod tests {
         assert_eq!(comments[0].start_line, Some(1));
         assert_eq!(comments[0].side, "RIGHT");
         assert_eq!(comments[0].start_side, Some("RIGHT".into()));
-        assert_eq!(
-            comments[0].body,
-            "**Comment on** `Hello world`:\n\nNice opening."
+        assert!(
+            comments[0]
+                .body
+                .starts_with("**Comment on** `Hello world`:\n\nNice opening.")
         );
+        assert!(comments[0].body.contains(REVIEW_ITEM_MARKER_PREFIX));
 
         assert_eq!(fallbacks.len(), 1);
         assert!(matches!(
@@ -2165,10 +2361,12 @@ mod tests {
 
         assert!(fallbacks.is_empty());
         assert_eq!(comments.len(), 1);
-        assert_eq!(
-            comments[0].body,
-            "**Comment from _Alice Smith_ on** `Hello world`:\n\nNice opening."
+        assert!(
+            comments[0]
+                .body
+                .starts_with("**Comment from _Alice Smith_ on** `Hello world`:\n\nNice opening.")
         );
+        assert!(comments[0].body.contains(REVIEW_ITEM_MARKER_PREFIX));
     }
 
     #[test]
@@ -3013,11 +3211,11 @@ mod tests {
             github_suggestion: None,
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
-        assert_eq!(
-            body,
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        assert!(body.starts_with(
             "**Suggest replacing** `abc` **with** `def`:\n\nThis reads more clearly.\n\nSuggested replacement: `def`"
-        );
+        ));
+        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
     }
 
     #[test]
@@ -3049,11 +3247,11 @@ mod tests {
             }),
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
-        assert_eq!(
-            body,
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        assert!(body.starts_with(
             "**Suggest replacing** `abc` **with** `def`:\n\nThis adds the missing term.\n\n```suggestion\nabcdef\n```"
-        );
+        ));
+        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
     }
 
     #[test]
@@ -3079,11 +3277,127 @@ mod tests {
             github_suggestion: None,
         };
 
-        let body = format_review_item_body(&item, CommentBodyMode::Anchored);
-        assert_eq!(
-            body,
+        let body = format_review_item_body(&item, CommentBodyMode::Anchored, "docs/example.md");
+        assert!(body.starts_with(
             "**Suggest inserting** `def` **after** `abc`:\n\nThis adds the missing term.\n\nSuggested replacement: `def`"
+        ));
+        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
+    }
+
+    #[test]
+    fn test_extract_review_item_marker() {
+        let body = "Comment body\n\n<!-- stencila-gh-review-item:sha256:abc123 -->";
+
+        assert_eq!(extract_review_item_marker(body), Some("abc123"));
+    }
+
+    #[test]
+    fn test_review_item_fingerprint_ignores_author_name() {
+        let make_item = |author_name: Option<&str>| PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: Some("docs/example.md".into()),
+            author_name: author_name.map(str::to_string),
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(4),
+                end_line: Some(4),
+                ..Default::default()
+            },
+            selected_text: Some("Selected text".into()),
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: "Same body".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+
+        assert_eq!(
+            review_item_fingerprint(&make_item(Some("Alice")), "docs/example.md"),
+            review_item_fingerprint(&make_item(Some("Bob")), "docs/example.md")
         );
+    }
+
+    #[test]
+    fn test_review_item_fingerprint_ignores_lines_preceding_text_and_github_suggestion_body() {
+        let make_item =
+            |start_line: u32,
+             end_line: u32,
+             preceding_text: Option<&str>,
+             github_suggestion_body: Option<&str>| PullRequestComment {
+                kind: PullRequestCommentKind::Suggestion,
+                source_path: Some("docs/example.md".into()),
+                author_name: None,
+                node_id: None,
+                parent_node_id: None,
+                range: PullRequestCommentRange {
+                    start_line: Some(start_line),
+                    end_line: Some(end_line),
+                    ..Default::default()
+                },
+                selected_text: Some("old text".into()),
+                preceding_text: preceding_text.map(str::to_string),
+                replacement_text: Some("new text".into()),
+                body_markdown: "Please update this".into(),
+                suggestion_type: Some(SuggestionType::Replace),
+                suggestion_status: None,
+                resolution: PullRequestCommentResolution::Anchored,
+                github_suggestion: github_suggestion_body.map(|body| {
+                    crate::pull_requests::export::GitHubSuggestion {
+                        edit_kind: crate::pull_requests::export::SuggestionEditKind::Replace,
+                        start_line,
+                        end_line,
+                        replacement_lines: "new text".into(),
+                        body: body.into(),
+                    }
+                }),
+            };
+
+        assert_eq!(
+            review_item_fingerprint(
+                &make_item(
+                    10,
+                    12,
+                    Some("before one"),
+                    Some("```suggestion\nalpha\n```")
+                ),
+                "docs/example.md"
+            ),
+            review_item_fingerprint(
+                &make_item(20, 22, Some("before two"), Some("```suggestion\nbeta\n```")),
+                "docs/example.md"
+            )
+        );
+    }
+
+    #[test]
+    fn test_format_fallback_body_includes_review_item_markers() {
+        let item = PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: Some("docs/example.md".into()),
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange {
+                start_line: Some(2),
+                end_line: Some(2),
+                ..Default::default()
+            },
+            selected_text: Some("selected".into()),
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: "Fallback body".into(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Unanchored,
+            github_suggestion: None,
+        };
+
+        let body = format_fallback_body(&[&item], "docs/example.md");
+
+        assert!(body.contains(REVIEW_ITEM_MARKER_PREFIX));
     }
 
     #[test]

@@ -9781,6 +9781,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "sha2 0.10.9",
  "stencila-ask",
  "stencila-cli-utils",
  "stencila-cloud",

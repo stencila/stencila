@@ -17,6 +17,7 @@ reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
+sha2 = { workspace = true }
 stencila-ask = { path = "../ask" }
 stencila-cli-utils = { path = "../cli-utils" }
 stencila-cloud = { path = "../cloud" }
