@@ -120,7 +120,7 @@ pub async fn push_pull_request(
     node: &Node,
     path: Option<&Path>,
     _title: Option<&str>,
-    _url: Option<&url::Url>,
+    url: Option<&url::Url>,
     dry_run: Option<PushDryRunOptions>,
 ) -> Result<PushResult> {
     let path = path.ok_or_else(|| eyre!("A local document path is required for `ghpr` pushes"))?;
@@ -156,7 +156,13 @@ pub async fn push_pull_request(
         return Ok(pull_request_push_dry_run(&plan, options));
     }
 
-    let result = push_pull_request_export(&mut export, _url, has_source_changes).await?;
+    let result = push_pull_request_export(
+        &mut export,
+        &path.to_string_lossy(),
+        url,
+        has_source_changes,
+    )
+    .await?;
     if source.generated_path {
         tracing::info!(
             source_path = %result.source_path,

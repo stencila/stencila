@@ -201,6 +201,7 @@ struct CreateRefRequest<'a> {
 async fn push_pull_request_inner(
     owner: &str,
     repo: &str,
+    file_path: &str,
     source_path: &str,
     source_commit: &str,
     branch_base_sha: &str,
@@ -267,8 +268,14 @@ async fn push_pull_request_inner(
         post_json(
             &api_url(&format!("/repos/{owner}/{repo}/pulls")),
             &CreatePullRequest {
-                title: &pr_title(source_path, has_comments),
-                body: pr_body(has_source_changes, has_comments, use_dummy_change),
+                title: &pr_title(source_path, has_source_changes, use_dummy_change, items),
+                body: &pr_body(
+                    file_path,
+                    source_path,
+                    has_source_changes,
+                    use_dummy_change,
+                    items,
+                ),
                 head: branch_name,
                 base: base_branch,
             },
@@ -337,6 +344,7 @@ async fn push_pull_request_inner(
             &initial_review_commit_sha,
             items,
             source_path,
+            file_path,
             SubmitReviewMode::RequireInline,
         )
         .await
@@ -377,6 +385,7 @@ async fn push_pull_request_inner(
                     &created_anchor_commit_sha,
                     items,
                     source_path,
+                    file_path,
                     SubmitReviewMode::AllowFallback,
                 )
                 .await
@@ -402,6 +411,7 @@ async fn push_pull_request_inner(
                     &initial_review_commit_sha,
                     items,
                     source_path,
+                    file_path,
                     SubmitReviewMode::AllowFallback,
                 )
                 .await
@@ -458,6 +468,7 @@ async fn push_pull_request_inner(
 /// an optional anchor commit, and optional submitted comments.
 pub async fn push_pull_request_export(
     export: &mut PullRequestExport,
+    file_path: &str,
     existing_pr_url: Option<&url::Url>,
     has_source_changes: bool,
 ) -> Result<PullRequestPushResult> {
@@ -563,6 +574,7 @@ pub async fn push_pull_request_export(
     let push_result = push_pull_request_inner(
         &owner,
         &repo,
+        file_path,
         source_path,
         &source_commit,
         &branch_base_sha,
@@ -1303,29 +1315,127 @@ fn anchor_review_file_contents(
         .collect()
 }
 
-fn pr_title(source_path: &str, has_review_items: bool) -> String {
-    if has_review_items {
-        format!("Review of {source_path}")
-    } else {
-        format!("Update {source_path}")
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+struct ReviewContentKinds {
+    suggestions: bool,
+    comments: bool,
+}
+
+fn review_content_kinds(items: &[PullRequestComment]) -> ReviewContentKinds {
+    let mut kinds = ReviewContentKinds::default();
+
+    for item in items {
+        match item.kind {
+            PullRequestCommentKind::Suggestion => kinds.suggestions = true,
+            PullRequestCommentKind::Comment => kinds.comments = true,
+        }
+    }
+
+    kinds
+}
+
+fn join_content_terms(terms: &[&str]) -> String {
+    match terms {
+        [] => String::new(),
+        [only] => (*only).to_string(),
+        [first, second] => format!("{first} and {second}"),
+        _ => {
+            let mut result = terms[..terms.len() - 1].join(", ");
+            result.push_str(", and ");
+            result.push_str(terms[terms.len() - 1]);
+            result
+        }
+    }
+}
+
+fn pr_content_phrase(
+    has_source_changes: bool,
+    uses_dummy_change: bool,
+    items: &[PullRequestComment],
+) -> Option<String> {
+    let mut terms = Vec::new();
+    let kinds = review_content_kinds(items);
+
+    if has_source_changes && !uses_dummy_change {
+        terms.push("edits");
+    }
+    if kinds.suggestions {
+        terms.push("suggestions");
+    }
+    if kinds.comments {
+        terms.push("comments");
+    }
+
+    (!terms.is_empty()).then(|| join_content_terms(&terms))
+}
+
+fn review_content_phrase(items: &[PullRequestComment]) -> Option<String> {
+    let mut terms = Vec::new();
+    let kinds = review_content_kinds(items);
+
+    if kinds.suggestions {
+        terms.push("suggestions");
+    }
+    if kinds.comments {
+        terms.push("comments");
+    }
+
+    (!terms.is_empty()).then(|| join_content_terms(&terms))
+}
+
+fn pr_title(
+    source_path: &str,
+    has_source_changes: bool,
+    uses_dummy_change: bool,
+    items: &[PullRequestComment],
+) -> String {
+    match pr_content_phrase(has_source_changes, uses_dummy_change, items) {
+        Some(content) => format!("{} for {source_path}", capitalize_first(&content)),
+        None => format!("Pull request for {source_path}"),
     }
 }
 
 fn pr_body(
+    file_path: &str,
+    source_path: &str,
     has_source_changes: bool,
-    has_review_items: bool,
     uses_dummy_change: bool,
-) -> &'static str {
-    match (has_source_changes, has_review_items, uses_dummy_change) {
-        (true, false, true) => {
-            "Stencila created a placeholder file change so this pull request can be opened from a review document with no substantive content diff."
-        }
-        (true, true, _) => {
-            "Stencila document changes and review comments submitted as a GitHub pull request and PR review."
-        }
-        (true, false, false) => "Stencila document changes submitted as a GitHub pull request.",
-        (false, true, _) => "Stencila document review submitted as a GitHub pull request review.",
-        (false, false, _) => "Stencila GitHub PR export.",
+    items: &[PullRequestComment],
+) -> String {
+    if has_source_changes && items.is_empty() && uses_dummy_change {
+        return "Stencila created a placeholder file change so this pull request can be opened from a review document with no substantive content diff.".to_string();
+    }
+
+    match pr_content_phrase(has_source_changes, uses_dummy_change, items) {
+        Some(content) => format!(
+            "This pull request contains {content} for {}, extracted from {}.",
+            inline_code(source_path),
+            inline_code(file_path)
+        ),
+        None => "Stencila GitHub PR export.".to_string(),
+    }
+}
+
+fn review_body_intro(file_path: &str, source_path: &str, items: &[PullRequestComment]) -> String {
+    match review_content_phrase(items) {
+        Some(content) => format!(
+            "These {content} were extracted from track changes suggestions and comments in {} and mapped to the corresponding positions in {}. Some items may appear as outdated in GitHub; this is usually an artifact of the temporary anchors used to place review comments near their intended source locations.",
+            inline_code(file_path),
+            inline_code(source_path)
+        ),
+        None => format!(
+            "These review items were extracted from track changes suggestions and comments in {} and mapped to the corresponding positions in {}. Some items may appear as outdated in GitHub; this is usually an artifact of the temporary anchors used to place review comments near their intended source locations.",
+            inline_code(file_path),
+            inline_code(source_path)
+        ),
+    }
+}
+
+fn capitalize_first(text: &str) -> String {
+    let mut chars = text.chars();
+    match chars.next() {
+        Some(first) => first.to_uppercase().chain(chars).collect(),
+        None => String::new(),
     }
 }
 
@@ -1384,6 +1494,7 @@ async fn submit_github_review(
     review_commit_sha: &str,
     items: &[PullRequestComment],
     source_path: &str,
+    file_path: &str,
     mode: SubmitReviewMode,
 ) -> Result<(usize, usize), SubmitReviewError> {
     let (comments, fallback_items) = convert_to_review_comments(items, source_path);
@@ -1414,11 +1525,12 @@ async fn submit_github_review(
 
     // First attempt: submit with inline comments
     let submitted_inline = if !comments.is_empty() {
+        let review_intro = review_body_intro(file_path, source_path, items);
         let initial_body = if all_fallback_items.is_empty() {
-            "Stencila document pull request comments.".to_string()
+            review_intro.clone()
         } else {
             format!(
-                "Stencila document pull request comments.\n\n{}",
+                "{review_intro}\n\n{}",
                 format_fallback_body(&all_fallback_items, source_path)
             )
         };
@@ -1493,11 +1605,12 @@ async fn submit_github_review(
     // If inline submission failed (422) or there were no inline comments,
     // submit a body-only comment payload with all items as fallback text.
     if !submitted_inline {
+        let review_intro = review_body_intro(file_path, source_path, items);
         let fallback_body = if all_fallback_items.is_empty() {
-            "Stencila document pull request comments.".to_string()
+            review_intro
         } else {
             format!(
-                "Stencila document pull request comments.\n\n{}",
+                "{review_intro}\n\n{}",
                 format_fallback_body(&all_fallback_items, source_path)
             )
         };
@@ -2602,20 +2715,113 @@ mod tests {
 
     #[test]
     fn test_pr_body_variants() {
-        assert!(pr_body(true, true, false).contains("changes and review comments"));
-        assert!(pr_body(true, false, false).contains("document changes"));
-        assert!(pr_body(true, false, true).contains("placeholder file change"));
-        assert!(pr_body(false, true, false).contains("document review"));
-        assert!(pr_body(false, false, false).contains("GitHub PR export"));
+        let comment = PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange::default(),
+            selected_text: None,
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+        let suggestion = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            ..comment.clone()
+        };
+
+        assert!(pr_body("review.smd", "docs/example.md", true, false, &[suggestion.clone(), comment.clone()])
+            .contains("contains edits, suggestions, and comments for `docs/example.md`, extracted from `review.smd`"));
+        assert!(
+            pr_body("review.smd", "docs/example.md", true, false, &[]).contains("contains edits")
+        );
+        assert!(
+            pr_body("review.smd", "docs/example.md", true, true, &[])
+                .contains("placeholder file change")
+        );
+        assert!(
+            pr_body("review.smd", "docs/example.md", false, false, &[comment])
+                .contains("contains comments for `docs/example.md`, extracted from `review.smd`")
+        );
+        assert_eq!(
+            pr_body("review.smd", "docs/example.md", false, false, &[]),
+            "Stencila GitHub PR export."
+        );
     }
 
     #[test]
     fn test_pr_title_variants() {
         assert_eq!(
-            pr_title("docs/example.md", true),
-            "Review of docs/example.md"
+            pr_title("docs/example.md", true, false, &[]),
+            "Edits for docs/example.md"
         );
-        assert_eq!(pr_title("docs/example.md", false), "Update docs/example.md");
+        let comment = PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange::default(),
+            selected_text: None,
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+        let suggestion = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            ..comment.clone()
+        };
+        assert_eq!(
+            pr_title("docs/example.md", false, false, &[suggestion, comment]),
+            "Suggestions and comments for docs/example.md"
+        );
+    }
+
+    #[test]
+    fn test_review_body_intro_variants() {
+        let comment = PullRequestComment {
+            kind: PullRequestCommentKind::Comment,
+            source_path: None,
+            author_name: None,
+            node_id: None,
+            parent_node_id: None,
+            range: PullRequestCommentRange::default(),
+            selected_text: None,
+            preceding_text: None,
+            replacement_text: None,
+            body_markdown: String::new(),
+            suggestion_type: None,
+            suggestion_status: None,
+            resolution: PullRequestCommentResolution::Anchored,
+            github_suggestion: None,
+        };
+        let suggestion = PullRequestComment {
+            kind: PullRequestCommentKind::Suggestion,
+            ..comment.clone()
+        };
+
+        assert!(
+            review_body_intro(
+                "review.smd",
+                "docs/example.md",
+                &[suggestion.clone(), comment]
+            )
+            .contains("These suggestions and comments were extracted")
+        );
+        assert!(
+            review_body_intro("review.smd", "docs/example.md", &[suggestion])
+                .contains("These suggestions were extracted")
+        );
     }
 
     #[test]
