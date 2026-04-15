@@ -4,8 +4,7 @@ extends: Enumeration
 category: prose
 description: The rhetorical or factual intent of a citation.
 $comment: |
-  This is an implementation of the Citation Typing Ontology (CiTO)
-  [`CitationAct`](http://www.sparontologies.net/ontologies/cito).
+  This is an implementation of the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).
 
   In Stencila Schema it provides a controlled vocabulary for expressing why one
   creative work cites another, including factual, rhetorical, and discourse
