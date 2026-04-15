@@ -373,9 +373,7 @@ mod tests {
         Block::SuggestionBlock(SuggestionBlock {
             suggestion_type: Some(SuggestionType::Replace),
             content,
-            options: Box::new(schema::SuggestionBlockOptions {
-                original: Some(original),
-            }),
+            original: Some(original),
             ..Default::default()
         })
     }
@@ -384,9 +382,7 @@ mod tests {
         Inline::SuggestionInline(SuggestionInline {
             suggestion_type: Some(SuggestionType::Replace),
             content,
-            options: Box::new(schema::SuggestionInlineOptions {
-                original: Some(original),
-            }),
+            original: Some(original),
             ..Default::default()
         })
     }
