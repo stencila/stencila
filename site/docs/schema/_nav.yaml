@@ -2,6 +2,7 @@
 # Regenerate with: cargo run -p stencila-schema-gen
 
 items:
+  - "contributing"
   - label: "Works"
     items:
       - "agent"
