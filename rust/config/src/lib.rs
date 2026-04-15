@@ -63,7 +63,7 @@ pub use {
         RegionSpec, RowConfig, SocialLinkPlatform, SocialLinksStyle,
     },
     mcp::{McpConfig, McpServerEntry, McpTransportConfig},
-    models::{KNOWN_MODEL_PROVIDERS, ModelsConfig},
+    models::{KNOWN_MODEL_PROVIDERS, ModelsConfig, OllamaConfig},
     outputs::{OutputCommand, OutputConfig, OutputTarget, config_add_output, config_remove_output},
     remotes::{
         RemoteSpread, RemoteValue, config_add_remote, config_set_remote_spread,

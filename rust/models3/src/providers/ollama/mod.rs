@@ -143,6 +143,70 @@ impl OllamaAdapter {
     }
 }
 
+/// Infer model capabilities from an Ollama model name.
+///
+/// Ollama's API doesn't expose capability metadata, so we use heuristics
+/// based on well-known model families. Returns `(context_window,
+/// supports_tools, supports_vision)`.
+fn infer_model_capabilities(model_id: &str) -> (u64, bool, bool) {
+    let m = model_id.to_ascii_lowercase();
+    // Strip the tag (e.g. ":8b", ":70b-instruct") for family matching
+    let family = m.split(':').next().unwrap_or(&m);
+
+    // Context window defaults
+    let context_window = if family.starts_with("llama3")
+        || family.starts_with("llama-3")
+        || family.starts_with("llama4")
+    {
+        131_072
+    } else if family.starts_with("gemma2") || family.starts_with("gemma3") {
+        8_192
+    } else if family.starts_with("qwen2.5") || family.starts_with("qwen3") {
+        131_072
+    } else if family.starts_with("qwen2") {
+        32_768
+    } else if family.starts_with("mistral") || family.starts_with("mixtral") {
+        32_768
+    } else if family.starts_with("phi3") || family.starts_with("phi-3") || family.starts_with("phi4") {
+        128_000
+    } else if family.starts_with("codellama") || family.starts_with("deepseek-coder") {
+        16_384
+    } else if family.starts_with("deepseek") {
+        64_000
+    } else if family.starts_with("command-r") {
+        128_000
+    } else {
+        4_096 // conservative default
+    };
+
+    // Tool calling support (most modern instruction-tuned models)
+    let supports_tools = family.starts_with("llama3")
+        || family.starts_with("llama-3")
+        || family.starts_with("llama4")
+        || family.starts_with("qwen2")
+        || family.starts_with("qwen3")
+        || family.starts_with("mistral")
+        || family.starts_with("mixtral")
+        || family.starts_with("command-r")
+        || family.starts_with("phi3")
+        || family.starts_with("phi-3")
+        || family.starts_with("phi4")
+        || family.starts_with("deepseek")
+        || family.starts_with("gemma3");
+
+    // Vision support
+    let supports_vision = family.starts_with("llava")
+        || family.starts_with("llama3.2-vision")
+        || family.starts_with("llama4")
+        || family.starts_with("gemma3")
+        || family.starts_with("moondream")
+        || family.starts_with("minicpm-v")
+        || family.starts_with("phi3.5-vision")
+        || family.starts_with("phi4-vision");
+
+    (context_window, supports_tools, supports_vision)
+}
+
 impl ProviderAdapter for OllamaAdapter {
     fn name(&self) -> &'static str {
         "ollama"
@@ -237,11 +301,16 @@ impl ProviderAdapter for OllamaAdapter {
                     arr.iter()
                         .filter_map(|m| {
                             let id = m.get("id")?.as_str()?.to_string();
+                            let (context_window, supports_tools, supports_vision) =
+                                infer_model_capabilities(&id);
 
                             Some(ModelInfo {
                                 id: id.clone(),
                                 provider: "ollama".into(),
                                 display_name: id,
+                                context_window,
+                                supports_tools,
+                                supports_vision,
                                 ..Default::default()
                             })
                         })
