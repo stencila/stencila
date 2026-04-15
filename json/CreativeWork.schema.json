@@ -283,6 +283,7 @@
       "strip": [
         "metadata"
       ],
+      "walk": true,
       "dom": {
         "elem": "section"
       },

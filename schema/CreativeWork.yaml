@@ -119,6 +119,7 @@ properties:
     items:
       $ref: Comment
     strip: [metadata]
+    walk: true
     dom:
       elem: section
   dateCreated:

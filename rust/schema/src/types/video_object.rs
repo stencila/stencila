@@ -193,6 +193,7 @@ pub struct VideoObjectOptions {
     #[serde(alias = "comment")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub comments: Option<Vec<Comment>>,
 

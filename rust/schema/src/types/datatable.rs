@@ -164,6 +164,7 @@ pub struct DatatableOptions {
     #[serde(alias = "comment")]
     #[serde(default, deserialize_with = "option_one_or_many")]
     #[strip(metadata)]
+    #[walk]
     pub comments: Option<Vec<Comment>>,
 
     /// Date/time of creation.
