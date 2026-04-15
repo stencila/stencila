@@ -6,13 +6,16 @@ trait SuggestionNode: Sized {
     type Content;
 
     fn suggestion_type(&self) -> Option<SuggestionType>;
-    fn into_parts(self) -> (Vec<Self::Content>, Option<Vec<Self::Content>>);
+    
     fn metadata(&self) -> SuggestionMetadata;
+
+    fn into_parts(self) -> (Vec<Self::Content>, Vec<Self::Content>);
+
     fn from_parts(
-        content: Vec<Self::Content>,
         suggestion_type: SuggestionType,
-        original: Option<Vec<Self::Content>>,
         metadata: SuggestionMetadata,
+        new: Vec<Self::Content>,
+        old: Vec<Self::Content>,
     ) -> Self;
 }
 
@@ -21,10 +24,6 @@ impl SuggestionNode for SuggestionInline {
 
     fn suggestion_type(&self) -> Option<SuggestionType> {
         self.suggestion_type
-    }
-
-    fn into_parts(self) -> (Vec<Self::Content>, Option<Vec<Self::Content>>) {
-        (self.content, self.original)
     }
 
     fn metadata(&self) -> SuggestionMetadata {
@@ -38,15 +37,41 @@ impl SuggestionNode for SuggestionInline {
         }
     }
 
+    fn into_parts(self) -> (Vec<Self::Content>, Vec<Self::Content>) {
+        use SuggestionType::*;
+        match self.suggestion_type {
+            Some(Insert) => (self.content, Vec::new()),
+            Some(Delete) => (Vec::new(), self.content),
+            Some(Replace) | None => (self.content, self.original.unwrap_or_default()),
+        }
+    }
+
     fn from_parts(
-        content: Vec<Self::Content>,
         suggestion_type: SuggestionType,
-        original: Option<Vec<Self::Content>>,
         metadata: SuggestionMetadata,
+        new: Vec<Self::Content>,
+        old: Vec<Self::Content>,
     ) -> Self {
-        let mut suggestion = SuggestionInline::new(content);
-        suggestion.suggestion_type = Some(suggestion_type);
-        suggestion.original = original;
+        use SuggestionType::*;
+        let mut suggestion = match suggestion_type {
+            Insert => SuggestionInline {
+                suggestion_type: Some(suggestion_type),
+                content: new,
+                ..Default::default()
+            },
+            Delete => SuggestionInline {
+                suggestion_type: Some(suggestion_type),
+                content: old,
+                ..Default::default()
+            },
+            Replace => SuggestionInline {
+                suggestion_type: Some(suggestion_type),
+                content: new,
+                original: (!old.is_empty()).then_some(old),
+                ..Default::default()
+            },
+        };
+
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
@@ -64,10 +89,6 @@ impl SuggestionNode for SuggestionBlock {
         self.suggestion_type
     }
 
-    fn into_parts(self) -> (Vec<Self::Content>, Option<Vec<Self::Content>>) {
-        (self.content, self.original)
-    }
-
     fn metadata(&self) -> SuggestionMetadata {
         SuggestionMetadata {
             suggestion_status: self.suggestion_status,
@@ -79,15 +100,41 @@ impl SuggestionNode for SuggestionBlock {
         }
     }
 
+    fn into_parts(self) -> (Vec<Self::Content>, Vec<Self::Content>) {
+        use SuggestionType::*;
+        match self.suggestion_type {
+            Some(Insert) => (self.content, Vec::new()),
+            Some(Delete) => (Vec::new(), self.content),
+            Some(Replace) | None => (self.content, self.original.unwrap_or_default()),
+        }
+    }
+
     fn from_parts(
-        content: Vec<Self::Content>,
         suggestion_type: SuggestionType,
-        original: Option<Vec<Self::Content>>,
         metadata: SuggestionMetadata,
+        new: Vec<Self::Content>,
+        old: Vec<Self::Content>,
     ) -> Self {
-        let mut suggestion = SuggestionBlock::new(content);
-        suggestion.suggestion_type = Some(suggestion_type);
-        suggestion.original = original;
+        use SuggestionType::*;
+        let mut suggestion = match suggestion_type {
+            Insert => SuggestionBlock {
+                suggestion_type: Some(suggestion_type),
+                content: new,
+                ..Default::default()
+            },
+            Delete => SuggestionBlock {
+                suggestion_type: Some(suggestion_type),
+                content: old,
+                ..Default::default()
+            },
+            Replace => SuggestionBlock {
+                suggestion_type: Some(suggestion_type),
+                content: new,
+                original: (!old.is_empty()).then_some(old),
+                ..Default::default()
+            },
+        };
+
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
@@ -100,19 +147,19 @@ impl SuggestionNode for SuggestionBlock {
 
 struct SuggestionAccumulator<T: SuggestionNode> {
     metadata: SuggestionMetadata,
-    content: Vec<T::Content>,
-    original: Vec<T::Content>,
+    new: Vec<T::Content>,
+    old: Vec<T::Content>,
 }
 
 impl<T: SuggestionNode> SuggestionAccumulator<T> {
-    fn new(kind: SuggestionType, suggestion: T) -> Self {
+    fn new(suggestion: T) -> Self {
         let metadata = suggestion.metadata();
         let mut accumulator = Self {
             metadata,
-            content: Vec::new(),
-            original: Vec::new(),
+            new: Vec::new(),
+            old: Vec::new(),
         };
-        accumulator.push(kind, suggestion);
+        accumulator.push(suggestion);
         accumulator
     }
 
@@ -120,40 +167,22 @@ impl<T: SuggestionNode> SuggestionAccumulator<T> {
         self.metadata == suggestion.metadata()
     }
 
-    fn push(&mut self, kind: SuggestionType, suggestion: T) {
-        let (mut content, original) = suggestion.into_parts();
-        let mut original = original.unwrap_or_default();
-
-        match kind {
-            SuggestionType::Insert => self.content.append(&mut content),
-            SuggestionType::Delete => {
-                if original.is_empty() {
-                    original = content;
-                }
-                self.original.append(&mut original);
-            }
-            SuggestionType::Replace => {
-                self.original.append(&mut original);
-                self.content.append(&mut content);
-            }
-        }
+    fn push(&mut self, suggestion: T) {
+        let (new, old) = suggestion.into_parts();
+        self.old.extend(old);
+        self.new.extend(new);
     }
 
     fn into_suggestion(self) -> T {
-        let suggestion_type = if self.original.is_empty() {
+        let suggestion_type = if self.old.is_empty() {
             SuggestionType::Insert
-        } else if self.content.is_empty() {
+        } else if self.new.is_empty() {
             SuggestionType::Delete
         } else {
             SuggestionType::Replace
         };
 
-        T::from_parts(
-            self.content,
-            suggestion_type,
-            (!self.original.is_empty()).then_some(self.original),
-            self.metadata,
-        )
+        T::from_parts(suggestion_type, self.metadata, self.new, self.old)
     }
 }
 
@@ -171,7 +200,7 @@ fn normalize_suggestions<T: SuggestionNode>(suggestions: &mut Vec<T>) {
     let mut pending: Option<SuggestionAccumulator<T>> = None;
 
     for suggestion in std::mem::take(suggestions) {
-        let Some(kind) = suggestion.suggestion_type() else {
+        if suggestion.suggestion_type().is_none() {
             flush_pending(&mut pending, &mut normalized);
             normalized.push(suggestion);
             continue;
@@ -185,9 +214,9 @@ fn normalize_suggestions<T: SuggestionNode>(suggestions: &mut Vec<T>) {
         }
 
         if let Some(accumulator) = &mut pending {
-            accumulator.push(kind, suggestion);
+            accumulator.push(suggestion);
         } else {
-            pending = Some(SuggestionAccumulator::new(kind, suggestion));
+            pending = Some(SuggestionAccumulator::new(suggestion));
         }
     }
 

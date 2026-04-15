@@ -29,8 +29,7 @@ expression: node
         {
           "type": "SuggestionInline",
           "suggestionType": "Delete",
-          "content": [],
-          "original": [
+          "content": [
             {
               "type": "Text",
               "value": {

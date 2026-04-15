@@ -9,8 +9,7 @@ expression: node
       "type": "SuggestionBlock",
       "suggestionType": "Delete",
       "suggestionStatus": "Accepted",
-      "content": [],
-      "original": [
+      "content": [
         {
           "type": "Paragraph",
           "content": [
@@ -28,8 +27,7 @@ expression: node
       "type": "SuggestionBlock",
       "suggestionType": "Delete",
       "suggestionStatus": "Rejected",
-      "content": [],
-      "original": [
+      "content": [
         {
           "type": "Paragraph",
           "content": [

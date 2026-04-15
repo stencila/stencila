@@ -8,8 +8,7 @@ expression: node
     {
       "type": "SuggestionBlock",
       "suggestionType": "Delete",
-      "content": [],
-      "original": [
+      "content": [
         {
           "type": "Paragraph",
           "content": [
