@@ -34,18 +34,31 @@ impl Schemas {
         // The top level destination for documentation
         let dest = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../site/docs/schema");
 
-        // Clean and recreate directory, but preserve the hand-authored index.md
+        // Clean generated files while preserving a small set of hand-authored pages
         if dest.exists() {
+            let preserved_markdown = ["index.md", "contributing.md"];
+
             let mut entries = read_dir(&dest).await?;
             while let Some(entry) = entries.next_entry().await? {
                 let path = entry.path();
-                if path.file_name().and_then(|name| name.to_str()) == Some("index.md") {
-                    continue;
-                }
                 if path.is_dir() {
                     remove_dir_all(&path).await?;
-                } else {
+                    continue;
+                }
+
+                let Some(file_name) = path.file_name().and_then(|name| name.to_str()) else {
+                    continue;
+                };
+
+                if file_name == "_nav.yaml" {
                     remove_file(&path).await?;
+                    continue;
+                }
+
+                if path.extension().and_then(|ext| ext.to_str()) == Some("md") {
+                    if !preserved_markdown.contains(&file_name) {
+                        remove_file(&path).await?;
+                    }
                 }
             }
         } else {
@@ -76,7 +89,11 @@ impl Schemas {
             }
         }
 
-        let context = Context { urls, children };
+        let context = Context {
+            urls,
+            children,
+            schemas: self.schemas.clone().into_iter().collect(),
+        };
 
         // Create a file for each schema
         let futures = self
@@ -98,9 +115,44 @@ impl Schemas {
     }
 }
 
+fn property_inheritance_distance(title: &str, property: &Schema, context: &Context) -> usize {
+    if property.defined_on == title {
+        return 0;
+    }
+
+    ancestor_distance(title, &property.defined_on, context).unwrap_or(usize::MAX)
+}
+
+fn ancestor_distance(descendant: &str, ancestor: &str, context: &Context) -> Option<usize> {
+    if descendant == ancestor {
+        return Some(0);
+    }
+
+    let schema = context.schemas.get(descendant)?;
+    let mut min_distance: Option<usize> = None;
+
+    for parent in &schema.extends {
+        let distance = if parent == ancestor {
+            Some(1)
+        } else {
+            ancestor_distance(parent, ancestor, context).map(|distance| distance + 1)
+        };
+
+        if let Some(distance) = distance {
+            min_distance = Some(match min_distance {
+                Some(current) => current.min(distance),
+                None => distance,
+            });
+        }
+    }
+
+    min_distance
+}
+
 struct Context {
     urls: HashMap<String, String>,
     children: HashMap<String, BTreeSet<String>>,
+    schemas: HashMap<String, Schema>,
 }
 
 /// Generate a documentation file for a schema
@@ -214,11 +266,15 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         th([t("Inherited from")]),
     ])];
 
-    for (name, property) in &schema.properties {
-        if name == "type" {
-            continue;
-        }
+    let mut properties: Vec<_> = schema
+        .properties
+        .iter()
+        .filter(|(name, _)| *name != "type")
+        .collect();
 
+    properties.sort_by_key(|(_, property)| property_inheritance_distance(title, property, context));
+
+    for (name, property) in properties {
         fn type_link(title: &str, context: &Context) -> Inline {
             let url = context.urls.get(title).cloned().unwrap_or_default();
             lnk([ci(title)], url)
@@ -269,9 +325,9 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
         let description = property
             .description
             .clone()
-            .unwrap_or_default()
-            .trim()
-            .replace('\n', " ");
+            .map(|description| description.trim().replace('\n', " "))
+            .filter(|description| !description.is_empty())
+            .unwrap_or_else(|| String::from("-"));
 
         let from = if property.defined_on != title {
             let from = property.defined_on.as_str().to_pascal_case();
@@ -298,6 +354,31 @@ fn properties(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 
 /// Generate a "Members" section for a schema
 fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
+    if schema.is_enumeration() {
+        let mut rows = vec![tr([th([t("Member")]), th([t("Description")])])];
+
+        for variant in schema.any_of.as_ref().expect("should have an anyOf") {
+            let Some(value) = &variant.r#const else {
+                continue;
+            };
+
+            let description = variant
+                .description
+                .clone()
+                .map(|description| description.trim().replace('\n', " "))
+                .filter(|description| !description.is_empty())
+                .unwrap_or_else(|| String::from("-"));
+
+            rows.push(tr([td([ci(value.to_string())]), td([t(description)])]));
+        }
+
+        return vec![
+            h1([t("Members")]),
+            p([t("The "), ci(title), t(" type has these members:")]),
+            tbl(rows),
+        ];
+    }
+
     let mut items = Vec::new();
     for schema in schema.any_of.as_ref().expect("should have an anyOf") {
         if let Some(title) = &schema.r#ref {
@@ -305,8 +386,6 @@ fn members(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
             items.push(li([lnk([ci(title)], url)]));
         } else if let Some(value) = &schema.r#const {
             items.push(li([ci(value.to_string())]));
-        } else {
-            continue;
         }
     }
 
