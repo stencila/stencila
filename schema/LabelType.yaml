@@ -2,7 +2,16 @@ title: LabelType
 "@id": stencila:LabelType
 extends: Enumeration
 category: works
-description: Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
+description: An automatic labeling category.
+$comment: |
+  This is an enumeration used in Stencila Schema for automatic labeling categories.
+
+  It exists so nodes such as figures and tables generated from code can
+  participate in the correct numbering series without relying on
+  presentation-specific heuristics.
+
+  See properties such as [`CodeChunk.labelType`](./code-chunk.md#labeltype) for the
+  main use of this enumeration.
 proptest: {}
 default: FigureLabel
 anyOf:

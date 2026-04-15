@@ -2,7 +2,17 @@ title: ExecutionRequired
 '@id': stencila:ExecutionRequired
 extends: Enumeration
 category: flow
-description: Whether, and why, the execution of a node is required or not.
+description: A reason why a node does or does not require execution.
+$comment: |
+  This is an enumeration used in Stencila Schema describing whether and why execution
+  is required.
+
+  It exists to distinguish different re-execution states, such as stale
+  dependencies or changed content, in a way that user interfaces and automation
+  can interpret consistently.
+
+  See [`Executable.executionRequired`](./executable.md#executionrequired) for
+  the property that uses this enumeration.
 default: NeverExecuted
 anyOf:
   - const: 'No'

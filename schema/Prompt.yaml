@@ -3,6 +3,20 @@ title: Prompt
 extends: [CreativeWork, Executable]
 category: works
 description: A prompt for creating or editing document content.
+$comment: |
+  This is an executable creative work used in Stencila Schema for creating or editing
+  content.
+
+  It combines [`CreativeWork`](./creative-work.md) metadata with
+  [`Executable`](./executable.md) behavior so prompts can be versioned,
+  documented, rendered in context, and used reproducibly across AI-assisted
+  workflows. Unlike a plain text prompt, it can declare supported instruction
+  types, node targets, and query-matching behavior.
+
+  Key properties include `instructionTypes`, `nodeTypes`, `nodeCount`,
+  `queryPatterns`, `content`, and `frontmatter`. Additional metadata and
+  execution features are inherited from [`CreativeWork`](./creative-work.md) and
+  [`Executable`](./executable.md).
 markdown:
   derive: false
 required:

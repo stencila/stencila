@@ -3,7 +3,19 @@ title: Executable
 extends: Entity
 category: flow
 abstract: true
-description: Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+description: An abstract base type for executable nodes.
+$comment: |
+  This is an abstract base type used in Stencila Schema for nodes that can be compiled
+  or executed.
+
+  It adds execution state, dependency tracking, digests, messages, and timing
+  information to the core document node model. This makes executable behavior a
+  first-class capability that can be shared by code, prompts, chats,
+  instructions, forms, and other interactive document nodes.
+
+  Key properties include `executionMode`, `compilationDigest`,
+  `executionDependencies`, `executionRequired`, `executionStatus`,
+  `executionMessages`, and related execution timestamps and durations.
 core:
   - executionMode
 properties:

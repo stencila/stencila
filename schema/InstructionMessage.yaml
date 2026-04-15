@@ -4,6 +4,16 @@ nick: ime
 extends: Entity
 category: edits
 description: A message within an `Instruction`.
+$comment: |
+  This is a type used in Stencila Schema for the user- or system-authored message
+  associated with an [`Instruction`](./instruction.md).
+
+  It exists so instruction input can include structured parts such as text and
+  media, rather than being limited to a plain string. This aligns instruction
+  workflows with the richer messaging model used elsewhere in Stencila.
+
+  Key properties include structured message parts and any metadata needed for
+  prompt rendering or model interaction.
 markdown:
   derive: false
 required:

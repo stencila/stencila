@@ -4,6 +4,16 @@ nick: exd
 extends: Entity
 category: flow
 description: A downstream execution dependant of a node.
+$comment: |
+  This is a type used in Stencila Schema for describing a downstream execution
+  dependant of a node.
+
+  It exists to make execution graphs explicit within the document model so
+  Stencila can determine what may need re-execution after an upstream change.
+  This supports incremental execution and dependency-aware tooling.
+
+  Key properties identify the dependant node and the relation by which it
+  depends on the current node.
 required:
   - dependantRelation
   - dependantType

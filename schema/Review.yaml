@@ -4,9 +4,17 @@ extends: CreativeWork
 category: works
 description: A review of an item, e.g of an `Article` or `SoftwareApplication`.
 $comment: |
-  Use the `content` property for the structured content of the review in
-  preference to the schema.org `text` or `reviewBody` properties (which
-  have plain text as the expected type).
+  This is an implementation of schema.org
+  [`Review`](https://schema.org/Review), adapted in Stencila Schema for
+  structured review content.
+
+  It fits into Stencila's broader creative-work model while emphasizing rich
+  block content for the review body instead of the plain-text `text` or
+  `reviewBody` properties used in schema.org. This makes it suitable for peer
+  review, software review, and other document-oriented evaluation workflows.
+
+  Key properties include `itemReviewed`, `reviewAspect`, and inherited
+  `content` from [`CreativeWork`](./creative-work.md).
 properties:
   itemReviewed:
     '@id': schema:itemReviewed

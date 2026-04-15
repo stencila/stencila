@@ -5,12 +5,14 @@ extends: Entity
 category: prose
 description: A paragraph.
 $comment: |
-  Analogues of `Paragraph` in other schema include:
-    - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
-    - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)
-    - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)
-    - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)
-    - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
+  This is a type used in Stencila Schema for paragraph content.
+
+  It exists to represent one of the main units of prose within the document
+  model while also supporting authorship and provenance metadata not usually
+  available on plain text paragraphs in simpler formats.
+
+  Key properties include the inline `content`, together with optional `authors`
+  and `provenance` metadata.
 html:
   elem: p
 jats:

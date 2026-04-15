@@ -3,8 +3,19 @@ title: SoftwareSourceCode
 nick: ssc
 extends: CreativeWork
 category: works
-description: |
-  Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+description: Source code for software.
+$comment: |
+  This is an implementation of schema.org
+  [`SoftwareSourceCode`](https://schema.org/SoftwareSourceCode).
+
+  In Stencila Schema it is used for describing source-code artifacts as creative
+  works, interoperating with schema.org while fitting into Stencila's richer
+  document and execution ecosystem. It complements, rather than replaces, the
+  code block and executable node types used for code inside documents.
+
+  Key properties include `programmingLanguage`, `codeSampleType`,
+  `runtimePlatform`, `softwareRequirements`, and `targetProducts`, with broader
+  metadata inherited from [`CreativeWork`](./creative-work.md).
 required:
   - name
   - programmingLanguage

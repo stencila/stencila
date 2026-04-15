@@ -4,6 +4,15 @@ nick: sti
 extends: Styled
 category: style
 description: Styled inline content.
+$comment: |
+  This is an inline type used in Stencila Schema for content with explicit styling.
+
+  It extends [`Styled`](./styled.md) so inline styling can be represented
+  structurally and transported across formats while remaining distinct from
+  semantic marks such as emphasis or quotation.
+
+  Key properties include inline `content` together with inherited styling
+  information from [`Styled`](./styled.md).
 status: beta
 dom:
   derive: false

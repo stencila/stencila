@@ -4,6 +4,16 @@ nick: sgb
 extends: Suggestion
 category: edits
 description: Abstract base type for nodes that indicate a suggested change to block content.
+$comment: |
+  This is an abstract base type used in Stencila Schema for suggestions that operate on
+  block content.
+
+  It extends [`Suggestion`](./suggestion.md) so proposed changes to block-level
+  nodes can share common suggestion behavior while remaining distinct from
+  inline suggestions.
+
+  Key properties are primarily inherited from [`Suggestion`](./suggestion.md),
+  with semantics centered on block-content replacements and originals.
 markdown:
   derive: false
 required:

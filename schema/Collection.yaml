@@ -2,14 +2,19 @@ title: Collection
 '@id': schema:Collection
 extends: CreativeWork
 category: works
-description: A collection of CreativeWorks or other artifacts.
+description: A collection of creative works or other artifacts.
 $comment: |
-  This is an implementation of schema.org [`Collection`](https://schema.org/Collection).
-  The `Collection` type allows you to represent a collection of various `CreativeWork`
-  node types, such as [`Article`](./article.md), [`Datatable`](./datatable.md) or [`Table`](./table.md).
+  This is an implementation of schema.org
+  [`Collection`](https://schema.org/Collection).
 
-  The schema.org `Collection` has a `collectionSize` property but has not been added here
-  because it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.
+  In Stencila Schema it is used to group related works or artifacts as a single
+  creative-work node, for example collections of articles, tables, data, or
+  other publishable resources.
+
+  The main collection semantics are carried by inherited
+  [`CreativeWork.parts`](./creative-work.md#parts). The schema.org
+  `collectionSize` property is not included because it would largely duplicate
+  information already available from the number of parts.
 markdown:
   derive: false
 required:

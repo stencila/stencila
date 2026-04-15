@@ -4,6 +4,16 @@ nick: ico
 extends: Entity
 category: prose
 description: An icon, typically rendered using an icon font.
+$comment: |
+  This is a type used in Stencila Schema for icons embedded in document content.
+
+  It exists so icons can be represented structurally and styled consistently
+  across renderers rather than being reduced to opaque HTML or font markup. This
+  supports document-authoring and publishing workflows that need portable icon
+  references.
+
+  Key properties identify the icon set, icon name, and any presentational hints
+  needed by renderers.
 dom:
   derive: false
 markdown:

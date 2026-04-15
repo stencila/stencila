@@ -2,11 +2,20 @@ title: CreativeWork
 "@id": schema:CreativeWork
 extends: Thing
 category: works
-description: A creative work, including books, movies, photographs, software programs, etc.
+description: A creative work.
 $comment: |
-  This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).
-  It extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`
-  and `fundedBy`.
+  This is an implementation of schema.org
+  [`CreativeWork`](https://schema.org/CreativeWork), extended in Stencila Schema
+  as the main base type for document-like works and publishable artifacts.
+
+  In addition to broad schema.org creative-work metadata, Stencila adds support
+  for structured authorship, provenance summaries, comments, richer date fields,
+  grants, references, and document-oriented relationships between works. Many of
+  the schema's concrete publishable node types inherit from this type.
+
+  Key Stencila Schema properties include `workType`, `provenance`,
+  `dateAccepted`, and `fundedBy`. Many other metadata properties are inherited
+  directly from schema.org.
 core:
   - workType
   - doi

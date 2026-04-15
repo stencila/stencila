@@ -3,12 +3,18 @@ title: NumberValidator
 nick: nuv
 extends: Entity
 category: data
-description: A validator specifying the constraints on a numeric node.
+description: A validator for numeric values.
 $comment: |
-  A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.
-  Analogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
-  Note that the `IntegerValidator` type extends this validator with the additional
-  constraint that the number have no fractional part.
+  This is a type used in Stencila Schema for validating [`Number`](./number.md)
+  nodes.
+
+  It adapts common JSON Schema numeric constraints to Stencila's validator
+  system, allowing numeric ranges and divisibility rules to be expressed as
+  structured validator nodes.
+
+  Key properties include `minimum`, `exclusiveMinimum`, `maximum`,
+  `exclusiveMaximum`, and `multipleOf`. See also
+  [`IntegerValidator`](./integer-validator.md).
 markdown:
   derive: false
 core:

@@ -5,6 +5,17 @@ extends: Executable
 category: works
 status: beta
 description: A message within a `Chat`.
+$comment: |
+  This is an executable type used in Stencila Schema for an individual message within a
+  [`Chat`](./chat.md).
+
+  It exists so messages can carry structured parts, execution state,
+  attachments, and model-generated metadata rather than being reduced to plain
+  text. This supports richer conversational documents and tooling for reviewing,
+  replaying, or transforming model interactions.
+
+  Key properties include the message role, message parts or content, and
+  inherited execution metadata from [`Executable`](./executable.md).
 markdown:
   derive: false
 required:

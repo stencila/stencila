@@ -5,12 +5,13 @@ category: works
 description: A bibliography loaded from an external source file.
 $comment: |
   A `Bibliography` represents a database of references that may be cited in a
-  `CreativeWork`. Unlike the `references` property on `CreativeWork` (which contains
-  only the references that are actually cited), a `Bibliography` contains all available
-  references loaded from an external source file (e.g. BibTeX, YAML) at compile time.
+  `CreativeWork`. Unlike the `references` property on `CreativeWork` (which
+  contains only the references that are actually cited), a `Bibliography`
+  contains all available references loaded from an external source file (e.g.
+  BibTeX, YAML) at compile time.
 
-  The loaded references are ephemeral and are stripped when the document is saved,
-  to be reloaded on the next compilation.
+  The loaded references are ephemeral and are stripped when the document is
+  saved, to be reloaded on the next compilation.
 status: beta
 required:
   - source

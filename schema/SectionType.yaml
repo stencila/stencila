@@ -2,11 +2,15 @@ title: SectionType
 '@id': stencila:SectionType
 extends: Enumeration
 category: prose
-description: The type of a `Section`.
+description: A category of section.
 $comment: |
-  Includes the section types recommended by the JATS XML standard
-  (https://jats.nlm.nih.gov/archiving/tag-library/1.1d1/n-77u2.html) with additional
-  values for other section types commonly found in documents.
+  This is an enumeration used in Stencila Schema for section roles.
+
+  It includes many section types recommended by JATS, with additional values for
+  other sections commonly found in scholarly and technical documents.
+
+  See [`Section.sectionType`](./section.md#sectiontype) for the property that
+  uses this enumeration.
 proptest: {}
 anyOf:
   - const: Abstract

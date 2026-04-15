@@ -4,10 +4,18 @@ extends: [CreativeWork, Executable]
 category: works
 description: An article, including news and scholarly articles.
 $comment: |
-  This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
-  It extends schema.org `Article` by adding a `content` property which must be
-  an array of [`Block`](./block.md), as well as the properties added by
-  [`CreativeWork`](./creative-work.md) which it extends.
+  This is an implementation of schema.org
+  [`Article`](https://schema.org/Article), extended in Stencila Schema for
+  structured document content.
+
+  In addition to schema.org article metadata, this type supports block-based
+  document content, frontmatter, generated heading outlines, executable
+  behavior, and archived nodes. This makes it suitable for authoring and
+  publishing executable articles rather than only describing them as metadata.
+
+  Key properties include `content`, `frontmatter`, `headings`, and `archive`.
+  Additional metadata and execution features are inherited from
+  [`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).
 dom:
   derive: false
 html:

@@ -1,10 +1,17 @@
 title: Author
 '@id': stencila:Author
 category: works
-description: Union type for things that can be an author of a `CreativeWork` or other type.
+description: A union type for authors of a `CreativeWork` or other type.
 $comment: |
-  This type merely exists to avoid the excessively long type name
-  (`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.
+  This is a union type used in Stencila Schema for authorship values.
+
+  It exists to provide a readable alias for the set of node types that can act
+  as an author in Stencila Schema, instead of repeating or generating the much
+  longer union name `PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`.
+
+  See properties such as [`CreativeWork.authors`](./creative-work.md#authors)
+  and [`CreativeWork.contributors`](./creative-work.md#contributors) for common
+  uses of this union.
 default: Person
 anyOf:
   - $ref: Person

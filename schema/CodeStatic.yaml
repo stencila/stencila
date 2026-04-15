@@ -3,11 +3,17 @@ title: CodeStatic
 extends: Entity
 category: code
 abstract: true
-description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+description: An abstract base type for non-executable code nodes.
 $comment: |
-  The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
-  There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
-  invalid for the specified `programmingLanguage`.
+  This is an abstract base type used in Stencila Schema for non-executable code nodes.
+
+  It exists to represent code as document content without normal execution
+  semantics, while still preserving source text, programming language,
+  authorship, and provenance metadata. This provides a common foundation for
+  static code blocks and inline code.
+
+  Key properties include `code`, `programmingLanguage`, `authors`, and
+  `provenance`.
 required:
   - code
 core:

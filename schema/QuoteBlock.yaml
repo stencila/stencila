@@ -4,6 +4,15 @@ nick: qtb
 extends: Entity
 category: prose
 description: A section quoted from somewhere else.
+$comment: |
+  This is a block type used in Stencila Schema for quoted content.
+
+  It exists to represent extended quotations as structured block content,
+  distinct from both inline quotation and untyped paragraphs. This helps
+  preserve attribution, provenance, and format mappings for quoted material.
+
+  Key properties include the quoted `content` and any citation or source
+  metadata associated with the quotation.
 jats:
   elem: disp-quote 
 html:

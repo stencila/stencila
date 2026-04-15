@@ -4,6 +4,16 @@ nick: sen
 extends: Entity
 category: prose
 description: A sentence, usually within a `Paragraph`.
+$comment: |
+  This is a type used in Stencila Schema for explicit sentence-level content.
+
+  It exists so documents can represent sentence boundaries structurally when
+  that granularity matters for provenance, annotation, review, or
+  natural-language tooling. This is more precise than inferring sentences from
+  plain text after the fact.
+
+  Key properties include the sentence `content` and any associated authorship or
+  provenance metadata.
 required:
   - content
 properties:

@@ -3,6 +3,17 @@ title: Link
 extends: Entity
 category: prose
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
+$comment: |
+  This is a hyperlink type used in Stencila Schema with analogues in HTML `<a>`, JATS
+  `xref`-style links, and Markdown links.
+
+  It exists to represent links as structured document nodes that can target
+  internal nodes, sections, files, or external URLs while carrying richer
+  metadata than plain text spans. This supports stable cross-references and
+  portable serialization across formats.
+
+  Key properties include the linked `content`, the target or target node, and
+  any relationship metadata used for navigation or referencing.
 dom:
   derive: false  
 html:

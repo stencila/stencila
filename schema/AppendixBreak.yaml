@@ -3,12 +3,17 @@ title: AppendixBreak
 nick: apb
 extends: Entity
 category: prose
-description: A break in a document indicating the start one or more appendices.
+description: A break marking the start of appendices.
 $comment: |
-  Similar to a LaTeX `\appendix` command, this node causes level one headings to
-  have an appendix label and figure and table numbering to switch to be prefixed
-  by 'A' (for the first appendix), 'B', and so on. A document should only have
-  one `AppendixBreak`.
+  This is a structural marker used in Stencila Schema for appendix mode in a
+  document.
+
+  It exists to signal that subsequent top-level sections should be treated as
+  appendices, affecting heading labels and figure or table numbering in a way
+  similar to the LaTeX `\appendix` command.
+
+  This node is mainly relevant to document compilation and labeling workflows. A
+  document should usually contain at most one `AppendixBreak`.
 latex:
   derive: false
 markdown:

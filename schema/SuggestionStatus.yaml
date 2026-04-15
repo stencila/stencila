@@ -2,7 +2,15 @@ title: SuggestionStatus
 "@id": stencila:SuggestionStatus
 extends: Enumeration
 category: edits
-description: The status of an instruction.
+description: A review status for a suggestion.
+$comment: |
+  This is an enumeration used in Stencila Schema for the status of a suggestion.
+
+  It exists so review workflows can distinguish proposed, accepted, rejected,
+  and related states using a stable vocabulary across tools and formats.
+
+  See the status properties on [`Suggestion`](./suggestion.md) and related
+  editing types for where this enumeration is used.
 anyOf:
   - const: Original
     "@id": stencila:Original

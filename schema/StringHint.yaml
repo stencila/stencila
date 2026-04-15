@@ -3,7 +3,19 @@ title: StringHint
 nick: sth
 extends: Entity
 category: data
-description: A hint to the structure of an `String`.
+description: A concise summary of the properties of a `String`.
+$comment: |
+  This is a type used in Stencila Schema for providing a concise summary of the
+  properties of a [`String`](./string.md).
+
+  It exists to support both human and machine understanding of textual data,
+  including schema inference, editing assistance, and downstream code
+  generation. Rather than turning observations into hard constraints, it
+  summarizes characteristics that can help tools and readers work with string
+  values.
+
+  Key properties describe expected patterns, length characteristics, and
+  representative values.
 required:
   - chars
 properties:

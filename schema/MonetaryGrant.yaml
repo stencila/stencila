@@ -3,6 +3,16 @@ title: MonetaryGrant
 extends: Grant
 category: other
 description: A monetary grant.
+$comment: |
+  This is an implementation of schema.org
+  [`MonetaryGrant`](https://schema.org/MonetaryGrant).
+
+  It specializes [`Grant`](./grant.md) for funding that has an explicit monetary
+  value, while integrating with Stencila's structured metadata model for works
+  and contributors.
+
+  Key properties include inherited grant metadata together with the monetary
+  amount and related funding information.
 properties:
   amounts:
     '@id': schema:amount

@@ -2,7 +2,18 @@ title: AuthorRoleName
 '@id': stencila:AuthorRoleName
 extends: Enumeration
 category: works
-description: A `roleName` for an `AuthorRole`.
+description: A controlled author contribution role.
+$comment: |
+  This is an enumeration used in Stencila Schema for controlled author contribution
+  roles.
+
+  It exists so authorship in Stencila documents can be represented consistently
+  across formats, user interfaces, and provenance workflows. Rather than using
+  arbitrary free text, the enumeration gives a stable vocabulary for common
+  contribution roles.
+
+  See [`AuthorRole.roleName`](./author-role.md#rolename) for the property that
+  uses this enumeration.
 default: Writer
 anyOf:
   - const: Importer

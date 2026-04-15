@@ -3,7 +3,19 @@ title: DatatableColumnHint
 nick: dch
 extends: Entity
 category: data
-description: A hint to the type and values in a `DatatableColumn`.
+description: A concise summary of the properties of a `DatatableColumn`.
+$comment: |
+  This is a type used in Stencila Schema for providing a concise summary of the
+  properties of a [`DatatableColumn`](./datatable-column.md).
+
+  It exists to support both human and machine understanding of tabular columns,
+  including schema inference, editing assistance, and code generation
+  workflows such as selecting visual encodings based on column types. Rather
+  than making observations into hard constraints, it summarizes inferred type,
+  value range, and other characteristics of the column.
+
+  Key properties describe inferred value kinds, ranges, and representative
+  examples.
 required:
   - name
   - itemType

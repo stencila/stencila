@@ -4,6 +4,16 @@ extends: Entity
 category: edits
 abstract: true
 description: Abstract base type for nodes that indicate a suggested change to content.
+$comment: |
+  This is an abstract base type used in Stencila Schema for suggested document changes.
+
+  It exists to represent proposed edits as first-class nodes that can carry
+  status, feedback, provenance, and original or replacement content. This
+  supports review and model-assisted editing workflows that need suggestions to
+  persist within the document model.
+
+  Key properties include the suggestion `suggestionType`, `status`, and any
+  associated feedback or authorship metadata.
 core:
   - suggestionType
   - suggestionStatus

@@ -3,8 +3,16 @@ title: ThematicBreak
 nick: thb
 extends: Entity
 category: prose
-description: |
-  A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+description: A thematic break.
+$comment: |
+  This is a block type used in Stencila Schema for thematic or scene breaks, analogous
+  to HTML `<hr>` and Markdown thematic breaks.
+
+  It exists to preserve this structural break as an explicit node within the
+  document model rather than as a formatting artifact.
+
+  This type is mainly useful as a block separator within prose-oriented content
+  models such as [`Block`](./block.md).
 dom:
   elem: hr
 html:

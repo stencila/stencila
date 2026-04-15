@@ -2,7 +2,16 @@ title: NoteType
 '@id': stencila:NoteType
 extends: Enumeration
 category: prose
-description: The type of a `Note` which determines where the note content is displayed within the document.
+description: A category of note placement.
+$comment: |
+  This is an enumeration used in Stencila Schema for note placement and behavior.
+
+  It exists so notes can be rendered and transformed consistently across formats
+  while preserving their semantic role, such as footnotes or endnotes, rather
+  than only their presentation.
+
+  See [`Note.noteType`](./note.md#notetype) for the property that uses this
+  enumeration.
 proptest: {}
 default: Footnote
 anyOf:

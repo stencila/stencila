@@ -2,9 +2,18 @@ title: CitationIntent
 '@id': stencila:CitationIntent
 extends: Enumeration
 category: prose
-description: The type or nature of a citation, both factually and rhetorically.
+description: The rhetorical or factual intent of a citation.
 $comment: |
-  The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).
+  This is an implementation of the Citation Typing Ontology (CiTO)
+  [`CitationAct`](http://www.sparontologies.net/ontologies/cito).
+
+  In Stencila Schema it provides a controlled vocabulary for expressing why one
+  creative work cites another, including factual, rhetorical, and discourse
+  relationships. The values map directly to CiTO terms so that citation intent
+  can be preserved across document formats and linked-data workflows.
+
+  See [`Citation.citationIntent`](./citation.md#citationintent) for the property
+  that uses this enumeration.
 anyOf:
   - const: AgreesWith
     '@id': cito:agreesWith

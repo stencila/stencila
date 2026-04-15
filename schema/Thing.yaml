@@ -3,6 +3,17 @@ title: Thing
 extends: Entity
 category: other
 description: The most generic type of item.
+$comment: |
+  This is an implementation of schema.org [`Thing`](https://schema.org/Thing).
+
+  In Stencila Schema it provides the common base for schema.org-derived entities
+  such as people, organizations, creative works, products, and related
+  metadata-bearing types. Stencila keeps the broadly interoperable schema.org
+  core while integrating it with the node and document infrastructure inherited
+  through [`Entity`](./entity.md).
+
+  Key properties include `name`, `alternateNames`, `description`, `identifiers`,
+  `images`, and `url`.
 properties:
   alternateNames:
     "@id": schema:alternateName

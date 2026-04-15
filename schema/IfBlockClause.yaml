@@ -4,6 +4,17 @@ nick: ibc
 extends: CodeExecutable
 category: flow
 description: A clause within an `IfBlock` node.
+$comment: |
+  This is an executable clause used in Stencila Schema within an
+  [`IfBlock`](./if-block.md).
+
+  It exists to represent each condition-and-content pair as a first-class node
+  with its own executable state, rather than flattening conditional logic into
+  unstructured text. This supports better tooling, provenance, and execution
+  diagnostics.
+
+  Key properties include the conditional expression, clause `content`, and
+  inherited execution properties from [`CodeExecutable`](./code-executable.md).
 status: beta
 markdown:
   derive: false

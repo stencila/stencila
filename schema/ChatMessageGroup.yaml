@@ -5,6 +5,16 @@ extends: Entity
 category: works
 status: beta
 description: A group of messages, usually alternative model messages, within a `Chat`.
+$comment: |
+  This is a container type used in Stencila Schema for grouping related chat messages.
+
+  It is primarily used to represent alternative or parallel model responses
+  within a [`Chat`](./chat.md), allowing interfaces and workflows to preserve
+  branching conversational outcomes. This makes comparison, selection, and
+  review of alternative responses part of the document model itself.
+
+  Key properties identify the grouped messages and any metadata used to
+  distinguish alternatives.
 patch:
   applyWith: ChatMessageGroup::apply_patch_op
 markdown:

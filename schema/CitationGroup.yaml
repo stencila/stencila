@@ -5,16 +5,15 @@ extends: Entity
 category: prose
 description: A group of `Citation` nodes.
 $comment: |
-  This type allows you to group associated citations together.
-  When some content in a [`CreativeWork`](./creative-work.md) cites more than one
-  reference for a particular piece of text, use a `CitationGroup` to encapsulate
-  multiple [`Citation`](./citation.md) nodes.
+  This is a type used in Stencila Schema for grouped citations.
 
-  At present we do not give a `citationMode` property to a `CitationGroup` since
-  they will almost always be parenthetical as opposed to narrative.
-  In other words, it usually only makes sense for individual `Citation` nodes to be
-  narrative (although they may be connected together within `content` using words
-  such as "and").
+  It exists to represent multiple related [`Citation`](./citation.md) nodes as a
+  single inline unit when the surrounding text cites several references at once.
+  This allows citation processors and renderers to generate a combined rendered
+  form, including ranges and grouping punctuation, while preserving the
+  individual citation items structurally.
+
+  Key properties include `items` and the generated `content` rendering.
 jats:
   special: true
 latex:

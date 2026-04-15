@@ -3,6 +3,16 @@ title: ProvenanceCount
 nick: prc
 extends: Entity
 description: The count of the number of characters in a `ProvenanceCategory` within an entity.
+$comment: |
+  This is a type used in Stencila Schema for summarizing how much content belongs to a
+  provenance category.
+
+  It exists to attach compact provenance summaries to document nodes without
+  repeating provenance annotations on every character or child node. This
+  supports interfaces that report authorship and AI involvement at a glance.
+
+  Key properties include the provenance `category` and the associated character
+  or content count.
 required:
   - provenanceCategory
   - characterCount

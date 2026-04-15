@@ -3,7 +3,18 @@ title: CodeLocation
 nick: cdl
 extends: Entity
 category: flow
-description: The location within some source code.
+description: A location within source code.
+$comment: |
+  This is a type used in Stencila Schema for pointing to a location within source
+  code.
+
+  It exists to support diagnostics, references, provenance, and tooling
+  integrations that need to connect document nodes back to specific code spans.
+  By representing locations structurally, Stencila can preserve this information
+  across serialization and execution workflows.
+
+  Key properties identify the source, range, and positional information for the
+  code span.
 core:
   - source
   - startLine

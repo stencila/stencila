@@ -3,6 +3,16 @@ title: Person
 extends: Thing
 category: other
 description: A person (alive, dead, undead, or fictional).
+$comment: |
+  This is an implementation of schema.org [`Person`](https://schema.org/Person).
+
+  In Stencila Schema it is used for authorship, contribution, contact, and
+  bibliographic metadata while integrating with Stencila Schema role and
+  provenance models. The schema.org model is preserved, with richer contribution
+  semantics often added via [`AuthorRole`](./author-role.md) and related types.
+
+  Key properties are usually inherited from [`Thing`](./thing.md), especially
+  `name`, identifiers, contact details, and affiliations.
 core:
   - orcid
   - affiliations

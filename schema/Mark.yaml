@@ -3,9 +3,17 @@ title: Mark
 extends: Entity
 category: prose
 abstract: true
-description: |
-  Abstract base class for nodes that mark some other inline content
-  in some way (e.g. as being emphasised, or quoted).
+description: An abstract base type for marked inline content.
+$comment: |
+  This is an abstract base type used in Stencila Schema for inline marked content.
+
+  It exists to group inline nodes that wrap other inline content with semantic
+  markup such as emphasis, quotes, annotations, or editorial marks. This allows
+  shared handling of nested inline content and common metadata while keeping
+  specific mark semantics in derived types.
+
+  Key properties usually include wrapped `content`, together with inherited
+  metadata and provenance features from [`Entity`](./entity.md).
 required:
   - content
 properties:

@@ -3,7 +3,18 @@ title: Function
 extends: Entity
 category: flow
 status: experimental
-description: A function with a name, which might take Parameters and return a value of a certain type.
+description: A function signature.
+$comment: |
+  This is a type used in Stencila Schema for describing callable functions in
+  documents and execution contexts.
+
+  It exists to represent function signatures structurally, including parameters
+  and return types, so functions can be documented, exposed to tools, and
+  invoked from executable nodes. This helps bridge document content with
+  computational behavior.
+
+  Key properties include the function `name`, `parameters`, and return-value
+  description.
 required:
   - name
   - parameters

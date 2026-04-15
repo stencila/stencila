@@ -4,6 +4,16 @@ nick: exy
 extends: Entity
 category: flow
 description: An upstream execution dependency of a node.
+$comment: |
+  This is a type used in Stencila Schema for describing an upstream execution
+  dependency of a node.
+
+  It exists to make the inputs and prerequisites of executable nodes explicit in
+  the schema, enabling incremental execution, invalidation, and inspection of
+  execution graphs.
+
+  Key properties identify the dependency node and the relation that explains why
+  it is required.
 required:
   - dependencyRelation
   - dependencyType

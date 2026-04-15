@@ -5,9 +5,11 @@ abstract: true
 category: other
 description: Represents additional information about a relationship or property.
 $comment: |
-  For example a `Role` can be used to say that a 'member' role linking some `SportsTeam` 
-  to a player occurred during a particular time period. Or that a `Person`'s 'actor' role in a `Movie`
-  was for some particular `characterName`. Such properties can be attached to a `Role` entity,
-  which is then associated with the main entities using ordinary properties like 'member' or 'actor'.
+  This is an implementation of schema.org [`Role`](https://schema.org/Role).
 
-  See http://blog.schema.org/2014/06/introducing-role.html.
+  It provides a way to attach additional metadata to a relationship between two
+  entities, such as a contribution role, time span, or contextual label. In
+  Stencila Schema it mainly serves as a base for more specific role types such
+  as [`AuthorRole`](./author-role.md).
+
+  See the derived role types for the main Stencila Schema uses of this model.

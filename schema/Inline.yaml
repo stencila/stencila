@@ -2,6 +2,17 @@ title: Inline
 "@id": stencila:Inline
 category: prose
 description: Union type for valid inline content.
+$comment: |
+  This is a union type used in Stencila Schema for inline content.
+
+  It brings together the node types that can appear within prose content,
+  analogous to inline-content unions in HTML, Markdown ASTs, and other document
+  models. The union allows Stencila to mix text, marks, citations, code, math,
+  media, and executable inline elements within a single typed model.
+
+  Use this type to understand what can appear in inline `content` arrays such as
+  those on [`Paragraph`](./paragraph.md), [`Heading`](./heading.md), and other
+  prose nodes.
 default: Text
 proptest: {}
 anyOf:

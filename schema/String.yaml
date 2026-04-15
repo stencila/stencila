@@ -2,4 +2,16 @@ title: String
 '@id': schema:Text
 category: data
 description: A value comprised of a string of characters.
+$comment: |
+  This is an implementation of schema.org [`Text`](https://schema.org/Text),
+  exposed in Stencila Schema as `String` for consistency with common programming
+  and data models.
+
+  Stencila uses a dedicated primitive node so string values can participate in
+  validation, serialization, and data-oriented workflows alongside other
+  primitive node types. The rename emphasizes its role as a primitive value
+  rather than rich inline text content.
+
+  See also [`Cord`](./cord.md) for character-sequence content and
+  [`Primitive`](./primitive.md) for the enclosing union.
 type: string

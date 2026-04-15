@@ -5,11 +5,17 @@ extends: CreativeWork
 category: works
 description: An agent skill providing instructions for AI agents.
 $comment: |
-  An implementation of the [Agent Skills Specification](https://agentskills.io/specification).
-  A skill is a directory containing a `SKILL.md` file with YAML frontmatter and a Markdown body
-  that provides instructions for AI agents. Skills support progressive disclosure: metadata
-  (~100 tokens) is loaded at startup, full instructions on activation, and referenced files
-  on demand.
+  This is an implementation of the [Agent Skills
+  Specification](https://agentskills.io/specification).
+
+  In Stencila Schema it represents a reusable skill package for AI agents,
+  modeled as a creative work with structured metadata, instructions, and tool
+  constraints. Stencila uses this type to describe skills that can be discovered
+  cheaply from summary metadata and then expanded into full instructions when the
+  skill is activated.
+
+  Key properties include `name`, `frontmatter`, `content`, `compatibility`, and
+  `allowedTools`.
 markdown:
   derive: false
 required:

@@ -4,9 +4,15 @@ extends: Entity
 category: prose
 description: A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 $comment: |
-  A `Citation` node is used within a [`CreativeWork`](./creative-work.md), usually an
-  [`Article`](./article.md), to refer to an other `CreativeWork`.
-  Often a `Citation` will be associated with other citations, in a `CitationGroup`.
+  This is a type used in Stencila Schema for in-text citations of creative works.
+
+  It exists to represent a citation as a structured inline node that can be
+  resolved, rendered according to a document's citation style, and enriched with
+  rhetorical intent and pagination metadata. Unlike a plain text reference, it
+  can preserve both the citation target and its rendered form.
+
+  Key properties include `target`, `cites`, `citationMode`,
+  `citationIntent`, `content`, and any page or suffix metadata.
 jats:
   special: true
 latex:

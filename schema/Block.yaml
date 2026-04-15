@@ -1,7 +1,19 @@
 title: Block
 "@id": stencila:Block
 category: prose
-description: Union type in block content node types.
+description: A union type for block content.
+$comment: |
+  This is a union type used in Stencila Schema for block-level document content.
+
+  It brings together the node types that can appear where a document model
+  expects block structure, similar to block-content unions in Markdown, HTML,
+  JATS, and other document ASTs. The union is central to Stencila's ability to
+  mix prose, code, figures, tables, instructions, and executable content within
+  one document model.
+
+  Use this type to understand what can appear in `content` arrays on document
+  and container nodes such as [`Article`](./article.md),
+  [`Section`](./section.md), and [`Figure`](./figure.md).
 default: Paragraph
 proptest: {}
 anyOf:

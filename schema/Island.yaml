@@ -3,6 +3,16 @@ title: Island
 extends: Entity
 category: other
 description: An island of content in a document.
+$comment: |
+  This is a type used in Stencila Schema for an isolated region of document content.
+
+  It exists to represent content that is handled with its own compilation,
+  rendering, or interaction boundary while still remaining inside the broader
+  document model. This is useful for embedded applications, custom renderers, or
+  sandboxed content regions.
+
+  Key properties describe the island content, source, and any execution or
+  rendering context associated with it.
 latex:
   derive: false
 proptest: {}

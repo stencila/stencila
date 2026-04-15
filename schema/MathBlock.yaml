@@ -4,6 +4,17 @@ nick: mtb
 extends: Math
 category: math
 description: A block of math, e.g an equation, to be treated as block content.
+$comment: |
+  This is a block representation used in Stencila Schema for mathematical
+  content.
+
+  It extends [`Math`](./math.md) for displayed equations and other block-level
+  mathematical expressions. This allows block math to share common math
+  semantics while being rendered and serialized appropriately for block
+  contexts.
+
+  Key properties are inherited from [`Math`](./math.md), especially the source
+  math code, language or format, and compilation-related metadata.
 dom:
   derive: false
 html:

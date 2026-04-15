@@ -4,10 +4,17 @@ nick: cla
 status: experimental
 extends: Parameter
 category: flow
-description: The value of a `Parameter` to call a document with.
+description: An argument used when calling a document.
 $comment: |
-  A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
-  an expression to be used to set the value of the parameter.
+  This is an executable type used in Stencila Schema for arguments passed to a
+  [`CallBlock`](./call-block.md).
+
+  It extends [`Parameter`](./parameter.md) with executable code so an argument's
+  value can be computed dynamically rather than supplied only as a static value.
+  This supports parameterized document calls and reusable document components.
+
+  Key properties include the argument `name`, `code`, `value`, and
+  `programmingLanguage`.
 markdown:
   derive: false
 proptest: {}

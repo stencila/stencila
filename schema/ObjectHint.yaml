@@ -3,7 +3,19 @@ title: ObjectHint
 nick: obh
 extends: Entity
 category: data
-description: A hint to the structure of an `Object`.
+description: A concise summary of the structure of an `Object`.
+$comment: |
+  This is a type used in Stencila Schema for providing a concise summary of the
+  structure of an [`Object`](./object.md).
+
+  It exists to support both human and machine understanding of keyed data,
+  including schema inference, editing assistance, and code generation
+  workflows. Rather than imposing hard validation constraints, it summarizes
+  observed or inferred characteristics that can help tools and readers work with
+  object-shaped data.
+
+  Key properties describe expected keys, per-key hints, and overall object
+  characteristics.
 required:
   - length
   - keys

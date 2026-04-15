@@ -5,9 +5,15 @@ extends: Entity
 category: prose
 description: A block containing inlines with no other semantics.
 $comment: |
-  Similar in structure to a `Paragraph` but displayed without newline or other spacing around it.
-  Used when decoding content with the `--coarse` option to encapsulate executable inlines without
-  creating a new paragraph.
+  This is a block type used in Stencila Schema for inline content without paragraph
+  semantics.
+
+  It exists to wrap inline content as a block when a container requires block
+  structure but a full paragraph would introduce misleading semantics or
+  spacing. It is especially useful during coarse decoding and similar workflows
+  that need a minimal block wrapper around executable inline content.
+
+  Key properties include the inline `content`.
 required:
   - content
 properties:

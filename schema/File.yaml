@@ -3,6 +3,18 @@ title: File
 extends: CreativeWork
 category: works
 description: A file on the file system.
+$comment: |
+  This is a representation used in Stencila Schema for a file in the local or
+  accessible file system.
+
+  It extends [`CreativeWork`](./creative-work.md) so files can participate in
+  the same metadata-rich document model as other works, while also carrying
+  file-oriented information needed for includes, references, and workflow
+  operations. It is used where the file itself is part of the document graph,
+  not just a string path.
+
+  Key properties include file path and media metadata, together with inherited
+  identifiers and descriptive fields from [`CreativeWork`](./creative-work.md).
 required:
   - name
   - path

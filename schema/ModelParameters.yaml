@@ -3,6 +3,17 @@ title: ModelParameters
 nick: mdp
 extends: Entity
 description: Model selection and inference parameters for generative AI models.
+$comment: |
+  This is a type used in Stencila Schema for selecting and configuring generative AI
+  models.
+
+  It exists to make model choice and inference settings part of the document
+  model, so prompts, chats, and instructions can be reproduced and inspected
+  rather than depending on hidden runtime configuration. This supports
+  transparent and portable AI-assisted workflows.
+
+  Key properties include model identity, provider-specific settings, and
+  inference controls such as temperature and token limits.
 markdown:
   derive: false
 core:

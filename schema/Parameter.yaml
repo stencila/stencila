@@ -3,7 +3,16 @@ title: Parameter
 extends: Executable
 category: flow
 status: under-development
-description: A parameter of a document.
+description: A document parameter.
+$comment: |
+  This is an executable type used in Stencila Schema for document parameters.
+
+  It extends [`Executable`](./executable.md) so parameters can carry validation,
+  derivation, and execution-related behavior instead of being treated as passive
+  metadata. This makes them suitable for interactive and reproducible documents.
+
+  Key properties include the parameter name, value, validator, derivation logic,
+  and inherited execution metadata.
 jats:
   elem: parameter
 html:

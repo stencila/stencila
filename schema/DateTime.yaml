@@ -4,6 +4,17 @@ nick: dti
 extends: Entity
 category: data
 description: A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.
+$comment: |
+  This is an implementation of schema.org
+  [`DateTime`](https://schema.org/DateTime).
+
+  In Stencila Schema it is represented as a typed node so combined date-time
+  values can be validated, serialized, and attached to document metadata and
+  execution events. This is especially useful where timestamps need to remain
+  distinct from plain strings.
+
+  See also [`Date`](./date.md), [`Time`](./time.md), and
+  [`Timestamp`](./timestamp.md).
 jats:
   elem: date-time
   special: true

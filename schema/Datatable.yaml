@@ -4,6 +4,17 @@ nick: dtb
 extends: CreativeWork
 category: data
 description: A table of data.
+$comment: |
+  This is a type used in Stencila Schema for column-oriented tabular data.
+
+  Although it is conceptually related to schema.org tables, it is modeled
+  separately to support typed columns, data hints, and data-oriented workflows
+  distinct from presentation-first tables. This makes it suitable for executable
+  documents, data inspection, validation, and transformations between tabular
+  and analytical representations.
+
+  Key properties include `columns`, `caption`, `notes`, and optional labeling
+  metadata inherited from [`CreativeWork`](./creative-work.md).
 dom:
   derive: false
 markdown:

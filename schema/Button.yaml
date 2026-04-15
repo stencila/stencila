@@ -3,7 +3,19 @@ title: Button
 extends: CodeExecutable
 category: flow
 status: experimental
-description: A button.
+description: An interactive button.
+$comment: |
+  This is an executable type used in Stencila Schema for interactive button controls
+  embedded in documents.
+
+  It extends [`CodeExecutable`](./code-executable.md) so button activation can
+  trigger execution behavior while still participating in the document node
+  model. This allows published or interactive documents to expose lightweight
+  actions without requiring a separate application UI.
+
+  Key properties are primarily inherited from
+  [`CodeExecutable`](./code-executable.md), including execution configuration,
+  code, and outputs.
 html:
   elem: button
 required:

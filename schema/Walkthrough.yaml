@@ -3,7 +3,18 @@ title: Walkthrough
 nick: wkt
 extends: Entity
 category: flow
-description: An interactive walkthrough made up of several, successively revealed steps.
+description: An interactive walkthrough.
+$comment: |
+  This is a type used in Stencila Schema for interactive walkthroughs embedded in
+  documents.
+
+  It exists to support guided, stepwise experiences for readers and authors,
+  with each step represented as structured document content rather than external
+  application logic. This makes walkthroughs portable across Stencila tools and
+  publishable outputs.
+
+  Key properties include the ordered `steps` and any metadata controlling
+  progression or presentation.
 status: beta
 patch:
   applyWith: "Walkthrough::apply_with"

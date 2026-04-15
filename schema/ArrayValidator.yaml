@@ -4,6 +4,16 @@ nick: arv
 extends: Entity
 category: data
 description: A validator specifying constraints on an array node.
+$comment: |
+  This is a type used in Stencila Schema for validating [`Array`](./array.md) nodes.
+
+  It adapts ideas from JSON Schema array validation to Stencila's node-based
+  data model, allowing constraints to be expressed over arrays of primitive
+  values and other node types. This makes it suitable for document parameters,
+  forms, and structured data checks.
+
+  Key properties describe item validators, tuple-like validation, and size
+  constraints.
 markdown:
   derive: false
 core:

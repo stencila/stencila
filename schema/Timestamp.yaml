@@ -4,6 +4,17 @@ nick: tst
 extends: Entity
 category: data
 description: A value that represents a point in time.
+$comment: |
+  This is a temporal type used in Stencila Schema for exact points in time.
+
+  Although analogous to date-time concepts elsewhere, it exists separately in
+  Stencila Schema because timestamps are heavily used for execution events,
+  provenance, and document modification tracking. Modeling them explicitly
+  clarifies their role as event times rather than general-purpose date-time
+  metadata.
+
+  See properties such as `executionEnded`, `lastModified`, and other
+  timestamp-bearing metadata throughout the schema.
 jats:
   elem: timestamp
   special: true

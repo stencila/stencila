@@ -3,6 +3,16 @@ title: AuthorRole
 extends: Role
 category: works
 description: An author and their role.
+$comment: |
+  This is a Stencila Schema specialization of schema.org
+  [`Role`](https://schema.org/Role) for authorship.
+
+  It exists to represent not just who contributed to a work, but how they
+  contributed and in what format or editing context. This supports richer
+  provenance, attribution, and contribution tracking than a flat list of authors
+  alone.
+
+  Key properties include `author`, `roleName`, `format`, and `lastModified`.
 dom:
   derive: false
 required:

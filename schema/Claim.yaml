@@ -3,11 +3,17 @@ title: Claim
 nick: clm
 extends: CreativeWork
 category: works
-description: A claim represents specific reviewable facts or statements.
+description: A reviewable claim or statement.
 $comment: |
-  Usually displayed as a block element and can have a label and title.
-  In the context of a scholarly article this could be a theorem or proof.
-  See also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).
+  This is an implementation of schema.org [`Claim`](https://schema.org/Claim),
+  adapted in Stencila Schema for block-level document content.
+
+  It is used for claim-like units that authors, reviewers, and readers may want
+  to identify, label, or assess explicitly, such as assertions, theorems,
+  propositions, or proofs. Unlike a plain paragraph, a claim can carry a claim
+  type, structured block content, and document-oriented labeling metadata.
+
+  Key properties include `claimType`, `label`, and `content`.
 jats:
   elem: statement
 markdown:

@@ -2,7 +2,18 @@ title: IncludeBlock
 '@id': stencila:IncludeBlock
 extends: Executable
 category: flow
-description: Include block content from an external source (e.g. file, URL).
+description: A block that includes content from an external source.
+$comment: |
+  This is an executable type used in Stencila Schema for including content from another
+  resource or document.
+
+  It extends [`Executable`](./executable.md) so inclusion can participate in
+  compilation, dependency tracking, and re-execution rather than being a
+  one-time text substitution. This is useful for modular documents and generated
+  content.
+
+  Key properties include the include target, selection or transformation
+  settings, and inherited execution metadata.
 status: beta
 latex:
   derive: false

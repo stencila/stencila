@@ -2,7 +2,16 @@ title: ExecutionBounds
 '@id': stencila:ExecutionBounds
 extends: Enumeration
 category: flow
-description: The bounds placed on the execution of a document node.
+description: A boundary for node execution.
+$comment: |
+  This is an enumeration used in Stencila Schema for limits placed on node execution.
+
+  It exists to let Stencila describe how far execution should proceed in a
+  document or workflow context, using a stable controlled vocabulary instead of
+  ad hoc flags. This is useful for user interfaces, execution planning, and
+  reproducible automation.
+
+  See the execution control properties that reference this enumeration.
 default: Main
 anyOf:
   - const: Main

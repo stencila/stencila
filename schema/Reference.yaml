@@ -3,6 +3,16 @@ title: Reference
 extends: Entity
 category: works
 description: A reference to a creative work, including books, movies, photographs, software programs, etc.
+$comment: |
+  This is a type used in Stencila Schema for references to creative works.
+
+  It exists to represent bibliographic entries and related reference metadata in
+  a structured way that can be cited, rendered, and transformed across formats.
+  It is distinct from [`Citation`](./citation.md), which represents an in-text
+  reference occurrence.
+
+  Key properties include the referenced work metadata and identifiers used for
+  linking citations to entries.
 markdown:
   derive: false
 core:

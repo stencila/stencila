@@ -3,7 +3,18 @@ title: ArrayHint
 nick: arh
 extends: Entity
 category: data
-description: A hint to the content of an `Array`.
+description: A concise summary of the values and structure of an `Array`.
+$comment: |
+  This is a type used in Stencila Schema for providing a concise summary of the values
+  and structure of an [`Array`](./array.md).
+
+  It exists to support both human and machine understanding of array data,
+  including schema inference, user-interface hints, and code generation
+  workflows. Rather than constraining data directly, it summarizes observed or
+  inferred characteristics that can guide inspection, editing, and downstream
+  uses such as selecting visualization strategies for large datasets.
+
+  Key properties describe item-level hints and observed array characteristics.
 required:
   - length
 core:

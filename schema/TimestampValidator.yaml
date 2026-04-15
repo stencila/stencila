@@ -4,6 +4,14 @@ nick: tsv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a timestamp.
+$comment: |
+  This is a type used in Stencila Schema for validating [`Timestamp`](./timestamp.md)
+  nodes.
+
+  It exists so event times used in execution and provenance workflows can be
+  constrained in the same validator framework as other temporal values.
+
+  Key properties define allowable timestamp ranges and related constraints.
 markdown:
   derive: false
 core:

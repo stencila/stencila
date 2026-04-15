@@ -4,6 +4,15 @@ nick: duv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a duration.
+$comment: |
+  This is a type used in Stencila Schema for validating [`Duration`](./duration.md)
+  nodes.
+
+  It exists so document parameters and structured data can express constraints
+  over durations in the same typed validator system used for other primitives.
+  This is useful for execution settings, time limits, and data validation.
+
+  Key properties define minimum, maximum, and related duration constraints.
 markdown:
   derive: false
 core:

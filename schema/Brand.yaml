@@ -3,6 +3,16 @@ title: Brand
 extends: Thing
 category: other
 description: A brand used by an organization or person for labeling a product, product group, or similar.
+$comment: |
+  This is an implementation of schema.org [`Brand`](https://schema.org/Brand).
+
+  In Stencila Schema it is used as structured metadata on products,
+  organizations, and related entities while remaining interoperable with the
+  schema.org vocabulary. It mainly serves bibliographic and descriptive use
+  cases rather than introducing document-specific behavior of its own.
+
+  Key properties are generally inherited from [`Thing`](./thing.md), especially
+  `name`, `description`, identifiers, and URLs.
 required:
   - name
 properties:

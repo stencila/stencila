@@ -4,6 +4,17 @@ nick: img
 extends: MediaObject
 category: works
 description: An image file.
+$comment: |
+  This is an implementation of schema.org
+  [`ImageObject`](https://schema.org/ImageObject).
+
+  In Stencila Schema it is used both as media metadata and as rendered document
+  content, often within figures, annotations, and rich inline content. It
+  inherits file and media capabilities from [`MediaObject`](./media-object.md)
+  while fitting naturally into Stencila's document node model.
+
+  Key properties are usually inherited from [`MediaObject`](./media-object.md),
+  especially content location, media type, dimensions, and descriptive text.
 dom:
   derive: false
 html:

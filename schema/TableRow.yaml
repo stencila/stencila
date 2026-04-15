@@ -4,6 +4,13 @@ nick: tbr
 extends: Entity
 category: works
 description: A row within a Table.
+$comment: |
+  This is a type used in Stencila Schema for rows within a [`Table`](./table.md).
+
+  It exists to represent row structure explicitly so header, body, and footer
+  semantics can be preserved across transformations and renderers.
+
+  Key properties include the row `cells` and `rowType`.
 dom:
   derive: false
 jats:

@@ -3,9 +3,16 @@ title: PublicationIssue
 nick: pbi
 extends: CreativeWork
 category: works
-description: |
-  A part of a successively published publication such as a periodical or publication
-  volume, often numbered.
+description: A publication issue.
+$comment: |
+  This is an implementation of schema.org
+  [`PublicationIssue`](https://schema.org/PublicationIssue).
+
+  It is used for periodical and scholarly publication metadata while fitting
+  into Stencila's broader creative-work model.
+
+  Key properties include `issueNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
+  `pagination`.
 core:
   - isPartOf
   - issueNumber

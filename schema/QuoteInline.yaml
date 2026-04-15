@@ -4,6 +4,15 @@ nick: qti
 extends: Mark
 category: prose
 description: Inline, quoted content.
+$comment: |
+  This is an inline mark type used in Stencila Schema for quoted content.
+
+  It extends [`Mark`](./mark.md) so short quotations within prose can be
+  represented structurally and serialized consistently across formats, rather
+  than relying only on punctuation.
+
+  Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+  inline `content`.
 jats:
   # Note that this is not a JATS standard element but we use it to
   # enable roundtrip testing (stripping `Quote` nodes does not work

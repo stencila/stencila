@@ -3,6 +3,15 @@ title: TimeUnit
 extends: Enumeration
 category: data
 description: A unit in which time can be measured.
+$comment: |
+  This is an enumeration used in Stencila Schema for units of time.
+
+  It exists to provide a controlled vocabulary for time-based quantities and
+  durations where Stencila needs symbolic units rather than free-text
+  abbreviations.
+
+  See properties on duration- and time-related types that reference this
+  enumeration.
 default: Millisecond
 proptest: {}
 anyOf:

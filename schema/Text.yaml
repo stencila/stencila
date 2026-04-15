@@ -3,15 +3,17 @@ title: Text
 nick: txt
 extends: Entity
 category: prose
-description: Textual content.
+description: A text node.
 $comment: |
-  Intended mostly for use for inline text e.g. the text in a paragraph.
+  This is an implementation of schema.org [`Text`](https://schema.org/Text),
+  adapted in Stencila Schema as a node type rather than a primitive string.
 
-  Differs from the primitive `String` type in that it has a `type` and `id` property.
-  The `id` property allows use to identify text nodes with a sequence of inline nodes
-  for better diffing.
+  It exists so textual content can participate in the document tree with its own
+  identity and metadata, which is useful for diffing, editing, and collaborative
+  workflows. This differs from the primitive [`String`](./string.md) type, which
+  represents plain scalar string values outside the node model.
 
-  Also, in Rust, the `value` property is implemented as a CRDT.
+  The main property is `value`.
 dom:
   derive: false
 html:

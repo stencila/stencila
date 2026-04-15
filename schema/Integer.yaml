@@ -1,5 +1,15 @@
 title: Integer
 '@id': schema:Integer
 category: data
-description: A value that is a integer.
+description: An integer value.
+$comment: |
+  This is an implementation of schema.org
+  [`Integer`](https://schema.org/Integer).
+
+  In Stencila Schema it is represented as a primitive node so integer values can
+  be typed, validated, and serialized consistently across document metadata,
+  parameters, and data structures.
+
+  See also [`Number`](./number.md) and
+  [`UnsignedInteger`](./unsigned-integer.md).
 type: integer

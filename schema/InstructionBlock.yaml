@@ -4,6 +4,16 @@ nick: isb
 extends: Instruction
 category: edits
 description: An instruction to edit some block content.
+$comment: |
+  This is a block-level instruction type used in Stencila Schema.
+
+  It extends [`Instruction`](./instruction.md) for editing or generating block
+  content within a document. By distinguishing block-level instructions from
+  inline ones, Stencila can apply different targeting, rendering, and suggestion
+  behaviors while reusing the common instruction model.
+
+  Key properties are mostly inherited from [`Instruction`](./instruction.md),
+  with semantics focused on block-content targets and suggestions.
 patch:
   derive: false
 dom:

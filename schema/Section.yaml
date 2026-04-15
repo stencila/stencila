@@ -3,6 +3,17 @@ title: Section
 extends: Entity
 category: prose
 description: A section of a document.
+$comment: |
+  This is a type used in Stencila Schema for document sections, analogous to section
+  containers in HTML, JATS, and other structured document models.
+
+  It exists to group block content under headings while carrying structured
+  metadata, authorship, and provenance. Unlike a plain heading hierarchy
+  inferred from text alone, explicit sections allow more reliable transformation
+  and editing workflows.
+
+  Key properties include `sectionType`, `title`, and `content`, together with
+  inherited metadata from [`Entity`](./entity.md).
 jats:
   elem: sec
 html:

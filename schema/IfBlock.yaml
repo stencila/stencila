@@ -2,7 +2,18 @@ title: IfBlock
 '@id': stencila:IfBlock
 extends: Executable
 category: flow
-description: Show and execute alternative content conditional upon an executed expression.
+description: A block that conditionally shows and executes alternative content.
+$comment: |
+  This is an executable control-flow block used in Stencila Schema for conditional
+  content.
+
+  It extends [`Executable`](./executable.md) so alternative blocks of document
+  content can be selected and executed based on evaluated conditions. This
+  allows dynamic document structure while preserving a typed, inspectable node
+  model.
+
+  Key properties include the ordered clauses and inherited execution state used
+  to determine and record the selected branch.
 status: beta
 latex:
   derive: false

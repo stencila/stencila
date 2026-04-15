@@ -4,14 +4,16 @@ extends: Thing
 category: other
 description: A contact point, usually within an organization.
 $comment:
-  This is an implementation of schema.org [`ContactPoint`](https://schema.org/ContactPoint).
-  It extends schema.org `ContactPoint` by, adding a `content` property which must be
-  an array of [`Block`](./block.md), as well as the properties added by
-  [`CreativeWork`](./creative-work.md) which it extends.
+  This is an implementation of schema.org
+  [`ContactPoint`](https://schema.org/ContactPoint), adapted in Stencila Schema
+  for structured contact metadata.
 
-  `ContactPoint` is analogous, and structurally similar to, the JATS XML
-  [`<corresp>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/corresp.html) element
-  and the HTML5 [`<address>`](https://dev.w3.org/html5/html-author/#the-address-element) element.
+  It is used for correspondence and contact details associated with people,
+  organizations, and related entities, while fitting into Stencila's broader
+  node model.
+
+  Key properties include `emails`, `telephoneNumbers`, and
+  `availableLanguages`.
 core:
   - emails
   - telephoneNumbers

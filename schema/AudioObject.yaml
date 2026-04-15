@@ -3,6 +3,17 @@ title: AudioObject
 extends: MediaObject
 category: works
 description: An audio file.
+$comment: |
+  This is an implementation of schema.org
+  [`AudioObject`](https://schema.org/AudioObject).
+
+  In Stencila Schema it is used as inline or block media within executable and
+  publishable documents, inheriting media metadata and file-location
+  capabilities from [`MediaObject`](./media-object.md). This makes audio usable
+  not only as linked metadata but also as rendered document content.
+
+  Key properties are usually inherited from [`MediaObject`](./media-object.md),
+  especially those describing content URLs, media type, and alternate text.
 dom:
   derive: false
 html:

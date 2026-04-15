@@ -4,6 +4,18 @@ nick: cdb
 extends: CodeStatic
 category: code
 description: A code block.
+$comment: |
+  This is a block representation used in Stencila Schema for non-executable
+  code.
+
+  It extends [`CodeStatic`](./code-static.md) for code that should be displayed
+  and preserved as document content without normal execution semantics. Stencila
+  also adds optional demo compilation behavior so some static code blocks can
+  render derived content while remaining distinct from executable code chunks.
+
+  Key properties are inherited from [`CodeStatic`](./code-static.md), with
+  Stencila Schema behavior centered on `isDemo`, `content`, and the associated
+  compilation properties.
 dom:
   derive: false
 html:

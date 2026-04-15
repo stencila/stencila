@@ -2,14 +2,16 @@ title: Note
 '@id': stencila:Note
 extends: Entity
 category: prose
-description: Additional content which is not part of the main content of a document.
+description: A note associated with document content.
 $comment: |
-  A note is usually associated with a word or paragraph using a number or other symbol. 
-  It can be displayed as a footnote, endnote, or side note, or in interactive elements.
-  For analogues, see 
-  - [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
-  - [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
-  - [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
+  This is a type used in Stencila Schema for notes attached to document content.
+
+  It exists to represent note content structurally so it can be rendered as a
+  footnote, endnote, sidenote, or similar document note, depending on the target
+  format and note type. This preserves note semantics across transformations
+  rather than reducing them to plain text markers.
+
+  Key properties include `noteType` and `content`.
 jats:
   elem: fn
   attrs:

@@ -3,7 +3,18 @@ title: DatatableHint
 nick: dth
 extends: Entity
 category: data
-description: A hint to the structure of a table of data.
+description: A concise summary of the structure of a table of data.
+$comment: |
+  This is a type used in Stencila Schema for providing a concise summary of the
+  structure of a [`Datatable`](./datatable.md).
+
+  It exists to support both human and machine understanding of tabular data,
+  including schema inference, import workflows, user interfaces, and code
+  generation workflows such as choosing suitable visualizations for large
+  datasets. Unlike validators, it summarizes observed or inferred structure
+  rather than enforcing it.
+
+  Key properties include per-column hints and dataset-level observations.
 required:
   - rows
   - columns

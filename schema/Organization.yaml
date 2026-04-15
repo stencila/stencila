@@ -4,7 +4,15 @@ extends: Thing
 category: other
 description: An organization such as a school, NGO, corporation, club, etc.
 $comment: |
-  This is an implementation of schema.org [`Organization`](https://schema.org/Organization).
+  This is an implementation of schema.org
+  [`Organization`](https://schema.org/Organization).
+
+  In Stencila Schema it is used for affiliations, funders, publishers,
+  maintainers, and other organization-level metadata while integrating with
+  richer author-role and provenance models.
+
+  Key properties include `ror`, `address`, `brands`, `contactPoints`, and
+  inherited metadata from [`Thing`](./thing.md).
 jats:
   elem: institution
 core:

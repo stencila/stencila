@@ -3,11 +3,18 @@ title: Agent
 nick: agt
 extends: CreativeWork
 category: works
-description: An agent definition specifying model, tools, and behavioral configuration.
+description: An AI agent definition.
 $comment: |
-  An agent is a directory containing an `AGENT.md` file with YAML frontmatter and an optional
-  Markdown body providing system instructions. Agents are discovered from two locations:
-  workspace `.stencila/agents/` and user config `~/.config/stencila/agents/`.
+  This is a type used in Stencila Schema for reusable AI agent definitions.
+
+  It exists to represent an agent as a document-like artifact that combines
+  metadata, model and provider preferences, tool and skill permissions, and an
+  optional Markdown body of system instructions. Agents are discovered from
+  workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`,
+  allowing shared project agents and personal agent configurations to coexist.
+
+  Key properties include `name`, `models`, `providers`, `allowedSkills`,
+  `allowedTools`, and `content`.
 markdown:
   derive: false
 required:

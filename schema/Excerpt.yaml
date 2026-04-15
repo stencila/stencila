@@ -3,6 +3,17 @@ title: Excerpt
 nick: exc
 extends: Entity
 description: An excerpt from a `CreativeWork`.
+$comment: |
+  This is a type used in Stencila Schema for representing an excerpt from another
+  creative work.
+
+  It exists to preserve the distinction between quoted or extracted material and
+  original document content, while allowing references back to the source work.
+  This is useful in research, review, and annotation workflows where excerpts
+  need structured attribution.
+
+  Key properties include the excerpted `content` and links to the source work or
+  location.
 markdown:
   derive: false
 required:

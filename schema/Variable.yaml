@@ -3,7 +3,18 @@ title: Variable
 extends: Entity
 category: flow
 status: alpha
-description: A variable representing a name / value pair.
+description: A named value.
+$comment: |
+  This is a type used in Stencila Schema for named values in executable and structured
+  content.
+
+  It exists to pair a symbolic name with a value within the document model,
+  supporting computation, templating, and data exchange workflows. Representing
+  variables structurally makes them easier to inspect, validate, and serialize
+  than ad hoc key-value text.
+
+  Key properties include the variable `name` and `value`, along with any
+  associated metadata or hints.
 required:
   - name
 core:

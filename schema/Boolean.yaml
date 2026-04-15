@@ -2,4 +2,14 @@ title: Boolean
 '@id': schema:Boolean
 category: data
 description: A value that is either true or false.
+$comment: |
+  This is an implementation of schema.org
+  [`Boolean`](https://schema.org/Boolean).
+
+  In Stencila Schema it is represented as a primitive node so boolean values can
+  participate in the same typed, serializable, and validatable document model as
+  richer document content. This makes booleans usable in structured data,
+  parameters, forms, and execution state.
+
+  See also the broader primitive unions such as [`Primitive`](./primitive.md).
 type: boolean

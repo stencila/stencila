@@ -4,6 +4,16 @@ nick: dtv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a date-time.
+$comment: |
+  This is a type used in Stencila Schema for validating [`DateTime`](./date-time.md)
+  nodes.
+
+  It adapts common date-time constraint patterns to Stencila's node model so
+  document parameters and structured data can require well-formed date-time
+  values within specified bounds. This supports forms, configuration, and data
+  validation workflows.
+
+  Key properties define allowed ranges, formats, and related constraints.
 markdown:
   derive: false
 core:

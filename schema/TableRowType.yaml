@@ -2,7 +2,16 @@ title: TableRowType
 '@id': stencila:TableRowType
 extends: Enumeration
 category: works
-description: Indicates whether the row is in the header, body or footer of the table.
+description: The structural role of a table row.
+$comment: |
+  This is an enumeration used in Stencila Schema for the structural role of a table
+  row.
+
+  It exists so rows can be identified as header, body, or footer rows using a
+  stable vocabulary that maps cleanly across formats.
+
+  See [`TableRow.rowType`](./table-row.md#rowtype) for the property that uses
+  this enumeration.
 proptest: {}
 default: BodyRow
 anyOf:

@@ -4,6 +4,17 @@ nick: cdi
 extends: CodeStatic
 category: code
 description: Inline code.
+$comment: |
+  This is an inline representation used in Stencila Schema for non-executable
+  code.
+
+  It extends [`CodeStatic`](./code-static.md) for short code fragments that
+  appear within prose, preserving programming language and other code metadata
+  without adding execution semantics. This keeps inline code aligned with the
+  broader code model used throughout Stencila documents.
+
+  Key properties are primarily inherited from [`CodeStatic`](./code-static.md),
+  especially `code` and `programmingLanguage`.
 dom:
   derive: false
 html:

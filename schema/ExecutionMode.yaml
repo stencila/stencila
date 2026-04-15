@@ -2,7 +2,18 @@ title: ExecutionMode
 '@id': stencila:ExecutionMode
 extends: Enumeration
 category: flow
-description: Under which circumstances a node should be executed.
+description: The circumstances under which a node should be executed.
+$comment: |
+  This is an enumeration used in Stencila Schema controlling when executable nodes
+  should run.
+
+  It exists so execution policy can be represented consistently across code,
+  prompts, forms, and other executable nodes. Using a controlled vocabulary
+  allows tools and renderers to agree on execution behavior without
+  format-specific conventions.
+
+  See [`Executable.executionMode`](./executable.md#executionmode) for the main
+  property that uses this enumeration.
 default: Need
 anyOf:
   - const: Demand

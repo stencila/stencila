@@ -4,7 +4,17 @@ nick: pge
 status: beta
 extends: StyledBlock
 category: style
-description: A separate page in a document
+description: A page in a document.
+$comment: |
+  This is a styled block type used in Stencila Schema for explicit page
+  boundaries.
+
+  It extends [`StyledBlock`](./styled-block.md) so page-oriented content and
+  layout can be represented directly in the document model when pagination
+  matters, such as for print or paged publishing workflows.
+
+  Key properties are inherited from [`StyledBlock`](./styled-block.md), with
+  semantics centered on page-level layout and styling boundaries.
 dom:
   derive: false
 markdown:

@@ -4,6 +4,16 @@ nick: sgi
 extends: Suggestion
 category: edits
 description: Abstract base type for nodes that indicate a suggested change to inline content.
+$comment: |
+  This is an abstract base type used in Stencila Schema for suggestions that operate on
+  inline content.
+
+  It extends [`Suggestion`](./suggestion.md) so fine-grained proposed edits
+  within prose can be represented separately from block-level changes while
+  reusing the common suggestion model.
+
+  Key properties are primarily inherited from [`Suggestion`](./suggestion.md),
+  with semantics centered on inline-content replacements and originals.
 markdown:
   derive: false
 required:

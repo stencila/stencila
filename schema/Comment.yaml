@@ -4,14 +4,19 @@ extends: CreativeWork
 category: works
 markdown:
   derive: false
-description: A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
+description: A comment on an item.
 $comment: |
-  Use the `about` property to define the item that a comment is on and
-  `startLocation`/`endLocation` to identify the region being commented on.
-  The `content` property should be used for the structured content of the
-  comment, in preference to the schema.org `text` property (which is expected to
-  be plain text). Replies to a comment can be added to its `comments` property
-  or have their `parentItem` set to the parent comment.
+  This is an implementation of schema.org
+  [`Comment`](https://schema.org/Comment), adapted in Stencila Schema for
+  structured document review and discussion.
+
+  It is used not only for comments on whole works, but also for comments on
+  specific document regions or code locations. Stencila emphasizes structured
+  block content over plain-text comment bodies and adds explicit location fields
+  to support annotation and review workflows.
+
+  Key properties include `about`, `content`, `startLocation`, `endLocation`, and
+  `parentItem`.
 required:
   - content
 core:

@@ -2,7 +2,20 @@ title: Figure
 '@id': stencila:Figure
 extends: CreativeWork
 category: works
-description: Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+description: A figure.
+$comment: |
+  This is a figure type used in Stencila Schema, analogous to figure containers in
+  HTML, JATS, and scholarly publishing systems.
+
+  It extends [`CreativeWork`](./creative-work.md) so figures can carry rich
+  metadata, authorship, captions, and provenance, while also adding
+  document-oriented support for multi-panel layout and SVG overlays. This makes
+  it suitable for executable and annotated figures, not just static media
+  wrappers.
+
+  Key properties include `content`, `caption`, `label`, `layout`, `padding`, and
+  `overlay`. Additional metadata and provenance features are inherited from
+  [`CreativeWork`](./creative-work.md).
 dom:
   derive: false
 html:

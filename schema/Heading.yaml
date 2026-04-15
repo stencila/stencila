@@ -4,10 +4,14 @@ extends: Entity
 category: prose
 description: A heading.
 $comment: |
-  Analogues of `Heading` in other schemas include:
-    - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)
-    - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)
-    - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
+  This is a type used in Stencila Schema for document headings.
+
+  It exists to represent heading content and hierarchy explicitly, with
+  additional support for document labeling, authorship, and provenance. This
+  makes headings more than presentational text and allows them to participate in
+  sectioning, appendix numbering, and document navigation workflows.
+
+  Key properties include `level`, `content`, `labelType`, and `label`.
 dom:
   derive: false
 jats:

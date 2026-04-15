@@ -4,9 +4,15 @@ extends: Thing
 category: prose
 description: A word, name, acronym, phrase, etc. with a formal definition.
 $comment: |
-  Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.
-  Use the `name` property for the term being defined, use `termCode`. If the term has an alpha-numeric code allocated, use
-  description to provide the definition of the term.
+  This is an implementation of schema.org
+  [`DefinedTerm`](https://schema.org/DefinedTerm).
+
+  In Stencila Schema it is used for terms with explicit definitions or controlled
+  meanings, such as glossary entries, classification terms, subject headings,
+  and named conceptual categories.
+
+  Key properties include `name`, `termCode`, and the inherited `description`
+  field, which is typically used for the term's definition.
 required:
   - name
 properties:

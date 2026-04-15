@@ -3,7 +3,19 @@ title: CodeChunk
 nick: cdc
 extends: CodeExecutable
 category: code
-description: A executable chunk of code.
+description: An executable code chunk.
+$comment: |
+  This is an executable code block used in Stencila Schema, analogous to notebook code
+  cells and executable code fences in other authoring systems.
+
+  It extends [`CodeExecutable`](./code-executable.md) to support execution
+  outputs, captions, automatic labeling, and optional SVG overlays for figures
+  and tables derived from code. This makes code chunks central to literate
+  programming and executable document workflows in Stencila.
+
+  Key properties include `outputs`, `caption`, `labelType`, `label`, `overlay`,
+  and inherited execution properties from
+  [`CodeExecutable`](./code-executable.md).
 dom:
   derive: false
 jats:

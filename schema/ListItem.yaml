@@ -5,14 +5,15 @@ extends: Thing
 category: prose
 description: A single item in a list.
 $comment: |
-  This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).
-  It extends schema.ord `ListItem` by adding `content` and `isChecked` properties.
+  This is an implementation of schema.org
+  [`ListItem`](https://schema.org/ListItem), extended in Stencila Schema for
+  document-oriented list content.
 
-  Analogues of `ListItem` in other schema include:
-    - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)
-    - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)
-    - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)
-    - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)
+  In addition to the schema.org model, it supports block `content` for rich list
+  items and `isChecked` for task-list semantics. This makes it suitable for
+  ordinary prose lists as well as checklists and mixed-content document lists.
+
+  Key properties include `content`, `item`, `isChecked`, and `position`.
 html:
   elem: li
 jats:

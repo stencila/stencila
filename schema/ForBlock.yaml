@@ -3,7 +3,17 @@ title: ForBlock
 nick: frb
 extends: CodeExecutable
 category: flow
-description: Repeat a block content for each item in an array.
+description: A block that repeats content for each item in an array.
+$comment: |
+  This is an executable control-flow block used in Stencila Schema for repetition.
+
+  It extends [`CodeExecutable`](./code-executable.md) so a document can repeat
+  block content for each item in an array while preserving structured execution
+  semantics. This brings loop-like behavior into the document model for dynamic
+  and parameterized content generation.
+
+  Key properties include the iteration source, loop variable binding, repeated
+  `content`, and inherited execution properties.
 status: beta
 latex:
   derive: false

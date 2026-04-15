@@ -4,6 +4,15 @@ nick: tbc
 extends: Entity
 category: works
 description: A cell within a `Table`.
+$comment: |
+  This is a type used in Stencila Schema for cells within a [`Table`](./table.md).
+
+  It exists to represent table structure explicitly, including header and data
+  semantics, alignment, spanning, and cell content, rather than flattening
+  tables into plain text.
+
+  Key properties include the cell `content`, `cellType`, alignment properties,
+  and row or column span metadata.
 dom:
   derive: false
 jats:

@@ -2,24 +2,17 @@ title: CitationMode
 '@id': stencila:CitationMode
 extends: Enumeration
 category: prose
-description: The mode of a `Citation`.
+description: The presentation mode of a citation.
 $comment: |
-  There are two main citation modes: parenthetical and narrative (a.k.a textual).
-  See https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative
-  for an explanation.
+  This is an enumeration used in Stencila Schema for citation presentation modes.
 
-  This property is optional and tools are recommended to assume `parenthetical` if missing.
+  It exists so citations can preserve the distinction between parenthetical and
+  narrative forms, including variants that expose only the author or only the
+  year in surrounding prose. This helps Stencila map citation semantics
+  consistently across authoring formats, renderers, and citation processors.
 
-  Narrative citations will usually be of form "As noted by Smith (1992)," but `narrative-author`
-  allows for "In the early nineties, Smith noted" and `narrative-year` allows for "As noted by Smith in 1992 and 1993".
-
-  Pandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),
-  and `SuppressAuthor` (for `textual-year`).
-  See https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.
-
-  LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `textual`),
-  `\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
-  See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
+  See [`Citation.citationMode`](./citation.md#citationmode) for the property
+  that uses this enumeration.
 anyOf:
   - const: Parenthetical
     '@id': stencila:Parenthetical

@@ -5,6 +5,16 @@ status: beta
 extends: Styled
 category: style
 description: Styled block content.
+$comment: |
+  This is a block type used in Stencila Schema for content with explicit styling.
+
+  It extends [`Styled`](./styled.md) to apply styling semantics to block-level
+  content while keeping style information separate from the node's core
+  structural meaning. This supports authoring, publishing, and theming workflows
+  without forcing format-specific markup into the content model.
+
+  Key properties include block `content` together with inherited styling
+  information from [`Styled`](./styled.md).
 dom:
   derive: false
 html:

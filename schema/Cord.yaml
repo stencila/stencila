@@ -1,12 +1,16 @@
 title: Cord
 "@id": stencila:Cord
-description: A value comprised of a sequence of characters.
+description: A CRDT-backed sequence of characters.
 category: data
 $comment: |
-  This type exists to differentiate between between a plain string of characters
-  (which is modified by complete replacement) and a sequence of characters stored and
-  synchronized as a CRDT (which is is modified by insertions and deletions).
-  
-  Its use includes the `value` property of the `Text` type and the `code`
-  property of `CodeExecutable` nodes.
+  This is a string-like type used in Stencila Schema for collaboratively
+  editable text.
+
+  It exists to distinguish ordinary replacement-based string values from text
+  stored and synchronized as a CRDT, where changes are modeled as insertions and
+  deletions. This makes it suitable for collaborative editing and fine-grained
+  text synchronization.
+
+  Common uses include the `value` property of [`Text`](./text.md) and the `code`
+  property of executable code nodes.
 type: string

@@ -3,7 +3,18 @@ title: Instruction
 extends: Executable
 abstract: true
 category: edits
-description: Abstract base type for a document editing instruction.
+description: An abstract base type for document editing instructions.
+$comment: |
+  This is an abstract base type used in Stencila Schema for model-assisted document
+  editing instructions.
+
+  It extends [`Executable`](./executable.md) so instructions can carry prompt
+  rendering, user messages, model parameters, execution state, and generated
+  suggestions as part of the document model itself. This makes editing workflows
+  inspectable, replayable, and serializable.
+
+  Key properties include `instructionType`, `prompt`, `message`,
+  `modelParameters`, and `activeSuggestion`.
 required:
   - instructionType
   - prompt

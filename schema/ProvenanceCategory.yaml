@@ -1,7 +1,17 @@
 title: ProvenanceCategory
 '@id': stencila:ProvenanceCategory
 extends: Enumeration
-description: A description of the provenance of content in terms of human/machine involvement.
+description: A category of content provenance.
+$comment: |
+  This is an enumeration used in Stencila Schema for summarizing the provenance of
+  content.
+
+  It exists to classify content according to human and machine involvement using
+  a stable vocabulary that can be counted, rendered, and analyzed consistently
+  across documents.
+
+  See [`ProvenanceCount.category`](./provenance-count.md#category) and related
+  provenance summaries for where this enumeration is used.
 default:
   Hw
 anyOf:
@@ -35,7 +45,7 @@ anyOf:
     '@id': stencila:ProvenanceMwHe
     description: Machine written, human edited.
   - const: MwHeMv
-    '@id': stencila:ProvenanceMwHeHv
+    '@id': stencila:ProvenanceMwHeMv
     description: Machine written, human edited, machine verified.
 
   # Human written, machine edited

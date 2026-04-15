@@ -3,6 +3,16 @@ title: PostalAddress
 extends: ContactPoint
 category: other
 description: A physical mailing address.
+$comment: |
+  This is an implementation of schema.org
+  [`PostalAddress`](https://schema.org/PostalAddress).
+
+  In Stencila Schema it extends [`ContactPoint`](./contact-point.md) so physical
+  mailing addresses can be represented within the broader contact and metadata
+  model used across organizations and people.
+
+  Key properties include the address components themselves, with additional
+  contact semantics inherited from [`ContactPoint`](./contact-point.md).
 jats:
   elem: address
 core:

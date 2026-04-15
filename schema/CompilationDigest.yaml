@@ -3,7 +3,19 @@ title: CompilationDigest
 nick: cmd
 extends: Entity
 category: flow
-description: A digest of the content, semantics and dependencies of an executable node.
+description: A digest of an executable node and its dependencies.
+$comment: |
+  This is a type used in Stencila Schema for recording a digest of executable content
+  and its dependencies.
+
+  It exists to support incremental compilation and cache invalidation across
+  executable document nodes. Rather than reprocessing content unconditionally,
+  Stencila can compare digests to determine whether derived outputs or compiled
+  artifacts are still current.
+
+  This type is commonly used by properties such as `compilationDigest` and
+  related compilation metadata on [`Executable`](./executable.md) and derived
+  types.
 required:
   - stateDigest
 core:

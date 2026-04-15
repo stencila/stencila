@@ -3,11 +3,17 @@ title: PromptBlock
 nick: prb
 extends: Executable
 category: edits
-description: A preview of how a prompt will be rendered at a location in the document
+description: A preview of a rendered prompt at a location in a document.
 $comment: |
-  Used on an `Instruction` to render a prompt and display the rendering to the user.
-  Can also be used standalone to preview how a prompt is rendered at a particular
-  position in a document.
+  This is an executable type used in Stencila Schema for previewing rendered prompts.
+
+  It exists to show how a prompt will resolve for a particular instruction type,
+  target node, or document position before or during an editing workflow. This
+  makes prompt selection and rendering inspectable within the document model
+  itself.
+
+  Key properties include `instructionType`, `nodeTypes`, `relativePosition`,
+  `query`, `target`, and rendered `content`.
 status: beta
 patch:
   applyWith: PromptBlock::apply_patch_op

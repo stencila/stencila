@@ -4,7 +4,14 @@ extends: Entity
 category: prose
 description: An admonition within a document.
 $comment: |
-  Highlight important ideas or signal content that’s supplemental or only relevant in certain situations.
+  This is a type used in Stencila Schema for admonition or callout blocks.
+
+  It exists to represent semantically distinct callouts such as notes,
+  warnings, tips, and cautions as structured document content rather than as
+  presentation-only containers. This supports consistent rendering, folding, and
+  transformation across authoring and publishing formats.
+
+  Key properties include `admonitionType`, `title`, `isFolded`, and `content`.
 dom:
   derive: false
 html:

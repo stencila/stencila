@@ -5,8 +5,14 @@ extends: CodeExecutable
 category: code
 description: An executable code expression.
 $comment:
-  Note that `CodeExpression` nodes lack the `executionPure` property that
-  `CodeChunk` nodes have because they should be side-effect free.
+  This is an executable code node used in Stencila Schema for expressions.
+
+  It extends [`CodeExecutable`](./code-executable.md) for code that evaluates to
+  a value inline rather than producing a block of outputs. This makes it useful
+  for computed inline content and expression-oriented document workflows.
+
+  Key properties include the expression `code`, `programmingLanguage`, `output`,
+  and inherited execution metadata.
 jats:
   elem: code
   attrs:

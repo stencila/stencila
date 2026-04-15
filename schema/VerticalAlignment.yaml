@@ -3,7 +3,18 @@ title: VerticalAlignment
 extends: Enumeration
 category: works
 description: The vertical alignment of content.
-$comment: Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
+$comment: |
+  This is an enumeration used in Stencila Schema for vertical alignment.
+
+  It is based on the JATS
+  [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html)
+  attribute and gives Stencila a controlled vocabulary for baseline, top,
+  middle, and bottom alignment. Using an enumeration allows these alignment
+  semantics to be mapped consistently across table, layout, and publishing
+  formats.
+
+  See the alignment properties on table- and layout-related types that use this
+  enumeration.
 proptest: {}
 default: AlignBaseline
 anyOf:

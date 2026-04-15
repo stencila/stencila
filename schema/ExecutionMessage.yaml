@@ -4,6 +4,16 @@ nick: eme
 extends: Entity
 category: code
 description: An error, warning or log message generated during execution.
+$comment: |
+  This is a type used in Stencila Schema for structured messages produced during
+  execution.
+
+  It exists to capture runtime diagnostics, logs, and warnings as durable
+  document data instead of transient console output. This lets Stencila render,
+  serialize, and inspect execution results across environments and sessions.
+
+  Key properties typically include message level, text, and optional code or
+  source-location metadata.
 required:
   - level
   - message

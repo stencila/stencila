@@ -4,6 +4,15 @@ nick: tme
 extends: Entity
 category: data
 description: A point in time recurring on multiple days.
+$comment: |
+  This is an implementation of schema.org [`Time`](https://schema.org/Time).
+
+  In Stencila Schema it is represented as a typed node so recurring times of day
+  can be distinguished from dates, durations, and timestamps across metadata and
+  executable workflows.
+
+  See also [`Date`](./date.md), [`DateTime`](./date-time.md),
+  [`Duration`](./duration.md), and [`Timestamp`](./timestamp.md).
 jats:
   elem: time
   special: true

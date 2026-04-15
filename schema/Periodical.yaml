@@ -5,9 +5,16 @@ extends: CreativeWork
 category: works
 description: A periodical publication.
 $comment: |
-  A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,
-  such as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property
-  in a [`PublicationVolume`](./publication-volume.md).
+  This is an implementation of schema.org
+  [`Periodical`](https://schema.org/Periodical).
+
+  In Stencila Schema it is used to represent serial publications such as
+  journals, magazines, and newspapers within the broader creative-work metadata
+  model. It most often appears as the parent publication for
+  [`PublicationVolume`](./publication-volume.md) and
+  [`PublicationIssue`](./publication-issue.md) nodes.
+
+  Key properties include `name`, `dateStart`, `dateEnd`, and `issns`.
 core:
   - name
 properties:

@@ -5,11 +5,16 @@ extends: CreativeWork
 category: works
 description: A software application.
 $comment: |
-  `SoftwareApplication` represents a software application that can be located by name and version.
-  It may be fetched in binary format or some package manager (npm, pip, etc) could fetch and compile the source code.
-  Although by using the `softwareRequirements` property it is possible to represent a full hierarchy
-  of required packages, normally it is adequate to only list the immediate dependencies and allow
-  the system/language package manager to resolve the rest.
+  This is an implementation of schema.org
+  [`SoftwareApplication`](https://schema.org/SoftwareApplication).
+
+  In Stencila Schema it is used to describe software artifacts by name, version,
+  platform, and immediate dependencies within the broader creative-work metadata
+  model. This is useful for recording software used in computational documents,
+  execution environments, citations, and reproducibility metadata.
+
+  Key properties include `name`, `softwareVersion`, `operatingSystem`, and
+  `softwareRequirements`.
 required:
   - name
 core:

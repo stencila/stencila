@@ -3,6 +3,17 @@ title: Duration
 extends: Entity
 category: data
 description: A value that represents the difference between two timestamps.
+$comment: |
+  This is an implementation of schema.org
+  [`Duration`](https://schema.org/Duration).
+
+  In Stencila Schema it is represented as a typed node because durations are
+  commonly produced by execution, attached to metadata, and rendered in
+  documents. Modeling them explicitly allows validation and serialization
+  without losing the distinction between a duration and a timestamp.
+
+  See also temporal types such as [`Time`](./time.md) and
+  [`Timestamp`](./timestamp.md).
 jats:
   elem: duration
   special: true

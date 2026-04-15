@@ -4,6 +4,13 @@ nick: tmv
 extends: Entity
 category: data
 description: A validator specifying the constraints on a time.
+$comment: |
+  This is a type used in Stencila Schema for validating [`Time`](./time.md) nodes.
+
+  It exists so recurring times of day can be constrained within the same typed
+  validator system used for other primitive and temporal values.
+
+  Key properties define allowable ranges and related time constraints.
 markdown:
   derive: false
 core:

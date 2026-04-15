@@ -3,10 +3,19 @@ title: PublicationVolume
 nick: pbv
 extends: CreativeWork
 category: works
-description: |
-  A part of a successively published publication such as a periodical or multi-volume work.
+description: A publication volume.
 $comment: |
-  Often embedded as the `isPartOf` property in a [`PublicationIssue`](./publication-issue.md).
+  This is an implementation of schema.org
+  [`PublicationVolume`](https://schema.org/PublicationVolume).
+
+  In Stencila Schema it is used to represent a numbered volume within a
+  periodical or other multi-part publication while fitting into the broader
+  creative-work metadata model. It commonly appears as the `isPartOf` parent of
+  a [`PublicationIssue`](./publication-issue.md), or directly as the container
+  for an article or other published work.
+
+  Key properties include `volumeNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
+  `pagination`.
 core:
   - isPartOf
   - volumeNumber

@@ -2,7 +2,15 @@ title: SuggestionType
 "@id": stencila:SuggestionType
 extends: Enumeration
 category: edits
-description: The type of a suggestion.
+description: A category of suggested edit.
+$comment: |
+  This is an enumeration used in Stencila Schema for the kind of suggested edit.
+
+  It exists to classify whether a suggestion inserts, deletes, or modifies
+  content so tools can render and apply suggestions consistently.
+
+  See the type properties on [`Suggestion`](./suggestion.md) and derived
+  suggestion nodes for where this enumeration is used.
 anyOf:
   - const: Insert
     "@id": stencila:Insert

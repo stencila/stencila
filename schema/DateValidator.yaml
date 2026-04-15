@@ -4,6 +4,15 @@ nick: dav
 extends: Entity
 category: data
 description: A validator specifying the constraints on a date.
+$comment: |
+  This is a type used in Stencila Schema for validating [`Date`](./date.md) nodes.
+
+  It exists so Stencila documents and forms can express constraints over
+  calendar dates as structured data rather than leaving validation to ad hoc
+  string parsing. This keeps date validation aligned with the rest of the
+  validator system.
+
+  Key properties define allowable date ranges and related constraints.
 markdown:
   derive: false
 core:

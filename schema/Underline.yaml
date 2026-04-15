@@ -4,8 +4,13 @@ extends: Mark
 category: prose
 description: Inline text that is underlined.
 $comment: |
-  Analogues of `Underline` in other schema include:
-  - Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)
+  This is an inline mark type used in Stencila Schema for underlined content.
+
+  It extends [`Mark`](./mark.md) to preserve underline semantics in a
+  structured, format-independent inline model.
+
+  Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+  inline `content`.
 dom:
   elem: u
 html:

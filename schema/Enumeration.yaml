@@ -3,3 +3,14 @@ title: Enumeration
 extends: Thing
 category: other
 description: Lists or enumerations, for example, a list of cuisines or music genres, etc.
+$comment: |
+  This is an implementation of schema.org
+  [`Enumeration`](https://schema.org/Enumeration).
+
+  In Stencila Schema it provides the common base for controlled vocabularies
+  used throughout the document model. Derived Stencila enumerations use it to
+  expose stable symbolic values for execution, styling, editing, and publishing
+  behavior.
+
+  See the many derived enumeration types for the vocabularies that carry
+  Stencila Schema semantics.

@@ -3,10 +3,17 @@ title: CodeExecutable
 extends: Executable
 category: code
 abstract: true
-description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
+description: An abstract base type for executable code nodes.
 $comment: |
-  Adds properties to the base `Executable` node type that are necessary for executable code.
-  The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
+  This is an abstract base type used in Stencila Schema for executable code nodes.
+
+  It extends [`Executable`](./executable.md) with the shared properties needed
+  for runnable code, such as source text, programming language, execution
+  bounds, and code-specific provenance. This provides a common foundation for
+  executable code blocks and expressions.
+
+  Key properties include `code`, `programmingLanguage`, `executionBounds`, and
+  inherited execution metadata from [`Executable`](./executable.md).
 required:
   - code
 core:

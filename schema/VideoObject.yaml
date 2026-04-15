@@ -4,9 +4,16 @@ extends: MediaObject
 category: works
 description: A video file.
 $comment: |
-  The `VideoObject` type allows you to provide details such as caption and transcript,
-  and the details which are included in [`MediaObject`](./media-object.md)
-  which `VideoObject` extends.
+  This is an implementation of schema.org
+  [`VideoObject`](https://schema.org/VideoObject).
+
+  In Stencila Schema it is used both as media metadata and as rendered document
+  content, especially in figures and multimedia documents. It inherits file and
+  media capabilities from [`MediaObject`](./media-object.md) while adding
+  video-specific descriptive properties.
+
+  Key properties include `caption`, `thumbnail`, and `transcript`, with broader
+  media metadata inherited from [`MediaObject`](./media-object.md).
 dom:
   derive: false
 html:

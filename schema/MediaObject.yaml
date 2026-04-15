@@ -2,13 +2,19 @@ title: MediaObject
 '@id': schema:MediaObject
 extends: CreativeWork
 category: works
-description: |
-  A media object, such as an image, video, or audio object embedded in a web page or a
-  downloadable dataset.
+description: A media object.
 $comment: |
-  This is not an abstract type and so can be instantiated as an inline content node.
-  However, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the
-  type of media is known.
+  This is an implementation of schema.org
+  [`MediaObject`](https://schema.org/MediaObject).
+
+  In Stencila Schema it acts as the common base type for embeddable media such
+  as images, audio, and video, while also remaining instantiable when only a
+  generic media resource is known. It connects schema.org media metadata with
+  Stencila's document node model so media can be represented both as metadata and
+  as rendered document content.
+
+  Key properties include `contentUrl`, `embedUrl`, and `mediaType`. Prefer
+  `AudioObject`, `ImageObject`, or `VideoObject` when the media kind is known.
 jats:
   elem: inline-media
   special: true

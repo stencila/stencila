@@ -4,6 +4,16 @@ nick: ann
 extends: Mark
 category: prose
 description: Annotated content.
+$comment: |
+  This is a type used in Stencila Schema for annotated inline content.
+
+  It extends [`Mark`](./mark.md) to attach structured authorship and
+  provenance-aware commentary to a span of content, rather than relying only on
+  presentational markup. This makes annotations useful in collaborative and
+  review-oriented document workflows.
+
+  Key properties include `annotation`, together with inherited metadata and
+  provenance features from [`Mark`](./mark.md).
 jats:
   elem: annotation
 markdown:

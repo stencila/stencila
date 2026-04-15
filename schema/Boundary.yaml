@@ -3,10 +3,17 @@ title: Boundary
 nick: bdy
 extends: Entity
 category: prose
+description: A positional boundary marker within inline content.
+$comment: |
+  This is a type used in Stencila Schema for representing the boundary of a selection
+  or range within content.
+
+  It exists to support editing, review, and provenance workflows that need to
+  refer precisely to positions in document content without flattening the
+  document structure into plain text offsets. This makes it useful for
+  instructions, suggestions, and other document transformations.
+
+  Key properties identify the boundary location and its relationship to
+  surrounding content.
 markdown:
   derive: false
-description: |
-  A positional marker within inline content used to define the boundary
-  of a cross-block range. Boundaries are referenced by their `id` from
-  other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to
-  delimit regions that may span across multiple blocks.

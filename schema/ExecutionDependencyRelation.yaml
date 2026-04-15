@@ -2,7 +2,18 @@ title: ExecutionDependencyRelation
 '@id': stencila:ExecutionDependencyRelation
 extends: Enumeration
 category: flow
-description: The relation between a node and its execution dependency.
+description: An upstream execution relation between nodes.
+$comment: |
+  This is an enumeration used in Stencila Schema describing how one node depends on
+  another for execution.
+
+  It exists to classify execution dependencies with more precision than a simple
+  linked list of prerequisites, helping Stencila reason about compilation,
+  execution order, and re-execution.
+
+  See
+  [`ExecutionDependency.dependencyRelation`](./execution-dependency.md#dependencyrelation)
+  for the property that uses this enumeration.
 default: Uses
 anyOf:
   - const: Calls

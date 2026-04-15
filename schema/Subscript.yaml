@@ -3,6 +3,15 @@ title: Subscript
 extends: Mark
 category: prose
 description: Subscripted content.
+$comment: |
+  This is an inline mark type used in Stencila Schema for subscripted content.
+
+  It extends [`Mark`](./mark.md) to preserve subscript semantics in a
+  format-independent way, which is especially useful in scientific and
+  mathematical writing.
+
+  Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+  inline `content`.
 dom:
   elem: sub
 html:

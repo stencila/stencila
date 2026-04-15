@@ -4,6 +4,19 @@ nick: tbl
 extends: CreativeWork
 category: works
 description: A table.
+$comment: |
+  This is an implementation of schema.org [`Table`](https://schema.org/Table),
+  extended in Stencila Schema for document-oriented table content.
+
+  In addition to the schema.org model, this type supports structured rows,
+  notes, captions, authorship, provenance, and labeling behavior needed for
+  authoring and publishing documents. It is focused on presentational and
+  narrative tables, in contrast to [`Datatable`](./datatable.md), which is
+  optimized for typed data.
+
+  Key properties include `rows`, `caption`, `notes`, `label`, and
+  `labelAutomatically`. Additional metadata features may be inherited from
+  [`CreativeWork`](./creative-work.md).
 patch:
   takeAuthors: true
 dom:

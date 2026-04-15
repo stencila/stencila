@@ -3,6 +3,16 @@ title: Grant
 extends: Thing
 category: other
 description: A grant, typically financial or otherwise quantifiable, of resources.
+$comment: |
+  This is an implementation of schema.org [`Grant`](https://schema.org/Grant).
+
+  In Stencila Schema it is used for structured funding metadata attached to
+  creative works and related entities. It remains close to the schema.org model
+  while integrating with Stencila's richer document metadata and contributor
+  tracking.
+
+  Key properties are typically used via funding-related fields on
+  [`CreativeWork`](./creative-work.md) and derived types.
 properties:
   fundedItems:
     '@id': schema:fundedItem

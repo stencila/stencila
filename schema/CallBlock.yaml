@@ -4,6 +4,16 @@ nick: clb
 extends: IncludeBlock
 category: flow
 description: Call another document, optionally with arguments, and include its executed content.
+$comment: |
+  This is an executable type used in Stencila Schema for calling another document and
+  including its results.
+
+  It extends [`IncludeBlock`](./include-block.md) with parameterized execution
+  semantics so one document can invoke another as a reusable component. This
+  supports composition, templating, and workflow-style reuse across documents.
+
+  Key properties include inherited include-target information together with call
+  arguments and execution-related properties.
 status: experimental
 latex:
   derive: false

@@ -4,11 +4,14 @@ extends: Mark
 category: prose
 description: Emphasized content.
 $comment: |
-  Analogues of `Emphasis` in other schema include:
-    - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
-    - JATS XML [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
-    - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
-    - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
+  This is an inline mark type used in Stencila Schema for emphasis.
+
+  It extends [`Mark`](./mark.md) to preserve semantic emphasis in a structured,
+  format-independent inline model, with analogues in HTML `<em>` and Markdown
+  emphasis.
+
+  Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+  inline `content`.
 dom:
   elem: em
 html:

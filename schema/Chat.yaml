@@ -5,6 +5,18 @@ extends: [CreativeWork, Executable]
 category: works
 status: beta
 description: A chat conversation, usually with a generative AI model.
+$comment: |
+  This is a type used in Stencila Schema for conversational interactions in documents.
+
+  It combines [`CreativeWork`](./creative-work.md) metadata with
+  [`Executable`](./executable.md) behavior so a chat can be stored, rendered,
+  re-executed, and linked to document editing workflows. Unlike a plain message
+  transcript, it can carry model configuration, prompt rendering, targeted
+  document nodes, and mixed block content.
+
+  Key properties include `prompt`, `modelParameters`, `targetNodes`, and
+  `content`. Additional metadata and execution features are inherited from
+  [`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).
 patch:
   applyWith: Chat::apply_with
 markdown:
