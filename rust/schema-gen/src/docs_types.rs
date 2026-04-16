@@ -5,17 +5,19 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use eyre::{Context as _, Result, bail};
+use eyre::{Context as _, Result, bail, eyre};
 use futures::future::try_join_all;
 use inflector::Inflector;
 use strum::IntoEnumIterator;
 use tokio::fs::{create_dir_all, read_dir, read_to_string, remove_dir_all, remove_file, write};
 
 use stencila_codecs::{EncodeOptions, Format};
-use stencila_schema::{Article, ArticleOptions, Block, Inline, Node, Table, shortcuts::*};
+use stencila_schema::{
+    Article, ArticleOptions, Block, Inline, ListItem, Node, Table, shortcuts::*,
+};
 
 use crate::{
-    schema::{Category, Items, ProptestLevel, Schema, Status, Type},
+    schema::{Analogue, Category, Items, ProptestLevel, Schema, Status, Type},
     schemas::Schemas,
 };
 
@@ -55,10 +57,10 @@ impl Schemas {
                     continue;
                 }
 
-                if path.extension().and_then(|ext| ext.to_str()) == Some("md") {
-                    if !preserved_markdown.contains(&file_name) {
-                        remove_file(&path).await?;
-                    }
+                if path.extension().and_then(|ext| ext.to_str()) == Some("md")
+                    && !preserved_markdown.contains(&file_name)
+                {
+                    remove_file(&path).await?;
                 }
             }
         } else {
@@ -205,6 +207,7 @@ async fn docs_file(dest: &Path, schema: &Schema, context: &Context) -> Result<St
 /// Generate documentation for an object schema with `properties`
 fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut content = intro(title, schema);
+    content.append(&mut analogues(schema));
     content.append(&mut properties(title, schema, context));
     content.append(&mut related(title, schema, context));
     content.append(&mut bindings(title, schema));
@@ -219,6 +222,7 @@ fn docs_object(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate documentation file for an `anyOf` root schema
 fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
     let mut content = intro(title, schema);
+    content.append(&mut analogues(schema));
     content.append(&mut members(title, schema, context));
     content.append(&mut bindings(title, schema));
     if schema.proptest.is_some() {
@@ -232,6 +236,7 @@ fn docs_any_of(title: &str, schema: &Schema, context: &Context) -> Vec<Block> {
 /// Generate documentation for a primitive schema
 fn docs_primitive(title: &str, schema: &Schema) -> Vec<Block> {
     let mut content = intro(title, schema);
+    content.append(&mut analogues(schema));
     content.append(&mut bindings(title, schema));
     content.append(&mut source(title));
 
@@ -255,6 +260,220 @@ fn intro(_title: &str, schema: &Schema) -> Vec<Block> {
     }
 
     blocks
+}
+
+/// Generate an "Analogues" section for a schema
+fn analogues(schema: &Schema) -> Vec<Block> {
+    if schema.analogues.is_empty() {
+        return Vec::new();
+    }
+
+    let mut items = Vec::new();
+
+    for analogue in &schema.analogues {
+        let Ok(item) = analogue_list_item(analogue) else {
+            continue;
+        };
+        items.push(item);
+    }
+
+    if items.is_empty() {
+        return Vec::new();
+    }
+
+    vec![
+        h1([t("Analogues")]),
+        p([
+            t("The following external types, elements, or nodes are similar to a "),
+            ci(schema.title.as_deref().unwrap_or_default()),
+            t(":"),
+        ]),
+        ul(items),
+    ]
+}
+
+fn analogue_list_item(analogue: &Analogue) -> Result<ListItem> {
+    let (registry, name, url) = if let Some(id) = &analogue.id {
+        let mut parts = id.split(':');
+        let registry = parts
+            .next()
+            .ok_or_else(|| eyre!("analogue id must use the form `<registry>:<name>`"))?;
+        let rest: Vec<_> = parts.collect();
+
+        if rest.is_empty() {
+            bail!("analogue id must use the form `<registry>:<name>`")
+        }
+
+        match registry {
+            "myst" => {
+                let [kind, name] = rest.as_slice() else {
+                    bail!(
+                        "MyST analogue id must use the form `myst:directive:<name>` or `myst:role:<name>`"
+                    )
+                };
+
+                match *kind {
+                    "directive" => (
+                        Some(String::from("MyST directive ")),
+                        vec![ci(*name)],
+                        format!("https://mystmd.org/guide/directives#directive-{name}"),
+                    ),
+                    "role" => (
+                        Some(String::from("MyST role ")),
+                        vec![ci(*name)],
+                        format!("https://mystmd.org/guide/roles#role-{name}"),
+                    ),
+                    _ => bail!(
+                        "MyST analogue id must use `myst:directive:<name>` or `myst:role:<name>`"
+                    ),
+                }
+            }
+            "schema" => (
+                Some(String::from("schema.org ")),
+                vec![ci(rest.join(":"))],
+                format!("https://schema.org/{}", rest.join(":")),
+            ),
+            "html" => (
+                Some(String::from("HTML ")),
+                vec![ci(format!("<{}>", rest.join(":")))],
+                format!(
+                    "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/{}",
+                    rest.join(":")
+                ),
+            ),
+            "jats" => (
+                Some(String::from("JATS ")),
+                vec![ci(format!("<{}>", rest.join(":")))],
+                format!(
+                    "https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/{}.html",
+                    rest.join(":")
+                ),
+            ),
+            "mdast" => {
+                if rest.len() != 1 {
+                    bail!("MDAST analogue id must use the form `mdast:<TypeName>`")
+                }
+                let name = rest[0];
+                (
+                    Some(String::from("MDAST ")),
+                    vec![ci(name)],
+                    format!(
+                        "https://github.com/syntax-tree/mdast#{}",
+                        name.to_lowercase()
+                    ),
+                )
+            }
+            "pandoc" => {
+                if rest.len() != 1 {
+                    bail!("Pandoc analogue id must use the form `pandoc:<name>`")
+                }
+                let name = rest[0];
+                (
+                    Some(String::from("Pandoc ")),
+                    vec![ci(name)],
+                    pandoc_url(name)?,
+                )
+            }
+            other => bail!("unknown analogue registry `{other}`"),
+        }
+    } else {
+        match (&analogue.name, &analogue.url) {
+            (Some(name), Some(url)) => (None, vec![t(name)], url.clone()),
+            _ => bail!("analogue must have either `id` or both `name` and `url`"),
+        }
+    };
+
+    let notes = analogue
+        .notes
+        .as_ref()
+        .map(|notes| notes.replace('\n', " ").trim().to_string())
+        .filter(|notes| !notes.is_empty())
+        .unwrap_or_default();
+
+    let mut content = Vec::new();
+    if let Some(registry) = registry {
+        content.push(t(registry));
+    }
+    content.push(lnk(name, url));
+    if !notes.is_empty() {
+        content.push(t(": "));
+        content.push(t(notes));
+    }
+
+    Ok(li(content))
+}
+
+fn pandoc_url(name: &str) -> Result<String> {
+    const PANDOC_DEFINITION_URL: &str = "https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html";
+
+    const PANDOC_TYPES: &[&str] = &[
+        "Alignment",
+        "Attr",
+        "Block",
+        "Blocks",
+        "Caption",
+        "Cell",
+        "Citation",
+        "ColSpec",
+        "Definition",
+        "Format",
+        "Inline",
+        "Inlines",
+        "ListAttributes",
+        "MathType",
+        "Meta",
+        "MetaValue",
+        "Pandoc",
+        "Row",
+        "TableBody",
+        "TableFoot",
+        "TableHead",
+    ];
+
+    const PANDOC_VARIANTS: &[&str] = &[
+        "BlockQuote",
+        "BulletList",
+        "Code",
+        "CodeBlock",
+        "DefinitionList",
+        "Div",
+        "Emph",
+        "Figure",
+        "Header",
+        "HorizontalRule",
+        "Image",
+        "LineBlock",
+        "Link",
+        "Math",
+        "Note",
+        "OrderedList",
+        "Para",
+        "Plain",
+        "Quoted",
+        "RawBlock",
+        "RawInline",
+        "SmallCaps",
+        "SoftBreak",
+        "Space",
+        "Span",
+        "Str",
+        "Strikeout",
+        "Strong",
+        "Subscript",
+        "Superscript",
+        "Table",
+        "Underline",
+    ];
+
+    let anchor_kind = if PANDOC_TYPES.contains(&name) {
+        't'
+    } else if PANDOC_VARIANTS.contains(&name) {
+        'v'
+    } else {
+        bail!("unknown Pandoc analogue `{name}`")
+    };
+
+    Ok(format!("{PANDOC_DEFINITION_URL}#{anchor_kind}:{name}"))
 }
 
 /// Generate a "Properties" section for a schema

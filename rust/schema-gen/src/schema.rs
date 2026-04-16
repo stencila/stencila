@@ -106,6 +106,22 @@ pub struct Schema {
     #[serde(rename = "$comment")]
     pub comment: Option<String>,
 
+    /// Analogues in external schemas and document models
+    ///
+    /// Use this field to list closely related types, elements, or nodes from
+    /// other vocabularies and formats such as schema.org, HTML, JATS, MDAST,
+    /// MyST, and Pandoc.
+    ///
+    /// For common registries, prefer compact identifiers in the `id` field such
+    /// as `schema:Person`, `html:p`, `jats:p`, or `pandoc:Para`. These are
+    /// resolved into human-readable labels and documentation links when schema
+    /// reference docs are generated.
+    ///
+    /// For arbitrary external analogues, provide an explicit `name` and `url`.
+    /// Use `notes` to summarize key similarities and differences.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub analogues: Vec<Analogue>,
+
     /// The status of the schema
     #[serde(skip_serializing_if = "Status::is_default")]
     pub status: Status,
@@ -332,6 +348,34 @@ pub struct Schema {
     /// Whether the `extend()` method has been run on this schema yet
     #[serde(skip)]
     pub is_extended: bool,
+}
+
+/// An analogue in an external schema, specification, or document model
+#[skip_serializing_none]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
+#[serde(default, rename_all = "camelCase", deny_unknown_fields)]
+pub struct Analogue {
+    /// A compact identifier for a known registry entry
+    ///
+    /// Examples include `schema:Person`, `html:p`, `jats:p`, and `pandoc:Para`.
+    /// The prefix identifies the external registry and the suffix identifies the
+    /// specific type, element, or node within it.
+    pub id: Option<String>,
+
+    /// A human-readable label for an arbitrary external analogue
+    ///
+    /// Use together with `url` when the analogue is not represented using a
+    /// compact `id` in a known registry.
+    pub name: Option<String>,
+
+    /// A documentation URL for an arbitrary external analogue
+    ///
+    /// Use together with `name` when the analogue is not represented using a
+    /// compact `id` in a known registry.
+    pub url: Option<String>,
+
+    /// Notes on key similarities and differences
+    pub notes: Option<String>,
 }
 
 #[derive(Debug, Display, Default, Clone, Copy, Deserialize, Serialize, JsonSchema)]

@@ -55,7 +55,7 @@ semantics it adds or emphasizes, and the small number of properties that carry
 the main Stencila-specific meaning.
 
 > [!tip] Tips
-> 
+>
 > - Keep root `$comment` fields conceptual. Put constraints, edge cases, and
 >   format-specific notes on the relevant properties instead.
 > - Do not duplicate the `description` field. The `description` should say what
@@ -86,3 +86,67 @@ the main Stencila-specific meaning.
 > - As a rule of thumb, a good root `$comment` should help a reader answer three
 >   questions quickly: where does this type come from, what does Stencila add,
 >   change, or constrain, and which properties should I look at next?
+
+# analogues
+
+Use the root `analogues` field to list close counterparts in external schemas,
+specifications, or document models. This field gives schema authors an explicit,
+structured place to record cross-schema correspondences and concise notes on the
+main similarities and differences.
+
+Each analogue may be declared either using a compact identifier in a known
+registry, or by giving an explicit `name` and `url` for arbitrary external
+resources.
+
+For supported registries, use the following compact identifier formats in the
+`id` field:
+
+| Registry | Format | Example | Notes |
+| --- | --- | --- | --- |
+| `schema` | `schema:<TypeName>` | `schema:Person` | Uses the schema.org type name. |
+| `html` | `html:<element>` | `html:p` | Uses the HTML element name and links to MDN element docs. |
+| `jats` | `jats:<element>` | `jats:p` | Uses the JATS element name and links to the JATS tag library. |
+| `pandoc` | `pandoc:<Name>` | `pandoc:Para` | Uses the Pandoc constructor or type name. |
+| `mdast` | `mdast:<TypeName>` | `mdast:Paragraph` | Use the canonical PascalCase type name. The generated GitHub anchor is lowercase. |
+| `myst` directive | `myst:directive:<name>` | `myst:directive:admonition` | Use for MyST directives. |
+| `myst` role | `myst:role:<name>` | `myst:role:cite` | Use for MyST roles. |
+| custom | explicit `name` + `url` fields | see example below | Use for arbitrary external analogues outside the built-in registries. |
+
+These are resolved automatically in generated documentation into linked labels
+such as schema.org `Person`, HTML `<p>`, JATS `<p>`, MDAST `Paragraph`, Pandoc
+`Para`, MyST directive `admonition`, or MyST role `cite`.
+
+Use the optional `notes` field to explain the key similarities and differences,
+especially when the analogue is only approximate or when Stencila adds metadata,
+constraints, or behavior not present in the source model.
+
+For arbitrary analogues outside the built-in registries, provide `name` and
+`url` directly.
+
+Example:
+
+```yaml
+analogues:
+  - id: html:p
+    notes: Closest HTML element analogue for paragraph content.
+  - id: jats:p
+  - id: pandoc:Para
+    notes: Similar block paragraph analogue, but Stencila paragraphs can also carry authorship and provenance metadata.
+  - id: mdast:Paragraph
+    notes: Closest MDAST block node analogue for paragraphs.
+  - name: Custom Spec Paragraph
+    url: https://example.org/spec/paragraph
+    notes: Similar paragraph container in a project-specific document model.
+```
+
+> [!tip] Tips
+>
+> - Use `analogues` for canonical cross-schema links, not for long explanatory
+>   prose.
+> - Prefer the compact `id` form for supported registries: `schema`, `html`,
+>   `jats`, `mdast`, `pandoc`, and `myst`.
+> - For MyST, use `myst:directive:<name>` for directives and
+>   `myst:role:<name>` for roles.
+> - Keep `notes` short and comparative.
+> - Use root [`$comment`](#comment) for broader rationale and design context,
+>   and `analogues` for concise cross-schema correspondence.
