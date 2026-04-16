@@ -13,6 +13,10 @@ $comment: |
 
   See also [`Date`](./date.md), [`DateTime`](./date-time.md),
   [`Duration`](./duration.md), and [`Timestamp`](./timestamp.md).
+analogues:
+  - id: schema:Time
+  - id: jats:time
+    notes: Close JATS analogue for structured time values.
 jats:
   elem: time
   special: true

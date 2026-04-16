@@ -12,4 +12,9 @@ $comment: |
 
   See also [`Number`](./number.md) and
   [`UnsignedInteger`](./unsigned-integer.md).
+analogues:
+  - id: schema:Integer
+  - name: JSON integer-constrained number
+    url: https://json-schema.org/understanding-json-schema/reference/numeric
+    notes: Approximate analogue because JSON itself has only numbers, while integer-ness is usually enforced by JSON Schema or similar validators.
 type: integer

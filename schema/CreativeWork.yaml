@@ -16,6 +16,11 @@ $comment: |
   Key Stencila Schema properties include `workType`, `provenance`,
   `dateAccepted`, and `fundedBy`. Many other metadata properties are inherited
   directly from schema.org.
+analogues:
+  - id: schema:CreativeWork
+    notes: Direct schema.org source type, extended in Stencila as the common base for publishable, document-like, and executable works.
+  - id: pandoc:Meta
+    notes: Approximate Pandoc analogue for work-level metadata, though Stencila `CreativeWork` is also a node in the document graph and can carry richer relationships and provenance.
 core:
   - workType
   - doi

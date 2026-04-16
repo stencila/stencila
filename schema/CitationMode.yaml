@@ -13,6 +13,10 @@ $comment: |
 
   See [`Citation.citationMode`](./citation.md#citationmode) for the property
   that uses this enumeration.
+analogues:
+  - name: CSL citation position and narrative conventions
+    url: https://docs.citationstyles.org/en/stable/specification.html
+    notes: Close analogue for distinctions such as parenthetical versus narrative citation rendering, though Stencila exposes them as a compact schema enumeration.
 anyOf:
   - const: Parenthetical
     '@id': stencila:Parenthetical

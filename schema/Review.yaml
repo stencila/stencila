@@ -15,6 +15,10 @@ $comment: |
 
   Key properties include `itemReviewed`, `reviewAspect`, and inherited
   `content` from [`CreativeWork`](./creative-work.md).
+analogues:
+  - id: schema:Review
+  - id: jats:sec
+    notes: Approximate JATS analogue when reviews are encoded as structured sections of prose rather than a dedicated review element.
 properties:
   itemReviewed:
     '@id': schema:itemReviewed

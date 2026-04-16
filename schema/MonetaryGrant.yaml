@@ -13,6 +13,8 @@ $comment: |
 
   Key properties include inherited grant metadata together with the monetary
   amount and related funding information.
+analogues:
+  - id: schema:MonetaryGrant
 properties:
   amounts:
     '@id': schema:amount

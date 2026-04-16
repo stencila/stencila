@@ -16,6 +16,8 @@ $comment: |
 
   Key properties include `volumeNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
   `pagination`.
+analogues:
+  - id: schema:PublicationVolume
 core:
   - isPartOf
   - volumeNumber

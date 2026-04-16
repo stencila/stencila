@@ -13,6 +13,10 @@ $comment: |
 
   Key properties are usually inherited from [`Thing`](./thing.md), especially
   `name`, identifiers, contact details, and affiliations.
+analogues:
+  - id: schema:Person
+  - id: jats:name
+    notes: Approximate JATS analogue for person identity in document metadata, though JATS personal-name structures are not equivalent to a reusable person entity node.
 core:
   - orcid
   - affiliations

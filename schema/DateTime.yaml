@@ -15,6 +15,11 @@ $comment: |
 
   See also [`Date`](./date.md), [`Time`](./time.md), and
   [`Timestamp`](./timestamp.md).
+analogues:
+  - id: schema:DateTime
+  - name: RFC 3339 date-time
+    url: https://www.rfc-editor.org/rfc/rfc3339
+    notes: Close serialization analogue for full date-time strings, though Stencila models them as typed nodes.
 jats:
   elem: date-time
   special: true

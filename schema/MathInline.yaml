@@ -14,6 +14,11 @@ $comment: |
   workflows.
 
   Key properties are inherited from [`Math`](./math.md).
+analogues:
+  - id: jats:inline-formula
+  - id: pandoc:Math
+    notes: Close Pandoc analogue for inline math, though Pandoc distinguishes inline mode via a subkind rather than a separate node type.
+  - id: mdast:InlineMath
 dom:
   derive: false
 html:

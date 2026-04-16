@@ -14,6 +14,10 @@ $comment: |
 
   Key properties identify the icon set, icon name, and any presentational hints
   needed by renderers.
+analogues:
+  - name: HTML icon element pattern
+    url: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i
+    notes: Approximate HTML analogue because icons are often represented using `<i>` or `<span>` with classes, but HTML has no dedicated semantic icon element.
 dom:
   derive: false
 markdown:

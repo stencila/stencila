@@ -14,6 +14,10 @@ $comment: |
 
   Key properties include structured message parts and any metadata needed for
   prompt rendering or model interaction.
+analogues:
+  - name: multimodal chat message
+    url: https://platform.openai.com/docs/guides/images
+    notes: Close analogue for a message combining text and file-like attachments, though Stencila uses a document-oriented instruction context.
 markdown:
   derive: false
 required:

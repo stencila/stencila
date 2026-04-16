@@ -12,6 +12,14 @@ $comment: |
   transformation across authoring and publishing formats.
 
   Key properties include `admonitionType`, `title`, `isFolded`, and `content`.
+analogues:
+  - id: html:aside
+    notes: Closest HTML sectioning analogue, though HTML `<aside>` is broader and does not itself encode admonition type or folding behavior.
+  - id: jats:boxed-text
+    notes: Closest JATS analogue for boxed callout content, but JATS does not standardize the same admonition type vocabulary.
+  - id: pandoc:Div
+    notes: Pandoc admonitions are usually represented as divisions with classes and attributes rather than a dedicated node type.
+  - id: myst:directive:admonition
 dom:
   derive: false
 html:

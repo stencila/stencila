@@ -11,6 +11,10 @@ $comment: |
   semantics can be preserved across transformations and renderers.
 
   Key properties include the row `cells` and `rowType`.
+analogues:
+  - id: html:tr
+  - id: pandoc:Table
+    notes: Only an approximate analogue because Pandoc rows are nested structures inside tables rather than standalone row nodes.
 dom:
   derive: false
 jats:

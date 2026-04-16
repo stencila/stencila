@@ -17,6 +17,10 @@ $comment: |
 
   Key properties include `about`, `content`, `startLocation`, `endLocation`, and
   `parentItem`.
+analogues:
+  - id: schema:Comment
+  - id: html:aside
+    notes: Approximate HTML analogue for side commentary, though HTML does not provide built-in region-targeting or threaded comment semantics.
 required:
   - content
 core:

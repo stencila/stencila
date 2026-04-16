@@ -11,4 +11,7 @@ $comment: |
 
   See also [`Primitive`](./primitive.md) and the validator types that can reason
   about null values.
+analogues:
+  - name: JSON null
+    url: https://www.json.org/json-en.html
 type: 'null'

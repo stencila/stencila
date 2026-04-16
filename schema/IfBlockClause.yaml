@@ -15,6 +15,10 @@ $comment: |
 
   Key properties include the conditional expression, clause `content`, and
   inherited execution properties from [`CodeExecutable`](./code-executable.md).
+analogues:
+  - name: Jinja if/elif/else clause
+    url: https://jinja.palletsprojects.com/
+    notes: Close clause-level analogue for one branch within a conditional template block.
 status: beta
 markdown:
   derive: false

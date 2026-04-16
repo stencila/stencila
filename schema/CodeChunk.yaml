@@ -16,6 +16,12 @@ $comment: |
   Key properties include `outputs`, `caption`, `labelType`, `label`, `overlay`,
   and inherited execution properties from
   [`CodeExecutable`](./code-executable.md).
+analogues:
+  - name: Jupyter notebook code cell
+    url: https://nbformat.readthedocs.io/
+    notes: Closest executable-authoring analogue for a code cell with outputs, though Stencila additionally supports captions, labels, and overlays.
+  - id: myst:directive:code-cell
+    notes: Close MyST analogue for executable code blocks in document authoring.
 dom:
   derive: false
 jats:

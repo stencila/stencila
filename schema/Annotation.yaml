@@ -14,6 +14,13 @@ $comment: |
 
   Key properties include `annotation`, together with inherited metadata and
   provenance features from [`Mark`](./mark.md).
+analogues:
+  - id: html:mark
+    notes: Approximate HTML analogue for highlighted or annotated spans, though Stencila `Annotation` additionally stores attached block content as the annotation itself.
+  - id: jats:annotation
+    notes: Close JATS analogue for attached annotation content.
+  - id: pandoc:Span
+    notes: Closest Pandoc inline container analogue, but annotations there are usually conveyed via attributes rather than a dedicated node with block annotation content.
 jats:
   elem: annotation
 markdown:

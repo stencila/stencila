@@ -12,6 +12,10 @@ $comment: |
 
   See [`TableCell.cellType`](./table-cell.md#celltype) for the property that
   uses this enumeration.
+analogues:
+  - name: HTML td/th distinction
+    url: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td
+    notes: Close analogue because HTML distinguishes data and header cells structurally with separate elements rather than an enumeration.
 proptest: {}
 default: DataCell
 anyOf:

@@ -14,4 +14,9 @@ $comment: |
 
   See also [`Cord`](./cord.md) for character-sequence content and
   [`Primitive`](./primitive.md) for the enclosing union.
+analogues:
+  - id: schema:Text
+    notes: Direct schema.org source type, renamed in Stencila to emphasize primitive string semantics rather than rich text-node content.
+  - name: JSON string
+    url: https://www.json.org/json-en.html
 type: string

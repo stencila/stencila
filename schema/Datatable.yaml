@@ -15,6 +15,13 @@ $comment: |
 
   Key properties include `columns`, `caption`, `notes`, and optional labeling
   metadata inherited from [`CreativeWork`](./creative-work.md).
+analogues:
+  - name: Frictionless Data Table Resource
+    url: https://specs.frictionlessdata.io/table-resource/
+    notes: Close analogue for column-oriented tabular data with schema-like column metadata.
+  - name: Apache Arrow table
+    url: https://arrow.apache.org/
+    notes: Approximate analogue for typed columnar tabular data, though Stencila stores a document-oriented node rather than an in-memory analytics format.
 dom:
   derive: false
 markdown:

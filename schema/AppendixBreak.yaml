@@ -14,6 +14,10 @@ $comment: |
 
   This node is mainly relevant to document compilation and labeling workflows. A
   document should usually contain at most one `AppendixBreak`.
+analogues:
+  - name: LaTeX \appendix
+    url: https://www.latex-project.org/
+    notes: Closest functional analogue; like `\appendix`, it switches subsequent section labeling into appendix mode rather than representing visible prose content.
 latex:
   derive: false
 markdown:

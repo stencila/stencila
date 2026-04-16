@@ -15,6 +15,8 @@ $comment: |
   [`PublicationIssue`](./publication-issue.md) nodes.
 
   Key properties include `name`, `dateStart`, `dateEnd`, and `issns`.
+analogues:
+  - id: schema:Periodical
 core:
   - name
 properties:

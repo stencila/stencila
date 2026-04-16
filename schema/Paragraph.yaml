@@ -13,6 +13,11 @@ $comment: |
 
   Key properties include the inline `content`, together with optional `authors`
   and `provenance` metadata.
+analogues:
+  - id: html:p
+  - id: jats:p
+  - id: pandoc:Para
+  - id: mdast:Paragraph
 html:
   elem: p
 jats:

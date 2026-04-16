@@ -13,6 +13,13 @@ $comment: |
 
   Key properties include `target`, `cites`, `citationMode`,
   `citationIntent`, `content`, and any page or suffix metadata.
+analogues:
+  - id: jats:xref
+    notes: Closest JATS cross-reference analogue for in-text citations, though Stencila citations carry richer citation-specific metadata and resolved reference data.
+  - id: pandoc:Cite
+    notes: Closest Pandoc analogue for inline citations, with similar support for grouped items and prefixes or suffixes.
+  - id: myst:role:cite
+    notes: Close MyST analogue for citation syntax in authoring, though Stencila stores the citation as a resolved inline node with additional metadata.
 jats:
   special: true
 latex:

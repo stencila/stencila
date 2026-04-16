@@ -15,6 +15,10 @@ $comment: |
 
   Key properties include the variable `name` and `value`, along with any
   associated metadata or hints.
+analogues:
+  - name: programming language variable binding
+    url: https://en.wikipedia.org/wiki/Variable_(computer_science)
+    notes: Close conceptual analogue for a named value, though Stencila exposes variables as document-model nodes with type hints and serialization semantics.
 required:
   - name
 core:

@@ -12,6 +12,10 @@ $comment: |
 
   See also [`TupleValidator`](./tuple-validator.md) and
   [`ArrayValidator`](./array-validator.md) for array-specific constraints.
+analogues:
+  - name: JSON array
+    url: https://www.json.org/json-en.html
+    notes: Direct structural analogue for ordered primitive collections.
 type: array
 items:
   $ref: Primitive

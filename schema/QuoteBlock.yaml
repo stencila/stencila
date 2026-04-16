@@ -13,6 +13,12 @@ $comment: |
 
   Key properties include the quoted `content` and any citation or source
   metadata associated with the quotation.
+analogues:
+  - id: html:blockquote
+  - id: jats:disp-quote
+  - id: pandoc:BlockQuote
+  - id: mdast:Blockquote
+    notes: Closest MDAST analogue for block quotations, though Stencila additionally supports structured source metadata.
 jats:
   elem: disp-quote 
 html:

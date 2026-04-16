@@ -13,6 +13,8 @@ $comment: |
 
   Key properties are generally inherited from [`Thing`](./thing.md), especially
   `name`, `description`, identifiers, and URLs.
+analogues:
+  - id: schema:Brand
 required:
   - name
 properties:

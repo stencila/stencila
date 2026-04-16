@@ -14,6 +14,10 @@ $comment: |
 
   Key properties include `instructionType`, `nodeTypes`, `relativePosition`,
   `query`, `target`, and rendered `content`.
+analogues:
+  - name: rendered prompt preview
+    url: https://platform.openai.com/docs/guides/text-generation
+    notes: Approximate analogue for inspecting the final prompt sent to a model, though Stencila models it as an executable document node tied to editing context.
 status: beta
 patch:
   applyWith: PromptBlock::apply_patch_op

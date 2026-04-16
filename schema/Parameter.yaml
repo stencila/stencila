@@ -13,6 +13,11 @@ $comment: |
 
   Key properties include the parameter name, value, validator, derivation logic,
   and inherited execution metadata.
+analogues:
+  - id: jats:parameter
+  - name: JSON Schema property with default
+    url: https://json-schema.org/
+    notes: Approximate analogue for constrained input values, though Stencila parameters are executable document nodes rather than passive schema declarations.
 jats:
   elem: parameter
 html:

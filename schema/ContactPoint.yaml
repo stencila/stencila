@@ -14,6 +14,8 @@ $comment:
 
   Key properties include `emails`, `telephoneNumbers`, and
   `availableLanguages`.
+analogues:
+  - id: schema:ContactPoint
 core:
   - emails
   - telephoneNumbers

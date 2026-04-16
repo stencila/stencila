@@ -14,6 +14,10 @@ $comment: |
 
   See [`AuthorRole.author`](./author-role.md#author) for the property that uses
   this union.
+analogues:
+  - name: schema.org Role range pattern
+    url: https://schema.org/Role
+    notes: Approximate analogue for entities that can fill a role-bearing property, with Stencila adding an explicit fallback to `Thing` for anonymous or unidentified authors.
 default: Person
 anyOf:
   - $ref: Person

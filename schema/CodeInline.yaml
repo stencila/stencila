@@ -15,6 +15,11 @@ $comment: |
 
   Key properties are primarily inherited from [`CodeStatic`](./code-static.md),
   especially `code` and `programmingLanguage`.
+analogues:
+  - id: html:code
+  - id: jats:code
+  - id: pandoc:Code
+  - id: mdast:InlineCode
 dom:
   derive: false
 html:

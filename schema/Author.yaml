@@ -12,6 +12,10 @@ $comment: |
   See properties such as [`CreativeWork.authors`](./creative-work.md#authors)
   and [`CreativeWork.contributors`](./creative-work.md#contributors) for common
   uses of this union.
+analogues:
+  - name: schema.org author range
+    url: https://schema.org/author
+    notes: Close analogue for the set of entities that may fill the schema.org `author` property, though Stencila extends this with `SoftwareApplication` and `AuthorRole` in one reusable union.
 default: Person
 anyOf:
   - $ref: Person

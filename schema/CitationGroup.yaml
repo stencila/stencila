@@ -14,6 +14,14 @@ $comment: |
   individual citation items structurally.
 
   Key properties include `items` and the generated `content` rendering.
+analogues:
+  - id: pandoc:Cite
+    notes: Close Pandoc analogue because grouped citations are represented as a single cite node containing multiple citation items.
+  - id: myst:role:cite
+    notes: Close MyST authoring analogue for grouped citations, though Stencila stores individual citation items explicitly.
+  - name: CSL citation cluster
+    url: https://docs.citationstyles.org/en/stable/specification.html
+    notes: Conceptually analogous to a rendered citation cluster in Citation Style Language processors.
 jats:
   special: true
 latex:

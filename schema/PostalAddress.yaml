@@ -13,6 +13,9 @@ $comment: |
 
   Key properties include the address components themselves, with additional
   contact semantics inherited from [`ContactPoint`](./contact-point.md).
+analogues:
+  - id: schema:PostalAddress
+  - id: jats:address
 jats:
   elem: address
 core:

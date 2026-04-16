@@ -13,6 +13,12 @@ $comment:
 
   Key properties include the expression `code`, `programmingLanguage`, `output`,
   and inherited execution metadata.
+analogues:
+  - name: Jupyter expression output cell fragment
+    url: https://nbformat.readthedocs.io/
+    notes: Approximate analogue for expression-oriented execution that yields a value, though notebooks do not expose a dedicated expression node.
+  - id: myst:role:eval
+    notes: Close MyST authoring analogue for inline evaluation or expression rendering.
 jats:
   elem: code
   attrs:

@@ -16,6 +16,15 @@ $comment: |
   Key properties include `content`, `frontmatter`, `headings`, and `archive`.
   Additional metadata and execution features are inherited from
   [`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).
+analogues:
+  - id: schema:Article
+    notes: Direct schema.org source type, extended in Stencila with executable and block-document semantics.
+  - id: html:article
+    notes: Closest HTML sectioning analogue for standalone article content.
+  - id: jats:article
+    notes: Closest JATS analogue for scholarly article structure.
+  - id: pandoc:Pandoc
+    notes: Approximate Pandoc analogue for a full document with metadata and block content, though Pandoc uses a top-level document type rather than an article-specific node.
 dom:
   derive: false
 html:

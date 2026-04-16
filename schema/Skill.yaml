@@ -16,6 +16,10 @@ $comment: |
 
   Key properties include `name`, `frontmatter`, `content`, `compatibility`, and
   `allowedTools`.
+analogues:
+  - name: Agent Skills Specification skill
+    url: https://agentskills.io/specification
+    notes: Direct analogue and source specification for reusable agent skills.
 markdown:
   derive: false
 required:

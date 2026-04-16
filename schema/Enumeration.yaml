@@ -14,3 +14,5 @@ $comment: |
 
   See the many derived enumeration types for the vocabularies that carry
   Stencila Schema semantics.
+analogues:
+  - id: schema:Enumeration

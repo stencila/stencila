@@ -15,5 +15,12 @@ $comment: |
 
   Key properties identify the boundary location and its relationship to
   surrounding content.
+analogues:
+  - name: DOM Range boundary point
+    url: https://dom.spec.whatwg.org/#concept-range-bp
+    notes: Close conceptual analogue for a position at a node-and-offset boundary, though Stencila uses a document-model node rather than an ephemeral API object.
+  - name: ProseMirror position marker
+    url: https://prosemirror.net/docs/guide/
+    notes: Approximate editor-model analogue for addressing positions in structured content.
 markdown:
   derive: false

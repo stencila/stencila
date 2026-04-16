@@ -16,6 +16,15 @@ $comment: |
   Key properties include `content`, `caption`, `label`, `layout`, `padding`, and
   `overlay`. Additional metadata and provenance features are inherited from
   [`CreativeWork`](./creative-work.md).
+analogues:
+  - id: html:figure
+    notes: Closest HTML analogue for self-contained figure content with captions.
+  - id: jats:fig
+    notes: Closest JATS analogue for figures in scholarly publishing.
+  - id: pandoc:Figure
+    notes: Close Pandoc analogue for captioned figure content, though Stencila additionally supports panel layout and SVG overlay annotations.
+  - id: mdast:Image
+    notes: Only an approximate Markdown AST analogue; plain MDAST images do not model multi-block figure content, panels, or overlays.
 dom:
   derive: false
 html:

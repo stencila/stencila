@@ -12,6 +12,13 @@ $comment: |
 
   The loaded references are ephemeral and are stripped when the document is
   saved, to be reloaded on the next compilation.
+analogues:
+  - name: BibTeX bibliography database
+    url: https://www.bibtex.org/
+    notes: Close analogue for an external collection of references loaded into a document workflow.
+  - name: CSL JSON bibliography
+    url: https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html
+    notes: Close analogue for serialized reference collections consumed by citation tooling.
 status: beta
 required:
   - source

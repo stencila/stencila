@@ -14,6 +14,13 @@ $comment: |
   type, structured block content, and document-oriented labeling metadata.
 
   Key properties include `claimType`, `label`, and `content`.
+analogues:
+  - id: schema:Claim
+    notes: Direct schema.org source type, adapted in Stencila to carry block content and document labeling.
+  - id: jats:statement
+    notes: Closest JATS analogue for labeled or typed statement-like content.
+  - id: myst:directive:admonition
+    notes: Only an approximate authoring analogue; claims may be represented in markup as typed callout blocks, but Stencila gives them dedicated claim semantics.
 jats:
   elem: statement
 markdown:

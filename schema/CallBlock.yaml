@@ -14,6 +14,10 @@ $comment: |
 
   Key properties include inherited include-target information together with call
   arguments and execution-related properties.
+analogues:
+  - name: function-like template include
+    url: https://jinja.palletsprojects.com/
+    notes: Approximate analogue for parameterized document reuse, though Stencila `CallBlock` executes another document as a reusable component.
 status: experimental
 latex:
   derive: false

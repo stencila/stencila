@@ -15,6 +15,12 @@ $comment: |
 
   Key properties are usually inherited from [`MediaObject`](./media-object.md),
   especially content location, media type, dimensions, and descriptive text.
+analogues:
+  - id: schema:ImageObject
+  - id: html:img
+  - id: jats:inline-graphic
+  - id: pandoc:Image
+  - id: mdast:Image
 dom:
   derive: false
 html:

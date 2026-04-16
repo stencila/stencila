@@ -14,6 +14,12 @@ $comment: |
 
   Key properties include the sentence `content` and any associated authorship or
   provenance metadata.
+analogues:
+  - name: Universal Dependencies sentence span
+    url: https://universaldependencies.org/
+    notes: Close linguistic analogue for explicit sentence segmentation, though UD usually treats sentences as annotation spans rather than document-tree nodes.
+  - id: pandoc:Span
+    notes: Only an approximate Pandoc analogue; Pandoc has no dedicated sentence node and sentence boundaries are usually inferred.
 required:
   - content
 properties:

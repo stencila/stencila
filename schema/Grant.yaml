@@ -13,6 +13,8 @@ $comment: |
 
   Key properties are typically used via funding-related fields on
   [`CreativeWork`](./creative-work.md) and derived types.
+analogues:
+  - id: schema:Grant
 properties:
   fundedItems:
     '@id': schema:fundedItem

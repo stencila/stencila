@@ -14,6 +14,12 @@ $comment: |
   Use this type to understand what can appear in `content` arrays on document
   and container nodes such as [`Article`](./article.md),
   [`Section`](./section.md), and [`Figure`](./figure.md).
+analogues:
+  - name: HTML flow content
+    url: https://html.spec.whatwg.org/multipage/dom.html#flow-content-2
+    notes: Broadly analogous to the set of HTML elements allowed in block-flow positions, though Stencila's union is document-AST oriented rather than DOM-category based.
+  - id: pandoc:Block
+    notes: Closest Pandoc union analogue for block-level content.
 default: Paragraph
 proptest: {}
 anyOf:

@@ -14,6 +14,11 @@ $comment: |
 
   Key properties are usually inherited from [`MediaObject`](./media-object.md),
   especially those describing content URLs, media type, and alternate text.
+analogues:
+  - id: schema:AudioObject
+  - id: html:audio
+  - id: jats:inline-media
+    notes: Closest JATS analogue for embedded audio-like media, though JATS does not define a dedicated audio element parallel to HTML `<audio>`.
 dom:
   derive: false
 html:

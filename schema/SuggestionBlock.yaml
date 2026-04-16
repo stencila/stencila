@@ -14,6 +14,10 @@ $comment: |
 
   Key properties are primarily inherited from [`Suggestion`](./suggestion.md),
   with semantics centered on block-content replacements and originals.
+analogues:
+  - name: block-level tracked change
+    url: https://learn.microsoft.com/en-us/office/open-xml/word/working-with-comments-and-tracked-revisions
+    notes: Approximate analogue for suggested paragraph or block replacements in tracked-review systems.
 markdown:
   derive: false
 required:

@@ -13,6 +13,10 @@ $comment: |
 
   Key properties include `name`, `termCode`, and the inherited `description`
   field, which is typically used for the term's definition.
+analogues:
+  - id: schema:DefinedTerm
+  - id: jats:term
+    notes: Approximate JATS analogue for marked terms, though JATS `<term>` is inline and does not by itself model a standalone defined-term entity.
 required:
   - name
 properties:

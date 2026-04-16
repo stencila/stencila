@@ -13,6 +13,8 @@ $comment: |
 
   Key properties include `issueNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
   `pagination`.
+analogues:
+  - id: schema:PublicationIssue
 core:
   - isPartOf
   - issueNumber

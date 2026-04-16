@@ -19,6 +19,13 @@ $comment: |
 
   Key semantics are inherited from [`Mark`](./mark.md), with this type chiefly
   signaling strike-through rendering for its `content`.
+analogues:
+  - id: html:del
+    notes: Close HTML analogue for struck-through text, though Stencila `Strikeout` is used as a general strike-through mark rather than specifically representing deletions.
+  - id: jats:strike
+  - id: pandoc:Strikeout
+  - id: mdast:Delete
+    notes: Closest MDAST analogue, although the MDAST name emphasizes deletion semantics rather than the visual mark.
 dom:
   elem: s
 html:

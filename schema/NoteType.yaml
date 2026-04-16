@@ -12,6 +12,10 @@ $comment: |
 
   See [`Note.noteType`](./note.md#notetype) for the property that uses this
   enumeration.
+analogues:
+  - name: JATS fn-type values
+    url: https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/attribute/fn-type.html
+    notes: Close JATS analogue for classifying note kinds, though Stencila focuses on placement-oriented note types such as footnote, endnote, and sidenote.
 proptest: {}
 default: Footnote
 anyOf:

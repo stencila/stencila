@@ -13,6 +13,9 @@ $comment: |
 
   Key properties include `brands`, `logo`, `productID`, and inherited metadata
   from [`Thing`](./thing.md).
+analogues:
+  - id: schema:Product
+  - id: jats:product
 jats:
   elem: product
 properties:

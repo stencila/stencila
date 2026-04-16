@@ -13,6 +13,15 @@ $comment: |
   Use this type to understand what can appear in inline `content` arrays such as
   those on [`Paragraph`](./paragraph.md), [`Heading`](./heading.md), and other
   prose nodes.
+analogues:
+  - name: HTML phrasing content
+    url: https://html.spec.whatwg.org/multipage/dom.html#phrasing-content-2
+    notes: Broadly analogous to HTML inline-capable content, though Stencila's union is a typed AST union rather than a DOM content category.
+  - id: pandoc:Inline
+    notes: Closest Pandoc union analogue for inline content.
+  - name: MDAST phrasing content
+    url: https://github.com/syntax-tree/mdast#phrasingcontent
+    notes: Closest MDAST analogue for reusable inline-content positions.
 default: Text
 proptest: {}
 anyOf:

@@ -12,6 +12,15 @@ $comment: |
   sectioning, appendix numbering, and document navigation workflows.
 
   Key properties include `level`, `content`, `labelType`, and `label`.
+analogues:
+  - id: html:h1
+    notes: Closest HTML analogue for heading semantics, although Stencila uses one type with an explicit `level` rather than separate `h1` to `h6` element types.
+  - id: jats:title
+    notes: Closest JATS analogue for section and container titles, though JATS heading semantics are tied to parent structures rather than a standalone heading node with explicit level.
+  - id: pandoc:Header
+    notes: Close block analogue with an explicit level; Stencila also supports labeling, authorship, and provenance metadata on headings.
+  - id: mdast:Heading
+    notes: Closest MDAST block analogue for headings.
 dom:
   derive: false
 jats:

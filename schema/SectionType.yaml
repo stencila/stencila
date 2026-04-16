@@ -11,6 +11,10 @@ $comment: |
 
   See [`Section.sectionType`](./section.md#sectiontype) for the property that
   uses this enumeration.
+analogues:
+  - name: JATS sec-type values
+    url: https://jats.nlm.nih.gov/
+    notes: Close analogue because many Stencila section types align with JATS-recommended section labels, with additional values for broader scholarly and technical writing workflows.
 proptest: {}
 anyOf:
   - const: Abstract

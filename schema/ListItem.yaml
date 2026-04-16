@@ -14,6 +14,19 @@ $comment: |
   ordinary prose lists as well as checklists and mixed-content document lists.
 
   Key properties include `content`, `item`, `isChecked`, and `position`.
+analogues:
+  - id: schema:ListItem
+    notes: Direct schema.org source type, extended in Stencila with rich block `content` and task-list state.
+  - id: html:li
+    notes: Closest HTML analogue for list items, though Stencila can also carry `isChecked`, `position`, and structured node-valued `item` metadata.
+  - id: jats:list-item
+    notes: Closest JATS analogue for list items.
+  - id: pandoc:Plain
+    notes: One common Pandoc representation for a simple list item containing inline-only content.
+  - id: pandoc:BulletList
+    notes: Pandoc models list items as nested block lists within list constructors rather than as standalone `ListItem` nodes.
+  - id: mdast:ListItem
+    notes: Closest MDAST analogue; Stencila additionally supports schema.org-style item metadata and explicit checklist state.
 html:
   elem: li
 jats:

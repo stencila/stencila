@@ -14,6 +14,10 @@ $comment: |
 
   See [`AuthorRole.roleName`](./author-role.md#rolename) for the property that
   uses this enumeration.
+analogues:
+  - name: CRediT taxonomy roles
+    url: https://credit.niso.org/
+    notes: Approximate analogue for controlled contributor role vocabularies, though Stencila includes authoring and AI-workflow roles beyond the standard CRediT set.
 default: Writer
 anyOf:
   - const: Importer

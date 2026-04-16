@@ -12,6 +12,10 @@ $comment: |
 
   Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
   inline `content`.
+analogues:
+  - id: html:sub
+  - id: jats:sub
+  - id: pandoc:Subscript
 dom:
   elem: sub
 html:

@@ -15,6 +15,11 @@ $comment: |
 
   Key properties include `name`, `softwareVersion`, `operatingSystem`, and
   `softwareRequirements`.
+analogues:
+  - id: schema:SoftwareApplication
+  - name: SPDX package metadata
+    url: https://spdx.dev/specifications/
+    notes: Approximate software-package analogue for recording application identity, version, and dependencies.
 required:
   - name
 core:

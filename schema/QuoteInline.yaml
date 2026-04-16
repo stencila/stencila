@@ -13,6 +13,13 @@ $comment: |
 
   Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
   inline `content`.
+analogues:
+  - id: html:q
+  - id: pandoc:Quoted
+    notes: Closest Pandoc analogue for inline quotations, though Pandoc distinguishes quote kind explicitly.
+  - name: MDAST phrasing quotation
+    url: https://github.com/syntax-tree/mdast
+    notes: There is no dedicated core MDAST inline quote node; quotation is usually represented as plain text punctuation or HTML.
 jats:
   # Note that this is not a JATS standard element but we use it to
   # enable roundtrip testing (stripping `Quote` nodes does not work

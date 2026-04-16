@@ -12,6 +12,15 @@ $comment: |
   rather than reducing them to plain text markers.
 
   Key properties include `noteType` and `content`.
+analogues:
+  - id: html:aside
+    notes: Approximate HTML analogue for note content, though HTML has no dedicated footnote or endnote element and placement semantics are not built in.
+  - id: jats:fn
+    notes: Closest JATS analogue for document notes, particularly footnotes.
+  - id: pandoc:Note
+    notes: Closest Pandoc analogue for inline-referenced notes; Stencila additionally records note placement semantics explicitly via `noteType`.
+  - id: mdast:FootnoteDefinition
+    notes: Close MDAST analogue for defined footnote content, although MDAST models note references and definitions separately and does not cover sidenotes directly.
 jats:
   elem: fn
   attrs:

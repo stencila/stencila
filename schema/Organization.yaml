@@ -13,6 +13,10 @@ $comment: |
 
   Key properties include `ror`, `address`, `brands`, `contactPoints`, and
   inherited metadata from [`Thing`](./thing.md).
+analogues:
+  - id: schema:Organization
+  - id: jats:institution
+    notes: Closest JATS analogue for organization names in affiliations and metadata.
 jats:
   elem: institution
 core:

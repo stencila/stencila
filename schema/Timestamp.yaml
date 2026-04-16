@@ -15,6 +15,10 @@ $comment: |
 
   See properties such as `executionEnded`, `lastModified`, and other
   timestamp-bearing metadata throughout the schema.
+analogues:
+  - name: Unix timestamp
+    url: https://en.wikipedia.org/wiki/Unix_time
+    notes: Closest external analogue, though Stencila stores the epoch offset together with explicit `timeUnit` rather than assuming seconds.
 jats:
   elem: timestamp
   special: true

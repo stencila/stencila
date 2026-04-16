@@ -14,6 +14,10 @@ $comment: |
 
   Key properties include the suggestion `suggestionType`, `status`, and any
   associated feedback or authorship metadata.
+analogues:
+  - name: word processor tracked change
+    url: https://learn.microsoft.com/en-us/office/open-xml/word/working-with-comments-and-tracked-revisions
+    notes: Close editing analogue for persisted proposed changes, though Stencila suggestions are explicit typed nodes rather than markup overlays in a word-processing format.
 core:
   - suggestionType
   - suggestionStatus

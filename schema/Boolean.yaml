@@ -12,4 +12,8 @@ $comment: |
   parameters, forms, and execution state.
 
   See also the broader primitive unions such as [`Primitive`](./primitive.md).
+analogues:
+  - id: schema:Boolean
+  - name: JSON boolean
+    url: https://www.json.org/json-en.html
 type: boolean

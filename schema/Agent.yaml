@@ -15,6 +15,13 @@ $comment: |
 
   Key properties include `name`, `models`, `providers`, `allowedSkills`,
   `allowedTools`, and `content`.
+analogues:
+  - name: OpenAI GPT configuration
+    url: https://platform.openai.com/
+    notes: Approximate analogue for a reusable agent configuration combining instructions, model preferences, and tool policies.
+  - name: Anthropic Claude system prompt configuration
+    url: https://docs.anthropic.com/
+    notes: Approximate provider-level analogue for reusable assistant behavior definitions.
 markdown:
   derive: false
 required:

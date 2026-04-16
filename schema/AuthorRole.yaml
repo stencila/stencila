@@ -13,6 +13,12 @@ $comment: |
   alone.
 
   Key properties include `author`, `roleName`, `format`, and `lastModified`.
+analogues:
+  - id: schema:Role
+    notes: Direct schema.org source pattern, specialized by Stencila for authorship and contribution provenance.
+  - name: CRediT contributor role assertion
+    url: https://credit.niso.org/
+    notes: Approximate analogue for attributed contributor roles, though Stencila additionally records author identity, format, and modification metadata in one node.
 dom:
   derive: false
 required:

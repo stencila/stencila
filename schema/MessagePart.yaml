@@ -12,6 +12,10 @@ $comment: |
 
   Use this type to understand what content can appear in structured instruction
   and chat messages.
+analogues:
+  - name: multimodal message content part
+    url: https://platform.openai.com/docs/guides/images
+    notes: Close analogue for typed message parts combining text and media attachments within one structured message.
 dom:
   derive: false
 anyOf:

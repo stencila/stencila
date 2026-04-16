@@ -14,6 +14,10 @@ $comment: |
 
   Key properties identify the dependency node and the relation that explains why
   it is required.
+analogues:
+  - name: build dependency edge
+    url: https://en.wikipedia.org/wiki/Dependency_graph
+    notes: Close graph-theoretic analogue for an upstream dependency relation between executable units, though Stencila also records node identity and code location metadata.
 required:
   - dependencyRelation
   - dependencyType

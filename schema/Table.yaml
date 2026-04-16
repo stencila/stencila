@@ -17,6 +17,15 @@ $comment: |
   Key properties include `rows`, `caption`, `notes`, `label`, and
   `labelAutomatically`. Additional metadata features may be inherited from
   [`CreativeWork`](./creative-work.md).
+analogues:
+  - id: schema:Table
+    notes: Direct schema.org source type, extended in Stencila with structured row and note content for document authoring.
+  - id: html:table
+    notes: Closest HTML analogue for tabular content, though Stencila also models notes and richer work metadata.
+  - id: jats:table-wrap
+    notes: Closest JATS analogue for publishable tables with captions and notes.
+  - id: pandoc:Table
+    notes: Closest Pandoc analogue for structured document tables.
 patch:
   takeAuthors: true
 dom:

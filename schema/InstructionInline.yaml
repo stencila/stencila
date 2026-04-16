@@ -13,6 +13,10 @@ $comment: |
 
   Key properties are mostly inherited from [`Instruction`](./instruction.md),
   with semantics focused on inline targets and suggestions.
+analogues:
+  - name: inline edit request
+    url: https://platform.openai.com/docs/guides/text-generation
+    notes: Approximate analogue for a fine-grained editing instruction targeting spans within prose.
 patch:
   applyWith: "InstructionInline::apply_with"
 proptest: {}

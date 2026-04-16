@@ -11,4 +11,8 @@ $comment: |
 
   See also [`Integer`](./integer.md) and
   [`UnsignedInteger`](./unsigned-integer.md).
+analogues:
+  - id: schema:Number
+  - name: JSON number
+    url: https://www.json.org/json-en.html
 type: number

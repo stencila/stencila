@@ -14,6 +14,10 @@ $comment: |
 
   See also related temporal types such as [`DateTime`](./date-time.md),
   [`Time`](./time.md), and [`Timestamp`](./timestamp.md).
+analogues:
+  - id: schema:Date
+  - id: jats:date
+    notes: Close JATS analogue for structured date values in document metadata.
 jats:
   elem: date
   special: true

@@ -14,6 +14,11 @@ $comment: |
 
   Key properties include `caption`, `thumbnail`, and `transcript`, with broader
   media metadata inherited from [`MediaObject`](./media-object.md).
+analogues:
+  - id: schema:VideoObject
+  - id: html:video
+  - id: jats:inline-media
+    notes: Closest JATS analogue for embedded video-like media, though JATS uses a generic media element rather than a dedicated video element.
 dom:
   derive: false
 html:

@@ -16,6 +16,12 @@ $comment: |
   Key properties are inherited from [`CodeStatic`](./code-static.md), with
   Stencila Schema behavior centered on `isDemo`, `content`, and the associated
   compilation properties.
+analogues:
+  - id: html:pre
+  - id: jats:code
+  - id: pandoc:CodeBlock
+  - id: mdast:Code
+    notes: Closest MDAST analogue for fenced or indented code blocks.
 dom:
   derive: false
 html:

@@ -14,6 +14,16 @@ $comment: |
   represents plain scalar string values outside the node model.
 
   The main property is `value`.
+analogues:
+  - id: schema:Text
+    notes: Direct schema.org source type, adapted in Stencila from a scalar data type into a first-class node.
+  - name: HTML text node
+    url: https://dom.spec.whatwg.org/#text
+    notes: Closest DOM analogue for literal text content, though Stencila text nodes can carry identity and metadata through `Entity`.
+  - id: pandoc:Str
+    notes: Close Pandoc analogue for plain inline text, though Pandoc splits spaces and line breaks into separate inline constructors.
+  - id: mdast:Text
+    notes: Closest MDAST analogue for text leaf nodes.
 dom:
   derive: false
 html:

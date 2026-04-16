@@ -15,6 +15,19 @@ $comment: |
   unordered, and checklist-style document lists with rich item content.
 
   Key properties include `items`, `order`, and optional authorship metadata.
+analogues:
+  - id: html:ul
+    notes: Close analogue for unordered lists; Stencila uses a single `List` type and records list style in `order` rather than separate element types.
+  - id: html:ol
+    notes: Close analogue for ordered lists; descending and checklist semantics are represented via `order` and item metadata rather than distinct HTML elements.
+  - id: jats:list
+    notes: Closest JATS container analogue for list content.
+  - id: pandoc:BulletList
+    notes: Close analogue for unordered lists; ordered and checklist forms are represented differently in Pandoc.
+  - id: pandoc:OrderedList
+    notes: Close analogue for ordered lists; Stencila unifies ordered and unordered lists in one node type.
+  - id: mdast:List
+    notes: Closest MDAST analogue for list containers, though task-list state is carried on items in Stencila.
 dom:
   derive: false
 html:

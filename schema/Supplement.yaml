@@ -16,6 +16,8 @@ $comment: |
   metadata attachments.
 
   Key properties include `workType`, `label`, `caption`, and `target`.
+analogues:
+  - id: jats:supplementary-material
 dom:
   derive: false
 jats:

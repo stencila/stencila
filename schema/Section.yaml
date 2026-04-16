@@ -14,6 +14,15 @@ $comment: |
 
   Key properties include `sectionType`, `title`, and `content`, together with
   inherited metadata from [`Entity`](./entity.md).
+analogues:
+  - id: html:section
+    notes: Closest HTML sectioning analogue, though Stencila sections can carry typed section roles, authorship, and provenance metadata.
+  - id: jats:sec
+    notes: Closest JATS analogue for structured document sections.
+  - id: pandoc:Div
+    notes: Closest Pandoc container analogue when divisions are used to represent sections; Stencila uses a dedicated section node with explicit semantics.
+  - id: mdast:Heading
+    notes: Markdown ASTs often imply sections through heading structure rather than an explicit section container, so this is only an approximate analogue.
 jats:
   elem: sec
 html:

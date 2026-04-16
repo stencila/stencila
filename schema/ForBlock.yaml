@@ -14,6 +14,10 @@ $comment: |
 
   Key properties include the iteration source, loop variable binding, repeated
   `content`, and inherited execution properties.
+analogues:
+  - name: Jinja for block
+    url: https://jinja.palletsprojects.com/
+    notes: Close template-language analogue for repeating content over an iterable, though Stencila models the loop as an executable document node.
 status: beta
 latex:
   derive: false

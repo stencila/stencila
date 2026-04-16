@@ -15,6 +15,8 @@ $comment: |
   [`CreativeWork.parts`](./creative-work.md#parts). The schema.org
   `collectionSize` property is not included because it would largely duplicate
   information already available from the number of parts.
+analogues:
+  - id: schema:Collection
 markdown:
   derive: false
 required:

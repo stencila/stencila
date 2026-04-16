@@ -12,6 +12,12 @@ $comment: |
 
   Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
   inline `content`.
+analogues:
+  - id: html:strong
+  - id: jats:bold
+    notes: Close JATS rendering analogue for strong emphasis.
+  - id: pandoc:Strong
+  - id: mdast:Strong
 dom:
   elem: strong
 html:

@@ -16,6 +16,10 @@ $comment: |
   Key properties include `executionMode`, `compilationDigest`,
   `executionDependencies`, `executionRequired`, `executionStatus`,
   `executionMessages`, and related execution timestamps and durations.
+analogues:
+  - name: notebook executable cell model
+    url: https://nbformat.readthedocs.io/
+    notes: Approximate analogue for document nodes that carry execution state, though Stencila generalizes execution semantics beyond code cells to many node kinds.
 core:
   - executionMode
 properties:

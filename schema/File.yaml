@@ -15,6 +15,12 @@ $comment: |
 
   Key properties include file path and media metadata, together with inherited
   identifiers and descriptive fields from [`CreativeWork`](./creative-work.md).
+analogues:
+  - name: POSIX file
+    url: https://pubs.opengroup.org/onlinepubs/9699919799/
+    notes: Close filesystem analogue for a file as a concrete resource addressed by path.
+  - id: schema:MediaObject
+    notes: Approximate web-metadata analogue when the file is also a media resource, though Stencila `File` is filesystem-oriented rather than URL-oriented.
 required:
   - name
   - path

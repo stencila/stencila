@@ -13,6 +13,14 @@ $comment: |
 
   Key properties include the referenced work metadata and identifiers used for
   linking citations to entries.
+analogues:
+  - id: schema:CreativeWork
+    notes: Approximate schema.org analogue because references largely reuse creative-work metadata, but Stencila `Reference` is specialized for bibliographic entries and citation linking.
+  - id: pandoc:Citation
+    notes: Only a partial Pandoc analogue; Pandoc citation items capture identifiers and locators, while Stencila `Reference` represents the bibliographic entry itself.
+  - name: CSL JSON item
+    url: https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html
+    notes: Close analogue for structured bibliographic record data used by citation processors.
 markdown:
   derive: false
 core:

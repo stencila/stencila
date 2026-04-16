@@ -15,6 +15,11 @@ $comment: |
 
   Key properties are inherited from [`Math`](./math.md), especially the source
   math code, language or format, and compilation-related metadata.
+analogues:
+  - id: jats:disp-formula
+  - id: pandoc:Math
+    notes: Close Pandoc analogue for display math, though Pandoc distinguishes display mode via a subkind rather than a separate node type.
+  - id: mdast:Math
 dom:
   derive: false
 html:

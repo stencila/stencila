@@ -14,6 +14,10 @@ $comment: |
 
   Key properties are mostly inherited from [`Instruction`](./instruction.md),
   with semantics focused on block-content targets and suggestions.
+analogues:
+  - name: block edit request
+    url: https://platform.openai.com/docs/guides/text-generation
+    notes: Approximate analogue for an editing instruction targeting paragraph or section-level content.
 patch:
   derive: false
 dom:

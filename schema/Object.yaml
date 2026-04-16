@@ -11,6 +11,10 @@ $comment: |
   nested `Object` and `Array` values.
 
   See also [`Primitive`](./primitive.md) for the broader primitive-value union.
+analogues:
+  - name: JSON object
+    url: https://www.json.org/json-en.html
+    notes: Direct structural analogue for string-keyed primitive mappings.
 type: object
 # This allows for any keyed values as long as they are `Primitive`
 additionalProperties:

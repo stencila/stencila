@@ -14,6 +14,13 @@ $comment: |
   that need a minimal block wrapper around executable inline content.
 
   Key properties include the inline `content`.
+analogues:
+  - id: html:div
+    notes: Closest HTML container analogue for grouping inline content without paragraph semantics.
+  - id: pandoc:Plain
+    notes: Closest Pandoc block analogue for inline content that is block-positioned but not paragraph-like.
+  - id: mdast:Paragraph
+    notes: Only an approximate MDAST analogue because Markdown commonly uses paragraphs for inline block content and has no dedicated semantics-free inline block wrapper.
 required:
   - content
 properties:

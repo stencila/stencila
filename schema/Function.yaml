@@ -15,6 +15,10 @@ $comment: |
 
   Key properties include the function `name`, `parameters`, and return-value
   description.
+analogues:
+  - name: OpenAPI operation signature
+    url: https://spec.openapis.org/oas/latest.html
+    notes: Approximate analogue for structured callable signatures with parameters and return-like schemas, though Stencila `Function` is language-agnostic and document-oriented.
 required:
   - name
   - parameters

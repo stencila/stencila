@@ -14,6 +14,12 @@ $comment: |
 
   Key properties include the include target, selection or transformation
   settings, and inherited execution metadata.
+analogues:
+  - id: myst:directive:include
+    notes: Closest MyST analogue for transcluding external content into a document.
+  - name: Jinja include
+    url: https://jinja.palletsprojects.com/
+    notes: Approximate template analogue, though Stencila inclusion participates in compilation and produces typed block content.
 status: beta
 latex:
   derive: false

@@ -16,6 +16,11 @@ $comment: |
   Key properties include `programmingLanguage`, `codeSampleType`,
   `runtimePlatform`, `softwareRequirements`, and `targetProducts`, with broader
   metadata inherited from [`CreativeWork`](./creative-work.md).
+analogues:
+  - id: schema:SoftwareSourceCode
+  - name: SPDX package source metadata
+    url: https://spdx.dev/specifications/
+    notes: Approximate software-metadata analogue for describing source artifacts and their dependencies, though SPDX has a different focus and data model.
 required:
   - name
   - programmingLanguage

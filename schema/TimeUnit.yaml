@@ -12,6 +12,10 @@ $comment: |
 
   See properties on duration- and time-related types that reference this
   enumeration.
+analogues:
+  - name: UCUM time units
+    url: https://ucum.org/
+    notes: Close controlled-vocabulary analogue for units of temporal measurement, though Stencila uses a compact fixed enumeration rather than coded unit strings.
 default: Millisecond
 proptest: {}
 anyOf:

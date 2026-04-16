@@ -15,6 +15,14 @@ $comment: |
 
   Key properties include `contentUrl`, `embedUrl`, and `mediaType`. Prefer
   `AudioObject`, `ImageObject`, or `VideoObject` when the media kind is known.
+analogues:
+  - id: schema:MediaObject
+  - id: html:img
+    notes: Approximate HTML analogue for embedded media, though Stencila `MediaObject` generalizes over image, audio, and video resources.
+  - id: jats:inline-media
+    notes: Close JATS analogue for generic embeddable media.
+  - id: pandoc:Image
+    notes: Only an approximate Pandoc analogue; Pandoc has media-specific inline nodes rather than a generic media-object base type.
 jats:
   elem: inline-media
   special: true

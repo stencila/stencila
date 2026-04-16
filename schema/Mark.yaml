@@ -14,6 +14,12 @@ $comment: |
 
   Key properties usually include wrapped `content`, together with inherited
   metadata and provenance features from [`Entity`](./entity.md).
+analogues:
+  - name: HTML phrasing elements
+    url: https://html.spec.whatwg.org/multipage/dom.html#phrasing-content-2
+    notes: Broadly analogous to inline wrapper elements such as `<em>`, `<strong>`, or `<q>`, though Stencila abstracts over many specific mark types.
+  - id: pandoc:Inline
+    notes: Approximate Pandoc analogue because concrete mark types are individual inline constructors rather than subclasses of an abstract mark base type.
 required:
   - content
 properties:
