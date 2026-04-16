@@ -1252,13 +1252,19 @@ mod tests {
     #[test]
     fn format_read_file_with_offset_and_limit() {
         let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42, "limit": 10});
-        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42-51");
+        assert_eq!(
+            format_tool_start("read_file", &args),
+            "Read src/main.rs:42-51"
+        );
     }
 
     #[test]
     fn format_read_file_with_zero_limit() {
         let args = serde_json::json!({"file_path": "src/main.rs", "offset": 42, "limit": 0});
-        assert_eq!(format_tool_start("read_file", &args), "Read src/main.rs:42-42");
+        assert_eq!(
+            format_tool_start("read_file", &args),
+            "Read src/main.rs:42-42"
+        );
     }
 
     #[test]

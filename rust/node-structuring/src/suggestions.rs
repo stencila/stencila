@@ -6,7 +6,7 @@ trait SuggestionNode: Sized {
     type Content;
 
     fn suggestion_type(&self) -> Option<SuggestionType>;
-    
+
     fn metadata(&self) -> SuggestionMetadata;
 
     fn into_parts(self) -> (Vec<Self::Content>, Vec<Self::Content>);
