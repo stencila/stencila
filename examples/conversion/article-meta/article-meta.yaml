@@ -13,7 +13,7 @@ authors:
   - Andrews
 datePublished:
   type: DateTime
-  value: 2022-02-22T00:00:00+00:00
+  value: 2022-02-22
 title:
 - type: Text
   value:
@@ -66,10 +66,10 @@ content:
       string: . Metadata can be added to YAML front-matter in Markdown documents in a variety of ways, and it is parsed into Stencila Schema nodes.
 dateCreated:
   type: DateTime
-  value: 2001-01-01T00:00:00+00:00
+  value: 2001-01-01
 dateAccepted:
   type: DateTime
-  value: 2011-11-11T00:00:00+00:00
+  value: 2011-11-11
 funders:
 - type: Organization
   name: Example Inc
