@@ -1,0 +1,9 @@
+A paragraph before an inserted block.
+
+A paragraph before a deleted block.
+
+A suggested deleted paragraph.
+
+A paragraph before a replaced block.
+
+Original paragraph.

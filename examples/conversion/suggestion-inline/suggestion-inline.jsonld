@@ -1,0 +1,104 @@
+{
+  "@context": {
+    "@vocab": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@type": "Article",
+  "stencila:content": [
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A "
+          }
+        },
+        {
+          "@type": "stencila:SuggestionInline",
+          "stencila:suggestionType": "Insert",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "suggested insertion"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": {
+            "string": " in a paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A "
+          }
+        },
+        {
+          "@type": "stencila:SuggestionInline",
+          "stencila:suggestionType": "Delete",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "suggested deletion in a "
+              }
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": {
+            "string": "paragraph."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A "
+          }
+        },
+        {
+          "@type": "stencila:SuggestionInline",
+          "stencila:suggestionType": "Replace",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "actual replacement"
+              }
+            }
+          ],
+          "stencila:original": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "suggested replacement"
+              }
+            }
+          ]
+        },
+        {
+          "@type": "Text",
+          "value": {
+            "string": " in a paragraph."
+          }
+        }
+      ]
+    }
+  ]
+}

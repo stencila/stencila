@@ -1,0 +1,102 @@
+{
+  "type": "Article",
+  "content": [
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A paragraph before an inserted block."
+          }
+        }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Insert",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "A suggested inserted paragraph."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A paragraph before a deleted block."
+          }
+        }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Delete",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "A suggested deleted paragraph."
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {
+          "type": "Text",
+          "value": {
+            "string": "A paragraph before a replaced block."
+          }
+        }
+      ]
+    },
+    {
+      "type": "SuggestionBlock",
+      "suggestionType": "Replace",
+      "content": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Replacement paragraph."
+              }
+            }
+          ]
+        }
+      ],
+      "original": [
+        {
+          "type": "Paragraph",
+          "content": [
+            {
+              "type": "Text",
+              "value": {
+                "string": "Original paragraph."
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

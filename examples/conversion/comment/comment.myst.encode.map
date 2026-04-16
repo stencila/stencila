@@ -1,25 +1,31 @@
 start     end        offsets   node_type+property                   authorship
      0     17        (0, 17)   Text.value
      0     17         (0, 0)   Text
-    17     42       (17, 25)   Text.value
+    17     17        (17, 0)   Boundary
+    17     42        (0, 25)   Text.value
     17     42         (0, 0)   Text
-    42     47        (25, 5)   Text.value
+    42     42        (25, 0)   Boundary
+    42     47         (0, 5)   Text.value
     42     47         (0, 0)   Text
-    47     76        (5, 29)   Text.value
+    47     47         (5, 0)   Boundary
+    47     76        (0, 29)   Text.value
     47     76         (0, 0)   Text
      0     76       (-47, 0)   Paragraph.content
      0     77         (0, 1)   Paragraph
     78     98       (78, 21)   Text.value
     78     98         (0, 0)   Text
-    98    128       (20, 30)   Text.value
+    98     98        (20, 0)   Boundary
+    98    128        (0, 30)   Text.value
     98    128         (0, 0)   Text
-   128    129        (30, 1)   Text.value
+   128    128        (30, 0)   Boundary
+   128    129         (0, 1)   Text.value
    128    129         (0, 0)   Text
     78    129       (-50, 0)   Paragraph.content
     78    130         (0, 1)   Paragraph
    131    163       (53, 33)   Text.value
    131    163         (0, 0)   Text
-   163    164        (32, 1)   Text.value
+   163    163        (32, 0)   Boundary
+   163    164         (0, 1)   Text.value
    163    164         (0, 0)   Text
    131    164       (-32, 0)   Paragraph.content
    131    165         (0, 1)   Paragraph
