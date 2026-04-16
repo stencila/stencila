@@ -12,4 +12,4 @@ A paragraph with a point comment{<<c3}.
 
     It has multiple paragraphs.
 
-[>>c3]: A third comment.
+[>>c3]{by="Alice", at="2026-04-16T10:34:00Z"}: A third comment.

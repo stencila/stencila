@@ -7,18 +7,25 @@ use markdown::{
     unist::Position,
 };
 use regex::Regex;
+use std::str::FromStr;
+use winnow::{Parser, stream::LocatingSlice as Located};
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses, Mapping,
     eyre::{Result, eyre},
     stencila_format::Format,
     stencila_schema::{
-        Agent, Article, Block, Chat, CodeBlock, CodeChunk, Comment, CommentOptions, Inline, Node,
-        NodeId, NodeType, Null, Prompt, Skill, VisitorMut, WalkControl, Workflow,
+        Agent, Article, Author, Block, Chat, CodeBlock, CodeChunk, Comment, CommentOptions,
+        DateTime, Inline, Node, NodeId, NodeType, Null, Prompt, Skill, VisitorMut, WalkControl,
+        Workflow,
     },
 };
 
-use self::{blocks::mds_to_blocks, inlines::mds_to_inlines};
+use self::{
+    blocks::mds_to_blocks,
+    inlines::mds_to_inlines,
+    shared::{attrs, node_to_option_datetime},
+};
 
 mod blocks;
 mod check;
@@ -149,12 +156,23 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         ids.sort();
 
         for id in ids {
-            let content_md = context.comment_definitions.remove(&id).unwrap_or_default();
-            let content = decode_blocks(&content_md, &mut context);
+            let CommentDefinition { by, at, content } =
+                context.comment_definitions.remove(&id).unwrap_or_default();
+            let content = decode_blocks(&content, &mut context);
             let is_reply = id.contains('.');
 
             let comment = Comment {
                 id: Some(id.clone()),
+                authors: by.map(|by| {
+                    by.split(';')
+                        .map(str::trim)
+                        .filter(|name| !name.is_empty())
+                        .map(|name| {
+                            Author::from_str(name).unwrap_or_else(|_| Author::Person(name.into()))
+                        })
+                        .collect()
+                }),
+                date_published: at.map(DateTime::new),
                 content,
                 options: Box::new(CommentOptions {
                     start_location: if !is_reply {
@@ -453,7 +471,7 @@ struct Context {
     footnotes: HashMap<String, Vec<Block>>,
 
     /// Comment definitions extracted during preprocessing
-    comment_definitions: HashMap<String, String>,
+    comment_definitions: HashMap<String, CommentDefinition>,
 
     /// Losses during decoding
     losses: Losses,
@@ -563,14 +581,22 @@ impl VisitorMut for Context {
 /// Finds `[>>id]: content` blocks (similar to footnote definitions) and
 /// removes them from the markdown, returning the cleaned text and a map
 /// of comment id to raw markdown content.
-fn extract_comment_definitions(input: &str) -> (String, HashMap<String, String>) {
-    static COMMENT_DEF_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^\[>>([a-zA-Z0-9._-]+)\]:\s*(.*)$").expect("invalid regex"));
+#[derive(Default)]
+struct CommentDefinition {
+    by: Option<String>,
+    at: Option<String>,
+    content: String,
+}
+
+fn extract_comment_definitions(input: &str) -> (String, HashMap<String, CommentDefinition>) {
+    static COMMENT_DEF_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"^\[>>([a-zA-Z0-9._-]+)\](\{[^}]*\})?:\s*(.*)$").expect("invalid regex")
+    });
 
     let mut cleaned = String::new();
-    let mut defs: HashMap<String, String> = HashMap::new();
+    let mut defs: HashMap<String, CommentDefinition> = HashMap::new();
     let mut current_id: Option<String> = None;
-    let mut current_content = String::new();
+    let mut current_def = CommentDefinition::default();
     let mut in_fenced_code = false;
 
     for line in input.lines() {
@@ -584,33 +610,50 @@ fn extract_comment_definitions(input: &str) -> (String, HashMap<String, String>)
             if let Some(caps) = COMMENT_DEF_REGEX.captures(line) {
                 // Flush previous definition
                 if let Some(id) = current_id.take() {
-                    defs.insert(id, current_content.trim().to_string());
-                    current_content.clear();
+                    current_def.content = current_def.content.trim().to_string();
+                    defs.insert(id, current_def);
+                    current_def = CommentDefinition::default();
                 }
                 current_id = Some(caps[1].to_string());
-                let first_line = &caps[2];
+
+                if let Some(attrs_str) = caps.get(2).map(|mat| mat.as_str())
+                    && let Ok(options) = attrs.parse(Located::new(attrs_str))
+                {
+                    for (name, value) in options {
+                        match (name, value) {
+                            ("by", Some(Node::String(by))) => current_def.by = Some(by),
+                            ("at", Some(node)) => {
+                                current_def.at = node_to_option_datetime(node).map(|dt| dt.value)
+                            }
+                            _ => {}
+                        }
+                    }
+                }
+
+                let first_line = &caps[3];
                 if !first_line.is_empty() {
-                    current_content.push_str(first_line);
-                    current_content.push('\n');
+                    current_def.content.push_str(first_line);
+                    current_def.content.push('\n');
                 }
                 continue;
             }
 
             if current_id.is_some() {
-                if line.starts_with("    ") {
+                if let Some(line) = line.strip_prefix("    ") {
                     // Continuation line (4-space indent)
-                    current_content.push_str(&line[4..]);
-                    current_content.push('\n');
+                    current_def.content.push_str(line);
+                    current_def.content.push('\n');
                     continue;
                 } else if line.trim().is_empty() {
                     // Blank line within definition (paragraph separator)
-                    current_content.push('\n');
+                    current_def.content.push('\n');
                     continue;
                 } else {
                     // Non-continuation line: flush the definition
                     if let Some(id) = current_id.take() {
-                        defs.insert(id, current_content.trim().to_string());
-                        current_content.clear();
+                        current_def.content = current_def.content.trim().to_string();
+                        defs.insert(id, current_def);
+                        current_def = CommentDefinition::default();
                     }
                 }
             }
@@ -622,7 +665,8 @@ fn extract_comment_definitions(input: &str) -> (String, HashMap<String, String>)
 
     // Flush final definition
     if let Some(id) = current_id {
-        defs.insert(id, current_content.trim().to_string());
+        current_def.content = current_def.content.trim().to_string();
+        defs.insert(id, current_def);
     }
 
     (cleaned, defs)

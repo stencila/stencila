@@ -27,8 +27,38 @@ impl MarkdownCodec for Comment {
         let mut def_context = MarkdownEncodeContext::default();
         def_context
             .enter_node(self.node_type(), self.node_id())
-            .push_str(&format!("[>>{id}]: "))
-            .push_line_prefix("    ");
+            .push_str(&format!("[>>{id}]"));
+
+        let mut attrs = Vec::new();
+
+        fn escape_attr_value(value: &str) -> String {
+            value.replace('\\', "\\\\").replace('"', "\\\"")
+        }
+
+        if let Some(authors) = &self.authors
+            && !authors.is_empty()
+        {
+            let by = authors
+                .iter()
+                .map(|author| author.short_name())
+                .collect::<Vec<_>>()
+                .join("; ");
+
+            attrs.push(format!(r#"by=\"{}\""#, escape_attr_value(&by)));
+        }
+
+        if let Some(at) = &self.date_published {
+            attrs.push(format!(r#"at=\"{}\""#, escape_attr_value(&at.value)));
+        }
+
+        if !attrs.is_empty() {
+            def_context
+                .push_str("{")
+                .push_str(&attrs.join(", "))
+                .push_str("}");
+        }
+
+        def_context.push_str(": ").push_line_prefix("    ");
         self.content.to_markdown(&mut def_context);
         def_context.trim_end().push_str("\n\n").exit_node();
 

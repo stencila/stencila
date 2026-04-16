@@ -171,6 +171,16 @@
     {
       "@type": "Comment",
       "@id": "c3",
+      "author": [
+        {
+          "@type": "Person",
+          "name": "Alice"
+        }
+      ],
+      "datePublished": {
+        "@type": "DateTime",
+        "value": "2026-04-16T10:34:00Z"
+      },
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
