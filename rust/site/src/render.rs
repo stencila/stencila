@@ -1691,6 +1691,7 @@ mod tests {
             &routes_set,
             &nav_items,
             None,
+            None,
             &decode_fn,
         )
         .await?;
@@ -1752,6 +1753,7 @@ mod tests {
             &routes,
             &routes_set,
             &nav_items,
+            None,
             None,
             &decode_fn,
         )
