@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+use itertools::Itertools;
 use pandoc_types::definition::{self as pandoc};
 
 use stencila_codec::{
@@ -191,10 +192,12 @@ fn prepare_comment_for_pandoc(
         .attributes
         .push(("id".into(), pandoc_id.clone()));
 
-    if let Some(author) = comment_author_attr(comment) {
+    if let Some(author) = comment
+        .authors
+        .as_ref()
+        .map(|authors| authors.iter().map(|author| author.name()).join(";"))
+    {
         start_attrs.attributes.push(("author".into(), author));
-    } else if comment.authors.is_some() {
-        context.losses.add("Comment.authors");
     }
 
     if let Some(date) = &comment.date_published {
@@ -249,16 +252,6 @@ fn comment_pandoc_id(start_location: &str, next_id: &mut usize) -> Option<String
     }
 
     Some(comment_id.to_string())
-}
-
-fn comment_author_attr(comment: &Comment) -> Option<String> {
-    let author = comment.authors.as_ref()?.first()?;
-
-    match author {
-        Author::Person(person) => person.given_names.as_ref().map(|names| names.join(" ")),
-        Author::Organization(org) => org.name.clone(),
-        _ => None,
-    }
 }
 
 fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext) -> Article {
@@ -348,10 +341,9 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
                 let is_reply = parent_ids[i].is_some();
 
                 let authors = pending.author.map(|name| {
-                    vec![Author::Person(Person {
-                        given_names: Some(vec![name]),
-                        ..Default::default()
-                    })]
+                    name.split(";")
+                        .map(|name| Author::Person(Person::from(name)))
+                        .collect_vec()
                 });
 
                 let date_published = pending.date.map(DateTime::new);
