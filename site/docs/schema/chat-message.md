@@ -3,7 +3,26 @@ title: Chat Message
 description: A message within a `Chat`.
 ---
 
+This is an executable type used in Stencila Schema for an individual message within a
+[`Chat`](./chat.md).
+
+It exists so messages can carry structured parts, execution state,
+attachments, and model-generated metadata rather than being reduced to plain
+text. This supports richer conversational documents and tooling for reviewing,
+replaying, or transforming model interactions.
+
+Key properties include the message role, message parts or content, and
+inherited execution metadata from [`Executable`](./executable.md).
+
+
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `ChatMessage`:
+
+- [OpenAI chat message](https://platform.openai.com/docs/guides/text-generation): Close analogue for role-based conversational turns, though Stencila messages can include block document content and attached files.
+- [Anthropic message](https://docs.anthropic.com/): Close provider-level analogue for structured chat turns.
 
 # Properties
 
@@ -11,7 +30,11 @@ The `ChatMessage` type has these properties:
 
 | Name                    | Description                                                                   | Type                                                | Inherited from                  |
 | ----------------------- | ----------------------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                                 | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `author`                | The author of the message                                                     | [`Author`](./author.md)                             | -                               |
+| `role`                  | The role of the message in the conversation.                                  | [`MessageRole`](./message-role.md)                  | -                               |
+| `content`               | The content of the message.                                                   | [`Block`](./block.md)*                              | -                               |
+| `files`                 | The content of the message.                                                   | [`File`](./file.md)*                                | -                               |
+| `isSelected`            | Whether this message is the selected message in the parent `ChatMessageGroup` | [`Boolean`](./boolean.md)                           | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.                        | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.              | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                                  | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -26,11 +49,7 @@ The `ChatMessage` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                  | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                               | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                                    | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `author`                | The author of the message                                                     | [`Author`](./author.md)                             | -                               |
-| `role`                  | The role of the message in the conversation.                                  | [`MessageRole`](./message-role.md)                  | -                               |
-| `content`               | The content of the message.                                                   | [`Block`](./block.md)*                              | -                               |
-| `files`                 | The content of the message.                                                   | [`File`](./file.md)*                                | -                               |
-| `isSelected`            | Whether this message is the selected message in the parent `ChatMessageGroup` | [`Boolean`](./boolean.md)                           | -                               |
+| `id`                    | The identifier for this item.                                                 | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

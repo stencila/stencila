@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { Node } from "./Node.js";
 
 /**
- * A schema specifying that a node must be one of several values.
+ * A validator for a fixed set of allowed values.
  */
 export class EnumValidator extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

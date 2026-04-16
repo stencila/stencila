@@ -1,16 +1,28 @@
 ---
 title: Label Type
-description: Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
+description: An automatic labeling category.
 ---
+
+This is an enumeration used in Stencila Schema for automatic labeling categories.
+
+It exists so nodes such as figures and tables generated from code can
+participate in the correct numbering series without relying on
+presentation-specific heuristics.
+
+See properties such as [`CodeChunk.labelType`](./code-chunk.md#labeltype) for the
+main use of this enumeration.
+
 
 # Members
 
 The `LabelType` type has these members:
 
-- `AppendixLabel`
-- `FigureLabel`
-- `SupplementLabel`
-- `TableLabel`
+| Member            | Description |
+| ----------------- | ----------- |
+| `AppendixLabel`   | -           |
+| `FigureLabel`     | -           |
+| `SupplementLabel` | -           |
+| `TableLabel`      | -           |
 
 # Bindings
 

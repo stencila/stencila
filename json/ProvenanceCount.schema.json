@@ -8,6 +8,7 @@
     "Entity"
   ],
   "description": "The count of the number of characters in a `ProvenanceCategory` within an entity.",
+  "$comment": "This is a type used in Stencila Schema for summarizing how much content belongs to a\nprovenance category.\n\nIt exists to attach compact provenance summaries to document nodes without\nrepeating provenance annotations on every character or child node. This\nsupports interfaces that report authorship and AI involvement at a glance.\n\nKey properties include the provenance `category` and the associated character\nor content count.\n",
   "required": [
     "type",
     "provenanceCategory",

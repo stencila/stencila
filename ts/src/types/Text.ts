@@ -5,7 +5,7 @@ import { Cord } from "./Cord.js";
 import { Entity } from "./Entity.js";
 
 /**
- * Textual content.
+ * A text node.
  */
 export class Text extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

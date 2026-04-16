@@ -8,7 +8,24 @@
   ],
   "category": "prose",
   "description": "An admonition within a document.",
-  "$comment": "Highlight important ideas or signal content that’s supplemental or only relevant in certain situations.\n",
+  "$comment": "This is a type used in Stencila Schema for admonition or callout blocks.\n\nIt exists to represent semantically distinct callouts such as notes,\nwarnings, tips, and cautions as structured document content rather than as\npresentation-only containers. This supports consistent rendering, folding, and\ntransformation across authoring and publishing formats.\n\nKey properties include `admonitionType`, `title`, `isFolded`, and `content`.\n",
+  "analogues": [
+    {
+      "id": "html:aside",
+      "notes": "Closest HTML sectioning analogue, though HTML `<aside>` is broader and does not itself encode admonition type or folding behavior."
+    },
+    {
+      "id": "jats:boxed-text",
+      "notes": "Closest JATS analogue for boxed callout content, but JATS does not standardize the same admonition type vocabulary."
+    },
+    {
+      "id": "pandoc:Div",
+      "notes": "Pandoc admonitions are usually represented as divisions with classes and attributes rather than a dedicated node type."
+    },
+    {
+      "id": "myst:directive:admonition"
+    }
+  ],
   "dom": {
     "derive": false
   },

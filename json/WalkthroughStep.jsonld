@@ -12,7 +12,7 @@
       "@id": "stencila:WalkthroughStep",
       "@type": "rdfs:Class",
       "rdfs:label": "WalkthroughStep",
-      "rdfs:comment": "A step in a walkthrough.",
+      "rdfs:comment": "A step in a `Walkthrough`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -5,7 +5,7 @@ import { Node } from "./Node.js";
 import { Validator } from "./Validator.js";
 
 /**
- * A parameter of a document.
+ * A document parameter.
  */
 export class Parameter extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

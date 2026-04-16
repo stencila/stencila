@@ -41,7 +41,7 @@ use super::thematic_break::ThematicBreak;
 use super::video_object::VideoObject;
 use super::walkthrough::Walkthrough;
 
-/// Union type in block content node types.
+/// A union type for block content.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]

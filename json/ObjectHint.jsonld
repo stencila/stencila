@@ -12,7 +12,7 @@
       "@id": "stencila:ObjectHint",
       "@type": "rdfs:Class",
       "rdfs:label": "ObjectHint",
-      "rdfs:comment": "A hint to the structure of an `Object`.",
+      "rdfs:comment": "A concise summary of the structure of an `Object`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

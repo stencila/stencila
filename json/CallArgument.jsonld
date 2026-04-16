@@ -12,7 +12,7 @@
       "@id": "stencila:CallArgument",
       "@type": "rdfs:Class",
       "rdfs:label": "CallArgument",
-      "rdfs:comment": "The value of a `Parameter` to call a document with.",
+      "rdfs:comment": "An argument used when calling a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:Parameter"
       }

@@ -3,21 +3,43 @@ title: Code Block
 description: A code block.
 ---
 
+This is a block representation used in Stencila Schema for non-executable
+code.
+
+It extends [`CodeStatic`](./code-static.md) for code that should be displayed
+and preserved as document content without normal execution semantics. Stencila
+also adds optional demo compilation behavior so some static code blocks can
+render derived content while remaining distinct from executable code chunks.
+
+Key properties are inherited from [`CodeStatic`](./code-static.md), with
+Stencila Schema behavior centered on `isDemo`, `content`, and the associated
+compilation properties.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CodeBlock`:
+
+- HTML [`<pre>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/pre)
+- JATS [`<code>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html)
+- Pandoc [`CodeBlock`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:CodeBlock)
+- MDAST [`Code`](https://github.com/syntax-tree/mdast#code): Closest MDAST analogue for fenced or indented code blocks.
+
 # Properties
 
 The `CodeBlock` type has these properties:
 
 | Name                  | Description                                                    | Type                                              | Inherited from                   |
 | --------------------- | -------------------------------------------------------------- | ------------------------------------------------- | -------------------------------- |
-| `id`                  | The identifier for this item.                                  | [`String`](./string.md)                           | [`Entity`](./entity.md)          |
-| `code`                | The code.                                                      | [`Cord`](./cord.md)                               | [`CodeStatic`](./code-static.md) |
-| `programmingLanguage` | The programming language of the code.                          | [`String`](./string.md)                           | [`CodeStatic`](./code-static.md) |
-| `authors`             | The authors of the code.                                       | [`Author`](./author.md)*                          | [`CodeStatic`](./code-static.md) |
-| `provenance`          | A summary of the provenance of the code.                       | [`ProvenanceCount`](./provenance-count.md)*       | [`CodeStatic`](./code-static.md) |
 | `isDemo`              | Whether the code block is a demo that should also be rendered. | [`Boolean`](./boolean.md)                         | -                                |
 | `compilationDigest`   | A digest of the `code` and `programmingLanguage`.              | [`CompilationDigest`](./compilation-digest.md)    | -                                |
 | `compilationMessages` | Messages generated while compiling the demo content.           | [`CompilationMessage`](./compilation-message.md)* | -                                |
 | `content`             | The content rendered from the code when `isDemo` is true.      | [`Block`](./block.md)*                            | -                                |
+| `code`                | The code.                                                      | [`Cord`](./cord.md)                               | [`CodeStatic`](./code-static.md) |
+| `programmingLanguage` | The programming language of the code.                          | [`String`](./string.md)                           | [`CodeStatic`](./code-static.md) |
+| `authors`             | The authors of the code.                                       | [`Author`](./author.md)*                          | [`CodeStatic`](./code-static.md) |
+| `provenance`          | A summary of the provenance of the code.                       | [`ProvenanceCount`](./provenance-count.md)*       | [`CodeStatic`](./code-static.md) |
+| `id`                  | The identifier for this item.                                  | [`String`](./string.md)                           | [`Entity`](./entity.md)          |
 
 # Related
 

@@ -1,7 +1,17 @@
 ---
 title: Walkthrough Step
-description: A step in a walkthrough.
+description: A step in a `Walkthrough`.
 ---
+
+This is a type used in Stencila Schema for a single step within a
+[`Walkthrough`](./walkthrough.md).
+
+It exists so each revealed step can carry its own content, metadata, and
+progression behavior as a first-class node.
+
+Key properties include the step `content`, title or summary metadata, and any
+controls related to progression through the walkthrough.
+
 
 This type is marked as unstable and is subject to change.
 
@@ -11,9 +21,9 @@ The `WalkthroughStep` type has these properties:
 
 | Name          | Description                                                                      | Type                      | Inherited from          |
 | ------------- | -------------------------------------------------------------------------------- | ------------------------- | ----------------------- |
-| `id`          | The identifier for this item.                                                    | [`String`](./string.md)   | [`Entity`](./entity.md) |
 | `isCollapsed` | Whether this step is active (i.e. is encoded in source format and can be edited) | [`Boolean`](./boolean.md) | -                       |
 | `content`     | The content of the step.                                                         | [`Block`](./block.md)*    | -                       |
+| `id`          | The identifier for this item.                                                    | [`String`](./string.md)   | [`Entity`](./entity.md) |
 
 # Related
 

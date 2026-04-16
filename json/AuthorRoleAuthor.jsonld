@@ -12,7 +12,7 @@
       "@id": "stencila:AuthorRoleAuthor",
       "@type": "rdfs:Class",
       "rdfs:label": "AuthorRoleAuthor",
-      "rdfs:comment": "Union type for things that can be an author in `AuthorRole`."
+      "rdfs:comment": "A union type for authors in an `AuthorRole`."
     }
   ]
 }

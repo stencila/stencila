@@ -12,7 +12,7 @@
       "@id": "stencila:Figure",
       "@type": "rdfs:Class",
       "rdfs:label": "Figure",
-      "rdfs:comment": "Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.",
+      "rdfs:comment": "A figure.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

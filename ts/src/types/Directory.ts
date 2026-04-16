@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { FileOrDirectory } from "./FileOrDirectory.js";
 
 /**
- * A directory on the file system.
+ * A directory on a file system.
  */
 export class Directory extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

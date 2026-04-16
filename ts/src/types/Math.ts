@@ -9,7 +9,7 @@ import { ImageObject } from "./ImageObject.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * Abstract base type for a mathematical variable or equation.
+ * An abstract base type for mathematical content.
  */
 export class Math extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

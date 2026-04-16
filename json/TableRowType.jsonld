@@ -12,7 +12,7 @@
       "@id": "stencila:TableRowType",
       "@type": "rdfs:Class",
       "rdfs:label": "TableRowType",
-      "rdfs:comment": "Indicates whether the row is in the header, body or footer of the table.",
+      "rdfs:comment": "The structural role of a table row.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

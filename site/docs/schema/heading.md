@@ -3,11 +3,24 @@ title: Heading
 description: A heading.
 ---
 
-Analogues of `Heading` in other schemas include:
-  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)
-  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)
-  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)
+This is a type used in Stencila Schema for document headings.
 
+It exists to represent heading content and hierarchy explicitly, with
+additional support for document labeling, authorship, and provenance. This
+makes headings more than presentational text and allows them to participate in
+sectioning, appendix numbering, and document navigation workflows.
+
+Key properties include `level`, `content`, `labelType`, and `label`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Heading`:
+
+- HTML [`<h1>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1): Closest HTML analogue for heading semantics, although Stencila uses one type with an explicit `level` rather than separate `h1` to `h6` element types.
+- JATS [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/title.html): Closest JATS analogue for section and container titles, though JATS heading semantics are tied to parent structures rather than a standalone heading node with explicit level.
+- Pandoc [`Header`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Header): Close block analogue with an explicit level; Stencila also supports labeling, authorship, and provenance metadata on headings.
+- MDAST [`Heading`](https://github.com/syntax-tree/mdast#heading): Closest MDAST block analogue for headings.
 
 # Properties
 
@@ -15,13 +28,13 @@ The `Heading` type has these properties:
 
 | Name         | Description                                                                     | Type                                        | Inherited from          |
 | ------------ | ------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`         | The identifier for this item.                                                   | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `labelType`  | The type of the label for the appendix (if present, should be `AppendixLabel`). | [`LabelType`](./label-type.md)              | -                       |
 | `label`      | A short label for the heading.                                                  | [`String`](./string.md)                     | -                       |
 | `level`      | The level of the heading.                                                       | [`Integer`](./integer.md)                   | -                       |
 | `content`    | Content of the heading.                                                         | [`Inline`](./inline.md)*                    | -                       |
 | `authors`    | The authors of the heading.                                                     | [`Author`](./author.md)*                    | -                       |
 | `provenance` | A summary of the provenance of the content within the heading.                  | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`         | The identifier for this item.                                                   | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

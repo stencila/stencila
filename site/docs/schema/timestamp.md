@@ -3,15 +3,33 @@ title: Timestamp
 description: A value that represents a point in time.
 ---
 
+This is a temporal type used in Stencila Schema for exact points in time.
+
+Although analogous to date-time concepts elsewhere, it exists separately in
+Stencila Schema because timestamps are heavily used for execution events,
+provenance, and document modification tracking. Modeling them explicitly
+clarifies their role as event times rather than general-purpose date-time
+metadata.
+
+See properties such as `executionEnded`, `lastModified`, and other
+timestamp-bearing metadata throughout the schema.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Timestamp`:
+
+- [Unix timestamp](https://en.wikipedia.org/wiki/Unix_time): Closest external analogue, though Stencila stores the epoch offset together with explicit `timeUnit` rather than assuming seconds.
+
 # Properties
 
 The `Timestamp` type has these properties:
 
 | Name       | Description                                                                      | Type                         | Inherited from          |
 | ---------- | -------------------------------------------------------------------------------- | ---------------------------- | ----------------------- |
-| `id`       | The identifier for this item.                                                    | [`String`](./string.md)      | [`Entity`](./entity.md) |
 | `value`    | The time, in `timeUnit`s, before or after the Unix Epoch (1970-01-01T00:00:00Z). | [`Integer`](./integer.md)    | -                       |
 | `timeUnit` | The time unit that the `value` represents.                                       | [`TimeUnit`](./time-unit.md) | -                       |
+| `id`       | The identifier for this item.                                                    | [`String`](./string.md)      | [`Entity`](./entity.md) |
 
 # Related
 

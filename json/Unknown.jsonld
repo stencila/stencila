@@ -12,7 +12,7 @@
       "@id": "stencila:Unknown",
       "@type": "rdfs:Class",
       "rdfs:label": "Unknown",
-      "rdfs:comment": "A type to indicate a value or or other type in unknown.",
+      "rdfs:comment": "A placeholder for a value of unknown type.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

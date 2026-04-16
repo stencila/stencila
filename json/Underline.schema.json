@@ -8,7 +8,18 @@
   ],
   "category": "prose",
   "description": "Inline text that is underlined.",
-  "$comment": "Analogues of `Underline` in other schema include:\n- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)\n",
+  "$comment": "This is an inline mark type used in Stencila Schema for underlined content.\n\nIt extends [`Mark`](./mark.md) to preserve underline semantics in a\nstructured, format-independent inline model.\n\nKey properties are inherited from [`Mark`](./mark.md), especially the wrapped\ninline `content`.\n",
+  "analogues": [
+    {
+      "id": "html:u"
+    },
+    {
+      "id": "jats:underline"
+    },
+    {
+      "id": "pandoc:Underline"
+    }
+  ],
   "dom": {
     "elem": "u"
   },

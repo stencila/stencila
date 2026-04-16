@@ -6,7 +6,8 @@
   "extends": [
     "Enumeration"
   ],
-  "description": "The severity level of a message.",
+  "description": "A severity level for a message.",
+  "$comment": "This is an enumeration used in Stencila Schema for diagnostic severity levels.\n\nIt exists so compilation, execution, and other message-producing workflows can\ncommunicate severity in a consistent way across tools and renderers.\n\nSee [`CompilationMessage`](./compilation-message.md) and\n[`ExecutionMessage`](./execution-message.md) for the main types that use this\nenumeration.\n",
   "required": [
     "type"
   ],

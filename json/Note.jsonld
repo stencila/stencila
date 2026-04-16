@@ -12,7 +12,7 @@
       "@id": "stencila:Note",
       "@type": "rdfs:Class",
       "rdfs:label": "Note",
-      "rdfs:comment": "Additional content which is not part of the main content of a document.",
+      "rdfs:comment": "A note associated with document content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

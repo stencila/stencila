@@ -1,15 +1,26 @@
 ---
 title: Collection
-description: A collection of CreativeWorks or other artifacts.
+description: A collection of creative works or other artifacts.
 ---
 
-This is an implementation of schema.org [`Collection`](https://schema.org/Collection).
-The `Collection` type allows you to represent a collection of various `CreativeWork`
-node types, such as [`Article`](./article.md), [`Datatable`](./datatable.md) or [`Table`](./table.md).
+This is an implementation of schema.org
+[`Collection`](https://schema.org/Collection).
 
-The schema.org `Collection` has a `collectionSize` property but has not been added here
-because it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.
+In Stencila Schema it is used to group related works or artifacts as a single
+creative-work node, for example collections of articles, tables, data, or
+other publishable resources.
 
+The main collection semantics are carried by inherited
+[`CreativeWork.parts`](./creative-work.md#parts). The schema.org
+`collectionSize` property is not included because it would largely duplicate
+information already available from the number of parts.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Collection`:
+
+- schema.org [`Collection`](https://schema.org/Collection)
 
 # Properties
 
@@ -17,13 +28,6 @@ The `Collection` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -55,6 +59,13 @@ The `Collection` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

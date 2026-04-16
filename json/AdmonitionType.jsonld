@@ -12,7 +12,7 @@
       "@id": "stencila:AdmonitionType",
       "@type": "rdfs:Class",
       "rdfs:label": "AdmonitionType",
-      "rdfs:comment": "The type of an `Admonition`.",
+      "rdfs:comment": "A category of admonition.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

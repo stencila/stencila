@@ -1,9 +1,27 @@
 ---
 title: If Block
-description: Show and execute alternative content conditional upon an executed expression.
+description: A block that conditionally shows and executes alternative content.
 ---
 
+This is an executable control-flow block used in Stencila Schema for conditional
+content.
+
+It extends [`Executable`](./executable.md) so alternative blocks of document
+content can be selected and executed based on evaluated conditions. This
+allows dynamic document structure while preserving a typed, inspectable node
+model.
+
+Key properties include the ordered clauses and inherited execution state used
+to determine and record the selected branch.
+
+
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `IfBlock`:
+
+- [Jinja if block](https://jinja.palletsprojects.com/): Close template-language analogue for conditional content blocks, though Stencila models clauses and execution state explicitly.
 
 # Properties
 
@@ -11,7 +29,7 @@ The `IfBlock` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                  |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `clauses`               | The clauses making up the `IfBlock` node                         | [`IfBlockClause`](./if-block-clause.md)*            | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -26,7 +44,7 @@ The `IfBlock` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `clauses`               | The clauses making up the `IfBlock` node                         | [`IfBlockClause`](./if-block-clause.md)*            | -                               |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

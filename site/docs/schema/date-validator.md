@@ -3,15 +3,25 @@ title: Date Validator
 description: A validator specifying the constraints on a date.
 ---
 
+This is a type used in Stencila Schema for validating [`Date`](./date.md) nodes.
+
+It exists so Stencila documents and forms can express constraints over
+calendar dates as structured data rather than leaving validation to ad hoc
+string parsing. This keeps date validation aligned with the rest of the
+validator system.
+
+Key properties define allowable date ranges and related constraints.
+
+
 # Properties
 
 The `DateValidator` type has these properties:
 
 | Name      | Description                           | Type                    | Inherited from          |
 | --------- | ------------------------------------- | ----------------------- | ----------------------- |
-| `id`      | The identifier for this item.         | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `minimum` | The inclusive lower limit for a date. | [`Date`](./date.md)     | -                       |
 | `maximum` | The inclusive upper limit for a date. | [`Date`](./date.md)     | -                       |
+| `id`      | The identifier for this item.         | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

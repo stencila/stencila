@@ -8,7 +8,7 @@ import { type Person } from "./Person.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
 
 /**
- * Union type for things that can be an author of a `CreativeWork` or other type.
+ * A union type for authors of a `CreativeWork` or other type.
  */
 export type Author =
   Person |

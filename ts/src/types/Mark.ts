@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { Inline } from "./Inline.js";
 
 /**
- * Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+ * An abstract base type for marked inline content.
  */
 export class Mark extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

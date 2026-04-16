@@ -6,7 +6,7 @@ import { InstructionType } from "./InstructionType.js";
 import { RelativePosition } from "./RelativePosition.js";
 
 /**
- * A preview of how a prompt will be rendered at a location in the document
+ * A preview of a rendered prompt at a location in a document.
  */
 export class PromptBlock extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "flow",
-  "description": "Status of the most recent, including any current, execution of a document node.",
+  "description": "The status of a node's most recent execution.",
+  "$comment": "This is an enumeration used in Stencila Schema for the status of an execution.\n\nIt exists so the lifecycle of executable nodes can be represented uniformly\nacross different execution engines and document types. This gives tools a\nstable vocabulary for pending, running, succeeded, failed, and related states.\n\nSee [`Executable.executionStatus`](./executable.md#executionstatus) for the\nproperty that uses this enumeration.\n",
   "required": [
     "type"
   ],

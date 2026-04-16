@@ -1,14 +1,26 @@
 ---
 title: Prompt Block
-description: A preview of how a prompt will be rendered at a location in the document
+description: A preview of a rendered prompt at a location in a document.
 ---
 
-Used on an `Instruction` to render a prompt and display the rendering to the user.
-Can also be used standalone to preview how a prompt is rendered at a particular
-position in a document.
+This is an executable type used in Stencila Schema for previewing rendered prompts.
+
+It exists to show how a prompt will resolve for a particular instruction type,
+target node, or document position before or during an editing workflow. This
+makes prompt selection and rendering inspectable within the document model
+itself.
+
+Key properties include `instructionType`, `nodeTypes`, `relativePosition`,
+`query`, `target`, and rendered `content`.
 
 
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `PromptBlock`:
+
+- [rendered prompt preview](https://platform.openai.com/docs/guides/text-generation): Approximate analogue for inspecting the final prompt sent to a model, though Stencila models it as an executable document node tied to editing context.
 
 # Properties
 
@@ -16,7 +28,13 @@ The `PromptBlock` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                  |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `instructionType`       | The type of instruction the  being used for                      | [`InstructionType`](./instruction-type.md)          | -                               |
+| `nodeTypes`             | The type of nodes the prompt is being used for                   | [`String`](./string.md)*                            | -                               |
+| `relativePosition`      | The relative position of the node being edited, described etc.   | [`RelativePosition`](./relative-position.md)        | -                               |
+| `query`                 | A user text query used to infer the `target` prompt              | [`String`](./string.md)                             | -                               |
+| `target`                | An identifier for the prompt to be rendered                      | [`String`](./string.md)                             | -                               |
+| `directory`             | The home directory of the prompt                                 | [`String`](./string.md)                             | -                               |
+| `content`               | The executed content of the prompt                               | [`Block`](./block.md)*                              | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -31,13 +49,7 @@ The `PromptBlock` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `instructionType`       | The type of instruction the  being used for                      | [`InstructionType`](./instruction-type.md)          | -                               |
-| `nodeTypes`             | The type of nodes the prompt is being used for                   | [`String`](./string.md)*                            | -                               |
-| `relativePosition`      | The relative position of the node being edited, described etc.   | [`RelativePosition`](./relative-position.md)        | -                               |
-| `query`                 | A user text query used to infer the `target` prompt              | [`String`](./string.md)                             | -                               |
-| `target`                | An identifier for the prompt to be rendered                      | [`String`](./string.md)                             | -                               |
-| `directory`             | The home directory of the prompt                                 | [`String`](./string.md)                             | -                               |
-| `content`               | The executed content of the prompt                               | [`Block`](./block.md)*                              | -                               |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

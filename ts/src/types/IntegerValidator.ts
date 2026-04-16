@@ -3,7 +3,7 @@
 import { NumberValidator } from "./NumberValidator.js";
 
 /**
- * A validator specifying the constraints on an integer node.
+ * A validator for integer values.
  */
 export class IntegerValidator extends NumberValidator {
   // @ts-expect-error 'not assignable to the same property in base type'

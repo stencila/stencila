@@ -1,15 +1,35 @@
 ---
 title: List Order
-description: Indicates how a `List` is ordered.
+description: The ordering of a list.
 ---
+
+This is an implementation of schema.org
+[`ItemListOrderType`](https://schema.org/ItemListOrderType).
+
+In Stencila Schema it is used by [`List`](./list.md) to represent ordering
+semantics in a controlled way that can be mapped to authoring and publishing
+formats.
+
+See [`List.order`](./list.md#order) for the property that uses this
+enumeration.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `ListOrder`:
+
+- schema.org [`ItemListOrderType`](https://schema.org/ItemListOrderType)
+- [HTML list type semantics](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol): Approximate analogue because HTML expresses ordered-versus-unordered distinctions structurally and has limited native support for descending order.
 
 # Members
 
 The `ListOrder` type has these members:
 
-- `Ascending`
-- `Descending`
-- `Unordered`
+| Member       | Description |
+| ------------ | ----------- |
+| `Ascending`  | -           |
+| `Descending` | -           |
+| `Unordered`  | -           |
 
 # Bindings
 

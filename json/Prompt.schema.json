@@ -9,6 +9,18 @@
   ],
   "category": "works",
   "description": "A prompt for creating or editing document content.",
+  "$comment": "This is an executable creative work used in Stencila Schema for creating or editing\ncontent.\n\nIt combines [`CreativeWork`](./creative-work.md) metadata with\n[`Executable`](./executable.md) behavior so prompts can be versioned,\ndocumented, rendered in context, and used reproducibly across AI-assisted\nworkflows. Unlike a plain text prompt, it can declare supported instruction\ntypes, node targets, and query-matching behavior.\n\nKey properties include `instructionTypes`, `nodeTypes`, `nodeCount`,\n`queryPatterns`, `content`, and `frontmatter`. Additional metadata and\nexecution features are inherited from [`CreativeWork`](./creative-work.md) and\n[`Executable`](./executable.md).\n",
+  "analogues": [
+    {
+      "name": "Prompt template",
+      "url": "https://platform.openai.com/docs/guides/text",
+      "notes": "Close analogue for reusable prompt definitions, though Stencila prompts are first-class creative works with schema metadata and targeting constraints."
+    },
+    {
+      "id": "mdast:Root",
+      "notes": "Approximate content analogue because prompt bodies are stored as Markdown block content rather than plain strings."
+    }
+  ],
   "markdown": {
     "derive": false
   },

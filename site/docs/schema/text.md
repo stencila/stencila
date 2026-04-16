@@ -1,16 +1,27 @@
 ---
 title: Text
-description: Textual content.
+description: A text node.
 ---
 
-Intended mostly for use for inline text e.g. the text in a paragraph.
+This is an implementation of schema.org [`Text`](https://schema.org/Text),
+adapted in Stencila Schema as a node type rather than a primitive string.
 
-Differs from the primitive `String` type in that it has a `type` and `id` property.
-The `id` property allows use to identify text nodes with a sequence of inline nodes
-for better diffing.
+It exists so textual content can participate in the document tree with its own
+identity and metadata, which is useful for diffing, editing, and collaborative
+workflows. This differs from the primitive [`String`](./string.md) type, which
+represents plain scalar string values outside the node model.
 
-Also, in Rust, the `value` property is implemented as a CRDT.
+The main property is `value`.
 
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Text`:
+
+- schema.org [`Text`](https://schema.org/Text): Direct schema.org source type, adapted in Stencila from a scalar data type into a first-class node.
+- [HTML text node](https://dom.spec.whatwg.org/#text): Closest DOM analogue for literal text content, though Stencila text nodes can carry identity and metadata through `Entity`.
+- Pandoc [`Str`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Str): Close Pandoc analogue for plain inline text, though Pandoc splits spaces and line breaks into separate inline constructors.
+- MDAST [`Text`](https://github.com/syntax-tree/mdast#text): Closest MDAST analogue for text leaf nodes.
 
 # Properties
 
@@ -18,9 +29,9 @@ The `Text` type has these properties:
 
 | Name                  | Description                                  | Type                                              | Inherited from          |
 | --------------------- | -------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `value`               | The value of the text content                | [`Cord`](./cord.md)                               | -                       |
 | `compilationMessages` | Messages generated while compiling the text. | [`CompilationMessage`](./compilation-message.md)* | -                       |
+| `id`                  | The identifier for this item.                | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

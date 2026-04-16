@@ -8,6 +8,18 @@
   ],
   "category": "prose",
   "description": "Subscripted content.",
+  "$comment": "This is an inline mark type used in Stencila Schema for subscripted content.\n\nIt extends [`Mark`](./mark.md) to preserve subscript semantics in a\nformat-independent way, which is especially useful in scientific and\nmathematical writing.\n\nKey properties are inherited from [`Mark`](./mark.md), especially the wrapped\ninline `content`.\n",
+  "analogues": [
+    {
+      "id": "html:sub"
+    },
+    {
+      "id": "jats:sub"
+    },
+    {
+      "id": "pandoc:Subscript"
+    }
+  ],
   "dom": {
     "elem": "sub"
   },

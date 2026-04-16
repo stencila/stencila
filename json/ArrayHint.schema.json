@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A hint to the content of an `Array`.",
+  "description": "A concise summary of the values and structure of an `Array`.",
+  "$comment": "This is a type used in Stencila Schema for providing a concise summary of the values\nand structure of an [`Array`](./array.md).\n\nIt exists to support both human and machine understanding of array data,\nincluding schema inference, user-interface hints, and code generation\nworkflows. Rather than constraining data directly, it summarizes observed or\ninferred characteristics that can guide inspection, editing, and downstream\nuses such as selecting visualization strategies for large datasets.\n\nKey properties describe item-level hints and observed array characteristics.\n",
   "required": [
     "type",
     "length"

@@ -3,8 +3,14 @@ title: Constant Validator
 description: A validator specifying a constant value that a node must have.
 ---
 
-A node will be valid against this validator if it is equal to the
-`value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.
+This is a type used in Stencila Schema for validating nodes against a fixed value.
+
+It adapts the JSON Schema
+[`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3)
+concept to Stencila's validator system, allowing a constraint to require exact
+equality with a single node value.
+
+The main property is `value`.
 
 
 # Properties
@@ -13,8 +19,8 @@ The `ConstantValidator` type has these properties:
 
 | Name    | Description                        | Type                    | Inherited from          |
 | ------- | ---------------------------------- | ----------------------- | ----------------------- |
-| `id`    | The identifier for this item.      | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `value` | The value that the node must have. | [`Node`](./node.md)     | -                       |
+| `id`    | The identifier for this item.      | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

@@ -8,7 +8,25 @@
   ],
   "category": "prose",
   "description": "A heading.",
-  "$comment": "Analogues of `Heading` in other schemas include:\n  - HTML [`<h1>` to `<h6>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/h1)\n  - JATS XML [`<title>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/title.html)\n  - Pandoc [`Header`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L233)\n",
+  "$comment": "This is a type used in Stencila Schema for document headings.\n\nIt exists to represent heading content and hierarchy explicitly, with\nadditional support for document labeling, authorship, and provenance. This\nmakes headings more than presentational text and allows them to participate in\nsectioning, appendix numbering, and document navigation workflows.\n\nKey properties include `level`, `content`, `labelType`, and `label`.\n",
+  "analogues": [
+    {
+      "id": "html:h1",
+      "notes": "Closest HTML analogue for heading semantics, although Stencila uses one type with an explicit `level` rather than separate `h1` to `h6` element types."
+    },
+    {
+      "id": "jats:title",
+      "notes": "Closest JATS analogue for section and container titles, though JATS heading semantics are tied to parent structures rather than a standalone heading node with explicit level."
+    },
+    {
+      "id": "pandoc:Header",
+      "notes": "Close block analogue with an explicit level; Stencila also supports labeling, authorship, and provenance metadata on headings."
+    },
+    {
+      "id": "mdast:Heading",
+      "notes": "Closest MDAST block analogue for headings."
+    }
+  ],
   "dom": {
     "derive": false
   },

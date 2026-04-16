@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * The role of a message.
+ * A role in a message exchange.
  */
 export type MessageRole =
   'System' |

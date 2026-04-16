@@ -1,11 +1,16 @@
 ---
 title: String Validator
-description: A schema specifying constraints on a string node.
+description: A validator for string values.
 ---
 
-A node will be valid against the schema if it is a string that
-meets the schemas `minLength`, `maxLength` and `pattern` properties.
-Analogous to the JSON Schema `string` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+This is a type used in Stencila Schema for validating [`String`](./string.md)
+nodes.
+
+It adapts common JSON Schema string constraints to Stencila's validator
+system, allowing length limits and pattern checks to be expressed as
+structured validator nodes.
+
+Key properties include `minLength`, `maxLength`, and `pattern`.
 
 
 # Properties
@@ -14,10 +19,10 @@ The `StringValidator` type has these properties:
 
 | Name        | Description                                         | Type                      | Inherited from          |
 | ----------- | --------------------------------------------------- | ------------------------- | ----------------------- |
-| `id`        | The identifier for this item.                       | [`String`](./string.md)   | [`Entity`](./entity.md) |
 | `minLength` | The minimum length for a string node.               | [`Integer`](./integer.md) | -                       |
 | `maxLength` | The maximum length for a string node.               | [`Integer`](./integer.md) | -                       |
 | `pattern`   | A regular expression that a string node must match. | [`String`](./string.md)   | -                       |
+| `id`        | The identifier for this item.                       | [`String`](./string.md)   | [`Entity`](./entity.md) |
 
 # Related
 

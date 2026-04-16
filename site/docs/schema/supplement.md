@@ -1,17 +1,26 @@
 ---
 title: Supplement
-description: A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+description: A supplementary creative work associated with a document.
 ---
 
-Corresponds to the JATS `<supplementary-material>` element 
-(https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/supplementary-material.html).
+This is a Stencila-native type corresponding closely to the JATS
+[`<supplementary-material>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/supplementary-material.html)
+element.
 
-As in JATS, this is a `Block` content type so that supplementary material 
-can be positioned close to the content it relates to (e.g., within a figure caption) 
-rather than only at the end of an article. Nevertheless, many articles 
-will include a dedicated "Supplementary Materials" section composed of a `Heading` 
-followed by one or more `Supplement` blocks.
+It is used to attach supplementary works to a document while still allowing
+them to appear as block content near the material they support, such as within
+a figure caption or a dedicated supplementary materials section. This lets
+Stencila model supplements as document content rather than only as distant
+metadata attachments.
 
+Key properties include `workType`, `label`, `caption`, and `target`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Supplement`:
+
+- JATS [`<supplementary-material>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/supplementary-material.html)
 
 # Properties
 
@@ -19,7 +28,6 @@ The `Supplement` type has these properties:
 
 | Name                  | Description                                                                 | Type                                                | Inherited from          |
 | --------------------- | --------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                               | [`String`](./string.md)                             | [`Entity`](./entity.md) |
 | `workType`            | The `CreativeWork` type of the supplement.                                  | [`CreativeWorkType`](./creative-work-type.md)       | -                       |
 | `label`               | A short identifier or title for the supplement (e.g., "S1").                | [`String`](./string.md)                             | -                       |
 | `labelAutomatically`  | Whether the supplement label should be automatically generated and updated. | [`Boolean`](./boolean.md)                           | -                       |
@@ -27,6 +35,7 @@ The `Supplement` type has these properties:
 | `target`              | A reference to the supplement.                                              | [`String`](./string.md)                             | -                       |
 | `compilationMessages` | Any messages generated while embedding the supplement.                      | [`CompilationMessage`](./compilation-message.md)*   | -                       |
 | `work`                | The `CreativeWork` that constitutes the supplement.                         | [`CreativeWorkVariant`](./creative-work-variant.md) | -                       |
+| `id`                  | The identifier for this item.                                               | [`String`](./string.md)                             | [`Entity`](./entity.md) |
 
 # Related
 

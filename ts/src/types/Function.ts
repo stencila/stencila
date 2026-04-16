@@ -5,7 +5,7 @@ import { Parameter } from "./Parameter.js";
 import { Validator } from "./Validator.js";
 
 /**
- * A function with a name, which might take Parameters and return a value of a certain type.
+ * A function signature.
  */
 export class Function extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

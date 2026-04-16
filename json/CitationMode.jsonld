@@ -12,7 +12,7 @@
       "@id": "stencila:CitationMode",
       "@type": "rdfs:Class",
       "rdfs:label": "CitationMode",
-      "rdfs:comment": "The mode of a `Citation`.",
+      "rdfs:comment": "The presentation mode of a citation.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

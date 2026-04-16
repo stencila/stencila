@@ -6,7 +6,7 @@ use super::hint::Hint;
 use super::node::Node;
 use super::string::String;
 
-/// A variable representing a name / value pair.
+/// A named value.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

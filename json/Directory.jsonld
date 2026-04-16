@@ -12,7 +12,7 @@
       "@id": "stencila:Directory",
       "@type": "rdfs:Class",
       "rdfs:label": "Directory",
-      "rdfs:comment": "A directory on the file system.",
+      "rdfs:comment": "A directory on a file system.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

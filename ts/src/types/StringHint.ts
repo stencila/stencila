@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A hint to the structure of an `String`.
+ * A concise summary of the properties of a `String`.
  */
 export class StringHint extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

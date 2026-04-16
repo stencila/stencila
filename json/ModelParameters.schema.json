@@ -8,6 +8,7 @@
     "Entity"
   ],
   "description": "Model selection and inference parameters for generative AI models.",
+  "$comment": "This is a type used in Stencila Schema for selecting and configuring generative AI\nmodels.\n\nIt exists to make model choice and inference settings part of the document\nmodel, so prompts, chats, and instructions can be reproduced and inspected\nrather than depending on hidden runtime configuration. This supports\ntransparent and portable AI-assisted workflows.\n\nKey properties include model identity, provider-specific settings, and\ninference controls such as temperature and token limits.\n",
   "markdown": {
     "derive": false
   },

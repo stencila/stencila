@@ -6,7 +6,7 @@ use super::block::Block;
 use super::note_type::NoteType;
 use super::string::String;
 
-/// Additional content which is not part of the main content of a document.
+/// A note associated with document content.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]

@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// Whether, and why, the execution of a node is required or not.
+/// A reason why a node does or does not require execution.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum ExecutionRequired {

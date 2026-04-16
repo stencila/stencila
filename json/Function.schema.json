@@ -7,7 +7,15 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "A function with a name, which might take Parameters and return a value of a certain type.",
+  "description": "A function signature.",
+  "$comment": "This is a type used in Stencila Schema for describing callable functions in\ndocuments and execution contexts.\n\nIt exists to represent function signatures structurally, including parameters\nand return types, so functions can be documented, exposed to tools, and\ninvoked from executable nodes. This helps bridge document content with\ncomputational behavior.\n\nKey properties include the function `name`, `parameters`, and return-value\ndescription.\n",
+  "analogues": [
+    {
+      "name": "OpenAPI operation signature",
+      "url": "https://spec.openapis.org/oas/latest.html",
+      "notes": "Approximate analogue for structured callable signatures with parameters and return-like schemas, though Stencila `Function` is language-agnostic and document-oriented."
+    }
+  ],
   "status": "experimental",
   "required": [
     "type",

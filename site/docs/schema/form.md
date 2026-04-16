@@ -1,7 +1,19 @@
 ---
 title: Form
-description: A form to batch updates in document parameters.
+description: A form for batched updates to document parameters.
 ---
+
+This is an executable type used in Stencila Schema for forms that batch updates to
+document parameters.
+
+It extends [`Executable`](./executable.md) so forms can derive values, trigger
+updates, and participate in reactive document workflows rather than being
+treated as passive UI markup. This makes forms part of the executable document
+model.
+
+Key properties include form content, derive actions, parameter bindings, and
+inherited execution metadata.
+
 
 This type is marked as experimental and is likely to change.
 
@@ -11,7 +23,10 @@ The `Form` type has these properties:
 
 | Name                    | Description                                                                               | Type                                                 | Inherited from                  |
 | ----------------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                                             | [`String`](./string.md)                              | [`Entity`](./entity.md)         |
+| `content`               | The content within the form, usually containing at least one `Parameter`.                 | [`Block`](./block.md)*                               | -                               |
+| `deriveFrom`            | The dotted path to the object (e.g a database table) that the form should be derived from | [`String`](./string.md)                              | -                               |
+| `deriveAction`          | The action (create, update or delete) to derive for the form                              | [`FormDeriveAction`](./form-derive-action.md)        | -                               |
+| `deriveItem`            | An identifier for the item to be the target of Update or Delete actions                   | [`Integer`](./integer.md) \| [`String`](./string.md) | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.                                    | [`ExecutionMode`](./execution-mode.md)               | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.                          | [`CompilationDigest`](./compilation-digest.md)       | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                                              | [`CompilationMessage`](./compilation-message.md)*    | [`Executable`](./executable.md) |
@@ -26,10 +41,7 @@ The `Form` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                              | [`Timestamp`](./timestamp.md)                        | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                                           | [`Duration`](./duration.md)                          | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                                                | [`ExecutionMessage`](./execution-message.md)*        | [`Executable`](./executable.md) |
-| `content`               | The content within the form, usually containing at least one `Parameter`.                 | [`Block`](./block.md)*                               | -                               |
-| `deriveFrom`            | The dotted path to the object (e.g a database table) that the form should be derived from | [`String`](./string.md)                              | -                               |
-| `deriveAction`          | The action (create, update or delete) to derive for the form                              | [`FormDeriveAction`](./form-derive-action.md)        | -                               |
-| `deriveItem`            | An identifier for the item to be the target of Update or Delete actions                   | [`Integer`](./integer.md) \| [`String`](./string.md) | -                               |
+| `id`                    | The identifier for this item.                                                             | [`String`](./string.md)                              | [`Entity`](./entity.md)         |
 
 # Related
 

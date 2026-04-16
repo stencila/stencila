@@ -10,7 +10,7 @@ use super::cord::Cord;
 use super::provenance_count::ProvenanceCount;
 use super::string::String;
 
-/// A separate page in a document
+/// A page in a document.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

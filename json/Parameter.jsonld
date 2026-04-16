@@ -12,7 +12,7 @@
       "@id": "stencila:Parameter",
       "@type": "rdfs:Class",
       "rdfs:label": "Parameter",
-      "rdfs:comment": "A parameter of a document.",
+      "rdfs:comment": "A document parameter.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

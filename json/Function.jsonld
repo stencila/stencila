@@ -12,7 +12,7 @@
       "@id": "stencila:Function",
       "@type": "rdfs:Class",
       "rdfs:label": "Function",
-      "rdfs:comment": "A function with a name, which might take Parameters and return a value of a certain type.",
+      "rdfs:comment": "A function signature.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

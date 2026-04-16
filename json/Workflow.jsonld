@@ -12,7 +12,7 @@
       "@id": "stencila:Workflow",
       "@type": "rdfs:Class",
       "rdfs:label": "Workflow",
-      "rdfs:comment": "A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.",
+      "rdfs:comment": "An AI workflow definition.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

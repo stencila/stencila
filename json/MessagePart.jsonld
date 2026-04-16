@@ -12,7 +12,7 @@
       "@id": "stencila:MessagePart",
       "@type": "rdfs:Class",
       "rdfs:label": "MessagePart",
-      "rdfs:comment": "A union type for a part of a message."
+      "rdfs:comment": "A union type for message parts."
     }
   ]
 }

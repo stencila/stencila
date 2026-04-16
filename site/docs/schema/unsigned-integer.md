@@ -3,6 +3,17 @@ title: Unsigned Integer
 description: An integer value that is greater or equal to zero.
 ---
 
+This is a primitive type used in Stencila Schema for integers greater than or equal
+to zero.
+
+It exists because non-negative counts, indices, and similar quantities occur
+frequently in documents and execution metadata, and having a distinct type
+lets Stencila express that constraint directly in the schema.
+
+See also [`Integer`](./integer.md) and properties such as execution counts and
+active-suggestion indices that use this type.
+
+
 # Bindings
 
 The `UnsignedInteger` type is represented in:

@@ -12,7 +12,7 @@
       "@id": "stencila:CompilationDigest",
       "@type": "rdfs:Class",
       "rdfs:label": "CompilationDigest",
-      "rdfs:comment": "A digest of the content, semantics and dependencies of an executable node.",
+      "rdfs:comment": "A digest of an executable node and its dependencies.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

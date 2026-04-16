@@ -1,12 +1,18 @@
 ---
 title: Number Validator
-description: A validator specifying the constraints on a numeric node.
+description: A validator for numeric values.
 ---
 
-A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.
-Analogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
-Note that the `IntegerValidator` type extends this validator with the additional
-constraint that the number have no fractional part.
+This is a type used in Stencila Schema for validating [`Number`](./number.md)
+nodes.
+
+It adapts common JSON Schema numeric constraints to Stencila's validator
+system, allowing numeric ranges and divisibility rules to be expressed as
+structured validator nodes.
+
+Key properties include `minimum`, `exclusiveMinimum`, `maximum`,
+`exclusiveMaximum`, and `multipleOf`. See also
+[`IntegerValidator`](./integer-validator.md).
 
 
 # Properties
@@ -15,12 +21,12 @@ The `NumberValidator` type has these properties:
 
 | Name               | Description                                         | Type                    | Inherited from          |
 | ------------------ | --------------------------------------------------- | ----------------------- | ----------------------- |
-| `id`               | The identifier for this item.                       | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `minimum`          | The inclusive lower limit for a numeric node.       | [`Number`](./number.md) | -                       |
 | `exclusiveMinimum` | The exclusive lower limit for a numeric node.       | [`Number`](./number.md) | -                       |
 | `maximum`          | The inclusive upper limit for a numeric node.       | [`Number`](./number.md) | -                       |
 | `exclusiveMaximum` | The exclusive upper limit for a numeric node.       | [`Number`](./number.md) | -                       |
 | `multipleOf`       | A number that a numeric node must be a multiple of. | [`Number`](./number.md) | -                       |
+| `id`               | The identifier for this item.                       | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

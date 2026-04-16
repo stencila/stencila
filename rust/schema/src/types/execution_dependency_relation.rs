@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// The relation between a node and its execution dependency.
+/// An upstream execution relation between nodes.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum ExecutionDependencyRelation {

@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { WalkthroughStep } from "./WalkthroughStep.js";
 
 /**
- * An interactive walkthrough made up of several, successively revealed steps.
+ * An interactive walkthrough.
  */
 export class Walkthrough extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

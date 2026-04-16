@@ -3,19 +3,40 @@ title: Table
 description: A table.
 ---
 
+This is an implementation of schema.org [`Table`](https://schema.org/Table),
+extended in Stencila Schema for document-oriented table content.
+
+In addition to the schema.org model, this type supports structured rows,
+notes, captions, authorship, provenance, and labeling behavior needed for
+authoring and publishing documents. It is focused on presentational and
+narrative tables, in contrast to [`Datatable`](./datatable.md), which is
+optimized for typed data.
+
+Key properties include `rows`, `caption`, `notes`, `label`, and
+`labelAutomatically`. Additional metadata features may be inherited from
+[`CreativeWork`](./creative-work.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Table`:
+
+- schema.org [`Table`](https://schema.org/Table): Direct schema.org source type, extended in Stencila with structured row and note content for document authoring.
+- HTML [`<table>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table): Closest HTML analogue for tabular content, though Stencila also models notes and richer work metadata.
+- JATS [`<table-wrap>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/table-wrap.html): Closest JATS analogue for publishable tables with captions and notes.
+- Pandoc [`Table`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Table): Closest Pandoc analogue for structured document tables.
+
 # Properties
 
 The `Table` type has these properties:
 
 | Name                 | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                 | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`             | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`               | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `label`              | A short label for the table.                                                                                            | [`String`](./string.md)                                                           | -                                    |
+| `labelAutomatically` | Whether the label should be automatically updated.                                                                      | [`Boolean`](./boolean.md)                                                         | -                                    |
+| `caption`            | A caption for the table.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
+| `rows`               | Rows of cells in the table.                                                                                             | [`TableRow`](./table-row.md)*                                                     | -                                    |
+| `notes`              | Notes for the table.                                                                                                    | [`Block`](./block.md)*                                                            | -                                    |
 | `workType`           | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`              | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -47,11 +68,13 @@ The `Table` type has these properties:
 | `path`               | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`             | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`            | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `label`              | A short label for the table.                                                                                            | [`String`](./string.md)                                                           | -                                    |
-| `labelAutomatically` | Whether the label should be automatically updated.                                                                      | [`Boolean`](./boolean.md)                                                         | -                                    |
-| `caption`            | A caption for the table.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
-| `rows`               | Rows of cells in the table.                                                                                             | [`TableRow`](./table-row.md)*                                                     | -                                    |
-| `notes`              | Notes for the table.                                                                                                    | [`Block`](./block.md)*                                                            | -                                    |
+| `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`             | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`               | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`                 | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

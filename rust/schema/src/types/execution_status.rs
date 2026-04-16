@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// Status of the most recent, including any current, execution of a document node.
+/// The status of a node's most recent execution.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum ExecutionStatus {

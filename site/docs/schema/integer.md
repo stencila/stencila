@@ -1,7 +1,25 @@
 ---
 title: Integer
-description: A value that is a integer.
+description: An integer value.
 ---
+
+This is an implementation of schema.org
+[`Integer`](https://schema.org/Integer).
+
+In Stencila Schema it is represented as a primitive node so integer values can
+be typed, validated, and serialized consistently across document metadata,
+parameters, and data structures.
+
+See also [`Number`](./number.md) and
+[`UnsignedInteger`](./unsigned-integer.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Integer`:
+
+- schema.org [`Integer`](https://schema.org/Integer)
+- [JSON integer-constrained number](https://json-schema.org/understanding-json-schema/reference/numeric): Approximate analogue because JSON itself has only numbers, while integer-ness is usually enforced by JSON Schema or similar validators.
 
 # Bindings
 

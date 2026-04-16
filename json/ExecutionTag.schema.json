@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "A tag on code that affects its execution.",
+  "description": "An execution-affecting tag on code.",
+  "$comment": "This is a type used in Stencila Schema for tags embedded in code that influence\nexecution behavior.\n\nIt exists to preserve structured execution directives extracted from source\ncode, rather than losing them as unparsed comments or format-specific\nmetadata. This allows execution planning and interfaces to reason about tags\nconsistently.\n\nKey properties identify the tag name, value, and any positional or source-code\nmetadata.\n",
   "required": [
     "type",
     "name",

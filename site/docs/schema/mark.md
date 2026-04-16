@@ -1,7 +1,25 @@
 ---
 title: Mark
-description: Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+description: An abstract base type for marked inline content.
 ---
+
+This is an abstract base type used in Stencila Schema for inline marked content.
+
+It exists to group inline nodes that wrap other inline content with semantic
+markup such as emphasis, quotes, annotations, or editorial marks. This allows
+shared handling of nested inline content and common metadata while keeping
+specific mark semantics in derived types.
+
+Key properties usually include wrapped `content`, together with inherited
+metadata and provenance features from [`Entity`](./entity.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Mark`:
+
+- [HTML phrasing elements](https://html.spec.whatwg.org/multipage/dom.html#phrasing-content-2): Broadly analogous to inline wrapper elements such as `<em>`, `<strong>`, or `<q>`, though Stencila abstracts over many specific mark types.
+- Pandoc [`Inline`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Inline): Approximate Pandoc analogue because concrete mark types are individual inline constructors rather than subclasses of an abstract mark base type.
 
 # Properties
 
@@ -9,8 +27,8 @@ The `Mark` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | -                       |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

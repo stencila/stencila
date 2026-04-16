@@ -5,5 +5,16 @@
   "title": "String",
   "category": "data",
   "description": "A value comprised of a string of characters.",
+  "$comment": "This is an implementation of schema.org [`Text`](https://schema.org/Text),\nexposed in Stencila Schema as `String` for consistency with common programming\nand data models.\n\nStencila uses a dedicated primitive node so string values can participate in\nvalidation, serialization, and data-oriented workflows alongside other\nprimitive node types. The rename emphasizes its role as a primitive value\nrather than rich inline text content.\n\nSee also [`Cord`](./cord.md) for character-sequence content and\n[`Primitive`](./primitive.md) for the enclosing union.\n",
+  "analogues": [
+    {
+      "id": "schema:Text",
+      "notes": "Direct schema.org source type, renamed in Stencila to emphasize primitive string semantics rather than rich text-node content."
+    },
+    {
+      "name": "JSON string",
+      "url": "https://www.json.org/json-en.html"
+    }
+  ],
   "type": "string"
 }

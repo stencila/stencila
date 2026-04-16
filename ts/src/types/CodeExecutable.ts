@@ -7,7 +7,7 @@ import { ExecutionBounds } from "./ExecutionBounds.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * Abstract base type for executable code nodes (e.g. `CodeChunk`).
+ * An abstract base type for executable code nodes.
  */
 export class CodeExecutable extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

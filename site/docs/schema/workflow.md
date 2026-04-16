@@ -1,23 +1,18 @@
 ---
 title: Workflow
-description: A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+description: An AI workflow definition.
 ---
 
-A workflow is a directory containing a `WORKFLOW.md` file with YAML frontmatter and a Markdown
-body. The pipeline is defined as a Graphviz DOT digraph in the first ```dot code block in the
-body. Additional Markdown content provides human-readable documentation for the workflow.
+This is a type used in Stencila Schema for reusable AI workflow definitions.
 
-Workflows are discovered from `.stencila/workflows/<name>/WORKFLOW.md`.
-Each node in the DOT graph can reference an agent by name via the `agent` attribute; agents are
-resolved from workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`.
-Because workflows are typically shared (committed to a repository as part of a lab), while
-agents may be personal (user-level agents can encapsulate individual model preferences and
-provider configuration), this separation allows the same shared workflow to be executed with
-different agent configurations by different users. Agent definitions provide defaults for
-model, provider, system instructions, and tools, but explicit node attributes override them.
+It exists to represent a workflow as a document-like artifact with metadata,
+human-readable guidance, and a machine-executable pipeline defined in Graphviz
+DOT. Workflows are discovered from `.stencila/workflows/<name>/WORKFLOW.md`
+and can reference agents by name, allowing shared workflow structures to be
+combined with workspace or user-level agent definitions.
 
-The DOT graph follows the Attractor specification: a strict subset of digraph syntax with typed
-attributes for node handlers, edge routing, retry policies, and human-in-the-loop gates.
+Key properties include `name`, `content`, `pipeline`, `goal`, `goalHint`, and
+`overrides`.
 
 
 # Properties
@@ -26,13 +21,19 @@ The `Workflow` type has these properties:
 
 | Name                  | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | --------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                  | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`      | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`         | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`         | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`              | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
 | `name`                | The name of the workflow.                                                                                               | [`String`](./string.md)                                                           | -                                    |
-| `url`                 | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `whenToUse`           | Positive selection signals describing when this workflow should be used.                                                | [`String`](./string.md)*                                                          | -                                    |
+| `whenNotToUse`        | Negative selection signals describing when this workflow should not be used.                                            | [`String`](./string.md)*                                                          | -                                    |
+| `frontmatter`         | Frontmatter containing workflow metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
+| `content`             | The content of the workflow (Markdown body containing the DOT pipeline and documentation).                              | [`Block`](./block.md)*                                                            | -                                    |
+| `pipeline`            | The raw DOT source defining the pipeline digraph.                                                                       | [`String`](./string.md)                                                           | -                                    |
+| `goal`                | A fixed, predetermined high-level goal for the pipeline.                                                                | [`String`](./string.md)                                                           | -                                    |
+| `goalHint`            | Hint text displayed in user interfaces to guide the user to provide a specific goal.                                    | [`String`](./string.md)                                                           | -                                    |
+| `overrides`           | CSS-like rules for per-node agent overrides across the pipeline.                                                        | [`String`](./string.md)                                                           | -                                    |
+| `defaultMaxRetry`     | Global retry ceiling for nodes that omit max_retries.                                                                   | [`Integer`](./integer.md)                                                         | -                                    |
+| `retryTarget`         | Node ID to jump to if exit is reached with unsatisfied goal gates.                                                      | [`String`](./string.md)                                                           | -                                    |
+| `fallbackRetryTarget` | Secondary jump target if retryTarget is missing or invalid.                                                             | [`String`](./string.md)                                                           | -                                    |
+| `defaultFidelity`     | Default context fidelity mode for LLM sessions.                                                                         | [`String`](./string.md)                                                           | -                                    |
 | `workType`            | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                 | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`               | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -64,18 +65,12 @@ The `Workflow` type has these properties:
 | `path`                | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`              | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`             | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `whenToUse`           | Positive selection signals describing when this workflow should be used.                                                | [`String`](./string.md)*                                                          | -                                    |
-| `whenNotToUse`        | Negative selection signals describing when this workflow should not be used.                                            | [`String`](./string.md)*                                                          | -                                    |
-| `frontmatter`         | Frontmatter containing workflow metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
-| `content`             | The content of the workflow (Markdown body containing the DOT pipeline and documentation).                              | [`Block`](./block.md)*                                                            | -                                    |
-| `pipeline`            | The raw DOT source defining the pipeline digraph.                                                                       | [`String`](./string.md)                                                           | -                                    |
-| `goal`                | A fixed, predetermined high-level goal for the pipeline.                                                                | [`String`](./string.md)                                                           | -                                    |
-| `goalHint`            | Hint text displayed in user interfaces to guide the user to provide a specific goal.                                    | [`String`](./string.md)                                                           | -                                    |
-| `overrides`           | CSS-like rules for per-node agent overrides across the pipeline.                                                        | [`String`](./string.md)                                                           | -                                    |
-| `defaultMaxRetry`     | Global retry ceiling for nodes that omit max_retries.                                                                   | [`Integer`](./integer.md)                                                         | -                                    |
-| `retryTarget`         | Node ID to jump to if exit is reached with unsatisfied goal gates.                                                      | [`String`](./string.md)                                                           | -                                    |
-| `fallbackRetryTarget` | Secondary jump target if retryTarget is missing or invalid.                                                             | [`String`](./string.md)                                                           | -                                    |
-| `defaultFidelity`     | Default context fidelity mode for LLM sessions.                                                                         | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames`      | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`         | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`         | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`              | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `url`                 | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`                  | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

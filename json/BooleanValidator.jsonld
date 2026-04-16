@@ -12,7 +12,7 @@
       "@id": "stencila:BooleanValidator",
       "@type": "rdfs:Class",
       "rdfs:label": "BooleanValidator",
-      "rdfs:comment": "A schema specifying that a node must be a boolean value.",
+      "rdfs:comment": "A validator for boolean values.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -8,8 +8,8 @@
   ],
   "category": "style",
   "abstract": true,
-  "description": "An abstract base class for a document node that has styling applied to it and/or its content.",
-  "$comment": "This class is very similar to the `Math` abstract base class but has `styleLanguage` instead\nof `mathLanguage` and compiled `css` instead of `mathml`.\n\nNote also that `styleLanguage` is optional.\n",
+  "description": "An abstract base type for styled content.",
+  "$comment": "This is an abstract base type used in Stencila Schema for nodes with explicit style\ncode.\n\nIt exists to represent styling separately from a node's core structural or\nsemantic role, while still allowing style code, style language, authorship,\nprovenance, and compiled CSS to be stored within the document model. This\nsupports authoring, theming, and style-aware publishing workflows.\n\nKey properties include `code`, `styleLanguage`, `compilationDigest`, `css`,\nand `classList`.\n",
   "status": "beta",
   "required": [
     "type",

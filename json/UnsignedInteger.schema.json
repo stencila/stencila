@@ -5,6 +5,7 @@
   "title": "UnsignedInteger",
   "category": "data",
   "description": "An integer value that is greater or equal to zero.",
+  "$comment": "This is a primitive type used in Stencila Schema for integers greater than or equal\nto zero.\n\nIt exists because non-negative counts, indices, and similar quantities occur\nfrequently in documents and execution metadata, and having a distinct type\nlets Stencila express that constraint directly in the schema.\n\nSee also [`Integer`](./integer.md) and properties such as execution counts and\nactive-suggestion indices that use this type.\n",
   "type": "integer",
   "minimum": 0.0
 }

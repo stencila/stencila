@@ -7,6 +7,7 @@
     "Entity"
   ],
   "description": "The most generic type of item.",
+  "$comment": "This is an implementation of schema.org [`Thing`](https://schema.org/Thing).\n\nIn Stencila Schema it provides the common base for schema.org-derived entities\nsuch as people, organizations, creative works, products, and related\nmetadata-bearing types. Stencila keeps the broadly interoperable schema.org\ncore while integrating it with the node and document infrastructure inherited\nthrough [`Entity`](./entity.md).\n\nKey properties include `name`, `alternateNames`, `description`, `identifiers`,\n`images`, and `url`.\n",
   "required": [
     "type"
   ],

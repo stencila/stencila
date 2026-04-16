@@ -8,6 +8,17 @@
   ],
   "category": "data",
   "description": "A value that represents the difference between two timestamps.",
+  "$comment": "This is an implementation of schema.org\n[`Duration`](https://schema.org/Duration).\n\nIn Stencila Schema it is represented as a typed node because durations are\ncommonly produced by execution, attached to metadata, and rendered in\ndocuments. Modeling them explicitly allows validation and serialization\nwithout losing the distinction between a duration and a timestamp.\n\nSee also temporal types such as [`Time`](./time.md) and\n[`Timestamp`](./timestamp.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Duration"
+    },
+    {
+      "name": "ISO 8601 duration",
+      "url": "https://en.wikipedia.org/wiki/ISO_8601#Durations",
+      "notes": "Close external duration analogue, though Stencila stores duration as numeric `value` plus explicit `timeUnit` rather than a single encoded string."
+    }
+  ],
   "jats": {
     "elem": "duration",
     "special": true

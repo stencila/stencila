@@ -12,7 +12,7 @@
       "@id": "stencila:IfBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "IfBlock",
-      "rdfs:comment": "Show and execute alternative content conditional upon an executed expression.",
+      "rdfs:comment": "A block that conditionally shows and executes alternative content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

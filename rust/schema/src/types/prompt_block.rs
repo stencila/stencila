@@ -19,7 +19,7 @@ use super::relative_position::RelativePosition;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// A preview of how a prompt will be rendered at a location in the document
+/// A preview of a rendered prompt at a location in a document.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

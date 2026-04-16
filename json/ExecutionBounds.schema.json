@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "flow",
-  "description": "The bounds placed on the execution of a document node.",
+  "description": "A boundary for node execution.",
+  "$comment": "This is an enumeration used in Stencila Schema for limits placed on node execution.\n\nIt exists to let Stencila describe how far execution should proceed in a\ndocument or workflow context, using a stable controlled vocabulary instead of\nad hoc flags. This is useful for user interfaces, execution planning, and\nreproducible automation.\n\nSee the execution control properties that reference this enumeration.\n",
   "required": [
     "type"
   ],

@@ -3,10 +3,23 @@ title: Periodical
 description: A periodical publication.
 ---
 
-A publication in any medium issued in successive parts bearing numerical or chronological designations and intended,
-such as a magazine, scholarly journal, or newspaper to continue indefinitely. Often embedded as the `isPartOf` property
-in a [`PublicationVolume`](./publication-volume.md).
+This is an implementation of schema.org
+[`Periodical`](https://schema.org/Periodical).
 
+In Stencila Schema it is used to represent serial publications such as
+journals, magazines, and newspapers within the broader creative-work metadata
+model. It most often appears as the parent publication for
+[`PublicationVolume`](./publication-volume.md) and
+[`PublicationIssue`](./publication-issue.md) nodes.
+
+Key properties include `name`, `dateStart`, `dateEnd`, and `issns`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Periodical`:
+
+- schema.org [`Periodical`](https://schema.org/Periodical)
 
 # Properties
 
@@ -14,13 +27,9 @@ The `Periodical` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `dateStart`      | The date this Periodical was first published.                                                                           | [`Date`](./date.md)                                                               | -                                    |
+| `dateEnd`        | The date this Periodical ceased publication.                                                                            | [`Date`](./date.md)                                                               | -                                    |
+| `issns`          | The International Standard Serial Number(s) (ISSN) that identifies this serial publication.                             | [`String`](./string.md)*                                                          | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -52,9 +61,13 @@ The `Periodical` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `dateStart`      | The date this Periodical was first published.                                                                           | [`Date`](./date.md)                                                               | -                                    |
-| `dateEnd`        | The date this Periodical ceased publication.                                                                            | [`Date`](./date.md)                                                               | -                                    |
-| `issns`          | The International Standard Serial Number(s) (ISSN) that identifies this serial publication.                             | [`String`](./string.md)*                                                          | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

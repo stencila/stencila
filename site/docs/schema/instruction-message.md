@@ -3,18 +3,35 @@ title: Instruction Message
 description: A message within an `Instruction`.
 ---
 
+This is a type used in Stencila Schema for the user- or system-authored message
+associated with an [`Instruction`](./instruction.md).
+
+It exists so instruction input can include structured parts such as text and
+media, rather than being limited to a plain string. This aligns instruction
+workflows with the richer messaging model used elsewhere in Stencila.
+
+Key properties include structured message parts and any metadata needed for
+prompt rendering or model interaction.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `InstructionMessage`:
+
+- [multimodal chat message](https://platform.openai.com/docs/guides/images): Close analogue for a message combining text and file-like attachments, though Stencila uses a document-oriented instruction context.
+
 # Properties
 
 The `InstructionMessage` type has these properties:
 
 | Name         | Description                                                                     | Type                                        | Inherited from          |
 | ------------ | ------------------------------------------------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`         | The identifier for this item.                                                   | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `role`       | The role of the message in the conversation.                                    | [`MessageRole`](./message-role.md)          | -                       |
 | `content`    | The content of the message as inline nodes.                                     | [`Inline`](./inline.md)*                    | -                       |
 | `files`      | Files attached to the message.                                                  | [`File`](./file.md)*                        | -                       |
 | `authors`    | The authors of the message.                                                     | [`Author`](./author.md)*                    | -                       |
 | `provenance` | A summary of the provenance of the messages and content within the instruction. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`         | The identifier for this item.                                                   | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

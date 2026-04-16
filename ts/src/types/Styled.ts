@@ -8,7 +8,7 @@ import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * An abstract base class for a document node that has styling applied to it and/or its content.
+ * An abstract base type for styled content.
  */
 export class Styled extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

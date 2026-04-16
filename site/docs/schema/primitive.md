@@ -1,13 +1,17 @@
 ---
 title: Primitive
-description: Union type for all primitives values.
+description: A union type for primitive values.
 ---
 
-Analogous to JSON values but adds `Integer` and `UnsignedInteger`.
+This is a union type used in Stencila Schema for primitive data values.
 
-Similar to https://schema.org/DataType "The basic data types such as Integers, Strings, etc."
-but includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (which are
-treated in this schema as `Entity`s having a `type` property to disambiguate them from strings).
+It is broadly analogous to JSON values, but uses Stencila's explicit primitive
+node types and includes both `Integer` and `UnsignedInteger` alongside
+`Array`, `Object`, `String`, `Number`, `Boolean`, and `Null`.
+
+Temporal node types such as [`Date`](./date.md), [`Time`](./time.md), and
+[`DateTime`](./date-time.md) are excluded because Stencila models them as
+distinct typed nodes rather than primitive strings.
 
 
 # Members

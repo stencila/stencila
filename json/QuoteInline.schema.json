@@ -9,6 +9,21 @@
   ],
   "category": "prose",
   "description": "Inline, quoted content.",
+  "$comment": "This is an inline mark type used in Stencila Schema for quoted content.\n\nIt extends [`Mark`](./mark.md) so short quotations within prose can be\nrepresented structurally and serialized consistently across formats, rather\nthan relying only on punctuation.\n\nKey properties are inherited from [`Mark`](./mark.md), especially the wrapped\ninline `content`.\n",
+  "analogues": [
+    {
+      "id": "html:q"
+    },
+    {
+      "id": "pandoc:Quoted",
+      "notes": "Closest Pandoc analogue for inline quotations, though Pandoc distinguishes quote kind explicitly."
+    },
+    {
+      "name": "MDAST phrasing quotation",
+      "url": "https://github.com/syntax-tree/mdast",
+      "notes": "There is no dedicated core MDAST inline quote node; quotation is usually represented as plain text punctuation or HTML."
+    }
+  ],
   "dom": {
     "elem": "q"
   },

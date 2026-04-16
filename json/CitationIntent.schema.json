@@ -7,8 +7,8 @@
     "Enumeration"
   ],
   "category": "prose",
-  "description": "The type or nature of a citation, both factually and rhetorically.",
-  "$comment": "The members of this enumeration map directly on to the types in the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).\n",
+  "description": "The rhetorical or factual intent of a citation.",
+  "$comment": "This is an implementation of the [Citation Typing Ontology (CiTO)](http://www.sparontologies.net/ontologies/cito).\n\nIn Stencila Schema it provides a controlled vocabulary for expressing why one\ncreative work cites another, including factual, rhetorical, and discourse\nrelationships. The values map directly to CiTO terms so that citation intent\ncan be preserved across document formats and linked-data workflows.\n\nSee [`Citation.citationIntent`](./citation.md#citationintent) for the property\nthat uses this enumeration.\n",
   "required": [
     "type"
   ],

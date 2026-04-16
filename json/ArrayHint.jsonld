@@ -12,7 +12,7 @@
       "@id": "stencila:ArrayHint",
       "@type": "rdfs:Class",
       "rdfs:label": "ArrayHint",
-      "rdfs:comment": "A hint to the content of an `Array`.",
+      "rdfs:comment": "A concise summary of the values and structure of an `Array`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -7,6 +7,12 @@
     "Thing"
   ],
   "description": "A grant, typically financial or otherwise quantifiable, of resources.",
+  "$comment": "This is an implementation of schema.org [`Grant`](https://schema.org/Grant).\n\nIn Stencila Schema it is used for structured funding metadata attached to\ncreative works and related entities. It remains close to the schema.org model\nwhile integrating with Stencila's richer document metadata and contributor\ntracking.\n\nKey properties are typically used via funding-related fields on\n[`CreativeWork`](./creative-work.md) and derived types.\n",
+  "analogues": [
+    {
+      "id": "schema:Grant"
+    }
+  ],
   "required": [
     "type"
   ],

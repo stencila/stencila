@@ -9,6 +9,7 @@
   ],
   "category": "style",
   "description": "Styled block content.",
+  "$comment": "This is a block type used in Stencila Schema for content with explicit styling.\n\nIt extends [`Styled`](./styled.md) to apply styling semantics to block-level\ncontent while keeping style information separate from the node's core\nstructural meaning. This supports authoring, publishing, and theming workflows\nwithout forcing format-specific markup into the content model.\n\nKey properties include block `content` together with inherited styling\ninformation from [`Styled`](./styled.md).\n",
   "status": "beta",
   "dom": {
     "derive": false

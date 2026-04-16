@@ -4,6 +4,17 @@
   "@id": "schema:Integer",
   "title": "Integer",
   "category": "data",
-  "description": "A value that is a integer.",
+  "description": "An integer value.",
+  "$comment": "This is an implementation of schema.org\n[`Integer`](https://schema.org/Integer).\n\nIn Stencila Schema it is represented as a primitive node so integer values can\nbe typed, validated, and serialized consistently across document metadata,\nparameters, and data structures.\n\nSee also [`Number`](./number.md) and\n[`UnsignedInteger`](./unsigned-integer.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Integer"
+    },
+    {
+      "name": "JSON integer-constrained number",
+      "url": "https://json-schema.org/understanding-json-schema/reference/numeric",
+      "notes": "Approximate analogue because JSON itself has only numbers, while integer-ness is usually enforced by JSON Schema or similar validators."
+    }
+  ],
   "type": "integer"
 }

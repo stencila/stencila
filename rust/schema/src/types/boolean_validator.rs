@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::string::String;
 
-/// A schema specifying that a node must be a boolean value.
+/// A validator for boolean values.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

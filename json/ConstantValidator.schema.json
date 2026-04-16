@@ -9,7 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying a constant value that a node must have.",
-  "$comment": "A node will be valid against this validator if it is equal to the\n`value` property. Analogous to the JSON Schema [`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3) keyword.\n",
+  "$comment": "This is a type used in Stencila Schema for validating nodes against a fixed value.\n\nIt adapts the JSON Schema\n[`const`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.3)\nconcept to Stencila's validator system, allowing a constraint to require exact\nequality with a single node value.\n\nThe main property is `value`.\n",
   "markdown": {
     "derive": false
   },

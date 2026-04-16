@@ -12,7 +12,7 @@
       "@id": "schema:Claim",
       "@type": "rdfs:Class",
       "rdfs:label": "Claim",
-      "rdfs:comment": "A claim represents specific reviewable facts or statements.",
+      "rdfs:comment": "A reviewable claim or statement.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

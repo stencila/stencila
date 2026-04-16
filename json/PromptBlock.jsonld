@@ -12,7 +12,7 @@
       "@id": "stencila:PromptBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "PromptBlock",
-      "rdfs:comment": "A preview of how a prompt will be rendered at a location in the document",
+      "rdfs:comment": "A preview of a rendered prompt at a location in a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

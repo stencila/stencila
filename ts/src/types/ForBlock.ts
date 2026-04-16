@@ -5,7 +5,7 @@ import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
 
 /**
- * Repeat a block content for each item in an array.
+ * A block that repeats content for each item in an array.
  */
 export class ForBlock extends CodeExecutable {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A hint to the type and values in a `DatatableColumn`.",
+  "description": "A concise summary of the properties of a `DatatableColumn`.",
+  "$comment": "This is a type used in Stencila Schema for providing a concise summary of the\nproperties of a [`DatatableColumn`](./datatable-column.md).\n\nIt exists to support both human and machine understanding of tabular columns,\nincluding schema inference, editing assistance, and code generation\nworkflows such as selecting visual encodings based on column types. Rather\nthan making observations into hard constraints, it summarizes inferred type,\nvalue range, and other characteristics of the column.\n\nKey properties describe inferred value kinds, ranges, and representative\nexamples.\n",
   "required": [
     "type",
     "name",

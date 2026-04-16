@@ -8,7 +8,8 @@
     "Executable"
   ],
   "category": "flow",
-  "description": "A form to batch updates in document parameters.",
+  "description": "A form for batched updates to document parameters.",
+  "$comment": "This is an executable type used in Stencila Schema for forms that batch updates to\ndocument parameters.\n\nIt extends [`Executable`](./executable.md) so forms can derive values, trigger\nupdates, and participate in reactive document workflows rather than being\ntreated as passive UI markup. This makes forms part of the executable document\nmodel.\n\nKey properties include form content, derive actions, parameter bindings, and\ninherited execution metadata.\n",
   "status": "experimental",
   "required": [
     "type",

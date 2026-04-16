@@ -9,6 +9,7 @@
   ],
   "category": "code",
   "description": "An error, warning or log message generated during compilation.",
+  "$comment": "This is a type used in Stencila Schema for messages produced during compilation.\n\nIt exists to capture structured diagnostics from compilation-like steps such\nas parsing, transpilation, prompt rendering, or overlay expansion. By storing\nmessages as nodes, Stencila can preserve them across tools, renderers, and\nexecution sessions.\n\nKey properties typically include message level, text, and optional\nsource-location information.\n",
   "required": [
     "type",
     "level",

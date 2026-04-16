@@ -7,7 +7,18 @@
     "Enumeration"
   ],
   "category": "prose",
-  "description": "Indicates how a `List` is ordered.",
+  "description": "The ordering of a list.",
+  "$comment": "This is an implementation of schema.org\n[`ItemListOrderType`](https://schema.org/ItemListOrderType).\n\nIn Stencila Schema it is used by [`List`](./list.md) to represent ordering\nsemantics in a controlled way that can be mapped to authoring and publishing\nformats.\n\nSee [`List.order`](./list.md#order) for the property that uses this\nenumeration.\n",
+  "analogues": [
+    {
+      "id": "schema:ItemListOrderType"
+    },
+    {
+      "name": "HTML list type semantics",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol",
+      "notes": "Approximate analogue because HTML expresses ordered-versus-unordered distinctions structurally and has limited native support for descending order."
+    }
+  ],
   "proptest": {},
   "required": [
     "type"

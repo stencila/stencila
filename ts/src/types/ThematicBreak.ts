@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+ * A thematic break.
  */
 export class ThematicBreak extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

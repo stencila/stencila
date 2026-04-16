@@ -4,8 +4,8 @@
   "@id": "stencila:Entity",
   "title": "Entity",
   "abstract": true,
-  "description": "Abstract base type for compound (ie. non-atomic) nodes.",
-  "$comment": "This type exists mainly to have a more simple base class than schema.org's `Thing`.\nThis schema includes special properties that are analogous to JSON-LDs `@type` and `@id`.\n",
+  "description": "An abstract base type for compound nodes.",
+  "$comment": "This is an abstract base type used in Stencila Schema for non-atomic document and\nmetadata nodes.\n\nIt exists to provide a lightweight foundation for structured nodes in the\nschema, separate from schema.org's broader [`Thing`](./thing.md) model. It\ngives all compound nodes explicit `type` and optional `id` properties that are\nanalogous to JSON-LD's `@type` and `@id`.\n\nKey properties include `type` and `id`.\n",
   "required": [
     "type"
   ],

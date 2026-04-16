@@ -7,8 +7,25 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.",
-  "$comment": "This is not an abstract type and so can be instantiated as an inline content node.\nHowever, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the\ntype of media is known.\n",
+  "description": "A media object.",
+  "$comment": "This is an implementation of schema.org\n[`MediaObject`](https://schema.org/MediaObject).\n\nIn Stencila Schema it acts as the common base type for embeddable media such\nas images, audio, and video, while also remaining instantiable when only a\ngeneric media resource is known. It connects schema.org media metadata with\nStencila's document node model so media can be represented both as metadata and\nas rendered document content.\n\nKey properties include `contentUrl`, `embedUrl`, and `mediaType`. Prefer\n`AudioObject`, `ImageObject`, or `VideoObject` when the media kind is known.\n",
+  "analogues": [
+    {
+      "id": "schema:MediaObject"
+    },
+    {
+      "id": "html:img",
+      "notes": "Approximate HTML analogue for embedded media, though Stencila `MediaObject` generalizes over image, audio, and video resources."
+    },
+    {
+      "id": "jats:inline-media",
+      "notes": "Close JATS analogue for generic embeddable media."
+    },
+    {
+      "id": "pandoc:Image",
+      "notes": "Only an approximate Pandoc analogue; Pandoc has media-specific inline nodes rather than a generic media-object base type."
+    }
+  ],
   "jats": {
     "elem": "inline-media",
     "special": true

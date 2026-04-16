@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "The location within some source code.",
+  "description": "A location within source code.",
+  "$comment": "This is a type used in Stencila Schema for pointing to a location within source\ncode.\n\nIt exists to support diagnostics, references, provenance, and tooling\nintegrations that need to connect document nodes back to specific code spans.\nBy representing locations structurally, Stencila can preserve this information\nacross serialization and execution workflows.\n\nKey properties identify the source, range, and positional information for the\ncode span.\n",
   "required": [
     "type"
   ],

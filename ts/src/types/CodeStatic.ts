@@ -6,7 +6,7 @@ import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+ * An abstract base type for non-executable code nodes.
  */
 export class CodeStatic extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

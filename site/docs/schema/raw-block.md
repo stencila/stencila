@@ -1,11 +1,17 @@
 ---
 title: Raw Block
-description: Document content in a specific format
+description: A block of raw content in a specific format.
 ---
 
-The content of the block is not decoded by any codecs and is output when the encoding format
-matches that of the raw block and the `render` option is used.
-Analogous to node types in [Pandoc](https://github.com/jgm/pandoc-types/blob/1cf21a602535b6b263fef9548521353912115d87/src/Text/Pandoc/Definition.hs#L284) and [MultiMarkdown](https://fletcher.github.io/MultiMarkdown-6/syntax/raw.html).
+This is a block type used in Stencila Schema for raw format-specific content.
+
+It exists to preserve content that should bypass normal decoding into the
+document model and instead be emitted directly when the target format matches.
+This is useful for passthrough markup, format-specific extensions, and other
+content that Stencila should carry without interpreting structurally.
+
+Key properties include `format`, `content`, and derived compilation-related
+properties such as `css` when applicable.
 
 
 # Properties
@@ -14,7 +20,6 @@ The `RawBlock` type has these properties:
 
 | Name                  | Description                                                                             | Type                                              | Inherited from          |
 | --------------------- | --------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                                           | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `format`              | The format of the raw content.                                                          | [`String`](./string.md)                           | -                       |
 | `content`             | The raw content.                                                                        | [`Cord`](./cord.md)                               | -                       |
 | `compilationDigest`   | A digest of the `format` and `content` properties.                                      | [`CompilationDigest`](./compilation-digest.md)    | -                       |
@@ -22,6 +27,7 @@ The `RawBlock` type has these properties:
 | `css`                 | A Cascading Style Sheet (CSS) generated from the `content`.                             | [`String`](./string.md)                           | -                       |
 | `authors`             | The authors of the content.                                                             | [`Author`](./author.md)*                          | -                       |
 | `provenance`          | A summary of the provenance of the content.                                             | [`ProvenanceCount`](./provenance-count.md)*       | -                       |
+| `id`                  | The identifier for this item.                                                           | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

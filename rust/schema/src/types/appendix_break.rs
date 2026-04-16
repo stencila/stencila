@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::compilation_message::CompilationMessage;
 use super::string::String;
 
-/// A break in a document indicating the start one or more appendices.
+/// A break marking the start of appendices.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]

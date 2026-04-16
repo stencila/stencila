@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "A digest of the content, semantics and dependencies of an executable node.",
+  "description": "A digest of an executable node and its dependencies.",
+  "$comment": "This is a type used in Stencila Schema for recording a digest of executable content\nand its dependencies.\n\nIt exists to support incremental compilation and cache invalidation across\nexecutable document nodes. Rather than reprocessing content unconditionally,\nStencila can compare digests to determine whether derived outputs or compiled\nartifacts are still current.\n\nThis type is commonly used by properties such as `compilationDigest` and\nrelated compilation metadata on [`Executable`](./executable.md) and derived\ntypes.\n",
   "required": [
     "type",
     "stateDigest"

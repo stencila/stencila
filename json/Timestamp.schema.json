@@ -9,6 +9,14 @@
   ],
   "category": "data",
   "description": "A value that represents a point in time.",
+  "$comment": "This is a temporal type used in Stencila Schema for exact points in time.\n\nAlthough analogous to date-time concepts elsewhere, it exists separately in\nStencila Schema because timestamps are heavily used for execution events,\nprovenance, and document modification tracking. Modeling them explicitly\nclarifies their role as event times rather than general-purpose date-time\nmetadata.\n\nSee properties such as `executionEnded`, `lastModified`, and other\ntimestamp-bearing metadata throughout the schema.\n",
+  "analogues": [
+    {
+      "name": "Unix timestamp",
+      "url": "https://en.wikipedia.org/wiki/Unix_time",
+      "notes": "Closest external analogue, though Stencila stores the epoch offset together with explicit `timeUnit` rather than assuming seconds."
+    }
+  ],
   "jats": {
     "elem": "timestamp",
     "special": true

@@ -4,7 +4,7 @@ import { Block } from "./Block.js";
 import { Executable } from "./Executable.js";
 
 /**
- * Include block content from an external source (e.g. file, URL).
+ * A block that includes content from an external source.
  */
 export class IncludeBlock extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

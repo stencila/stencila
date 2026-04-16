@@ -9,6 +9,16 @@
   ],
   "category": "works",
   "description": "A row within a Table.",
+  "$comment": "This is a type used in Stencila Schema for rows within a [`Table`](./table.md).\n\nIt exists to represent row structure explicitly so header, body, and footer\nsemantics can be preserved across transformations and renderers.\n\nKey properties include the row `cells` and `rowType`.\n",
+  "analogues": [
+    {
+      "id": "html:tr"
+    },
+    {
+      "id": "pandoc:Table",
+      "notes": "Only an approximate analogue because Pandoc rows are nested structures inside tables rather than standalone row nodes."
+    }
+  ],
   "dom": {
     "derive": false
   },

@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::file_or_directory::FileOrDirectory;
 use super::string::String;
 
-/// A directory on the file system.
+/// A directory on a file system.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

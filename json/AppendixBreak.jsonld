@@ -12,7 +12,7 @@
       "@id": "stencila:AppendixBreak",
       "@type": "rdfs:Class",
       "rdfs:label": "AppendixBreak",
-      "rdfs:comment": "A break in a document indicating the start one or more appendices.",
+      "rdfs:comment": "A break marking the start of appendices.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

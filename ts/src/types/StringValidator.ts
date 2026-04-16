@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A schema specifying constraints on a string node.
+ * A validator for string values.
  */
 export class StringValidator extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

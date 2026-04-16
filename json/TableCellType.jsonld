@@ -12,7 +12,7 @@
       "@id": "stencila:TableCellType",
       "@type": "rdfs:Class",
       "rdfs:label": "TableCellType",
-      "rdfs:comment": "Indicates whether the cell is a header or data.",
+      "rdfs:comment": "The structural role of a table cell.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

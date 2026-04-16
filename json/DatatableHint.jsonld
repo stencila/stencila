@@ -12,7 +12,7 @@
       "@id": "stencila:DatatableHint",
       "@type": "rdfs:Class",
       "rdfs:label": "DatatableHint",
-      "rdfs:comment": "A hint to the structure of a table of data.",
+      "rdfs:comment": "A concise summary of the structure of a table of data.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

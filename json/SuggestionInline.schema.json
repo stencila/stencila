@@ -9,6 +9,14 @@
   ],
   "category": "edits",
   "description": "Abstract base type for nodes that indicate a suggested change to inline content.",
+  "$comment": "This is an abstract base type used in Stencila Schema for suggestions that operate on\ninline content.\n\nIt extends [`Suggestion`](./suggestion.md) so fine-grained proposed edits\nwithin prose can be represented separately from block-level changes while\nreusing the common suggestion model.\n\nKey properties are primarily inherited from [`Suggestion`](./suggestion.md),\nwith semantics centered on inline-content replacements and originals.\n",
+  "analogues": [
+    {
+      "name": "inline tracked change",
+      "url": "https://learn.microsoft.com/en-us/office/open-xml/word/working-with-comments-and-tracked-revisions",
+      "notes": "Approximate analogue for suggested insertions, deletions, and replacements within prose spans."
+    }
+  ],
   "markdown": {
     "derive": false
   },

@@ -12,7 +12,7 @@
       "@id": "schema:PublicationVolume",
       "@type": "rdfs:Class",
       "rdfs:label": "PublicationVolume",
-      "rdfs:comment": "A part of a successively published publication such as a periodical or multi-volume work.",
+      "rdfs:comment": "A publication volume.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

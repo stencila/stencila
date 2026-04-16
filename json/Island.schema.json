@@ -7,6 +7,7 @@
     "Entity"
   ],
   "description": "An island of content in a document.",
+  "$comment": "This is a type used in Stencila Schema for an isolated region of document content.\n\nIt exists to represent content that is handled with its own compilation,\nrendering, or interaction boundary while still remaining inside the broader\ndocument model. This is useful for embedded applications, custom renderers, or\nsandboxed content regions.\n\nKey properties describe the island content, source, and any execution or\nrendering context associated with it.\n",
   "latex": {
     "derive": false
   },

@@ -1,7 +1,19 @@
 ---
 title: Code Location
-description: The location within some source code.
+description: A location within source code.
 ---
+
+This is a type used in Stencila Schema for pointing to a location within source
+code.
+
+It exists to support diagnostics, references, provenance, and tooling
+integrations that need to connect document nodes back to specific code spans.
+By representing locations structurally, Stencila can preserve this information
+across serialization and execution workflows.
+
+Key properties identify the source, range, and positional information for the
+code span.
+
 
 # Properties
 
@@ -9,12 +21,12 @@ The `CodeLocation` type has these properties:
 
 | Name          | Description                                                        | Type                                       | Inherited from          |
 | ------------- | ------------------------------------------------------------------ | ------------------------------------------ | ----------------------- |
-| `id`          | The identifier for this item.                                      | [`String`](./string.md)                    | [`Entity`](./entity.md) |
 | `source`      | The source of the code, a file path, label or URL.                 | [`String`](./string.md)                    | -                       |
 | `startLine`   | The 0-based index if the first line on which the error occurred.   | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
 | `startColumn` | The 0-based index if the first column on which the error occurred. | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
 | `endLine`     | The 0-based index if the last line on which the error occurred.    | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
 | `endColumn`   | The 0-based index if the last column on which the error occurred.  | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
+| `id`          | The identifier for this item.                                      | [`String`](./string.md)                    | [`Entity`](./entity.md) |
 
 # Related
 

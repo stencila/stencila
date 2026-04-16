@@ -5,7 +5,7 @@ import { SoftwareApplication } from "./SoftwareApplication.js";
 import { SoftwareSourceCodeOrSoftwareApplicationOrString } from "./SoftwareSourceCodeOrSoftwareApplicationOrString.js";
 
 /**
- * Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+ * Source code for software.
  */
 export class SoftwareSourceCode extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

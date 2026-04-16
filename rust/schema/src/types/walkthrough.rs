@@ -6,7 +6,7 @@ use super::boolean::Boolean;
 use super::string::String;
 use super::walkthrough_step::WalkthroughStep;
 
-/// An interactive walkthrough made up of several, successively revealed steps.
+/// An interactive walkthrough.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

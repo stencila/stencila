@@ -3,17 +3,28 @@ title: Compilation Message
 description: An error, warning or log message generated during compilation.
 ---
 
+This is a type used in Stencila Schema for messages produced during compilation.
+
+It exists to capture structured diagnostics from compilation-like steps such
+as parsing, transpilation, prompt rendering, or overlay expansion. By storing
+messages as nodes, Stencila can preserve them across tools, renderers, and
+execution sessions.
+
+Key properties typically include message level, text, and optional
+source-location information.
+
+
 # Properties
 
 The `CompilationMessage` type has these properties:
 
 | Name           | Description                                                | Type                                 | Inherited from          |
 | -------------- | ---------------------------------------------------------- | ------------------------------------ | ----------------------- |
-| `id`           | The identifier for this item.                              | [`String`](./string.md)              | [`Entity`](./entity.md) |
 | `level`        | The severity level of the message.                         | [`MessageLevel`](./message-level.md) | -                       |
 | `message`      | The text of the message.                                   | [`String`](./string.md)              | -                       |
 | `errorType`    | The type of error e.g. "SyntaxError", "ZeroDivisionError". | [`String`](./string.md)              | -                       |
 | `codeLocation` | The location that the error occurred.                      | [`CodeLocation`](./code-location.md) | -                       |
+| `id`           | The identifier for this item.                              | [`String`](./string.md)              | [`Entity`](./entity.md) |
 
 # Related
 

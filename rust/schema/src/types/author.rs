@@ -7,7 +7,7 @@ use super::organization::Organization;
 use super::person::Person;
 use super::software_application::SoftwareApplication;
 
-/// Union type for things that can be an author of a `CreativeWork` or other type.
+/// A union type for authors of a `CreativeWork` or other type.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum Author {

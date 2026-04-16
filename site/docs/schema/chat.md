@@ -3,7 +3,27 @@ title: Chat
 description: A chat conversation, usually with a generative AI model.
 ---
 
+This is a type used in Stencila Schema for conversational interactions in documents.
+
+It combines [`CreativeWork`](./creative-work.md) metadata with
+[`Executable`](./executable.md) behavior so a chat can be stored, rendered,
+re-executed, and linked to document editing workflows. Unlike a plain message
+transcript, it can carry model configuration, prompt rendering, targeted
+document nodes, and mixed block content.
+
+Key properties include `prompt`, `modelParameters`, `targetNodes`, and
+`content`. Additional metadata and execution features are inherited from
+[`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).
+
+
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Chat`:
+
+- [OpenAI chat completion conversation](https://platform.openai.com/docs/guides/text-generation): Close conversational analogue, though Stencila stores chats as reusable executable document artifacts with block content and workflow metadata.
+- [Anthropic messages conversation](https://docs.anthropic.com/): Close provider-level analogue for structured message exchanges.
 
 # Properties
 
@@ -11,13 +31,11 @@ The `Chat` type has these properties:
 
 | Name                    | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `isEmbedded`            | Whether the chat is embedded within a document (i.e. is not standalone).                                                | [`Boolean`](./boolean.md)                                                         | -                                    |
+| `prompt`                | The prompt selected, rendered and provided to the model                                                                 | [`PromptBlock`](./prompt-block.md)                                                | -                                    |
+| `modelParameters`       | Model selection and inference parameters.                                                                               | [`ModelParameters`](./model-parameters.md)                                        | -                                    |
+| `targetNodes`           | The ids of the nodes that this chat is targeting                                                                        | [`String`](./string.md)*                                                          | -                                    |
+| `content`               | The messages, and optionally other content, that make up the chat.                                                      | [`Block`](./block.md)*                                                            | -                                    |
 | `workType`              | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                   | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`                 | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -63,11 +81,13 @@ The `Chat` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                                                            | [`Timestamp`](./timestamp.md)                                                     | [`Executable`](./executable.md)      |
 | `executionDuration`     | Duration of the last execution.                                                                                         | [`Duration`](./duration.md)                                                       | [`Executable`](./executable.md)      |
 | `executionMessages`     | Messages emitted while executing the node.                                                                              | [`ExecutionMessage`](./execution-message.md)*                                     | [`Executable`](./executable.md)      |
-| `isEmbedded`            | Whether the chat is embedded within a document (i.e. is not standalone).                                                | [`Boolean`](./boolean.md)                                                         | -                                    |
-| `prompt`                | The prompt selected, rendered and provided to the model                                                                 | [`PromptBlock`](./prompt-block.md)                                                | -                                    |
-| `modelParameters`       | Model selection and inference parameters.                                                                               | [`ModelParameters`](./model-parameters.md)                                        | -                                    |
-| `targetNodes`           | The ids of the nodes that this chat is targeting                                                                        | [`String`](./string.md)*                                                          | -                                    |
-| `content`               | The messages, and optionally other content, that make up the chat.                                                      | [`Block`](./block.md)*                                                            | -                                    |
+| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
+| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 
 # Related
 

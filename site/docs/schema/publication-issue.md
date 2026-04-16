@@ -1,7 +1,23 @@
 ---
 title: Publication Issue
-description: A part of a successively published publication such as a periodical or publication volume, often numbered.
+description: A publication issue.
 ---
+
+This is an implementation of schema.org
+[`PublicationIssue`](https://schema.org/PublicationIssue).
+
+It is used for periodical and scholarly publication metadata while fitting
+into Stencila's broader creative-work model.
+
+Key properties include `issueNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
+`pagination`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `PublicationIssue`:
+
+- schema.org [`PublicationIssue`](https://schema.org/PublicationIssue)
 
 # Properties
 
@@ -9,13 +25,10 @@ The `PublicationIssue` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `issueNumber`    | Identifies the issue of publication; for example, "iii" or "2".                                                         | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pageStart`      | The page on which the issue starts; for example "135" or "xiii".                                                        | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pageEnd`        | The page on which the issue ends; for example "138" or "xvi".                                                           | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -47,10 +60,13 @@ The `PublicationIssue` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `issueNumber`    | Identifies the issue of publication; for example, "iii" or "2".                                                         | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pageStart`      | The page on which the issue starts; for example "135" or "xiii".                                                        | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pageEnd`        | The page on which the issue ends; for example "138" or "xvi".                                                           | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

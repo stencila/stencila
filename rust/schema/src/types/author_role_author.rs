@@ -7,7 +7,7 @@ use super::person::Person;
 use super::software_application::SoftwareApplication;
 use super::thing::Thing;
 
-/// Union type for things that can be an author in `AuthorRole`.
+/// A union type for authors in an `AuthorRole`.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum AuthorRoleAuthor {

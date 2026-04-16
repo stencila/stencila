@@ -26,7 +26,7 @@ use super::text::Text;
 use super::thing_variant::ThingVariant;
 use super::unsigned_integer::UnsignedInteger;
 
-/// An agent definition specifying model, tools, and behavioral configuration.
+/// An AI agent definition.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

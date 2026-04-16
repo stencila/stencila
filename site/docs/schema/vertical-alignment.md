@@ -3,16 +3,29 @@ title: Vertical Alignment
 description: The vertical alignment of content.
 ---
 
-Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.
+This is an enumeration used in Stencila Schema for vertical alignment.
+
+It is based on the JATS
+[`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html)
+attribute and gives Stencila a controlled vocabulary for baseline, top,
+middle, and bottom alignment. Using an enumeration allows these alignment
+semantics to be mapped consistently across table, layout, and publishing
+formats.
+
+See the alignment properties on table- and layout-related types that use this
+enumeration.
+
 
 # Members
 
 The `VerticalAlignment` type has these members:
 
-- `AlignBaseline`
-- `AlignBottom`
-- `AlignTop`
-- `AlignMiddle`
+| Member          | Description            |
+| --------------- | ---------------------- |
+| `AlignBaseline` | Aligned to a baseline. |
+| `AlignBottom`   | Aligned with bottom.   |
+| `AlignTop`      | Aligned with top.      |
+| `AlignMiddle`   | Centered vertically.   |
 
 # Bindings
 

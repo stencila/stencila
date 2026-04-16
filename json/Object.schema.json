@@ -4,8 +4,15 @@
   "@id": "stencila:Object",
   "title": "Object",
   "category": "data",
-  "description": "A value comprised of keyed primitive nodes.",
-  "$comment": "Note that keys are strings and values are restricted to primitive node\ntypes including `Object` (ie. an `Object` as a value of another `Object`) and `Array`.\n",
+  "description": "An object value.",
+  "$comment": "This is a primitive type used in Stencila Schema for object values.\n\nIt exists so keyed collections of primitive values can participate in the same\nnode-based data model as scalar and array primitives. Keys are strings and\nvalues are restricted to [`Primitive`](./primitive.md) values, including\nnested `Object` and `Array` values.\n\nSee also [`Primitive`](./primitive.md) for the broader primitive-value union.\n",
+  "analogues": [
+    {
+      "name": "JSON object",
+      "url": "https://www.json.org/json-en.html",
+      "notes": "Direct structural analogue for string-keyed primitive mappings."
+    }
+  ],
   "type": "object",
   "additionalProperties": {
     "$ref": "Primitive.schema.json"

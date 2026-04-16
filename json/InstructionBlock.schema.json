@@ -9,6 +9,14 @@
   ],
   "category": "edits",
   "description": "An instruction to edit some block content.",
+  "$comment": "This is a block-level instruction type used in Stencila Schema.\n\nIt extends [`Instruction`](./instruction.md) for editing or generating block\ncontent within a document. By distinguishing block-level instructions from\ninline ones, Stencila can apply different targeting, rendering, and suggestion\nbehaviors while reusing the common instruction model.\n\nKey properties are mostly inherited from [`Instruction`](./instruction.md),\nwith semantics focused on block-content targets and suggestions.\n",
+  "analogues": [
+    {
+      "name": "block edit request",
+      "url": "https://platform.openai.com/docs/guides/text-generation",
+      "notes": "Approximate analogue for an editing instruction targeting paragraph or section-level content."
+    }
+  ],
   "patch": {
     "derive": false
   },

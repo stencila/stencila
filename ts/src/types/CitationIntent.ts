@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * The type or nature of a citation, both factually and rhetorically.
+ * The rhetorical or factual intent of a citation.
  */
 export type CitationIntent =
   'AgreesWith' |

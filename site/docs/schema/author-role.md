@@ -3,17 +3,35 @@ title: Author Role
 description: An author and their role.
 ---
 
+This is a Stencila Schema specialization of schema.org
+[`Role`](https://schema.org/Role) for authorship.
+
+It exists to represent not just who contributed to a work, but how they
+contributed and in what format or editing context. This supports richer
+provenance, attribution, and contribution tracking than a flat list of authors
+alone.
+
+Key properties include `author`, `roleName`, `format`, and `lastModified`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `AuthorRole`:
+
+- schema.org [`Role`](https://schema.org/Role): Direct schema.org source pattern, specialized by Stencila for authorship and contribution provenance.
+- [CRediT contributor role assertion](https://credit.niso.org/): Approximate analogue for attributed contributor roles, though Stencila additionally records author identity, format, and modification metadata in one node.
+
 # Properties
 
 The `AuthorRole` type has these properties:
 
 | Name           | Description                                                                | Type                                          | Inherited from          |
 | -------------- | -------------------------------------------------------------------------- | --------------------------------------------- | ----------------------- |
-| `id`           | The identifier for this item.                                              | [`String`](./string.md)                       | [`Entity`](./entity.md) |
 | `author`       | The entity acting as an author.                                            | [`AuthorRoleAuthor`](./author-role-author.md) | -                       |
 | `roleName`     | The role played by the author.                                             | [`AuthorRoleName`](./author-role-name.md)     | -                       |
 | `format`       | The format that the author used to perform the role. e.g. Markdown, Python | [`String`](./string.md)                       | -                       |
 | `lastModified` | Timestamp of most recent modification, by the author, in the role.         | [`Timestamp`](./timestamp.md)                 | -                       |
+| `id`           | The identifier for this item.                                              | [`String`](./string.md)                       | [`Entity`](./entity.md) |
 
 # Related
 

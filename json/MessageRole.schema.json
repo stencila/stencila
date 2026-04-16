@@ -6,7 +6,8 @@
   "extends": [
     "Enumeration"
   ],
-  "description": "The role of a message.",
+  "description": "A role in a message exchange.",
+  "$comment": "This is an enumeration used in Stencila Schema for message roles in conversational or\ninstruction contexts.\n\nIt exists so user, assistant, system, and related message roles can be\nrepresented consistently across chats, prompts, and model interactions.\n\nSee [`ChatMessage`](./chat-message.md) and related messaging types for where\nthis enumeration is used.\n",
   "required": [
     "type"
   ],

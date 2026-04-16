@@ -7,6 +7,12 @@
     "Grant"
   ],
   "description": "A monetary grant.",
+  "$comment": "This is an implementation of schema.org\n[`MonetaryGrant`](https://schema.org/MonetaryGrant).\n\nIt specializes [`Grant`](./grant.md) for funding that has an explicit monetary\nvalue, while integrating with Stencila's structured metadata model for works\nand contributors.\n\nKey properties include inherited grant metadata together with the monetary\namount and related funding information.\n",
+  "analogues": [
+    {
+      "id": "schema:MonetaryGrant"
+    }
+  ],
   "required": [
     "type"
   ],

@@ -12,7 +12,7 @@
       "@id": "schema:Text",
       "@type": "rdfs:Class",
       "rdfs:label": "Text",
-      "rdfs:comment": "Textual content.",
+      "rdfs:comment": "A text node.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -12,7 +12,7 @@
       "@id": "stencila:Validator",
       "@type": "rdfs:Class",
       "rdfs:label": "Validator",
-      "rdfs:comment": "Union type for validators."
+      "rdfs:comment": "A union type for validators."
     }
   ]
 }

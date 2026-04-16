@@ -1,15 +1,26 @@
 ---
 title: Note
-description: Additional content which is not part of the main content of a document.
+description: A note associated with document content.
 ---
 
-A note is usually associated with a word or paragraph using a number or other symbol. 
-It can be displayed as a footnote, endnote, or side note, or in interactive elements.
-For analogues, see 
-- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)
-- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)
-- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)
+This is a type used in Stencila Schema for notes attached to document content.
 
+It exists to represent note content structurally so it can be rendered as a
+footnote, endnote, sidenote, or similar document note, depending on the target
+format and note type. This preserves note semantics across transformations
+rather than reducing them to plain text markers.
+
+Key properties include `noteType` and `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Note`:
+
+- HTML [`<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside): Approximate HTML analogue for note content, though HTML has no dedicated footnote or endnote element and placement semantics are not built in.
+- JATS [`<fn>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/fn.html): Closest JATS analogue for document notes, particularly footnotes.
+- Pandoc [`Note`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Note): Closest Pandoc analogue for inline-referenced notes; Stencila additionally records note placement semantics explicitly via `noteType`.
+- MDAST [`FootnoteDefinition`](https://github.com/syntax-tree/mdast#footnotedefinition): Close MDAST analogue for defined footnote content, although MDAST models note references and definitions separately and does not cover sidenotes directly.
 
 # Properties
 
@@ -17,9 +28,9 @@ The `Note` type has these properties:
 
 | Name       | Description                                                         | Type                         | Inherited from          |
 | ---------- | ------------------------------------------------------------------- | ---------------------------- | ----------------------- |
-| `id`       | The identifier for this item.                                       | [`String`](./string.md)      | [`Entity`](./entity.md) |
 | `noteType` | Determines where the note content is displayed within the document. | [`NoteType`](./note-type.md) | -                       |
 | `content`  | Content of the note, usually a paragraph.                           | [`Block`](./block.md)*       | -                       |
+| `id`       | The identifier for this item.                                       | [`String`](./string.md)      | [`Entity`](./entity.md) |
 
 # Related
 

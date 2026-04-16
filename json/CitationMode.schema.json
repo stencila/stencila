@@ -7,8 +7,15 @@
     "Enumeration"
   ],
   "category": "prose",
-  "description": "The mode of a `Citation`.",
-  "$comment": "There are two main citation modes: parenthetical and narrative (a.k.a textual).\nSee https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative\nfor an explanation.\n\nThis property is optional and tools are recommended to assume `parenthetical` if missing.\n\nNarrative citations will usually be of form \"As noted by Smith (1992),\" but `narrative-author`\nallows for \"In the early nineties, Smith noted\" and `narrative-year` allows for \"As noted by Smith in 1992 and 1993\".\n\nPandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),\nand `SuppressAuthor` (for `textual-year`).\nSee https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.\n\nLaTeX's `natbib` package has `\\citep{}` (for `parenthetical`), `\\citet{}` (for `textual`),\n`\\citeauthor{}` (for `textual-author`), `\\citeyear{}` (for `textual-year`).\nSee https://www.overleaf.com/learn/latex/Natbib_citation_styles.\n",
+  "description": "The presentation mode of a citation.",
+  "$comment": "This is an enumeration used in Stencila Schema for citation presentation modes.\n\nIt exists so citations can preserve the distinction between parenthetical and\nnarrative forms, including variants that expose only the author or only the\nyear in surrounding prose. This helps Stencila map citation semantics\nconsistently across authoring formats, renderers, and citation processors.\n\nSee [`Citation.citationMode`](./citation.md#citationmode) for the property\nthat uses this enumeration.\n",
+  "analogues": [
+    {
+      "name": "CSL citation position and narrative conventions",
+      "url": "https://docs.citationstyles.org/en/stable/specification.html",
+      "notes": "Close analogue for distinctions such as parenthetical versus narrative citation rendering, though Stencila exposes them as a compact schema enumeration."
+    }
+  ],
   "required": [
     "type"
   ],

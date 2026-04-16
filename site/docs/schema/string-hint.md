@@ -1,7 +1,20 @@
 ---
 title: String Hint
-description: A hint to the structure of an `String`.
+description: A concise summary of the properties of a `String`.
 ---
+
+This is a type used in Stencila Schema for providing a concise summary of the
+properties of a [`String`](./string.md).
+
+It exists to support both human and machine understanding of textual data,
+including schema inference, editing assistance, and downstream code
+generation. Rather than turning observations into hard constraints, it
+summarizes characteristics that can help tools and readers work with string
+values.
+
+Key properties describe expected patterns, length characteristics, and
+representative values.
+
 
 # Properties
 
@@ -9,8 +22,8 @@ The `StringHint` type has these properties:
 
 | Name    | Description                             | Type                      | Inherited from          |
 | ------- | --------------------------------------- | ------------------------- | ----------------------- |
-| `id`    | The identifier for this item.           | [`String`](./string.md)   | [`Entity`](./entity.md) |
 | `chars` | The number of characters in the string. | [`Integer`](./integer.md) | -                       |
+| `id`    | The identifier for this item.           | [`String`](./string.md)   | [`Entity`](./entity.md) |
 
 # Related
 

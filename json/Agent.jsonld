@@ -12,7 +12,7 @@
       "@id": "stencila:Agent",
       "@type": "rdfs:Class",
       "rdfs:label": "Agent",
-      "rdfs:comment": "An agent definition specifying model, tools, and behavioral configuration.",
+      "rdfs:comment": "An AI agent definition.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

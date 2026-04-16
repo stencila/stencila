@@ -7,8 +7,17 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.",
-  "$comment": "Use the `about` property to define the item that a comment is on and\n`startLocation`/`endLocation` to identify the region being commented on.\nThe `content` property should be used for the structured content of the\ncomment, in preference to the schema.org `text` property (which is expected to\nbe plain text). Replies to a comment can be added to its `comments` property\nor have their `parentItem` set to the parent comment.\n",
+  "description": "A comment on an item.",
+  "$comment": "This is an implementation of schema.org\n[`Comment`](https://schema.org/Comment), adapted in Stencila Schema for\nstructured document review and discussion.\n\nIt is used not only for comments on whole works, but also for comments on\nspecific document regions or code locations. Stencila emphasizes structured\nblock content over plain-text comment bodies and adds explicit location fields\nto support annotation and review workflows.\n\nKey properties include `about`, `content`, `startLocation`, `endLocation`, and\n`parentItem`.\n",
+  "analogues": [
+    {
+      "id": "schema:Comment"
+    },
+    {
+      "id": "html:aside",
+      "notes": "Approximate HTML analogue for side commentary, though HTML does not provide built-in region-targeting or threaded comment semantics."
+    }
+  ],
   "markdown": {
     "derive": false
   },

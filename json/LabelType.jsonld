@@ -12,7 +12,7 @@
       "@id": "stencila:LabelType",
       "@type": "rdfs:Class",
       "rdfs:label": "LabelType",
-      "rdfs:comment": "Indicates how a block (usually a `CodeChunk`) should be automatically labelled.",
+      "rdfs:comment": "An automatic labeling category.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

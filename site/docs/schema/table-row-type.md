@@ -1,15 +1,33 @@
 ---
 title: Table Row Type
-description: Indicates whether the row is in the header, body or footer of the table.
+description: The structural role of a table row.
 ---
+
+This is an enumeration used in Stencila Schema for the structural role of a table
+row.
+
+It exists so rows can be identified as header, body, or footer rows using a
+stable vocabulary that maps cleanly across formats.
+
+See [`TableRow.rowType`](./table-row.md#rowtype) for the property that uses
+this enumeration.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `TableRowType`:
+
+- [HTML table section semantics](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/table): Approximate analogue because HTML distinguishes header, body, and footer by row groups such as `<thead>`, `<tbody>`, and `<tfoot>` rather than a row-type enumeration.
 
 # Members
 
 The `TableRowType` type has these members:
 
-- `HeaderRow`
-- `BodyRow`
-- `FooterRow`
+| Member      | Description |
+| ----------- | ----------- |
+| `HeaderRow` | -           |
+| `BodyRow`   | -           |
+| `FooterRow` | -           |
 
 # Bindings
 

@@ -20,7 +20,7 @@ import { Thing } from "./Thing.js";
 import { ThingVariant } from "./ThingVariant.js";
 
 /**
- * A creative work, including books, movies, photographs, software programs, etc.
+ * A creative work.
  */
 export class CreativeWork extends Thing {
   // @ts-expect-error 'not assignable to the same property in base type'

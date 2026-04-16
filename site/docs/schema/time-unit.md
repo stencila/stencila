@@ -3,23 +3,41 @@ title: Time Unit
 description: A unit in which time can be measured.
 ---
 
+This is an enumeration used in Stencila Schema for units of time.
+
+It exists to provide a controlled vocabulary for time-based quantities and
+durations where Stencila needs symbolic units rather than free-text
+abbreviations.
+
+See properties on duration- and time-related types that reference this
+enumeration.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `TimeUnit`:
+
+- [UCUM time units](https://ucum.org/): Close controlled-vocabulary analogue for units of temporal measurement, though Stencila uses a compact fixed enumeration rather than coded unit strings.
+
 # Members
 
 The `TimeUnit` type has these members:
 
-- `Year`
-- `Month`
-- `Week`
-- `Day`
-- `Hour`
-- `Minute`
-- `Second`
-- `Millisecond`
-- `Microsecond`
-- `Nanosecond`
-- `Picosecond`
-- `Femtosecond`
-- `Attosecond`
+| Member        | Description |
+| ------------- | ----------- |
+| `Year`        | -           |
+| `Month`       | -           |
+| `Week`        | -           |
+| `Day`         | -           |
+| `Hour`        | -           |
+| `Minute`      | -           |
+| `Second`      | -           |
+| `Millisecond` | -           |
+| `Microsecond` | -           |
+| `Nanosecond`  | -           |
+| `Picosecond`  | -           |
+| `Femtosecond` | -           |
+| `Attosecond`  | -           |
 
 # Bindings
 

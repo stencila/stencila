@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A validator specifying the constraints on a numeric node.
+ * A validator for numeric values.
  */
 export class NumberValidator extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

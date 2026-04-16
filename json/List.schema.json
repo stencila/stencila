@@ -9,7 +9,33 @@
   ],
   "category": "prose",
   "description": "A list of items.",
-  "$comment": "This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).\nRenaming was done as `List` was considered a more developer friendly alternative. Similarly,\nschema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.\nNote that, as with every other such renaming in Stencila Schema, a mapping between names is\ndefined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.\n",
+  "$comment": "This is an implementation of schema.org\n[`ItemList`](https://schema.org/ItemList), exposed in Stencila Schema as\n`List`.\n\nThe type is renamed to use more familiar document-model vocabulary, and the\nschema.org properties `itemListElement` and `itemListOrder` are correspondingly\nexposed as `items` and `order`. In Stencila Schema it is used for ordered,\nunordered, and checklist-style document lists with rich item content.\n\nKey properties include `items`, `order`, and optional authorship metadata.\n",
+  "analogues": [
+    {
+      "id": "html:ul",
+      "notes": "Close analogue for unordered lists; Stencila uses a single `List` type and records list style in `order` rather than separate element types."
+    },
+    {
+      "id": "html:ol",
+      "notes": "Close analogue for ordered lists; descending and checklist semantics are represented via `order` and item metadata rather than distinct HTML elements."
+    },
+    {
+      "id": "jats:list",
+      "notes": "Closest JATS container analogue for list content."
+    },
+    {
+      "id": "pandoc:BulletList",
+      "notes": "Close analogue for unordered lists; ordered and checklist forms are represented differently in Pandoc."
+    },
+    {
+      "id": "pandoc:OrderedList",
+      "notes": "Close analogue for ordered lists; Stencila unifies ordered and unordered lists in one node type."
+    },
+    {
+      "id": "mdast:List",
+      "notes": "Closest MDAST analogue for list containers, though task-list state is carried on items in Stencila."
+    }
+  ],
   "dom": {
     "derive": false
   },

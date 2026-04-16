@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A type to indicate a value or or other type in unknown.
+ * A placeholder for a value of unknown type.
  */
 export class Unknown extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

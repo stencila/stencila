@@ -8,8 +8,15 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A break in a document indicating the start one or more appendices.",
-  "$comment": "Similar to a LaTeX `\\appendix` command, this node causes level one headings to\nhave an appendix label and figure and table numbering to switch to be prefixed\nby 'A' (for the first appendix), 'B', and so on. A document should only have\none `AppendixBreak`.\n",
+  "description": "A break marking the start of appendices.",
+  "$comment": "This is a structural marker used in Stencila Schema for appendix mode in a\ndocument.\n\nIt exists to signal that subsequent top-level sections should be treated as\nappendices, affecting heading labels and figure or table numbering in a way\nsimilar to the LaTeX `\\appendix` command.\n\nThis node is mainly relevant to document compilation and labeling workflows. A\ndocument should usually contain at most one `AppendixBreak`.\n",
+  "analogues": [
+    {
+      "name": "LaTeX \\appendix",
+      "url": "https://www.latex-project.org/",
+      "notes": "Closest functional analogue; like `\\appendix`, it switches subsequent section labeling into appendix mode rather than representing visible prose content."
+    }
+  ],
   "latex": {
     "derive": false
   },

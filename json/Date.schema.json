@@ -9,6 +9,16 @@
   ],
   "category": "data",
   "description": "A calendar date encoded as a ISO 8601 string.",
+  "$comment": "This is an implementation of schema.org [`Date`](https://schema.org/Date).\n\nIn Stencila Schema it is represented as a node so dates can be carried through\ndocument, metadata, and execution workflows with explicit typing instead of\nplain strings alone. This enables validation, serialization, and rich\nrendering while remaining interoperable with schema.org-derived models.\n\nSee also related temporal types such as [`DateTime`](./date-time.md),\n[`Time`](./time.md), and [`Timestamp`](./timestamp.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Date"
+    },
+    {
+      "id": "jats:date",
+      "notes": "Close JATS analogue for structured date values in document metadata."
+    }
+  ],
   "jats": {
     "elem": "date",
     "special": true

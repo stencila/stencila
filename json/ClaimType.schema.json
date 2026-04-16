@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "works",
-  "description": "The type of a `Claim`.",
+  "description": "A category of claim.",
+  "$comment": "This is an enumeration used in Stencila Schema for classifying [`Claim`](./claim.md)\nnodes.\n\nIt exists so claim-oriented workflows can distinguish different kinds of\nreviewable statements without relying on free-text labels. The enumeration\nsupports consistent downstream behavior in interfaces, validation, and\npublishing.\n\nSee [`Claim.claimType`](./claim.md#claimtype) for the property that uses this\nenumeration.\n",
   "required": [
     "type"
   ],

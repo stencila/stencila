@@ -3,13 +3,24 @@ title: Model Parameters
 description: Model selection and inference parameters for generative AI models.
 ---
 
+This is a type used in Stencila Schema for selecting and configuring generative AI
+models.
+
+It exists to make model choice and inference settings part of the document
+model, so prompts, chats, and instructions can be reproduced and inspected
+rather than depending on hidden runtime configuration. This supports
+transparent and portable AI-assisted workflows.
+
+Key properties include model identity, provider-specific settings, and
+inference controls such as temperature and token limits.
+
+
 # Properties
 
 The `ModelParameters` type has these properties:
 
 | Name              | Description                                             | Type                                       | Inherited from          |
 | ----------------- | ------------------------------------------------------- | ------------------------------------------ | ----------------------- |
-| `id`              | The identifier for this item.                           | [`String`](./string.md)                    | [`Entity`](./entity.md) |
 | `modelIds`        | The ids of the models to select.                        | [`String`](./string.md)*                   | -                       |
 | `replicates`      | The number of replicate inferences to run per model id. | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
 | `qualityWeight`   | The relative weighting given to model quality (0-100).  | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
@@ -21,6 +32,7 @@ The `ModelParameters` type has these properties:
 | `executeContent`  | Automatically execute generated content.                | [`Boolean`](./boolean.md)                  | -                       |
 | `executionBounds` | The environment in which code should be executed.       | [`ExecutionBounds`](./execution-bounds.md) | -                       |
 | `maximumRetries`  | When executing content, the maximum number of retries.  | [`UnsignedInteger`](./unsigned-integer.md) | -                       |
+| `id`              | The identifier for this item.                           | [`String`](./string.md)                    | [`Entity`](./entity.md) |
 
 # Related
 

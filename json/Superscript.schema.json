@@ -8,6 +8,18 @@
   ],
   "category": "prose",
   "description": "Superscripted content.",
+  "$comment": "This is an inline mark type used in Stencila Schema for superscripted content.\n\nIt extends [`Mark`](./mark.md) to preserve superscript semantics in a\nformat-independent way, which is useful for citations, mathematics, and\nscientific notation.\n\nKey properties are inherited from [`Mark`](./mark.md), especially the wrapped\ninline `content`.\n",
+  "analogues": [
+    {
+      "id": "html:sup"
+    },
+    {
+      "id": "jats:sup"
+    },
+    {
+      "id": "pandoc:Superscript"
+    }
+  ],
   "dom": {
     "elem": "sup"
   },

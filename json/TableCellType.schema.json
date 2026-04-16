@@ -7,8 +7,15 @@
     "Enumeration"
   ],
   "category": "works",
-  "description": "Indicates whether the cell is a header or data.",
-  "$comment": "When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).\nWhen `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).\n",
+  "description": "The structural role of a table cell.",
+  "$comment": "This is an enumeration used in Stencila Schema for table cell roles.\n\nIt exists so table cells can be identified as data cells or header cells using\na stable vocabulary that maps cleanly to HTML, JATS, and other tabular\nformats.\n\nSee [`TableCell.cellType`](./table-cell.md#celltype) for the property that\nuses this enumeration.\n",
+  "analogues": [
+    {
+      "name": "HTML td/th distinction",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td",
+      "notes": "Close analogue because HTML distinguishes data and header cells structurally with separate elements rather than an enumeration."
+    }
+  ],
   "proptest": {},
   "required": [
     "type"

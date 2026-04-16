@@ -6,7 +6,7 @@ import { CompilationMessage } from "./CompilationMessage.js";
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
- * Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+ * A figure.
  */
 export class Figure extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

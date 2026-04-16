@@ -1,9 +1,26 @@
 ---
 title: Parameter
-description: A parameter of a document.
+description: A document parameter.
 ---
 
+This is an executable type used in Stencila Schema for document parameters.
+
+It extends [`Executable`](./executable.md) so parameters can carry validation,
+derivation, and execution-related behavior instead of being treated as passive
+metadata. This makes them suitable for interactive and reproducible documents.
+
+Key properties include the parameter name, value, validator, derivation logic,
+and inherited execution metadata.
+
+
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Parameter`:
+
+- JATS [`<parameter>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/parameter.html)
+- [JSON Schema property with default](https://json-schema.org/): Approximate analogue for constrained input values, though Stencila parameters are executable document nodes rather than passive schema declarations.
 
 # Properties
 
@@ -11,7 +28,12 @@ The `Parameter` type has these properties:
 
 | Name                    | Description                                                                                            | Type                                                | Inherited from                  |
 | ----------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                                                          | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `name`                  | The name of the parameter.                                                                             | [`String`](./string.md)                             | -                               |
+| `label`                 | A short label for the parameter.                                                                       | [`String`](./string.md)                             | -                               |
+| `value`                 | The current value of the parameter.                                                                    | [`Node`](./node.md)                                 | -                               |
+| `default`               | The default value of the parameter.                                                                    | [`Node`](./node.md)                                 | -                               |
+| `validator`             | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                       | -                               |
+| `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                             | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.                                                 | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.                                       | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                                                           | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -26,12 +48,7 @@ The `Parameter` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                                           | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                                                        | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                                                             | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `name`                  | The name of the parameter.                                                                             | [`String`](./string.md)                             | -                               |
-| `label`                 | A short label for the parameter.                                                                       | [`String`](./string.md)                             | -                               |
-| `value`                 | The current value of the parameter.                                                                    | [`Node`](./node.md)                                 | -                               |
-| `default`               | The default value of the parameter.                                                                    | [`Node`](./node.md)                                 | -                               |
-| `validator`             | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                       | -                               |
-| `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                             | -                               |
+| `id`                    | The identifier for this item.                                                                          | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

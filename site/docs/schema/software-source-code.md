@@ -1,7 +1,27 @@
 ---
 title: Software Source Code
-description: 'Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.'
+description: Source code for software.
 ---
+
+This is an implementation of schema.org
+[`SoftwareSourceCode`](https://schema.org/SoftwareSourceCode).
+
+In Stencila Schema it is used for describing source-code artifacts as creative
+works, interoperating with schema.org while fitting into Stencila's richer
+document and execution ecosystem. It complements, rather than replaces, the
+code block and executable node types used for code inside documents.
+
+Key properties include `programmingLanguage`, `codeSampleType`,
+`runtimePlatform`, `softwareRequirements`, and `targetProducts`, with broader
+metadata inherited from [`CreativeWork`](./creative-work.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `SoftwareSourceCode`:
+
+- schema.org [`SoftwareSourceCode`](https://schema.org/SoftwareSourceCode)
+- [SPDX package source metadata](https://spdx.dev/specifications/): Approximate software-metadata analogue for describing source artifacts and their dependencies, though SPDX has a different focus and data model.
 
 # Properties
 
@@ -9,13 +29,11 @@ The `SoftwareSourceCode` type has these properties:
 
 | Name                   | Description                                                                                                             | Type                                                                                                                                  | Inherited from                       |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                   | The identifier for this item.                                                                                           | [`String`](./string.md)                                                                                                               | [`Entity`](./entity.md)              |
-| `alternateNames`       | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                                                                              | [`Thing`](./thing.md)                |
-| `description`          | A description of the item.                                                                                              | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
-| `identifiers`          | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*                                                                  | [`Thing`](./thing.md)                |
-| `images`               | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                                                                                   | [`Thing`](./thing.md)                |
-| `name`                 | The name of the item.                                                                                                   | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
-| `url`                  | The URL of the item.                                                                                                    | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
+| `programmingLanguage`  | The computer programming language.                                                                                      | [`String`](./string.md)                                                                                                               | -                                    |
+| `codeSampleType`       | What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.                  | [`String`](./string.md)                                                                                                               | -                                    |
+| `runtimePlatform`      | Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).                 | [`String`](./string.md)*                                                                                                              | -                                    |
+| `softwareRequirements` | Dependency requirements for the software.                                                                               | ([`SoftwareSourceCode`](./software-source-code.md) \| [`SoftwareApplication`](./software-application.md) \| [`String`](./string.md))* | -                                    |
+| `targetProducts`       | Target operating system or product to which the code applies.                                                           | [`SoftwareApplication`](./software-application.md)*                                                                                   | -                                    |
 | `workType`             | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                                                                         | [`CreativeWork`](./creative-work.md) |
 | `doi`                  | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                                                                               | [`CreativeWork`](./creative-work.md) |
 | `about`                | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                                                                                 | [`CreativeWork`](./creative-work.md) |
@@ -47,11 +65,13 @@ The `SoftwareSourceCode` type has these properties:
 | `path`                 | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                                                                               | [`CreativeWork`](./creative-work.md) |
 | `commit`               | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                                                                               | [`CreativeWork`](./creative-work.md) |
 | `version`              | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                                                                    | [`CreativeWork`](./creative-work.md) |
-| `programmingLanguage`  | The computer programming language.                                                                                      | [`String`](./string.md)                                                                                                               | -                                    |
-| `codeSampleType`       | What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.                  | [`String`](./string.md)                                                                                                               | -                                    |
-| `runtimePlatform`      | Runtime platform or script interpreter dependencies (Example - Java v1, Python2.3, .Net Framework 3.0).                 | [`String`](./string.md)*                                                                                                              | -                                    |
-| `softwareRequirements` | Dependency requirements for the software.                                                                               | ([`SoftwareSourceCode`](./software-source-code.md) \| [`SoftwareApplication`](./software-application.md) \| [`String`](./string.md))* | -                                    |
-| `targetProducts`       | Target operating system or product to which the code applies.                                                           | [`SoftwareApplication`](./software-application.md)*                                                                                   | -                                    |
+| `alternateNames`       | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                                                                              | [`Thing`](./thing.md)                |
+| `description`          | A description of the item.                                                                                              | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
+| `identifiers`          | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*                                                                  | [`Thing`](./thing.md)                |
+| `images`               | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                                                                                   | [`Thing`](./thing.md)                |
+| `name`                 | The name of the item.                                                                                                   | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
+| `url`                  | The URL of the item.                                                                                                    | [`String`](./string.md)                                                                                                               | [`Thing`](./thing.md)                |
+| `id`                   | The identifier for this item.                                                                                           | [`String`](./string.md)                                                                                                               | [`Entity`](./entity.md)              |
 
 # Related
 

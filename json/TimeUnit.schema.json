@@ -8,6 +8,14 @@
   ],
   "category": "data",
   "description": "A unit in which time can be measured.",
+  "$comment": "This is an enumeration used in Stencila Schema for units of time.\n\nIt exists to provide a controlled vocabulary for time-based quantities and\ndurations where Stencila needs symbolic units rather than free-text\nabbreviations.\n\nSee properties on duration- and time-related types that reference this\nenumeration.\n",
+  "analogues": [
+    {
+      "name": "UCUM time units",
+      "url": "https://ucum.org/",
+      "notes": "Close controlled-vocabulary analogue for units of temporal measurement, though Stencila uses a compact fixed enumeration rather than coded unit strings."
+    }
+  ],
   "proptest": {},
   "required": [
     "type"

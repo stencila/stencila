@@ -1,7 +1,18 @@
 ---
 title: Page
-description: A separate page in a document
+description: A page in a document.
 ---
+
+This is a styled block type used in Stencila Schema for explicit page
+boundaries.
+
+It extends [`StyledBlock`](./styled-block.md) so page-oriented content and
+layout can be represented directly in the document model when pagination
+matters, such as for print or paged publishing workflows.
+
+Key properties are inherited from [`StyledBlock`](./styled-block.md), with
+semantics centered on page-level layout and styling boundaries.
+
 
 This type is marked as unstable and is subject to change.
 
@@ -11,7 +22,7 @@ The `Page` type has these properties:
 
 | Name                  | Description                                                            | Type                                              | Inherited from                     |
 | --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------- |
-| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md)            |
+| `content`             | The content within the styled block                                    | [`Block`](./block.md)*                            | [`StyledBlock`](./styled-block.md) |
 | `code`                | The code of the equation in the `styleLanguage`.                       | [`Cord`](./cord.md)                               | [`Styled`](./styled.md)            |
 | `styleLanguage`       | The language used for the style specification e.g. css, tw             | [`String`](./string.md)                           | [`Styled`](./styled.md)            |
 | `authors`             | The authors of the code and content in the styled node.                | [`Author`](./author.md)*                          | [`Styled`](./styled.md)            |
@@ -20,7 +31,7 @@ The `Page` type has these properties:
 | `compilationMessages` | Messages generated while parsing and transpiling the style.            | [`CompilationMessage`](./compilation-message.md)* | [`Styled`](./styled.md)            |
 | `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](./string.md)                           | [`Styled`](./styled.md)            |
 | `classList`           | A space separated list of class names associated with the node.        | [`String`](./string.md)                           | [`Styled`](./styled.md)            |
-| `content`             | The content within the styled block                                    | [`Block`](./block.md)*                            | [`StyledBlock`](./styled-block.md) |
+| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md)            |
 
 # Related
 

@@ -1,12 +1,29 @@
 ---
 title: Media Object
-description: A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+description: A media object.
 ---
 
-This is not an abstract type and so can be instantiated as an inline content node.
-However, prefer to use `AudioObject`, `ImageObject`, or `VideoObject` when the
-type of media is known.
+This is an implementation of schema.org
+[`MediaObject`](https://schema.org/MediaObject).
 
+In Stencila Schema it acts as the common base type for embeddable media such
+as images, audio, and video, while also remaining instantiable when only a
+generic media resource is known. It connects schema.org media metadata with
+Stencila's document node model so media can be represented both as metadata and
+as rendered document content.
+
+Key properties include `contentUrl`, `embedUrl`, and `mediaType`. Prefer
+`AudioObject`, `ImageObject`, or `VideoObject` when the media kind is known.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `MediaObject`:
+
+- schema.org [`MediaObject`](https://schema.org/MediaObject)
+- HTML [`<img>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/img): Approximate HTML analogue for embedded media, though Stencila `MediaObject` generalizes over image, audio, and video resources.
+- JATS [`<inline-media>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/inline-media.html): Close JATS analogue for generic embeddable media.
+- Pandoc [`Image`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Image): Only an approximate Pandoc analogue; Pandoc has media-specific inline nodes rather than a generic media-object base type.
 
 # Properties
 
@@ -14,13 +31,11 @@ The `MediaObject` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `bitrate`        | Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).                                                                    | [`Number`](./number.md)                                                           | -                                    |
+| `contentSize`    | File size in megabits (Mbit, Mb).                                                                                       | [`Number`](./number.md)                                                           | -                                    |
+| `contentUrl`     | URL for the actual bytes of the media object, for example the image file or video file.                                 | [`String`](./string.md)                                                           | -                                    |
+| `embedUrl`       | URL that can be used to embed the media on a web page via a specific media player.                                      | [`String`](./string.md)                                                           | -                                    |
+| `mediaType`      | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -52,11 +67,13 @@ The `MediaObject` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `bitrate`        | Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).                                                                    | [`Number`](./number.md)                                                           | -                                    |
-| `contentSize`    | File size in megabits (Mbit, Mb).                                                                                       | [`Number`](./number.md)                                                           | -                                    |
-| `contentUrl`     | URL for the actual bytes of the media object, for example the image file or video file.                                 | [`String`](./string.md)                                                           | -                                    |
-| `embedUrl`       | URL that can be used to embed the media on a web page via a specific media player.                                      | [`String`](./string.md)                                                           | -                                    |
-| `mediaType`      | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

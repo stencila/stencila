@@ -9,6 +9,14 @@
   ],
   "category": "edits",
   "description": "Abstract base type for nodes that indicate a suggested change to block content.",
+  "$comment": "This is an abstract base type used in Stencila Schema for suggestions that operate on\nblock content.\n\nIt extends [`Suggestion`](./suggestion.md) so proposed changes to block-level\nnodes can share common suggestion behavior while remaining distinct from\ninline suggestions.\n\nKey properties are primarily inherited from [`Suggestion`](./suggestion.md),\nwith semantics centered on block-content replacements and originals.\n",
+  "analogues": [
+    {
+      "name": "block-level tracked change",
+      "url": "https://learn.microsoft.com/en-us/office/open-xml/word/working-with-comments-and-tracked-revisions",
+      "notes": "Approximate analogue for suggested paragraph or block replacements in tracked-review systems."
+    }
+  ],
   "markdown": {
     "derive": false
   },

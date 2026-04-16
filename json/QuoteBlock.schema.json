@@ -9,6 +9,22 @@
   ],
   "category": "prose",
   "description": "A section quoted from somewhere else.",
+  "$comment": "This is a block type used in Stencila Schema for quoted content.\n\nIt exists to represent extended quotations as structured block content,\ndistinct from both inline quotation and untyped paragraphs. This helps\npreserve attribution, provenance, and format mappings for quoted material.\n\nKey properties include the quoted `content` and any citation or source\nmetadata associated with the quotation.\n",
+  "analogues": [
+    {
+      "id": "html:blockquote"
+    },
+    {
+      "id": "jats:disp-quote"
+    },
+    {
+      "id": "pandoc:BlockQuote"
+    },
+    {
+      "id": "mdast:Blockquote",
+      "notes": "Closest MDAST analogue for block quotations, though Stencila additionally supports structured source metadata."
+    }
+  ],
   "html": {
     "elem": "blockquote"
   },

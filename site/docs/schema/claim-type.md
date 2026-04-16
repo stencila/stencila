@@ -1,20 +1,34 @@
 ---
 title: Claim Type
-description: The type of a `Claim`.
+description: A category of claim.
 ---
+
+This is an enumeration used in Stencila Schema for classifying [`Claim`](./claim.md)
+nodes.
+
+It exists so claim-oriented workflows can distinguish different kinds of
+reviewable statements without relying on free-text labels. The enumeration
+supports consistent downstream behavior in interfaces, validation, and
+publishing.
+
+See [`Claim.claimType`](./claim.md#claimtype) for the property that uses this
+enumeration.
+
 
 # Members
 
 The `ClaimType` type has these members:
 
-- `Statement`
-- `Theorem`
-- `Lemma`
-- `Proof`
-- `Postulate`
-- `Hypothesis`
-- `Proposition`
-- `Corollary`
+| Member        | Description |
+| ------------- | ----------- |
+| `Statement`   | -           |
+| `Theorem`     | -           |
+| `Lemma`       | -           |
+| `Proof`       | -           |
+| `Postulate`   | -           |
+| `Hypothesis`  | -           |
+| `Proposition` | -           |
+| `Corollary`   | -           |
 
 # Bindings
 

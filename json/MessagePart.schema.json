@@ -5,8 +5,15 @@
   "title": "MessagePart",
   "nick": "msp",
   "category": "edits",
-  "description": "A union type for a part of a message.",
-  "$comment": "This union type uses `Text`, instead of `string`, so that each type of part\nis an entity with a type and node id.\n",
+  "description": "A union type for message parts.",
+  "$comment": "This is a union type used in Stencila Schema for structured message content.\n\nIt groups together the node types that can appear as parts of a message,\nincluding text and media attachments. Using [`Text`](./text.md) rather than a\nprimitive string keeps each part as a node with its own type and identity.\n\nUse this type to understand what content can appear in structured instruction\nand chat messages.\n",
+  "analogues": [
+    {
+      "name": "multimodal message content part",
+      "url": "https://platform.openai.com/docs/guides/images",
+      "notes": "Close analogue for typed message parts combining text and media attachments within one structured message."
+    }
+  ],
   "dom": {
     "derive": false
   },

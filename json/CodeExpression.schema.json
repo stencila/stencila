@@ -9,7 +9,18 @@
   ],
   "category": "code",
   "description": "An executable code expression.",
-  "$comment": "Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.",
+  "$comment": "This is an executable code node used in Stencila Schema for expressions.\nIt extends [`CodeExecutable`](./code-executable.md) for code that evaluates to a value inline rather than producing a block of outputs. This makes it useful for computed inline content and expression-oriented document workflows.\nKey properties include the expression `code`, `programmingLanguage`, `output`, and inherited execution metadata.",
+  "analogues": [
+    {
+      "name": "Jupyter expression output cell fragment",
+      "url": "https://nbformat.readthedocs.io/",
+      "notes": "Approximate analogue for expression-oriented execution that yields a value, though notebooks do not expose a dedicated expression node."
+    },
+    {
+      "id": "myst:role:eval",
+      "notes": "Close MyST authoring analogue for inline evaluation or expression rendering."
+    }
+  ],
   "jats": {
     "elem": "code",
     "attrs": {

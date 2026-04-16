@@ -3,14 +3,32 @@ title: Strong
 description: Strongly emphasized content.
 ---
 
+This is an inline mark type used in Stencila Schema for strong emphasis.
+
+It extends [`Mark`](./mark.md), with analogues in HTML `<strong>` and Markdown
+strong emphasis, to preserve semantic emphasis in a structured inline model.
+
+Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+inline `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Strong`:
+
+- HTML [`<strong>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/strong)
+- JATS [`<bold>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/bold.html): Close JATS rendering analogue for strong emphasis.
+- Pandoc [`Strong`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Strong)
+- MDAST [`Strong`](https://github.com/syntax-tree/mdast#strong)
+
 # Properties
 
 The `Strong` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

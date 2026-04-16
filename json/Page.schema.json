@@ -8,7 +8,8 @@
     "StyledBlock"
   ],
   "category": "style",
-  "description": "A separate page in a document",
+  "description": "A page in a document.",
+  "$comment": "This is a styled block type used in Stencila Schema for explicit page\nboundaries.\n\nIt extends [`StyledBlock`](./styled-block.md) so page-oriented content and\nlayout can be represented directly in the document model when pagination\nmatters, such as for print or paged publishing workflows.\n\nKey properties are inherited from [`StyledBlock`](./styled-block.md), with\nsemantics centered on page-level layout and styling boundaries.\n",
   "status": "beta",
   "dom": {
     "derive": false

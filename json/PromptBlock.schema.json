@@ -8,8 +8,15 @@
     "Executable"
   ],
   "category": "edits",
-  "description": "A preview of how a prompt will be rendered at a location in the document",
-  "$comment": "Used on an `Instruction` to render a prompt and display the rendering to the user.\nCan also be used standalone to preview how a prompt is rendered at a particular\nposition in a document.\n",
+  "description": "A preview of a rendered prompt at a location in a document.",
+  "$comment": "This is an executable type used in Stencila Schema for previewing rendered prompts.\n\nIt exists to show how a prompt will resolve for a particular instruction type,\ntarget node, or document position before or during an editing workflow. This\nmakes prompt selection and rendering inspectable within the document model\nitself.\n\nKey properties include `instructionType`, `nodeTypes`, `relativePosition`,\n`query`, `target`, and rendered `content`.\n",
+  "analogues": [
+    {
+      "name": "rendered prompt preview",
+      "url": "https://platform.openai.com/docs/guides/text-generation",
+      "notes": "Approximate analogue for inspecting the final prompt sent to a model, though Stencila models it as an executable document node tied to editing context."
+    }
+  ],
   "status": "beta",
   "patch": {
     "applyWith": "PromptBlock::apply_patch_op"

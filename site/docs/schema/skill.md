@@ -3,12 +3,24 @@ title: Skill
 description: An agent skill providing instructions for AI agents.
 ---
 
-An implementation of the [Agent Skills Specification](https://agentskills.io/specification).
-A skill is a directory containing a `SKILL.md` file with YAML frontmatter and a Markdown body
-that provides instructions for AI agents. Skills support progressive disclosure: metadata
-(~100 tokens) is loaded at startup, full instructions on activation, and referenced files
-on demand.
+This is an implementation of the [Agent Skills
+Specification](https://agentskills.io/specification).
 
+In Stencila Schema it represents a reusable skill package for AI agents,
+modeled as a creative work with structured metadata, instructions, and tool
+constraints. Stencila uses this type to describe skills that can be discovered
+cheaply from summary metadata and then expanded into full instructions when the
+skill is activated.
+
+Key properties include `name`, `frontmatter`, `content`, `compatibility`, and
+`allowedTools`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Skill`:
+
+- [Agent Skills Specification skill](https://agentskills.io/specification): Direct analogue and source specification for reusable agent skills.
 
 # Properties
 
@@ -16,13 +28,11 @@ The `Skill` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
 | `name`           | The name of the skill.                                                                                                  | [`String`](./string.md)                                                           | -                                    |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `frontmatter`    | Frontmatter containing skill metadata.                                                                                  | [`String`](./string.md)                                                           | -                                    |
+| `content`        | The content of the skill (the Markdown body).                                                                           | [`Block`](./block.md)*                                                            | -                                    |
+| `compatibility`  | Environment requirements for the skill.                                                                                 | [`String`](./string.md)                                                           | -                                    |
+| `allowedTools`   | Pre-approved tools for the skill.                                                                                       | [`String`](./string.md)*                                                          | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -54,10 +64,12 @@ The `Skill` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `frontmatter`    | Frontmatter containing skill metadata.                                                                                  | [`String`](./string.md)                                                           | -                                    |
-| `content`        | The content of the skill (the Markdown body).                                                                           | [`Block`](./block.md)*                                                            | -                                    |
-| `compatibility`  | Environment requirements for the skill.                                                                                 | [`String`](./string.md)                                                           | -                                    |
-| `allowedTools`   | Pre-approved tools for the skill.                                                                                       | [`String`](./string.md)*                                                          | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

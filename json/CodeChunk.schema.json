@@ -8,7 +8,19 @@
     "CodeExecutable"
   ],
   "category": "code",
-  "description": "A executable chunk of code.",
+  "description": "An executable code chunk.",
+  "$comment": "This is an executable code block used in Stencila Schema, analogous to notebook code\ncells and executable code fences in other authoring systems.\n\nIt extends [`CodeExecutable`](./code-executable.md) to support execution\noutputs, captions, automatic labeling, and optional SVG overlays for figures\nand tables derived from code. This makes code chunks central to literate\nprogramming and executable document workflows in Stencila.\n\nKey properties include `outputs`, `caption`, `labelType`, `label`, `overlay`,\nand inherited execution properties from\n[`CodeExecutable`](./code-executable.md).\n",
+  "analogues": [
+    {
+      "name": "Jupyter notebook code cell",
+      "url": "https://nbformat.readthedocs.io/",
+      "notes": "Closest executable-authoring analogue for a code cell with outputs, though Stencila additionally supports captions, labels, and overlays."
+    },
+    {
+      "id": "myst:directive:code-cell",
+      "notes": "Close MyST analogue for executable code blocks in document authoring."
+    }
+  ],
   "dom": {
     "derive": false
   },

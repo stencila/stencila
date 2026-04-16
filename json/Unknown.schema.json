@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A type to indicate a value or or other type in unknown.",
+  "description": "A placeholder for a value of unknown type.",
+  "$comment": "This is a fallback type used in Stencila Schema for values or nodes whose concrete\ntype is not known.\n\nIt exists to preserve information during decoding, transformation, or partial\nvalidation when content cannot yet be mapped to a more specific schema type.\nThis helps Stencila avoid unnecessary data loss while still keeping the\nuncertainty explicit.\n\nThis type is mainly useful at interoperability and ingestion boundaries.\n",
   "required": [
     "type"
   ],

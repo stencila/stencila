@@ -12,7 +12,7 @@
       "@id": "schema:Collection",
       "@type": "rdfs:Class",
       "rdfs:label": "Collection",
-      "rdfs:comment": "A collection of CreativeWorks or other artifacts.",
+      "rdfs:comment": "A collection of creative works or other artifacts.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

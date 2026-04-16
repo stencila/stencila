@@ -7,7 +7,15 @@
     "Enumeration"
   ],
   "category": "works",
-  "description": "A `roleName` for an `AuthorRole`.",
+  "description": "A controlled author contribution role.",
+  "$comment": "This is an enumeration used in Stencila Schema for controlled author contribution\nroles.\n\nIt exists so authorship in Stencila documents can be represented consistently\nacross formats, user interfaces, and provenance workflows. Rather than using\narbitrary free text, the enumeration gives a stable vocabulary for common\ncontribution roles.\n\nSee [`AuthorRole.roleName`](./author-role.md#rolename) for the property that\nuses this enumeration.\n",
+  "analogues": [
+    {
+      "name": "CRediT taxonomy roles",
+      "url": "https://credit.niso.org/",
+      "notes": "Approximate analogue for controlled contributor role vocabularies, though Stencila includes authoring and AI-workflow roles beyond the standard CRediT set."
+    }
+  ],
   "required": [
     "type"
   ],

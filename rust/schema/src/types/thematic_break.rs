@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::string::String;
 
-/// A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+/// A thematic break.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

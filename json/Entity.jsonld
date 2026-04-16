@@ -12,7 +12,7 @@
       "@id": "stencila:Entity",
       "@type": "rdfs:Class",
       "rdfs:label": "Entity",
-      "rdfs:comment": "Abstract base type for compound (ie. non-atomic) nodes."
+      "rdfs:comment": "An abstract base type for compound nodes."
     }
   ]
 }

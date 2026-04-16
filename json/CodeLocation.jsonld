@@ -12,7 +12,7 @@
       "@id": "stencila:CodeLocation",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeLocation",
-      "rdfs:comment": "The location within some source code.",
+      "rdfs:comment": "A location within source code.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

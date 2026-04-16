@@ -12,7 +12,7 @@
       "@id": "stencila:Supplement",
       "@type": "rdfs:Class",
       "rdfs:label": "Supplement",
-      "rdfs:comment": "A supplementary `CreativeWork` that supports this work but is not considered part of its main content.",
+      "rdfs:comment": "A supplementary creative work associated with a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

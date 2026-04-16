@@ -12,7 +12,7 @@
       "@id": "stencila:Math",
       "@type": "rdfs:Class",
       "rdfs:label": "Math",
-      "rdfs:comment": "Abstract base type for a mathematical variable or equation.",
+      "rdfs:comment": "An abstract base type for mathematical content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

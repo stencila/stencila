@@ -5,7 +5,7 @@ import { Node } from "./Node.js";
 import { Parameter } from "./Parameter.js";
 
 /**
- * The value of a `Parameter` to call a document with.
+ * An argument used when calling a document.
  */
 export class CallArgument extends Parameter {
   // @ts-expect-error 'not assignable to the same property in base type'

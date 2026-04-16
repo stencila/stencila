@@ -1,15 +1,33 @@
 ---
 title: Note Type
-description: The type of a `Note` which determines where the note content is displayed within the document.
+description: A category of note placement.
 ---
+
+This is an enumeration used in Stencila Schema for note placement and behavior.
+
+It exists so notes can be rendered and transformed consistently across formats
+while preserving their semantic role, such as footnotes or endnotes, rather
+than only their presentation.
+
+See [`Note.noteType`](./note.md#notetype) for the property that uses this
+enumeration.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `NoteType`:
+
+- [JATS fn-type values](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.3/attribute/fn-type.html): Close JATS analogue for classifying note kinds, though Stencila focuses on placement-oriented note types such as footnote, endnote, and sidenote.
 
 # Members
 
 The `NoteType` type has these members:
 
-- `Footnote`
-- `Endnote`
-- `Sidenote`
+| Member     | Description |
+| ---------- | ----------- |
+| `Footnote` | -           |
+| `Endnote`  | -           |
+| `Sidenote` | -           |
 
 # Bindings
 

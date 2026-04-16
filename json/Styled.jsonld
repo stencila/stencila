@@ -12,7 +12,7 @@
       "@id": "stencila:Styled",
       "@type": "rdfs:Class",
       "rdfs:label": "Styled",
-      "rdfs:comment": "An abstract base class for a document node that has styling applied to it and/or its content.",
+      "rdfs:comment": "An abstract base type for styled content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

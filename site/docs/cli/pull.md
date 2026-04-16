@@ -51,20 +51,27 @@ stencila pull - --from https://api.stencila.cloud/v1/watches/wAbC12345/email/att
 
 # Options
 
-| Name                 | Description                                                                                                                                    |
-| -------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-f, --from`         | Select which remote service to pull from.                                                                                                      |
-| `--no-merge`         | Do not merge, just replace. Possible values: `true`, `false`.                                                                                  |
-| `--no-config`        | Do not save remote to stencila.toml. Possible values: `true`, `false`.                                                                         |
-| `-w, --watch`        | Enable watch after successful pull. Possible values: `true`, `false`.                                                                          |
-| `-d, --direction`    | The sync direction (only used with --watch).                                                                                                   |
-| `-p, --pr-mode`      | The GitHub PR mode (only used with --watch). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review). |
-| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with --watch).                                                                                   |
+| Name                 | Description                                                            |
+| -------------------- | ---------------------------------------------------------------------- |
+| `-f, --from`         | Select which remote service to pull from.                              |
+| `--no-merge`         | Do not merge, just replace. Possible values: `true`, `false`.          |
+| `--no-config`        | Do not save remote to stencila.toml. Possible values: `true`, `false`. |
+| `-w, --watch`        | Enable watch after successful pull. Possible values: `true`, `false`.  |
+| `-d, --direction`    | The sync direction (only used with --watch).                           |
+| `-p, --pr-mode`      | The GitHub PR mode (only used with --watch).                           |
+| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with --watch).           |
 
 **Possible values of `--direction`**
 
-| Value         | Description                                                                         |
-| ------------- | ----------------------------------------------------------------------------------- |
-| `bi`          | Bi-directional sync: changes from remote create PRs, changes to repo push to remote |
-| `from-remote` | One-way sync from remote: only remote changes create PRs                            |
-| `to-remote`   | One-way sync to remote: only repo changes push to remote                            |
+| Value         | Description                                  |
+| ------------- | -------------------------------------------- |
+| `bi`          | Bidirectional automation                     |
+| `from-remote` | One-way automation from remote to repository |
+| `to-remote`   | One-way automation from repository to remote |
+
+**Possible values of `--pr-mode`**
+
+| Value   | Description                           |
+| ------- | ------------------------------------- |
+| `draft` | Create pull requests as drafts        |
+| `ready` | Create pull requests ready for review |

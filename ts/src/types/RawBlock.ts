@@ -8,7 +8,7 @@ import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
 
 /**
- * Document content in a specific format
+ * A block of raw content in a specific format.
  */
 export class RawBlock extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

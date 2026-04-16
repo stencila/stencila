@@ -5,7 +5,7 @@ import { Hint } from "./Hint.js";
 import { Node } from "./Node.js";
 
 /**
- * A variable representing a name / value pair.
+ * A named value.
  */
 export class Variable extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

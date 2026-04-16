@@ -7,7 +7,15 @@
     "Executable"
   ],
   "category": "flow",
-  "description": "Show and execute alternative content conditional upon an executed expression.",
+  "description": "A block that conditionally shows and executes alternative content.",
+  "$comment": "This is an executable control-flow block used in Stencila Schema for conditional\ncontent.\n\nIt extends [`Executable`](./executable.md) so alternative blocks of document\ncontent can be selected and executed based on evaluated conditions. This\nallows dynamic document structure while preserving a typed, inspectable node\nmodel.\n\nKey properties include the ordered clauses and inherited execution state used\nto determine and record the selected branch.\n",
+  "analogues": [
+    {
+      "name": "Jinja if block",
+      "url": "https://jinja.palletsprojects.com/",
+      "notes": "Close template-language analogue for conditional content blocks, though Stencila models clauses and execution state explicitly."
+    }
+  ],
   "status": "beta",
   "latex": {
     "derive": false

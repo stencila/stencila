@@ -4,7 +4,7 @@ import { CompilationMessage } from "./CompilationMessage.js";
 import { Entity } from "./Entity.js";
 
 /**
- * A break in a document indicating the start one or more appendices.
+ * A break marking the start of appendices.
  */
 export class AppendixBreak extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

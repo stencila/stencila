@@ -1,21 +1,35 @@
 ---
 title: Admonition Type
-description: The type of an `Admonition`.
+description: A category of admonition.
 ---
+
+This is an enumeration used in Stencila Schema for classifying
+[`Admonition`](./admonition.md) nodes.
+
+It exists to give admonitions a small controlled vocabulary that can be mapped
+consistently to authoring, styling, and publishing formats. The enumeration
+captures the semantic intent of the callout rather than its visual
+presentation.
+
+See [`Admonition.type`](./admonition.md#type) for the property that uses this
+enumeration.
+
 
 # Members
 
 The `AdmonitionType` type has these members:
 
-- `Note`
-- `Info`
-- `Tip`
-- `Important`
-- `Success`
-- `Failure`
-- `Warning`
-- `Danger`
-- `Error`
+| Member      | Description |
+| ----------- | ----------- |
+| `Note`      | -           |
+| `Info`      | -           |
+| `Tip`       | -           |
+| `Important` | -           |
+| `Success`   | -           |
+| `Failure`   | -           |
+| `Warning`   | -           |
+| `Danger`    | -           |
+| `Error`     | -           |
 
 # Bindings
 

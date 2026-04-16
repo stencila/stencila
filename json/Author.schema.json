@@ -4,8 +4,15 @@
   "@id": "stencila:Author",
   "title": "Author",
   "category": "works",
-  "description": "Union type for things that can be an author of a `CreativeWork` or other type.",
-  "$comment": "This type merely exists to avoid the excessively long type name\n(`PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`) that is otherwise generated.\n",
+  "description": "A union type for authors of a `CreativeWork` or other type.",
+  "$comment": "This is a union type used in Stencila Schema for authorship values.\n\nIt exists to provide a readable alias for the set of node types that can act\nas an author in Stencila Schema, instead of repeating or generating the much\nlonger union name `PersonOrOrganizationOrSoftwareApplicationOrAuthorRole`.\n\nSee properties such as [`CreativeWork.authors`](./creative-work.md#authors)\nand [`CreativeWork.contributors`](./creative-work.md#contributors) for common\nuses of this union.\n",
+  "analogues": [
+    {
+      "name": "schema.org author range",
+      "url": "https://schema.org/author",
+      "notes": "Close analogue for the set of entities that may fill the schema.org `author` property, though Stencila extends this with `SoftwareApplication` and `AuthorRole` in one reusable union."
+    }
+  ],
   "anyOf": [
     {
       "$ref": "Person.schema.json"

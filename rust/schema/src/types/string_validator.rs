@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::integer::Integer;
 use super::string::String;
 
-/// A schema specifying constraints on a string node.
+/// A validator for string values.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

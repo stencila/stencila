@@ -9,6 +9,21 @@
   ],
   "category": "works",
   "description": "A cell within a `Table`.",
+  "$comment": "This is a type used in Stencila Schema for cells within a [`Table`](./table.md).\n\nIt exists to represent table structure explicitly, including header and data\nsemantics, alignment, spanning, and cell content, rather than flattening\ntables into plain text.\n\nKey properties include the cell `content`, `cellType`, alignment properties,\nand row or column span metadata.\n",
+  "analogues": [
+    {
+      "id": "html:td",
+      "notes": "Closest HTML analogue for data cells; header-cell semantics are selected in Stencila via `cellType` rather than a separate node type."
+    },
+    {
+      "id": "html:th",
+      "notes": "Close HTML analogue for header cells; Stencila uses one node plus `cellType` to cover both `<td>` and `<th>` roles."
+    },
+    {
+      "id": "jats:td",
+      "notes": "Closest JATS analogue for generic table body cells."
+    }
+  ],
   "dom": {
     "derive": false
   },

@@ -12,7 +12,7 @@
       "@id": "stencila:ExecutionDependencyRelation",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionDependencyRelation",
-      "rdfs:comment": "The relation between a node and its execution dependency.",
+      "rdfs:comment": "An upstream execution relation between nodes.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

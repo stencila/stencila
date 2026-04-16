@@ -12,7 +12,7 @@
       "@id": "stencila:Variable",
       "@type": "rdfs:Class",
       "rdfs:label": "Variable",
-      "rdfs:comment": "A variable representing a name / value pair.",
+      "rdfs:comment": "A named value.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

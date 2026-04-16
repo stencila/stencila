@@ -8,7 +8,20 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A positional marker within inline content used to define the boundary of a cross-block range. Boundaries are referenced by their `id` from other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to delimit regions that may span across multiple blocks.",
+  "description": "A positional boundary marker within inline content.",
+  "$comment": "This is a type used in Stencila Schema for representing the boundary of a selection\nor range within content.\n\nIt exists to support editing, review, and provenance workflows that need to\nrefer precisely to positions in document content without flattening the\ndocument structure into plain text offsets. This makes it useful for\ninstructions, suggestions, and other document transformations.\n\nKey properties identify the boundary location and its relationship to\nsurrounding content.\n",
+  "analogues": [
+    {
+      "name": "DOM Range boundary point",
+      "url": "https://dom.spec.whatwg.org/#concept-range-bp",
+      "notes": "Close conceptual analogue for a position at a node-and-offset boundary, though Stencila uses a document-model node rather than an ephemeral API object."
+    },
+    {
+      "name": "ProseMirror position marker",
+      "url": "https://prosemirror.net/docs/guide/",
+      "notes": "Approximate editor-model analogue for addressing positions in structured content."
+    }
+  ],
   "markdown": {
     "derive": false
   },

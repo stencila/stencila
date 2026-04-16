@@ -12,7 +12,7 @@
       "@id": "stencila:CodeChunk",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeChunk",
-      "rdfs:comment": "A executable chunk of code.",
+      "rdfs:comment": "An executable code chunk.",
       "rdfs:subClassOf": {
         "@id": "stencila:CodeExecutable"
       }

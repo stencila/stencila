@@ -4,7 +4,8 @@
   "@id": "stencila:Validator",
   "title": "Validator",
   "category": "data",
-  "description": "Union type for validators.",
+  "description": "A union type for validators.",
+  "$comment": "This is a union type used in Stencila Schema for validators.\n\nIt groups together the validator node types used to express constraints over\nprimitive values and structured data in documents, forms, and parameters. The\nunion provides a single entry point for validation metadata while allowing\nspecialized validator types for different value kinds.\n\nUse this type to understand what validator nodes can appear on properties such\nas parameter or form constraints.\n",
   "anyOf": [
     {
       "$ref": "ArrayValidator.schema.json"

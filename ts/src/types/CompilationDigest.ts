@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * A digest of the content, semantics and dependencies of an executable node.
+ * A digest of an executable node and its dependencies.
  */
 export class CompilationDigest extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

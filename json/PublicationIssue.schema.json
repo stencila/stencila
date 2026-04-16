@@ -8,7 +8,13 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A part of a successively published publication such as a periodical or publication volume, often numbered.",
+  "description": "A publication issue.",
+  "$comment": "This is an implementation of schema.org\n[`PublicationIssue`](https://schema.org/PublicationIssue).\n\nIt is used for periodical and scholarly publication metadata while fitting\ninto Stencila's broader creative-work model.\n\nKey properties include `issueNumber`, `isPartOf`, `pageStart`, `pageEnd`, and\n`pagination`.\n",
+  "analogues": [
+    {
+      "id": "schema:PublicationIssue"
+    }
+  ],
   "required": [
     "type"
   ],

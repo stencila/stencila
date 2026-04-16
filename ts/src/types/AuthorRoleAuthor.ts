@@ -8,7 +8,7 @@ import { type SoftwareApplication } from "./SoftwareApplication.js";
 import { type Thing } from "./Thing.js";
 
 /**
- * Union type for things that can be an author in `AuthorRole`.
+ * A union type for authors in an `AuthorRole`.
  */
 export type AuthorRoleAuthor =
   Person |

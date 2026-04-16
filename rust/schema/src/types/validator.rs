@@ -16,7 +16,7 @@ use super::time_validator::TimeValidator;
 use super::timestamp_validator::TimestampValidator;
 use super::tuple_validator::TupleValidator;
 
-/// Union type for validators.
+/// A union type for validators.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum Validator {

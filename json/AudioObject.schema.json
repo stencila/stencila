@@ -8,6 +8,19 @@
   ],
   "category": "works",
   "description": "An audio file.",
+  "$comment": "This is an implementation of schema.org\n[`AudioObject`](https://schema.org/AudioObject).\n\nIn Stencila Schema it is used as inline or block media within executable and\npublishable documents, inheriting media metadata and file-location\ncapabilities from [`MediaObject`](./media-object.md). This makes audio usable\nnot only as linked metadata but also as rendered document content.\n\nKey properties are usually inherited from [`MediaObject`](./media-object.md),\nespecially those describing content URLs, media type, and alternate text.\n",
+  "analogues": [
+    {
+      "id": "schema:AudioObject"
+    },
+    {
+      "id": "html:audio"
+    },
+    {
+      "id": "jats:inline-media",
+      "notes": "Closest JATS analogue for embedded audio-like media, though JATS does not define a dedicated audio element parallel to HTML `<audio>`."
+    }
+  ],
   "dom": {
     "derive": false
   },

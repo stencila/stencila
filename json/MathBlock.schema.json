@@ -9,6 +9,19 @@
   ],
   "category": "math",
   "description": "A block of math, e.g an equation, to be treated as block content.",
+  "$comment": "This is a block representation used in Stencila Schema for mathematical\ncontent.\n\nIt extends [`Math`](./math.md) for displayed equations and other block-level\nmathematical expressions. This allows block math to share common math\nsemantics while being rendered and serialized appropriately for block\ncontexts.\n\nKey properties are inherited from [`Math`](./math.md), especially the source\nmath code, language or format, and compilation-related metadata.\n",
+  "analogues": [
+    {
+      "id": "jats:disp-formula"
+    },
+    {
+      "id": "pandoc:Math",
+      "notes": "Close Pandoc analogue for display math, though Pandoc distinguishes display mode via a subkind rather than a separate node type."
+    },
+    {
+      "id": "mdast:Math"
+    }
+  ],
   "dom": {
     "derive": false
   },

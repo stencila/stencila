@@ -24,7 +24,7 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
 
-/// A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+/// An AI workflow definition.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

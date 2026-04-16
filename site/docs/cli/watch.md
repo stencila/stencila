@@ -48,16 +48,23 @@ stencila watch report.md
 
 # Options
 
-| Name                 | Description                                                                                                                                        |
-| -------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `-d, --direction`    | The sync direction (only used with a file path).                                                                                                   |
-| `-p, --pr-mode`      | The GitHub PR mode (only used with a file path). Possible values: `draft` (Create PRs as drafts (default)), `ready` (Create PRs ready for review). |
-| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with a file path).                                                                                   |
+| Name                 | Description                                                      |
+| -------------------- | ---------------------------------------------------------------- |
+| `-d, --direction`    | The sync direction (only used with a file path).                 |
+| `-p, --pr-mode`      | The GitHub PR mode (only used with a file path).                 |
+| `--debounce-seconds` | Debounce time in seconds (10-86400, only used with a file path). |
 
 **Possible values of `--direction`**
 
-| Value         | Description                                                                         |
-| ------------- | ----------------------------------------------------------------------------------- |
-| `bi`          | Bi-directional sync: changes from remote create PRs, changes to repo push to remote |
-| `from-remote` | One-way sync from remote: only remote changes create PRs                            |
-| `to-remote`   | One-way sync to remote: only repo changes push to remote                            |
+| Value         | Description                                  |
+| ------------- | -------------------------------------------- |
+| `bi`          | Bidirectional automation                     |
+| `from-remote` | One-way automation from remote to repository |
+| `to-remote`   | One-way automation from repository to remote |
+
+**Possible values of `--pr-mode`**
+
+| Value   | Description                           |
+| ------- | ------------------------------------- |
+| `draft` | Create pull requests as drafts        |
+| `ready` | Create pull requests ready for review |

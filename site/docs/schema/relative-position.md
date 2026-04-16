@@ -1,14 +1,28 @@
 ---
 title: Relative Position
-description: The relative position of a node to another.
+description: The position of one node relative to another.
 ---
+
+This is an enumeration used in Stencila Schema for describing a node's position
+relative to another.
+
+It exists to support prompt selection, editing instructions, and other
+workflows that need a stable vocabulary for before, after, within, and related
+positional relationships.
+
+See properties such as
+[`PromptBlock.relativePosition`](./prompt-block.md#relativeposition) for where
+this enumeration is used.
+
 
 # Members
 
 The `RelativePosition` type has these members:
 
-- `Previous`
-- `Next`
+| Member     | Description |
+| ---------- | ----------- |
+| `Previous` | -           |
+| `Next`     | -           |
 
 # Bindings
 

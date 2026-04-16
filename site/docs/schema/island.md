@@ -3,13 +3,23 @@ title: Island
 description: An island of content in a document.
 ---
 
+This is a type used in Stencila Schema for an isolated region of document content.
+
+It exists to represent content that is handled with its own compilation,
+rendering, or interaction boundary while still remaining inside the broader
+document model. This is useful for embedded applications, custom renderers, or
+sandboxed content regions.
+
+Key properties describe the island content, source, and any execution or
+rendering context associated with it.
+
+
 # Properties
 
 The `Island` type has these properties:
 
 | Name                 | Description                                                | Type                           | Inherited from          |
 | -------------------- | ---------------------------------------------------------- | ------------------------------ | ----------------------- |
-| `id`                 | The identifier for this item.                              | [`String`](./string.md)        | [`Entity`](./entity.md) |
 | `content`            | The content within the section.                            | [`Block`](./block.md)*         | -                       |
 | `isAutomatic`        | Whether the island is automatically generated.             | [`Boolean`](./boolean.md)      | -                       |
 | `isContinuation`     | Whether the island is a continuation of a previous island. | [`Boolean`](./boolean.md)      | -                       |
@@ -18,6 +28,7 @@ The `Island` type has these properties:
 | `labelAutomatically` | Whether the label should be automatically updated.         | [`Boolean`](./boolean.md)      | -                       |
 | `otherIds`           | Other IDs for the island, in addition to the primary `id`. | [`String`](./string.md)*       | -                       |
 | `style`              | The style to apply to the island.                          | [`String`](./string.md)        | -                       |
+| `id`                 | The identifier for this item.                              | [`String`](./string.md)        | [`Entity`](./entity.md) |
 
 # Related
 

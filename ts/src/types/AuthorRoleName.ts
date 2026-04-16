@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * A `roleName` for an `AuthorRole`.
+ * A controlled author contribution role.
  */
 export type AuthorRoleName =
   'Importer' |

@@ -1,12 +1,26 @@
 ---
 title: Agent
-description: An agent definition specifying model, tools, and behavioral configuration.
+description: An AI agent definition.
 ---
 
-An agent is a directory containing an `AGENT.md` file with YAML frontmatter and an optional
-Markdown body providing system instructions. Agents are discovered from two locations:
-workspace `.stencila/agents/` and user config `~/.config/stencila/agents/`.
+This is a type used in Stencila Schema for reusable AI agent definitions.
 
+It exists to represent an agent as a document-like artifact that combines
+metadata, model and provider preferences, tool and skill permissions, and an
+optional Markdown body of system instructions. Agents are discovered from
+workspace `.stencila/agents/` and user-level `~/.config/stencila/agents/`,
+allowing shared project agents and personal agent configurations to coexist.
+
+Key properties include `name`, `models`, `providers`, `allowedSkills`,
+`allowedTools`, and `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Agent`:
+
+- [OpenAI GPT configuration](https://platform.openai.com/): Approximate analogue for a reusable agent configuration combining instructions, model preferences, and tool policies.
+- [Anthropic Claude system prompt configuration](https://docs.anthropic.com/): Approximate provider-level analogue for reusable assistant behavior definitions.
 
 # Properties
 
@@ -14,13 +28,31 @@ The `Agent` type has these properties:
 
 | Name                       | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | -------------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                       | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`           | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`              | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`              | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`                   | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
 | `name`                     | The name of the agent.                                                                                                  | [`String`](./string.md)                                                           | -                                    |
-| `url`                      | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `whenToUse`                | Positive selection signals describing when this agent should be used.                                                   | [`String`](./string.md)*                                                          | -                                    |
+| `whenNotToUse`             | Negative selection signals describing when this agent should not be used.                                               | [`String`](./string.md)*                                                          | -                                    |
+| `frontmatter`              | Frontmatter containing agent metadata.                                                                                  | [`String`](./string.md)                                                           | -                                    |
+| `content`                  | The content of the agent (the Markdown body providing system instructions).                                             | [`Block`](./block.md)*                                                            | -                                    |
+| `models`                   | Model identifiers for the agent.                                                                                        | [`String`](./string.md)*                                                          | -                                    |
+| `providers`                | Provider identifiers for the agent.                                                                                     | [`String`](./string.md)*                                                          | -                                    |
+| `modelSize`                | Model size preference for the agent.                                                                                    | [`String`](./string.md)                                                           | -                                    |
+| `reasoningEffort`          | Reasoning effort level for the agent.                                                                                   | [`String`](./string.md)                                                           | -                                    |
+| `historyThinkingReplay`    | Whether to replay assistant thinking and reasoning in conversation history.                                             | [`String`](./string.md)                                                           | -                                    |
+| `truncationPreset`         | Named preset for tool output truncation limits.                                                                         | [`String`](./string.md)                                                           | -                                    |
+| `compactionTriggerPercent` | Context usage percentage that triggers proactive history compaction.                                                    | [`UnsignedInteger`](./unsigned-integer.md)                                        | -                                    |
+| `trustLevel`               | Trust level controlling how strictly the agent's operations are guarded.                                                | [`String`](./string.md)                                                           | -                                    |
+| `allowedSkills`            | Skill names this agent can use.                                                                                         | [`String`](./string.md)*                                                          | -                                    |
+| `allowedTools`             | Tool names available to the agent.                                                                                      | [`String`](./string.md)*                                                          | -                                    |
+| `allowedDomains`           | Domain allowlist for web_fetch.                                                                                         | [`String`](./string.md)*                                                          | -                                    |
+| `disallowedDomains`        | Domain denylist for web_fetch.                                                                                          | [`String`](./string.md)*                                                          | -                                    |
+| `enableMcp`                | Whether to enable MCP tools.                                                                                            | [`Boolean`](./boolean.md)                                                         | -                                    |
+| `enableMcpCodemode`        | Whether to enable MCP codemode orchestration.                                                                           | [`Boolean`](./boolean.md)                                                         | -                                    |
+| `allowedMcpServers`        | MCP server IDs this agent is allowed to use.                                                                            | [`String`](./string.md)*                                                          | -                                    |
+| `maxTurns`                 | Maximum conversation turns (0 = unlimited).                                                                             | [`Integer`](./integer.md)                                                         | -                                    |
+| `toolTimeout`              | Default timeout for tool execution in seconds.                                                                          | [`Integer`](./integer.md)                                                         | -                                    |
+| `maxToolRounds`            | Maximum tool-call rounds per user input.                                                                                | [`Integer`](./integer.md)                                                         | -                                    |
+| `maxSubagentDepth`         | Maximum subagent nesting depth.                                                                                         | [`Integer`](./integer.md)                                                         | -                                    |
+| `compatibility`            | Environment requirements for the agent.                                                                                 | [`String`](./string.md)                                                           | -                                    |
 | `workType`                 | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                      | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`                    | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -52,30 +84,12 @@ The `Agent` type has these properties:
 | `path`                     | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`                   | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`                  | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `whenToUse`                | Positive selection signals describing when this agent should be used.                                                   | [`String`](./string.md)*                                                          | -                                    |
-| `whenNotToUse`             | Negative selection signals describing when this agent should not be used.                                               | [`String`](./string.md)*                                                          | -                                    |
-| `frontmatter`              | Frontmatter containing agent metadata.                                                                                  | [`String`](./string.md)                                                           | -                                    |
-| `content`                  | The content of the agent (the Markdown body providing system instructions).                                             | [`Block`](./block.md)*                                                            | -                                    |
-| `models`                   | Model identifiers for the agent.                                                                                        | [`String`](./string.md)*                                                          | -                                    |
-| `providers`                | Provider identifiers for the agent.                                                                                     | [`String`](./string.md)*                                                          | -                                    |
-| `modelSize`                | Model size preference for the agent.                                                                                    | [`String`](./string.md)                                                           | -                                    |
-| `reasoningEffort`          | Reasoning effort level for the agent.                                                                                   | [`String`](./string.md)                                                           | -                                    |
-| `historyThinkingReplay`    | Whether to replay assistant thinking and reasoning in conversation history.                                             | [`String`](./string.md)                                                           | -                                    |
-| `truncationPreset`         | Named preset for tool output truncation limits.                                                                         | [`String`](./string.md)                                                           | -                                    |
-| `compactionTriggerPercent` | Context usage percentage that triggers proactive history compaction.                                                    | [`UnsignedInteger`](./unsigned-integer.md)                                        | -                                    |
-| `trustLevel`               | Trust level controlling how strictly the agent's operations are guarded.                                                | [`String`](./string.md)                                                           | -                                    |
-| `allowedSkills`            | Skill names this agent can use.                                                                                         | [`String`](./string.md)*                                                          | -                                    |
-| `allowedTools`             | Tool names available to the agent.                                                                                      | [`String`](./string.md)*                                                          | -                                    |
-| `allowedDomains`           | Domain allowlist for web_fetch.                                                                                         | [`String`](./string.md)*                                                          | -                                    |
-| `disallowedDomains`        | Domain denylist for web_fetch.                                                                                          | [`String`](./string.md)*                                                          | -                                    |
-| `enableMcp`                | Whether to enable MCP tools.                                                                                            | [`Boolean`](./boolean.md)                                                         | -                                    |
-| `enableMcpCodemode`        | Whether to enable MCP codemode orchestration.                                                                           | [`Boolean`](./boolean.md)                                                         | -                                    |
-| `allowedMcpServers`        | MCP server IDs this agent is allowed to use.                                                                            | [`String`](./string.md)*                                                          | -                                    |
-| `maxTurns`                 | Maximum conversation turns (0 = unlimited).                                                                             | [`Integer`](./integer.md)                                                         | -                                    |
-| `toolTimeout`              | Default timeout for tool execution in seconds.                                                                          | [`Integer`](./integer.md)                                                         | -                                    |
-| `maxToolRounds`            | Maximum tool-call rounds per user input.                                                                                | [`Integer`](./integer.md)                                                         | -                                    |
-| `maxSubagentDepth`         | Maximum subagent nesting depth.                                                                                         | [`Integer`](./integer.md)                                                         | -                                    |
-| `compatibility`            | Environment requirements for the agent.                                                                                 | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames`           | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`              | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`              | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`                   | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `url`                      | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`                       | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

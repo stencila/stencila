@@ -1,11 +1,17 @@
 ---
 title: Integer Validator
-description: A validator specifying the constraints on an integer node.
+description: A validator for integer values.
 ---
 
-A node will be valid if it is a number with no fractional part and meets any additional constraints,
-such as `multipleOf`, specified in the validator.
-Analogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+This is a type used in Stencila Schema for validating [`Integer`](./integer.md)
+nodes.
+
+It adapts the JSON Schema integer type concept to Stencila's validator
+system, reusing the numeric range and divisibility constraints defined by
+[`NumberValidator`](./number-validator.md) while additionally requiring the
+value to have no fractional part.
+
+Key constraints are inherited from [`NumberValidator`](./number-validator.md).
 
 
 # Properties
@@ -14,12 +20,12 @@ The `IntegerValidator` type has these properties:
 
 | Name               | Description                                         | Type                    | Inherited from                             |
 | ------------------ | --------------------------------------------------- | ----------------------- | ------------------------------------------ |
-| `id`               | The identifier for this item.                       | [`String`](./string.md) | [`Entity`](./entity.md)                    |
 | `minimum`          | The inclusive lower limit for a numeric node.       | [`Number`](./number.md) | [`NumberValidator`](./number-validator.md) |
 | `exclusiveMinimum` | The exclusive lower limit for a numeric node.       | [`Number`](./number.md) | [`NumberValidator`](./number-validator.md) |
 | `maximum`          | The inclusive upper limit for a numeric node.       | [`Number`](./number.md) | [`NumberValidator`](./number-validator.md) |
 | `exclusiveMaximum` | The exclusive upper limit for a numeric node.       | [`Number`](./number.md) | [`NumberValidator`](./number-validator.md) |
 | `multipleOf`       | A number that a numeric node must be a multiple of. | [`Number`](./number.md) | [`NumberValidator`](./number-validator.md) |
+| `id`               | The identifier for this item.                       | [`String`](./string.md) | [`Entity`](./entity.md)                    |
 
 # Related
 

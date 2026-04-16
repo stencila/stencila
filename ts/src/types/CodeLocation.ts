@@ -4,7 +4,7 @@ import { Entity } from "./Entity.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * The location within some source code.
+ * A location within source code.
  */
 export class CodeLocation extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -9,7 +9,23 @@
   ],
   "category": "prose",
   "description": "Content that is marked as struck out.",
-  "$comment": "Analogues of `Strikeout` in other schema include:\n  - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)\n  - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)\n  - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)\n  - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)\nSupersedes the `Delete` inline content type (the name \"Strikeout\" is less ambiguous than \"Delete\").\n",
+  "$comment": "This is a Stencila-native inline mark for struck-out text, with close\nanalogues in HTML\n[`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del), JATS\n[`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html),\nMDAST [`Delete`](https://github.com/syntax-tree/mdast#delete), and Pandoc\n[`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258).\n\nIn Stencila Schema it is used as a presentational and editorial inline mark\nfor text that should render with a strike-through. It supersedes the older\n`Delete` inline type because `Strikeout` more clearly describes the mark itself\nrather than an editing action.\n\nKey semantics are inherited from [`Mark`](./mark.md), with this type chiefly\nsignaling strike-through rendering for its `content`.\n",
+  "analogues": [
+    {
+      "id": "html:del",
+      "notes": "Close HTML analogue for struck-through text, though Stencila `Strikeout` is used as a general strike-through mark rather than specifically representing deletions."
+    },
+    {
+      "id": "jats:strike"
+    },
+    {
+      "id": "pandoc:Strikeout"
+    },
+    {
+      "id": "mdast:Delete",
+      "notes": "Closest MDAST analogue, although the MDAST name emphasizes deletion semantics rather than the visual mark."
+    }
+  ],
   "dom": {
     "elem": "s"
   },

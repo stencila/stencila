@@ -1,7 +1,27 @@
 ---
 title: Block
-description: Union type in block content node types.
+description: A union type for block content.
 ---
+
+This is a union type used in Stencila Schema for block-level document content.
+
+It brings together the node types that can appear where a document model
+expects block structure, similar to block-content unions in Markdown, HTML,
+JATS, and other document ASTs. The union is central to Stencila's ability to
+mix prose, code, figures, tables, instructions, and executable content within
+one document model.
+
+Use this type to understand what can appear in `content` arrays on document
+and container nodes such as [`Article`](./article.md),
+[`Section`](./section.md), and [`Figure`](./figure.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Block`:
+
+- [HTML flow content](https://html.spec.whatwg.org/multipage/dom.html#flow-content-2): Broadly analogous to the set of HTML elements allowed in block-flow positions, though Stencila's union is document-AST oriented rather than DOM-category based.
+- Pandoc [`Block`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Block): Closest Pandoc union analogue for block-level content.
 
 # Members
 

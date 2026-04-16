@@ -9,7 +9,14 @@
   ],
   "category": "works",
   "description": "An agent skill providing instructions for AI agents.",
-  "$comment": "An implementation of the [Agent Skills Specification](https://agentskills.io/specification).\nA skill is a directory containing a `SKILL.md` file with YAML frontmatter and a Markdown body\nthat provides instructions for AI agents. Skills support progressive disclosure: metadata\n(~100 tokens) is loaded at startup, full instructions on activation, and referenced files\non demand.\n",
+  "$comment": "This is an implementation of the [Agent Skills\nSpecification](https://agentskills.io/specification).\n\nIn Stencila Schema it represents a reusable skill package for AI agents,\nmodeled as a creative work with structured metadata, instructions, and tool\nconstraints. Stencila uses this type to describe skills that can be discovered\ncheaply from summary metadata and then expanded into full instructions when the\nskill is activated.\n\nKey properties include `name`, `frontmatter`, `content`, `compatibility`, and\n`allowedTools`.\n",
+  "analogues": [
+    {
+      "name": "Agent Skills Specification skill",
+      "url": "https://agentskills.io/specification",
+      "notes": "Direct analogue and source specification for reusable agent skills."
+    }
+  ],
   "markdown": {
     "derive": false
   },

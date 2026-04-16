@@ -9,6 +9,19 @@
   ],
   "category": "math",
   "description": "A fragment of math, e.g a variable name, to be treated as inline content.",
+  "$comment": "This is an inline representation used in Stencila Schema for mathematical\ncontent.\n\nIt extends [`Math`](./math.md) for inline equations, symbols, and variables\nthat occur within prose. This keeps inline math aligned with the broader math\nmodel while distinguishing it from display math in rendering and authoring\nworkflows.\n\nKey properties are inherited from [`Math`](./math.md).\n",
+  "analogues": [
+    {
+      "id": "jats:inline-formula"
+    },
+    {
+      "id": "pandoc:Math",
+      "notes": "Close Pandoc analogue for inline math, though Pandoc distinguishes inline mode via a subkind rather than a separate node type."
+    },
+    {
+      "id": "mdast:InlineMath"
+    }
+  ],
   "dom": {
     "derive": false
   },

@@ -3,13 +3,35 @@ title: Instruction Inline
 description: An instruction to edit some inline content.
 ---
 
+This is an inline instruction type used in Stencila Schema.
+
+It extends [`Instruction`](./instruction.md) for editing or generating inline
+content within prose. This lets Stencila support fine-grained model-assisted
+edits without collapsing inline editing into block-level operations.
+
+Key properties are mostly inherited from [`Instruction`](./instruction.md),
+with semantics focused on inline targets and suggestions.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `InstructionInline`:
+
+- [inline edit request](https://platform.openai.com/docs/guides/text-generation): Approximate analogue for a fine-grained editing instruction targeting spans within prose.
+
 # Properties
 
 The `InstructionInline` type has these properties:
 
 | Name                    | Description                                                                | Type                                                | Inherited from                    |
 | ----------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- | --------------------------------- |
-| `id`                    | The identifier for this item.                                              | [`String`](./string.md)                             | [`Entity`](./entity.md)           |
+| `content`               | The content to which the instruction applies.                              | [`Inline`](./inline.md)*                            | -                                 |
+| `suggestions`           | Suggestions for the instruction                                            | [`SuggestionInline`](./suggestion-inline.md)*       | -                                 |
+| `instructionType`       | The type of instruction describing the operation to be performed.          | [`InstructionType`](./instruction-type.md)          | [`Instruction`](./instruction.md) |
+| `prompt`                | The prompt selected, rendered and provided to the model                    | [`PromptBlock`](./prompt-block.md)                  | [`Instruction`](./instruction.md) |
+| `message`               | The instruction message, possibly including images, audio, or other media. | [`InstructionMessage`](./instruction-message.md)    | [`Instruction`](./instruction.md) |
+| `modelParameters`       | Model selection and inference parameters.                                  | [`ModelParameters`](./model-parameters.md)          | [`Instruction`](./instruction.md) |
+| `activeSuggestion`      | The index of the suggestion that is currently active                       | [`UnsignedInteger`](./unsigned-integer.md)          | [`Instruction`](./instruction.md) |
 | `executionMode`         | Under which circumstances the node should be executed.                     | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md)   |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.           | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)   |
 | `compilationMessages`   | Messages generated while compiling the code.                               | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)   |
@@ -24,13 +46,7 @@ The `InstructionInline` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                               | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)   |
 | `executionDuration`     | Duration of the last execution.                                            | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)   |
 | `executionMessages`     | Messages emitted while executing the node.                                 | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)   |
-| `instructionType`       | The type of instruction describing the operation to be performed.          | [`InstructionType`](./instruction-type.md)          | [`Instruction`](./instruction.md) |
-| `prompt`                | The prompt selected, rendered and provided to the model                    | [`PromptBlock`](./prompt-block.md)                  | [`Instruction`](./instruction.md) |
-| `message`               | The instruction message, possibly including images, audio, or other media. | [`InstructionMessage`](./instruction-message.md)    | [`Instruction`](./instruction.md) |
-| `modelParameters`       | Model selection and inference parameters.                                  | [`ModelParameters`](./model-parameters.md)          | [`Instruction`](./instruction.md) |
-| `activeSuggestion`      | The index of the suggestion that is currently active                       | [`UnsignedInteger`](./unsigned-integer.md)          | [`Instruction`](./instruction.md) |
-| `content`               | The content to which the instruction applies.                              | [`Inline`](./inline.md)*                            | -                                 |
-| `suggestions`           | Suggestions for the instruction                                            | [`SuggestionInline`](./suggestion-inline.md)*       | -                                 |
+| `id`                    | The identifier for this item.                                              | [`String`](./string.md)                             | [`Entity`](./entity.md)           |
 
 # Related
 

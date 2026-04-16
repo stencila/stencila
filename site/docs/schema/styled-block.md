@@ -3,6 +3,17 @@ title: Styled Block
 description: Styled block content.
 ---
 
+This is a block type used in Stencila Schema for content with explicit styling.
+
+It extends [`Styled`](./styled.md) to apply styling semantics to block-level
+content while keeping style information separate from the node's core
+structural meaning. This supports authoring, publishing, and theming workflows
+without forcing format-specific markup into the content model.
+
+Key properties include block `content` together with inherited styling
+information from [`Styled`](./styled.md).
+
+
 This type is marked as unstable and is subject to change.
 
 # Properties
@@ -11,7 +22,7 @@ The `StyledBlock` type has these properties:
 
 | Name                  | Description                                                            | Type                                              | Inherited from          |
 | --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
+| `content`             | The content within the styled block                                    | [`Block`](./block.md)*                            | -                       |
 | `code`                | The code of the equation in the `styleLanguage`.                       | [`Cord`](./cord.md)                               | [`Styled`](./styled.md) |
 | `styleLanguage`       | The language used for the style specification e.g. css, tw             | [`String`](./string.md)                           | [`Styled`](./styled.md) |
 | `authors`             | The authors of the code and content in the styled node.                | [`Author`](./author.md)*                          | [`Styled`](./styled.md) |
@@ -20,7 +31,7 @@ The `StyledBlock` type has these properties:
 | `compilationMessages` | Messages generated while parsing and transpiling the style.            | [`CompilationMessage`](./compilation-message.md)* | [`Styled`](./styled.md) |
 | `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](./string.md)                           | [`Styled`](./styled.md) |
 | `classList`           | A space separated list of class names associated with the node.        | [`String`](./string.md)                           | [`Styled`](./styled.md) |
-| `content`             | The content within the styled block                                    | [`Block`](./block.md)*                            | -                       |
+| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

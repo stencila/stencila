@@ -12,7 +12,7 @@
       "@id": "stencila:Object",
       "@type": "rdfs:Class",
       "rdfs:label": "Object",
-      "rdfs:comment": "A value comprised of keyed primitive nodes."
+      "rdfs:comment": "An object value."
     }
   ]
 }

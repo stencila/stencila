@@ -1,10 +1,16 @@
 ---
 title: Boolean Validator
-description: A schema specifying that a node must be a boolean value.
+description: A validator for boolean values.
 ---
 
-A node will be valid against this schema if it is either true or false.
-Analogous to the JSON Schema `boolean` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).
+This is a type used in Stencila Schema for validating [`Boolean`](./boolean.md)
+nodes.
+
+It adapts the JSON Schema boolean type concept to Stencila's validator system.
+Because booleans have no additional range or pattern constraints, this
+validator mainly records that the expected value kind is boolean.
+
+See also the JSON Schema `boolean` validation type.
 
 
 # Properties

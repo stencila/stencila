@@ -12,7 +12,7 @@
       "@id": "schema:PublicationIssue",
       "@type": "rdfs:Class",
       "rdfs:label": "PublicationIssue",
-      "rdfs:comment": "A part of a successively published publication such as a periodical or publication volume, often numbered.",
+      "rdfs:comment": "A publication issue.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

@@ -3,13 +3,31 @@ title: Math Inline
 description: A fragment of math, e.g a variable name, to be treated as inline content.
 ---
 
+This is an inline representation used in Stencila Schema for mathematical
+content.
+
+It extends [`Math`](./math.md) for inline equations, symbols, and variables
+that occur within prose. This keeps inline math aligned with the broader math
+model while distinguishing it from display math in rendering and authoring
+workflows.
+
+Key properties are inherited from [`Math`](./math.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `MathInline`:
+
+- JATS [`<inline-formula>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/inline-formula.html)
+- Pandoc [`Math`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Math): Close Pandoc analogue for inline math, though Pandoc distinguishes inline mode via a subkind rather than a separate node type.
+- MDAST [`InlineMath`](https://github.com/syntax-tree/mdast#inlinemath)
+
 # Properties
 
 The `MathInline` type has these properties:
 
 | Name                  | Description                                                         | Type                                              | Inherited from          |
 | --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | [`Math`](./math.md)     |
 | `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | [`Math`](./math.md)     |
 | `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | [`Math`](./math.md)     |
@@ -18,6 +36,7 @@ The `MathInline` type has these properties:
 | `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | [`Math`](./math.md)     |
 | `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | [`Math`](./math.md)     |
 | `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | [`Math`](./math.md)     |
+| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

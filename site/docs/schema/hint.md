@@ -3,6 +3,18 @@ title: Hint
 description: Union type for hints of the value and/or structure of data.
 ---
 
+This is a union type used in Stencila Schema for data hints.
+
+It groups together the hint node types used to provide concise summaries of
+data values and structures without imposing hard validation rules. These
+summaries are useful to both humans and machines, including user interfaces,
+schema inference, and code generation workflows such as choosing appropriate
+visualizations for large datasets.
+
+Use this type to understand what hint nodes can appear in data-oriented parts
+of the schema.
+
+
 # Members
 
 The `Hint` type has these members:

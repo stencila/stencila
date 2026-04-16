@@ -3,13 +3,31 @@ title: Reference
 description: A reference to a creative work, including books, movies, photographs, software programs, etc.
 ---
 
+This is a type used in Stencila Schema for references to creative works.
+
+It exists to represent bibliographic entries and related reference metadata in
+a structured way that can be cited, rendered, and transformed across formats.
+It is distinct from [`Citation`](./citation.md), which represents an in-text
+reference occurrence.
+
+Key properties include the referenced work metadata and identifiers used for
+linking citations to entries.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Reference`:
+
+- schema.org [`CreativeWork`](https://schema.org/CreativeWork): Approximate schema.org analogue because references largely reuse creative-work metadata, but Stencila `Reference` is specialized for bibliographic entries and citation linking.
+- Pandoc [`Citation`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Citation): Only a partial Pandoc analogue; Pandoc citation items capture identifiers and locators, while Stencila `Reference` represents the bibliographic entry itself.
+- [CSL JSON item](https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html): Close analogue for structured bibliographic record data used by citation processors.
+
 # Properties
 
 The `Reference` type has these properties:
 
 | Name           | Description                                                                                           | Type                                                                 | Inherited from          |
 | -------------- | ----------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`           | The identifier for this item.                                                                         | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 | `workType`     | The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).                            | [`CreativeWorkType`](./creative-work-type.md)                        | -                       |
 | `doi`          | The Digital Object Identifier (https://doi.org/) of the work being referenced.                        | [`String`](./string.md)                                              | -                       |
 | `authors`      | The authors of the work.                                                                              | [`Author`](./author.md)*                                             | -                       |
@@ -28,6 +46,7 @@ The `Reference` type has these properties:
 | `url`          | The URL of the referenced work.                                                                       | [`String`](./string.md)                                              | -                       |
 | `text`         | Plain text representation of the referenced work.                                                     | [`String`](./string.md)                                              | -                       |
 | `content`      | A rendering of the reference using the citation style of the document.                                | [`Inline`](./inline.md)*                                             | -                       |
+| `id`           | The identifier for this item.                                                                         | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

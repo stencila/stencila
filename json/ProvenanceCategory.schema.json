@@ -6,7 +6,8 @@
   "extends": [
     "Enumeration"
   ],
-  "description": "A description of the provenance of content in terms of human/machine involvement.",
+  "description": "A category of content provenance.",
+  "$comment": "This is an enumeration used in Stencila Schema for summarizing the provenance of\ncontent.\n\nIt exists to classify content according to human and machine involvement using\na stable vocabulary that can be counted, rendered, and analyzed consistently\nacross documents.\n\nSee [`ProvenanceCount.category`](./provenance-count.md#category) and related\nprovenance summaries for where this enumeration is used.\n",
   "required": [
     "type"
   ],
@@ -164,7 +165,7 @@
       "const": "MwHe"
     },
     {
-      "@id": "stencila:ProvenanceMwHeHv",
+      "@id": "stencila:ProvenanceMwHeMv",
       "description": "Machine written, human edited, machine verified.",
       "const": "MwHeMv"
     },

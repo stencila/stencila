@@ -3,19 +3,30 @@ title: Person
 description: A person (alive, dead, undead, or fictional).
 ---
 
+This is an implementation of schema.org [`Person`](https://schema.org/Person).
+
+In Stencila Schema it is used for authorship, contribution, contact, and
+bibliographic metadata while integrating with Stencila Schema role and
+provenance models. The schema.org model is preserved, with richer contribution
+semantics often added via [`AuthorRole`](./author-role.md) and related types.
+
+Key properties are usually inherited from [`Thing`](./thing.md), especially
+`name`, identifiers, contact details, and affiliations.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Person`:
+
+- schema.org [`Person`](https://schema.org/Person)
+- JATS [`<name>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/name.html): Approximate JATS analogue for person identity in document metadata, though JATS personal-name structures are not equivalent to a reusable person entity node.
+
 # Properties
 
 The `Person` type has these properties:
 
 | Name               | Description                                                                                              | Type                                                                 | Inherited from          |
 | ------------------ | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`               | The identifier for this item.                                                                            | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
-| `alternateNames`   | Alternate names (aliases) for the item.                                                                  | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
-| `description`      | A description of the item.                                                                               | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `identifiers`      | Any kind of identifier for any kind of Thing.                                                            | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
-| `images`           | Images of the item.                                                                                      | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
-| `name`             | The name of the item.                                                                                    | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `url`              | The URL of the item.                                                                                     | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `orcid`            | The person's Open Researcher and Contributor ID (https://orcid.org/).                                    | [`String`](./string.md)                                              | -                       |
 | `address`          | Postal address for the person.                                                                           | [`PostalAddress`](./postal-address.md) \| [`String`](./string.md)    | -                       |
 | `affiliations`     | Organizations that the person is affiliated with.                                                        | [`Organization`](./organization.md)*                                 | -                       |
@@ -28,6 +39,13 @@ The `Person` type has these properties:
 | `jobTitle`         | The job title of the person (for example, Financial Manager).                                            | [`String`](./string.md)                                              | -                       |
 | `memberOf`         | An organization (or program membership) to which this person belongs.                                    | [`Organization`](./organization.md)*                                 | -                       |
 | `telephoneNumbers` | Telephone numbers for the person.                                                                        | [`String`](./string.md)*                                             | -                       |
+| `alternateNames`   | Alternate names (aliases) for the item.                                                                  | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
+| `description`      | A description of the item.                                                                               | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `identifiers`      | Any kind of identifier for any kind of Thing.                                                            | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
+| `images`           | Images of the item.                                                                                      | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
+| `name`             | The name of the item.                                                                                    | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `url`              | The URL of the item.                                                                                     | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `id`               | The identifier for this item.                                                                            | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

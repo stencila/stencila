@@ -1,15 +1,27 @@
 ---
 title: Execution Bounds
-description: The bounds placed on the execution of a document node.
+description: A boundary for node execution.
 ---
+
+This is an enumeration used in Stencila Schema for limits placed on node execution.
+
+It exists to let Stencila describe how far execution should proceed in a
+document or workflow context, using a stable controlled vocabulary instead of
+ad hoc flags. This is useful for user interfaces, execution planning, and
+reproducible automation.
+
+See the execution control properties that reference this enumeration.
+
 
 # Members
 
 The `ExecutionBounds` type has these members:
 
-- `Main`
-- `Fork`
-- `Box`
+| Member | Description                                                          |
+| ------ | -------------------------------------------------------------------- |
+| `Main` | Execute within the main set of kernels with full capabilities.       |
+| `Fork` | Execute within a forked set of kernels with full capabilities.       |
+| `Box`  | Execute within a forked set of kernels with restricted capabilities. |
 
 # Bindings
 

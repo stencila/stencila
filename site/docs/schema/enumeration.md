@@ -3,26 +3,44 @@ title: Enumeration
 description: Lists or enumerations, for example, a list of cuisines or music genres, etc.
 ---
 
+This is an implementation of schema.org
+[`Enumeration`](https://schema.org/Enumeration).
+
+In Stencila Schema it provides the common base for controlled vocabularies
+used throughout the document model. Derived Stencila enumerations use it to
+expose stable symbolic values for execution, styling, editing, and publishing
+behavior.
+
+See the many derived enumeration types for the vocabularies that carry
+Stencila Schema semantics.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Enumeration`:
+
+- schema.org [`Enumeration`](https://schema.org/Enumeration)
+
 # Properties
 
 The `Enumeration` type has these properties:
 
 | Name             | Description                                   | Type                                                                 | Inherited from          |
 | ---------------- | --------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 | `alternateNames` | Alternate names (aliases) for the item.       | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
 | `description`    | A description of the item.                    | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `identifiers`    | Any kind of identifier for any kind of Thing. | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
 | `images`         | Images of the item.                           | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
 | `name`           | The name of the item.                         | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `url`            | The URL of the item.                          | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `id`             | The identifier for this item.                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 
 The `Enumeration` type is related to these types:
 
 - Parents: [`Thing`](./thing.md)
-- Children: [`AdmonitionType`](./admonition-type.md), [`AuthorRoleName`](./author-role-name.md), [`CitationIntent`](./citation-intent.md), [`CitationMode`](./citation-mode.md), [`ClaimType`](./claim-type.md), [`CreativeWorkType`](./creative-work-type.md), [`ExecutionBounds`](./execution-bounds.md), [`ExecutionDependantRelation`](./execution-dependant-relation.md), [`ExecutionDependencyRelation`](./execution-dependency-relation.md), [`ExecutionMode`](./execution-mode.md), [`ExecutionRequired`](./execution-required.md), [`ExecutionStatus`](./execution-status.md), [`FormDeriveAction`](./form-derive-action.md), [`HorizontalAlignment`](./horizontal-alignment.md), [`InstructionType`](./instruction-type.md), [`LabelType`](./label-type.md), [`ListOrder`](./list-order.md), [`MessageLevel`](./message-level.md), [`MessageRole`](./message-role.md), [`NoteType`](./note-type.md), [`ProvenanceCategory`](./provenance-category.md), [`RelativePosition`](./relative-position.md), [`SectionType`](./section-type.md), [`SuggestionStatus`](./suggestion-status.md), [`TableCellType`](./table-cell-type.md), [`TableRowType`](./table-row-type.md), [`TimeUnit`](./time-unit.md), [`VerticalAlignment`](./vertical-alignment.md)
+- Children: [`AdmonitionType`](./admonition-type.md), [`AuthorRoleName`](./author-role-name.md), [`CitationIntent`](./citation-intent.md), [`CitationMode`](./citation-mode.md), [`ClaimType`](./claim-type.md), [`CreativeWorkType`](./creative-work-type.md), [`ExecutionBounds`](./execution-bounds.md), [`ExecutionDependantRelation`](./execution-dependant-relation.md), [`ExecutionDependencyRelation`](./execution-dependency-relation.md), [`ExecutionMode`](./execution-mode.md), [`ExecutionRequired`](./execution-required.md), [`ExecutionStatus`](./execution-status.md), [`FormDeriveAction`](./form-derive-action.md), [`HorizontalAlignment`](./horizontal-alignment.md), [`InstructionType`](./instruction-type.md), [`LabelType`](./label-type.md), [`ListOrder`](./list-order.md), [`MessageLevel`](./message-level.md), [`MessageRole`](./message-role.md), [`NoteType`](./note-type.md), [`ProvenanceCategory`](./provenance-category.md), [`RelativePosition`](./relative-position.md), [`SectionType`](./section-type.md), [`SuggestionStatus`](./suggestion-status.md), [`SuggestionType`](./suggestion-type.md), [`TableCellType`](./table-cell-type.md), [`TableRowType`](./table-row-type.md), [`TimeUnit`](./time-unit.md), [`VerticalAlignment`](./vertical-alignment.md)
 
 # Bindings
 

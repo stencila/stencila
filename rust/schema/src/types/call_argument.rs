@@ -19,7 +19,7 @@ use super::string::String;
 use super::timestamp::Timestamp;
 use super::validator::Validator;
 
-/// The value of a `Parameter` to call a document with.
+/// An argument used when calling a document.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

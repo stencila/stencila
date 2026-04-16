@@ -12,7 +12,7 @@
       "@id": "stencila:AuthorRoleName",
       "@type": "rdfs:Class",
       "rdfs:label": "AuthorRoleName",
-      "rdfs:comment": "A `roleName` for an `AuthorRole`.",
+      "rdfs:comment": "A controlled author contribution role.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

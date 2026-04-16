@@ -7,7 +7,7 @@ use super::image_object::ImageObject;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 
-/// Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+/// A product or service.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

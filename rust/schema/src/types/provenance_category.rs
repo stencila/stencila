@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// A description of the provenance of content in terms of human/machine involvement.
+/// A category of content provenance.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum ProvenanceCategory {

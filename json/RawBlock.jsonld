@@ -12,7 +12,7 @@
       "@id": "stencila:RawBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "RawBlock",
-      "rdfs:comment": "Document content in a specific format",
+      "rdfs:comment": "A block of raw content in a specific format.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

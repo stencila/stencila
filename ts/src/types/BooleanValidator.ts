@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A schema specifying that a node must be a boolean value.
+ * A validator for boolean values.
  */
 export class BooleanValidator extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

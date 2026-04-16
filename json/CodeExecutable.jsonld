@@ -12,7 +12,7 @@
       "@id": "stencila:CodeExecutable",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeExecutable",
-      "rdfs:comment": "Abstract base type for executable code nodes (e.g. `CodeChunk`).",
+      "rdfs:comment": "An abstract base type for executable code nodes.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

@@ -8,6 +8,7 @@
   ],
   "category": "prose",
   "description": "A hyperlink to other pages, sections within the same document, resources, or any URL.",
+  "$comment": "This is a hyperlink type used in Stencila Schema with analogues in HTML `<a>`, JATS\n`xref`-style links, and Markdown links.\n\nIt exists to represent links as structured document nodes that can target\ninternal nodes, sections, files, or external URLs while carrying richer\nmetadata than plain text spans. This supports stable cross-references and\nportable serialization across formats.\n\nKey properties include the linked `content`, the target or target node, and\nany relationship metadata used for navigation or referencing.\n",
   "dom": {
     "derive": false
   },

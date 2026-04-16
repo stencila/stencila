@@ -9,6 +9,22 @@
   ],
   "category": "code",
   "description": "A code block.",
+  "$comment": "This is a block representation used in Stencila Schema for non-executable\ncode.\n\nIt extends [`CodeStatic`](./code-static.md) for code that should be displayed\nand preserved as document content without normal execution semantics. Stencila\nalso adds optional demo compilation behavior so some static code blocks can\nrender derived content while remaining distinct from executable code chunks.\n\nKey properties are inherited from [`CodeStatic`](./code-static.md), with\nStencila Schema behavior centered on `isDemo`, `content`, and the associated\ncompilation properties.\n",
+  "analogues": [
+    {
+      "id": "html:pre"
+    },
+    {
+      "id": "jats:code"
+    },
+    {
+      "id": "pandoc:CodeBlock"
+    },
+    {
+      "id": "mdast:Code",
+      "notes": "Closest MDAST analogue for fenced or indented code blocks."
+    }
+  ],
   "dom": {
     "derive": false
   },

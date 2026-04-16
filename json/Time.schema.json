@@ -9,6 +9,16 @@
   ],
   "category": "data",
   "description": "A point in time recurring on multiple days.",
+  "$comment": "This is an implementation of schema.org [`Time`](https://schema.org/Time).\n\nIn Stencila Schema it is represented as a typed node so recurring times of day\ncan be distinguished from dates, durations, and timestamps across metadata and\nexecutable workflows.\n\nSee also [`Date`](./date.md), [`DateTime`](./date-time.md),\n[`Duration`](./duration.md), and [`Timestamp`](./timestamp.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Time"
+    },
+    {
+      "id": "jats:time",
+      "notes": "Close JATS analogue for structured time values."
+    }
+  ],
   "jats": {
     "elem": "time",
     "special": true

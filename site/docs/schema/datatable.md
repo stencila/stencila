@@ -3,19 +3,36 @@ title: Datatable
 description: A table of data.
 ---
 
+This is a type used in Stencila Schema for column-oriented tabular data.
+
+Although it is conceptually related to schema.org tables, it is modeled
+separately to support typed columns, data hints, and data-oriented workflows
+distinct from presentation-first tables. This makes it suitable for executable
+documents, data inspection, validation, and transformations between tabular
+and analytical representations.
+
+Key properties include `columns`, `caption`, `notes`, and optional labeling
+metadata inherited from [`CreativeWork`](./creative-work.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Datatable`:
+
+- [Frictionless Data Table Resource](https://specs.frictionlessdata.io/table-resource/): Close analogue for column-oriented tabular data with schema-like column metadata.
+- [Apache Arrow table](https://arrow.apache.org/): Approximate analogue for typed columnar tabular data, though Stencila stores a document-oriented node rather than an in-memory analytics format.
+
 # Properties
 
 The `Datatable` type has these properties:
 
 | Name                 | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                 | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`             | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`               | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `label`              | A short label for the datatable.                                                                                        | [`String`](./string.md)                                                           | -                                    |
+| `labelAutomatically` | Whether the datatable label should be automatically updated.                                                            | [`Boolean`](./boolean.md)                                                         | -                                    |
+| `caption`            | A caption for the datatable.                                                                                            | [`Block`](./block.md)*                                                            | -                                    |
+| `columns`            | The columns of data.                                                                                                    | [`DatatableColumn`](./datatable-column.md)*                                       | -                                    |
+| `notes`              | Notes for the datatable.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
 | `workType`           | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`              | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -47,11 +64,13 @@ The `Datatable` type has these properties:
 | `path`               | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`             | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`            | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `label`              | A short label for the datatable.                                                                                        | [`String`](./string.md)                                                           | -                                    |
-| `labelAutomatically` | Whether the datatable label should be automatically updated.                                                            | [`Boolean`](./boolean.md)                                                         | -                                    |
-| `caption`            | A caption for the datatable.                                                                                            | [`Block`](./block.md)*                                                            | -                                    |
-| `columns`            | The columns of data.                                                                                                    | [`DatatableColumn`](./datatable-column.md)*                                       | -                                    |
-| `notes`              | Notes for the datatable.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
+| `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`             | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`               | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`                 | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

@@ -3,7 +3,25 @@ title: If Block Clause
 description: A clause within an `IfBlock` node.
 ---
 
+This is an executable clause used in Stencila Schema within an
+[`IfBlock`](./if-block.md).
+
+It exists to represent each condition-and-content pair as a first-class node
+with its own executable state, rather than flattening conditional logic into
+unstructured text. This supports better tooling, provenance, and execution
+diagnostics.
+
+Key properties include the conditional expression, clause `content`, and
+inherited execution properties from [`CodeExecutable`](./code-executable.md).
+
+
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `IfBlockClause`:
+
+- [Jinja if/elif/else clause](https://jinja.palletsprojects.com/): Close clause-level analogue for one branch within a conditional template block.
 
 # Properties
 
@@ -11,7 +29,14 @@ The `IfBlockClause` type has these properties:
 
 | Name                    | Description                                                           | Type                                                | Inherited from                           |
 | ----------------------- | --------------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------- |
-| `id`                    | The identifier for this item.                                         | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
+| `isActive`              | Whether this clause is the active clause in the parent `IfBlock` node | [`Boolean`](./boolean.md)                           | -                                        |
+| `content`               | The content to render if the result is truthy                         | [`Block`](./block.md)*                              | -                                        |
+| `code`                  | The code.                                                             | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
+| `programmingLanguage`   | The programming language of the code.                                 | [`String`](./string.md)                             | [`CodeExecutable`](./code-executable.md) |
+| `executionBounds`       | The environment in which code should be executed.                     | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `executionBounded`      | The execution bounds, if any, on the last execution.                  | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `authors`               | The authors of the executable code.                                   | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
+| `provenance`            | A summary of the provenance of the code.                              | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
 | `executionMode`         | Under which circumstances the node should be executed.                | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md)          |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.      | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
 | `compilationMessages`   | Messages generated while compiling the code.                          | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)          |
@@ -26,14 +51,7 @@ The `IfBlockClause` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                          | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)          |
 | `executionDuration`     | Duration of the last execution.                                       | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)          |
 | `executionMessages`     | Messages emitted while executing the node.                            | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)          |
-| `code`                  | The code.                                                             | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
-| `programmingLanguage`   | The programming language of the code.                                 | [`String`](./string.md)                             | [`CodeExecutable`](./code-executable.md) |
-| `executionBounds`       | The environment in which code should be executed.                     | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `executionBounded`      | The execution bounds, if any, on the last execution.                  | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `authors`               | The authors of the executable code.                                   | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
-| `provenance`            | A summary of the provenance of the code.                              | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
-| `isActive`              | Whether this clause is the active clause in the parent `IfBlock` node | [`Boolean`](./boolean.md)                           | -                                        |
-| `content`               | The content to render if the result is truthy                         | [`Block`](./block.md)*                              | -                                        |
+| `id`                    | The identifier for this item.                                         | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
 
 # Related
 

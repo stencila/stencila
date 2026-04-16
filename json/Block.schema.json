@@ -4,7 +4,19 @@
   "@id": "stencila:Block",
   "title": "Block",
   "category": "prose",
-  "description": "Union type in block content node types.",
+  "description": "A union type for block content.",
+  "$comment": "This is a union type used in Stencila Schema for block-level document content.\n\nIt brings together the node types that can appear where a document model\nexpects block structure, similar to block-content unions in Markdown, HTML,\nJATS, and other document ASTs. The union is central to Stencila's ability to\nmix prose, code, figures, tables, instructions, and executable content within\none document model.\n\nUse this type to understand what can appear in `content` arrays on document\nand container nodes such as [`Article`](./article.md),\n[`Section`](./section.md), and [`Figure`](./figure.md).\n",
+  "analogues": [
+    {
+      "name": "HTML flow content",
+      "url": "https://html.spec.whatwg.org/multipage/dom.html#flow-content-2",
+      "notes": "Broadly analogous to the set of HTML elements allowed in block-flow positions, though Stencila's union is document-AST oriented rather than DOM-category based."
+    },
+    {
+      "id": "pandoc:Block",
+      "notes": "Closest Pandoc union analogue for block-level content."
+    }
+  ],
   "proptest": {},
   "anyOf": [
     {

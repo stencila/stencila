@@ -7,6 +7,12 @@
     "Thing"
   ],
   "description": "Lists or enumerations, for example, a list of cuisines or music genres, etc.",
+  "$comment": "This is an implementation of schema.org\n[`Enumeration`](https://schema.org/Enumeration).\n\nIn Stencila Schema it provides the common base for controlled vocabularies\nused throughout the document model. Derived Stencila enumerations use it to\nexpose stable symbolic values for execution, styling, editing, and publishing\nbehavior.\n\nSee the many derived enumeration types for the vocabularies that carry\nStencila Schema semantics.\n",
+  "analogues": [
+    {
+      "id": "schema:Enumeration"
+    }
+  ],
   "required": [
     "type"
   ],

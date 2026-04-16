@@ -7,7 +7,18 @@
     "Executable"
   ],
   "category": "flow",
-  "description": "A parameter of a document.",
+  "description": "A document parameter.",
+  "$comment": "This is an executable type used in Stencila Schema for document parameters.\n\nIt extends [`Executable`](./executable.md) so parameters can carry validation,\nderivation, and execution-related behavior instead of being treated as passive\nmetadata. This makes them suitable for interactive and reproducible documents.\n\nKey properties include the parameter name, value, validator, derivation logic,\nand inherited execution metadata.\n",
+  "analogues": [
+    {
+      "id": "jats:parameter"
+    },
+    {
+      "name": "JSON Schema property with default",
+      "url": "https://json-schema.org/",
+      "notes": "Approximate analogue for constrained input values, though Stencila parameters are executable document nodes rather than passive schema declarations."
+    }
+  ],
   "status": "under-development",
   "html": {
     "special": true

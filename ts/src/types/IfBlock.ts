@@ -4,7 +4,7 @@ import { Executable } from "./Executable.js";
 import { IfBlockClause } from "./IfBlockClause.js";
 
 /**
- * Show and execute alternative content conditional upon an executed expression.
+ * A block that conditionally shows and executes alternative content.
  */
 export class IfBlock extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

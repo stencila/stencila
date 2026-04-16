@@ -7,7 +7,26 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.",
+  "description": "A figure.",
+  "$comment": "This is a figure type used in Stencila Schema, analogous to figure containers in\nHTML, JATS, and scholarly publishing systems.\n\nIt extends [`CreativeWork`](./creative-work.md) so figures can carry rich\nmetadata, authorship, captions, and provenance, while also adding\ndocument-oriented support for multi-panel layout and SVG overlays. This makes\nit suitable for executable and annotated figures, not just static media\nwrappers.\n\nKey properties include `content`, `caption`, `label`, `layout`, `padding`, and\n`overlay`. Additional metadata and provenance features are inherited from\n[`CreativeWork`](./creative-work.md).\n",
+  "analogues": [
+    {
+      "id": "html:figure",
+      "notes": "Closest HTML analogue for self-contained figure content with captions."
+    },
+    {
+      "id": "jats:fig",
+      "notes": "Closest JATS analogue for figures in scholarly publishing."
+    },
+    {
+      "id": "pandoc:Figure",
+      "notes": "Close Pandoc analogue for captioned figure content, though Stencila additionally supports panel layout and SVG overlay annotations."
+    },
+    {
+      "id": "mdast:Image",
+      "notes": "Only an approximate Markdown AST analogue; plain MDAST images do not model multi-block figure content, panels, or overlays."
+    }
+  ],
   "dom": {
     "derive": false
   },

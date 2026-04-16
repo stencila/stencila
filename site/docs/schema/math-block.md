@@ -3,13 +3,34 @@ title: Math Block
 description: A block of math, e.g an equation, to be treated as block content.
 ---
 
+This is a block representation used in Stencila Schema for mathematical
+content.
+
+It extends [`Math`](./math.md) for displayed equations and other block-level
+mathematical expressions. This allows block math to share common math
+semantics while being rendered and serialized appropriately for block
+contexts.
+
+Key properties are inherited from [`Math`](./math.md), especially the source
+math code, language or format, and compilation-related metadata.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `MathBlock`:
+
+- JATS [`<disp-formula>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/disp-formula.html)
+- Pandoc [`Math`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Math): Close Pandoc analogue for display math, though Pandoc distinguishes display mode via a subkind rather than a separate node type.
+- MDAST [`Math`](https://github.com/syntax-tree/mdast#math)
+
 # Properties
 
 The `MathBlock` type has these properties:
 
 | Name                  | Description                                                         | Type                                              | Inherited from          |
 | --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
+| `label`               | A short label for the math block.                                   | [`String`](./string.md)                           | -                       |
+| `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](./boolean.md)                         | -                       |
 | `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | [`Math`](./math.md)     |
 | `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | [`Math`](./math.md)     |
 | `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | [`Math`](./math.md)     |
@@ -18,8 +39,7 @@ The `MathBlock` type has these properties:
 | `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | [`Math`](./math.md)     |
 | `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | [`Math`](./math.md)     |
 | `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | [`Math`](./math.md)     |
-| `label`               | A short label for the math block.                                   | [`String`](./string.md)                           | -                       |
-| `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](./boolean.md)                         | -                       |
+| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

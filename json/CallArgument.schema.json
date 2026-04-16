@@ -8,8 +8,8 @@
     "Parameter"
   ],
   "category": "flow",
-  "description": "The value of a `Parameter` to call a document with.",
-  "$comment": "A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing\nan expression to be used to set the value of the parameter.\n",
+  "description": "An argument used when calling a document.",
+  "$comment": "This is an executable type used in Stencila Schema for arguments passed to a\n[`CallBlock`](./call-block.md).\n\nIt extends [`Parameter`](./parameter.md) with executable code so an argument's\nvalue can be computed dynamically rather than supplied only as a static value.\nThis supports parameterized document calls and reusable document components.\n\nKey properties include the argument `name`, `code`, `value`, and\n`programmingLanguage`.\n",
   "status": "experimental",
   "markdown": {
     "derive": false

@@ -3,19 +3,40 @@ title: Prompt
 description: A prompt for creating or editing document content.
 ---
 
+This is an executable creative work used in Stencila Schema for creating or editing
+content.
+
+It combines [`CreativeWork`](./creative-work.md) metadata with
+[`Executable`](./executable.md) behavior so prompts can be versioned,
+documented, rendered in context, and used reproducibly across AI-assisted
+workflows. Unlike a plain text prompt, it can declare supported instruction
+types, node targets, and query-matching behavior.
+
+Key properties include `instructionTypes`, `nodeTypes`, `nodeCount`,
+`queryPatterns`, `content`, and `frontmatter`. Additional metadata and
+execution features are inherited from [`CreativeWork`](./creative-work.md) and
+[`Executable`](./executable.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Prompt`:
+
+- [Prompt template](https://platform.openai.com/docs/guides/text): Close analogue for reusable prompt definitions, though Stencila prompts are first-class creative works with schema metadata and targeting constraints.
+- MDAST [`Root`](https://github.com/syntax-tree/mdast#root): Approximate content analogue because prompt bodies are stored as Markdown block content rather than plain strings.
+
 # Properties
 
 The `Prompt` type has these properties:
 
 | Name                    | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `frontmatter`           | Frontmatter containing document metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
+| `instructionTypes`      | The types of instructions that the prompt supports                                                                      | [`InstructionType`](./instruction-type.md)*                                       | -                                    |
+| `nodeTypes`             | The types of nodes that the prompt supports                                                                             | [`String`](./string.md)*                                                          | -                                    |
+| `nodeCount`             | The number of nodes that the prompt supports                                                                            | [`UnsignedInteger`](./unsigned-integer.md) \| [`String`](./string.md)             | -                                    |
+| `queryPatterns`         | Regular expressions used to match the prompt with a user query                                                          | [`String`](./string.md)*                                                          | -                                    |
+| `content`               | The content of the prompt.                                                                                              | [`Block`](./block.md)*                                                            | -                                    |
 | `workType`              | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                   | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`                 | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -61,12 +82,13 @@ The `Prompt` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                                                            | [`Timestamp`](./timestamp.md)                                                     | [`Executable`](./executable.md)      |
 | `executionDuration`     | Duration of the last execution.                                                                                         | [`Duration`](./duration.md)                                                       | [`Executable`](./executable.md)      |
 | `executionMessages`     | Messages emitted while executing the node.                                                                              | [`ExecutionMessage`](./execution-message.md)*                                     | [`Executable`](./executable.md)      |
-| `frontmatter`           | Frontmatter containing document metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
-| `instructionTypes`      | The types of instructions that the prompt supports                                                                      | [`InstructionType`](./instruction-type.md)*                                       | -                                    |
-| `nodeTypes`             | The types of nodes that the prompt supports                                                                             | [`String`](./string.md)*                                                          | -                                    |
-| `nodeCount`             | The number of nodes that the prompt supports                                                                            | [`UnsignedInteger`](./unsigned-integer.md) \| [`String`](./string.md)             | -                                    |
-| `queryPatterns`         | Regular expressions used to match the prompt with a user query                                                          | [`String`](./string.md)*                                                          | -                                    |
-| `content`               | The content of the prompt.                                                                                              | [`Block`](./block.md)*                                                            | -                                    |
+| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
+| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 
 # Related
 

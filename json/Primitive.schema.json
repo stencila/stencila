@@ -4,8 +4,8 @@
   "@id": "stencila:Primitive",
   "title": "Primitive",
   "category": "data",
-  "description": "Union type for all primitives values.",
-  "$comment": "Analogous to JSON values but adds `Integer` and `UnsignedInteger`.\n\nSimilar to https://schema.org/DataType \"The basic data types such as Integers, Strings, etc.\"\nbut includes `Array` and `Object` and excludes `Date`, `Time` and `DateTime` (which are\ntreated in this schema as `Entity`s having a `type` property to disambiguate them from strings).\n",
+  "description": "A union type for primitive values.",
+  "$comment": "This is a union type used in Stencila Schema for primitive data values.\n\nIt is broadly analogous to JSON values, but uses Stencila's explicit primitive\nnode types and includes both `Integer` and `UnsignedInteger` alongside\n`Array`, `Object`, `String`, `Number`, `Boolean`, and `Null`.\n\nTemporal node types such as [`Date`](./date.md), [`Time`](./time.md), and\n[`DateTime`](./date-time.md) are excluded because Stencila models them as\ndistinct typed nodes rather than primitive strings.\n",
   "anyOf": [
     {
       "$ref": "Null.schema.json"

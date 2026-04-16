@@ -1,12 +1,26 @@
 ---
 title: Claim
-description: A claim represents specific reviewable facts or statements.
+description: A reviewable claim or statement.
 ---
 
-Usually displayed as a block element and can have a label and title.
-In the context of a scholarly article this could be a theorem or proof.
-See also [Schema.org `Claim`](https://schema.org/Claim) and [JATS `<statement>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/statement.html).
+This is an implementation of schema.org [`Claim`](https://schema.org/Claim),
+adapted in Stencila Schema for block-level document content.
 
+It is used for claim-like units that authors, reviewers, and readers may want
+to identify, label, or assess explicitly, such as assertions, theorems,
+propositions, or proofs. Unlike a plain paragraph, a claim can carry a claim
+type, structured block content, and document-oriented labeling metadata.
+
+Key properties include `claimType`, `label`, and `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Claim`:
+
+- schema.org [`Claim`](https://schema.org/Claim): Direct schema.org source type, adapted in Stencila to carry block content and document labeling.
+- JATS [`<statement>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/statement.html): Closest JATS analogue for labeled or typed statement-like content.
+- MyST directive [`admonition`](https://mystmd.org/guide/directives#directive-admonition): Only an approximate authoring analogue; claims may be represented in markup as typed callout blocks, but Stencila gives them dedicated claim semantics.
 
 # Properties
 
@@ -14,13 +28,9 @@ The `Claim` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `claimType`      | The type of the claim.                                                                                                  | [`ClaimType`](./claim-type.md)                                                    | -                                    |
+| `label`          | A short label for the claim.                                                                                            | [`String`](./string.md)                                                           | -                                    |
+| `content`        | Content of the claim, usually a single paragraph.                                                                       | [`Block`](./block.md)*                                                            | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -52,9 +62,13 @@ The `Claim` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `claimType`      | The type of the claim.                                                                                                  | [`ClaimType`](./claim-type.md)                                                    | -                                    |
-| `label`          | A short label for the claim.                                                                                            | [`String`](./string.md)                                                           | -                                    |
-| `content`        | Content of the claim, usually a single paragraph.                                                                       | [`Block`](./block.md)*                                                            | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

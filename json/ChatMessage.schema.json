@@ -9,6 +9,19 @@
   ],
   "category": "works",
   "description": "A message within a `Chat`.",
+  "$comment": "This is an executable type used in Stencila Schema for an individual message within a\n[`Chat`](./chat.md).\n\nIt exists so messages can carry structured parts, execution state,\nattachments, and model-generated metadata rather than being reduced to plain\ntext. This supports richer conversational documents and tooling for reviewing,\nreplaying, or transforming model interactions.\n\nKey properties include the message role, message parts or content, and\ninherited execution metadata from [`Executable`](./executable.md).\n",
+  "analogues": [
+    {
+      "name": "OpenAI chat message",
+      "url": "https://platform.openai.com/docs/guides/text-generation",
+      "notes": "Close analogue for role-based conversational turns, though Stencila messages can include block document content and attached files."
+    },
+    {
+      "name": "Anthropic message",
+      "url": "https://docs.anthropic.com/",
+      "notes": "Close provider-level analogue for structured chat turns."
+    }
+  ],
   "status": "beta",
   "markdown": {
     "derive": false

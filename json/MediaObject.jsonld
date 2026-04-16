@@ -12,7 +12,7 @@
       "@id": "schema:MediaObject",
       "@type": "rdfs:Class",
       "rdfs:label": "MediaObject",
-      "rdfs:comment": "A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.",
+      "rdfs:comment": "A media object.",
       "rdfs:subClassOf": {
         "@id": "schema:CreativeWork"
       }

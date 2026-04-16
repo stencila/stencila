@@ -9,6 +9,24 @@
   ],
   "category": "works",
   "description": "An image file.",
+  "$comment": "This is an implementation of schema.org\n[`ImageObject`](https://schema.org/ImageObject).\n\nIn Stencila Schema it is used both as media metadata and as rendered document\ncontent, often within figures, annotations, and rich inline content. It\ninherits file and media capabilities from [`MediaObject`](./media-object.md)\nwhile fitting naturally into Stencila's document node model.\n\nKey properties are usually inherited from [`MediaObject`](./media-object.md),\nespecially content location, media type, dimensions, and descriptive text.\n",
+  "analogues": [
+    {
+      "id": "schema:ImageObject"
+    },
+    {
+      "id": "html:img"
+    },
+    {
+      "id": "jats:inline-graphic"
+    },
+    {
+      "id": "pandoc:Image"
+    },
+    {
+      "id": "mdast:Image"
+    }
+  ],
   "dom": {
     "derive": false
   },

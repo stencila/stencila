@@ -8,6 +8,7 @@
     "Entity"
   ],
   "description": "An excerpt from a `CreativeWork`.",
+  "$comment": "This is a type used in Stencila Schema for representing an excerpt from another\ncreative work.\n\nIt exists to preserve the distinction between quoted or extracted material and\noriginal document content, while allowing references back to the source work.\nThis is useful in research, review, and annotation workflows where excerpts\nneed structured attribution.\n\nKey properties include the excerpted `content` and links to the source work or\nlocation.\n",
   "markdown": {
     "derive": false
   },

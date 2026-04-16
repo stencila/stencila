@@ -12,7 +12,7 @@
       "@id": "stencila:CitationIntent",
       "@type": "rdfs:Class",
       "rdfs:label": "CitationIntent",
-      "rdfs:comment": "The type or nature of a citation, both factually and rhetorically.",
+      "rdfs:comment": "The rhetorical or factual intent of a citation.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

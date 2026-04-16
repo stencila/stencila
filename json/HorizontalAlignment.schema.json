@@ -8,7 +8,7 @@
   ],
   "category": "works",
   "description": "The horizontal alignment of content.",
-  "$comment": "Based on the JATS [`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html) attribute.",
+  "$comment": "This is an enumeration used in Stencila Schema for horizontal alignment.\n\nIt is based on the JATS\n[`align`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/align.html)\nattribute and gives Stencila a controlled vocabulary for left, right, center,\njustified, and character-based alignment. Using an enumeration allows these\nalignment semantics to be mapped consistently across table, layout, and\npublishing formats.\n\nSee the alignment properties on table- and layout-related types that use this\nenumeration.\n",
   "proptest": {},
   "required": [
     "type"

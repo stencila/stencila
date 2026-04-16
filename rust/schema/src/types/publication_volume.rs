@@ -24,7 +24,7 @@ use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
 
-/// A part of a successively published publication such as a periodical or multi-volume work.
+/// A publication volume.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

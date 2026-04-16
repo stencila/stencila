@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * A description of the provenance of content in terms of human/machine involvement.
+ * A category of content provenance.
  */
 export type ProvenanceCategory =
   'HwHeHv' |

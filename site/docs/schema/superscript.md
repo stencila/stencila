@@ -3,14 +3,32 @@ title: Superscript
 description: Superscripted content.
 ---
 
+This is an inline mark type used in Stencila Schema for superscripted content.
+
+It extends [`Mark`](./mark.md) to preserve superscript semantics in a
+format-independent way, which is useful for citations, mathematics, and
+scientific notation.
+
+Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+inline `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Superscript`:
+
+- HTML [`<sup>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sup)
+- JATS [`<sup>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/sup.html)
+- Pandoc [`Superscript`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Superscript)
+
 # Properties
 
 The `Superscript` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A column of data within a `Datatable`.",
+  "$comment": "This is a type used in Stencila Schema for a column within a\n[`Datatable`](./datatable.md).\n\nIt exists to make column metadata, values, and inferred structure explicit\ninstead of encoding tabular data only as rows of cells. This supports typed\ndata access, validation, and richer integrations with analytical and\nexecutable workflows.\n\nKey properties include the column name, values, and any associated hints or\nvalidators.\n",
   "dom": {
     "derive": false
   },

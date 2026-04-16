@@ -9,7 +9,7 @@ use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::string::String;
 
-/// A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+/// A supplementary creative work associated with a document.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

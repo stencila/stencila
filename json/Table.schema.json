@@ -9,6 +9,25 @@
   ],
   "category": "works",
   "description": "A table.",
+  "$comment": "This is an implementation of schema.org [`Table`](https://schema.org/Table),\nextended in Stencila Schema for document-oriented table content.\n\nIn addition to the schema.org model, this type supports structured rows,\nnotes, captions, authorship, provenance, and labeling behavior needed for\nauthoring and publishing documents. It is focused on presentational and\nnarrative tables, in contrast to [`Datatable`](./datatable.md), which is\noptimized for typed data.\n\nKey properties include `rows`, `caption`, `notes`, `label`, and\n`labelAutomatically`. Additional metadata features may be inherited from\n[`CreativeWork`](./creative-work.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Table",
+      "notes": "Direct schema.org source type, extended in Stencila with structured row and note content for document authoring."
+    },
+    {
+      "id": "html:table",
+      "notes": "Closest HTML analogue for tabular content, though Stencila also models notes and richer work metadata."
+    },
+    {
+      "id": "jats:table-wrap",
+      "notes": "Closest JATS analogue for publishable tables with captions and notes."
+    },
+    {
+      "id": "pandoc:Table",
+      "notes": "Closest Pandoc analogue for structured document tables."
+    }
+  ],
   "patch": {
     "takeAuthors": true
   },

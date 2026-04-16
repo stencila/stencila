@@ -12,7 +12,7 @@
       "@id": "stencila:Form",
       "@type": "rdfs:Class",
       "rdfs:label": "Form",
-      "rdfs:comment": "A form to batch updates in document parameters.",
+      "rdfs:comment": "A form for batched updates to document parameters.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

@@ -7,8 +7,8 @@
     "Enumeration"
   ],
   "category": "works",
-  "description": "The kind of a creative work.",
-  "$comment": "This list includes all the types derived from `CreativeWork` within this schema,\nas well as types listed at https://schema.org/CreativeWork and, items from\nDataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).\n",
+  "description": "A category of creative work.",
+  "$comment": "This is an enumeration used in Stencila Schema for classifying creative works.\n\nIt exists to provide a stable vocabulary for the kinds of works that Stencila\ndocuments can represent, combining Stencila-native work types with categories\ncommonly used in schema.org and DataCite-style metadata workflows. This allows\ntools to preserve broad work-type semantics across editing, publishing, and\nmetadata export.\n\nSee the `creativeWorkType`-style properties on creative-work-related types for\nwhere this enumeration is used.\n",
   "required": [
     "type"
   ],
@@ -267,7 +267,7 @@
       "const": "Table"
     },
     {
-      "@id": "stencila:TableCreativeWorkType",
+      "@id": "stencila:ThesisCreativeWorkType",
       "const": "Thesis"
     },
     {

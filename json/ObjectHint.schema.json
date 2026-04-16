@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A hint to the structure of an `Object`.",
+  "description": "A concise summary of the structure of an `Object`.",
+  "$comment": "This is a type used in Stencila Schema for providing a concise summary of the\nstructure of an [`Object`](./object.md).\n\nIt exists to support both human and machine understanding of keyed data,\nincluding schema inference, editing assistance, and code generation\nworkflows. Rather than imposing hard validation constraints, it summarizes\nobserved or inferred characteristics that can help tools and readers work with\nobject-shaped data.\n\nKey properties describe expected keys, per-key hints, and overall object\ncharacteristics.\n",
   "required": [
     "type",
     "length",

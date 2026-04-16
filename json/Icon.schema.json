@@ -9,6 +9,14 @@
   ],
   "category": "prose",
   "description": "An icon, typically rendered using an icon font.",
+  "$comment": "This is a type used in Stencila Schema for icons embedded in document content.\n\nIt exists so icons can be represented structurally and styled consistently\nacross renderers rather than being reduced to opaque HTML or font markup. This\nsupports document-authoring and publishing workflows that need portable icon\nreferences.\n\nKey properties identify the icon set, icon name, and any presentational hints\nneeded by renderers.\n",
+  "analogues": [
+    {
+      "name": "HTML icon element pattern",
+      "url": "https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i",
+      "notes": "Approximate HTML analogue because icons are often represented using `<i>` or `<span>` with classes, but HTML has no dedicated semantic icon element."
+    }
+  ],
   "dom": {
     "derive": false
   },

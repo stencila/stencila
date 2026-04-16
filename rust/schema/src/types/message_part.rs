@@ -8,7 +8,7 @@ use super::image_object::ImageObject;
 use super::text::Text;
 use super::video_object::VideoObject;
 
-/// A union type for a part of a message.
+/// A union type for message parts.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, ReadNode, PatchNode, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(untagged)]
 pub enum MessagePart {

@@ -1,18 +1,32 @@
 ---
 title: Table Cell Type
-description: Indicates whether the cell is a header or data.
+description: The structural role of a table cell.
 ---
 
-When `HeaderCell`, the cell is similar to the HTML [`<th>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/th)).
-When `DataCell`, the cell is similar to the HTML [`<td>` element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td)).
+This is an enumeration used in Stencila Schema for table cell roles.
 
+It exists so table cells can be identified as data cells or header cells using
+a stable vocabulary that maps cleanly to HTML, JATS, and other tabular
+formats.
+
+See [`TableCell.cellType`](./table-cell.md#celltype) for the property that
+uses this enumeration.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `TableCellType`:
+
+- [HTML td/th distinction](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/td): Close analogue because HTML distinguishes data and header cells structurally with separate elements rather than an enumeration.
 
 # Members
 
 The `TableCellType` type has these members:
 
-- `DataCell`
-- `HeaderCell`
+| Member       | Description |
+| ------------ | ----------- |
+| `DataCell`   | -           |
+| `HeaderCell` | -           |
 
 # Bindings
 

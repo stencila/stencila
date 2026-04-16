@@ -3,7 +3,24 @@ title: Call Block
 description: Call another document, optionally with arguments, and include its executed content.
 ---
 
+This is an executable type used in Stencila Schema for calling another document and
+including its results.
+
+It extends [`IncludeBlock`](./include-block.md) with parameterized execution
+semantics so one document can invoke another as a reusable component. This
+supports composition, templating, and workflow-style reuse across documents.
+
+Key properties include inherited include-target information together with call
+arguments and execution-related properties.
+
+
 This type is marked as experimental and is likely to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CallBlock`:
+
+- [function-like template include](https://jinja.palletsprojects.com/): Approximate analogue for parameterized document reuse, though Stencila `CallBlock` executes another document as a reusable component.
 
 # Properties
 
@@ -11,7 +28,11 @@ The `CallBlock` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                       |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------------ |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)              |
+| `arguments`             | The value of the source document's parameters to call it with    | [`CallArgument`](./call-argument.md)*               | -                                    |
+| `source`                | The external source of the content, a file path or URL.          | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
+| `mediaType`             | Media type of the source content.                                | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
+| `select`                | A query to select a subset of content from the source            | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
+| `content`               | The structured content decoded from the source.                  | [`Block`](./block.md)*                              | [`IncludeBlock`](./include-block.md) |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md)      |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)      |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)      |
@@ -26,11 +47,7 @@ The `CallBlock` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)      |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)      |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)      |
-| `source`                | The external source of the content, a file path or URL.          | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
-| `mediaType`             | Media type of the source content.                                | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
-| `select`                | A query to select a subset of content from the source            | [`String`](./string.md)                             | [`IncludeBlock`](./include-block.md) |
-| `content`               | The structured content decoded from the source.                  | [`Block`](./block.md)*                              | [`IncludeBlock`](./include-block.md) |
-| `arguments`             | The value of the source document's parameters to call it with    | [`CallArgument`](./call-argument.md)*               | -                                    |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)              |
 
 # Related
 

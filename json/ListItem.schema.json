@@ -9,7 +9,33 @@
   ],
   "category": "prose",
   "description": "A single item in a list.",
-  "$comment": "This is an implementation, and extension, of schema.org [`ListItem`](https://schema.org/ListItem).\nIt extends schema.ord `ListItem` by adding `content` and `isChecked` properties.\n\nAnalogues of `ListItem` in other schema include:\n  - JATS XML `<list-item>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/list-item.html)\n  - HTML [`<li>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/li)\n  - MDAST [`ListItem`](https://github.com/syntax-tree/mdast#listitem)\n  - OpenDocument [`<text:list-item>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415154_253892949)\n",
+  "$comment": "This is an implementation of schema.org\n[`ListItem`](https://schema.org/ListItem), extended in Stencila Schema for\ndocument-oriented list content.\n\nIn addition to the schema.org model, it supports block `content` for rich list\nitems and `isChecked` for task-list semantics. This makes it suitable for\nordinary prose lists as well as checklists and mixed-content document lists.\n\nKey properties include `content`, `item`, `isChecked`, and `position`.\n",
+  "analogues": [
+    {
+      "id": "schema:ListItem",
+      "notes": "Direct schema.org source type, extended in Stencila with rich block `content` and task-list state."
+    },
+    {
+      "id": "html:li",
+      "notes": "Closest HTML analogue for list items, though Stencila can also carry `isChecked`, `position`, and structured node-valued `item` metadata."
+    },
+    {
+      "id": "jats:list-item",
+      "notes": "Closest JATS analogue for list items."
+    },
+    {
+      "id": "pandoc:Plain",
+      "notes": "One common Pandoc representation for a simple list item containing inline-only content."
+    },
+    {
+      "id": "pandoc:BulletList",
+      "notes": "Pandoc models list items as nested block lists within list constructors rather than as standalone `ListItem` nodes."
+    },
+    {
+      "id": "mdast:ListItem",
+      "notes": "Closest MDAST analogue; Stencila additionally supports schema.org-style item metadata and explicit checklist state."
+    }
+  ],
   "html": {
     "elem": "li"
   },

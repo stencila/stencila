@@ -9,6 +9,14 @@
   ],
   "category": "flow",
   "description": "Call another document, optionally with arguments, and include its executed content.",
+  "$comment": "This is an executable type used in Stencila Schema for calling another document and\nincluding its results.\n\nIt extends [`IncludeBlock`](./include-block.md) with parameterized execution\nsemantics so one document can invoke another as a reusable component. This\nsupports composition, templating, and workflow-style reuse across documents.\n\nKey properties include inherited include-target information together with call\narguments and execution-related properties.\n",
+  "analogues": [
+    {
+      "name": "function-like template include",
+      "url": "https://jinja.palletsprojects.com/",
+      "notes": "Approximate analogue for parameterized document reuse, though Stencila `CallBlock` executes another document as a reusable component."
+    }
+  ],
   "status": "experimental",
   "latex": {
     "derive": false

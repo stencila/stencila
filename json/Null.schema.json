@@ -5,5 +5,12 @@
   "title": "Null",
   "category": "data",
   "description": "The null value.",
+  "$comment": "This is a primitive type used in Stencila Schema for the null value.\n\nIt exists so absence can be represented explicitly within the same node system\nused for other primitive values, which is useful for structured data,\nvalidation, and serialization.\n\nSee also [`Primitive`](./primitive.md) and the validator types that can reason\nabout null values.\n",
+  "analogues": [
+    {
+      "name": "JSON null",
+      "url": "https://www.json.org/json-en.html"
+    }
+  ],
   "type": "null"
 }

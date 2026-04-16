@@ -1,15 +1,26 @@
 ---
 title: Suggestion Status
-description: The status of an instruction.
+description: A review status for a suggestion.
 ---
+
+This is an enumeration used in Stencila Schema for the status of a suggestion.
+
+It exists so review workflows can distinguish proposed, accepted, rejected,
+and related states using a stable vocabulary across tools and formats.
+
+See the status properties on [`Suggestion`](./suggestion.md) and related
+editing types for where this enumeration is used.
+
 
 # Members
 
 The `SuggestionStatus` type has these members:
 
-- `Original`
-- `Accepted`
-- `Rejected`
+| Member     | Description                             |
+| ---------- | --------------------------------------- |
+| `Original` | The suggestion is the original content. |
+| `Accepted` | The suggestion has been accepted.       |
+| `Rejected` | The suggestion has been rejected.       |
 
 # Bindings
 

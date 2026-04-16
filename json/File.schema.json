@@ -8,6 +8,18 @@
   ],
   "category": "works",
   "description": "A file on the file system.",
+  "$comment": "This is a representation used in Stencila Schema for a file in the local or\naccessible file system.\n\nIt extends [`CreativeWork`](./creative-work.md) so files can participate in\nthe same metadata-rich document model as other works, while also carrying\nfile-oriented information needed for includes, references, and workflow\noperations. It is used where the file itself is part of the document graph,\nnot just a string path.\n\nKey properties include file path and media metadata, together with inherited\nidentifiers and descriptive fields from [`CreativeWork`](./creative-work.md).\n",
+  "analogues": [
+    {
+      "name": "POSIX file",
+      "url": "https://pubs.opengroup.org/onlinepubs/9699919799/",
+      "notes": "Close filesystem analogue for a file as a concrete resource addressed by path."
+    },
+    {
+      "id": "schema:MediaObject",
+      "notes": "Approximate web-metadata analogue when the file is also a media resource, though Stencila `File` is filesystem-oriented rather than URL-oriented."
+    }
+  ],
   "required": [
     "type",
     "name",

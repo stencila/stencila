@@ -12,7 +12,7 @@
       "@id": "stencila:Boundary",
       "@type": "rdfs:Class",
       "rdfs:label": "Boundary",
-      "rdfs:comment": "A positional marker within inline content used to define the boundary of a cross-block range. Boundaries are referenced by their `id` from other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to delimit regions that may span across multiple blocks.",
+      "rdfs:comment": "A positional boundary marker within inline content.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-/// Indicates the action (create, update or delete) to derive for a `Form`.
+/// An action for applying a derived form value.
 #[derive(Debug, strum::Display, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, SmartDefault, Copy, EnumString, Eq, PartialOrd, Ord, Hash, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[strum(ascii_case_insensitive)]
 pub enum FormDeriveAction {

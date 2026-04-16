@@ -3,19 +3,38 @@ title: File
 description: A file on the file system.
 ---
 
+This is a representation used in Stencila Schema for a file in the local or
+accessible file system.
+
+It extends [`CreativeWork`](./creative-work.md) so files can participate in
+the same metadata-rich document model as other works, while also carrying
+file-oriented information needed for includes, references, and workflow
+operations. It is used where the file itself is part of the document graph,
+not just a string path.
+
+Key properties include file path and media metadata, together with inherited
+identifiers and descriptive fields from [`CreativeWork`](./creative-work.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `File`:
+
+- [POSIX file](https://pubs.opengroup.org/onlinepubs/9699919799/): Close filesystem analogue for a file as a concrete resource addressed by path.
+- schema.org [`MediaObject`](https://schema.org/MediaObject): Approximate web-metadata analogue when the file is also a media resource, though Stencila `File` is filesystem-oriented rather than URL-oriented.
+
 # Properties
 
 The `File` type has these properties:
 
 | Name               | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ------------------ | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`               | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`   | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`      | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`      | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`           | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
 | `name`             | The name of the file.                                                                                                   | [`String`](./string.md)                                                           | -                                    |
-| `url`              | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `path`             | The path (absolute or relative) of the file on the file system                                                          | [`String`](./string.md)                                                           | -                                    |
+| `mediaType`        | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | -                                    |
+| `transferEncoding` | The encoding used for the context (e.g. base64, gz)                                                                     | [`String`](./string.md)                                                           | -                                    |
+| `size`             | The size of the content in bytes                                                                                        | [`UnsignedInteger`](./unsigned-integer.md)                                        | -                                    |
+| `content`          | The content of the file.                                                                                                | [`String`](./string.md)                                                           | -                                    |
 | `workType`         | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`              | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`            | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -44,13 +63,14 @@ The `File` type has these properties:
 | `text`             | The textual content of this creative work.                                                                              | [`Text`](./text.md)                                                               | [`CreativeWork`](./creative-work.md) |
 | `title`            | The title of the creative work.                                                                                         | [`Inline`](./inline.md)*                                                          | [`CreativeWork`](./creative-work.md) |
 | `repository`       | URL of the repository where the un-compiled, human readable source of the work is located.                              | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
-| `path`             | The path (absolute or relative) of the file on the file system                                                          | [`String`](./string.md)                                                           | -                                    |
 | `commit`           | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`          | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `mediaType`        | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | -                                    |
-| `transferEncoding` | The encoding used for the context (e.g. base64, gz)                                                                     | [`String`](./string.md)                                                           | -                                    |
-| `size`             | The size of the content in bytes                                                                                        | [`UnsignedInteger`](./unsigned-integer.md)                                        | -                                    |
-| `content`          | The content of the file.                                                                                                | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames`   | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`      | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`      | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`           | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `url`              | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`               | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

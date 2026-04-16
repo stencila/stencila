@@ -1,18 +1,32 @@
 ---
 title: Execution Dependency Relation
-description: The relation between a node and its execution dependency.
+description: An upstream execution relation between nodes.
 ---
+
+This is an enumeration used in Stencila Schema describing how one node depends on
+another for execution.
+
+It exists to classify execution dependencies with more precision than a simple
+linked list of prerequisites, helping Stencila reason about compilation,
+execution order, and re-execution.
+
+See
+[`ExecutionDependency.dependencyRelation`](./execution-dependency.md#dependencyrelation)
+for the property that uses this enumeration.
+
 
 # Members
 
 The `ExecutionDependencyRelation` type has these members:
 
-- `Calls`
-- `Derives`
-- `Imports`
-- `Includes`
-- `Reads`
-- `Uses`
+| Member     | Description                                                          |
+| ---------- | -------------------------------------------------------------------- |
+| `Calls`    | The node calls its dependency (usually another document or function) |
+| `Derives`  | The node is derived from its dependency (e.g. a database table)      |
+| `Imports`  | The node imports its dependency (usually a software module)          |
+| `Includes` | The node includes its dependency (usually another document)          |
+| `Reads`    | The node reads its dependency (usually a file)                       |
+| `Uses`     | The node uses its dependency (usually a variable)                    |
 
 # Bindings
 

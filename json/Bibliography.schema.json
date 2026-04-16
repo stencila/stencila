@@ -8,7 +8,19 @@
   ],
   "category": "works",
   "description": "A bibliography loaded from an external source file.",
-  "$comment": "A `Bibliography` represents a database of references that may be cited in a\n`CreativeWork`. Unlike the `references` property on `CreativeWork` (which contains\nonly the references that are actually cited), a `Bibliography` contains all available\nreferences loaded from an external source file (e.g. BibTeX, YAML) at compile time.\n\nThe loaded references are ephemeral and are stripped when the document is saved,\nto be reloaded on the next compilation.\n",
+  "$comment": "A `Bibliography` represents a database of references that may be cited in a\n`CreativeWork`. Unlike the `references` property on `CreativeWork` (which\ncontains only the references that are actually cited), a `Bibliography`\ncontains all available references loaded from an external source file (e.g.\nBibTeX, YAML) at compile time.\n\nThe loaded references are ephemeral and are stripped when the document is\nsaved, to be reloaded on the next compilation.\n",
+  "analogues": [
+    {
+      "name": "BibTeX bibliography database",
+      "url": "https://www.bibtex.org/",
+      "notes": "Close analogue for an external collection of references loaded into a document workflow."
+    },
+    {
+      "name": "CSL JSON bibliography",
+      "url": "https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html",
+      "notes": "Close analogue for serialized reference collections consumed by citation tooling."
+    }
+  ],
   "status": "beta",
   "required": [
     "type",

@@ -5,7 +5,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+ * An AI workflow definition.
  */
 export class Workflow extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

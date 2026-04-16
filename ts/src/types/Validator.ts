@@ -17,7 +17,7 @@ import { type TimestampValidator } from "./TimestampValidator.js";
 import { type TupleValidator } from "./TupleValidator.js";
 
 /**
- * Union type for validators.
+ * A union type for validators.
  */
 export type Validator =
   ArrayValidator |

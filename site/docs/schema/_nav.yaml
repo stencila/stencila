@@ -2,7 +2,6 @@
 # Regenerate with: cargo run -p stencila-schema-gen
 
 items:
-  - "contributing"
   - label: "Works"
     items:
       - "agent"
@@ -57,6 +56,7 @@ items:
       - "annotation"
       - "appendix-break"
       - "block"
+      - "boundary"
       - "citation"
       - "citation-group"
       - "citation-intent"
@@ -195,6 +195,7 @@ items:
       - "suggestion-block"
       - "suggestion-inline"
       - "suggestion-status"
+      - "suggestion-type"
 
   - label: "Other"
     items:

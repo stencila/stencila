@@ -7,7 +7,7 @@ import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
 import { Entity } from "./Entity.js";
 
 /**
- * A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+ * A supplementary creative work associated with a document.
  */
 export class Supplement extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

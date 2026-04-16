@@ -4,7 +4,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { IntegerOrString } from "./IntegerOrString.js";
 
 /**
- * A part of a successively published publication such as a periodical or publication volume, often numbered.
+ * A publication issue.
  */
 export class PublicationIssue extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

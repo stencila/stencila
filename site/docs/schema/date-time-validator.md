@@ -3,15 +3,26 @@ title: Date Time Validator
 description: A validator specifying the constraints on a date-time.
 ---
 
+This is a type used in Stencila Schema for validating [`DateTime`](./date-time.md)
+nodes.
+
+It adapts common date-time constraint patterns to Stencila's node model so
+document parameters and structured data can require well-formed date-time
+values within specified bounds. This supports forms, configuration, and data
+validation workflows.
+
+Key properties define allowed ranges, formats, and related constraints.
+
+
 # Properties
 
 The `DateTimeValidator` type has these properties:
 
 | Name      | Description                                | Type                         | Inherited from          |
 | --------- | ------------------------------------------ | ---------------------------- | ----------------------- |
-| `id`      | The identifier for this item.              | [`String`](./string.md)      | [`Entity`](./entity.md) |
 | `minimum` | The inclusive lower limit for a date-time. | [`DateTime`](./date-time.md) | -                       |
 | `maximum` | The inclusive upper limit for a date-time. | [`DateTime`](./date-time.md) | -                       |
+| `id`      | The identifier for this item.              | [`String`](./string.md)      | [`Entity`](./entity.md) |
 
 # Related
 

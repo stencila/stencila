@@ -25,6 +25,7 @@ The `Node` type has these members:
 - [`AuthorRole`](./author-role.md)
 - [`Bibliography`](./bibliography.md)
 - [`BooleanValidator`](./boolean-validator.md)
+- [`Boundary`](./boundary.md)
 - [`Brand`](./brand.md)
 - [`Button`](./button.md)
 - [`CallArgument`](./call-argument.md)

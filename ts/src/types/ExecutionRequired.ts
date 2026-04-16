@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * Whether, and why, the execution of a node is required or not.
+ * A reason why a node does or does not require execution.
  */
 export type ExecutionRequired =
   'No' |

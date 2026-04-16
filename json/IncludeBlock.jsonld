@@ -12,7 +12,7 @@
       "@id": "stencila:IncludeBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "IncludeBlock",
-      "rdfs:comment": "Include block content from an external source (e.g. file, URL).",
+      "rdfs:comment": "A block that includes content from an external source.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

@@ -3,19 +3,31 @@ title: Link
 description: A hyperlink to other pages, sections within the same document, resources, or any URL.
 ---
 
+This is a hyperlink type used in Stencila Schema with analogues in HTML `<a>`, JATS
+`xref`-style links, and Markdown links.
+
+It exists to represent links as structured document nodes that can target
+internal nodes, sections, files, or external URLs while carrying richer
+metadata than plain text spans. This supports stable cross-references and
+portable serialization across formats.
+
+Key properties include the linked `content`, the target or target node, and
+any relationship metadata used for navigation or referencing.
+
+
 # Properties
 
 The `Link` type has these properties:
 
 | Name                  | Description                                                                                                         | Type                                              | Inherited from          |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                                                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `content`             | The textual content of the link.                                                                                    | [`Inline`](./inline.md)*                          | -                       |
 | `target`              | The target of the link.                                                                                             | [`String`](./string.md)                           | -                       |
 | `title`               | A title for the link.                                                                                               | [`String`](./string.md)                           | -                       |
 | `rel`                 | The relation between the target and the current thing.                                                              | [`String`](./string.md)                           | -                       |
 | `labelOnly`           | Only show the label of the internal target (e.g. "2"), rather than both the label type and label (e.g. "Figure 2"). | [`Boolean`](./boolean.md)                         | -                       |
 | `compilationMessages` | Messages generated while compiling the link (e.g. missing internal link or invalid external link).                  | [`CompilationMessage`](./compilation-message.md)* | -                       |
+| `id`                  | The identifier for this item.                                                                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

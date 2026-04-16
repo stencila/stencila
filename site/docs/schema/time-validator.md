@@ -3,15 +3,23 @@ title: Time Validator
 description: A validator specifying the constraints on a time.
 ---
 
+This is a type used in Stencila Schema for validating [`Time`](./time.md) nodes.
+
+It exists so recurring times of day can be constrained within the same typed
+validator system used for other primitive and temporal values.
+
+Key properties define allowable ranges and related time constraints.
+
+
 # Properties
 
 The `TimeValidator` type has these properties:
 
 | Name      | Description                           | Type                    | Inherited from          |
 | --------- | ------------------------------------- | ----------------------- | ----------------------- |
-| `id`      | The identifier for this item.         | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `minimum` | The inclusive lower limit for a time. | [`Time`](./time.md)     | -                       |
 | `maximum` | The inclusive upper limit for a time. | [`Time`](./time.md)     | -                       |
+| `id`      | The identifier for this item.         | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

@@ -1,10 +1,17 @@
 ---
 title: Code Executable
-description: Abstract base type for executable code nodes (e.g. `CodeChunk`).
+description: An abstract base type for executable code nodes.
 ---
 
-Adds properties to the base `Executable` node type that are necessary for executable code.
-The added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.
+This is an abstract base type used in Stencila Schema for executable code nodes.
+
+It extends [`Executable`](./executable.md) with the shared properties needed
+for runnable code, such as source text, programming language, execution
+bounds, and code-specific provenance. This provides a common foundation for
+executable code blocks and expressions.
+
+Key properties include `code`, `programmingLanguage`, `executionBounds`, and
+inherited execution metadata from [`Executable`](./executable.md).
 
 
 # Properties
@@ -13,7 +20,12 @@ The `CodeExecutable` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                  |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | -                               |
+| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | -                               |
+| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | -                               |
+| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | -                               |
+| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | -                               |
+| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -28,12 +40,7 @@ The `CodeExecutable` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | -                               |
-| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | -                               |
-| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | -                               |
-| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | -                               |
-| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | -                               |
-| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | -                               |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

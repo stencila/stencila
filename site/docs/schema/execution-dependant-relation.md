@@ -1,16 +1,30 @@
 ---
 title: Execution Dependant Relation
-description: The relation between a node and its execution dependant.
+description: A downstream execution relation between nodes.
 ---
+
+This is an enumeration used in Stencila Schema describing how one node is a
+downstream dependant of another.
+
+It exists to classify dependency-graph edges with semantics that are
+meaningful for execution planning and invalidation, rather than treating all
+downstream links as equivalent.
+
+See
+[`ExecutionDependant.dependantRelation`](./execution-dependant.md#dependantrelation)
+for the property that uses this enumeration.
+
 
 # Members
 
 The `ExecutionDependantRelation` type has these members:
 
-- `Assigns`
-- `Alters`
-- `Declares`
-- `Writes`
+| Member     | Description                                             |
+| ---------- | ------------------------------------------------------- |
+| `Assigns`  | The node assigns its dependant (usually a variable)     |
+| `Alters`   | The node alters its dependant (usually a variable)      |
+| `Declares` | The node declares its dependant (e.g. a database table) |
+| `Writes`   | The node writes its dependant (usually a file)          |
 
 # Bindings
 

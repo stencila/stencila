@@ -6,7 +6,7 @@ use super::parameter::Parameter;
 use super::string::String;
 use super::validator::Validator;
 
-/// A function with a name, which might take Parameters and return a value of a certain type.
+/// A function signature.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

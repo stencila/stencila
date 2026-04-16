@@ -7,7 +7,15 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "A variable representing a name / value pair.",
+  "description": "A named value.",
+  "$comment": "This is a type used in Stencila Schema for named values in executable and structured\ncontent.\n\nIt exists to pair a symbolic name with a value within the document model,\nsupporting computation, templating, and data exchange workflows. Representing\nvariables structurally makes them easier to inspect, validate, and serialize\nthan ad hoc key-value text.\n\nKey properties include the variable `name` and `value`, along with any\nassociated metadata or hints.\n",
+  "analogues": [
+    {
+      "name": "programming language variable binding",
+      "url": "https://en.wikipedia.org/wiki/Variable_(computer_science)",
+      "notes": "Close conceptual analogue for a named value, though Stencila exposes variables as document-model nodes with type hints and serialization semantics."
+    }
+  ],
   "status": "alpha",
   "required": [
     "type",

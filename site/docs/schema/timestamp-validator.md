@@ -3,16 +3,25 @@ title: Timestamp Validator
 description: A validator specifying the constraints on a timestamp.
 ---
 
+This is a type used in Stencila Schema for validating [`Timestamp`](./timestamp.md)
+nodes.
+
+It exists so event times used in execution and provenance workflows can be
+constrained in the same validator framework as other temporal values.
+
+Key properties define allowable timestamp ranges and related constraints.
+
+
 # Properties
 
 The `TimestampValidator` type has these properties:
 
 | Name        | Description                                 | Type                          | Inherited from          |
 | ----------- | ------------------------------------------- | ----------------------------- | ----------------------- |
-| `id`        | The identifier for this item.               | [`String`](./string.md)       | [`Entity`](./entity.md) |
 | `timeUnits` | The time units that the timestamp can have. | [`TimeUnit`](./time-unit.md)* | -                       |
 | `minimum`   | The inclusive lower limit for a timestamp.  | [`Timestamp`](./timestamp.md) | -                       |
 | `maximum`   | The inclusive upper limit for a timestamp.  | [`Timestamp`](./timestamp.md) | -                       |
+| `id`        | The identifier for this item.               | [`String`](./string.md)       | [`Entity`](./entity.md) |
 
 # Related
 

@@ -17,7 +17,7 @@ use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// Include block content from an external source (e.g. file, URL).
+/// A block that includes content from an external source.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]

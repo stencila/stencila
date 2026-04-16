@@ -1,7 +1,19 @@
 ---
 title: Walkthrough
-description: An interactive walkthrough made up of several, successively revealed steps.
+description: An interactive walkthrough.
 ---
+
+This is a type used in Stencila Schema for interactive walkthroughs embedded in
+documents.
+
+It exists to support guided, stepwise experiences for readers and authors,
+with each step represented as structured document content rather than external
+application logic. This makes walkthroughs portable across Stencila tools and
+publishable outputs.
+
+Key properties include the ordered `steps` and any metadata controlling
+progression or presentation.
+
 
 This type is marked as unstable and is subject to change.
 
@@ -11,9 +23,9 @@ The `Walkthrough` type has these properties:
 
 | Name          | Description                          | Type                                        | Inherited from          |
 | ------------- | ------------------------------------ | ------------------------------------------- | ----------------------- |
-| `id`          | The identifier for this item.        | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `isCollapsed` | Whether the walkthrough is collapsed | [`Boolean`](./boolean.md)                   | -                       |
 | `steps`       | The steps making up the walkthrough. | [`WalkthroughStep`](./walkthrough-step.md)* | -                       |
+| `id`          | The identifier for this item.        | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

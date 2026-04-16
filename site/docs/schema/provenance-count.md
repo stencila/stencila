@@ -3,16 +3,27 @@ title: Provenance Count
 description: The count of the number of characters in a `ProvenanceCategory` within an entity.
 ---
 
+This is a type used in Stencila Schema for summarizing how much content belongs to a
+provenance category.
+
+It exists to attach compact provenance summaries to document nodes without
+repeating provenance annotations on every character or child node. This
+supports interfaces that report authorship and AI involvement at a glance.
+
+Key properties include the provenance `category` and the associated character
+or content count.
+
+
 # Properties
 
 The `ProvenanceCount` type has these properties:
 
 | Name                 | Description                                                  | Type                                             | Inherited from          |
 | -------------------- | ------------------------------------------------------------ | ------------------------------------------------ | ----------------------- |
-| `id`                 | The identifier for this item.                                | [`String`](./string.md)                          | [`Entity`](./entity.md) |
 | `provenanceCategory` | The provenance category that the character count applies to. | [`ProvenanceCategory`](./provenance-category.md) | -                       |
 | `characterCount`     | The number of characters in the provenance category.         | [`UnsignedInteger`](./unsigned-integer.md)       | -                       |
 | `characterPercent`   | The percentage of characters in the provenance category.     | [`UnsignedInteger`](./unsigned-integer.md)       | -                       |
+| `id`                 | The identifier for this item.                                | [`String`](./string.md)                          | [`Entity`](./entity.md) |
 
 # Related
 

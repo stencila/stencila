@@ -1,7 +1,18 @@
 ---
 title: Validator
-description: Union type for validators.
+description: A union type for validators.
 ---
+
+This is a union type used in Stencila Schema for validators.
+
+It groups together the validator node types used to express constraints over
+primitive values and structured data in documents, forms, and parameters. The
+union provides a single entry point for validation metadata while allowing
+specialized validator types for different value kinds.
+
+Use this type to understand what validator nodes can appear on properties such
+as parameter or form constraints.
+
 
 # Members
 

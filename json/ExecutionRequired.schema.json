@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "flow",
-  "description": "Whether, and why, the execution of a node is required or not.",
+  "description": "A reason why a node does or does not require execution.",
+  "$comment": "This is an enumeration used in Stencila Schema describing whether and why execution\nis required.\n\nIt exists to distinguish different re-execution states, such as stale\ndependencies or changed content, in a way that user interfaces and automation\ncan interpret consistently.\n\nSee [`Executable.executionRequired`](./executable.md#executionrequired) for\nthe property that uses this enumeration.\n",
   "required": [
     "type"
   ],

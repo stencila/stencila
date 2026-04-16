@@ -8,7 +8,7 @@
   ],
   "category": "works",
   "description": "The vertical alignment of content.",
-  "$comment": "Based on the JATS [`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html) attribute.",
+  "$comment": "This is an enumeration used in Stencila Schema for vertical alignment.\n\nIt is based on the JATS\n[`valign`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/attribute/valign.html)\nattribute and gives Stencila a controlled vocabulary for baseline, top,\nmiddle, and bottom alignment. Using an enumeration allows these alignment\nsemantics to be mapped consistently across table, layout, and publishing\nformats.\n\nSee the alignment properties on table- and layout-related types that use this\nenumeration.\n",
   "proptest": {},
   "required": [
     "type"

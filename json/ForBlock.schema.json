@@ -8,7 +8,15 @@
     "CodeExecutable"
   ],
   "category": "flow",
-  "description": "Repeat a block content for each item in an array.",
+  "description": "A block that repeats content for each item in an array.",
+  "$comment": "This is an executable control-flow block used in Stencila Schema for repetition.\n\nIt extends [`CodeExecutable`](./code-executable.md) so a document can repeat\nblock content for each item in an array while preserving structured execution\nsemantics. This brings loop-like behavior into the document model for dynamic\nand parameterized content generation.\n\nKey properties include the iteration source, loop variable binding, repeated\n`content`, and inherited execution properties.\n",
+  "analogues": [
+    {
+      "name": "Jinja for block",
+      "url": "https://jinja.palletsprojects.com/",
+      "notes": "Close template-language analogue for repeating content over an iterable, though Stencila models the loop as an executable document node."
+    }
+  ],
   "status": "beta",
   "latex": {
     "derive": false

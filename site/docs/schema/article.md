@@ -3,11 +3,28 @@ title: Article
 description: An article, including news and scholarly articles.
 ---
 
-This is an implementation, and extension, of schema.org [`Article`](https://schema.org/Article).
-It extends schema.org `Article` by adding a `content` property which must be
-an array of [`Block`](./block.md), as well as the properties added by
-[`CreativeWork`](./creative-work.md) which it extends.
+This is an implementation of schema.org
+[`Article`](https://schema.org/Article), extended in Stencila Schema for
+structured document content.
 
+In addition to schema.org article metadata, this type supports block-based
+document content, frontmatter, generated heading outlines, executable
+behavior, and archived nodes. This makes it suitable for authoring and
+publishing executable articles rather than only describing them as metadata.
+
+Key properties include `content`, `frontmatter`, `headings`, and `archive`.
+Additional metadata and execution features are inherited from
+[`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Article`:
+
+- schema.org [`Article`](https://schema.org/Article): Direct schema.org source type, extended in Stencila with executable and block-document semantics.
+- HTML [`<article>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/article): Closest HTML sectioning analogue for standalone article content.
+- JATS [`<article>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/article.html): Closest JATS analogue for scholarly article structure.
+- Pandoc [`Pandoc`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Pandoc): Approximate Pandoc analogue for a full document with metadata and block content, though Pandoc uses a top-level document type rather than an article-specific node.
 
 # Properties
 
@@ -15,13 +32,14 @@ The `Article` type has these properties:
 
 | Name                    | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ----------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `pageStart`             | The page on which the article starts; for example "135" or "xiii".                                                      | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pageEnd`               | The page on which the article ends; for example "138" or "xvi".                                                         | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pagination`            | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
+| `frontmatter`           | Frontmatter containing document metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
+| `headings`              | A list of links to headings, including implied section headings, within the document                                    | [`List`](./list.md)                                                               | -                                    |
+| `content`               | The content of the article.                                                                                             | [`Block`](./block.md)*                                                            | -                                    |
+| `archive`               | Nodes, usually from within `content` of the article, that have been archived.                                           | [`Node`](./node.md)*                                                              | -                                    |
+| `extra`                 | Additional metadata for the article.                                                                                    | [`Object`](./object.md)                                                           | -                                    |
 | `workType`              | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                   | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`                 | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -67,14 +85,13 @@ The `Article` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                                                            | [`Timestamp`](./timestamp.md)                                                     | [`Executable`](./executable.md)      |
 | `executionDuration`     | Duration of the last execution.                                                                                         | [`Duration`](./duration.md)                                                       | [`Executable`](./executable.md)      |
 | `executionMessages`     | Messages emitted while executing the node.                                                                              | [`ExecutionMessage`](./execution-message.md)*                                     | [`Executable`](./executable.md)      |
-| `pageStart`             | The page on which the article starts; for example "135" or "xiii".                                                      | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pageEnd`               | The page on which the article ends; for example "138" or "xvi".                                                         | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pagination`            | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
-| `frontmatter`           | Frontmatter containing document metadata.                                                                               | [`String`](./string.md)                                                           | -                                    |
-| `headings`              | A list of links to headings, including implied section headings, within the document                                    | [`List`](./list.md)                                                               | -                                    |
-| `content`               | The content of the article.                                                                                             | [`Block`](./block.md)*                                                            | -                                    |
-| `archive`               | Nodes, usually from within `content` of the article, that have been archived.                                           | [`Node`](./node.md)*                                                              | -                                    |
-| `extra`                 | Additional metadata for the article.                                                                                    | [`Object`](./object.md)                                                           | -                                    |
+| `id`                    | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
+| `alternateNames`        | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`           | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`           | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`                | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`                  | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                   | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 
 # Related
 

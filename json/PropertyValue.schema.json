@@ -8,7 +8,7 @@
     "Thing"
   ],
   "description": "A property-value pair.",
-  "$comment": "Always use specific properties when they exist and you can populate them.\nUsing `PropertyValue` as a substitute will typically not convey as much semantic\ninformation as using the specific property.\n\nMost of the time a `PropertyValue` node will need a `value` property\n(e.g. most of the examples on https://schema.org/PropertyValue have one)\nso this schema make that property required.\n\nThis type is mainly provided for use in `Thing.identifiers` (see the notes there).\n",
+  "$comment": "This is an implementation of schema.org\n[`PropertyValue`](https://schema.org/PropertyValue).\n\nIt is used for generic property-value metadata when no more specific schema\nproperty is available. In Stencila Schema it is especially useful for\nstructured identifiers and similar descriptive metadata attached to\n[`Thing`](./thing.md) and derived types.\n\nKey properties include `propertyID` and `value`. Prefer more specific\nproperties when they exist, because they usually carry stronger semantics.\n",
   "required": [
     "type",
     "value"

@@ -9,6 +9,17 @@
   ],
   "category": "data",
   "description": "A combination of date and time of day in the form `[-]CCYY-MM-DDThh:mm:ss[Z|(+|-)hh:mm]`.",
+  "$comment": "This is an implementation of schema.org\n[`DateTime`](https://schema.org/DateTime).\n\nIn Stencila Schema it is represented as a typed node so combined date-time\nvalues can be validated, serialized, and attached to document metadata and\nexecution events. This is especially useful where timestamps need to remain\ndistinct from plain strings.\n\nSee also [`Date`](./date.md), [`Time`](./time.md), and\n[`Timestamp`](./timestamp.md).\n",
+  "analogues": [
+    {
+      "id": "schema:DateTime"
+    },
+    {
+      "name": "RFC 3339 date-time",
+      "url": "https://www.rfc-editor.org/rfc/rfc3339",
+      "notes": "Close serialization analogue for full date-time strings, though Stencila models them as typed nodes."
+    }
+  ],
   "jats": {
     "elem": "date-time",
     "special": true

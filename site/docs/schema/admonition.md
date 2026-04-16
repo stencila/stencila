@@ -3,8 +3,24 @@ title: Admonition
 description: An admonition within a document.
 ---
 
-Highlight important ideas or signal content that’s supplemental or only relevant in certain situations.
+This is a type used in Stencila Schema for admonition or callout blocks.
 
+It exists to represent semantically distinct callouts such as notes,
+warnings, tips, and cautions as structured document content rather than as
+presentation-only containers. This supports consistent rendering, folding, and
+transformation across authoring and publishing formats.
+
+Key properties include `admonitionType`, `title`, `isFolded`, and `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Admonition`:
+
+- HTML [`<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside): Closest HTML sectioning analogue, though HTML `<aside>` is broader and does not itself encode admonition type or folding behavior.
+- JATS [`<boxed-text>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/boxed-text.html): Closest JATS analogue for boxed callout content, but JATS does not standardize the same admonition type vocabulary.
+- Pandoc [`Div`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Div): Pandoc admonitions are usually represented as divisions with classes and attributes rather than a dedicated node type.
+- MyST directive [`admonition`](https://mystmd.org/guide/directives#directive-admonition)
 
 # Properties
 
@@ -12,13 +28,13 @@ The `Admonition` type has these properties:
 
 | Name             | Description                                                       | Type                                        | Inherited from          |
 | ---------------- | ----------------------------------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                                     | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `admonitionType` | The type of admonition.                                           | [`AdmonitionType`](./admonition-type.md)    | -                       |
 | `title`          | The title of the admonition.                                      | [`Inline`](./inline.md)*                    | -                       |
 | `isFolded`       | Whether the admonition is folded.                                 | [`Boolean`](./boolean.md)                   | -                       |
 | `content`        | The content within the section.                                   | [`Block`](./block.md)*                      | -                       |
 | `authors`        | The authors of the admonition.                                    | [`Author`](./author.md)*                    | -                       |
 | `provenance`     | A summary of the provenance of the content within the admonition. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`             | The identifier for this item.                                     | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

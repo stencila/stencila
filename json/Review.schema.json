@@ -8,7 +8,16 @@
   ],
   "category": "works",
   "description": "A review of an item, e.g of an `Article` or `SoftwareApplication`.",
-  "$comment": "Use the `content` property for the structured content of the review in\npreference to the schema.org `text` or `reviewBody` properties (which\nhave plain text as the expected type).\n",
+  "$comment": "This is an implementation of schema.org\n[`Review`](https://schema.org/Review), adapted in Stencila Schema for\nstructured review content.\n\nIt fits into Stencila's broader creative-work model while emphasizing rich\nblock content for the review body instead of the plain-text `text` or\n`reviewBody` properties used in schema.org. This makes it suitable for peer\nreview, software review, and other document-oriented evaluation workflows.\n\nKey properties include `itemReviewed`, `reviewAspect`, and inherited\n`content` from [`CreativeWork`](./creative-work.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Review"
+    },
+    {
+      "id": "jats:sec",
+      "notes": "Approximate JATS analogue when reviews are encoded as structured sections of prose rather than a dedicated review element."
+    }
+  ],
   "required": [
     "type"
   ],

@@ -9,7 +9,7 @@ import { LabelType } from "./LabelType.js";
 import { Node } from "./Node.js";
 
 /**
- * A executable chunk of code.
+ * An executable code chunk.
  */
 export class CodeChunk extends CodeExecutable {
   // @ts-expect-error 'not assignable to the same property in base type'

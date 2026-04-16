@@ -3,14 +3,31 @@ title: Time
 description: A point in time recurring on multiple days.
 ---
 
+This is an implementation of schema.org [`Time`](https://schema.org/Time).
+
+In Stencila Schema it is represented as a typed node so recurring times of day
+can be distinguished from dates, durations, and timestamps across metadata and
+executable workflows.
+
+See also [`Date`](./date.md), [`DateTime`](./date-time.md),
+[`Duration`](./duration.md), and [`Timestamp`](./timestamp.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Time`:
+
+- schema.org [`Time`](https://schema.org/Time)
+- JATS [`<time>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/time.html): Close JATS analogue for structured time values.
+
 # Properties
 
 The `Time` type has these properties:
 
 | Name    | Description                                                       | Type                    | Inherited from          |
 | ------- | ----------------------------------------------------------------- | ----------------------- | ----------------------- |
-| `id`    | The identifier for this item.                                     | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `value` | The time of day as a string in format `hh:mm:ss[Z\|(+\|-)hh:mm]`. | [`String`](./string.md) | -                       |
+| `id`    | The identifier for this item.                                     | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

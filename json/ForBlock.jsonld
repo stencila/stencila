@@ -12,7 +12,7 @@
       "@id": "stencila:ForBlock",
       "@type": "rdfs:Class",
       "rdfs:label": "ForBlock",
-      "rdfs:comment": "Repeat a block content for each item in an array.",
+      "rdfs:comment": "A block that repeats content for each item in an array.",
       "rdfs:subClassOf": {
         "@id": "stencila:CodeExecutable"
       }

@@ -17,7 +17,7 @@ use super::integer::Integer;
 use super::string::String;
 use super::timestamp::Timestamp;
 
-/// Show and execute alternative content conditional upon an executed expression.
+/// A block that conditionally shows and executes alternative content.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]

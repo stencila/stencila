@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::boolean::Boolean;
 use super::string::String;
 
-/// A tag on code that affects its execution.
+/// An execution-affecting tag on code.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

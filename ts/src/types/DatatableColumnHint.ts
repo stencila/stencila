@@ -5,7 +5,7 @@ import { Integer } from "./Integer.js";
 import { Primitive } from "./Primitive.js";
 
 /**
- * A hint to the type and values in a `DatatableColumn`.
+ * A concise summary of the properties of a `DatatableColumn`.
  */
 export class DatatableColumnHint extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

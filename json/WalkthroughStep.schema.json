@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "A step in a walkthrough.",
+  "description": "A step in a `Walkthrough`.",
+  "$comment": "This is a type used in Stencila Schema for a single step within a\n[`Walkthrough`](./walkthrough.md).\n\nIt exists so each revealed step can carry its own content, metadata, and\nprogression behavior as a first-class node.\n\nKey properties include the step `content`, title or summary metadata, and any\ncontrols related to progression through the walkthrough.\n",
   "status": "beta",
   "markdown": {
     "derive": false

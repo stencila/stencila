@@ -8,8 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A validator specifying the constraints on a numeric node.",
-  "$comment": "A node will be valid if it is a number that meets the `maximum`, `multipleOf` etc properties.\nAnalogous to the JSON Schema `number` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\nNote that the `IntegerValidator` type extends this validator with the additional\nconstraint that the number have no fractional part.\n",
+  "description": "A validator for numeric values.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Number`](./number.md)\nnodes.\n\nIt adapts common JSON Schema numeric constraints to Stencila's validator\nsystem, allowing numeric ranges and divisibility rules to be expressed as\nstructured validator nodes.\n\nKey properties include `minimum`, `exclusiveMinimum`, `maximum`,\n`exclusiveMaximum`, and `multipleOf`. See also\n[`IntegerValidator`](./integer-validator.md).\n",
   "markdown": {
     "derive": false
   },

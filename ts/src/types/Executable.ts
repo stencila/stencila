@@ -15,7 +15,7 @@ import { Integer } from "./Integer.js";
 import { Timestamp } from "./Timestamp.js";
 
 /**
- * Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+ * An abstract base type for executable nodes.
  */
 export class Executable extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

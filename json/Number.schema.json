@@ -5,5 +5,15 @@
   "title": "Number",
   "category": "data",
   "description": "A value that is a number.",
+  "$comment": "This is an implementation of schema.org [`Number`](https://schema.org/Number).\n\nIn Stencila Schema it is represented as a primitive node so numeric values can\nbe typed, validated, and embedded consistently across data, parameters, and\nexecutable document state.\n\nSee also [`Integer`](./integer.md) and\n[`UnsignedInteger`](./unsigned-integer.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Number"
+    },
+    {
+      "name": "JSON number",
+      "url": "https://www.json.org/json-en.html"
+    }
+  ],
   "type": "number"
 }

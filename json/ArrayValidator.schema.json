@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying constraints on an array node.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Array`](./array.md) nodes.\n\nIt adapts ideas from JSON Schema array validation to Stencila's node-based\ndata model, allowing constraints to be expressed over arrays of primitive\nvalues and other node types. This makes it suitable for document parameters,\nforms, and structured data checks.\n\nKey properties describe item validators, tuple-like validation, and size\nconstraints.\n",
   "markdown": {
     "derive": false
   },

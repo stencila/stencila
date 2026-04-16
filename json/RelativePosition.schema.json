@@ -6,7 +6,8 @@
   "extends": [
     "Enumeration"
   ],
-  "description": "The relative position of a node to another.",
+  "description": "The position of one node relative to another.",
+  "$comment": "This is an enumeration used in Stencila Schema for describing a node's position\nrelative to another.\n\nIt exists to support prompt selection, editing instructions, and other\nworkflows that need a stable vocabulary for before, after, within, and related\npositional relationships.\n\nSee properties such as\n[`PromptBlock.relativePosition`](./prompt-block.md#relativeposition) for where\nthis enumeration is used.\n",
   "proptest": {},
   "required": [
     "type"

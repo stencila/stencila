@@ -3,12 +3,24 @@ title: Emphasis
 description: Emphasized content.
 ---
 
-Analogues of `Emphasis` in other schema include:
-  - HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
-  - JATS XML [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.1/element/italic.html)
-  - MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
-  - Pandoc [`Emph`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L256)
+This is an inline mark type used in Stencila Schema for emphasis.
 
+It extends [`Mark`](./mark.md) to preserve semantic emphasis in a structured,
+format-independent inline model, with analogues in HTML `<em>` and Markdown
+emphasis.
+
+Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+inline `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Emphasis`:
+
+- HTML [`<em>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/em)
+- JATS [`<italic>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/italic.html): Close JATS rendering analogue for emphasized content.
+- Pandoc [`Emph`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Emph)
+- MDAST [`Emphasis`](https://github.com/syntax-tree/mdast#emphasis)
 
 # Properties
 
@@ -16,8 +28,8 @@ The `Emphasis` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

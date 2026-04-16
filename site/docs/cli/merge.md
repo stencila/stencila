@@ -113,6 +113,7 @@ stencila merge edited.docx --original document.md --workdir ./merge-work
 | `math-images-to-tex`            | Convert math images to TeX code using OCR                           |
 | `links-to-citations`            | Convert links to citations                                          |
 | `normalize-citations`           | Normalize citation formatting and grouping                          |
+| `normalize-suggestions`         | Normalize adjacent suggestions into combined suggestion chains      |
 | `remove-pre-primary`            | Remove content before the first primary heading                     |
 | `remove-frontmatter-duplicates` | Remove front matter that duplicates article metadata                |
 | `remove-empty-headings`         | Remove empty headings                                               |

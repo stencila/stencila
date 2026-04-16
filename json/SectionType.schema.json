@@ -7,8 +7,15 @@
     "Enumeration"
   ],
   "category": "prose",
-  "description": "The type of a `Section`.",
-  "$comment": "Includes the section types recommended by the JATS XML standard\n(https://jats.nlm.nih.gov/archiving/tag-library/1.1d1/n-77u2.html) with additional\nvalues for other section types commonly found in documents.\n",
+  "description": "A category of section.",
+  "$comment": "This is an enumeration used in Stencila Schema for section roles.\n\nIt includes many section types recommended by JATS, with additional values for\nother sections commonly found in scholarly and technical documents.\n\nSee [`Section.sectionType`](./section.md#sectiontype) for the property that\nuses this enumeration.\n",
+  "analogues": [
+    {
+      "name": "JATS sec-type values",
+      "url": "https://jats.nlm.nih.gov/",
+      "notes": "Close analogue because many Stencila section types align with JATS-recommended section labels, with additional values for broader scholarly and technical writing workflows."
+    }
+  ],
   "proptest": {},
   "required": [
     "type"

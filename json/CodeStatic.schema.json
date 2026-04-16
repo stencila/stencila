@@ -8,8 +8,8 @@
   ],
   "category": "code",
   "abstract": true,
-  "description": "Abstract base type for non-executable code nodes (e.g. `CodeBlock`).",
-  "$comment": "The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.\nThere are no restrictions on the length or content of `code` and it is possible for it to be syntactically\ninvalid for the specified `programmingLanguage`.\n",
+  "description": "An abstract base type for non-executable code nodes.",
+  "$comment": "This is an abstract base type used in Stencila Schema for non-executable code nodes.\n\nIt exists to represent code as document content without normal execution\nsemantics, while still preserving source text, programming language,\nauthorship, and provenance metadata. This provides a common foundation for\nstatic code blocks and inline code.\n\nKey properties include `code`, `programmingLanguage`, `authors`, and\n`provenance`.\n",
   "required": [
     "type",
     "code"

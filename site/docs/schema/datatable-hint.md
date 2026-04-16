@@ -1,7 +1,19 @@
 ---
 title: Datatable Hint
-description: A hint to the structure of a table of data.
+description: A concise summary of the structure of a table of data.
 ---
+
+This is a type used in Stencila Schema for providing a concise summary of the
+structure of a [`Datatable`](./datatable.md).
+
+It exists to support both human and machine understanding of tabular data,
+including schema inference, import workflows, user interfaces, and code
+generation workflows such as choosing suitable visualizations for large
+datasets. Unlike validators, it summarizes observed or inferred structure
+rather than enforcing it.
+
+Key properties include per-column hints and dataset-level observations.
+
 
 # Properties
 
@@ -9,9 +21,9 @@ The `DatatableHint` type has these properties:
 
 | Name      | Description                     | Type                                                 | Inherited from          |
 | --------- | ------------------------------- | ---------------------------------------------------- | ----------------------- |
-| `id`      | The identifier for this item.   | [`String`](./string.md)                              | [`Entity`](./entity.md) |
 | `rows`    | The number of rows of data.     | [`Integer`](./integer.md)                            | -                       |
 | `columns` | A hint for each column of data. | [`DatatableColumnHint`](./datatable-column-hint.md)* | -                       |
+| `id`      | The identifier for this item.   | [`String`](./string.md)                              | [`Entity`](./entity.md) |
 
 # Related
 

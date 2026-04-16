@@ -3,15 +3,30 @@ title: Table Row
 description: A row within a Table.
 ---
 
+This is a type used in Stencila Schema for rows within a [`Table`](./table.md).
+
+It exists to represent row structure explicitly so header, body, and footer
+semantics can be preserved across transformations and renderers.
+
+Key properties include the row `cells` and `rowType`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `TableRow`:
+
+- HTML [`<tr>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/tr)
+- Pandoc [`Table`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Table): Only an approximate analogue because Pandoc rows are nested structures inside tables rather than standalone row nodes.
+
 # Properties
 
 The `TableRow` type has these properties:
 
 | Name      | Description                   | Type                                  | Inherited from          |
 | --------- | ----------------------------- | ------------------------------------- | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)               | [`Entity`](./entity.md) |
 | `cells`   | An array of cells in the row. | [`TableCell`](./table-cell.md)*       | -                       |
 | `rowType` | The type of row.              | [`TableRowType`](./table-row-type.md) | -                       |
+| `id`      | The identifier for this item. | [`String`](./string.md)               | [`Entity`](./entity.md) |
 
 # Related
 

@@ -3,14 +3,32 @@ title: Subscript
 description: Subscripted content.
 ---
 
+This is an inline mark type used in Stencila Schema for subscripted content.
+
+It extends [`Mark`](./mark.md) to preserve subscript semantics in a
+format-independent way, which is especially useful in scientific and
+mathematical writing.
+
+Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+inline `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Subscript`:
+
+- HTML [`<sub>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/sub)
+- JATS [`<sub>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/sub.html)
+- Pandoc [`Subscript`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Subscript)
+
 # Properties
 
 The `Subscript` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

@@ -4,7 +4,7 @@
   "@id": "stencila:Cord",
   "title": "Cord",
   "category": "data",
-  "description": "A value comprised of a sequence of characters.",
-  "$comment": "This type exists to differentiate between between a plain string of characters\n(which is modified by complete replacement) and a sequence of characters stored and\nsynchronized as a CRDT (which is is modified by insertions and deletions).\n\nIts use includes the `value` property of the `Text` type and the `code`\nproperty of `CodeExecutable` nodes.\n",
+  "description": "A CRDT-backed sequence of characters.",
+  "$comment": "This is a string-like type used in Stencila Schema for collaboratively\neditable text.\n\nIt exists to distinguish ordinary replacement-based string values from text\nstored and synchronized as a CRDT, where changes are modeled as insertions and\ndeletions. This makes it suitable for collaborative editing and fine-grained\ntext synchronization.\n\nCommon uses include the `value` property of [`Text`](./text.md) and the `code`\nproperty of executable code nodes.\n",
   "type": "string"
 }

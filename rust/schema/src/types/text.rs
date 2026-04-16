@@ -6,7 +6,7 @@ use super::compilation_message::CompilationMessage;
 use super::cord::Cord;
 use super::string::String;
 
-/// Textual content.
+/// A text node.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]

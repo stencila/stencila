@@ -1,29 +1,42 @@
 ---
 title: Provenance Category
-description: A description of the provenance of content in terms of human/machine involvement.
+description: A category of content provenance.
 ---
+
+This is an enumeration used in Stencila Schema for summarizing the provenance of
+content.
+
+It exists to classify content according to human and machine involvement using
+a stable vocabulary that can be counted, rendered, and analyzed consistently
+across documents.
+
+See [`ProvenanceCount.category`](./provenance-count.md#category) and related
+provenance summaries for where this enumeration is used.
+
 
 # Members
 
 The `ProvenanceCategory` type has these members:
 
-- `HwHeHv`
-- `HwHe`
-- `HwHv`
-- `Hw`
-- `HwMv`
-- `MwHeHv`
-- `MwHe`
-- `MwHeMv`
-- `HwMeHv`
-- `HwMe`
-- `HwMeMv`
-- `MwHv`
-- `MwMeHv`
-- `Mw`
-- `MwMv`
-- `MwMe`
-- `MwMeMv`
+| Member   | Description                                      |
+| -------- | ------------------------------------------------ |
+| `HwHeHv` | Human written, edited and verified.              |
+| `HwHe`   | Human written and edited.                        |
+| `HwHv`   | Human written and verified.                      |
+| `Hw`     | Human written.                                   |
+| `HwMv`   | Human written, machine verified.                 |
+| `MwHeHv` | Machine written, human edited, human verified.   |
+| `MwHe`   | Machine written, human edited.                   |
+| `MwHeMv` | Machine written, human edited, machine verified. |
+| `HwMeHv` | Human written, machine edited, human verified.   |
+| `HwMe`   | Human written, machine edited.                   |
+| `HwMeMv` | Human written, machine edited, machine verified. |
+| `MwHv`   | Machine written, human verified.                 |
+| `MwMeHv` | Machine written, machine edited, human verified. |
+| `Mw`     | Machine written.                                 |
+| `MwMv`   | Machine written and verified.                    |
+| `MwMe`   | Machine written and edited.                      |
+| `MwMeMv` | Machine written, edited and verified.            |
 
 # Bindings
 

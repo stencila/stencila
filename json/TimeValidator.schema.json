@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a time.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Time`](./time.md) nodes.\n\nIt exists so recurring times of day can be constrained within the same typed\nvalidator system used for other primitive and temporal values.\n\nKey properties define allowable ranges and related time constraints.\n",
   "markdown": {
     "derive": false
   },

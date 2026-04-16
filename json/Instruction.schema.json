@@ -8,7 +8,15 @@
   ],
   "category": "edits",
   "abstract": true,
-  "description": "Abstract base type for a document editing instruction.",
+  "description": "An abstract base type for document editing instructions.",
+  "$comment": "This is an abstract base type used in Stencila Schema for model-assisted document\nediting instructions.\n\nIt extends [`Executable`](./executable.md) so instructions can carry prompt\nrendering, user messages, model parameters, execution state, and generated\nsuggestions as part of the document model itself. This makes editing workflows\ninspectable, replayable, and serializable.\n\nKey properties include `instructionType`, `prompt`, `message`,\n`modelParameters`, and `activeSuggestion`.\n",
+  "analogues": [
+    {
+      "name": "chat-based edit instruction",
+      "url": "https://platform.openai.com/docs/guides/text-generation",
+      "notes": "Approximate analogue for model-directed editing requests, though Stencila persists prompts, messages, execution state, and suggestions as structured document nodes."
+    }
+  ],
   "required": [
     "type",
     "instructionType",

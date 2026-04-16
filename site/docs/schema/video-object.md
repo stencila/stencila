@@ -3,10 +3,25 @@ title: Video Object
 description: A video file.
 ---
 
-The `VideoObject` type allows you to provide details such as caption and transcript,
-and the details which are included in [`MediaObject`](./media-object.md)
-which `VideoObject` extends.
+This is an implementation of schema.org
+[`VideoObject`](https://schema.org/VideoObject).
 
+In Stencila Schema it is used both as media metadata and as rendered document
+content, especially in figures and multimedia documents. It inherits file and
+media capabilities from [`MediaObject`](./media-object.md) while adding
+video-specific descriptive properties.
+
+Key properties include `caption`, `thumbnail`, and `transcript`, with broader
+media metadata inherited from [`MediaObject`](./media-object.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `VideoObject`:
+
+- schema.org [`VideoObject`](https://schema.org/VideoObject)
+- HTML [`<video>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video)
+- JATS [`<inline-media>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/inline-media.html): Closest JATS analogue for embedded video-like media, though JATS uses a generic media element rather than a dedicated video element.
 
 # Properties
 
@@ -14,13 +29,14 @@ The `VideoObject` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `caption`        | The caption for this video recording.                                                                                   | [`Inline`](./inline.md)*                                                          | -                                    |
+| `thumbnail`      | Thumbnail image of this video recording.                                                                                | [`ImageObject`](./image-object.md)                                                | -                                    |
+| `transcript`     | The transcript of this video recording.                                                                                 | [`String`](./string.md)                                                           | -                                    |
+| `bitrate`        | Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).                                                                    | [`Number`](./number.md)                                                           | [`MediaObject`](./media-object.md)   |
+| `contentSize`    | File size in megabits (Mbit, Mb).                                                                                       | [`Number`](./number.md)                                                           | [`MediaObject`](./media-object.md)   |
+| `contentUrl`     | URL for the actual bytes of the media object, for example the image file or video file.                                 | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
+| `embedUrl`       | URL that can be used to embed the media on a web page via a specific media player.                                      | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
+| `mediaType`      | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -52,14 +68,13 @@ The `VideoObject` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `bitrate`        | Bitrate in megabits per second (Mbit/s, Mb/s, Mbps).                                                                    | [`Number`](./number.md)                                                           | [`MediaObject`](./media-object.md)   |
-| `contentSize`    | File size in megabits (Mbit, Mb).                                                                                       | [`Number`](./number.md)                                                           | [`MediaObject`](./media-object.md)   |
-| `contentUrl`     | URL for the actual bytes of the media object, for example the image file or video file.                                 | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
-| `embedUrl`       | URL that can be used to embed the media on a web page via a specific media player.                                      | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
-| `mediaType`      | IANA media type (MIME type).                                                                                            | [`String`](./string.md)                                                           | [`MediaObject`](./media-object.md)   |
-| `caption`        | The caption for this video recording.                                                                                   | [`Inline`](./inline.md)*                                                          | -                                    |
-| `thumbnail`      | Thumbnail image of this video recording.                                                                                | [`ImageObject`](./image-object.md)                                                | -                                    |
-| `transcript`     | The transcript of this video recording.                                                                                 | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

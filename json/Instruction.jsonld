@@ -12,7 +12,7 @@
       "@id": "stencila:Instruction",
       "@type": "rdfs:Class",
       "rdfs:label": "Instruction",
-      "rdfs:comment": "Abstract base type for a document editing instruction.",
+      "rdfs:comment": "An abstract base type for document editing instructions.",
       "rdfs:subClassOf": {
         "@id": "stencila:Executable"
       }

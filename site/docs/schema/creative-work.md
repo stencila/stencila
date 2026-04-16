@@ -1,12 +1,28 @@
 ---
 title: Creative Work
-description: A creative work, including books, movies, photographs, software programs, etc.
+description: A creative work.
 ---
 
-This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).
-It extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`
-and `fundedBy`.
+This is an implementation of schema.org
+[`CreativeWork`](https://schema.org/CreativeWork), extended in Stencila Schema
+as the main base type for document-like works and publishable artifacts.
 
+In addition to broad schema.org creative-work metadata, Stencila adds support
+for structured authorship, provenance summaries, comments, richer date fields,
+grants, references, and document-oriented relationships between works. Many of
+the schema's concrete publishable node types inherit from this type.
+
+Key Stencila Schema properties include `workType`, `provenance`,
+`dateAccepted`, and `fundedBy`. Many other metadata properties are inherited
+directly from schema.org.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CreativeWork`:
+
+- schema.org [`CreativeWork`](https://schema.org/CreativeWork): Direct schema.org source type, extended in Stencila as the common base for publishable, document-like, and executable works.
+- Pandoc [`Meta`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Meta): Approximate Pandoc analogue for work-level metadata, though Stencila `CreativeWork` is also a node in the document graph and can carry richer relationships and provenance.
 
 # Properties
 
@@ -14,13 +30,6 @@ The `CreativeWork` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from          |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md) |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)   |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)   |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)   |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | -                       |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | -                       |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | -                       |
@@ -52,6 +61,13 @@ The `CreativeWork` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | -                       |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | -                       |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | -                       |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)   |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)   |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)   |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md) |
 
 # Related
 

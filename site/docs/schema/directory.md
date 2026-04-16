@@ -1,11 +1,18 @@
 ---
 title: Directory
-description: A directory on the file system.
+description: A directory on a file system.
 ---
 
-Previously this type extended `Collection` (which in turn extends `CreativeWork`).
-However, to avoid consuming more memory that necessary when creating directory listings
-with many directories, it now extends `Entity`.
+This is a type used in Stencila Schema for directories in a file system.
+
+It exists to represent directories as lightweight filesystem entities that can
+be inspected, listed, and linked from workflows and documents. Unlike more
+metadata-rich work types, it extends [`Entity`](./entity.md) rather than
+[`Collection`](./collection.md) to avoid carrying unnecessary creative-work
+overhead when working with large directory listings.
+
+Key properties focus on filesystem identity and structure rather than
+publishable content.
 
 
 # Properties
@@ -14,10 +21,10 @@ The `Directory` type has these properties:
 
 | Name    | Description                                                     | Type                                                    | Inherited from          |
 | ------- | --------------------------------------------------------------- | ------------------------------------------------------- | ----------------------- |
-| `id`    | The identifier for this item.                                   | [`String`](./string.md)                                 | [`Entity`](./entity.md) |
 | `name`  | The name of the directory.                                      | [`String`](./string.md)                                 | -                       |
 | `path`  | The path (absolute or relative) of the file on the file system. | [`String`](./string.md)                                 | -                       |
 | `parts` | The files and other directories within this directory.          | ([`File`](./file.md) \| [`Directory`](./directory.md))* | -                       |
+| `id`    | The identifier for this item.                                   | [`String`](./string.md)                                 | [`Entity`](./entity.md) |
 
 # Related
 

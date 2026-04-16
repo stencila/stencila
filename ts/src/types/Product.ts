@@ -5,7 +5,7 @@ import { ImageObject } from "./ImageObject.js";
 import { Thing } from "./Thing.js";
 
 /**
- * Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+ * A product or service.
  */
 export class Product extends Thing {
   // @ts-expect-error 'not assignable to the same property in base type'

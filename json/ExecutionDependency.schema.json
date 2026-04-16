@@ -9,6 +9,14 @@
   ],
   "category": "flow",
   "description": "An upstream execution dependency of a node.",
+  "$comment": "This is a type used in Stencila Schema for describing an upstream execution\ndependency of a node.\n\nIt exists to make the inputs and prerequisites of executable nodes explicit in\nthe schema, enabling incremental execution, invalidation, and inspection of\nexecution graphs.\n\nKey properties identify the dependency node and the relation that explains why\nit is required.\n",
+  "analogues": [
+    {
+      "name": "build dependency edge",
+      "url": "https://en.wikipedia.org/wiki/Dependency_graph",
+      "notes": "Close graph-theoretic analogue for an upstream dependency relation between executable units, though Stencila also records node identity and code location metadata."
+    }
+  ],
   "required": [
     "type",
     "dependencyRelation",

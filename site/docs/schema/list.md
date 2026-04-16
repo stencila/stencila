@@ -3,12 +3,28 @@ title: List
 description: A list of items.
 ---
 
-This is an implementation, and renaming, of schema.org [`ItemList`](https://schema.org/ItemList).
-Renaming was done as `List` was considered a more developer friendly alternative. Similarly,
-schema.org properties `itemListElement` and `itemListOrder` were renamed to `items` and `order`.
-Note that, as with every other such renaming in Stencila Schema, a mapping between names is
-defined and it is trivial to save Stencila Schema documents using the schema.org vocabulary if so desired.
+This is an implementation of schema.org
+[`ItemList`](https://schema.org/ItemList), exposed in Stencila Schema as
+`List`.
 
+The type is renamed to use more familiar document-model vocabulary, and the
+schema.org properties `itemListElement` and `itemListOrder` are correspondingly
+exposed as `items` and `order`. In Stencila Schema it is used for ordered,
+unordered, and checklist-style document lists with rich item content.
+
+Key properties include `items`, `order`, and optional authorship metadata.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `List`:
+
+- HTML [`<ul>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ul): Close analogue for unordered lists; Stencila uses a single `List` type and records list style in `order` rather than separate element types.
+- HTML [`<ol>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/ol): Close analogue for ordered lists; descending and checklist semantics are represented via `order` and item metadata rather than distinct HTML elements.
+- JATS [`<list>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/list.html): Closest JATS container analogue for list content.
+- Pandoc [`BulletList`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:BulletList): Close analogue for unordered lists; ordered and checklist forms are represented differently in Pandoc.
+- Pandoc [`OrderedList`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:OrderedList): Close analogue for ordered lists; Stencila unifies ordered and unordered lists in one node type.
+- MDAST [`List`](https://github.com/syntax-tree/mdast#list): Closest MDAST analogue for list containers, though task-list state is carried on items in Stencila.
 
 # Properties
 
@@ -16,11 +32,11 @@ The `List` type has these properties:
 
 | Name         | Description                                                 | Type                                        | Inherited from          |
 | ------------ | ----------------------------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`         | The identifier for this item.                               | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `items`      | The items in the list.                                      | [`ListItem`](./list-item.md)*               | -                       |
 | `order`      | The ordering of the list.                                   | [`ListOrder`](./list-order.md)              | -                       |
 | `authors`    | The authors of the list.                                    | [`Author`](./author.md)*                    | -                       |
 | `provenance` | A summary of the provenance of the content within the list. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`         | The identifier for this item.                               | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

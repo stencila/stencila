@@ -3,8 +3,23 @@ title: Organization
 description: An organization such as a school, NGO, corporation, club, etc.
 ---
 
-This is an implementation of schema.org [`Organization`](https://schema.org/Organization).
+This is an implementation of schema.org
+[`Organization`](https://schema.org/Organization).
 
+In Stencila Schema it is used for affiliations, funders, publishers,
+maintainers, and other organization-level metadata while integrating with
+richer author-role and provenance models.
+
+Key properties include `ror`, `address`, `brands`, `contactPoints`, and
+inherited metadata from [`Thing`](./thing.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Organization`:
+
+- schema.org [`Organization`](https://schema.org/Organization)
+- JATS [`<institution>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/institution.html): Closest JATS analogue for organization names in affiliations and metadata.
 
 # Properties
 
@@ -12,13 +27,6 @@ The `Organization` type has these properties:
 
 | Name                 | Description                                                                                                   | Type                                                                 | Inherited from          |
 | -------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`                 | The identifier for this item.                                                                                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
-| `alternateNames`     | Alternate names (aliases) for the item.                                                                       | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
-| `description`        | A description of the item.                                                                                    | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                 | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
-| `images`             | Images of the item.                                                                                           | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
-| `name`               | The name of the item.                                                                                         | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `url`                | The URL of the item.                                                                                          | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `ror`                | The organization's Research Organization Registry ID (https://ror.org/).                                      | [`String`](./string.md)                                              | -                       |
 | `address`            | Postal address for the organization.                                                                          | [`PostalAddress`](./postal-address.md) \| [`String`](./string.md)    | -                       |
 | `brands`             | Brands that the organization is connected with.                                                               | [`Brand`](./brand.md)*                                               | -                       |
@@ -29,6 +37,13 @@ The `Organization` type has these properties:
 | `logo`               | The logo of the organization.                                                                                 | [`ImageObject`](./image-object.md)                                   | -                       |
 | `members`            | Person(s) or organization(s) who are members of this organization.                                            | ([`Person`](./person.md) \| [`Organization`](./organization.md))*    | -                       |
 | `parentOrganization` | Entity that the Organization is a part of. For example, parentOrganization to a department is a university.   | [`Organization`](./organization.md)                                  | -                       |
+| `alternateNames`     | Alternate names (aliases) for the item.                                                                       | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
+| `description`        | A description of the item.                                                                                    | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `identifiers`        | Any kind of identifier for any kind of Thing.                                                                 | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
+| `images`             | Images of the item.                                                                                           | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
+| `name`               | The name of the item.                                                                                         | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `url`                | The URL of the item.                                                                                          | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
+| `id`                 | The identifier for this item.                                                                                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

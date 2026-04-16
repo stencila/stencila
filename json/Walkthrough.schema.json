@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "flow",
-  "description": "An interactive walkthrough made up of several, successively revealed steps.",
+  "description": "An interactive walkthrough.",
+  "$comment": "This is a type used in Stencila Schema for interactive walkthroughs embedded in\ndocuments.\n\nIt exists to support guided, stepwise experiences for readers and authors,\nwith each step represented as structured document content rather than external\napplication logic. This makes walkthroughs portable across Stencila tools and\npublishable outputs.\n\nKey properties include the ordered `steps` and any metadata controlling\nprogression or presentation.\n",
   "status": "beta",
   "patch": {
     "applyWith": "Walkthrough::apply_with"

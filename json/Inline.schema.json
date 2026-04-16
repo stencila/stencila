@@ -5,6 +5,23 @@
   "title": "Inline",
   "category": "prose",
   "description": "Union type for valid inline content.",
+  "$comment": "This is a union type used in Stencila Schema for inline content.\n\nIt brings together the node types that can appear within prose content,\nanalogous to inline-content unions in HTML, Markdown ASTs, and other document\nmodels. The union allows Stencila to mix text, marks, citations, code, math,\nmedia, and executable inline elements within a single typed model.\n\nUse this type to understand what can appear in inline `content` arrays such as\nthose on [`Paragraph`](./paragraph.md), [`Heading`](./heading.md), and other\nprose nodes.\n",
+  "analogues": [
+    {
+      "name": "HTML phrasing content",
+      "url": "https://html.spec.whatwg.org/multipage/dom.html#phrasing-content-2",
+      "notes": "Broadly analogous to HTML inline-capable content, though Stencila's union is a typed AST union rather than a DOM content category."
+    },
+    {
+      "id": "pandoc:Inline",
+      "notes": "Closest Pandoc union analogue for inline content."
+    },
+    {
+      "name": "MDAST phrasing content",
+      "url": "https://github.com/syntax-tree/mdast#phrasingcontent",
+      "notes": "Closest MDAST analogue for reusable inline-content positions."
+    }
+  ],
   "proptest": {},
   "anyOf": [
     {

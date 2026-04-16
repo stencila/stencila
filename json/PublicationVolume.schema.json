@@ -8,8 +8,13 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A part of a successively published publication such as a periodical or multi-volume work.",
-  "$comment": "Often embedded as the `isPartOf` property in a [`PublicationIssue`](./publication-issue.md).\n",
+  "description": "A publication volume.",
+  "$comment": "This is an implementation of schema.org\n[`PublicationVolume`](https://schema.org/PublicationVolume).\n\nIn Stencila Schema it is used to represent a numbered volume within a\nperiodical or other multi-part publication while fitting into the broader\ncreative-work metadata model. It commonly appears as the `isPartOf` parent of\na [`PublicationIssue`](./publication-issue.md), or directly as the container\nfor an article or other published work.\n\nKey properties include `volumeNumber`, `isPartOf`, `pageStart`, `pageEnd`, and\n`pagination`.\n",
+  "analogues": [
+    {
+      "id": "schema:PublicationVolume"
+    }
+  ],
   "required": [
     "type"
   ],

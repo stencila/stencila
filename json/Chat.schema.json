@@ -10,6 +10,19 @@
   ],
   "category": "works",
   "description": "A chat conversation, usually with a generative AI model.",
+  "$comment": "This is a type used in Stencila Schema for conversational interactions in documents.\n\nIt combines [`CreativeWork`](./creative-work.md) metadata with\n[`Executable`](./executable.md) behavior so a chat can be stored, rendered,\nre-executed, and linked to document editing workflows. Unlike a plain message\ntranscript, it can carry model configuration, prompt rendering, targeted\ndocument nodes, and mixed block content.\n\nKey properties include `prompt`, `modelParameters`, `targetNodes`, and\n`content`. Additional metadata and execution features are inherited from\n[`CreativeWork`](./creative-work.md) and [`Executable`](./executable.md).\n",
+  "analogues": [
+    {
+      "name": "OpenAI chat completion conversation",
+      "url": "https://platform.openai.com/docs/guides/text-generation",
+      "notes": "Close conversational analogue, though Stencila stores chats as reusable executable document artifacts with block content and workflow metadata."
+    },
+    {
+      "name": "Anthropic messages conversation",
+      "url": "https://docs.anthropic.com/",
+      "notes": "Close provider-level analogue for structured message exchanges."
+    }
+  ],
   "status": "beta",
   "patch": {
     "applyWith": "Chat::apply_with"

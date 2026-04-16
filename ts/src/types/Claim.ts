@@ -5,7 +5,7 @@ import { ClaimType } from "./ClaimType.js";
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
- * A claim represents specific reviewable facts or statements.
+ * A reviewable claim or statement.
  */
 export class Claim extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -9,6 +9,18 @@
   ],
   "category": "prose",
   "description": "A sentence, usually within a `Paragraph`.",
+  "$comment": "This is a type used in Stencila Schema for explicit sentence-level content.\n\nIt exists so documents can represent sentence boundaries structurally when\nthat granularity matters for provenance, annotation, review, or\nnatural-language tooling. This is more precise than inferring sentences from\nplain text after the fact.\n\nKey properties include the sentence `content` and any associated authorship or\nprovenance metadata.\n",
+  "analogues": [
+    {
+      "name": "Universal Dependencies sentence span",
+      "url": "https://universaldependencies.org/",
+      "notes": "Close linguistic analogue for explicit sentence segmentation, though UD usually treats sentences as annotation spans rather than document-tree nodes."
+    },
+    {
+      "id": "pandoc:Span",
+      "notes": "Only an approximate Pandoc analogue; Pandoc has no dedicated sentence node and sentence boundaries are usually inferred."
+    }
+  ],
   "required": [
     "type",
     "content"

@@ -3,6 +3,17 @@ title: Chat Message Group
 description: A group of messages, usually alternative model messages, within a `Chat`.
 ---
 
+This is a container type used in Stencila Schema for grouping related chat messages.
+
+It is primarily used to represent alternative or parallel model responses
+within a [`Chat`](./chat.md), allowing interfaces and workflows to preserve
+branching conversational outcomes. This makes comparison, selection, and
+review of alternative responses part of the document model itself.
+
+Key properties identify the grouped messages and any metadata used to
+distinguish alternatives.
+
+
 This type is marked as unstable and is subject to change.
 
 # Properties
@@ -11,8 +22,8 @@ The `ChatMessageGroup` type has these properties:
 
 | Name       | Description                    | Type                                | Inherited from          |
 | ---------- | ------------------------------ | ----------------------------------- | ----------------------- |
-| `id`       | The identifier for this item.  | [`String`](./string.md)             | [`Entity`](./entity.md) |
 | `messages` | The messages within the group. | [`ChatMessage`](./chat-message.md)* | -                       |
+| `id`       | The identifier for this item.  | [`String`](./string.md)             | [`Entity`](./entity.md) |
 
 # Related
 

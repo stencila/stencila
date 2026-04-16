@@ -4,8 +4,15 @@
   "@id": "stencila:Array",
   "title": "Array",
   "category": "data",
-  "description": "A value comprised of other primitive nodes.",
-  "$comment": "Note that the items in the array are restricted to primitive node\ntypes including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.\n",
+  "description": "An array value.",
+  "$comment": "This is a primitive type used in Stencila Schema for array values.\n\nIt exists so ordered collections of primitive values can participate in the\nsame node-based data model as other scalar and structured primitive types.\nArray items are restricted to [`Primitive`](./primitive.md) values, including\nnested `Array` and `Object` values.\n\nSee also [`TupleValidator`](./tuple-validator.md) and\n[`ArrayValidator`](./array-validator.md) for array-specific constraints.\n",
+  "analogues": [
+    {
+      "name": "JSON array",
+      "url": "https://www.json.org/json-en.html",
+      "notes": "Direct structural analogue for ordered primitive collections."
+    }
+  ],
   "type": "array",
   "items": {
     "$ref": "Primitive.schema.json"

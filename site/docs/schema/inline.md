@@ -3,11 +3,32 @@ title: Inline
 description: Union type for valid inline content.
 ---
 
+This is a union type used in Stencila Schema for inline content.
+
+It brings together the node types that can appear within prose content,
+analogous to inline-content unions in HTML, Markdown ASTs, and other document
+models. The union allows Stencila to mix text, marks, citations, code, math,
+media, and executable inline elements within a single typed model.
+
+Use this type to understand what can appear in inline `content` arrays such as
+those on [`Paragraph`](./paragraph.md), [`Heading`](./heading.md), and other
+prose nodes.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Inline`:
+
+- [HTML phrasing content](https://html.spec.whatwg.org/multipage/dom.html#phrasing-content-2): Broadly analogous to HTML inline-capable content, though Stencila's union is a typed AST union rather than a DOM content category.
+- Pandoc [`Inline`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Inline): Closest Pandoc union analogue for inline content.
+- [MDAST phrasing content](https://github.com/syntax-tree/mdast#phrasingcontent): Closest MDAST analogue for reusable inline-content positions.
+
 # Members
 
 The `Inline` type has these members:
 
 - [`Annotation`](./annotation.md)
+- [`Boundary`](./boundary.md)
 - [`AudioObject`](./audio-object.md)
 - [`Button`](./button.md)
 - [`Citation`](./citation.md)
@@ -64,6 +85,8 @@ During property-based (a.k.a generative) testing, the variants of the `Inline` t
 | Variant             | Complexity | Description                                                                                                                                                                                       | Strategy                                         |
 | ------------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------ |
 | `Annotation`        | Min+       | Do not generate `Annotation` nodes in inline content.                                                                                                                                             | -                                                |
+| `Boundary`          | Min+       | Do not generate `Boundary` nodes in inline content.                                                                                                                                               | -                                                |
+|                     | Low+       | Do not generate `Boundary` nodes in inline content.                                                                                                                                               | -                                                |
 | `AudioObject`       | Min+       | Do not generate `AudioObject` nodes in inline content.                                                                                                                                            | -                                                |
 |                     | High+      | Generate `AudioObject` nodes in inline content.                                                                                                                                                   | Default for level                                |
 | `Button`            | Min+       | Do not generate `Button` nodes in inline content.                                                                                                                                                 | -                                                |

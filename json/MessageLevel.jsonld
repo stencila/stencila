@@ -12,7 +12,7 @@
       "@id": "stencila:MessageLevel",
       "@type": "rdfs:Class",
       "rdfs:label": "MessageLevel",
-      "rdfs:comment": "The severity level of a message.",
+      "rdfs:comment": "A severity level for a message.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

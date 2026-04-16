@@ -1,13 +1,26 @@
 ---
 title: Author Role Author
-description: Union type for things that can be an author in `AuthorRole`.
+description: A union type for authors in an `AuthorRole`.
 ---
 
-This type merely exists to avoid the excessively long type name
-(`PersonOrOrganizationOrSoftwareApplicationOrThing`) that is otherwise generated.
-The `Thing` variant is intended only for anonymous authors which is not known to
-be one the other variants and which should be given the name "anon".
+This is a union type used in Stencila Schema for the `author` property of
+[`AuthorRole`](./author-role.md).
 
+It exists to provide a readable alias for the node types that can appear in
+that property, instead of using the much longer generated union name
+`PersonOrOrganizationOrSoftwareApplicationOrThing`. The `Thing` variant is
+intended only for anonymous or otherwise unidentified authors when none of the
+more specific variants is appropriate.
+
+See [`AuthorRole.author`](./author-role.md#author) for the property that uses
+this union.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `AuthorRoleAuthor`:
+
+- [schema.org Role range pattern](https://schema.org/Role): Approximate analogue for entities that can fill a role-bearing property, with Stencila adding an explicit fallback to `Thing` for anonymous or unidentified authors.
 
 # Members
 

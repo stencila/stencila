@@ -9,6 +9,14 @@
   "category": "edits",
   "abstract": true,
   "description": "Abstract base type for nodes that indicate a suggested change to content.",
+  "$comment": "This is an abstract base type used in Stencila Schema for suggested document changes.\n\nIt exists to represent proposed edits as first-class nodes that can carry\nstatus, feedback, provenance, and original or replacement content. This\nsupports review and model-assisted editing workflows that need suggestions to\npersist within the document model.\n\nKey properties include the suggestion `suggestionType`, `status`, and any\nassociated feedback or authorship metadata.\n",
+  "analogues": [
+    {
+      "name": "word processor tracked change",
+      "url": "https://learn.microsoft.com/en-us/office/open-xml/word/working-with-comments-and-tracked-revisions",
+      "notes": "Close editing analogue for persisted proposed changes, though Stencila suggestions are explicit typed nodes rather than markup overlays in a word-processing format."
+    }
+  ],
   "required": [
     "type"
   ],

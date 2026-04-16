@@ -3,17 +3,23 @@ title: Citation Group
 description: A group of `Citation` nodes.
 ---
 
-This type allows you to group associated citations together.
-When some content in a [`CreativeWork`](./creative-work.md) cites more than one
-reference for a particular piece of text, use a `CitationGroup` to encapsulate
-multiple [`Citation`](./citation.md) nodes.
+This is a type used in Stencila Schema for grouped citations.
 
-At present we do not give a `citationMode` property to a `CitationGroup` since
-they will almost always be parenthetical as opposed to narrative.
-In other words, it usually only makes sense for individual `Citation` nodes to be
-narrative (although they may be connected together within `content` using words
-such as "and").
+It exists to represent multiple related [`Citation`](./citation.md) nodes as a
+single inline unit when the surrounding text cites several references at once.
+This allows citation processors and renderers to generate a combined rendered
+form, including ranges and grouping punctuation, while preserving the
+individual citation items structurally.
 
+Key properties include `items` and the generated `content` rendering.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CitationGroup`:
+
+- MyST role [`cite`](https://mystmd.org/guide/roles#role-cite): Close MyST authoring analogue for grouped citations, though Stencila stores individual citation items explicitly.
+- [CSL citation cluster](https://docs.citationstyles.org/en/stable/specification.html): Conceptually analogous to a rendered citation cluster in Citation Style Language processors.
 
 # Properties
 
@@ -21,9 +27,9 @@ The `CitationGroup` type has these properties:
 
 | Name      | Description                                                                 | Type                         | Inherited from          |
 | --------- | --------------------------------------------------------------------------- | ---------------------------- | ----------------------- |
-| `id`      | The identifier for this item.                                               | [`String`](./string.md)      | [`Entity`](./entity.md) |
 | `items`   | One or more `Citation`s to be referenced in the same surrounding text.      | [`Citation`](./citation.md)* | -                       |
 | `content` | A rendering of the citation group using the citation style of the document. | [`Inline`](./inline.md)*     | -                       |
+| `id`      | The identifier for this item.                                               | [`String`](./string.md)      | [`Entity`](./entity.md) |
 
 # Related
 

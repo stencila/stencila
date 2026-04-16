@@ -12,7 +12,7 @@
       "@id": "stencila:CodeStatic",
       "@type": "rdfs:Class",
       "rdfs:label": "CodeStatic",
-      "rdfs:comment": "Abstract base type for non-executable code nodes (e.g. `CodeBlock`).",
+      "rdfs:comment": "An abstract base type for non-executable code nodes.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

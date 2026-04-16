@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "prose",
-  "description": "The type of an `Admonition`.",
+  "description": "A category of admonition.",
+  "$comment": "This is an enumeration used in Stencila Schema for classifying\n[`Admonition`](./admonition.md) nodes.\n\nIt exists to give admonitions a small controlled vocabulary that can be mapped\nconsistently to authoring, styling, and publishing formats. The enumeration\ncaptures the semantic intent of the callout rather than its visual\npresentation.\n\nSee [`Admonition.type`](./admonition.md#type) for the property that uses this\nenumeration.\n",
   "proptest": {},
   "required": [
     "type"

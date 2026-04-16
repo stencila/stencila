@@ -3,12 +3,24 @@ title: Software Application
 description: A software application.
 ---
 
-`SoftwareApplication` represents a software application that can be located by name and version.
-It may be fetched in binary format or some package manager (npm, pip, etc) could fetch and compile the source code.
-Although by using the `softwareRequirements` property it is possible to represent a full hierarchy
-of required packages, normally it is adequate to only list the immediate dependencies and allow
-the system/language package manager to resolve the rest.
+This is an implementation of schema.org
+[`SoftwareApplication`](https://schema.org/SoftwareApplication).
 
+In Stencila Schema it is used to describe software artifacts by name, version,
+platform, and immediate dependencies within the broader creative-work metadata
+model. This is useful for recording software used in computational documents,
+execution environments, citations, and reproducibility metadata.
+
+Key properties include `name`, `softwareVersion`, `operatingSystem`, and
+`softwareRequirements`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `SoftwareApplication`:
+
+- schema.org [`SoftwareApplication`](https://schema.org/SoftwareApplication)
+- [SPDX package metadata](https://spdx.dev/specifications/): Approximate software-package analogue for recording application identity, version, and dependencies.
 
 # Properties
 
@@ -16,13 +28,9 @@ The `SoftwareApplication` type has these properties:
 
 | Name                   | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`                   | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames`       | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`          | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`          | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`               | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`                 | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`                  | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `softwareRequirements` | Requirements for application, including shared libraries that are not included in the application distribution.         | [`SoftwareApplication`](./software-application.md)*                               | -                                    |
+| `softwareVersion`      | Version of the software.                                                                                                | [`String`](./string.md)                                                           | -                                    |
+| `operatingSystem`      | Operating systems supported (e.g. Windows 7, OS X 10.6).                                                                | [`String`](./string.md)                                                           | -                                    |
 | `workType`             | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`                  | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`                | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -54,9 +62,13 @@ The `SoftwareApplication` type has these properties:
 | `path`                 | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`               | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`              | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `softwareRequirements` | Requirements for application, including shared libraries that are not included in the application distribution.         | [`SoftwareApplication`](./software-application.md)*                               | -                                    |
-| `softwareVersion`      | Version of the software.                                                                                                | [`String`](./string.md)                                                           | -                                    |
-| `operatingSystem`      | Operating systems supported (e.g. Windows 7, OS X 10.6).                                                                | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames`       | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`          | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`          | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`               | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`                 | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`                  | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`                   | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

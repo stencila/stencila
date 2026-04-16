@@ -4,15 +4,23 @@ description: A bibliography loaded from an external source file.
 ---
 
 A `Bibliography` represents a database of references that may be cited in a
-`CreativeWork`. Unlike the `references` property on `CreativeWork` (which contains
-only the references that are actually cited), a `Bibliography` contains all available
-references loaded from an external source file (e.g. BibTeX, YAML) at compile time.
+`CreativeWork`. Unlike the `references` property on `CreativeWork` (which
+contains only the references that are actually cited), a `Bibliography`
+contains all available references loaded from an external source file (e.g.
+BibTeX, YAML) at compile time.
 
-The loaded references are ephemeral and are stripped when the document is saved,
-to be reloaded on the next compilation.
+The loaded references are ephemeral and are stripped when the document is
+saved, to be reloaded on the next compilation.
 
 
 This type is marked as unstable and is subject to change.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Bibliography`:
+
+- [BibTeX bibliography database](https://www.bibtex.org/): Close analogue for an external collection of references loaded into a document workflow.
+- [CSL JSON bibliography](https://citeproc-js.readthedocs.io/en/latest/csl-json/markup.html): Close analogue for serialized reference collections consumed by citation tooling.
 
 # Properties
 
@@ -20,7 +28,9 @@ The `Bibliography` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                  |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `source`                | The external source of the bibliography, a file path or URL.     | [`String`](./string.md)                             | -                               |
+| `mediaType`             | Media type of the source content.                                | [`String`](./string.md)                             | -                               |
+| `references`            | The references loaded from the source.                           | [`Reference`](./reference.md)*                      | -                               |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -35,9 +45,7 @@ The `Bibliography` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `source`                | The external source of the bibliography, a file path or URL.     | [`String`](./string.md)                             | -                               |
-| `mediaType`             | Media type of the source content.                                | [`String`](./string.md)                             | -                               |
-| `references`            | The references loaded from the source.                           | [`Reference`](./reference.md)*                      | -                               |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

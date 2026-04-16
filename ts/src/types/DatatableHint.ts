@@ -5,7 +5,7 @@ import { Entity } from "./Entity.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A hint to the structure of a table of data.
+ * A concise summary of the structure of a table of data.
  */
 export class DatatableHint extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

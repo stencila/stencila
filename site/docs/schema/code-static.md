@@ -1,11 +1,17 @@
 ---
 title: Code Static
-description: Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+description: An abstract base type for non-executable code nodes.
 ---
 
-The most important, and only required, property of a `CodeStatic` node is `code`, a `string` of the source code.
-There are no restrictions on the length or content of `code` and it is possible for it to be syntactically
-invalid for the specified `programmingLanguage`.
+This is an abstract base type used in Stencila Schema for non-executable code nodes.
+
+It exists to represent code as document content without normal execution
+semantics, while still preserving source text, programming language,
+authorship, and provenance metadata. This provides a common foundation for
+static code blocks and inline code.
+
+Key properties include `code`, `programmingLanguage`, `authors`, and
+`provenance`.
 
 
 # Properties
@@ -14,11 +20,11 @@ The `CodeStatic` type has these properties:
 
 | Name                  | Description                              | Type                                        | Inherited from          |
 | --------------------- | ---------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `code`                | The code.                                | [`Cord`](./cord.md)                         | -                       |
 | `programmingLanguage` | The programming language of the code.    | [`String`](./string.md)                     | -                       |
 | `authors`             | The authors of the code.                 | [`Author`](./author.md)*                    | -                       |
 | `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

@@ -9,7 +9,7 @@ import { type Text } from "./Text.js";
 import { type VideoObject } from "./VideoObject.js";
 
 /**
- * A union type for a part of a message.
+ * A union type for message parts.
  */
 export type MessagePart =
   Text |

@@ -8,7 +8,21 @@
   ],
   "category": "prose",
   "description": "A reference to a `CreativeWork` that is cited in another `CreativeWork`.",
-  "$comment": "A `Citation` node is used within a [`CreativeWork`](./creative-work.md), usually an\n[`Article`](./article.md), to refer to an other `CreativeWork`.\nOften a `Citation` will be associated with other citations, in a `CitationGroup`.\n",
+  "$comment": "This is a type used in Stencila Schema for in-text citations of creative works.\n\nIt exists to represent a citation as a structured inline node that can be\nresolved, rendered according to a document's citation style, and enriched with\nrhetorical intent and pagination metadata. Unlike a plain text reference, it\ncan preserve both the citation target and its rendered form.\n\nKey properties include `target`, `cites`, `citationMode`,\n`citationIntent`, `content`, and any page or suffix metadata.\n",
+  "analogues": [
+    {
+      "id": "jats:xref",
+      "notes": "Closest JATS cross-reference analogue for in-text citations, though Stencila citations carry richer citation-specific metadata and resolved reference data."
+    },
+    {
+      "id": "pandoc:Cite",
+      "notes": "Closest Pandoc analogue for inline citations, with similar support for grouped items and prefixes or suffixes."
+    },
+    {
+      "id": "myst:role:cite",
+      "notes": "Close MyST analogue for citation syntax in authoring, though Stencila stores the citation as a resolved inline node with additional metadata."
+    }
+  ],
   "jats": {
     "special": true
   },

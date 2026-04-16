@@ -12,7 +12,7 @@
       "@id": "stencila:EnumValidator",
       "@type": "rdfs:Class",
       "rdfs:label": "EnumValidator",
-      "rdfs:comment": "A schema specifying that a node must be one of several values.",
+      "rdfs:comment": "A validator for a fixed set of allowed values.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

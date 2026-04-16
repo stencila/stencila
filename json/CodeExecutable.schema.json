@@ -8,8 +8,8 @@
   ],
   "category": "code",
   "abstract": true,
-  "description": "Abstract base type for executable code nodes (e.g. `CodeChunk`).",
-  "$comment": "Adds properties to the base `Executable` node type that are necessary for executable code.\nThe added properties are the same as for static code nodes. Both `code` and `programmingLanguage` are required.\n",
+  "description": "An abstract base type for executable code nodes.",
+  "$comment": "This is an abstract base type used in Stencila Schema for executable code nodes.\n\nIt extends [`Executable`](./executable.md) with the shared properties needed\nfor runnable code, such as source text, programming language, execution\nbounds, and code-specific provenance. This provides a common foundation for\nexecutable code blocks and expressions.\n\nKey properties include `code`, `programmingLanguage`, `executionBounds`, and\ninherited execution metadata from [`Executable`](./executable.md).\n",
   "required": [
     "type",
     "code"

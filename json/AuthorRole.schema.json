@@ -8,6 +8,18 @@
   ],
   "category": "works",
   "description": "An author and their role.",
+  "$comment": "This is a Stencila Schema specialization of schema.org\n[`Role`](https://schema.org/Role) for authorship.\n\nIt exists to represent not just who contributed to a work, but how they\ncontributed and in what format or editing context. This supports richer\nprovenance, attribution, and contribution tracking than a flat list of authors\nalone.\n\nKey properties include `author`, `roleName`, `format`, and `lastModified`.\n",
+  "analogues": [
+    {
+      "id": "schema:Role",
+      "notes": "Direct schema.org source pattern, specialized by Stencila for authorship and contribution provenance."
+    },
+    {
+      "name": "CRediT contributor role assertion",
+      "url": "https://credit.niso.org/",
+      "notes": "Approximate analogue for attributed contributor roles, though Stencila additionally records author identity, format, and modification metadata in one node."
+    }
+  ],
   "dom": {
     "derive": false
   },

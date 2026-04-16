@@ -53,7 +53,7 @@ class _Base:
 
 class AdmonitionType(StrEnum):
     """
-    The type of an `Admonition`.
+    A category of admonition.
     """
 
     Note = "Note"
@@ -69,7 +69,7 @@ class AdmonitionType(StrEnum):
 
 class AuthorRoleName(StrEnum):
     """
-    A `roleName` for an `AuthorRole`.
+    A controlled author contribution role.
     """
 
     Importer = "Importer"
@@ -87,7 +87,7 @@ class AuthorRoleName(StrEnum):
 
 class CitationIntent(StrEnum):
     """
-    The type or nature of a citation, both factually and rhetorically.
+    The rhetorical or factual intent of a citation.
     """
 
     AgreesWith = "AgreesWith"
@@ -185,7 +185,7 @@ class CitationIntent(StrEnum):
 
 class CitationMode(StrEnum):
     """
-    The mode of a `Citation`.
+    The presentation mode of a citation.
     """
 
     Parenthetical = "Parenthetical"
@@ -196,7 +196,7 @@ class CitationMode(StrEnum):
 
 class ClaimType(StrEnum):
     """
-    The type of a `Claim`.
+    A category of claim.
     """
 
     Statement = "Statement"
@@ -211,7 +211,7 @@ class ClaimType(StrEnum):
 
 class CreativeWorkType(StrEnum):
     """
-    The kind of a creative work.
+    A category of creative work.
     """
 
     Agent = "Agent"
@@ -256,7 +256,7 @@ class CreativeWorkType(StrEnum):
 
 class ExecutionBounds(StrEnum):
     """
-    The bounds placed on the execution of a document node.
+    A boundary for node execution.
     """
 
     Main = "Main"
@@ -266,7 +266,7 @@ class ExecutionBounds(StrEnum):
 
 class ExecutionDependantRelation(StrEnum):
     """
-    The relation between a node and its execution dependant.
+    A downstream execution relation between nodes.
     """
 
     Assigns = "Assigns"
@@ -277,7 +277,7 @@ class ExecutionDependantRelation(StrEnum):
 
 class ExecutionDependencyRelation(StrEnum):
     """
-    The relation between a node and its execution dependency.
+    An upstream execution relation between nodes.
     """
 
     Calls = "Calls"
@@ -290,7 +290,7 @@ class ExecutionDependencyRelation(StrEnum):
 
 class ExecutionMode(StrEnum):
     """
-    Under which circumstances a node should be executed.
+    The circumstances under which a node should be executed.
     """
 
     Demand = "Demand"
@@ -302,7 +302,7 @@ class ExecutionMode(StrEnum):
 
 class ExecutionRequired(StrEnum):
     """
-    Whether, and why, the execution of a node is required or not.
+    A reason why a node does or does not require execution.
     """
 
     No = "No"
@@ -320,7 +320,7 @@ class ExecutionRequired(StrEnum):
 
 class ExecutionStatus(StrEnum):
     """
-    Status of the most recent, including any current, execution of a document node.
+    The status of a node's most recent execution.
     """
 
     Scheduled = "Scheduled"
@@ -340,7 +340,7 @@ class ExecutionStatus(StrEnum):
 
 class FormDeriveAction(StrEnum):
     """
-    Indicates the action (create, update or delete) to derive for a `Form`.
+    An action for applying a derived form value.
     """
 
     Create = "Create"
@@ -363,7 +363,7 @@ class HorizontalAlignment(StrEnum):
 
 class InstructionType(StrEnum):
     """
-    The type of an instruction describing the operation to be performed.
+    An operation requested by an instruction.
     """
 
     Discuss = "Discuss"
@@ -375,7 +375,7 @@ class InstructionType(StrEnum):
 
 class LabelType(StrEnum):
     """
-    Indicates how a block (usually a `CodeChunk`) should be automatically labelled.
+    An automatic labeling category.
     """
 
     AppendixLabel = "AppendixLabel"
@@ -386,7 +386,7 @@ class LabelType(StrEnum):
 
 class ListOrder(StrEnum):
     """
-    Indicates how a `List` is ordered.
+    The ordering of a list.
     """
 
     Ascending = "Ascending"
@@ -396,7 +396,7 @@ class ListOrder(StrEnum):
 
 class MessageLevel(StrEnum):
     """
-    The severity level of a message.
+    A severity level for a message.
     """
 
     Trace = "Trace"
@@ -409,7 +409,7 @@ class MessageLevel(StrEnum):
 
 class MessageRole(StrEnum):
     """
-    The role of a message.
+    A role in a message exchange.
     """
 
     System = "System"
@@ -419,7 +419,7 @@ class MessageRole(StrEnum):
 
 class NoteType(StrEnum):
     """
-    The type of a `Note` which determines where the note content is displayed within the document.
+    A category of note placement.
     """
 
     Footnote = "Footnote"
@@ -429,7 +429,7 @@ class NoteType(StrEnum):
 
 class ProvenanceCategory(StrEnum):
     """
-    A description of the provenance of content in terms of human/machine involvement.
+    A category of content provenance.
     """
 
     HwHeHv = "HwHeHv"
@@ -453,7 +453,7 @@ class ProvenanceCategory(StrEnum):
 
 class RelativePosition(StrEnum):
     """
-    The relative position of a node to another.
+    The position of one node relative to another.
     """
 
     Previous = "Previous"
@@ -462,7 +462,7 @@ class RelativePosition(StrEnum):
 
 class SectionType(StrEnum):
     """
-    The type of a `Section`.
+    A category of section.
     """
 
     Abstract = "Abstract"
@@ -506,7 +506,7 @@ class SectionType(StrEnum):
 
 class SuggestionStatus(StrEnum):
     """
-    The status of an instruction.
+    A review status for a suggestion.
     """
 
     Original = "Original"
@@ -516,7 +516,7 @@ class SuggestionStatus(StrEnum):
 
 class SuggestionType(StrEnum):
     """
-    The type of a suggestion.
+    A category of suggested edit.
     """
 
     Insert = "Insert"
@@ -526,7 +526,7 @@ class SuggestionType(StrEnum):
 
 class TableCellType(StrEnum):
     """
-    Indicates whether the cell is a header or data.
+    The structural role of a table cell.
     """
 
     DataCell = "DataCell"
@@ -535,7 +535,7 @@ class TableCellType(StrEnum):
 
 class TableRowType(StrEnum):
     """
-    Indicates whether the row is in the header, body or footer of the table.
+    The structural role of a table row.
     """
 
     HeaderRow = "HeaderRow"
@@ -578,7 +578,7 @@ class VerticalAlignment(StrEnum):
 @dataclass(kw_only=True, repr=False)
 class Entity(_Base):
     """
-    Abstract base type for compound (ie. non-atomic) nodes.
+    An abstract base type for compound nodes.
     """
 
     type: Literal["Entity"] = "Entity"
@@ -617,7 +617,7 @@ class Thing(Entity):
 @dataclass(kw_only=True, repr=False)
 class CreativeWork(Thing):
     """
-    A creative work, including books, movies, photographs, software programs, etc.
+    A creative work.
     """
 
     type: Literal["CreativeWork"] = "CreativeWork"
@@ -719,7 +719,7 @@ class CreativeWork(Thing):
 @dataclass(kw_only=True, repr=False)
 class Executable(Entity):
     """
-    Abstract base type for executable nodes (e.g. `CodeChunk`, `CodeExpression`, `Call`).
+    An abstract base type for executable nodes.
     """
 
     type: Literal["Executable"] = "Executable"
@@ -770,7 +770,7 @@ class Executable(Entity):
 @dataclass(kw_only=True, repr=False)
 class Styled(Entity):
     """
-    An abstract base class for a document node that has styling applied to it and/or its content.
+    An abstract base type for styled content.
     """
 
     type: Literal["Styled"] = "Styled"
@@ -803,7 +803,7 @@ class Styled(Entity):
 @dataclass(kw_only=True, repr=False)
 class CodeExecutable(Executable):
     """
-    Abstract base type for executable code nodes (e.g. `CodeChunk`).
+    An abstract base type for executable code nodes.
     """
 
     type: Literal["CodeExecutable"] = "CodeExecutable"
@@ -830,7 +830,7 @@ class CodeExecutable(Executable):
 @dataclass(kw_only=True, repr=False)
 class CodeStatic(Entity):
     """
-    Abstract base type for non-executable code nodes (e.g. `CodeBlock`).
+    An abstract base type for non-executable code nodes.
     """
 
     type: Literal["CodeStatic"] = "CodeStatic"
@@ -884,7 +884,7 @@ class Grant(Thing):
 @dataclass(kw_only=True, repr=False)
 class IncludeBlock(Executable):
     """
-    Include block content from an external source (e.g. file, URL).
+    A block that includes content from an external source.
     """
 
     type: Literal["IncludeBlock"] = "IncludeBlock"
@@ -905,7 +905,7 @@ class IncludeBlock(Executable):
 @dataclass(kw_only=True, repr=False)
 class Instruction(Executable):
     """
-    Abstract base type for a document editing instruction.
+    An abstract base type for document editing instructions.
     """
 
     type: Literal["Instruction"] = "Instruction"
@@ -929,7 +929,7 @@ class Instruction(Executable):
 @dataclass(kw_only=True, repr=False)
 class Mark(Entity):
     """
-    Abstract base class for nodes that mark some other inline content in some way (e.g. as being emphasised, or quoted).
+    An abstract base type for marked inline content.
     """
 
     type: Literal["Mark"] = "Mark"
@@ -941,7 +941,7 @@ class Mark(Entity):
 @dataclass(kw_only=True, repr=False)
 class Math(Entity):
     """
-    Abstract base type for a mathematical variable or equation.
+    An abstract base type for mathematical content.
     """
 
     type: Literal["Math"] = "Math"
@@ -974,7 +974,7 @@ class Math(Entity):
 @dataclass(kw_only=True, repr=False)
 class MediaObject(CreativeWork):
     """
-    A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+    A media object.
     """
 
     type: Literal["MediaObject"] = "MediaObject"
@@ -998,7 +998,7 @@ class MediaObject(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class NumberValidator(Entity):
     """
-    A validator specifying the constraints on a numeric node.
+    A validator for numeric values.
     """
 
     type: Literal["NumberValidator"] = "NumberValidator"
@@ -1022,7 +1022,7 @@ class NumberValidator(Entity):
 @dataclass(kw_only=True, repr=False)
 class Parameter(Executable):
     """
-    A parameter of a document.
+    A document parameter.
     """
 
     type: Literal["Parameter"] = "Parameter"
@@ -1127,7 +1127,7 @@ class Admonition(Entity):
 @dataclass(kw_only=True, repr=False)
 class Agent(CreativeWork):
     """
-    An agent definition specifying model, tools, and behavioral configuration.
+    An AI agent definition.
     """
 
     type: Literal["Agent"] = "Agent"
@@ -1223,7 +1223,7 @@ class Annotation(Mark):
 @dataclass(kw_only=True, repr=False)
 class AppendixBreak(Entity):
     """
-    A break in a document indicating the start one or more appendices.
+    A break marking the start of appendices.
     """
 
     type: Literal["AppendixBreak"] = "AppendixBreak"
@@ -1235,7 +1235,7 @@ class AppendixBreak(Entity):
 @dataclass(kw_only=True, repr=False)
 class ArrayHint(Entity):
     """
-    A hint to the content of an `Array`.
+    A concise summary of the values and structure of an `Array`.
     """
 
     type: Literal["ArrayHint"] = "ArrayHint"
@@ -1373,7 +1373,7 @@ class Bibliography(Executable):
 @dataclass(kw_only=True, repr=False)
 class BooleanValidator(Entity):
     """
-    A schema specifying that a node must be a boolean value.
+    A validator for boolean values.
     """
 
     type: Literal["BooleanValidator"] = "BooleanValidator"
@@ -1382,7 +1382,7 @@ class BooleanValidator(Entity):
 @dataclass(kw_only=True, repr=False)
 class Boundary(Entity):
     """
-    A positional marker within inline content used to define the boundary of a cross-block range. Boundaries are referenced by their `id` from other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to delimit regions that may span across multiple blocks.
+    A positional boundary marker within inline content.
     """
 
     type: Literal["Boundary"] = "Boundary"
@@ -1406,7 +1406,7 @@ class Brand(Thing):
 @dataclass(kw_only=True, repr=False)
 class Button(CodeExecutable):
     """
-    A button.
+    An interactive button.
     """
 
     type: Literal["Button"] = "Button"
@@ -1424,7 +1424,7 @@ class Button(CodeExecutable):
 @dataclass(kw_only=True, repr=False)
 class CallArgument(Parameter):
     """
-    The value of a `Parameter` to call a document with.
+    An argument used when calling a document.
     """
 
     type: Literal["CallArgument"] = "CallArgument"
@@ -1571,7 +1571,7 @@ class CitationGroup(Entity):
 @dataclass(kw_only=True, repr=False)
 class Claim(CreativeWork):
     """
-    A claim represents specific reviewable facts or statements.
+    A reviewable claim or statement.
     """
 
     type: Literal["Claim"] = "Claim"
@@ -1610,7 +1610,7 @@ class CodeBlock(CodeStatic):
 @dataclass(kw_only=True, repr=False)
 class CodeChunk(CodeExecutable):
     """
-    A executable chunk of code.
+    An executable code chunk.
     """
 
     type: Literal["CodeChunk"] = "CodeChunk"
@@ -1682,7 +1682,7 @@ class CodeInline(CodeStatic):
 @dataclass(kw_only=True, repr=False)
 class CodeLocation(Entity):
     """
-    The location within some source code.
+    A location within source code.
     """
 
     type: Literal["CodeLocation"] = "CodeLocation"
@@ -1706,7 +1706,7 @@ class CodeLocation(Entity):
 @dataclass(kw_only=True, repr=False)
 class Collection(CreativeWork):
     """
-    A collection of CreativeWorks or other artifacts.
+    A collection of creative works or other artifacts.
     """
 
     type: Literal["Collection"] = "Collection"
@@ -1715,7 +1715,7 @@ class Collection(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class Comment(CreativeWork):
     """
-    A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
+    A comment on an item.
     """
 
     type: Literal["Comment"] = "Comment"
@@ -1736,7 +1736,7 @@ class Comment(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class CompilationDigest(Entity):
     """
-    A digest of the content, semantics and dependencies of an executable node.
+    A digest of an executable node and its dependencies.
     """
 
     type: Literal["CompilationDigest"] = "CompilationDigest"
@@ -1835,7 +1835,7 @@ class DatatableColumn(Entity):
 @dataclass(kw_only=True, repr=False)
 class DatatableColumnHint(Entity):
     """
-    A hint to the type and values in a `DatatableColumn`.
+    A concise summary of the properties of a `DatatableColumn`.
     """
 
     type: Literal["DatatableColumnHint"] = "DatatableColumnHint"
@@ -1859,7 +1859,7 @@ class DatatableColumnHint(Entity):
 @dataclass(kw_only=True, repr=False)
 class DatatableHint(Entity):
     """
-    A hint to the structure of a table of data.
+    A concise summary of the structure of a table of data.
     """
 
     type: Literal["DatatableHint"] = "DatatableHint"
@@ -1940,7 +1940,7 @@ class DefinedTerm(Thing):
 @dataclass(kw_only=True, repr=False)
 class Directory(Entity):
     """
-    A directory on the file system.
+    A directory on a file system.
     """
 
     type: Literal["Directory"] = "Directory"
@@ -2000,7 +2000,7 @@ class Emphasis(Mark):
 @dataclass(kw_only=True, repr=False)
 class EnumValidator(Entity):
     """
-    A schema specifying that a node must be one of several values.
+    A validator for a fixed set of allowed values.
     """
 
     type: Literal["EnumValidator"] = "EnumValidator"
@@ -2108,7 +2108,7 @@ class ExecutionMessage(Entity):
 @dataclass(kw_only=True, repr=False)
 class ExecutionTag(Entity):
     """
-    A tag on code that affects its execution.
+    An execution-affecting tag on code.
     """
 
     type: Literal["ExecutionTag"] = "ExecutionTag"
@@ -2126,7 +2126,7 @@ class ExecutionTag(Entity):
 @dataclass(kw_only=True, repr=False)
 class Figure(CreativeWork):
     """
-    Encapsulates one or more images, videos, tables, etc, and provides captions and labels for them.
+    A figure.
     """
 
     type: Literal["Figure"] = "Figure"
@@ -2192,7 +2192,7 @@ class File(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class ForBlock(CodeExecutable):
     """
-    Repeat a block content for each item in an array.
+    A block that repeats content for each item in an array.
     """
 
     type: Literal["ForBlock"] = "ForBlock"
@@ -2213,7 +2213,7 @@ class ForBlock(CodeExecutable):
 @dataclass(kw_only=True, repr=False)
 class Form(Executable):
     """
-    A form to batch updates in document parameters.
+    A form for batched updates to document parameters.
     """
 
     type: Literal["Form"] = "Form"
@@ -2234,7 +2234,7 @@ class Form(Executable):
 @dataclass(kw_only=True, repr=False)
 class Function(Entity):
     """
-    A function with a name, which might take Parameters and return a value of a certain type.
+    A function signature.
     """
 
     type: Literal["Function"] = "Function"
@@ -2300,7 +2300,7 @@ class Icon(Entity):
 @dataclass(kw_only=True, repr=False)
 class IfBlock(Executable):
     """
-    Show and execute alternative content conditional upon an executed expression.
+    A block that conditionally shows and executes alternative content.
     """
 
     type: Literal["IfBlock"] = "IfBlock"
@@ -2408,7 +2408,7 @@ class InstructionMessage(Entity):
 @dataclass(kw_only=True, repr=False)
 class IntegerValidator(NumberValidator):
     """
-    A validator specifying the constraints on an integer node.
+    A validator for integer values.
     """
 
     type: Literal["IntegerValidator"] = "IntegerValidator"
@@ -2600,7 +2600,7 @@ class MonetaryGrant(Grant):
 @dataclass(kw_only=True, repr=False)
 class Note(Entity):
     """
-    Additional content which is not part of the main content of a document.
+    A note associated with document content.
     """
 
     type: Literal["Note"] = "Note"
@@ -2615,7 +2615,7 @@ class Note(Entity):
 @dataclass(kw_only=True, repr=False)
 class ObjectHint(Entity):
     """
-    A hint to the structure of an `Object`.
+    A concise summary of the structure of an `Object`.
     """
 
     type: Literal["ObjectHint"] = "ObjectHint"
@@ -2672,7 +2672,7 @@ class Organization(Thing):
 @dataclass(kw_only=True, repr=False)
 class Page(StyledBlock):
     """
-    A separate page in a document
+    A page in a document.
     """
 
     type: Literal["Page"] = "Page"
@@ -2789,7 +2789,7 @@ class PostalAddress(ContactPoint):
 @dataclass(kw_only=True, repr=False)
 class Product(Thing):
     """
-    Any offered product or service. For example, a pair of shoes; a haircut; or an episode of a TV show streamed online.
+    A product or service.
     """
 
     type: Literal["Product"] = "Product"
@@ -2834,7 +2834,7 @@ class Prompt(CreativeWork, Executable):
 @dataclass(kw_only=True, repr=False)
 class PromptBlock(Executable):
     """
-    A preview of how a prompt will be rendered at a location in the document
+    A preview of a rendered prompt at a location in a document.
     """
 
     type: Literal["PromptBlock"] = "PromptBlock"
@@ -2897,7 +2897,7 @@ class ProvenanceCount(Entity):
 @dataclass(kw_only=True, repr=False)
 class PublicationIssue(CreativeWork):
     """
-    A part of a successively published publication such as a periodical or publication volume, often numbered.
+    A publication issue.
     """
 
     type: Literal["PublicationIssue"] = "PublicationIssue"
@@ -2918,7 +2918,7 @@ class PublicationIssue(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class PublicationVolume(CreativeWork):
     """
-    A part of a successively published publication such as a periodical or multi-volume work.
+    A publication volume.
     """
 
     type: Literal["PublicationVolume"] = "PublicationVolume"
@@ -2972,7 +2972,7 @@ class QuoteInline(Mark):
 @dataclass(kw_only=True, repr=False)
 class RawBlock(Entity):
     """
-    Document content in a specific format
+    A block of raw content in a specific format.
     """
 
     type: Literal["RawBlock"] = "RawBlock"
@@ -3155,7 +3155,7 @@ class SoftwareApplication(CreativeWork):
 @dataclass(kw_only=True, repr=False)
 class SoftwareSourceCode(CreativeWork):
     """
-    Computer programming source code. Example: Full (compile ready) solutions, code snippet samples, scripts, templates.
+    Source code for software.
     """
 
     type: Literal["SoftwareSourceCode"] = "SoftwareSourceCode"
@@ -3188,7 +3188,7 @@ class Strikeout(Mark):
 @dataclass(kw_only=True, repr=False)
 class StringHint(Entity):
     """
-    A hint to the structure of an `String`.
+    A concise summary of the properties of a `String`.
     """
 
     type: Literal["StringHint"] = "StringHint"
@@ -3200,7 +3200,7 @@ class StringHint(Entity):
 @dataclass(kw_only=True, repr=False)
 class StringValidator(Entity):
     """
-    A schema specifying constraints on a string node.
+    A validator for string values.
     """
 
     type: Literal["StringValidator"] = "StringValidator"
@@ -3287,7 +3287,7 @@ class Superscript(Mark):
 @dataclass(kw_only=True, repr=False)
 class Supplement(Entity):
     """
-    A supplementary `CreativeWork` that supports this work but is not considered part of its main content.
+    A supplementary creative work associated with a document.
     """
 
     type: Literal["Supplement"] = "Supplement"
@@ -3389,7 +3389,7 @@ class TableRow(Entity):
 @dataclass(kw_only=True, repr=False)
 class Text(Entity):
     """
-    Textual content.
+    A text node.
     """
 
     type: Literal["Text"] = "Text"
@@ -3404,7 +3404,7 @@ class Text(Entity):
 @dataclass(kw_only=True, repr=False)
 class ThematicBreak(Entity):
     """
-    A thematic break, such as a scene change in a story, a transition to another topic, or a new document.
+    A thematic break.
     """
 
     type: Literal["ThematicBreak"] = "ThematicBreak"
@@ -3494,7 +3494,7 @@ class Underline(Mark):
 @dataclass(kw_only=True, repr=False)
 class Unknown(Entity):
     """
-    A type to indicate a value or or other type in unknown.
+    A placeholder for a value of unknown type.
     """
 
     type: Literal["Unknown"] = "Unknown"
@@ -3503,7 +3503,7 @@ class Unknown(Entity):
 @dataclass(kw_only=True, repr=False)
 class Variable(Entity):
     """
-    A variable representing a name / value pair.
+    A named value.
     """
 
     type: Literal["Variable"] = "Variable"
@@ -3551,7 +3551,7 @@ class VideoObject(MediaObject):
 @dataclass(kw_only=True, repr=False)
 class Walkthrough(Entity):
     """
-    An interactive walkthrough made up of several, successively revealed steps.
+    An interactive walkthrough.
     """
 
     type: Literal["Walkthrough"] = "Walkthrough"
@@ -3566,7 +3566,7 @@ class Walkthrough(Entity):
 @dataclass(kw_only=True, repr=False)
 class WalkthroughStep(Entity):
     """
-    A step in a walkthrough.
+    A step in a `Walkthrough`.
     """
 
     type: Literal["WalkthroughStep"] = "WalkthroughStep"
@@ -3581,7 +3581,7 @@ class WalkthroughStep(Entity):
 @dataclass(kw_only=True, repr=False)
 class Workflow(CreativeWork):
     """
-    A workflow pipeline definition using Graphviz DOT syntax to orchestrate multi-stage AI tasks.
+    An AI workflow definition.
     """
 
     type: Literal["Workflow"] = "Workflow"
@@ -3632,7 +3632,7 @@ Author = Union[
     AuthorRole,
 ]
 """
-Union type for things that can be an author of a `CreativeWork` or other type.
+A union type for authors of a `CreativeWork` or other type.
 """
 
 
@@ -3643,7 +3643,7 @@ AuthorRoleAuthor = Union[
     Thing,
 ]
 """
-Union type for things that can be an author in `AuthorRole`.
+A union type for authors in an `AuthorRole`.
 """
 
 
@@ -3688,7 +3688,7 @@ Block = Union[
     Walkthrough,
 ]
 """
-Union type in block content node types.
+A union type for block content.
 """
 
 
@@ -3791,7 +3791,7 @@ MessagePart = Union[
     File,
 ]
 """
-A union type for a part of a message.
+A union type for message parts.
 """
 
 
@@ -4006,7 +4006,7 @@ Validator = Union[
     TupleValidator,
 ]
 """
-Union type for validators.
+A union type for validators.
 """
 
 

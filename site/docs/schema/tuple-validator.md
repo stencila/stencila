@@ -3,14 +3,24 @@ title: Tuple Validator
 description: A validator specifying constraints on an array of heterogeneous items.
 ---
 
+This is a type used in Stencila Schema for validating heterogeneous arrays.
+
+It adapts tuple-style validation ideas from JSON Schema to Stencila's node
+model, allowing arrays to be constrained positionally when each item has a
+different expected type or validator. This is useful for structured arguments
+and compact data records.
+
+Key properties describe per-position validators and array-length constraints.
+
+
 # Properties
 
 The `TupleValidator` type has these properties:
 
 | Name    | Description                                                                             | Type                           | Inherited from          |
 | ------- | --------------------------------------------------------------------------------------- | ------------------------------ | ----------------------- |
-| `id`    | The identifier for this item.                                                           | [`String`](./string.md)        | [`Entity`](./entity.md) |
 | `items` | An array of validators specifying the constraints on each successive item in the array. | [`Validator`](./validator.md)* | -                       |
+| `id`    | The identifier for this item.                                                           | [`String`](./string.md)        | [`Entity`](./entity.md) |
 
 # Related
 

@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying constraints on an array of heterogeneous items.",
+  "$comment": "This is a type used in Stencila Schema for validating heterogeneous arrays.\n\nIt adapts tuple-style validation ideas from JSON Schema to Stencila's node\nmodel, allowing arrays to be constrained positionally when each item has a\ndifferent expected type or validator. This is useful for structured arguments\nand compact data records.\n\nKey properties describe per-position validators and array-length constraints.\n",
   "markdown": {
     "derive": false
   },

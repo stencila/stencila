@@ -7,7 +7,8 @@
     "CodeExecutable"
   ],
   "category": "flow",
-  "description": "A button.",
+  "description": "An interactive button.",
+  "$comment": "This is an executable type used in Stencila Schema for interactive button controls\nembedded in documents.\n\nIt extends [`CodeExecutable`](./code-executable.md) so button activation can\ntrigger execution behavior while still participating in the document node\nmodel. This allows published or interactive documents to expose lightweight\nactions without requiring a separate application UI.\n\nKey properties are primarily inherited from\n[`CodeExecutable`](./code-executable.md), including execution configuration,\ncode, and outputs.\n",
   "status": "experimental",
   "html": {
     "elem": "button"

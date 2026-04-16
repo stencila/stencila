@@ -3,9 +3,22 @@ title: Underline
 description: Inline text that is underlined.
 ---
 
-Analogues of `Underline` in other schema include:
-- Pandoc [`Underline`](https://github.com/jgm/pandoc-types/blob/master/src/Text/Pandoc/Definition.hs)
+This is an inline mark type used in Stencila Schema for underlined content.
 
+It extends [`Mark`](./mark.md) to preserve underline semantics in a
+structured, format-independent inline model.
+
+Key properties are inherited from [`Mark`](./mark.md), especially the wrapped
+inline `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Underline`:
+
+- HTML [`<u>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/u)
+- JATS [`<underline>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/underline.html)
+- Pandoc [`Underline`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Underline)
 
 # Properties
 
@@ -13,8 +26,8 @@ The `Underline` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

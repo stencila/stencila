@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A hint to the structure of a table of data.",
+  "description": "A concise summary of the structure of a table of data.",
+  "$comment": "This is a type used in Stencila Schema for providing a concise summary of the\nstructure of a [`Datatable`](./datatable.md).\n\nIt exists to support both human and machine understanding of tabular data,\nincluding schema inference, import workflows, user interfaces, and code\ngeneration workflows such as choosing suitable visualizations for large\ndatasets. Unlike validators, it summarizes observed or inferred structure\nrather than enforcing it.\n\nKey properties include per-column hints and dataset-level observations.\n",
   "required": [
     "type",
     "rows",

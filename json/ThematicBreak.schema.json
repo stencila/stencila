@@ -8,7 +8,22 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "A thematic break, such as a scene change in a story, a transition to another topic, or a new document.",
+  "description": "A thematic break.",
+  "$comment": "This is a block type used in Stencila Schema for thematic or scene breaks, analogous\nto HTML `<hr>` and Markdown thematic breaks.\n\nIt exists to preserve this structural break as an explicit node within the\ndocument model rather than as a formatting artifact.\n\nThis type is mainly useful as a block separator within prose-oriented content\nmodels such as [`Block`](./block.md).\n",
+  "analogues": [
+    {
+      "id": "html:hr"
+    },
+    {
+      "id": "jats:hr"
+    },
+    {
+      "id": "pandoc:HorizontalRule"
+    },
+    {
+      "id": "mdast:ThematicBreak"
+    }
+  ],
   "dom": {
     "elem": "hr"
   },

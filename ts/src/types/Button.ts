@@ -4,7 +4,7 @@ import { CodeExecutable } from "./CodeExecutable.js";
 import { Cord } from "./Cord.js";
 
 /**
- * A button.
+ * An interactive button.
  */
 export class Button extends CodeExecutable {
   // @ts-expect-error 'not assignable to the same property in base type'

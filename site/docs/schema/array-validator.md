@@ -3,19 +3,30 @@ title: Array Validator
 description: A validator specifying constraints on an array node.
 ---
 
+This is a type used in Stencila Schema for validating [`Array`](./array.md) nodes.
+
+It adapts ideas from JSON Schema array validation to Stencila's node-based
+data model, allowing constraints to be expressed over arrays of primitive
+values and other node types. This makes it suitable for document parameters,
+forms, and structured data checks.
+
+Key properties describe item validators, tuple-like validation, and size
+constraints.
+
+
 # Properties
 
 The `ArrayValidator` type has these properties:
 
 | Name             | Description                                                                                 | Type                          | Inherited from          |
 | ---------------- | ------------------------------------------------------------------------------------------- | ----------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                                                               | [`String`](./string.md)       | [`Entity`](./entity.md) |
 | `itemsNullable`  | Whether items can have the value `Node::Null`                                               | [`Boolean`](./boolean.md)     | -                       |
 | `itemsValidator` | Another validator node specifying the constraints on all items in the array.                | [`Validator`](./validator.md) | -                       |
 | `contains`       | An array node is valid if at least one of its items is valid against the `contains` schema. | [`Validator`](./validator.md) | -                       |
 | `minItems`       | An array node is valid if its size is greater than, or equal to, this value.                | [`Integer`](./integer.md)     | -                       |
 | `maxItems`       | An array node is valid if its size is less than, or equal to, this value.                   | [`Integer`](./integer.md)     | -                       |
 | `uniqueItems`    | A flag to indicate that each value in the array should be unique.                           | [`Boolean`](./boolean.md)     | -                       |
+| `id`             | The identifier for this item.                                                               | [`String`](./string.md)       | [`Entity`](./entity.md) |
 
 # Related
 

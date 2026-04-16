@@ -5,7 +5,7 @@ import { Entity } from "./Entity.js";
 import { NoteType } from "./NoteType.js";
 
 /**
- * Additional content which is not part of the main content of a document.
+ * A note associated with document content.
  */
 export class Note extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

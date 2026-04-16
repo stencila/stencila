@@ -7,6 +7,12 @@
     "Thing"
   ],
   "description": "A brand used by an organization or person for labeling a product, product group, or similar.",
+  "$comment": "This is an implementation of schema.org [`Brand`](https://schema.org/Brand).\n\nIn Stencila Schema it is used as structured metadata on products,\norganizations, and related entities while remaining interoperable with the\nschema.org vocabulary. It mainly serves bibliographic and descriptive use\ncases rather than introducing document-specific behavior of its own.\n\nKey properties are generally inherited from [`Thing`](./thing.md), especially\n`name`, `description`, identifiers, and URLs.\n",
+  "analogues": [
+    {
+      "id": "schema:Brand"
+    }
+  ],
   "required": [
     "type",
     "name"

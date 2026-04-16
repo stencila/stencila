@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::node::Node;
 use super::string::String;
 
-/// A schema specifying that a node must be one of several values.
+/// A validator for a fixed set of allowed values.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]

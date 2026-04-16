@@ -42,7 +42,7 @@ import { type VideoObject } from "./VideoObject.js";
 import { type Walkthrough } from "./Walkthrough.js";
 
 /**
- * Union type in block content node types.
+ * A union type for block content.
  */
 export type Block =
   Admonition |

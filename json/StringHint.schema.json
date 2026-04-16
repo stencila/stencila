@@ -8,7 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A hint to the structure of an `String`.",
+  "description": "A concise summary of the properties of a `String`.",
+  "$comment": "This is a type used in Stencila Schema for providing a concise summary of the\nproperties of a [`String`](./string.md).\n\nIt exists to support both human and machine understanding of textual data,\nincluding schema inference, editing assistance, and downstream code\ngeneration. Rather than turning observations into hard constraints, it\nsummarizes characteristics that can help tools and readers work with string\nvalues.\n\nKey properties describe expected patterns, length characteristics, and\nrepresentative values.\n",
   "required": [
     "type",
     "chars"

@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A positional marker within inline content used to define the boundary of a cross-block range. Boundaries are referenced by their `id` from other nodes (e.g. `Comment.startLocation` and `Comment.endLocation`) to delimit regions that may span across multiple blocks.
+ * A positional boundary marker within inline content.
  */
 export class Boundary extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -12,7 +12,7 @@
       "@id": "stencila:FormDeriveAction",
       "@type": "rdfs:Class",
       "rdfs:label": "FormDeriveAction",
-      "rdfs:comment": "Indicates the action (create, update or delete) to derive for a `Form`.",
+      "rdfs:comment": "An action for applying a derived form value.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

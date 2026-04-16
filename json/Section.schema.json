@@ -8,6 +8,25 @@
   ],
   "category": "prose",
   "description": "A section of a document.",
+  "$comment": "This is a type used in Stencila Schema for document sections, analogous to section\ncontainers in HTML, JATS, and other structured document models.\n\nIt exists to group block content under headings while carrying structured\nmetadata, authorship, and provenance. Unlike a plain heading hierarchy\ninferred from text alone, explicit sections allow more reliable transformation\nand editing workflows.\n\nKey properties include `sectionType`, `title`, and `content`, together with\ninherited metadata from [`Entity`](./entity.md).\n",
+  "analogues": [
+    {
+      "id": "html:section",
+      "notes": "Closest HTML sectioning analogue, though Stencila sections can carry typed section roles, authorship, and provenance metadata."
+    },
+    {
+      "id": "jats:sec",
+      "notes": "Closest JATS analogue for structured document sections."
+    },
+    {
+      "id": "pandoc:Div",
+      "notes": "Closest Pandoc container analogue when divisions are used to represent sections; Stencila uses a dedicated section node with explicit semantics."
+    },
+    {
+      "id": "mdast:Heading",
+      "notes": "Markdown ASTs often imply sections through heading structure rather than an explicit section container, so this is only an approximate analogue."
+    }
+  ],
   "html": {
     "elem": "section",
     "special": true

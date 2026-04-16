@@ -1,18 +1,30 @@
 ---
 title: Message Level
-description: The severity level of a message.
+description: A severity level for a message.
 ---
+
+This is an enumeration used in Stencila Schema for diagnostic severity levels.
+
+It exists so compilation, execution, and other message-producing workflows can
+communicate severity in a consistent way across tools and renderers.
+
+See [`CompilationMessage`](./compilation-message.md) and
+[`ExecutionMessage`](./execution-message.md) for the main types that use this
+enumeration.
+
 
 # Members
 
 The `MessageLevel` type has these members:
 
-- `Trace`
-- `Debug`
-- `Info`
-- `Warning`
-- `Error`
-- `Exception`
+| Member      | Description            |
+| ----------- | ---------------------- |
+| `Trace`     | A tracing message      |
+| `Debug`     | A debug message        |
+| `Info`      | An information message |
+| `Warning`   | A warning message      |
+| `Error`     | An error message       |
+| `Exception` | An exception message   |
 
 # Bindings
 

@@ -8,8 +8,8 @@
     "Entity"
   ],
   "category": "data",
-  "description": "A schema specifying that a node must be one of several values.",
-  "$comment": "Analogous to the JSON Schema [`enum` keyword](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2).",
+  "description": "A validator for a fixed set of allowed values.",
+  "$comment": "This is a type used in Stencila Schema for validating nodes against an enumerated\nset of values.\n\nIt adapts the JSON Schema\n[`enum`](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.2)\nconcept to Stencila's validator system, allowing a value to be constrained to\none of several explicitly listed node values.\n\nThe main property is `values`.\n",
   "markdown": {
     "derive": false
   },

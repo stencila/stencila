@@ -6,7 +6,7 @@ use super::integer::Integer;
 use super::primitive::Primitive;
 use super::string::String;
 
-/// A hint to the content of an `Array`.
+/// A concise summary of the values and structure of an `Array`.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

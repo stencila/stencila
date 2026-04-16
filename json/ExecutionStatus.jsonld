@@ -12,7 +12,7 @@
       "@id": "stencila:ExecutionStatus",
       "@type": "rdfs:Class",
       "rdfs:label": "ExecutionStatus",
-      "rdfs:comment": "Status of the most recent, including any current, execution of a document node.",
+      "rdfs:comment": "The status of a node's most recent execution.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

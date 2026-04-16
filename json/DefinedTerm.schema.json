@@ -8,7 +8,16 @@
   ],
   "category": "prose",
   "description": "A word, name, acronym, phrase, etc. with a formal definition.",
-  "$comment": "Often used in the context of category or subject classification,  glossaries or dictionaries, product or creative work types, etc.\nUse the `name` property for the term being defined, use `termCode`. If the term has an alpha-numeric code allocated, use\ndescription to provide the definition of the term.\n",
+  "$comment": "This is an implementation of schema.org\n[`DefinedTerm`](https://schema.org/DefinedTerm).\n\nIn Stencila Schema it is used for terms with explicit definitions or controlled\nmeanings, such as glossary entries, classification terms, subject headings,\nand named conceptual categories.\n\nKey properties include `name`, `termCode`, and the inherited `description`\nfield, which is typically used for the term's definition.\n",
+  "analogues": [
+    {
+      "id": "schema:DefinedTerm"
+    },
+    {
+      "id": "jats:term",
+      "notes": "Approximate JATS analogue for marked terms, though JATS `<term>` is inline and does not by itself model a standalone defined-term entity."
+    }
+  ],
   "required": [
     "type",
     "name"

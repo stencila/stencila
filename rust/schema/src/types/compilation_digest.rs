@@ -5,7 +5,7 @@ use crate::prelude::*;
 use super::string::String;
 use super::unsigned_integer::UnsignedInteger;
 
-/// A digest of the content, semantics and dependencies of an executable node.
+/// A digest of an executable node and its dependencies.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

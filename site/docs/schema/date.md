@@ -3,14 +3,32 @@ title: Date
 description: A calendar date encoded as a ISO 8601 string.
 ---
 
+This is an implementation of schema.org [`Date`](https://schema.org/Date).
+
+In Stencila Schema it is represented as a node so dates can be carried through
+document, metadata, and execution workflows with explicit typing instead of
+plain strings alone. This enables validation, serialization, and rich
+rendering while remaining interoperable with schema.org-derived models.
+
+See also related temporal types such as [`DateTime`](./date-time.md),
+[`Time`](./time.md), and [`Timestamp`](./timestamp.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Date`:
+
+- schema.org [`Date`](https://schema.org/Date)
+- JATS [`<date>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/date.html): Close JATS analogue for structured date values in document metadata.
+
 # Properties
 
 The `Date` type has these properties:
 
 | Name    | Description                     | Type                    | Inherited from          |
 | ------- | ------------------------------- | ----------------------- | ----------------------- |
-| `id`    | The identifier for this item.   | [`String`](./string.md) | [`Entity`](./entity.md) |
 | `value` | The date as an ISO 8601 string. | [`String`](./string.md) | -                       |
+| `id`    | The identifier for this item.   | [`String`](./string.md) | [`Entity`](./entity.md) |
 
 # Related
 

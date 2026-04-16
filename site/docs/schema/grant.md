@@ -3,21 +3,38 @@ title: Grant
 description: A grant, typically financial or otherwise quantifiable, of resources.
 ---
 
+This is an implementation of schema.org [`Grant`](https://schema.org/Grant).
+
+In Stencila Schema it is used for structured funding metadata attached to
+creative works and related entities. It remains close to the schema.org model
+while integrating with Stencila's richer document metadata and contributor
+tracking.
+
+Key properties are typically used via funding-related fields on
+[`CreativeWork`](./creative-work.md) and derived types.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Grant`:
+
+- schema.org [`Grant`](https://schema.org/Grant)
+
 # Properties
 
 The `Grant` type has these properties:
 
 | Name             | Description                                                                                          | Type                                                                 | Inherited from          |
 | ---------------- | ---------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                                                                        | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
+| `fundedItems`    | Indicates an item funded or sponsored through a Grant.                                               | [`ThingVariant`](./thing-variant.md)*                                | -                       |
+| `sponsors`       | A person or organization that supports a thing through a pledge, promise, or financial contribution. | ([`Person`](./person.md) \| [`Organization`](./organization.md))*    | -                       |
 | `alternateNames` | Alternate names (aliases) for the item.                                                              | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
 | `description`    | A description of the item.                                                                           | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `identifiers`    | Any kind of identifier for any kind of Thing.                                                        | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
 | `images`         | Images of the item.                                                                                  | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
 | `name`           | The name of the item.                                                                                | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `url`            | The URL of the item.                                                                                 | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `fundedItems`    | Indicates an item funded or sponsored through a Grant.                                               | [`ThingVariant`](./thing-variant.md)*                                | -                       |
-| `sponsors`       | A person or organization that supports a thing through a pledge, promise, or financial contribution. | ([`Person`](./person.md) \| [`Organization`](./organization.md))*    | -                       |
+| `id`             | The identifier for this item.                                                                        | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

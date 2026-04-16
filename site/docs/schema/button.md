@@ -1,7 +1,20 @@
 ---
 title: Button
-description: A button.
+description: An interactive button.
 ---
+
+This is an executable type used in Stencila Schema for interactive button controls
+embedded in documents.
+
+It extends [`CodeExecutable`](./code-executable.md) so button activation can
+trigger execution behavior while still participating in the document node
+model. This allows published or interactive documents to expose lightweight
+actions without requiring a separate application UI.
+
+Key properties are primarily inherited from
+[`CodeExecutable`](./code-executable.md), including execution configuration,
+code, and outputs.
+
 
 This type is marked as experimental and is likely to change.
 
@@ -11,7 +24,15 @@ The `Button` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                           |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
+| `name`                  | The name of the variable associated with the button.             | [`String`](./string.md)                             | -                                        |
+| `label`                 | A label for the button                                           | [`String`](./string.md)                             | -                                        |
+| `isDisabled`            | Whether the button is currently disabled                         | [`Boolean`](./boolean.md)                           | -                                        |
+| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
+| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | [`CodeExecutable`](./code-executable.md) |
+| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
+| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
 | `executionMode`         | Under which circumstances the node should be executed.           | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md)          |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)          |
@@ -26,15 +47,7 @@ The `Button` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)          |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)          |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)          |
-| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
-| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | [`CodeExecutable`](./code-executable.md) |
-| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
-| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
-| `name`                  | The name of the variable associated with the button.             | [`String`](./string.md)                             | -                                        |
-| `label`                 | A label for the button                                           | [`String`](./string.md)                             | -                                        |
-| `isDisabled`            | Whether the button is currently disabled                         | [`Boolean`](./boolean.md)                           | -                                        |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
 
 # Related
 

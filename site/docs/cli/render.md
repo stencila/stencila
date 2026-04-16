@@ -104,6 +104,9 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 | `--strip-scopes`        | Scopes defining which properties of nodes should be stripped.                                                   |
 | `--strip-types`         | A list of node types to strip.                                                                                  |
 | `--strip-props`         | A list of node properties to strip.                                                                             |
+| `--accept-suggestions`  | Accept all suggestions (insertions are kept, deletions are removed). Possible values: `true`, `false`.          |
+| `--reject-suggestions`  | Reject all suggestions (insertions are removed, deletions are kept). Possible values: `true`, `false`.          |
+| `--review-suggestions`  | Interactively review each suggestion. Possible values: `true`, `false`.                                         |
 
 **Possible values of `--citation-style`**
 
@@ -169,6 +172,7 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 | `math-images-to-tex`            | Convert math images to TeX code using OCR                           |
 | `links-to-citations`            | Convert links to citations                                          |
 | `normalize-citations`           | Normalize citation formatting and grouping                          |
+| `normalize-suggestions`         | Normalize adjacent suggestions into combined suggestion chains      |
 | `remove-pre-primary`            | Remove content before the first primary heading                     |
 | `remove-frontmatter-duplicates` | Remove front matter that duplicates article metadata                |
 | `remove-empty-headings`         | Remove empty headings                                               |

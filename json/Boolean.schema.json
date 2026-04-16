@@ -5,5 +5,15 @@
   "title": "Boolean",
   "category": "data",
   "description": "A value that is either true or false.",
+  "$comment": "This is an implementation of schema.org\n[`Boolean`](https://schema.org/Boolean).\n\nIn Stencila Schema it is represented as a primitive node so boolean values can\nparticipate in the same typed, serializable, and validatable document model as\nricher document content. This makes booleans usable in structured data,\nparameters, forms, and execution state.\n\nSee also the broader primitive unions such as [`Primitive`](./primitive.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Boolean"
+    },
+    {
+      "name": "JSON boolean",
+      "url": "https://www.json.org/json-en.html"
+    }
+  ],
   "type": "boolean"
 }

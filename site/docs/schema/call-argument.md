@@ -1,10 +1,17 @@
 ---
 title: Call Argument
-description: The value of a `Parameter` to call a document with.
+description: An argument used when calling a document.
 ---
 
-A `CallArgument` extends `Parameter` by also has some of the same properties as `CodeExecutable` allowing
-an expression to be used to set the value of the parameter.
+This is an executable type used in Stencila Schema for arguments passed to a
+[`CallBlock`](./call-block.md).
+
+It extends [`Parameter`](./parameter.md) with executable code so an argument's
+value can be computed dynamically rather than supplied only as a static value.
+This supports parameterized document calls and reusable document components.
+
+Key properties include the argument `name`, `code`, `value`, and
+`programmingLanguage`.
 
 
 This type is marked as experimental and is likely to change.
@@ -15,7 +22,14 @@ The `CallArgument` type has these properties:
 
 | Name                    | Description                                                                                            | Type                                                | Inherited from                  |
 | ----------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------- |
-| `id`                    | The identifier for this item.                                                                          | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| `value`                 | The current value of the argument.                                                                     | [`Node`](./node.md)                                 | -                               |
+| `code`                  | The code to be evaluated for the parameter.                                                            | [`Cord`](./cord.md)                                 | -                               |
+| `programmingLanguage`   | The programming language of the code.                                                                  | [`String`](./string.md)                             | -                               |
+| `name`                  | The name of the parameter.                                                                             | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
+| `label`                 | A short label for the parameter.                                                                       | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
+| `default`               | The default value of the parameter.                                                                    | [`Node`](./node.md)                                 | [`Parameter`](./parameter.md)   |
+| `validator`             | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                       | [`Parameter`](./parameter.md)   |
+| `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
 | `executionMode`         | Under which circumstances the node should be executed.                                                 | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node.                                       | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
 | `compilationMessages`   | Messages generated while compiling the code.                                                           | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
@@ -30,14 +44,7 @@ The `CallArgument` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                                                           | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
 | `executionDuration`     | Duration of the last execution.                                                                        | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
 | `executionMessages`     | Messages emitted while executing the node.                                                             | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `name`                  | The name of the parameter.                                                                             | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `label`                 | A short label for the parameter.                                                                       | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `value`                 | The current value of the argument.                                                                     | [`Node`](./node.md)                                 | -                               |
-| `default`               | The default value of the parameter.                                                                    | [`Node`](./node.md)                                 | [`Parameter`](./parameter.md)   |
-| `validator`             | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                       | [`Parameter`](./parameter.md)   |
-| `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `code`                  | The code to be evaluated for the parameter.                                                            | [`Cord`](./cord.md)                                 | -                               |
-| `programmingLanguage`   | The programming language of the code.                                                                  | [`String`](./string.md)                             | -                               |
+| `id`                    | The identifier for this item.                                                                          | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
 
 # Related
 

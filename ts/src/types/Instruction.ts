@@ -8,7 +8,7 @@ import { PromptBlock } from "./PromptBlock.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * Abstract base type for a document editing instruction.
+ * An abstract base type for document editing instructions.
  */
 export class Instruction extends Executable {
   // @ts-expect-error 'not assignable to the same property in base type'

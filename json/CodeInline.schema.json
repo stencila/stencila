@@ -9,6 +9,21 @@
   ],
   "category": "code",
   "description": "Inline code.",
+  "$comment": "This is an inline representation used in Stencila Schema for non-executable\ncode.\n\nIt extends [`CodeStatic`](./code-static.md) for short code fragments that\nappear within prose, preserving programming language and other code metadata\nwithout adding execution semantics. This keeps inline code aligned with the\nbroader code model used throughout Stencila documents.\n\nKey properties are primarily inherited from [`CodeStatic`](./code-static.md),\nespecially `code` and `programmingLanguage`.\n",
+  "analogues": [
+    {
+      "id": "html:code"
+    },
+    {
+      "id": "jats:code"
+    },
+    {
+      "id": "pandoc:Code"
+    },
+    {
+      "id": "mdast:InlineCode"
+    }
+  ],
   "dom": {
     "derive": false
   },

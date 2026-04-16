@@ -7,8 +7,18 @@
     "Thing"
   ],
   "category": "works",
-  "description": "A creative work, including books, movies, photographs, software programs, etc.",
-  "$comment": "This is an implementation, and extension, of schema.org [`CreativeWork`](https://schema.org/CreativeWork).\nIt extends schema.org `CreativeWork` by, adding several properties including `dateAccepted`\nand `fundedBy`.\n",
+  "description": "A creative work.",
+  "$comment": "This is an implementation of schema.org\n[`CreativeWork`](https://schema.org/CreativeWork), extended in Stencila Schema\nas the main base type for document-like works and publishable artifacts.\n\nIn addition to broad schema.org creative-work metadata, Stencila adds support\nfor structured authorship, provenance summaries, comments, richer date fields,\ngrants, references, and document-oriented relationships between works. Many of\nthe schema's concrete publishable node types inherit from this type.\n\nKey Stencila Schema properties include `workType`, `provenance`,\n`dateAccepted`, and `fundedBy`. Many other metadata properties are inherited\ndirectly from schema.org.\n",
+  "analogues": [
+    {
+      "id": "schema:CreativeWork",
+      "notes": "Direct schema.org source type, extended in Stencila as the common base for publishable, document-like, and executable works."
+    },
+    {
+      "id": "pandoc:Meta",
+      "notes": "Approximate Pandoc analogue for work-level metadata, though Stencila `CreativeWork` is also a node in the document graph and can carry richer relationships and provenance."
+    }
+  ],
   "required": [
     "type"
   ],

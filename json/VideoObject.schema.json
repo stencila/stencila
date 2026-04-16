@@ -8,7 +8,19 @@
   ],
   "category": "works",
   "description": "A video file.",
-  "$comment": "The `VideoObject` type allows you to provide details such as caption and transcript,\nand the details which are included in [`MediaObject`](./media-object.md)\nwhich `VideoObject` extends.\n",
+  "$comment": "This is an implementation of schema.org\n[`VideoObject`](https://schema.org/VideoObject).\n\nIn Stencila Schema it is used both as media metadata and as rendered document\ncontent, especially in figures and multimedia documents. It inherits file and\nmedia capabilities from [`MediaObject`](./media-object.md) while adding\nvideo-specific descriptive properties.\n\nKey properties include `caption`, `thumbnail`, and `transcript`, with broader\nmedia metadata inherited from [`MediaObject`](./media-object.md).\n",
+  "analogues": [
+    {
+      "id": "schema:VideoObject"
+    },
+    {
+      "id": "html:video"
+    },
+    {
+      "id": "jats:inline-media",
+      "notes": "Closest JATS analogue for embedded video-like media, though JATS uses a generic media element rather than a dedicated video element."
+    }
+  ],
   "dom": {
     "derive": false
   },

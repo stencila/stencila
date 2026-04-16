@@ -3,17 +3,38 @@ title: Section
 description: A section of a document.
 ---
 
+This is a type used in Stencila Schema for document sections, analogous to section
+containers in HTML, JATS, and other structured document models.
+
+It exists to group block content under headings while carrying structured
+metadata, authorship, and provenance. Unlike a plain heading hierarchy
+inferred from text alone, explicit sections allow more reliable transformation
+and editing workflows.
+
+Key properties include `sectionType`, `title`, and `content`, together with
+inherited metadata from [`Entity`](./entity.md).
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Section`:
+
+- HTML [`<section>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/section): Closest HTML sectioning analogue, though Stencila sections can carry typed section roles, authorship, and provenance metadata.
+- JATS [`<sec>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/sec.html): Closest JATS analogue for structured document sections.
+- Pandoc [`Div`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Div): Closest Pandoc container analogue when divisions are used to represent sections; Stencila uses a dedicated section node with explicit semantics.
+- MDAST [`Heading`](https://github.com/syntax-tree/mdast#heading): Markdown ASTs often imply sections through heading structure rather than an explicit section container, so this is only an approximate analogue.
+
 # Properties
 
 The `Section` type has these properties:
 
 | Name          | Description                                                    | Type                                        | Inherited from          |
 | ------------- | -------------------------------------------------------------- | ------------------------------------------- | ----------------------- |
-| `id`          | The identifier for this item.                                  | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `sectionType` | The type of section.                                           | [`SectionType`](./section-type.md)          | -                       |
 | `content`     | The content within the section.                                | [`Block`](./block.md)*                      | -                       |
 | `authors`     | The authors of the section.                                    | [`Author`](./author.md)*                    | -                       |
 | `provenance`  | A summary of the provenance of the content within the section. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`          | The identifier for this item.                                  | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

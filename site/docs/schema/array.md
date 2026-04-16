@@ -1,11 +1,24 @@
 ---
 title: Array
-description: A value comprised of other primitive nodes.
+description: An array value.
 ---
 
-Note that the items in the array are restricted to primitive node
-types including `Array` (ie. an `Array` as an item of another `Array`) and `Object`.
+This is a primitive type used in Stencila Schema for array values.
 
+It exists so ordered collections of primitive values can participate in the
+same node-based data model as other scalar and structured primitive types.
+Array items are restricted to [`Primitive`](./primitive.md) values, including
+nested `Array` and `Object` values.
+
+See also [`TupleValidator`](./tuple-validator.md) and
+[`ArrayValidator`](./array-validator.md) for array-specific constraints.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Array`:
+
+- [JSON array](https://www.json.org/json-en.html): Direct structural analogue for ordered primitive collections.
 
 # Bindings
 

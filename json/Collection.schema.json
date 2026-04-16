@@ -7,8 +7,13 @@
     "CreativeWork"
   ],
   "category": "works",
-  "description": "A collection of CreativeWorks or other artifacts.",
-  "$comment": "This is an implementation of schema.org [`Collection`](https://schema.org/Collection).\nThe `Collection` type allows you to represent a collection of various `CreativeWork`\nnode types, such as [`Article`](./article.md), [`Datatable`](./datatable.md) or [`Table`](./table.md).\n\nThe schema.org `Collection` has a `collectionSize` property but has not been added here\nbecause it is somewhat redundant e.g. a developer could use `collection.parts.length` instead.\n",
+  "description": "A collection of creative works or other artifacts.",
+  "$comment": "This is an implementation of schema.org\n[`Collection`](https://schema.org/Collection).\n\nIn Stencila Schema it is used to group related works or artifacts as a single\ncreative-work node, for example collections of articles, tables, data, or\nother publishable resources.\n\nThe main collection semantics are carried by inherited\n[`CreativeWork.parts`](./creative-work.md#parts). The schema.org\n`collectionSize` property is not included because it would largely duplicate\ninformation already available from the number of parts.\n",
+  "analogues": [
+    {
+      "id": "schema:Collection"
+    }
+  ],
   "markdown": {
     "derive": false
   },

@@ -1,12 +1,18 @@
 ---
 title: Styled
-description: An abstract base class for a document node that has styling applied to it and/or its content.
+description: An abstract base type for styled content.
 ---
 
-This class is very similar to the `Math` abstract base class but has `styleLanguage` instead
-of `mathLanguage` and compiled `css` instead of `mathml`.
+This is an abstract base type used in Stencila Schema for nodes with explicit style
+code.
 
-Note also that `styleLanguage` is optional.
+It exists to represent styling separately from a node's core structural or
+semantic role, while still allowing style code, style language, authorship,
+provenance, and compiled CSS to be stored within the document model. This
+supports authoring, theming, and style-aware publishing workflows.
+
+Key properties include `code`, `styleLanguage`, `compilationDigest`, `css`,
+and `classList`.
 
 
 This type is marked as unstable and is subject to change.
@@ -17,7 +23,6 @@ The `Styled` type has these properties:
 
 | Name                  | Description                                                            | Type                                              | Inherited from          |
 | --------------------- | ---------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `code`                | The code of the equation in the `styleLanguage`.                       | [`Cord`](./cord.md)                               | -                       |
 | `styleLanguage`       | The language used for the style specification e.g. css, tw             | [`String`](./string.md)                           | -                       |
 | `authors`             | The authors of the code and content in the styled node.                | [`Author`](./author.md)*                          | -                       |
@@ -26,6 +31,7 @@ The `Styled` type has these properties:
 | `compilationMessages` | Messages generated while parsing and transpiling the style.            | [`CompilationMessage`](./compilation-message.md)* | -                       |
 | `css`                 | A Cascading Style Sheet (CSS) transpiled from the `code` property.     | [`String`](./string.md)                           | -                       |
 | `classList`           | A space separated list of class names associated with the node.        | [`String`](./string.md)                           | -                       |
+| `id`                  | The identifier for this item.                                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

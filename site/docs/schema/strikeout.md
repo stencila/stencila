@@ -3,13 +3,30 @@ title: Strikeout
 description: Content that is marked as struck out.
 ---
 
-Analogues of `Strikeout` in other schema include:
-  - HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del)
-  - JATS XML [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)
-  - MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete)
-  - Pandoc [`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258)
-Supersedes the `Delete` inline content type (the name "Strikeout" is less ambiguous than "Delete").
+This is a Stencila-native inline mark for struck-out text, with close
+analogues in HTML
+[`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del), JATS
+[`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html),
+MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete), and Pandoc
+[`Strikeout`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L258).
 
+In Stencila Schema it is used as a presentational and editorial inline mark
+for text that should render with a strike-through. It supersedes the older
+`Delete` inline type because `Strikeout` more clearly describes the mark itself
+rather than an editing action.
+
+Key semantics are inherited from [`Mark`](./mark.md), with this type chiefly
+signaling strike-through rendering for its `content`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Strikeout`:
+
+- HTML [`<del>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/del): Close HTML analogue for struck-through text, though Stencila `Strikeout` is used as a general strike-through mark rather than specifically representing deletions.
+- JATS [`<strike>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/strike.html)
+- Pandoc [`Strikeout`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Strikeout)
+- MDAST [`Delete`](https://github.com/syntax-tree/mdast#delete): Closest MDAST analogue, although the MDAST name emphasizes deletion semantics rather than the visual mark.
 
 # Properties
 
@@ -17,8 +34,8 @@ The `Strikeout` type has these properties:
 
 | Name      | Description                   | Type                     | Inherited from          |
 | --------- | ----------------------------- | ------------------------ | ----------------------- |
-| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 | `content` | The content that is marked.   | [`Inline`](./inline.md)* | [`Mark`](./mark.md)     |
+| `id`      | The identifier for this item. | [`String`](./string.md)  | [`Entity`](./entity.md) |
 
 # Related
 

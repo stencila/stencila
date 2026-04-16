@@ -12,7 +12,7 @@
       "@id": "stencila:Page",
       "@type": "rdfs:Class",
       "rdfs:label": "Page",
-      "rdfs:comment": "A separate page in a document",
+      "rdfs:comment": "A page in a document.",
       "rdfs:subClassOf": {
         "@id": "stencila:StyledBlock"
       }

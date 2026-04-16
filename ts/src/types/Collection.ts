@@ -4,7 +4,7 @@ import { CreativeWork } from "./CreativeWork.js";
 import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
 
 /**
- * A collection of CreativeWorks or other artifacts.
+ * A collection of creative works or other artifacts.
  */
 export class Collection extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

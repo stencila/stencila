@@ -7,7 +7,16 @@
     "Thing"
   ],
   "description": "An organization such as a school, NGO, corporation, club, etc.",
-  "$comment": "This is an implementation of schema.org [`Organization`](https://schema.org/Organization).\n",
+  "$comment": "This is an implementation of schema.org\n[`Organization`](https://schema.org/Organization).\n\nIn Stencila Schema it is used for affiliations, funders, publishers,\nmaintainers, and other organization-level metadata while integrating with\nricher author-role and provenance models.\n\nKey properties include `ror`, `address`, `brands`, `contactPoints`, and\ninherited metadata from [`Thing`](./thing.md).\n",
+  "analogues": [
+    {
+      "id": "schema:Organization"
+    },
+    {
+      "id": "jats:institution",
+      "notes": "Closest JATS analogue for organization names in affiliations and metadata."
+    }
+  ],
   "jats": {
     "elem": "institution"
   },

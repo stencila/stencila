@@ -4,7 +4,7 @@ use crate::prelude::*;
 
 use super::string::String;
 
-/// A type to indicate a value or or other type in unknown.
+/// A placeholder for a value of unknown type.
 #[skip_serializing_none]
 #[serde_as]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]

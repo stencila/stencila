@@ -6,7 +6,7 @@ import { Integer } from "./Integer.js";
 import { UnsignedInteger } from "./UnsignedInteger.js";
 
 /**
- * An agent definition specifying model, tools, and behavioral configuration.
+ * An AI agent definition.
  */
 export class Agent extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

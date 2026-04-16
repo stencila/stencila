@@ -3,19 +3,31 @@ title: Thing
 description: The most generic type of item.
 ---
 
+This is an implementation of schema.org [`Thing`](https://schema.org/Thing).
+
+In Stencila Schema it provides the common base for schema.org-derived entities
+such as people, organizations, creative works, products, and related
+metadata-bearing types. Stencila keeps the broadly interoperable schema.org
+core while integrating it with the node and document infrastructure inherited
+through [`Entity`](./entity.md).
+
+Key properties include `name`, `alternateNames`, `description`, `identifiers`,
+`images`, and `url`.
+
+
 # Properties
 
 The `Thing` type has these properties:
 
 | Name             | Description                                   | Type                                                                 | Inherited from          |
 | ---------------- | --------------------------------------------- | -------------------------------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 | `alternateNames` | Alternate names (aliases) for the item.       | [`String`](./string.md)*                                             | -                       |
 | `description`    | A description of the item.                    | [`String`](./string.md)                                              | -                       |
 | `identifiers`    | Any kind of identifier for any kind of Thing. | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | -                       |
 | `images`         | Images of the item.                           | [`ImageObject`](./image-object.md)*                                  | -                       |
 | `name`           | The name of the item.                         | [`String`](./string.md)                                              | -                       |
 | `url`            | The URL of the item.                          | [`String`](./string.md)                                              | -                       |
+| `id`             | The identifier for this item.                 | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

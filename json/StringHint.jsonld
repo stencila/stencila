@@ -12,7 +12,7 @@
       "@id": "stencila:StringHint",
       "@type": "rdfs:Class",
       "rdfs:label": "StringHint",
-      "rdfs:comment": "A hint to the structure of an `String`.",
+      "rdfs:comment": "A concise summary of the properties of a `String`.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

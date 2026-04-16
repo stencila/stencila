@@ -12,7 +12,7 @@
       "@id": "stencila:Author",
       "@type": "rdfs:Class",
       "rdfs:label": "Author",
-      "rdfs:comment": "Union type for things that can be an author of a `CreativeWork` or other type."
+      "rdfs:comment": "A union type for authors of a `CreativeWork` or other type."
     }
   ]
 }

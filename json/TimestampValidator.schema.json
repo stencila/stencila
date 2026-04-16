@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a timestamp.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Timestamp`](./timestamp.md)\nnodes.\n\nIt exists so event times used in execution and provenance workflows can be\nconstrained in the same validator framework as other temporal values.\n\nKey properties define allowable timestamp ranges and related constraints.\n",
   "markdown": {
     "derive": false
   },

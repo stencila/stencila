@@ -8,8 +8,27 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "Textual content.",
-  "$comment": "Intended mostly for use for inline text e.g. the text in a paragraph.\n\nDiffers from the primitive `String` type in that it has a `type` and `id` property.\nThe `id` property allows use to identify text nodes with a sequence of inline nodes\nfor better diffing.\n\nAlso, in Rust, the `value` property is implemented as a CRDT.\n",
+  "description": "A text node.",
+  "$comment": "This is an implementation of schema.org [`Text`](https://schema.org/Text),\nadapted in Stencila Schema as a node type rather than a primitive string.\n\nIt exists so textual content can participate in the document tree with its own\nidentity and metadata, which is useful for diffing, editing, and collaborative\nworkflows. This differs from the primitive [`String`](./string.md) type, which\nrepresents plain scalar string values outside the node model.\n\nThe main property is `value`.\n",
+  "analogues": [
+    {
+      "id": "schema:Text",
+      "notes": "Direct schema.org source type, adapted in Stencila from a scalar data type into a first-class node."
+    },
+    {
+      "name": "HTML text node",
+      "url": "https://dom.spec.whatwg.org/#text",
+      "notes": "Closest DOM analogue for literal text content, though Stencila text nodes can carry identity and metadata through `Entity`."
+    },
+    {
+      "id": "pandoc:Str",
+      "notes": "Close Pandoc analogue for plain inline text, though Pandoc splits spaces and line breaks into separate inline constructors."
+    },
+    {
+      "id": "mdast:Text",
+      "notes": "Closest MDAST analogue for text leaf nodes."
+    }
+  ],
   "dom": {
     "derive": false
   },

@@ -5,7 +5,7 @@ import { Hint } from "./Hint.js";
 import { Integer } from "./Integer.js";
 
 /**
- * A hint to the structure of an `Object`.
+ * A concise summary of the structure of an `Object`.
  */
 export class ObjectHint extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

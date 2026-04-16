@@ -74,6 +74,9 @@ echo "# Hello" | stencila convert
 | `--strip-scopes`        | Scopes defining which properties of nodes should be stripped.                                                   |
 | `--strip-types`         | A list of node types to strip.                                                                                  |
 | `--strip-props`         | A list of node properties to strip.                                                                             |
+| `--accept-suggestions`  | Accept all suggestions (insertions are kept, deletions are removed). Possible values: `true`, `false`.          |
+| `--reject-suggestions`  | Reject all suggestions (insertions are removed, deletions are kept). Possible values: `true`, `false`.          |
+| `--review-suggestions`  | Interactively review each suggestion. Possible values: `true`, `false`.                                         |
 | `-t, --to`              | The format of the output/s.                                                                                     |
 | `--template`            | The template document to use.                                                                                   |
 | `--reproducible`        | Encode executable nodes so that they are reproducible. Possible values: `true`, `false`.                        |
@@ -150,6 +153,7 @@ echo "# Hello" | stencila convert
 | `math-images-to-tex`            | Convert math images to TeX code using OCR                           |
 | `links-to-citations`            | Convert links to citations                                          |
 | `normalize-citations`           | Normalize citation formatting and grouping                          |
+| `normalize-suggestions`         | Normalize adjacent suggestions into combined suggestion chains      |
 | `remove-pre-primary`            | Remove content before the first primary heading                     |
 | `remove-frontmatter-duplicates` | Remove front matter that duplicates article metadata                |
 | `remove-empty-headings`         | Remove empty headings                                               |

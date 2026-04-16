@@ -79,6 +79,13 @@
         "null"
       ]
     },
+    "analogues": {
+      "description": "Analogues in external schemas and document models\n\nUse this field to list closely related types, elements, or nodes from\nother vocabularies and formats such as schema.org, HTML, JATS, MDAST,\nMyST, and Pandoc.\n\nFor common registries, prefer compact identifiers in the `id` field such\nas `schema:Person`, `html:p`, `jats:p`, or `pandoc:Para`. These are\nresolved into human-readable labels and documentation links when schema\nreference docs are generated.\n\nFor arbitrary external analogues, provide an explicit `name` and `url`.\nUse `notes` to summarize key similarities and differences.",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/Analogue"
+      }
+    },
     "status": {
       "description": "The status of the schema",
       "allOf": [
@@ -436,6 +443,41 @@
           "const": "other"
         }
       ]
+    },
+    "Analogue": {
+      "description": "An analogue in an external schema, specification, or document model",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "A compact identifier for a known registry entry\n\nExamples include `schema:Person`, `html:p`, `jats:p`, and `pandoc:Para`.\nThe prefix identifies the external registry and the suffix identifies the\nspecific type, element, or node within it.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "A human-readable label for an arbitrary external analogue\n\nUse together with `url` when the analogue is not represented using a\ncompact `id` in a known registry.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "description": "A documentation URL for an arbitrary external analogue\n\nUse together with `name` when the analogue is not represented using a\ncompact `id` in a known registry.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "notes": {
+          "description": "Notes on key similarities and differences",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "additionalProperties": false
     },
     "Status": {
       "type": "string",

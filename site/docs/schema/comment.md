@@ -1,15 +1,27 @@
 ---
 title: Comment
-description: A comment on an item, e.g on a `Article` or `SoftwareSourceCode`.
+description: A comment on an item.
 ---
 
-Use the `about` property to define the item that a comment is on and
-`commentAspect` to point to a specific part of aspect of that item.
-The `content` property should be used for the structured content of the
-comment, in preference to the schema.org `text` property (which is expected to
-be plain text). Replies to a comment can be added to its `comments` property
-or have their `parentItem` set to the parent comment.
+This is an implementation of schema.org
+[`Comment`](https://schema.org/Comment), adapted in Stencila Schema for
+structured document review and discussion.
 
+It is used not only for comments on whole works, but also for comments on
+specific document regions or code locations. Stencila emphasizes structured
+block content over plain-text comment bodies and adds explicit location fields
+to support annotation and review workflows.
+
+Key properties include `about`, `content`, `startLocation`, `endLocation`, and
+`parentItem`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Comment`:
+
+- schema.org [`Comment`](https://schema.org/Comment)
+- HTML [`<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside): Approximate HTML analogue for side commentary, though HTML does not provide built-in region-targeting or threaded comment semantics.
 
 # Properties
 
@@ -17,13 +29,10 @@ The `Comment` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `content`        | Content of the comment, usually one or more paragraphs.                                                                 | [`Block`](./block.md)*                                                            | -                                    |
+| `parentItem`     | The parent comment of this comment.                                                                                     | [`Comment`](./comment.md)                                                         | -                                    |
+| `startLocation`  | The location where the commented region begins.                                                                         | [`String`](./string.md)                                                           | -                                    |
+| `endLocation`    | The location where the commented region ends.                                                                           | [`String`](./string.md)                                                           | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -55,9 +64,13 @@ The `Comment` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `content`        | Content of the comment, usually one or more paragraphs.                                                                 | [`Block`](./block.md)*                                                            | -                                    |
-| `parentItem`     | The parent comment of this comment.                                                                                     | [`Comment`](./comment.md)                                                         | -                                    |
-| `commentAspect`  | The part or facet of the item that is being commented on.                                                               | [`String`](./string.md)                                                           | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

@@ -3,17 +3,38 @@ title: Code Inline
 description: Inline code.
 ---
 
+This is an inline representation used in Stencila Schema for non-executable
+code.
+
+It extends [`CodeStatic`](./code-static.md) for short code fragments that
+appear within prose, preserving programming language and other code metadata
+without adding execution semantics. This keeps inline code aligned with the
+broader code model used throughout Stencila documents.
+
+Key properties are primarily inherited from [`CodeStatic`](./code-static.md),
+especially `code` and `programmingLanguage`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CodeInline`:
+
+- HTML [`<code>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/code)
+- JATS [`<code>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/code.html)
+- Pandoc [`Code`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Code)
+- MDAST [`InlineCode`](https://github.com/syntax-tree/mdast#inlinecode)
+
 # Properties
 
 The `CodeInline` type has these properties:
 
 | Name                  | Description                              | Type                                        | Inherited from                   |
 | --------------------- | ---------------------------------------- | ------------------------------------------- | -------------------------------- |
-| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md)          |
 | `code`                | The code.                                | [`Cord`](./cord.md)                         | [`CodeStatic`](./code-static.md) |
 | `programmingLanguage` | The programming language of the code.    | [`String`](./string.md)                     | [`CodeStatic`](./code-static.md) |
 | `authors`             | The authors of the code.                 | [`Author`](./author.md)*                    | [`CodeStatic`](./code-static.md) |
 | `provenance`          | A summary of the provenance of the code. | [`ProvenanceCount`](./provenance-count.md)* | [`CodeStatic`](./code-static.md) |
+| `id`                  | The identifier for this item.            | [`String`](./string.md)                     | [`Entity`](./entity.md)          |
 
 # Related
 

@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a date-time.",
+  "$comment": "This is a type used in Stencila Schema for validating [`DateTime`](./date-time.md)\nnodes.\n\nIt adapts common date-time constraint patterns to Stencila's node model so\ndocument parameters and structured data can require well-formed date-time\nvalues within specified bounds. This supports forms, configuration, and data\nvalidation workflows.\n\nKey properties define allowed ranges, formats, and related constraints.\n",
   "markdown": {
     "derive": false
   },

@@ -3,17 +3,34 @@ title: Icon
 description: An icon, typically rendered using an icon font.
 ---
 
+This is a type used in Stencila Schema for icons embedded in document content.
+
+It exists so icons can be represented structurally and styled consistently
+across renderers rather than being reduced to opaque HTML or font markup. This
+supports document-authoring and publishing workflows that need portable icon
+references.
+
+Key properties identify the icon set, icon name, and any presentational hints
+needed by renderers.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Icon`:
+
+- [HTML icon element pattern](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/i): Approximate HTML analogue because icons are often represented using `<i>` or `<span>` with classes, but HTML has no dedicated semantic icon element.
+
 # Properties
 
 The `Icon` type has these properties:
 
 | Name         | Description                                          | Type                      | Inherited from          |
 | ------------ | ---------------------------------------------------- | ------------------------- | ----------------------- |
-| `id`         | The identifier for this item.                        | [`String`](./string.md)   | [`Entity`](./entity.md) |
 | `name`       | The name of the icon e.g. "clock" or "lucide:clock". | [`String`](./string.md)   | -                       |
 | `label`      | An accessible text label for the icon.               | [`String`](./string.md)   | -                       |
 | `decorative` | Whether the icon is purely decorative.               | [`Boolean`](./boolean.md) | -                       |
 | `style`      | Tailwind utility classes to apply to the icon.       | [`String`](./string.md)   | -                       |
+| `id`         | The identifier for this item.                        | [`String`](./string.md)   | [`Entity`](./entity.md) |
 
 # Related
 

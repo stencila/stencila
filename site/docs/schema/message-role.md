@@ -1,15 +1,27 @@
 ---
 title: Message Role
-description: The role of a message.
+description: A role in a message exchange.
 ---
+
+This is an enumeration used in Stencila Schema for message roles in conversational or
+instruction contexts.
+
+It exists so user, assistant, system, and related message roles can be
+represented consistently across chats, prompts, and model interactions.
+
+See [`ChatMessage`](./chat-message.md) and related messaging types for where
+this enumeration is used.
+
 
 # Members
 
 The `MessageRole` type has these members:
 
-- `System`
-- `User`
-- `Model`
+| Member   | Description            |
+| -------- | ---------------------- |
+| `System` | A system message       |
+| `User`   | A user message         |
+| `Model`  | A message from a model |
 
 # Bindings
 

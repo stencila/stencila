@@ -3,16 +3,28 @@ title: Datatable Column
 description: A column of data within a `Datatable`.
 ---
 
+This is a type used in Stencila Schema for a column within a
+[`Datatable`](./datatable.md).
+
+It exists to make column metadata, values, and inferred structure explicit
+instead of encoding tabular data only as rows of cells. This supports typed
+data access, validation, and richer integrations with analytical and
+executable workflows.
+
+Key properties include the column name, values, and any associated hints or
+validators.
+
+
 # Properties
 
 The `DatatableColumn` type has these properties:
 
 | Name        | Description                                          | Type                                     | Inherited from          |
 | ----------- | ---------------------------------------------------- | ---------------------------------------- | ----------------------- |
-| `id`        | The identifier for this item.                        | [`String`](./string.md)                  | [`Entity`](./entity.md) |
 | `name`      | The name of the column.                              | [`String`](./string.md)                  | -                       |
 | `values`    | The data values of the column.                       | [`Primitive`](./primitive.md)*           | -                       |
 | `validator` | The validator to use to validate data in the column. | [`ArrayValidator`](./array-validator.md) | -                       |
+| `id`        | The identifier for this item.                        | [`String`](./string.md)                  | [`Entity`](./entity.md) |
 
 # Related
 

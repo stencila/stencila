@@ -7,7 +7,8 @@
     "Enumeration"
   ],
   "category": "edits",
-  "description": "The status of an instruction.",
+  "description": "A review status for a suggestion.",
+  "$comment": "This is an enumeration used in Stencila Schema for the status of a suggestion.\n\nIt exists so review workflows can distinguish proposed, accepted, rejected,\nand related states using a stable vocabulary across tools and formats.\n\nSee the status properties on [`Suggestion`](./suggestion.md) and related\nediting types for where this enumeration is used.\n",
   "required": [
     "type"
   ],

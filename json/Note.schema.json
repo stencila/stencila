@@ -7,8 +7,26 @@
     "Entity"
   ],
   "category": "prose",
-  "description": "Additional content which is not part of the main content of a document.",
-  "$comment": "A note is usually associated with a word or paragraph using a number or other symbol. \nIt can be displayed as a footnote, endnote, or side note, or in interactive elements.\nFor analogues, see \n- [JATS `<fn>`](https://jats.nlm.nih.gov/publishing/tag-library/1.2/element/fn.html)\n- [Pandoc footnotes](https://pandoc.org/MANUAL.html#footnotes)\n- [HTML `<aside>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/aside)\n",
+  "description": "A note associated with document content.",
+  "$comment": "This is a type used in Stencila Schema for notes attached to document content.\n\nIt exists to represent note content structurally so it can be rendered as a\nfootnote, endnote, sidenote, or similar document note, depending on the target\nformat and note type. This preserves note semantics across transformations\nrather than reducing them to plain text markers.\n\nKey properties include `noteType` and `content`.\n",
+  "analogues": [
+    {
+      "id": "html:aside",
+      "notes": "Approximate HTML analogue for note content, though HTML has no dedicated footnote or endnote element and placement semantics are not built in."
+    },
+    {
+      "id": "jats:fn",
+      "notes": "Closest JATS analogue for document notes, particularly footnotes."
+    },
+    {
+      "id": "pandoc:Note",
+      "notes": "Closest Pandoc analogue for inline-referenced notes; Stencila additionally records note placement semantics explicitly via `noteType`."
+    },
+    {
+      "id": "mdast:FootnoteDefinition",
+      "notes": "Close MDAST analogue for defined footnote content, although MDAST models note references and definitions separately and does not cover sidenotes directly."
+    }
+  ],
   "jats": {
     "elem": "fn",
     "attrs": {

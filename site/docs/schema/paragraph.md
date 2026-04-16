@@ -3,13 +3,24 @@ title: Paragraph
 description: A paragraph.
 ---
 
-Analogues of `Paragraph` in other schema include:
-  - HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
-  - JATS XML [`<p>`](https://jats.nlm.nih.gov/articleauthoring/tag-library/1.2/element/p.html)
-  - MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#Paragraph)
-  - OpenDocument [`<text:p>`](http://docs.oasis-open.org/office/v1.2/os/OpenDocument-v1.2-os-part1.html#__RefHeading__1415138_253892949)
-  - Pandoc [`Para`](https://github.com/jgm/pandoc-types/blob/1.17.5.4/Text/Pandoc/Definition.hs#L220)
+This is a type used in Stencila Schema for paragraph content.
 
+It exists to represent one of the main units of prose within the document
+model while also supporting authorship and provenance metadata not usually
+available on plain text paragraphs in simpler formats.
+
+Key properties include the inline `content`, together with optional `authors`
+and `provenance` metadata.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `Paragraph`:
+
+- HTML [`<p>`](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/p)
+- JATS [`<p>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/p.html)
+- Pandoc [`Para`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#v:Para)
+- MDAST [`Paragraph`](https://github.com/syntax-tree/mdast#paragraph)
 
 # Properties
 
@@ -17,10 +28,10 @@ The `Paragraph` type has these properties:
 
 | Name         | Description                                                  | Type                                        | Inherited from          |
 | ------------ | ------------------------------------------------------------ | ------------------------------------------- | ----------------------- |
-| `id`         | The identifier for this item.                                | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 | `content`    | The contents of the paragraph.                               | [`Inline`](./inline.md)*                    | -                       |
 | `authors`    | The authors of the paragraph.                                | [`Author`](./author.md)*                    | -                       |
 | `provenance` | A summary of the provenance of content within the paragraph. | [`ProvenanceCount`](./provenance-count.md)* | -                       |
+| `id`         | The identifier for this item.                                | [`String`](./string.md)                     | [`Entity`](./entity.md) |
 
 # Related
 

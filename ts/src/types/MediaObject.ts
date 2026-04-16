@@ -3,7 +3,7 @@
 import { CreativeWork } from "./CreativeWork.js";
 
 /**
- * A media object, such as an image, video, or audio object embedded in a web page or a downloadable dataset.
+ * A media object.
  */
 export class MediaObject extends CreativeWork {
   // @ts-expect-error 'not assignable to the same property in base type'

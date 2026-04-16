@@ -8,8 +8,8 @@
     "NumberValidator"
   ],
   "category": "data",
-  "description": "A validator specifying the constraints on an integer node.",
-  "$comment": "A node will be valid if it is a number with no fractional part and meets any additional constraints,\nsuch as `multipleOf`, specified in the validator.\nAnalogous to the JSON Schema `integer` validation [type](https://json-schema.org/draft/2019-09/json-schema-validation.html#rfc.section.6.1.1).\n",
+  "description": "A validator for integer values.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Integer`](./integer.md)\nnodes.\n\nIt adapts the JSON Schema integer type concept to Stencila's validator\nsystem, reusing the numeric range and divisibility constraints defined by\n[`NumberValidator`](./number-validator.md) while additionally requiring the\nvalue to have no fractional part.\n\nKey constraints are inherited from [`NumberValidator`](./number-validator.md).\n",
   "markdown": {
     "derive": false
   },

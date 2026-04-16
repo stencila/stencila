@@ -5,7 +5,7 @@ import { Cord } from "./Cord.js";
 import { StyledBlock } from "./StyledBlock.js";
 
 /**
- * A separate page in a document
+ * A page in a document.
  */
 export class Page extends StyledBlock {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -12,7 +12,7 @@
       "@id": "stencila:MessageRole",
       "@type": "rdfs:Class",
       "rdfs:label": "MessageRole",
-      "rdfs:comment": "The role of a message.",
+      "rdfs:comment": "A role in a message exchange.",
       "rdfs:subClassOf": {
         "@id": "schema:Enumeration"
       }

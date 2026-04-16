@@ -12,7 +12,7 @@
       "@id": "schema:CreativeWork",
       "@type": "rdfs:Class",
       "rdfs:label": "CreativeWork",
-      "rdfs:comment": "A creative work, including books, movies, photographs, software programs, etc.",
+      "rdfs:comment": "A creative work.",
       "rdfs:subClassOf": {
         "@id": "schema:Thing"
       }

@@ -3,7 +3,7 @@
 import { Entity } from "./Entity.js";
 
 /**
- * A tag on code that affects its execution.
+ * An execution-affecting tag on code.
  */
 export class ExecutionTag extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

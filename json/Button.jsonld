@@ -12,7 +12,7 @@
       "@id": "stencila:Button",
       "@type": "rdfs:Class",
       "rdfs:label": "Button",
-      "rdfs:comment": "A button.",
+      "rdfs:comment": "An interactive button.",
       "rdfs:subClassOf": {
         "@id": "stencila:CodeExecutable"
       }

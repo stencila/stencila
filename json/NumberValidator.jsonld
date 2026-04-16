@@ -12,7 +12,7 @@
       "@id": "stencila:NumberValidator",
       "@type": "rdfs:Class",
       "rdfs:label": "NumberValidator",
-      "rdfs:comment": "A validator specifying the constraints on a numeric node.",
+      "rdfs:comment": "A validator for numeric values.",
       "rdfs:subClassOf": {
         "@id": "stencila:Entity"
       }

@@ -1,34 +1,35 @@
 ---
 title: Citation Mode
-description: The mode of a `Citation`.
+description: The presentation mode of a citation.
 ---
 
-There are two main citation modes: parenthetical and narrative (a.k.a textual).
-See https://apastyle.apa.org/style-grammar-guidelines/citations/basic-principles/parenthetical-versus-narrative
-for an explanation.
+This is an enumeration used in Stencila Schema for citation presentation modes.
 
-This property is optional and tools are recommended to assume `parenthetical` if missing.
+It exists so citations can preserve the distinction between parenthetical and
+narrative forms, including variants that expose only the author or only the
+year in surrounding prose. This helps Stencila map citation semantics
+consistently across authoring formats, renderers, and citation processors.
 
-Narrative citations will usually be of form "As noted by Smith (1992)," but `narrative-author`
-allows for "In the early nineties, Smith noted" and `narrative-year` allows for "As noted by Smith in 1992 and 1993".
+See [`Citation.citationMode`](./citation.md#citationmode) for the property
+that uses this enumeration.
 
-Pandoc's `CitationMode` enumeration has `Normal` (for `parenthetical`), `AuthorInText` (for `textual`),
-and `SuppressAuthor` (for `textual-year`).
-See https://github.com/jgm/pandoc-types/blob/0158cd0e2a2ca9d6f14389a1a57bc64cab45a7dd/src/Text/Pandoc/Definition.hs#L353.
 
-LaTeX's `natbib` package has `\citep{}` (for `parenthetical`), `\citet{}` (for `textual`),
-`\citeauthor{}` (for `textual-author`), `\citeyear{}` (for `textual-year`).
-See https://www.overleaf.com/learn/latex/Natbib_citation_styles.
+# Analogues
 
+The following external types, elements, or nodes are similar to a `CitationMode`:
+
+- [CSL citation position and narrative conventions](https://docs.citationstyles.org/en/stable/specification.html): Close analogue for distinctions such as parenthetical versus narrative citation rendering, though Stencila exposes them as a compact schema enumeration.
 
 # Members
 
 The `CitationMode` type has these members:
 
-- `Parenthetical`
-- `Narrative`
-- `NarrativeAuthor`
-- `NarrativeYear`
+| Member            | Description |
+| ----------------- | ----------- |
+| `Parenthetical`   | -           |
+| `Narrative`       | -           |
+| `NarrativeAuthor` | -           |
+| `NarrativeYear`   | -           |
 
 # Bindings
 

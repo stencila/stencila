@@ -3,18 +3,29 @@ title: Execution Message
 description: An error, warning or log message generated during execution.
 ---
 
+This is a type used in Stencila Schema for structured messages produced during
+execution.
+
+It exists to capture runtime diagnostics, logs, and warnings as durable
+document data instead of transient console output. This lets Stencila render,
+serialize, and inspect execution results across environments and sessions.
+
+Key properties typically include message level, text, and optional code or
+source-location metadata.
+
+
 # Properties
 
 The `ExecutionMessage` type has these properties:
 
 | Name           | Description                                                          | Type                                 | Inherited from          |
 | -------------- | -------------------------------------------------------------------- | ------------------------------------ | ----------------------- |
-| `id`           | The identifier for this item.                                        | [`String`](./string.md)              | [`Entity`](./entity.md) |
 | `level`        | The severity level of the message.                                   | [`MessageLevel`](./message-level.md) | -                       |
 | `message`      | The text of the message.                                             | [`String`](./string.md)              | -                       |
 | `errorType`    | The type of error e.g. "SyntaxError", "ZeroDivisionError".           | [`String`](./string.md)              | -                       |
 | `codeLocation` | The location that the error occurred or other message emanated from. | [`CodeLocation`](./code-location.md) | -                       |
 | `stackTrace`   | Stack trace leading up to the error.                                 | [`String`](./string.md)              | -                       |
+| `id`           | The identifier for this item.                                        | [`String`](./string.md)              | [`Entity`](./entity.md) |
 
 # Related
 

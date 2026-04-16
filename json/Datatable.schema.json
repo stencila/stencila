@@ -9,6 +9,19 @@
   ],
   "category": "data",
   "description": "A table of data.",
+  "$comment": "This is a type used in Stencila Schema for column-oriented tabular data.\n\nAlthough it is conceptually related to schema.org tables, it is modeled\nseparately to support typed columns, data hints, and data-oriented workflows\ndistinct from presentation-first tables. This makes it suitable for executable\ndocuments, data inspection, validation, and transformations between tabular\nand analytical representations.\n\nKey properties include `columns`, `caption`, `notes`, and optional labeling\nmetadata inherited from [`CreativeWork`](./creative-work.md).\n",
+  "analogues": [
+    {
+      "name": "Frictionless Data Table Resource",
+      "url": "https://specs.frictionlessdata.io/table-resource/",
+      "notes": "Close analogue for column-oriented tabular data with schema-like column metadata."
+    },
+    {
+      "name": "Apache Arrow table",
+      "url": "https://arrow.apache.org/",
+      "notes": "Approximate analogue for typed columnar tabular data, though Stencila stores a document-oriented node rather than an in-memory analytics format."
+    }
+  ],
   "dom": {
     "derive": false
   },

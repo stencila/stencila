@@ -1,16 +1,27 @@
 ---
 title: Form Derive Action
-description: Indicates the action (create, update or delete) to derive for a `Form`.
+description: An action for applying a derived form value.
 ---
+
+This is an enumeration used in Stencila Schema describing how a derived form value
+should be applied.
+
+It exists so Stencila can represent create, update, and delete actions in a
+consistent way when forms derive structured document changes.
+
+See the form derivation properties that reference this enumeration.
+
 
 # Members
 
 The `FormDeriveAction` type has these members:
 
-- `Create`
-- `Update`
-- `Delete`
-- `UpdateOrDelete`
+| Member           | Description |
+| ---------------- | ----------- |
+| `Create`         | -           |
+| `Update`         | -           |
+| `Delete`         | -           |
+| `UpdateOrDelete` | -           |
 
 # Bindings
 

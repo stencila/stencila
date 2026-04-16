@@ -1,13 +1,24 @@
 ---
 title: Appendix Break
-description: A break in a document indicating the start one or more appendices.
+description: A break marking the start of appendices.
 ---
 
-Similar to a LaTeX `\appendix` command, this node causes level one headings to
-have an appendix label and figure and table numbering to switch to be prefixed
-by 'A' (for the first appendix), 'B', and so on. A document should only have
-one `AppendixBreak`.
+This is a structural marker used in Stencila Schema for appendix mode in a
+document.
 
+It exists to signal that subsequent top-level sections should be treated as
+appendices, affecting heading labels and figure or table numbering in a way
+similar to the LaTeX `\appendix` command.
+
+This node is mainly relevant to document compilation and labeling workflows. A
+document should usually contain at most one `AppendixBreak`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `AppendixBreak`:
+
+- [LaTeX \appendix](https://www.latex-project.org/): Closest functional analogue; like `\appendix`, it switches subsequent section labeling into appendix mode rather than representing visible prose content.
 
 # Properties
 
@@ -15,8 +26,8 @@ The `AppendixBreak` type has these properties:
 
 | Name                  | Description                                            | Type                                              | Inherited from          |
 | --------------------- | ------------------------------------------------------ | ------------------------------------------------- | ----------------------- |
-| `id`                  | The identifier for this item.                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 | `compilationMessages` | Messages generated while compiling the appendix break. | [`CompilationMessage`](./compilation-message.md)* | -                       |
+| `id`                  | The identifier for this item.                          | [`String`](./string.md)                           | [`Entity`](./entity.md) |
 
 # Related
 

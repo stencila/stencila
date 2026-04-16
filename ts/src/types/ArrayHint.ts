@@ -5,7 +5,7 @@ import { Integer } from "./Integer.js";
 import { Primitive } from "./Primitive.js";
 
 /**
- * A hint to the content of an `Array`.
+ * A concise summary of the values and structure of an `Array`.
  */
 export class ArrayHint extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

@@ -3,15 +3,16 @@ title: Property Value
 description: A property-value pair.
 ---
 
-Always use specific properties when they exist and you can populate them.
-Using `PropertyValue` as a substitute will typically not convey as much semantic
-information as using the specific property.
+This is an implementation of schema.org
+[`PropertyValue`](https://schema.org/PropertyValue).
 
-Most of the time a `PropertyValue` node will need a `value` property
-(e.g. most of the examples on https://schema.org/PropertyValue have one)
-so this schema make that property required.
+It is used for generic property-value metadata when no more specific schema
+property is available. In Stencila Schema it is especially useful for
+structured identifiers and similar descriptive metadata attached to
+[`Thing`](./thing.md) and derived types.
 
-This type is mainly provided for use in `Thing.identifiers` (see the notes there).
+Key properties include `propertyID` and `value`. Prefer more specific
+properties when they exist, because they usually carry stronger semantics.
 
 
 # Properties
@@ -20,15 +21,15 @@ The `PropertyValue` type has these properties:
 
 | Name             | Description                                                                    | Type                                                                 | Inherited from          |
 | ---------------- | ------------------------------------------------------------------------------ | -------------------------------------------------------------------- | ----------------------- |
-| `id`             | The identifier for this item.                                                  | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
+| `propertyID`     | A commonly used identifier for the characteristic represented by the property. | [`String`](./string.md)                                              | -                       |
+| `value`          | The value of the property.                                                     | [`Primitive`](./primitive.md)                                        | -                       |
 | `alternateNames` | Alternate names (aliases) for the item.                                        | [`String`](./string.md)*                                             | [`Thing`](./thing.md)   |
 | `description`    | A description of the item.                                                     | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `identifiers`    | Any kind of identifier for any kind of Thing.                                  | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))* | [`Thing`](./thing.md)   |
 | `images`         | Images of the item.                                                            | [`ImageObject`](./image-object.md)*                                  | [`Thing`](./thing.md)   |
 | `name`           | The name of the item.                                                          | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
 | `url`            | The URL of the item.                                                           | [`String`](./string.md)                                              | [`Thing`](./thing.md)   |
-| `propertyID`     | A commonly used identifier for the characteristic represented by the property. | [`String`](./string.md)                                              | -                       |
-| `value`          | The value of the property.                                                     | [`Primitive`](./primitive.md)                                        | -                       |
+| `id`             | The identifier for this item.                                                  | [`String`](./string.md)                                              | [`Entity`](./entity.md) |
 
 # Related
 

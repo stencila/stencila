@@ -1,7 +1,19 @@
 ---
 title: Execution Tag
-description: A tag on code that affects its execution.
+description: An execution-affecting tag on code.
 ---
+
+This is a type used in Stencila Schema for tags embedded in code that influence
+execution behavior.
+
+It exists to preserve structured execution directives extracted from source
+code, rather than losing them as unparsed comments or format-specific
+metadata. This allows execution planning and interfaces to reason about tags
+consistently.
+
+Key properties identify the tag name, value, and any positional or source-code
+metadata.
+
 
 # Properties
 
@@ -9,10 +21,10 @@ The `ExecutionTag` type has these properties:
 
 | Name       | Description                               | Type                      | Inherited from          |
 | ---------- | ----------------------------------------- | ------------------------- | ----------------------- |
-| `id`       | The identifier for this item.             | [`String`](./string.md)   | [`Entity`](./entity.md) |
 | `name`     | The name of the tag                       | [`String`](./string.md)   | -                       |
 | `value`    | The value of the tag                      | [`String`](./string.md)   | -                       |
 | `isGlobal` | Whether the tag is global to the document | [`Boolean`](./boolean.md) | -                       |
+| `id`       | The identifier for this item.             | [`String`](./string.md)   | [`Entity`](./entity.md) |
 
 # Related
 

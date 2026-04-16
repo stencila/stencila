@@ -3,7 +3,16 @@ title: Code Expression
 description: An executable code expression.
 ---
 
-Note that `CodeExpression` nodes lack the `executionPure` property that `CodeChunk` nodes have because they should be side-effect free.
+This is an executable code node used in Stencila Schema for expressions.
+It extends [`CodeExecutable`](./code-executable.md) for code that evaluates to a value inline rather than producing a block of outputs. This makes it useful for computed inline content and expression-oriented document workflows.
+Key properties include the expression `code`, `programmingLanguage`, `output`, and inherited execution metadata.
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `CodeExpression`:
+
+- [Jupyter expression output cell fragment](https://nbformat.readthedocs.io/): Approximate analogue for expression-oriented execution that yields a value, though notebooks do not expose a dedicated expression node.
+- MyST role [`eval`](https://mystmd.org/guide/roles#role-eval): Close MyST authoring analogue for inline evaluation or expression rendering.
 
 # Properties
 
@@ -11,8 +20,14 @@ The `CodeExpression` type has these properties:
 
 | Name                    | Description                                                      | Type                                                | Inherited from                           |
 | ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------- |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
 | `executionMode`         | Under which circumstances the code should be executed.           | [`ExecutionMode`](./execution-mode.md)              | -                                        |
+| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | -                                        |
+| `output`                | The value of the expression when it was last evaluated.          | [`Node`](./node.md)                                 | -                                        |
+| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
+| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
+| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
+| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
 | `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
 | `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)          |
 | `executionDigest`       | The `compilationDigest` of the node when it was last executed.   | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
@@ -26,13 +41,7 @@ The `CodeExpression` type has these properties:
 | `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)          |
 | `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)          |
 | `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)          |
-| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
-| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | -                                        |
-| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
-| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
-| `output`                | The value of the expression when it was last evaluated.          | [`Node`](./node.md)                                 | -                                        |
+| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
 
 # Related
 

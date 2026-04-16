@@ -9,6 +9,7 @@
   ],
   "category": "data",
   "description": "A validator specifying the constraints on a duration.",
+  "$comment": "This is a type used in Stencila Schema for validating [`Duration`](./duration.md)\nnodes.\n\nIt exists so document parameters and structured data can express constraints\nover durations in the same typed validator system used for other primitives.\nThis is useful for execution settings, time limits, and data validation.\n\nKey properties define minimum, maximum, and related duration constraints.\n",
   "markdown": {
     "derive": false
   },

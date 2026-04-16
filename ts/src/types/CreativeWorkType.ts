@@ -1,6 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 /**
- * The kind of a creative work.
+ * A category of creative work.
  */
 export type CreativeWorkType =
   'Agent' |

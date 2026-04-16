@@ -1,10 +1,26 @@
 ---
 title: Publication Volume
-description: A part of a successively published publication such as a periodical or multi-volume work.
+description: A publication volume.
 ---
 
-Often embedded as the `isPartOf` property in a [`PublicationIssue`](./publication-issue.md).
+This is an implementation of schema.org
+[`PublicationVolume`](https://schema.org/PublicationVolume).
 
+In Stencila Schema it is used to represent a numbered volume within a
+periodical or other multi-part publication while fitting into the broader
+creative-work metadata model. It commonly appears as the `isPartOf` parent of
+a [`PublicationIssue`](./publication-issue.md), or directly as the container
+for an article or other published work.
+
+Key properties include `volumeNumber`, `isPartOf`, `pageStart`, `pageEnd`, and
+`pagination`.
+
+
+# Analogues
+
+The following external types, elements, or nodes are similar to a `PublicationVolume`:
+
+- schema.org [`PublicationVolume`](https://schema.org/PublicationVolume)
 
 # Properties
 
@@ -12,13 +28,10 @@ The `PublicationVolume` type has these properties:
 
 | Name             | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | ---------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
-| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
-| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
-| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
-| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
-| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `pageStart`      | The page on which the volume starts; for example "135" or "xiii".                                                       | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pageEnd`        | The page on which the volume ends; for example "138" or "xvi".                                                          | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
+| `volumeNumber`   | Identifies the volume of publication or multi-part work; for example, "iii" or "2".                                     | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
 | `workType`       | The type of `CreativeWork` (e.g. article, book, software application).                                                  | [`CreativeWorkType`](./creative-work-type.md)                                     | [`CreativeWork`](./creative-work.md) |
 | `doi`            | The work's Digital Object Identifier (https://doi.org/).                                                                | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `about`          | The subject matter of the content.                                                                                      | [`ThingVariant`](./thing-variant.md)*                                             | [`CreativeWork`](./creative-work.md) |
@@ -50,10 +63,13 @@ The `PublicationVolume` type has these properties:
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
-| `pageStart`      | The page on which the volume starts; for example "135" or "xiii".                                                       | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pageEnd`        | The page on which the volume ends; for example "138" or "xvi".                                                          | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
-| `pagination`     | Any description of pages that is not separated into pageStart and pageEnd; for example, "1-6, 9, 55".                   | [`String`](./string.md)                                                           | -                                    |
-| `volumeNumber`   | Identifies the volume of publication or multi-part work; for example, "iii" or "2".                                     | [`Integer`](./integer.md) \| [`String`](./string.md)                              | -                                    |
+| `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
+| `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `identifiers`    | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
+| `images`         | Images of the item.                                                                                                     | [`ImageObject`](./image-object.md)*                                               | [`Thing`](./thing.md)                |
+| `name`           | The name of the item.                                                                                                   | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `url`            | The URL of the item.                                                                                                    | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
+| `id`             | The identifier for this item.                                                                                           | [`String`](./string.md)                                                           | [`Entity`](./entity.md)              |
 
 # Related
 

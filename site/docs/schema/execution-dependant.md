@@ -3,17 +3,28 @@ title: Execution Dependant
 description: A downstream execution dependant of a node.
 ---
 
+This is a type used in Stencila Schema for describing a downstream execution
+dependant of a node.
+
+It exists to make execution graphs explicit within the document model so
+Stencila can determine what may need re-execution after an upstream change.
+This supports incremental execution and dependency-aware tooling.
+
+Key properties identify the dependant node and the relation by which it
+depends on the current node.
+
+
 # Properties
 
 The `ExecutionDependant` type has these properties:
 
 | Name                | Description                                 | Type                                                              | Inherited from          |
 | ------------------- | ------------------------------------------- | ----------------------------------------------------------------- | ----------------------- |
-| `id`                | The identifier for this item.               | [`String`](./string.md)                                           | [`Entity`](./entity.md) |
 | `dependantRelation` | The relation to the dependant.              | [`ExecutionDependantRelation`](./execution-dependant-relation.md) | -                       |
 | `dependantType`     | The type of node that is the dependant.     | [`String`](./string.md)                                           | -                       |
 | `dependantId`       | The id of node that is the dependant.       | [`String`](./string.md)                                           | -                       |
 | `codeLocation`      | The location that the dependant is defined. | [`CodeLocation`](./code-location.md)                              | -                       |
+| `id`                | The identifier for this item.               | [`String`](./string.md)                                           | [`Entity`](./entity.md) |
 
 # Related
 

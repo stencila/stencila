@@ -1,7 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 /**
- * Abstract base type for compound (ie. non-atomic) nodes.
+ * An abstract base type for compound nodes.
  */
 export class Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

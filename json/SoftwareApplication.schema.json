@@ -9,7 +9,17 @@
   ],
   "category": "works",
   "description": "A software application.",
-  "$comment": "`SoftwareApplication` represents a software application that can be located by name and version.\nIt may be fetched in binary format or some package manager (npm, pip, etc) could fetch and compile the source code.\nAlthough by using the `softwareRequirements` property it is possible to represent a full hierarchy\nof required packages, normally it is adequate to only list the immediate dependencies and allow\nthe system/language package manager to resolve the rest.\n",
+  "$comment": "This is an implementation of schema.org\n[`SoftwareApplication`](https://schema.org/SoftwareApplication).\n\nIn Stencila Schema it is used to describe software artifacts by name, version,\nplatform, and immediate dependencies within the broader creative-work metadata\nmodel. This is useful for recording software used in computational documents,\nexecution environments, citations, and reproducibility metadata.\n\nKey properties include `name`, `softwareVersion`, `operatingSystem`, and\n`softwareRequirements`.\n",
+  "analogues": [
+    {
+      "id": "schema:SoftwareApplication"
+    },
+    {
+      "name": "SPDX package metadata",
+      "url": "https://spdx.dev/specifications/",
+      "notes": "Approximate software-package analogue for recording application identity, version, and dependencies."
+    }
+  ],
   "required": [
     "type",
     "name"

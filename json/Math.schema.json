@@ -8,8 +8,19 @@
   ],
   "category": "math",
   "abstract": true,
-  "description": "Abstract base type for a mathematical variable or equation.",
-  "$comment": "This is a base type for `MathFragment` and `MathBlock` and should not\nnormally be instantiated.\nThis type has a similar structure and purpose to `CodeStatic` which is a base type\nfor `CodeFragment`, `CodeBlock` etc.\n",
+  "description": "An abstract base type for mathematical content.",
+  "$comment": "This is an abstract base type used in Stencila Schema for mathematical content.\n\nIt exists to provide a shared representation for inline and block math,\nincluding source math code, math language, authorship, provenance, and\ncompilation-related metadata such as MathML and diagnostics. This keeps\nmathematical content aligned across authoring, rendering, and interchange\nworkflows.\n\nKey properties include `code`, `mathLanguage`, `compilationDigest`,\n`compilationMessages`, `mathml`, and `images`.\n",
+  "analogues": [
+    {
+      "name": "MathML",
+      "url": "https://www.w3.org/Math/",
+      "notes": "Close interchange analogue for mathematical notation, though Stencila stores source math plus compiled MathML and related metadata."
+    },
+    {
+      "id": "pandoc:Math",
+      "notes": "Close Pandoc analogue for shared mathematical content across inline and display contexts."
+    }
+  ],
   "required": [
     "type",
     "code"

@@ -9,6 +9,22 @@
   ],
   "category": "prose",
   "description": "Strongly emphasized content.",
+  "$comment": "This is an inline mark type used in Stencila Schema for strong emphasis.\n\nIt extends [`Mark`](./mark.md), with analogues in HTML `<strong>` and Markdown\nstrong emphasis, to preserve semantic emphasis in a structured inline model.\n\nKey properties are inherited from [`Mark`](./mark.md), especially the wrapped\ninline `content`.\n",
+  "analogues": [
+    {
+      "id": "html:strong"
+    },
+    {
+      "id": "jats:bold",
+      "notes": "Close JATS rendering analogue for strong emphasis."
+    },
+    {
+      "id": "pandoc:Strong"
+    },
+    {
+      "id": "mdast:Strong"
+    }
+  ],
   "dom": {
     "elem": "strong"
   },

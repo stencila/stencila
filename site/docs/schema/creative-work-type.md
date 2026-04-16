@@ -1,55 +1,64 @@
 ---
 title: Creative Work Type
-description: The kind of a creative work.
+description: A category of creative work.
 ---
 
-This list includes all the types derived from `CreativeWork` within this schema,
-as well as types listed at https://schema.org/CreativeWork and, items from
-DataCite's list of resource type (https://datacite-metadata-schema.readthedocs.io/en/4.6/properties/resourcetype/).
+This is an enumeration used in Stencila Schema for classifying creative works.
+
+It exists to provide a stable vocabulary for the kinds of works that Stencila
+documents can represent, combining Stencila-native work types with categories
+commonly used in schema.org and DataCite-style metadata workflows. This allows
+tools to preserve broad work-type semantics across editing, publishing, and
+metadata export.
+
+See the `creativeWorkType`-style properties on creative-work-related types for
+where this enumeration is used.
 
 
 # Members
 
 The `CreativeWorkType` type has these members:
 
-- `Agent`
-- `Article`
-- `AudioObject`
-- `Blog`
-- `Book`
-- `Chapter`
-- `Chat`
-- `Claim`
-- `Collection`
-- `Comment`
-- `Dataset`
-- `Datatable`
-- `Drawing`
-- `Figure`
-- `File`
-- `ImageObject`
-- `Legislation`
-- `Manuscript`
-- `Map`
-- `MediaObject`
-- `Periodical`
-- `Photograph`
-- `Poster`
-- `Presentation`
-- `Prompt`
-- `PublicationIssue`
-- `PublicationVolume`
-- `Report`
-- `Review`
-- `Skill`
-- `SoftwareApplication`
-- `SoftwareRepository`
-- `SoftwareSourceCode`
-- `Table`
-- `Thesis`
-- `VideoObject`
-- `WebPage`
-- `Workflow`
+| Member                | Description |
+| --------------------- | ----------- |
+| `Agent`               | -           |
+| `Article`             | -           |
+| `AudioObject`         | -           |
+| `Blog`                | -           |
+| `Book`                | -           |
+| `Chapter`             | -           |
+| `Chat`                | -           |
+| `Claim`               | -           |
+| `Collection`          | -           |
+| `Comment`             | -           |
+| `Dataset`             | -           |
+| `Datatable`           | -           |
+| `Drawing`             | -           |
+| `Figure`              | -           |
+| `File`                | -           |
+| `ImageObject`         | -           |
+| `Legislation`         | -           |
+| `Manuscript`          | -           |
+| `Map`                 | -           |
+| `MediaObject`         | -           |
+| `Periodical`          | -           |
+| `Photograph`          | -           |
+| `Poster`              | -           |
+| `Presentation`        | -           |
+| `Prompt`              | -           |
+| `PublicationIssue`    | -           |
+| `PublicationVolume`   | -           |
+| `Report`              | -           |
+| `Review`              | -           |
+| `Skill`               | -           |
+| `SoftwareApplication` | -           |
+| `SoftwareRepository`  | -           |
+| `SoftwareSourceCode`  | -           |
+| `Table`               | -           |
+| `Thesis`              | -           |
+| `VideoObject`         | -           |
+| `WebPage`             | -           |
+| `Workflow`            | -           |
 
 # Bindings
 

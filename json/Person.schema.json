@@ -7,6 +7,16 @@
     "Thing"
   ],
   "description": "A person (alive, dead, undead, or fictional).",
+  "$comment": "This is an implementation of schema.org [`Person`](https://schema.org/Person).\n\nIn Stencila Schema it is used for authorship, contribution, contact, and\nbibliographic metadata while integrating with Stencila Schema role and\nprovenance models. The schema.org model is preserved, with richer contribution\nsemantics often added via [`AuthorRole`](./author-role.md) and related types.\n\nKey properties are usually inherited from [`Thing`](./thing.md), especially\n`name`, identifiers, contact details, and affiliations.\n",
+  "analogues": [
+    {
+      "id": "schema:Person"
+    },
+    {
+      "id": "jats:name",
+      "notes": "Approximate JATS analogue for person identity in document metadata, though JATS personal-name structures are not equivalent to a reusable person entity node."
+    }
+  ],
   "required": [
     "type"
   ],
