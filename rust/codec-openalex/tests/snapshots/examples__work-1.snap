@@ -27,7 +27,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2000-01-01"
   },
   "title": [

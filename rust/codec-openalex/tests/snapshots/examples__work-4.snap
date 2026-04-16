@@ -92,7 +92,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "1951-11-01"
   },
   "title": [

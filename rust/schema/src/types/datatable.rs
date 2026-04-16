@@ -11,7 +11,7 @@ use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
 use super::datatable_column::DatatableColumn;
-use super::date::Date;
+use super::date_time::DateTime;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
 use super::inline::Inline;
@@ -171,31 +171,31 @@ pub struct DatatableOptions {
     #[serde(alias = "date-created", alias = "date_created")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    pub date_created: Option<Date>,
+    pub date_created: Option<DateTime>,
 
     /// Date/time that work was received.
     #[serde(alias = "date-received", alias = "date_received")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    pub date_received: Option<Date>,
+    pub date_received: Option<DateTime>,
 
     /// Date/time of acceptance.
     #[serde(alias = "date-accepted", alias = "date_accepted")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<DateTime>,
 
     /// Date/time of most recent modification.
     #[serde(alias = "date-modified", alias = "date_modified")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<DateTime>,
 
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    pub date_published: Option<Date>,
+    pub date_published: Option<DateTime>,
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]

@@ -1,7 +1,15 @@
 use crate::{
-    Article, CreativeWork, CreativeWorkType, CreativeWorkVariant, Reference, ReferenceOptions,
-    prelude::*, replicate,
+    Article, CreativeWork, CreativeWorkType, CreativeWorkVariant, Date, Reference,
+    ReferenceOptions, prelude::*, replicate,
 };
+
+fn date_from_date_time(date_time: &crate::DateTime) -> Option<Date> {
+    date_time
+        .value
+        .split('T')
+        .next()
+        .map(|date| Date::new(date.into()))
+}
 
 impl From<&Node> for Reference {
     fn from(node: &Node) -> Self {
@@ -41,7 +49,7 @@ impl From<&CreativeWork> for Reference {
                 .date_published
                 .as_ref()
                 .or(work.options.date_modified.as_ref())
-                .and_then(|date| replicate(date).ok()),
+                .and_then(date_from_date_time),
             title: work
                 .options
                 .title
@@ -73,7 +81,7 @@ impl From<&Article> for Reference {
                 .or(article.options.date_accepted.as_ref())
                 .or(article.options.date_received.as_ref())
                 .or(article.options.date_created.as_ref())
-                .and_then(|date| replicate(date).ok()),
+                .and_then(date_from_date_time),
             title: article.title(),
             is_part_of: article.is_part_of().map(Box::new),
             options: Box::new(ReferenceOptions {

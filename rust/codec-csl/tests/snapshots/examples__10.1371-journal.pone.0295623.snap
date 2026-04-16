@@ -75,7 +75,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2023-12-20"
   },
   "references": [

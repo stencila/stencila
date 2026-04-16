@@ -370,7 +370,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2015-11-09"
   },
   "licenses": [

@@ -12,7 +12,7 @@ use serde_json::Value;
 use stencila_codec::{
     Codec, Losses,
     stencila_schema::{
-        Article, Author, Block, Date, Inline, List, ListItem, ListOrder, Node, Person,
+        Article, Author, Block, DateTime, Inline, List, ListItem, ListOrder, Node, Person,
         shortcuts::{cb, em, h, li, lnk, mb, ol, p, qb, stg, sub, t, tb, ul},
     },
 };
@@ -53,7 +53,7 @@ fn losses_contains(losses: &Losses, key: &str) -> bool {
 async fn snapshot_representative_scientific_article() {
     let doc = Node::Article(Article {
         title: Some(vec![t("A Study of "), em([t("Quantum")]), t(" Effects")]),
-        date_published: Some(Date::new("2024-11-01".into())),
+        date_published: Some(DateTime::new("2024-11-01".into())),
         authors: Some(vec![Author::Person(Person {
             family_names: Some(vec!["Smith".into()]),
             given_names: Some(vec!["Alice".into()]),

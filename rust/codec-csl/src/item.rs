@@ -6,7 +6,7 @@ use serde_with::skip_serializing_none;
 
 use stencila_codec::stencila_schema::{
     self, Article, ArticleOptions, Author, Block, CreativeWorkType, CreativeWorkVariant, Date,
-    IntegerOrString, Node, Organization, OrganizationOptions, Paragraph, Periodical,
+    DateTime, IntegerOrString, Node, Organization, OrganizationOptions, Paragraph, Periodical,
     PeriodicalOptions, Person, PersonOrOrganization, PostalAddressOrString, Primitive,
     PropertyValue, PropertyValueOrString, PublicationIssue, PublicationVolume, Reference,
     ReferenceOptions,
@@ -415,8 +415,10 @@ impl From<Item> for Article {
             .collect_vec();
         let editors = (!editors.is_empty()).then_some(editors);
 
-        let date_published = item.issued.and_then(|date| Date::try_from(date).ok());
-        let date_received = item.submitted.and_then(|date| Date::try_from(date).ok());
+        let date_published = item.issued.and_then(|date| DateTime::try_from(date).ok());
+        let date_received = item
+            .submitted
+            .and_then(|date| DateTime::try_from(date).ok());
 
         let r#abstract = item.abstract_text.map(parse_jats_paragraphs);
 

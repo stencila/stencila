@@ -332,7 +332,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024-04"
   },
   "title": [

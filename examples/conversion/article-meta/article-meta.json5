@@ -17,8 +17,8 @@
     }
   ],
   datePublished: {
-    type: "Date",
-    value: "2022-02-22"
+    type: "DateTime",
+    value: "2022-02-22T00:00:00+00:00"
   },
   title: [
     {
@@ -66,12 +66,12 @@
     }
   ],
   dateCreated: {
-    type: "Date",
-    value: "2001-01-01"
+    type: "DateTime",
+    value: "2001-01-01T00:00:00+00:00"
   },
   dateAccepted: {
-    type: "Date",
-    value: "2011-11-11"
+    type: "DateTime",
+    value: "2011-11-11T00:00:00+00:00"
   },
   funders: [
     {

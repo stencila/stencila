@@ -6,8 +6,9 @@ use serde::Deserialize;
 use stencila_codec::stencila_schema::{
     Article, ArticleOptions, Author as StencilaAuthor, AuthorRole, AuthorRoleName, Block,
     CreativeWork, CreativeWorkOptions, CreativeWorkType, CreativeWorkVariant,
-    CreativeWorkVariantOrString, Date, Inline, IntegerOrString, Node, Organization, Paragraph,
-    Periodical, Person, PublicationIssue, PublicationVolume, Reference, ReferenceOptions,
+    CreativeWorkVariantOrString, Date, DateTime, Inline, IntegerOrString, Node, Organization,
+    Paragraph, Periodical, Person, PublicationIssue, PublicationVolume, Reference,
+    ReferenceOptions,
 };
 
 use crate::{
@@ -184,7 +185,7 @@ impl From<Work> for Reference {
         let work_type = creative_work_type(work.r#type.as_ref());
         let title = extract_title(&work);
         let doi = extract_doi(&work);
-        let date = extract_publication_date(&work);
+        let date = extract_reference_date(&work);
         let is_part_of = extract_reference_part_of(&work);
         let (page_start, page_end) = extract_page_info(&work);
         let (volume_number, issue_number) = extract_volume_issue(&work);
@@ -306,8 +307,20 @@ fn extract_doi(work: &Work) -> Option<String> {
 }
 
 /// Extract publication date from a Work
-fn extract_publication_date(work: &Work) -> Option<Date> {
-    work.publication_date.clone().map(Date::new)
+fn extract_publication_date(work: &Work) -> Option<DateTime> {
+    work.publication_date
+        .as_ref()
+        .and_then(|date| date.parse().ok())
+}
+
+fn extract_reference_date(work: &Work) -> Option<Date> {
+    extract_publication_date(work).and_then(|date_time| {
+        date_time
+            .value
+            .split('T')
+            .next()
+            .map(|date| Date::new(date.into()))
+    })
 }
 
 /// Extract authors from a Work

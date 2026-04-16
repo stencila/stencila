@@ -235,7 +235,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021"
   },
   "references": [
@@ -21274,11 +21274,11 @@ expression: article
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021-4-23"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021-8-12"
   },
   "funders": [

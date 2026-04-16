@@ -68,7 +68,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-03-15"
   },
   "title": [

@@ -212,7 +212,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2022-09-09"
   },
   "references": [

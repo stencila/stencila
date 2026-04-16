@@ -276,7 +276,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2022-9"
   },
   "references": [

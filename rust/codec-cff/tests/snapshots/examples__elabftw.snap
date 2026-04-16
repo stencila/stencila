@@ -40,7 +40,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2017-04-14"
   }
 }

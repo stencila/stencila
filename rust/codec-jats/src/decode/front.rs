@@ -4,8 +4,8 @@ use stencila_codec_text_trait::to_text;
 use stencila_codec::{
     Losses,
     stencila_schema::{
-        Article, Author, Block, CreativeWorkVariant, Date, Heading, IntegerOrString, Organization,
-        OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
+        Article, Author, Block, CreativeWorkVariant, DateTime, Heading, IntegerOrString,
+        Organization, OrganizationOptions, Periodical, Person, PersonOptions, PersonOrOrganization,
         PostalAddressOrString, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationVolume, Section, SectionType, StringOrNumber, ThingVariant,
     },
@@ -293,8 +293,8 @@ fn decode_date(path: &str, node: &Node, article: &mut Article, losses: &mut Loss
     }
 }
 
-/// Decode a `<pub-date>` or `<date>` element to a `Date`
-fn date_element_to_date(node: &Node) -> Option<Date> {
+/// Decode a `<pub-date>` or `<date>` element to a `DateTime`
+fn date_element_to_date(node: &Node) -> Option<DateTime> {
     let mut day = None;
     let mut month = None;
     let mut year = None;
@@ -316,7 +316,7 @@ fn date_element_to_date(node: &Node) -> Option<Date> {
         date.push('-');
         date.push_str(month);
     } else {
-        return Some(Date::new(date));
+        return Some(DateTime::new(date));
     }
 
     if let Some(day) = day {
@@ -324,7 +324,7 @@ fn date_element_to_date(node: &Node) -> Option<Date> {
         date.push_str(day);
     }
 
-    Some(Date::new(date))
+    Some(DateTime::new(date))
 }
 
 /// Decode a `<volume>` element

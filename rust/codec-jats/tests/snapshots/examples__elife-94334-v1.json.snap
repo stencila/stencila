@@ -189,7 +189,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024-12-10"
   },
   "references": [

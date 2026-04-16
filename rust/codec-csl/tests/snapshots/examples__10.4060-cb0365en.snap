@@ -6,7 +6,7 @@ expression: node
   "type": "Article",
   "doi": "10.4060/cb0365en",
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2020"
   },
   "title": [

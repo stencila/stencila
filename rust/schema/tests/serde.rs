@@ -8,7 +8,7 @@ use eyre::{Result, bail};
 use indexmap::IndexMap;
 use itertools::Itertools;
 
-use stencila_schema::{Array, Article, Date, IntegerOrString, Node, Object, Primitive};
+use stencila_schema::{Array, Article, DateTime, IntegerOrString, Node, Object, Primitive};
 
 /// Test that unrecognized keys are collected into the `Article.extra`
 /// primitive [`Object`].
@@ -36,7 +36,10 @@ content: []
 
     let article: Article = serde_yaml::from_str(yaml)?;
 
-    assert_eq!(article.date_published, Date::from_str("2025-01-01").ok());
+    assert_eq!(
+        article.date_published,
+        DateTime::from_str("2025-01-01").ok()
+    );
     assert_eq!(
         article.options.page_start,
         Some(IntegerOrString::Integer(1))

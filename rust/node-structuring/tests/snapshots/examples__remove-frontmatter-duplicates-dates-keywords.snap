@@ -48,7 +48,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-06-15"
   },
   "title": [
@@ -86,11 +86,11 @@ expression: node
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-02-10"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-05-22"
   },
   "keywords": [

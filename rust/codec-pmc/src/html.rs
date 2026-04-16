@@ -15,7 +15,7 @@ use stencila_codec::{
     DecodeInfo, DecodeOptions,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Author, Block, CreativeWorkVariant, Date, Figure, ImageObject, Inline,
+        Article, Author, Block, CreativeWorkVariant, DateTime, Figure, ImageObject, Inline,
         IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph, Periodical,
         Person, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
         PublicationVolume, Reference, Section, SectionType, Supplement, Table, TableCell,
@@ -148,7 +148,7 @@ fn extract_metadata(dom: &tl::VDom) -> Result<Article> {
                     article.doi = Some(content);
                 }
                 "citation_publication_date" => {
-                    article.date_published = Some(Date::new(content));
+                    article.date_published = Some(DateTime::new(content));
                 }
                 "citation_author" => {
                     let author = text_to_author(&content)

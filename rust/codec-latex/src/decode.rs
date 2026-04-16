@@ -9,9 +9,10 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
         AppendixBreak, Article, Author, Bibliography, Block, Citation, CitationGroup, CitationMode,
-        CitationOptions, CodeChunk, CodeExpression, CompilationMessage, Date, ForBlock, Heading,
-        IfBlock, IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType, Link,
-        MathBlock, MessageLevel, Node, Paragraph, Person, RawBlock, Section, SectionType, Text,
+        CitationOptions, CodeChunk, CodeExpression, CompilationMessage, DateTime, ForBlock,
+        Heading, IfBlock, IfBlockClause, IncludeBlock, Inline, InlinesBlock, Island, LabelType,
+        Link, MathBlock, MessageLevel, Node, Paragraph, Person, RawBlock, Section, SectionType,
+        Text,
     },
 };
 use stencila_codec_pandoc::{pandoc_from_format, root_from_pandoc};
@@ -226,7 +227,7 @@ fn extract_authors(latex: &str) -> Option<Vec<Author>> {
 }
 
 /// Extract date from LaTeX \date{...} command
-fn extract_date(latex: &str) -> Option<Date> {
+fn extract_date(latex: &str) -> Option<DateTime> {
     DATE_RE.captures(latex).and_then(|caps| {
         caps.get(1).and_then(|m| {
             let date_str = m.as_str().trim();
@@ -238,7 +239,7 @@ fn extract_date(latex: &str) -> Option<Date> {
 
             // Try to normalize the date to ISO 8601 format
             // For now, just store as-is if it's not empty
-            Some(Date::new(date_str.into()))
+            Some(DateTime::new(date_str.into()))
         })
     })
 }

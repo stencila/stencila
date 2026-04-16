@@ -11,7 +11,7 @@ use super::compilation_message::CompilationMessage;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
-use super::date::Date;
+use super::date_time::DateTime;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
@@ -96,7 +96,7 @@ pub struct Article {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_published: Option<Date>,
+    pub date_published: Option<DateTime>,
 
     /// References to other creative works, such as another publication, web page, scholarly article, etc.
     #[serde(alias = "citations", alias = "reference")]
@@ -233,28 +233,28 @@ pub struct ArticleOptions {
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_created: Option<Date>,
+    pub date_created: Option<DateTime>,
 
     /// Date/time that work was received.
     #[serde(alias = "date-received", alias = "date_received")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_received: Option<Date>,
+    pub date_received: Option<DateTime>,
 
     /// Date/time of acceptance.
     #[serde(alias = "date-accepted", alias = "date_accepted")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_accepted: Option<Date>,
+    pub date_accepted: Option<DateTime>,
 
     /// Date/time of most recent modification.
     #[serde(alias = "date-modified", alias = "date_modified")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub date_modified: Option<Date>,
+    pub date_modified: Option<DateTime>,
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]

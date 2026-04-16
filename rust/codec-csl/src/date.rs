@@ -7,7 +7,7 @@ use serde_with::skip_serializing_none;
 
 use stencila_codec::{
     eyre::{Report, bail},
-    stencila_schema::Date,
+    stencila_schema::DateTime,
 };
 
 /// A CSL date field
@@ -122,7 +122,7 @@ pub enum Circa {
     Text(String),
 }
 
-impl TryFrom<DateField> for Date {
+impl TryFrom<DateField> for DateTime {
     type Error = Report;
 
     fn try_from(value: DateField) -> Result<Self, Self::Error> {
@@ -132,14 +132,14 @@ impl TryFrom<DateField> for Date {
                     let year = parts.first().map(|y| y.to_string()).unwrap_or_default();
                     let month = parts.get(1).map(|m| format!("-{m:02}")).unwrap_or_default();
                     let day = parts.get(2).map(|d| format!("-{d:02}")).unwrap_or_default();
-                    Date::new(format!("{year}{month}{day}"))
+                    DateTime::new(format!("{year}{month}{day}"))
                 } else {
                     bail!("No date parts")
                 }
             }
-            DateField::Literal { literal, .. } => Date::from_str(&literal)?,
-            DateField::Raw { raw, .. } => Date::from_str(&raw)?,
-            DateField::Edtf { edtf, .. } => Date::from_str(&edtf)?,
+            DateField::Literal { literal, .. } => DateTime::from_str(&literal)?,
+            DateField::Raw { raw, .. } => DateTime::from_str(&raw)?,
+            DateField::Edtf { edtf, .. } => DateTime::from_str(&edtf)?,
             _ => bail!("Invalid date"),
         })
     }

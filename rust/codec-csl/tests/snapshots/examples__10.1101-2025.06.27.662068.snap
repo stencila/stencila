@@ -93,7 +93,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-07-02"
   },
   "references": [

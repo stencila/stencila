@@ -9,7 +9,7 @@ use stencila_codec::{
     Codec, CodecSupport, Losses,
     stencila_format::Format,
     stencila_schema::{
-        Article, ArticleOptions, Author, Date, Node, Person,
+        Article, ArticleOptions, Author, DateTime, Node, Person,
         shortcuts::{art, em, p, t},
     },
 };
@@ -40,7 +40,7 @@ fn losses_contains(losses: &Losses, key: &str) -> bool {
 async fn article_with_title_content_and_date_published_encodes_correctly() {
     let doc = Node::Article(Article {
         title: Some(vec![t("My Title")]),
-        date_published: Some(Date::new("2024-06-15".into())),
+        date_published: Some(DateTime::new("2024-06-15".into())),
         content: vec![p([t("Hello world")])],
         ..Default::default()
     });
@@ -106,7 +106,7 @@ async fn article_date_created_used_when_no_date_published() {
     let doc = Node::Article(Article {
         content: vec![p([t("Content")])],
         options: Box::new(ArticleOptions {
-            date_created: Some(Date::new("2023-01-10".into())),
+            date_created: Some(DateTime::new("2023-01-10".into())),
             ..Default::default()
         }),
         ..Default::default()
@@ -137,7 +137,7 @@ async fn article_date_modified_used_when_no_other_dates() {
     let doc = Node::Article(Article {
         content: vec![p([t("Content")])],
         options: Box::new(ArticleOptions {
-            date_modified: Some(Date::new("2025-03-20".into())),
+            date_modified: Some(DateTime::new("2025-03-20".into())),
             ..Default::default()
         }),
         ..Default::default()

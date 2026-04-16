@@ -581,7 +581,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2019-3"
   },
   "references": [
@@ -20905,11 +20905,11 @@ expression: article
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2018-9-06"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2018-11-07"
   },
   "funders": [

@@ -27,7 +27,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025 Aug 9"
   },
   "references": [

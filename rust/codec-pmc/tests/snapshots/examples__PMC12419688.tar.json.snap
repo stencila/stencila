@@ -29,7 +29,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-8-09"
   },
   "references": [
@@ -2012,11 +2012,11 @@ expression: article
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-8-06"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2025-8-06"
   },
   "isPartOf": {

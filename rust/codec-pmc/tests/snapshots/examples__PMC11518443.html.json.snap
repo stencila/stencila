@@ -298,7 +298,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024 Oct 28"
   },
   "title": [

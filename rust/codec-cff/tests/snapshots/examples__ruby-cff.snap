@@ -27,7 +27,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024-10-26"
   },
   "keywords": [

@@ -129,7 +129,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021-10-22"
   },
   "references": [
@@ -18677,11 +18677,11 @@ expression: article
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021-10-21"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2021-10-22"
   },
   "keywords": [

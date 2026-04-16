@@ -99,7 +99,13 @@ impl Article {
             .or(self.options.date_received.as_ref())
             .or(self.options.date_created.as_ref())
         {
-            vars.insert("document-date".to_string(), date.value.replace("\"", "'"));
+            let date = date
+                .value
+                .split('T')
+                .next()
+                .unwrap_or(&date.value)
+                .replace("\"", "'");
+            vars.insert("document-date".to_string(), date);
         }
 
         if let Some(doi) = &self.doi {
@@ -514,7 +520,7 @@ impl MarkdownCodec for Article {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Author, Date, Person};
+    use crate::{Author, DateTime, Person};
 
     #[test]
     fn test_document_variables_empty() {
@@ -620,8 +626,8 @@ mod tests {
     #[test]
     fn test_document_variables_date() {
         let article = Article {
-            date_published: Some(Date {
-                value: "2025-01-15".to_string(),
+            date_published: Some(DateTime {
+                value: "2025-01-15T00:00:00Z".to_string(),
                 ..Default::default()
             }),
             ..Default::default()
@@ -652,8 +658,8 @@ mod tests {
                 family_names: Some(vec!["Doe".to_string()]),
                 ..Default::default()
             })]),
-            date_published: Some(Date {
-                value: "2025-01-15".to_string(),
+            date_published: Some(DateTime {
+                value: "2025-01-15T00:00:00Z".to_string(),
                 ..Default::default()
             }),
             doi: Some("10.1234/test".to_string()),

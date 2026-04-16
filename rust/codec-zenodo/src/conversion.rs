@@ -6,7 +6,7 @@ use stencila_codec::{
     stencila_format::Format,
     stencila_schema::{
         Article, ArticleOptions, Author, Block, CreativeWorkVariantOrString, Datatable,
-        DatatableOptions, Date, Grant, GrantOptions, GrantOrMonetaryGrant, Inline, Node,
+        DatatableOptions, DateTime, Grant, GrantOptions, GrantOrMonetaryGrant, Inline, Node,
         Organization, Paragraph, Person, PersonOptions, PropertyValueOrString, Reference,
         SoftwareSourceCode, SoftwareSourceCodeOptions, StringOrNumber, Text,
     },
@@ -89,7 +89,7 @@ impl From<Record> for Article {
                 .description
                 .as_ref()
                 .map(|desc| parse_html_or_text(desc)),
-            date_published: Some(Date {
+            date_published: Some(DateTime {
                 value: metadata.publication_date.clone(),
                 ..Default::default()
             }),

@@ -12,7 +12,7 @@ use super::compilation_message::CompilationMessage;
 use super::creative_work_type::CreativeWorkType;
 use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
-use super::date::Date;
+use super::date_time::DateTime;
 use super::duration::Duration;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
@@ -213,36 +213,36 @@ pub struct ChatOptions {
     #[serde(alias = "date-created", alias = "date_created")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    #[dom(with = "Date::to_dom_attr")]
-    pub date_created: Option<Date>,
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_created: Option<DateTime>,
 
     /// Date/time that work was received.
     #[serde(alias = "date-received", alias = "date_received")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    #[dom(with = "Date::to_dom_attr")]
-    pub date_received: Option<Date>,
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_received: Option<DateTime>,
 
     /// Date/time of acceptance.
     #[serde(alias = "date-accepted", alias = "date_accepted")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    #[dom(with = "Date::to_dom_attr")]
-    pub date_accepted: Option<Date>,
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_accepted: Option<DateTime>,
 
     /// Date/time of most recent modification.
     #[serde(alias = "date-modified", alias = "date_modified")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    #[dom(with = "Date::to_dom_attr")]
-    pub date_modified: Option<Date>,
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_modified: Option<DateTime>,
 
     /// Date of first publication.
     #[serde(alias = "date", alias = "date-published", alias = "date_published")]
     #[serde(default, deserialize_with = "option_string_or_object")]
     #[strip(metadata)]
-    #[dom(with = "Date::to_dom_attr")]
-    pub date_published: Option<Date>,
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_published: Option<DateTime>,
 
     /// People or organizations that funded the `CreativeWork`.
     #[serde(alias = "funder")]

@@ -652,19 +652,19 @@ class CreativeWork(Thing):
     comments: list[Comment] | None = None
     """Comments about this creative work."""
 
-    date_created: Date | None = None
+    date_created: DateTime | None = None
     """Date/time of creation."""
 
-    date_received: Date | None = None
+    date_received: DateTime | None = None
     """Date/time that work was received."""
 
-    date_accepted: Date | None = None
+    date_accepted: DateTime | None = None
     """Date/time of acceptance."""
 
-    date_modified: Date | None = None
+    date_modified: DateTime | None = None
     """Date/time of most recent modification."""
 
-    date_published: Date | None = None
+    date_published: DateTime | None = None
     """Date of first publication."""
 
     funders: list[Person | Organization] | None = None

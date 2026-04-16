@@ -353,9 +353,9 @@
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
-        "with": "Date::to_dom_attr"
+        "with": "DateTime::to_dom_attr"
       },
-      "$ref": "Date.schema.json"
+      "$ref": "DateTime.schema.json"
     },
     "dateReceived": {
       "@id": "schema:dateReceived",
@@ -371,9 +371,9 @@
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
-        "with": "Date::to_dom_attr"
+        "with": "DateTime::to_dom_attr"
       },
-      "$ref": "Date.schema.json"
+      "$ref": "DateTime.schema.json"
     },
     "dateAccepted": {
       "@id": "stencila:dateAccepted",
@@ -390,9 +390,9 @@
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
-        "with": "Date::to_dom_attr"
+        "with": "DateTime::to_dom_attr"
       },
-      "$ref": "Date.schema.json"
+      "$ref": "DateTime.schema.json"
     },
     "dateModified": {
       "@id": "schema:dateModified",
@@ -408,9 +408,9 @@
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
-        "with": "Date::to_dom_attr"
+        "with": "DateTime::to_dom_attr"
       },
-      "$ref": "Date.schema.json"
+      "$ref": "DateTime.schema.json"
     },
     "datePublished": {
       "@id": "schema:datePublished",
@@ -427,9 +427,9 @@
         "deserializeWith": "option_string_or_object"
       },
       "dom": {
-        "with": "Date::to_dom_attr"
+        "with": "DateTime::to_dom_attr"
       },
-      "$ref": "Date.schema.json"
+      "$ref": "DateTime.schema.json"
     },
     "funders": {
       "@id": "schema:funder",

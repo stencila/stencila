@@ -45,7 +45,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2009-10-15"
   },
   "title": [

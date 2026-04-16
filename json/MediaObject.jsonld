@@ -387,7 +387,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Date"
+        "@id": "schema:DateTime"
       }
     },
     {
@@ -399,7 +399,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Date"
+        "@id": "schema:DateTime"
       }
     },
     {
@@ -411,7 +411,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Date"
+        "@id": "schema:DateTime"
       }
     },
     {
@@ -423,7 +423,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Date"
+        "@id": "schema:DateTime"
       }
     },
     {
@@ -435,7 +435,7 @@
         "@id": "schema:CreativeWork"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Date"
+        "@id": "schema:DateTime"
       }
     },
     {

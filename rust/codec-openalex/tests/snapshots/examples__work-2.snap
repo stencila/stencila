@@ -95,7 +95,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2022-07-26"
   },
   "title": [

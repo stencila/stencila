@@ -135,7 +135,7 @@ expression: article
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024-1-1"
   },
   "references": [
@@ -8010,11 +8010,11 @@ expression: article
     }
   ],
   "dateReceived": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2023-12-31"
   },
   "dateAccepted": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2024-1-01"
   },
   "isPartOf": {

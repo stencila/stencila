@@ -62,7 +62,7 @@ expression: node
     }
   ],
   "datePublished": {
-    "type": "Date",
+    "type": "DateTime",
     "value": "2023-05-31"
   },
   "title": [

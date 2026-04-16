@@ -1,7 +1,7 @@
 use serde::Deserialize;
 
 use stencila_codec::stencila_schema::{
-    Article, ArticleOptions, Author, CreativeWorkVariant, CreativeWorkVariantOrString, Date,
+    Article, ArticleOptions, Author, CreativeWorkVariant, CreativeWorkVariantOrString, DateTime,
     IntegerOrString, Organization, Periodical, PeriodicalOptions, Person, PersonOptions,
     PersonOrOrganization, Primitive, PropertyValue, PropertyValueOrString, PublicationIssue,
     PublicationIssueOptions, PublicationVolume, PublicationVolumeOptions, SoftwareApplication,
@@ -313,9 +313,9 @@ impl From<PreferredCitation> for Article {
         // Create date from year and month
         let date_published = citation.year.map(|year| {
             if let Some(month) = citation.month {
-                Date::new(format!("{year}-{month:02}"))
+                DateTime::new(format!("{year}-{month:02}"))
             } else {
-                Date::new(year.to_string())
+                DateTime::new(year.to_string())
             }
         });
 
@@ -384,7 +384,7 @@ impl From<CitationFile> for SoftwareSourceCode {
 
         let description = cff.r#abstract;
 
-        let date_published = cff.date_released.map(Date::new);
+        let date_published = cff.date_released.map(DateTime::new);
 
         let programming_language = String::new(); // CFF doesn't specify this
 
@@ -435,7 +435,7 @@ impl From<CitationFile> for SoftwareApplication {
 
         let description = cff.r#abstract;
 
-        let date_published = cff.date_released.map(Date::new);
+        let date_published = cff.date_released.map(DateTime::new);
 
         let licenses = cff
             .license

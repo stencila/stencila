@@ -7,7 +7,7 @@ import { Comment } from "./Comment.js";
 import { CreativeWorkType } from "./CreativeWorkType.js";
 import { CreativeWorkVariant } from "./CreativeWorkVariant.js";
 import { CreativeWorkVariantOrString } from "./CreativeWorkVariantOrString.js";
-import { Date } from "./Date.js";
+import { DateTime } from "./DateTime.js";
 import { GrantOrMonetaryGrant } from "./GrantOrMonetaryGrant.js";
 import { Inline } from "./Inline.js";
 import { Person } from "./Person.js";
@@ -79,27 +79,27 @@ export class CreativeWork extends Thing {
   /**
    * Date/time of creation.
    */
-  dateCreated?: Date;
+  dateCreated?: DateTime;
 
   /**
    * Date/time that work was received.
    */
-  dateReceived?: Date;
+  dateReceived?: DateTime;
 
   /**
    * Date/time of acceptance.
    */
-  dateAccepted?: Date;
+  dateAccepted?: DateTime;
 
   /**
    * Date/time of most recent modification.
    */
-  dateModified?: Date;
+  dateModified?: DateTime;
 
   /**
    * Date of first publication.
    */
-  datePublished?: Date;
+  datePublished?: DateTime;
 
   /**
    * People or organizations that funded the `CreativeWork`.

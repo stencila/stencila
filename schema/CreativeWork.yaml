@@ -139,42 +139,42 @@ properties:
   dateCreated:
     "@id": schema:dateCreated
     description: Date/time of creation.
-    $ref: Date
+    $ref: DateTime
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
     dom:
-      with: Date::to_dom_attr
+      with: DateTime::to_dom_attr
   dateReceived:
     "@id": schema:dateReceived
     description: Date/time that work was received.
-    $ref: Date
+    $ref: DateTime
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
     dom:
-      with: Date::to_dom_attr
+      with: DateTime::to_dom_attr
   dateAccepted:
     "@id": stencila:dateAccepted
     description: Date/time of acceptance.
     $comment: |
       This is not yet a schema.org property but the term is used
       [in Dublin Core](http://purl.org/dc/terms/dateAccepted).
-    $ref: Date
+    $ref: DateTime
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
     dom:
-      with: Date::to_dom_attr
+      with: DateTime::to_dom_attr
   dateModified:
     "@id": schema:dateModified
     description: Date/time of most recent modification.
-    $ref: Date
+    $ref: DateTime
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
     dom:
-      with: Date::to_dom_attr
+      with: DateTime::to_dom_attr
   datePublished:
     "@id": schema:datePublished
     aliases:
@@ -182,12 +182,12 @@ properties:
       # and not the date modified or created.
       - date
     description: Date of first publication.
-    $ref: Date
+    $ref: DateTime
     strip: [metadata]
     serde:
       deserializeWith: option_string_or_object
     dom:
-      with: Date::to_dom_attr
+      with: DateTime::to_dom_attr
   funders:
     "@id": schema:funder
     description: People or organizations that funded the `CreativeWork`.

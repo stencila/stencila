@@ -3,7 +3,7 @@ use serde_json::json;
 
 use pretty_assertions::assert_eq;
 use stencila_node_canonicalize::canonicalize;
-use stencila_schema::{Article, Author, Date, Node, Person, shortcuts::t};
+use stencila_schema::{Article, Author, DateTime, Node, Person, shortcuts::t};
 
 /// Article with a DOI on OpenAlex should get that DOI
 #[tokio::test]
@@ -12,7 +12,7 @@ async fn open_alex_doi() -> Result<()> {
         title: Some(vec![t(
             "Effect of modified zirconium oxide nano-fillers addition on some properties of heat cure acrylic denture base material",
         )]),
-        date_published: Some(Date::new("2012-01-01".into())),
+        date_published: Some(DateTime::new("2012-01-01".into())),
         ..Default::default()
     });
     canonicalize(&mut article).await?;

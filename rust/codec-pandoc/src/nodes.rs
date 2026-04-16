@@ -354,7 +354,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
                     })]
                 });
 
-                let date_published = pending.date.and_then(|d| d.parse().ok());
+                let date_published = pending.date.map(DateTime::new);
 
                 Comment {
                     id: Some(pending.pandoc_id.clone()),

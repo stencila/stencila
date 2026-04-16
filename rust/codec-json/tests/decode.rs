@@ -12,7 +12,7 @@ use pretty_assertions::assert_eq;
 use stencila_codec::{
     eyre::Result,
     stencila_schema::{
-        Array, Article, ArticleOptions, Block, Boolean, Date, Emphasis, Inline, Integer,
+        Array, Article, ArticleOptions, Block, Boolean, Date, DateTime, Emphasis, Inline, Integer,
         IntegerOrString, Node, Null, Number, Object, Paragraph, Person, Primitive, ThematicBreak,
         Time,
         shortcuts::{p, t},
@@ -181,7 +181,7 @@ fn property_aliases() -> Result<()> {
         "type": "Article",
         "keyword": "one",
         "alternate-name": "alt-name",
-        "date": { "type": "Date", "value": "2010" },
+        "date": { "type": "DateTime", "value": "2010" },
         "content": { "type": "ThematicBreak"}
     }))?;
 
@@ -190,7 +190,10 @@ fn property_aliases() -> Result<()> {
         article.options.alternate_names,
         Some(vec!["alt-name".to_string()])
     );
-    assert_eq!(article.date_published, Some(Date::new("2010".to_string())));
+    assert_eq!(
+        article.date_published,
+        Some(DateTime::new("2010".to_string()))
+    );
     assert_eq!(
         article.content,
         vec![Block::ThematicBreak(ThematicBreak::new())]
@@ -237,23 +240,23 @@ fn date() -> Result<()> {
     let article2 = Article::from_json_value(json!({
         "type": "Article",
         "datePublished": {
-            "type": "Date",
+            "type": "DateTime",
             "value": "2022"
         },
         "dateCreated": {
-            "type": "Date",
+            "type": "DateTime",
             "value": "2022-02"
         },
         "dateModified": {
-            "type": "Date",
+            "type": "DateTime",
             "value": "2022-02-22"
         },
         "dateAccepted": {
-            "type": "Date",
+            "type": "DateTime",
             "value": "2022-02-22"
         },
         "dateReceived": {
-            "type": "Date",
+            "type": "DateTime",
             "value": "2022-02-22"
         },
         "content": []
