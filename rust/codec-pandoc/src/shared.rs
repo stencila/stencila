@@ -1,4 +1,5 @@
 use serde::Serialize;
+use std::collections::HashMap;
 
 use inflector::Inflector;
 use pandoc_types::definition::{self as pandoc, Target};
@@ -39,6 +40,12 @@ pub(super) struct PandocEncodeContext {
 
     /// The commit hash from the root Article (for file link URLs)
     pub commit: Option<String>,
+
+    /// Mapping from boundary ids to encoded Pandoc comment start spans.
+    pub comment_start_spans: HashMap<String, pandoc::Inline>,
+
+    /// Mapping from boundary ids to encoded Pandoc comment end spans.
+    pub comment_end_spans: HashMap<String, pandoc::Inline>,
 }
 
 impl PandocEncodeContext {
@@ -53,6 +60,8 @@ impl PandocEncodeContext {
             node_path: NodePath::new(),
             repository: None,
             commit: None,
+            comment_start_spans: HashMap::new(),
+            comment_end_spans: HashMap::new(),
         }
     }
 

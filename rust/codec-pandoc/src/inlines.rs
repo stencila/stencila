@@ -20,11 +20,86 @@ pub(super) fn inlines_to_pandoc(
         inlines
             .iter()
             .enumerate()
-            .map(|(index, inline)| {
-                context.within_index(index, |context| inline_to_pandoc(inline, context))
+            .flat_map(|(index, inline)| {
+                context.within_index(index, |context| inline_to_pandoc_vec(inline, context))
             })
             .collect()
     })
+}
+
+fn inline_to_pandoc_vec(inline: &Inline, context: &mut PandocEncodeContext) -> Vec<pandoc::Inline> {
+    match inline {
+        Inline::SuggestionInline(suggestion) => {
+            suggestion_inline_to_pandoc_inlines(suggestion, context)
+        }
+        _ => vec![inline_to_pandoc(inline, context)],
+    }
+}
+
+pub(super) fn suggestion_inline_to_pandoc_inlines(
+    suggestion: &SuggestionInline,
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Inline> {
+    match suggestion.suggestion_type {
+        Some(SuggestionType::Replace) => {
+            let delete = pandoc_suggestion_span(
+                vec!["deletion".into()],
+                &suggestion.authors,
+                suggestion.original.as_deref().unwrap_or_default(),
+                NodeProperty::Original,
+                context,
+                "SuggestionInline.original",
+            );
+            let insert = pandoc_suggestion_span(
+                vec!["insertion".into()],
+                &suggestion.authors,
+                &suggestion.content,
+                NodeProperty::Content,
+                context,
+                "SuggestionInline.content",
+            );
+            vec![delete, insert]
+        }
+        Some(SuggestionType::Delete) => vec![pandoc_suggestion_span(
+            vec!["deletion".into()],
+            &suggestion.authors,
+            &suggestion.content,
+            NodeProperty::Content,
+            context,
+            "SuggestionInline.content",
+        )],
+        Some(SuggestionType::Insert) | None => vec![pandoc_suggestion_span(
+            vec!["insertion".into()],
+            &suggestion.authors,
+            &suggestion.content,
+            NodeProperty::Content,
+            context,
+            "SuggestionInline.content",
+        )],
+    }
+}
+
+fn pandoc_suggestion_span(
+    classes: Vec<String>,
+    authors: &Option<Vec<Author>>,
+    content: &[Inline],
+    property: NodeProperty,
+    context: &mut PandocEncodeContext,
+    empty_loss: &str,
+) -> pandoc::Inline {
+    let mut attrs = attrs_classes(classes);
+
+    if let Some(author) = suggestion_author_attr(authors) {
+        attrs.attributes.push(("author".into(), author));
+    } else if authors.is_some() {
+        context.losses.add("Suggestion.authors");
+    }
+
+    if content.is_empty() {
+        context.losses.add(empty_loss);
+    }
+
+    pandoc::Inline::Span(attrs, inlines_to_pandoc(property, content, context))
 }
 
 pub(super) fn inlines_from_pandoc(
@@ -106,6 +181,8 @@ pub(super) fn inline_to_pandoc(
         Inline::Note(note) => note_to_pandoc(note, context),
         Inline::StyledInline(styled) => styled_inline_to_pandoc(styled, context),
         Inline::Parameter(parameter) => parameter_to_pandoc(parameter, context),
+        Inline::Boundary(boundary) => boundary_to_pandoc(boundary, context),
+        Inline::SuggestionInline(suggestion) => suggestion_inline_to_pandoc(suggestion, context),
 
         // Inline types currently ignored: record loss and encode an empty span
         // TODO: implement these or remove from schema's `Inline` enum
@@ -432,6 +509,41 @@ fn styled_inline_from_pandoc(
     ))
 }
 
+fn boundary_to_pandoc(boundary: &Boundary, context: &mut PandocEncodeContext) -> pandoc::Inline {
+    let Some(id) = &boundary.id else {
+        context.losses.add("Boundary.id");
+        return pandoc::Inline::Span(attrs_empty(), Vec::new());
+    };
+
+    if let Some(span) = context.comment_start_spans.get(id) {
+        return span.clone();
+    }
+
+    if let Some(span) = context.comment_end_spans.get(id) {
+        return span.clone();
+    }
+
+    context.losses.add("Boundary");
+    pandoc::Inline::Span(attrs_empty(), Vec::new())
+}
+
+fn suggestion_inline_to_pandoc(
+    suggestion: &SuggestionInline,
+    context: &mut PandocEncodeContext,
+) -> pandoc::Inline {
+    if suggestion.suggestion_status.is_some() {
+        context.losses.add("SuggestionInline.suggestionStatus");
+    }
+    if suggestion.provenance.is_some() {
+        context.losses.add("SuggestionInline.provenance");
+    }
+
+    suggestion_inline_to_pandoc_inlines(suggestion, context)
+        .into_iter()
+        .next()
+        .unwrap_or_else(|| pandoc::Inline::Span(attrs_empty(), Vec::new()))
+}
+
 fn suggestion_inline_from_pandoc(
     attrs: Attr,
     inlines: Vec<pandoc::Inline>,
@@ -456,6 +568,57 @@ fn suggestion_inline_from_pandoc(
         content: inlines_from_pandoc(inlines, context),
         ..Default::default()
     })
+}
+
+pub(super) fn merge_adjacent_replacement_suggestions(inlines: &mut Vec<Inline>) {
+    let mut merged = Vec::with_capacity(inlines.len());
+    let mut index = 0;
+
+    while index < inlines.len() {
+        let Some(Inline::SuggestionInline(delete)) = inlines.get(index) else {
+            merged.push(inlines[index].clone());
+            index += 1;
+            continue;
+        };
+
+        let is_delete = delete.suggestion_type == Some(SuggestionType::Delete);
+        let Some(Inline::SuggestionInline(insert)) = inlines.get(index + 1) else {
+            merged.push(inlines[index].clone());
+            index += 1;
+            continue;
+        };
+
+        let is_insert = insert.suggestion_type == Some(SuggestionType::Insert);
+
+        if is_delete
+            && is_insert
+            && delete.authors == insert.authors
+            && delete.suggestion_status == insert.suggestion_status
+            && delete.provenance == insert.provenance
+            && delete.execution_duration == insert.execution_duration
+            && delete.execution_ended == insert.execution_ended
+            && delete.feedback == insert.feedback
+        {
+            merged.push(Inline::SuggestionInline(SuggestionInline {
+                suggestion_type: Some(SuggestionType::Replace),
+                suggestion_status: delete.suggestion_status,
+                authors: delete.authors.clone(),
+                provenance: delete.provenance.clone(),
+                execution_duration: delete.execution_duration.clone(),
+                execution_ended: delete.execution_ended.clone(),
+                feedback: delete.feedback.clone(),
+                content: insert.content.clone(),
+                original: Some(delete.content.clone()),
+                ..Default::default()
+            }));
+            index += 2;
+        } else {
+            merged.push(inlines[index].clone());
+            index += 1;
+        }
+    }
+
+    *inlines = merged;
 }
 
 fn code_expression_to_pandoc(
@@ -598,6 +761,44 @@ fn get_kv_attr(attrs: &Attr, name: &str) -> Option<String> {
         .find_map(|(k, v)| (k == name).then(|| v.clone()))
 }
 
+pub(super) fn comment_blocks_to_pandoc_inlines(
+    blocks: &[Block],
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Inline> {
+    let mut inlines = Vec::new();
+
+    for (index, block) in blocks.iter().enumerate() {
+        match block {
+            Block::Paragraph(paragraph) => {
+                inlines.extend(inlines_to_pandoc(
+                    NodeProperty::Content,
+                    &paragraph.content,
+                    context,
+                ));
+            }
+            _ => {
+                context.losses.add("Comment.content");
+            }
+        }
+
+        if index + 1 < blocks.len() {
+            inlines.push(pandoc::Inline::LineBreak);
+        }
+    }
+
+    inlines
+}
+
+pub(super) fn suggestion_author_attr(authors: &Option<Vec<Author>>) -> Option<String> {
+    let author = authors.as_ref()?.first()?;
+
+    match author {
+        Author::Person(person) => person.given_names.as_ref().map(|names| names.join(" ")),
+        Author::Organization(org) => org.name.clone(),
+        _ => None,
+    }
+}
+
 /// Handle a Pandoc `comment-start` span.
 ///
 /// Emits a [`Boundary`] inline node and collects the comment metadata
@@ -638,6 +839,32 @@ fn comment_end_from_pandoc(
 ) -> Option<Inline> {
     let pandoc_id = get_kv_attr(&attrs, "id").unwrap_or_default();
     let boundary_id = format!("comment-{pandoc_id}-end");
+    let parent_id = get_kv_attr(&attrs, "parent");
+
+    if let Some(parent_id) = parent_id {
+        if let Some(pending) = context
+            .pending_comments
+            .iter_mut()
+            .find(|c| c.pandoc_id == pandoc_id)
+        {
+            pending.parent_pandoc_id = Some(parent_id);
+            if pending.body_inlines.is_empty() {
+                pending.body_inlines = inlines.clone();
+            }
+        } else if !pandoc_id.is_empty() {
+            context.pending_comments.push(PendingComment {
+                pandoc_id: pandoc_id.clone(),
+                author: get_kv_attr(&attrs, "author"),
+                date: get_kv_attr(&attrs, "date"),
+                body_inlines: inlines.clone(),
+                parent_pandoc_id: get_kv_attr(&attrs, "parent"),
+            });
+        }
+
+        // Reply comments are metadata carriers nested inside another comment's
+        // end span; they do not correspond to a boundary in article content.
+        return None;
+    }
 
     // Process any nested comment-end spans — these are replies to this comment
     for inline in inlines {
@@ -646,13 +873,27 @@ fn comment_end_from_pandoc(
         {
             let nested_id = get_kv_attr(&nested_attrs, "id").unwrap_or_default();
 
-            // Mark the nested comment as a reply to this one
+            // Mark the nested comment as a reply to this one, creating a pending
+            // comment if needed. Unlike regular comments, reply comments may be
+            // represented only by a nested `comment-end` span, with their body
+            // carried in that span's inline content.
             if let Some(pending) = context
                 .pending_comments
                 .iter_mut()
                 .find(|c| c.pandoc_id == nested_id)
             {
                 pending.parent_pandoc_id = Some(pandoc_id.clone());
+                if pending.body_inlines.is_empty() {
+                    pending.body_inlines = nested_inlines.clone();
+                }
+            } else if !nested_id.is_empty() {
+                context.pending_comments.push(PendingComment {
+                    pandoc_id: nested_id.clone(),
+                    author: get_kv_attr(&nested_attrs, "author"),
+                    date: get_kv_attr(&nested_attrs, "date"),
+                    body_inlines: nested_inlines.clone(),
+                    parent_pandoc_id: Some(pandoc_id.clone()),
+                });
             }
 
             // Recursively handle deeper nesting

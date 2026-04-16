@@ -11,12 +11,12 @@ use stencila_codec::{
 
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
-    inlines::pandoc_inlines_to_blocks,
+    inlines::{comment_blocks_to_pandoc_inlines, pandoc_inlines_to_blocks},
     meta::{
         inlines_from_meta_inlines, inlines_to_meta_inlines, string_from_meta_value,
         string_to_meta_value,
     },
-    shared::{PandocDecodeContext, PandocEncodeContext},
+    shared::{PandocDecodeContext, PandocEncodeContext, PendingComment},
 };
 
 pub fn root_to_pandoc(
@@ -115,9 +115,150 @@ fn article_to_pandoc(
         );
     }
 
+    prepare_comments_for_pandoc(article, context);
+
     let blocks = blocks_to_pandoc(NodeProperty::Content, &article.content, context);
 
     Ok(pandoc::Pandoc { meta, blocks })
+}
+
+fn prepare_comments_for_pandoc(article: &Article, context: &mut PandocEncodeContext) {
+    context.comment_start_spans.clear();
+    context.comment_end_spans.clear();
+
+    let Some(comments) = &article.options.comments else {
+        return;
+    };
+
+    let mut next_id = 0usize;
+    for comment in comments {
+        prepare_comment_for_pandoc(comment, None, &mut next_id, context);
+    }
+}
+
+fn prepare_comment_for_pandoc(
+    comment: &Comment,
+    parent_pandoc_id: Option<&str>,
+    next_id: &mut usize,
+    context: &mut PandocEncodeContext,
+) -> Option<(String, pandoc::Inline)> {
+    let start_location = comment.options.start_location.as_deref();
+    let end_location = comment.options.end_location.as_deref();
+
+    let pandoc_id = if let Some(start_location) = start_location {
+        comment_pandoc_id(start_location, next_id)?
+    } else if let Some(id) = &comment.id {
+        id.clone()
+    } else {
+        let id = next_id.to_string();
+        *next_id += 1;
+        id
+    };
+
+    if start_location.is_none() || end_location.is_none() {
+        let mut end_attrs = pandoc::Attr::default();
+        end_attrs.classes.push("comment-end".into());
+        end_attrs.attributes.push(("id".into(), pandoc_id.clone()));
+        if let Some(parent_id) = parent_pandoc_id {
+            end_attrs
+                .attributes
+                .push(("parent".into(), parent_id.to_string()));
+        }
+
+        let mut end_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
+        if let Some(replies) = &comment.options.comments {
+            for reply in replies {
+                if let Some((_, reply_end)) =
+                    prepare_comment_for_pandoc(reply, Some(&pandoc_id), next_id, context)
+                {
+                    end_inlines.push(reply_end);
+                }
+            }
+        }
+
+        return Some((pandoc_id, pandoc::Inline::Span(end_attrs, end_inlines)));
+    }
+
+    let start_location = start_location?;
+    let end_location = end_location?;
+
+    let start_boundary_id = start_location.strip_prefix('#')?.to_string();
+    let end_boundary_id = end_location.strip_prefix('#')?.to_string();
+
+    let mut start_attrs = pandoc::Attr::default();
+    start_attrs.classes.push("comment-start".into());
+    start_attrs
+        .attributes
+        .push(("id".into(), pandoc_id.clone()));
+
+    if let Some(author) = comment_author_attr(comment) {
+        start_attrs.attributes.push(("author".into(), author));
+    } else if comment.authors.is_some() {
+        context.losses.add("Comment.authors");
+    }
+
+    if let Some(date) = &comment.date_published {
+        start_attrs
+            .attributes
+            .push(("date".into(), date.value.to_string()));
+    }
+
+    let body_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
+    context.comment_start_spans.insert(
+        start_boundary_id,
+        pandoc::Inline::Span(start_attrs, body_inlines),
+    );
+
+    let mut reply_end_spans = Vec::new();
+    if let Some(replies) = &comment.options.comments {
+        for reply in replies {
+            if let Some((_, reply_end)) =
+                prepare_comment_for_pandoc(reply, Some(&pandoc_id), next_id, context)
+            {
+                reply_end_spans.push(reply_end);
+            }
+        }
+    }
+
+    let mut end_attrs = pandoc::Attr::default();
+    end_attrs.classes.push("comment-end".into());
+    end_attrs.attributes.push(("id".into(), pandoc_id.clone()));
+    if let Some(parent_id) = parent_pandoc_id {
+        end_attrs
+            .attributes
+            .push(("parent".into(), parent_id.to_string()));
+    }
+
+    context.comment_end_spans.insert(
+        end_boundary_id.clone(),
+        pandoc::Inline::Span(end_attrs, reply_end_spans),
+    );
+
+    let end_span = context.comment_end_spans.get(&end_boundary_id)?.clone();
+
+    Some((pandoc_id, end_span))
+}
+
+fn comment_pandoc_id(start_location: &str, next_id: &mut usize) -> Option<String> {
+    let boundary_id = start_location.strip_prefix('#')?;
+    let comment_id = boundary_id.strip_prefix("comment-")?;
+    let comment_id = comment_id.strip_suffix("-start")?;
+
+    if let Ok(numeric) = comment_id.parse::<usize>() {
+        *next_id = (*next_id).max(numeric + 1);
+    }
+
+    Some(comment_id.to_string())
+}
+
+fn comment_author_attr(comment: &Comment) -> Option<String> {
+    let author = comment.authors.as_ref()?.first()?;
+
+    match author {
+        Author::Person(person) => person.given_names.as_ref().map(|names| names.join(" ")),
+        Author::Organization(org) => org.name.clone(),
+        _ => None,
+    }
 }
 
 fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext) -> Article {
@@ -154,7 +295,30 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
     let comments = if context.pending_comments.is_empty() {
         None
     } else {
-        let pending: Vec<_> = context.pending_comments.drain(..).collect();
+        let drained: Vec<_> = context.pending_comments.drain(..).collect();
+
+        let mut pending: Vec<PendingComment> = Vec::new();
+        for item in drained {
+            if let Some(existing) = pending
+                .iter_mut()
+                .find(|pending| pending.pandoc_id == item.pandoc_id)
+            {
+                if existing.author.is_none() {
+                    existing.author = item.author;
+                }
+                if existing.date.is_none() {
+                    existing.date = item.date;
+                }
+                if existing.body_inlines.is_empty() {
+                    existing.body_inlines = item.body_inlines;
+                }
+                if existing.parent_pandoc_id.is_none() {
+                    existing.parent_pandoc_id = item.parent_pandoc_id;
+                }
+            } else {
+                pending.push(item);
+            }
+        }
 
         // Collect parent_pandoc_id and pandoc_id before consuming pending
         let parent_ids: Vec<Option<String>> =
@@ -193,6 +357,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
                 let date_published = pending.date.and_then(|d| d.parse().ok());
 
                 Comment {
+                    id: Some(pending.pandoc_id.clone()),
                     content: body_blocks,
                     authors,
                     date_published,
@@ -237,9 +402,8 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
         // it has already been nested.
         for (original_parent_idx, reply) in replies {
             let parent_pandoc_id = &pandoc_ids[original_parent_idx];
-            let target_loc = format!("#comment-{parent_pandoc_id}-start");
             // If nest_reply returns Err the parent wasn't found — reply is dropped
-            let _ = nest_reply(&mut comments, &target_loc, reply);
+            let _ = nest_reply(&mut comments, parent_pandoc_id, reply);
         }
 
         // Remove Boundary nodes for reply comments from inline content
@@ -268,14 +432,14 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
     }
 }
 
-/// Recursively find a comment whose `start_location` matches `target_loc`
+/// Recursively find a comment whose `id` matches `target_id`
 /// and append `reply` to its `comments`. Returns `Err(reply)` if not found
 /// so ownership is returned to the caller.
-fn nest_reply(comments: &mut [Comment], target_loc: &str, reply: Comment) -> Result<(), Comment> {
+fn nest_reply(comments: &mut [Comment], target_id: &str, reply: Comment) -> Result<(), Comment> {
     // Two-pass: first check direct children, then recurse.
     // This avoids borrow conflicts from iterating while recursing.
     for comment in comments.iter_mut() {
-        if comment.options.start_location.as_deref() == Some(target_loc) {
+        if comment.id.as_deref() == Some(target_id) {
             comment
                 .options
                 .comments
@@ -287,7 +451,7 @@ fn nest_reply(comments: &mut [Comment], target_loc: &str, reply: Comment) -> Res
     let mut reply = reply;
     for comment in comments.iter_mut() {
         if let Some(nested) = &mut comment.options.comments {
-            reply = match nest_reply(nested, target_loc, reply) {
+            reply = match nest_reply(nested, target_id, reply) {
                 Ok(()) => return Ok(()),
                 Err(r) => r,
             };

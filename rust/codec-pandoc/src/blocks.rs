@@ -9,7 +9,7 @@ use stencila_codec_text_trait::to_text;
 use crate::{
     inlines::{
         image_to_pandoc, inline_to_pandoc, inlines_from_pandoc, inlines_to_pandoc,
-        string_from_pandoc_inlines,
+        merge_adjacent_replacement_suggestions, string_from_pandoc_inlines, suggestion_author_attr,
     },
     shared::{
         PandocDecodeContext, PandocEncodeContext, attrs_attributes, attrs_classes, attrs_empty,
@@ -44,6 +44,10 @@ pub(super) fn blocks_from_pandoc(
 }
 
 pub fn block_to_pandoc(block: &Block, context: &mut PandocEncodeContext) -> Vec<pandoc::Block> {
+    if let Block::SuggestionBlock(block) = block {
+        return suggestion_block_to_pandoc(block, context);
+    }
+
     let block = match block {
         // Structure
         Block::Heading(para) => heading_to_pandoc(para, context),
@@ -130,6 +134,73 @@ pub fn block_from_pandoc(block: pandoc::Block, context: &mut PandocDecodeContext
             Block::Section(Section::default())
         }
     }
+}
+
+fn suggestion_block_to_pandoc(
+    suggestion: &SuggestionBlock,
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Block> {
+    if suggestion.suggestion_status.is_some() {
+        context.losses.add("SuggestionBlock.suggestionStatus");
+    }
+    if suggestion.provenance.is_some() {
+        context.losses.add("SuggestionBlock.provenance");
+    }
+
+    let mut attrs = attrs_empty();
+    if let Some(author) = suggestion_author_attr(&suggestion.authors) {
+        attrs.attributes.push(("author".into(), author));
+    } else if suggestion.authors.is_some() {
+        context.losses.add("SuggestionBlock.authors");
+    }
+
+    attrs.classes.push("suggestion-block".into());
+
+    vec![match suggestion.suggestion_type {
+        Some(SuggestionType::Delete) => {
+            attrs.classes.push("deletion".into());
+            pandoc::Block::Div(
+                attrs,
+                blocks_to_pandoc(NodeProperty::Content, &suggestion.content, context),
+            )
+        }
+        Some(SuggestionType::Replace) => {
+            let Some(original) = &suggestion.original else {
+                context.losses.add("SuggestionBlock.original");
+                return vec![pandoc::Block::Div(
+                    attrs_classes(vec!["suggestion-block".into(), "insertion".into()]),
+                    blocks_to_pandoc(NodeProperty::Content, &suggestion.content, context),
+                )];
+            };
+
+            let mut delete_attrs = attrs.clone();
+            delete_attrs.classes.push("deletion".into());
+
+            let mut insert_attrs = attrs;
+            insert_attrs.classes.push("insertion".into());
+
+            pandoc::Block::Div(
+                attrs_classes(vec!["suggestion-block-replace".into()]),
+                vec![
+                    pandoc::Block::Div(
+                        delete_attrs,
+                        blocks_to_pandoc(NodeProperty::Original, original, context),
+                    ),
+                    pandoc::Block::Div(
+                        insert_attrs,
+                        blocks_to_pandoc(NodeProperty::Content, &suggestion.content, context),
+                    ),
+                ],
+            )
+        }
+        Some(SuggestionType::Insert) | None => {
+            attrs.classes.push("insertion".into());
+            pandoc::Block::Div(
+                attrs,
+                blocks_to_pandoc(NodeProperty::Content, &suggestion.content, context),
+            )
+        }
+    }]
 }
 
 fn heading_to_pandoc(heading: &Heading, context: &mut PandocEncodeContext) -> pandoc::Block {
@@ -244,6 +315,7 @@ fn paragraph_to_pandoc(para: &Paragraph, context: &mut PandocEncodeContext) -> p
 
 fn paragraph_from_pandoc(inlines: Vec<pandoc::Inline>, context: &mut PandocDecodeContext) -> Block {
     let mut inlines = inlines_from_pandoc(inlines, context);
+    merge_adjacent_replacement_suggestions(&mut inlines);
 
     // If the paragraph only has a single inline media object, unwrap it into a
     // block level media object. This is consistent with Markdown codec and elsewhere.
@@ -1644,6 +1716,17 @@ fn div_from_pandoc(
 
     if classes
         .iter()
+        .any(|class| class == "suggestion-block-replace")
+    {
+        return replacement_suggestion_block_from_pandoc(blocks, context);
+    }
+
+    if classes.iter().any(|class| class == "suggestion-block") {
+        return suggestion_block_from_pandoc(attrs, blocks, context);
+    }
+
+    if classes
+        .iter()
         .any(|class| class == "appendix" || class == "appendix-break")
     {
         return appendix_break_from_pandoc(attrs, blocks, context);
@@ -1794,4 +1877,75 @@ fn div_from_pandoc(
     }
 
     Block::StyledBlock(StyledBlock::new(attrs.classes.join(" ").into(), content))
+}
+
+fn suggestion_block_from_pandoc(
+    attrs: pandoc::Attr,
+    blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    let suggestion_type = if attrs.classes.iter().any(|class| class == "deletion") {
+        SuggestionType::Delete
+    } else {
+        SuggestionType::Insert
+    };
+
+    let authors = get_attr(&attrs, "author").map(|name| {
+        vec![Author::Person(Person {
+            given_names: Some(vec![name]),
+            ..Default::default()
+        })]
+    });
+
+    Block::SuggestionBlock(SuggestionBlock {
+        suggestion_type: Some(suggestion_type),
+        authors,
+        content: blocks_from_pandoc(blocks, context),
+        ..Default::default()
+    })
+}
+
+fn replacement_suggestion_block_from_pandoc(
+    blocks: Vec<pandoc::Block>,
+    context: &mut PandocDecodeContext,
+) -> Block {
+    let mut original = None;
+    let mut content = None;
+    let mut authors = None;
+
+    for block in blocks {
+        let pandoc::Block::Div(attrs, nested_blocks) = block else {
+            context.losses.add("SuggestionBlock");
+            continue;
+        };
+
+        let nested_authors = get_attr(&attrs, "author").map(|name| {
+            vec![Author::Person(Person {
+                given_names: Some(vec![name]),
+                ..Default::default()
+            })]
+        });
+
+        if authors.is_none() {
+            authors = nested_authors;
+        }
+
+        let decoded = blocks_from_pandoc(nested_blocks, context);
+
+        if attrs.classes.iter().any(|class| class == "deletion") {
+            original = Some(decoded);
+        } else if attrs.classes.iter().any(|class| class == "insertion") {
+            content = Some(decoded);
+        } else {
+            context.losses.add("SuggestionBlock");
+        }
+    }
+
+    Block::SuggestionBlock(SuggestionBlock {
+        suggestion_type: Some(SuggestionType::Replace),
+        authors,
+        content: content.unwrap_or_default(),
+        original,
+        ..Default::default()
+    })
 }
