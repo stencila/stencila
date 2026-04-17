@@ -43,6 +43,30 @@ pub fn root_to_pandoc(
     ))
 }
 
+/// Normalize reply parent ids collected from Pandoc comment spans.
+///
+/// For DOCX imports, Pandoc can represent several sibling replies as a deeply
+/// nested chain of `comment-end` spans even when the source DOCX stores them as
+/// direct replies to the same top-level comment. Those nested spans do not
+/// encode enough information to recover the original sibling relationships at
+/// parse time, so any reply that still has no explicit parent after inline
+/// decoding is attached to the single anchored top-level comment.
+fn normalize_reply_parents(pending_comments: &mut [PendingComment]) {
+    let Some(root_id) = pending_comments
+        .iter()
+        .find(|comment| comment.parent_pandoc_id.is_none())
+        .map(|comment| comment.pandoc_id.clone())
+    else {
+        return;
+    };
+
+    for pending_comment in pending_comments.iter_mut() {
+        if pending_comment.pandoc_id != root_id && pending_comment.parent_pandoc_id.is_none() {
+            pending_comment.parent_pandoc_id = Some(root_id.clone());
+        }
+    }
+}
+
 fn comment_end_attrs(pandoc_id: &str, parent_pandoc_id: Option<&str>) -> pandoc::Attr {
     let mut attrs = pandoc::Attr::default();
     attrs.classes.push("comment-end".into());
@@ -84,7 +108,8 @@ fn comments_from_pending(
         return None;
     }
 
-    let pending = merge_pending_comments(context.pending_comments.drain(..).collect());
+    let mut pending = merge_pending_comments(context.pending_comments.drain(..).collect());
+    normalize_reply_parents(&mut pending);
     let parent_ids: Vec<Option<String>> = pending
         .iter()
         .map(|comment| comment.parent_pandoc_id.clone())

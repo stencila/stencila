@@ -862,7 +862,10 @@ fn comment_end_from_pandoc(
         return None;
     }
 
-    // Process any nested comment-end spans — these are replies to this comment
+    // Process any nested comment-end spans. Pandoc may deeply nest sibling
+    // replies from DOCX. Those nested spans do not carry enough information to
+    // distinguish true nested replies from flattened sibling replies, so leave
+    // their parent unresolved here and normalize the relationships later.
     for inline in inlines {
         if let pandoc::Inline::Span(nested_attrs, nested_inlines) = inline
             && nested_attrs.classes.iter().any(|c| c == "comment-end")
@@ -870,6 +873,8 @@ fn comment_end_from_pandoc(
             let Some(nested_id) = comment_span_id(&nested_attrs, context) else {
                 continue;
             };
+
+            let nested_parent_id = get_kv_attr(&nested_attrs, "parent");
 
             // Mark the nested comment as a reply to this one, creating a pending
             // comment if needed. Unlike regular comments, reply comments may be
@@ -880,7 +885,9 @@ fn comment_end_from_pandoc(
                 .iter_mut()
                 .find(|c| c.pandoc_id == nested_id)
             {
-                pending.parent_pandoc_id = Some(pandoc_id.clone());
+                if pending.parent_pandoc_id.is_none() {
+                    pending.parent_pandoc_id = nested_parent_id.clone();
+                }
                 if pending.body_inlines.is_empty() {
                     pending.body_inlines = nested_inlines.clone();
                 }
@@ -890,7 +897,7 @@ fn comment_end_from_pandoc(
                     author: get_kv_attr(&nested_attrs, "author"),
                     date: get_kv_attr(&nested_attrs, "date"),
                     body_inlines: nested_inlines.clone(),
-                    parent_pandoc_id: Some(pandoc_id.clone()),
+                    parent_pandoc_id: nested_parent_id,
                 });
             }
 
