@@ -1,8 +1,8 @@
 use stencila_codec::StructuringOperation::Heading1ToTitleSingle;
 use stencila_codec::StructuringOptions;
 use stencila_schema::{
-    Author, Block, CodeInline, Duration, Heading, Inline, ProvenanceCount, RawBlock,
-    SuggestionStatus, Timestamp, Visitor, VisitorAsync, VisitorMut, WalkControl, WalkNode,
+    Block, CodeInline, Heading, Inline, RawBlock, Visitor, VisitorAsync, VisitorMut, WalkControl,
+    WalkNode,
 };
 
 use crate::{first::FirstWalk, second::SecondWalk, third::ThirdWalk};
@@ -11,16 +11,6 @@ mod first;
 mod second;
 mod suggestions;
 mod third;
-
-#[derive(Debug, Clone, PartialEq, Default)]
-struct SuggestionMetadata {
-    suggestion_status: Option<SuggestionStatus>,
-    authors: Option<Vec<Author>>,
-    provenance: Option<Vec<ProvenanceCount>>,
-    execution_duration: Option<Duration>,
-    execution_ended: Option<Timestamp>,
-    feedback: Option<stencila_schema::String>,
-}
 
 /// Counts of heading levels in a document
 ///

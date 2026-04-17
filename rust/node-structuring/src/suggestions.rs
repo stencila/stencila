@@ -1,6 +1,18 @@
-use stencila_schema::{Block, Inline, SuggestionBlock, SuggestionInline, SuggestionType};
+use stencila_schema::{
+    Author, Block, DateTime, Duration, Inline, ProvenanceCount, SuggestionBlock, SuggestionInline,
+    SuggestionStatus, SuggestionType, Timestamp,
+};
 
-use crate::SuggestionMetadata;
+#[derive(Debug, Clone, PartialEq, Default)]
+struct SuggestionMetadata {
+    suggestion_status: Option<SuggestionStatus>,
+    authors: Option<Vec<Author>>,
+    provenance: Option<Vec<ProvenanceCount>>,
+    date_published: Option<DateTime>,
+    execution_duration: Option<Duration>,
+    execution_ended: Option<Timestamp>,
+    feedback: Option<stencila_schema::String>,
+}
 
 trait SuggestionNode: Sized {
     type Content;
@@ -31,6 +43,7 @@ impl SuggestionNode for SuggestionInline {
             suggestion_status: self.suggestion_status,
             authors: self.authors.clone(),
             provenance: self.provenance.clone(),
+            date_published: self.date_published.clone(),
             execution_duration: self.execution_duration.clone(),
             execution_ended: self.execution_ended.clone(),
             feedback: self.feedback.clone(),
@@ -75,6 +88,7 @@ impl SuggestionNode for SuggestionInline {
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
+        suggestion.date_published = metadata.date_published;
         suggestion.execution_duration = metadata.execution_duration;
         suggestion.execution_ended = metadata.execution_ended;
         suggestion.feedback = metadata.feedback;
@@ -94,6 +108,7 @@ impl SuggestionNode for SuggestionBlock {
             suggestion_status: self.suggestion_status,
             authors: self.authors.clone(),
             provenance: self.provenance.clone(),
+            date_published: self.date_published.clone(),
             execution_duration: self.execution_duration.clone(),
             execution_ended: self.execution_ended.clone(),
             feedback: self.feedback.clone(),
@@ -138,6 +153,7 @@ impl SuggestionNode for SuggestionBlock {
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
+        suggestion.date_published = metadata.date_published;
         suggestion.execution_duration = metadata.execution_duration;
         suggestion.execution_ended = metadata.execution_ended;
         suggestion.feedback = metadata.feedback;
