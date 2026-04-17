@@ -7,7 +7,8 @@ use stencila_codec_text_trait::to_text;
 use crate::{
     blocks::{blocks_from_pandoc, blocks_to_pandoc},
     shared::{
-        PandocDecodeContext, PandocEncodeContext, PendingComment, attrs_classes, attrs_empty,
+        PandocDecodeContext, PandocEncodeContext, PendingComment, append_suggestion_attrs,
+        attrs_classes, attrs_empty, decode_suggestion_attrs,
     },
 };
 
@@ -34,72 +35,6 @@ fn inline_to_pandoc_vec(inline: &Inline, context: &mut PandocEncodeContext) -> V
         }
         _ => vec![inline_to_pandoc(inline, context)],
     }
-}
-
-pub(super) fn suggestion_inline_to_pandoc_inlines(
-    suggestion: &SuggestionInline,
-    context: &mut PandocEncodeContext,
-) -> Vec<pandoc::Inline> {
-    match suggestion.suggestion_type {
-        Some(SuggestionType::Replace) => {
-            let delete = pandoc_suggestion_span(
-                vec!["deletion".into()],
-                &suggestion.authors,
-                suggestion.original.as_deref().unwrap_or_default(),
-                NodeProperty::Original,
-                context,
-                "SuggestionInline.original",
-            );
-            let insert = pandoc_suggestion_span(
-                vec!["insertion".into()],
-                &suggestion.authors,
-                &suggestion.content,
-                NodeProperty::Content,
-                context,
-                "SuggestionInline.content",
-            );
-            vec![delete, insert]
-        }
-        Some(SuggestionType::Delete) => vec![pandoc_suggestion_span(
-            vec!["deletion".into()],
-            &suggestion.authors,
-            &suggestion.content,
-            NodeProperty::Content,
-            context,
-            "SuggestionInline.content",
-        )],
-        Some(SuggestionType::Insert) | None => vec![pandoc_suggestion_span(
-            vec!["insertion".into()],
-            &suggestion.authors,
-            &suggestion.content,
-            NodeProperty::Content,
-            context,
-            "SuggestionInline.content",
-        )],
-    }
-}
-
-fn pandoc_suggestion_span(
-    classes: Vec<String>,
-    authors: &Option<Vec<Author>>,
-    content: &[Inline],
-    property: NodeProperty,
-    context: &mut PandocEncodeContext,
-    empty_loss: &str,
-) -> pandoc::Inline {
-    let mut attrs = attrs_classes(classes);
-
-    if let Some(author) = suggestion_author_attr(authors) {
-        attrs.attributes.push(("author".into(), author));
-    } else if authors.is_some() {
-        context.losses.add("Suggestion.authors");
-    }
-
-    if content.is_empty() {
-        context.losses.add(empty_loss);
-    }
-
-    pandoc::Inline::Span(attrs, inlines_to_pandoc(property, content, context))
 }
 
 pub(super) fn inlines_from_pandoc(
@@ -354,15 +289,7 @@ fn link_from_pandoc(
     // internal links using ids like `fig:xxx` and `tab:xxx` as used in LaTeX documents so
     // revert these. Some software also places a %20 at the start of the URL.
     target = target.trim_start_matches("%20").to_string();
-    if let Some(rest) = target.strip_prefix("#tab%3A") {
-        target = format!("#tab:{rest}");
-    } else if let Some(rest) = target.strip_prefix("#fig%3A") {
-        target = format!("#fig:{rest}");
-    } else if let Some(rest) = target.strip_prefix("#equ%3A") {
-        target = format!("#equ:{rest}");
-    } else if let Some(rest) = target.strip_prefix("#app%3A") {
-        target = format!("#app:{rest}");
-    }
+    target = restore_internal_target_prefix(&target);
 
     let label_only = if !target.starts_with("https://") && !target.starts_with("http://") {
         // Set to true if an internal link with only a number as content
@@ -527,6 +454,72 @@ fn boundary_to_pandoc(boundary: &Boundary, context: &mut PandocEncodeContext) ->
     pandoc::Inline::Span(attrs_empty(), Vec::new())
 }
 
+pub(super) fn suggestion_inline_to_pandoc_inlines(
+    suggestion: &SuggestionInline,
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Inline> {
+    match suggestion.suggestion_type {
+        Some(SuggestionType::Replace) => {
+            let delete = pandoc_suggestion_span(
+                vec!["deletion".into()],
+                &suggestion.authors,
+                &suggestion.date_published,
+                suggestion.original.as_deref().unwrap_or_default(),
+                NodeProperty::Original,
+                context,
+                "SuggestionInline.original",
+            );
+            let insert = pandoc_suggestion_span(
+                vec!["insertion".into()],
+                &suggestion.authors,
+                &suggestion.date_published,
+                &suggestion.content,
+                NodeProperty::Content,
+                context,
+                "SuggestionInline.content",
+            );
+            vec![delete, insert]
+        }
+        Some(SuggestionType::Delete) => vec![pandoc_suggestion_span(
+            vec!["deletion".into()],
+            &suggestion.authors,
+            &suggestion.date_published,
+            &suggestion.content,
+            NodeProperty::Content,
+            context,
+            "SuggestionInline.content",
+        )],
+        Some(SuggestionType::Insert) | None => vec![pandoc_suggestion_span(
+            vec!["insertion".into()],
+            &suggestion.authors,
+            &suggestion.date_published,
+            &suggestion.content,
+            NodeProperty::Content,
+            context,
+            "SuggestionInline.content",
+        )],
+    }
+}
+
+fn pandoc_suggestion_span(
+    classes: Vec<String>,
+    authors: &Option<Vec<Author>>,
+    date_published: &Option<DateTime>,
+    content: &[Inline],
+    property: NodeProperty,
+    context: &mut PandocEncodeContext,
+    empty_loss: &str,
+) -> pandoc::Inline {
+    let mut attrs = attrs_classes(classes);
+    append_suggestion_attrs(&mut attrs, authors, date_published);
+
+    if content.is_empty() {
+        context.losses.add(empty_loss);
+    }
+
+    pandoc::Inline::Span(attrs, inlines_to_pandoc(property, content, context))
+}
+
 fn suggestion_inline_to_pandoc(
     suggestion: &SuggestionInline,
     context: &mut PandocEncodeContext,
@@ -549,22 +542,12 @@ fn suggestion_inline_from_pandoc(
     inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Inline {
-    let suggestion_type = if attrs.classes.iter().any(|c| c == "insertion") {
-        SuggestionType::Insert
-    } else {
-        SuggestionType::Delete
-    };
-
-    let authors = get_kv_attr(&attrs, "author").map(|name| {
-        vec![Author::Person(Person {
-            given_names: Some(vec![name]),
-            ..Default::default()
-        })]
-    });
+    let decoded_attrs = decode_suggestion_attrs(&attrs);
 
     Inline::SuggestionInline(SuggestionInline {
-        suggestion_type: Some(suggestion_type),
-        authors,
+        suggestion_type: Some(decoded_attrs.suggestion_type),
+        authors: decoded_attrs.authors,
+        date_published: decoded_attrs.date_published,
         content: inlines_from_pandoc(inlines, context),
         ..Default::default()
     })
@@ -593,19 +576,17 @@ pub(super) fn merge_adjacent_replacement_suggestions(inlines: &mut Vec<Inline>) 
         if is_delete
             && is_insert
             && delete.authors == insert.authors
+            && delete.date_published == insert.date_published
             && delete.suggestion_status == insert.suggestion_status
             && delete.provenance == insert.provenance
-            && delete.execution_duration == insert.execution_duration
-            && delete.execution_ended == insert.execution_ended
             && delete.feedback == insert.feedback
         {
             merged.push(Inline::SuggestionInline(SuggestionInline {
                 suggestion_type: Some(SuggestionType::Replace),
+                date_published: delete.date_published.clone(),
                 suggestion_status: delete.suggestion_status,
                 authors: delete.authors.clone(),
                 provenance: delete.provenance.clone(),
-                execution_duration: delete.execution_duration.clone(),
-                execution_ended: delete.execution_ended.clone(),
                 feedback: delete.feedback.clone(),
                 content: insert.content.clone(),
                 original: Some(delete.content.clone()),
@@ -761,6 +742,17 @@ fn get_kv_attr(attrs: &Attr, name: &str) -> Option<String> {
         .find_map(|(k, v)| (k == name).then(|| v.clone()))
 }
 
+fn restore_internal_target_prefix(target: &str) -> String {
+    for prefix in ["tab", "fig", "equ", "app"] {
+        let encoded_prefix = format!("#{prefix}%3A");
+        if let Some(rest) = target.strip_prefix(&encoded_prefix) {
+            return format!("#{prefix}:{rest}");
+        }
+    }
+
+    target.to_string()
+}
+
 pub(super) fn comment_blocks_to_pandoc_inlines(
     blocks: &[Block],
     context: &mut PandocEncodeContext,
@@ -789,16 +781,6 @@ pub(super) fn comment_blocks_to_pandoc_inlines(
     inlines
 }
 
-pub(super) fn suggestion_author_attr(authors: &Option<Vec<Author>>) -> Option<String> {
-    let author = authors.as_ref()?.first()?;
-
-    match author {
-        Author::Person(person) => person.given_names.as_ref().map(|names| names.join(" ")),
-        Author::Organization(org) => org.name.clone(),
-        _ => None,
-    }
-}
-
 /// Handle a Pandoc `comment-start` span.
 ///
 /// Emits a [`Boundary`] inline node and collects the comment metadata
@@ -808,7 +790,7 @@ fn comment_start_from_pandoc(
     body_inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Option<Inline> {
-    let pandoc_id = get_kv_attr(&attrs, "id").unwrap_or_default();
+    let pandoc_id = comment_span_id(&attrs, context)?;
     let author = get_kv_attr(&attrs, "author");
     let date = get_kv_attr(&attrs, "date");
 
@@ -828,6 +810,20 @@ fn comment_start_from_pandoc(
     }))
 }
 
+fn comment_span_id(attrs: &Attr, context: &mut PandocDecodeContext) -> Option<String> {
+    let Some(pandoc_id) = get_kv_attr(attrs, "id") else {
+        context.losses.add("Comment.id");
+        return None;
+    };
+
+    if pandoc_id.is_empty() {
+        context.losses.add("Comment.id");
+        return None;
+    }
+
+    Some(pandoc_id)
+}
+
 /// Handle a Pandoc `comment-end` span.
 ///
 /// Emits [`Boundary`] inline nodes for this comment and any nested
@@ -837,7 +833,7 @@ fn comment_end_from_pandoc(
     inlines: Vec<pandoc::Inline>,
     context: &mut PandocDecodeContext,
 ) -> Option<Inline> {
-    let pandoc_id = get_kv_attr(&attrs, "id").unwrap_or_default();
+    let pandoc_id = comment_span_id(&attrs, context)?;
     let boundary_id = format!("comment-{pandoc_id}-end");
     let parent_id = get_kv_attr(&attrs, "parent");
 
@@ -851,7 +847,7 @@ fn comment_end_from_pandoc(
             if pending.body_inlines.is_empty() {
                 pending.body_inlines = inlines.clone();
             }
-        } else if !pandoc_id.is_empty() {
+        } else {
             context.pending_comments.push(PendingComment {
                 pandoc_id: pandoc_id.clone(),
                 author: get_kv_attr(&attrs, "author"),
@@ -871,7 +867,9 @@ fn comment_end_from_pandoc(
         if let pandoc::Inline::Span(nested_attrs, nested_inlines) = inline
             && nested_attrs.classes.iter().any(|c| c == "comment-end")
         {
-            let nested_id = get_kv_attr(&nested_attrs, "id").unwrap_or_default();
+            let Some(nested_id) = comment_span_id(&nested_attrs, context) else {
+                continue;
+            };
 
             // Mark the nested comment as a reply to this one, creating a pending
             // comment if needed. Unlike regular comments, reply comments may be
@@ -886,7 +884,7 @@ fn comment_end_from_pandoc(
                 if pending.body_inlines.is_empty() {
                     pending.body_inlines = nested_inlines.clone();
                 }
-            } else if !nested_id.is_empty() {
+            } else {
                 context.pending_comments.push(PendingComment {
                     pandoc_id: nested_id.clone(),
                     author: get_kv_attr(&nested_attrs, "author"),

@@ -7,7 +7,8 @@ use stencila_codec::{
     Losses, NodeProperty, NodeType,
     stencila_format::Format,
     stencila_schema::{
-        NodePath, NodePosition, NodeSlot, StripNode, node_url_file, node_url_jzb64, node_url_path,
+        Author, DateTime, NodePath, NodePosition, NodeSlot, StripNode, SuggestionType,
+        node_url_file, node_url_jzb64, node_url_path,
     },
 };
 
@@ -157,6 +158,54 @@ impl PandocEncodeContext {
     }
 }
 
+pub(super) fn append_suggestion_attrs(
+    attrs: &mut pandoc::Attr,
+    authors: &Option<Vec<Author>>,
+    date_published: &Option<DateTime>,
+) {
+    if let Some(author) = authors.as_ref().map(|authors| {
+        authors
+            .iter()
+            .map(|author| author.name())
+            .collect::<Vec<_>>()
+            .join(";")
+    }) {
+        attrs.attributes.push(("author".into(), author));
+    }
+
+    if let Some(date) = date_published
+        .as_ref()
+        .map(|date_time| date_time.value.clone())
+    {
+        attrs.attributes.push(("date".into(), date));
+    }
+}
+
+pub(super) fn decode_suggestion_attrs(attrs: &pandoc::Attr) -> DecodedSuggestionAttrs {
+    let suggestion_type = suggestion_type_from_attrs(attrs);
+    let authors = get_attr(attrs, "author").map(|names| {
+        names
+            .split(';')
+            .map(|name| Author::Person(name.trim().into()))
+            .collect()
+    });
+    let date_published = get_attr(attrs, "date").and_then(|date| date.parse().ok());
+
+    DecodedSuggestionAttrs {
+        suggestion_type,
+        authors,
+        date_published,
+    }
+}
+
+pub(super) fn suggestion_type_from_attrs(attrs: &pandoc::Attr) -> SuggestionType {
+    if attrs.classes.iter().any(|class| class == "deletion") {
+        SuggestionType::Delete
+    } else {
+        SuggestionType::Insert
+    }
+}
+
 /// Data collected from a Pandoc comment-start span during decoding
 pub(super) struct PendingComment {
     /// The Pandoc comment id (e.g. "0", "1")
@@ -177,6 +226,12 @@ pub(super) struct PandocDecodeContext {
     pub format: Format,
     pub losses: Losses,
     pub pending_comments: Vec<PendingComment>,
+}
+
+pub(super) struct DecodedSuggestionAttrs {
+    pub suggestion_type: SuggestionType,
+    pub authors: Option<Vec<Author>>,
+    pub date_published: Option<DateTime>,
 }
 
 /// Create an empty Pandoc `Attr` tuple

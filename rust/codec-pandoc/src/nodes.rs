@@ -43,6 +43,182 @@ pub fn root_to_pandoc(
     ))
 }
 
+fn comment_end_attrs(pandoc_id: &str, parent_pandoc_id: Option<&str>) -> pandoc::Attr {
+    let mut attrs = pandoc::Attr::default();
+    attrs.classes.push("comment-end".into());
+    attrs.attributes.push(("id".into(), pandoc_id.to_string()));
+    if let Some(parent_id) = parent_pandoc_id {
+        attrs
+            .attributes
+            .push(("parent".into(), parent_id.to_string()));
+    }
+    attrs
+}
+
+fn prepare_reply_end_spans(
+    replies: &Option<Vec<Comment>>,
+    parent_pandoc_id: &str,
+    next_id: &mut usize,
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Inline> {
+    let mut reply_end_spans = Vec::new();
+
+    if let Some(replies) = replies {
+        for reply in replies {
+            if let Some((_, reply_end)) =
+                prepare_comment_for_pandoc(reply, Some(parent_pandoc_id), next_id, context)
+            {
+                reply_end_spans.push(reply_end);
+            }
+        }
+    }
+
+    reply_end_spans
+}
+
+fn comments_from_pending(
+    context: &mut PandocDecodeContext,
+    content: &mut [Block],
+) -> Option<Vec<Comment>> {
+    if context.pending_comments.is_empty() {
+        return None;
+    }
+
+    let pending = merge_pending_comments(context.pending_comments.drain(..).collect());
+    let parent_ids: Vec<Option<String>> = pending
+        .iter()
+        .map(|comment| comment.parent_pandoc_id.clone())
+        .collect();
+    let pandoc_ids: Vec<String> = pending
+        .iter()
+        .map(|comment| comment.pandoc_id.clone())
+        .collect();
+
+    let reply_ids = reply_ids(&parent_ids, &pandoc_ids);
+    let id_to_index: HashMap<String, usize> = pandoc_ids
+        .iter()
+        .enumerate()
+        .map(|(index, id)| (id.clone(), index))
+        .collect();
+
+    let mut comments = build_flat_comments(pending, &parent_ids, context);
+    nest_reply_comments(&mut comments, &parent_ids, &pandoc_ids, &id_to_index);
+
+    if !reply_ids.is_empty() {
+        strip_reply_boundaries(content, &reply_ids);
+    }
+
+    Some(comments)
+}
+
+fn merge_pending_comments(pending_comments: Vec<PendingComment>) -> Vec<PendingComment> {
+    let mut merged: Vec<PendingComment> = Vec::new();
+
+    for pending_comment in pending_comments {
+        if let Some(existing) = merged
+            .iter_mut()
+            .find(|existing| existing.pandoc_id == pending_comment.pandoc_id)
+        {
+            merge_pending_comment(existing, pending_comment);
+        } else {
+            merged.push(pending_comment);
+        }
+    }
+
+    merged
+}
+
+fn merge_pending_comment(existing: &mut PendingComment, pending_comment: PendingComment) {
+    if existing.author.is_none() {
+        existing.author = pending_comment.author;
+    }
+    if existing.date.is_none() {
+        existing.date = pending_comment.date;
+    }
+    if existing.body_inlines.is_empty() {
+        existing.body_inlines = pending_comment.body_inlines;
+    }
+    if existing.parent_pandoc_id.is_none() {
+        existing.parent_pandoc_id = pending_comment.parent_pandoc_id;
+    }
+}
+
+fn reply_ids(parent_ids: &[Option<String>], pandoc_ids: &[String]) -> Vec<String> {
+    parent_ids
+        .iter()
+        .zip(pandoc_ids.iter())
+        .filter_map(|(parent, id)| parent.as_ref().map(|_| id.clone()))
+        .collect()
+}
+
+fn build_flat_comments(
+    pending_comments: Vec<PendingComment>,
+    parent_ids: &[Option<String>],
+    context: &mut PandocDecodeContext,
+) -> Vec<Comment> {
+    pending_comments
+        .into_iter()
+        .enumerate()
+        .map(|(index, pending_comment)| {
+            let is_reply = parent_ids[index].is_some();
+            let pandoc_id = pending_comment.pandoc_id;
+
+            Comment {
+                id: Some(pandoc_id.clone()),
+                content: pandoc_inlines_to_blocks(pending_comment.body_inlines, context),
+                authors: pending_comment.author.map(|names| {
+                    names
+                        .split(';')
+                        .map(|name| Author::Person(Person::from(name.trim())))
+                        .collect_vec()
+                }),
+                date_published: pending_comment.date.map(DateTime::new),
+                options: Box::new(CommentOptions {
+                    start_location: (!is_reply).then(|| format!("#comment-{pandoc_id}-start")),
+                    end_location: (!is_reply).then(|| format!("#comment-{pandoc_id}-end")),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }
+        })
+        .collect()
+}
+
+fn nest_reply_comments(
+    comments: &mut Vec<Comment>,
+    parent_ids: &[Option<String>],
+    pandoc_ids: &[String],
+    id_to_index: &HashMap<String, usize>,
+) {
+    let reply_indices: Vec<(usize, usize)> = (0..comments.len())
+        .filter_map(|index| {
+            let parent_id = parent_ids[index].as_ref()?;
+            let &parent_index = id_to_index.get(parent_id)?;
+            Some((index, parent_index))
+        })
+        .collect();
+
+    let mut replies = Vec::new();
+    for &(index, parent_index) in reply_indices.iter().rev() {
+        replies.push((parent_index, comments.remove(index)));
+    }
+    replies.reverse();
+
+    for (original_parent_index, reply) in replies {
+        let parent_pandoc_id = &pandoc_ids[original_parent_index];
+        let _ = nest_reply(comments, parent_pandoc_id, reply);
+    }
+}
+
+fn strip_reply_boundaries(content: &mut [Block], reply_ids: &[String]) {
+    let reply_boundary_ids: Vec<String> = reply_ids
+        .iter()
+        .map(|id| format!("comment-{id}-start"))
+        .collect();
+
+    strip_boundaries(content, &reply_boundary_ids);
+}
+
 pub fn root_from_pandoc(
     pandoc: pandoc::Pandoc,
     format: Format,
@@ -157,25 +333,14 @@ fn prepare_comment_for_pandoc(
     };
 
     if start_location.is_none() || end_location.is_none() {
-        let mut end_attrs = pandoc::Attr::default();
-        end_attrs.classes.push("comment-end".into());
-        end_attrs.attributes.push(("id".into(), pandoc_id.clone()));
-        if let Some(parent_id) = parent_pandoc_id {
-            end_attrs
-                .attributes
-                .push(("parent".into(), parent_id.to_string()));
-        }
-
+        let end_attrs = comment_end_attrs(&pandoc_id, parent_pandoc_id);
         let mut end_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
-        if let Some(replies) = &comment.options.comments {
-            for reply in replies {
-                if let Some((_, reply_end)) =
-                    prepare_comment_for_pandoc(reply, Some(&pandoc_id), next_id, context)
-                {
-                    end_inlines.push(reply_end);
-                }
-            }
-        }
+        end_inlines.append(&mut prepare_reply_end_spans(
+            &comment.options.comments,
+            &pandoc_id,
+            next_id,
+            context,
+        ));
 
         return Some((pandoc_id, pandoc::Inline::Span(end_attrs, end_inlines)));
     }
@@ -212,25 +377,10 @@ fn prepare_comment_for_pandoc(
         pandoc::Inline::Span(start_attrs, body_inlines),
     );
 
-    let mut reply_end_spans = Vec::new();
-    if let Some(replies) = &comment.options.comments {
-        for reply in replies {
-            if let Some((_, reply_end)) =
-                prepare_comment_for_pandoc(reply, Some(&pandoc_id), next_id, context)
-            {
-                reply_end_spans.push(reply_end);
-            }
-        }
-    }
+    let reply_end_spans =
+        prepare_reply_end_spans(&comment.options.comments, &pandoc_id, next_id, context);
 
-    let mut end_attrs = pandoc::Attr::default();
-    end_attrs.classes.push("comment-end".into());
-    end_attrs.attributes.push(("id".into(), pandoc_id.clone()));
-    if let Some(parent_id) = parent_pandoc_id {
-        end_attrs
-            .attributes
-            .push(("parent".into(), parent_id.to_string()));
-    }
+    let end_attrs = comment_end_attrs(&pandoc_id, parent_pandoc_id);
 
     context.comment_end_spans.insert(
         end_boundary_id.clone(),
@@ -283,132 +433,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
     }
 
     let mut content = blocks_from_pandoc(pandoc.blocks, context);
-
-    // Build Comment nodes from pending comments collected during inline decoding
-    let comments = if context.pending_comments.is_empty() {
-        None
-    } else {
-        let drained: Vec<_> = context.pending_comments.drain(..).collect();
-
-        let mut pending: Vec<PendingComment> = Vec::new();
-        for item in drained {
-            if let Some(existing) = pending
-                .iter_mut()
-                .find(|pending| pending.pandoc_id == item.pandoc_id)
-            {
-                if existing.author.is_none() {
-                    existing.author = item.author;
-                }
-                if existing.date.is_none() {
-                    existing.date = item.date;
-                }
-                if existing.body_inlines.is_empty() {
-                    existing.body_inlines = item.body_inlines;
-                }
-                if existing.parent_pandoc_id.is_none() {
-                    existing.parent_pandoc_id = item.parent_pandoc_id;
-                }
-            } else {
-                pending.push(item);
-            }
-        }
-
-        // Collect parent_pandoc_id and pandoc_id before consuming pending
-        let parent_ids: Vec<Option<String>> =
-            pending.iter().map(|c| c.parent_pandoc_id.clone()).collect();
-        let pandoc_ids: Vec<String> = pending.iter().map(|c| c.pandoc_id.clone()).collect();
-
-        // Collect the set of reply comment IDs — these don't get their own boundaries
-        let reply_ids: Vec<String> = parent_ids
-            .iter()
-            .zip(pandoc_ids.iter())
-            .filter_map(|(parent, id)| parent.as_ref().map(|_| id.clone()))
-            .collect();
-
-        // Build a map from pandoc_id -> index
-        let id_to_index: HashMap<String, usize> = pandoc_ids
-            .iter()
-            .enumerate()
-            .map(|(i, id)| (id.clone(), i))
-            .collect();
-
-        // Build all comments initially as a flat list
-        let mut comments: Vec<Comment> = pending
-            .into_iter()
-            .enumerate()
-            .map(|(i, pending)| {
-                let body_blocks = pandoc_inlines_to_blocks(pending.body_inlines, context);
-                let is_reply = parent_ids[i].is_some();
-
-                let authors = pending.author.map(|name| {
-                    name.split(";")
-                        .map(|name| Author::Person(Person::from(name)))
-                        .collect_vec()
-                });
-
-                let date_published = pending.date.map(DateTime::new);
-
-                Comment {
-                    id: Some(pending.pandoc_id.clone()),
-                    content: body_blocks,
-                    authors,
-                    date_published,
-                    options: Box::new(CommentOptions {
-                        // Reply comments share the parent's range — no location of their own
-                        start_location: if is_reply {
-                            None
-                        } else {
-                            Some(format!("#comment-{}-start", pending.pandoc_id))
-                        },
-                        end_location: if is_reply {
-                            None
-                        } else {
-                            Some(format!("#comment-{}-end", pending.pandoc_id))
-                        },
-                        ..Default::default()
-                    }),
-                    ..Default::default()
-                }
-            })
-            .collect();
-
-        // Nest reply comments under their parent's `comments` property.
-        // Collect reply indices in forward order, then remove in reverse
-        // (to keep indices stable), then re-reverse so siblings stay ordered.
-        let reply_indices: Vec<(usize, usize)> = (0..comments.len())
-            .filter_map(|i| {
-                let pid = parent_ids[i].as_ref()?;
-                let &parent_idx = id_to_index.get(pid)?;
-                Some((i, parent_idx))
-            })
-            .collect();
-
-        let mut replies: Vec<(usize, Comment)> = Vec::new();
-        for &(i, parent_idx) in reply_indices.iter().rev() {
-            replies.push((parent_idx, comments.remove(i)));
-        }
-        replies.reverse();
-
-        // Insert each reply into its parent, searching recursively so that
-        // deeply nested replies (A → B → C) find their parent even after
-        // it has already been nested.
-        for (original_parent_idx, reply) in replies {
-            let parent_pandoc_id = &pandoc_ids[original_parent_idx];
-            // If nest_reply returns Err the parent wasn't found — reply is dropped
-            let _ = nest_reply(&mut comments, parent_pandoc_id, reply);
-        }
-
-        // Remove Boundary nodes for reply comments from inline content
-        if !reply_ids.is_empty() {
-            let reply_boundary_ids: Vec<String> = reply_ids
-                .iter()
-                .map(|id| format!("comment-{id}-start"))
-                .collect();
-            strip_boundaries(&mut content, &reply_boundary_ids);
-        }
-
-        Some(comments)
-    };
+    let comments = comments_from_pending(context, &mut content);
 
     Article {
         title,
@@ -427,7 +452,7 @@ fn article_from_pandoc(pandoc: pandoc::Pandoc, context: &mut PandocDecodeContext
 /// Recursively find a comment whose `id` matches `target_id`
 /// and append `reply` to its `comments`. Returns `Err(reply)` if not found
 /// so ownership is returned to the caller.
-fn nest_reply(comments: &mut [Comment], target_id: &str, reply: Comment) -> Result<(), Comment> {
+fn nest_reply(comments: &mut [Comment], target_id: &str, reply: Comment) -> Option<Comment> {
     // Two-pass: first check direct children, then recurse.
     // This avoids borrow conflicts from iterating while recursing.
     for comment in comments.iter_mut() {
@@ -437,19 +462,16 @@ fn nest_reply(comments: &mut [Comment], target_id: &str, reply: Comment) -> Resu
                 .comments
                 .get_or_insert_with(Vec::new)
                 .push(reply);
-            return Ok(());
+            return None;
         }
     }
     let mut reply = reply;
     for comment in comments.iter_mut() {
         if let Some(nested) = &mut comment.options.comments {
-            reply = match nest_reply(nested, target_id, reply) {
-                Ok(()) => return Ok(()),
-                Err(r) => r,
-            };
+            reply = nest_reply(nested, target_id, reply)?;
         }
     }
-    Err(reply)
+    Some(reply)
 }
 
 /// Remove [`Boundary`] nodes with any of the given IDs from block content.
