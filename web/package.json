@@ -86,7 +86,7 @@
     "vega-lite": "6.4.2"
   },
   "devDependencies": {
-    "@argos-ci/playwright": "6.6.1",
+    "@argos-ci/playwright": "6.6.2",
     "@playwright/test": "1.59.1",
     "@tailwindcss/postcss": "4.2.2",
     "@types/plotly.js-dist-min": "2.3.4",
