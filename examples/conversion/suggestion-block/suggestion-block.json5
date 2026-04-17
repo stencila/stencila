@@ -99,12 +99,13 @@
       authors: [
         {
           type: "Person",
-          name: "Alice"
+          familyNames: [ "Andrews" ],
+          givenNames: [ "Alice" ]
         }
       ],
       datePublished: {
         type: "DateTime",
-        value: "2024-04-17T10:14:00+00:00"
+        value: "2024-04-17T10:14Z"
       },
       content: [
         {

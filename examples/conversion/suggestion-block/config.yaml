@@ -16,3 +16,9 @@ llmd:
 compact.jats.xml:
   decode:
     skip: true
+
+# Pandoc does not currently handle merging of insertions and deletions
+# into an replace `SuggestionBlock` so decoding is skipped
+pandoc:
+  decode:
+    skip: true

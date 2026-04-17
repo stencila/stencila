@@ -119,12 +119,17 @@
       "author": [
         {
           "@type": "Person",
-          "name": "Alice"
+          "familyName": [
+            "Andrews"
+          ],
+          "givenName": [
+            "Alice"
+          ]
         }
       ],
       "datePublished": {
         "@type": "DateTime",
-        "value": "2024-04-17T10:14:00+00:00"
+        "value": "2024-04-17T10:14Z"
       },
       "stencila:content": [
         {
