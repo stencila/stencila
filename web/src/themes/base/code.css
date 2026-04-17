@@ -439,11 +439,8 @@ stencila-code-chunk {
         }
     }
 
-    > [slot="caption"][caption-position="top"] {
-        margin-bottom: var(--code-chunk-caption-spacing);
-    }
-
-    > [slot="caption"][caption-position="bottom"] {
+    > [slot="caption"] + [slot="outputs"],
+    > [slot="outputs"] + [slot="caption"] {
         margin-top: var(--code-chunk-caption-spacing);
     }
 

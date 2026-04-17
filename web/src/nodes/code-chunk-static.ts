@@ -62,8 +62,15 @@ export class CodeChunkStatic extends LitElement {
 
   private renderOutputs() {
     return html`
-      <slot name="caption"></slot>
+      ${this.labelType === 'TableLabel'
+        ? html`<slot name="caption"></slot>`
+        : ''}
+
       <slot name="outputs"></slot>
+
+      ${this.labelType === 'FigureLabel'
+        ? html`<slot name="caption"></slot>`
+        : ''}
     `
   }
 }
