@@ -86,6 +86,7 @@ mod software_application;
 mod string_or_number;
 mod styled_block;
 mod styled_inline;
+mod suggestion;
 mod suggestion_block;
 mod suggestion_inline;
 mod suggestion_status;

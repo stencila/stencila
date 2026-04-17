@@ -25,12 +25,15 @@ use stencila_codec::{
 };
 use stencila_codec_text_trait::to_text;
 
+use crate::decode::shared::suggestion_metadata_from_attrs;
+
 use super::{
     Context,
     shared::{
-        attrs, attrs_list, name, node_to_from_str, node_to_option_date, node_to_option_datetime,
-        node_to_option_duration, node_to_option_i64, node_to_option_number, node_to_option_time,
-        node_to_option_timestamp, node_to_string, take_until_unbalanced,
+        Attrs, attrs, attrs_list, name, node_to_from_str, node_to_option_date,
+        node_to_option_datetime, node_to_option_duration, node_to_option_i64,
+        node_to_option_number, node_to_option_time, node_to_option_timestamp, node_to_string,
+        take_until_unbalanced,
     },
 };
 
@@ -1041,29 +1044,48 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
             delimited("{~~", take_until(0.., "~>"), "~>"),
             take_until(0.., "~~}"),
             "~~}",
+            opt(attrs),
         )
-            .map(|(original, content, _): (&str, &str, &str)| {
+            .map(
+                |(original, content, _, attrs): (&str, &str, &str, Option<Attrs>)| {
+                    let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+
+                    Inline::SuggestionInline(SuggestionInline {
+                        suggestion_type: Some(SuggestionType::Replace),
+                        content: inlines_only(content),
+                        original: Some(inlines_only(original)),
+                        authors,
+                        date_published,
+                        ..Default::default()
+                    })
+                },
+            ),
+        (delimited("{++", take_until(0.., "++}"), "++}"), opt(attrs)).map(
+            |(content, attrs): (&str, Option<Attrs>)| {
+                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+
                 Inline::SuggestionInline(SuggestionInline {
-                    suggestion_type: Some(SuggestionType::Replace),
+                    suggestion_type: Some(SuggestionType::Insert),
                     content: inlines_only(content),
-                    original: Some(inlines_only(original)),
+                    authors,
+                    date_published,
                     ..Default::default()
                 })
-            }),
-        delimited("{++", take_until(0.., "++}"), "++}").map(|content: &str| {
-            Inline::SuggestionInline(SuggestionInline {
-                suggestion_type: Some(SuggestionType::Insert),
-                content: inlines_only(content),
-                ..Default::default()
-            })
-        }),
-        delimited("{--", take_until(0.., "--}"), "--}").map(|content: &str| {
-            Inline::SuggestionInline(SuggestionInline {
-                suggestion_type: Some(SuggestionType::Delete),
-                content: inlines_only(content),
-                ..Default::default()
-            })
-        }),
+            },
+        ),
+        (delimited("{--", take_until(0.., "--}"), "--}"), opt(attrs)).map(
+            |(content, attrs): (&str, Option<Attrs>)| {
+                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+
+                Inline::SuggestionInline(SuggestionInline {
+                    suggestion_type: Some(SuggestionType::Delete),
+                    content: inlines_only(content),
+                    authors,
+                    date_published,
+                    ..Default::default()
+                })
+            },
+        ),
     ))
     .parse_next(input)
 }

@@ -30,13 +30,15 @@ use stencila_codec::{
     },
 };
 
+use crate::decode::shared::suggestion_metadata_from_attrs;
+
 use super::{
     Context, decode_blocks, decode_inlines,
     inlines::{inlines, mds_to_inlines, mds_to_string},
     shared::{
-        attrs, attrs_list, block_node_type, execution_bounds, execution_mode, instruction_type,
-        is_executable_language, model_parameters, name, node_to_string, primitive_node, prompt,
-        relative_position,
+        Attrs, attrs, attrs_list, block_node_type, execution_bounds, execution_mode,
+        instruction_type, is_executable_language, model_parameters, name, node_to_string,
+        primitive_node, prompt, relative_position,
     },
 };
 
@@ -1182,6 +1184,7 @@ fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
             ":--".value(SuggestionType::Delete),
             ":~~".value(SuggestionType::Replace),
         )),
+        opt(preceded(multispace0, attrs)),
         opt(preceded(
             multispace0,
             alt((
@@ -1192,16 +1195,20 @@ fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
         opt(preceded(multispace0, take_while(1.., |_| true))),
     )
         .map(
-            |(suggestion_type, suggestion_status, feedback): (
+            |(suggestion_type, attrs, suggestion_status, feedback): (
                 SuggestionType,
+                Option<Attrs>,
                 Option<SuggestionStatus>,
                 Option<&str>,
             )| {
                 let feedback = feedback.map(|f| f.trim()).filter(|f| !f.is_empty());
+                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
                 let mut block = SuggestionBlock {
                     suggestion_type: Some(suggestion_type),
                     suggestion_status,
+                    authors,
+                    date_published,
                     feedback: feedback.map(String::from),
                     content: Vec::new(),
                     ..Default::default()
@@ -1222,6 +1229,7 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded(
         ("suggest", multispace0),
         (
+            opt(terminated(attrs, multispace0)),
             opt(terminated(
                 alt((
                     "accept".value(SuggestionStatus::Accepted),
@@ -1233,7 +1241,11 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
         ),
     )
     .map(
-        |(suggestion_status, feedback): (Option<SuggestionStatus>, Option<&str>)| {
+        |(attrs, suggestion_status, feedback): (
+            Option<Attrs>,
+            Option<SuggestionStatus>,
+            Option<&str>,
+        )| {
             let (feedback, capacity) = match feedback {
                 Some(feedback) => {
                     let feedback = feedback.trim();
@@ -1250,10 +1262,14 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
                 None => (None, 2),
             };
 
+            let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+
             let content = Vec::with_capacity(capacity);
 
             Block::SuggestionBlock(SuggestionBlock {
                 suggestion_status,
+                authors,
+                date_published,
                 feedback: feedback.map(String::from),
                 content,
                 ..Default::default()

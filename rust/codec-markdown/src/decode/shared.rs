@@ -14,11 +14,13 @@ use winnow::{
 };
 
 use stencila_codec::stencila_schema::{
-    Date, DateTime, Duration, ExecutionBounds, ExecutionMode, InstructionType, ModelParameters,
-    Node, RelativePosition, Time, Timestamp,
+    Author, Date, DateTime, Duration, ExecutionBounds, ExecutionMode, InstructionType,
+    ModelParameters, Node, RelativePosition, Time, Timestamp,
 };
 use stencila_codec_json5_trait::Json5Codec;
 use stencila_codec_text_trait::TextCodec;
+
+pub(super) type Attrs<'a> = Vec<(&'a str, Option<Node>)>;
 
 /// Whether a code block language should be treated as executable (i.e. decoded as a `CodeChunk`
 /// rather than a `CodeBlock`).
@@ -193,18 +195,48 @@ pub(super) fn take_until_unbalanced<'s>(
     }
 }
 
+/// Decode suggestion metadata from curly-braced attrs
+pub(super) fn suggestion_metadata_from_attrs(
+    attrs: Option<Attrs>,
+) -> (Option<Vec<Author>>, Option<DateTime>) {
+    let mut authors = None;
+    let mut date = None;
+
+    if let Some(attrs) = attrs {
+        for (name, value) in attrs {
+            match (name, value) {
+                ("by", Some(Node::String(by))) => {
+                    let parsed = by
+                        .split(';')
+                        .map(str::trim)
+                        .filter(|name| !name.is_empty())
+                        .map(|name| {
+                            Author::from_str(name).unwrap_or_else(|_| Author::Person(name.into()))
+                        })
+                        .collect::<Vec<_>>();
+                    if !parsed.is_empty() {
+                        authors = Some(parsed);
+                    }
+                }
+                ("at", Some(node)) => date = node_to_option_datetime(node),
+                _ => {}
+            }
+        }
+    }
+
+    (authors, date)
+}
+
 /// Parse "curly braced attrs" (options inside curly braces)
 ///
 /// Curly braced options are used to specify options on various
 /// node types. Separated by whitespace with optional commas
-pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> ModalResult<Vec<(&'s str, Option<Node>)>> {
+pub(super) fn attrs<'s>(input: &mut Located<&'s str>) -> ModalResult<Attrs<'s>> {
     delimited(('{', multispace0), attrs_list, (multispace0, '}')).parse_next(input)
 }
 
 /// Parse a list of `attrs`
-pub(super) fn attrs_list<'s>(
-    input: &mut Located<&'s str>,
-) -> ModalResult<Vec<(&'s str, Option<Node>)>> {
+pub(super) fn attrs_list<'s>(input: &mut Located<&'s str>) -> ModalResult<Attrs<'s>> {
     separated(
         0..,
         attr,

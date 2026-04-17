@@ -1,6 +1,6 @@
 use stencila_codec_info::lost_options;
 
-use crate::{SuggestionBlock, SuggestionType, prelude::*};
+use crate::{SuggestionBlock, SuggestionType, implem::suggestion::suggestion_attrs, prelude::*};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -50,6 +50,10 @@ impl MarkdownCodec for SuggestionBlock {
         };
 
         context.push_str(fence);
+
+        if let Some(attrs) = suggestion_attrs(&self.authors, &self.date_published) {
+            context.push_str(&attrs);
+        }
 
         if let Some(status) = &self.suggestion_status {
             context
