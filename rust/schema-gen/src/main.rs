@@ -22,7 +22,7 @@ enum What {
     Docs,
     JsonLd,
     JsonSchema,
-    Kuzu,
+    //Kuzu,
     Python,
     Rust,
     Typescript,
@@ -55,7 +55,7 @@ async fn main() -> Result<()> {
 
             JsonLd => schemas.json_ld().await?,
             JsonSchema => schemas.json_schema().await?,
-            Kuzu => schemas.kuzu().await?,
+            //Kuzu => schemas.kuzu().await?,
             Python => schemas.python().await?,
             Rust => schemas.rust().await?,
             Typescript => schemas.typescript().await?,
