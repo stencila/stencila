@@ -802,6 +802,7 @@ fn comment_start_from_pandoc(
         date,
         body_inlines,
         parent_pandoc_id: None,
+        nested_end_only: false,
     });
 
     Some(Inline::Boundary(Boundary {
@@ -854,6 +855,7 @@ fn comment_end_from_pandoc(
                 date: get_kv_attr(&attrs, "date"),
                 body_inlines: inlines.clone(),
                 parent_pandoc_id: get_kv_attr(&attrs, "parent"),
+                nested_end_only: false,
             });
         }
 
@@ -885,6 +887,7 @@ fn comment_end_from_pandoc(
                 .iter_mut()
                 .find(|c| c.pandoc_id == nested_id)
             {
+                pending.nested_end_only = true;
                 if pending.parent_pandoc_id.is_none() {
                     pending.parent_pandoc_id = nested_parent_id.clone();
                 }
@@ -898,6 +901,7 @@ fn comment_end_from_pandoc(
                     date: get_kv_attr(&nested_attrs, "date"),
                     body_inlines: nested_inlines.clone(),
                     parent_pandoc_id: nested_parent_id,
+                    nested_end_only: true,
                 });
             }
 

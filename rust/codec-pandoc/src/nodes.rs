@@ -45,23 +45,28 @@ pub fn root_to_pandoc(
 
 /// Normalize reply parent ids collected from Pandoc comment spans.
 ///
-/// For DOCX imports, Pandoc can represent several sibling replies as a deeply
-/// nested chain of `comment-end` spans even when the source DOCX stores them as
-/// direct replies to the same top-level comment. Those nested spans do not
-/// encode enough information to recover the original sibling relationships at
-/// parse time, so any reply that still has no explicit parent after inline
-/// decoding is attached to the single anchored top-level comment.
+/// For some DOCX imports, Pandoc can represent sibling replies as a nested
+/// chain of `comment-end` spans with no explicit `parent` attributes on the
+/// nested replies. Apply the fallback only to comments observed solely in
+/// nested `comment-end` spans, and only when there is exactly one anchored
+/// top-level comment; otherwise, parentless comments are preserved as distinct
+/// top-level comments.
 fn normalize_reply_parents(pending_comments: &mut [PendingComment]) {
-    let Some(root_id) = pending_comments
+    let root_ids = pending_comments
         .iter()
-        .find(|comment| comment.parent_pandoc_id.is_none())
+        .filter(|comment| !comment.nested_end_only)
         .map(|comment| comment.pandoc_id.clone())
-    else {
+        .collect_vec();
+
+    let [root_id] = root_ids.as_slice() else {
         return;
     };
 
     for pending_comment in pending_comments.iter_mut() {
-        if pending_comment.pandoc_id != root_id && pending_comment.parent_pandoc_id.is_none() {
+        if pending_comment.pandoc_id != *root_id
+            && pending_comment.parent_pandoc_id.is_none()
+            && pending_comment.nested_end_only
+        {
             pending_comment.parent_pandoc_id = Some(root_id.clone());
         }
     }
@@ -166,6 +171,7 @@ fn merge_pending_comment(existing: &mut PendingComment, pending_comment: Pending
     if existing.parent_pandoc_id.is_none() {
         existing.parent_pandoc_id = pending_comment.parent_pandoc_id;
     }
+    existing.nested_end_only &= pending_comment.nested_end_only;
 }
 
 fn reply_ids(parent_ids: &[Option<String>], pandoc_ids: &[String]) -> Vec<String> {
