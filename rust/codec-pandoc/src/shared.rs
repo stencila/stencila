@@ -220,6 +220,8 @@ pub(super) struct PendingComment {
     pub body_inlines: Vec<pandoc::Inline>,
     /// The Pandoc id of the parent comment (set when this is a reply)
     pub parent_pandoc_id: Option<String>,
+    /// Whether this comment has a start anchor in the main document content.
+    pub has_start_span: bool,
     /// Whether this comment was seen only in a nested `comment-end` span.
     ///
     /// Pandoc can encode DOCX reply chains as nested `comment-end` spans with

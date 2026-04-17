@@ -48,13 +48,35 @@ pub fn root_to_pandoc(
 /// For some DOCX imports, Pandoc can represent sibling replies as a nested
 /// chain of `comment-end` spans with no explicit `parent` attributes on the
 /// nested replies. Apply the fallback only to comments observed solely in
-/// nested `comment-end` spans, and only when there is exactly one anchored
-/// top-level comment; otherwise, parentless comments are preserved as distinct
-/// top-level comments.
+/// nested `comment-end` spans, and only when there is exactly one genuine
+/// top-level comment anchored in the main document content; otherwise,
+/// parentless comments are preserved as distinct top-level comments.
 fn normalize_reply_parents(pending_comments: &mut [PendingComment]) {
+    let anchored_top_level_ids = pending_comments
+        .iter()
+        .filter(|comment| {
+            comment.has_start_span && !comment.nested_end_only && comment.parent_pandoc_id.is_none()
+        })
+        .map(|comment| comment.pandoc_id.clone())
+        .collect_vec();
+
+    if anchored_top_level_ids.len() > 1 {
+        let Some(root_id) = anchored_top_level_ids.first().cloned() else {
+            return;
+        };
+
+        for pending_comment in pending_comments.iter_mut() {
+            if pending_comment.nested_end_only && pending_comment.parent_pandoc_id.is_none() {
+                pending_comment.parent_pandoc_id = Some(root_id.clone());
+            }
+        }
+
+        return;
+    }
+
     let root_ids = pending_comments
         .iter()
-        .filter(|comment| !comment.nested_end_only)
+        .filter(|comment| comment.has_start_span && !comment.nested_end_only)
         .map(|comment| comment.pandoc_id.clone())
         .collect_vec();
 
@@ -171,6 +193,7 @@ fn merge_pending_comment(existing: &mut PendingComment, pending_comment: Pending
     if existing.parent_pandoc_id.is_none() {
         existing.parent_pandoc_id = pending_comment.parent_pandoc_id;
     }
+    existing.has_start_span |= pending_comment.has_start_span;
     existing.nested_end_only &= pending_comment.nested_end_only;
 }
 

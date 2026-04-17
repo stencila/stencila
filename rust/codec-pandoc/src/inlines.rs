@@ -802,6 +802,7 @@ fn comment_start_from_pandoc(
         date,
         body_inlines,
         parent_pandoc_id: None,
+        has_start_span: true,
         nested_end_only: false,
     });
 
@@ -855,6 +856,7 @@ fn comment_end_from_pandoc(
                 date: get_kv_attr(&attrs, "date"),
                 body_inlines: inlines.clone(),
                 parent_pandoc_id: get_kv_attr(&attrs, "parent"),
+                has_start_span: false,
                 nested_end_only: false,
             });
         }
@@ -901,6 +903,7 @@ fn comment_end_from_pandoc(
                     date: get_kv_attr(&nested_attrs, "date"),
                     body_inlines: nested_inlines.clone(),
                     parent_pandoc_id: nested_parent_id,
+                    has_start_span: false,
                     nested_end_only: true,
                 });
             }
