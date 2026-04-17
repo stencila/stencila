@@ -243,6 +243,57 @@
     --code-invalid-dark: var(--color-red-400);
     --code-invalid-deprecated: var(--color-amber-700);
     --code-invalid-deprecated-dark: var(--color-amber-400);
+
+    /* Stencila Markdown specific highlighting */
+    --code-attributes-color: var(--color-gray-700);
+    --code-attributes-color-dark: var(--color-gray-200);
+    --code-attributes-background: color-mix(in srgb, var(--color-gray-200) 38%, transparent);
+    --code-attributes-background-dark: color-mix(in srgb, var(--color-gray-700) 16%, transparent);
+    --code-attributes-border: color-mix(in srgb, var(--color-gray-400) 60%, transparent);
+    --code-attributes-border-dark: color-mix(in srgb, var(--color-gray-500) 34%, transparent);
+    --code-attributes-name: var(--color-blue-700);
+    --code-attributes-name-dark: var(--color-blue-300);
+    --code-attributes-punctuation: var(--color-gray-500);
+    --code-attributes-punctuation-dark: var(--color-gray-400);
+    --code-comment-anchor-color: var(--color-amber-800);
+    --code-comment-anchor-color-dark: var(--color-amber-200);
+    --code-comment-anchor-background: color-mix(in srgb, var(--color-amber-200) 55%, transparent);
+    --code-comment-anchor-background-dark: color-mix(in srgb, var(--color-amber-600) 22%, transparent);
+    --code-comment-anchor-border: color-mix(in srgb, var(--color-amber-400) 75%, transparent);
+    --code-comment-anchor-border-dark: color-mix(in srgb, var(--color-amber-500) 45%, transparent);
+    --code-comment-label-color: var(--color-amber-800);
+    --code-comment-label-color-dark: var(--color-amber-200);
+    --code-comment-label-background: color-mix(in srgb, var(--color-amber-100) 35%, transparent);
+    --code-comment-label-background-dark: color-mix(in srgb, var(--color-amber-700) 14%, transparent);
+    --code-comment-label-border: color-mix(in srgb, var(--color-amber-400) 60%, transparent);
+    --code-comment-label-border-dark: color-mix(in srgb, var(--color-amber-500) 38%, transparent);
+    --code-suggestion-delimiter-color: var(--color-blue-800);
+    --code-suggestion-delimiter-color-dark: var(--color-blue-200);
+    --code-suggestion-delimiter-background: color-mix(in srgb, var(--color-blue-200) 50%, transparent);
+    --code-suggestion-delimiter-background-dark: color-mix(in srgb, var(--color-blue-600) 20%, transparent);
+    --code-suggestion-delimiter-border: color-mix(in srgb, var(--color-blue-400) 70%, transparent);
+    --code-suggestion-delimiter-border-dark: color-mix(in srgb, var(--color-blue-500) 40%, transparent);
+    --code-suggestion-insert-color: var(--color-green-800);
+    --code-suggestion-insert-color-dark: var(--color-green-200);
+    --code-suggestion-insert-background: color-mix(in srgb, var(--color-green-200) 55%, transparent);
+    --code-suggestion-insert-background-dark: color-mix(in srgb, var(--color-green-600) 22%, transparent);
+    --code-suggestion-insert-border: color-mix(in srgb, var(--color-green-400) 75%, transparent);
+    --code-suggestion-insert-border-dark: color-mix(in srgb, var(--color-green-500) 45%, transparent);
+    --code-suggestion-delete-color: var(--color-red-800);
+    --code-suggestion-delete-color-dark: var(--color-red-200);
+    --code-suggestion-delete-background: color-mix(in srgb, var(--color-red-200) 55%, transparent);
+    --code-suggestion-delete-background-dark: color-mix(in srgb, var(--color-red-600) 22%, transparent);
+    --code-suggestion-delete-border: color-mix(in srgb, var(--color-red-400) 75%, transparent);
+    --code-suggestion-delete-border-dark: color-mix(in srgb, var(--color-red-500) 45%, transparent);
+    --code-suggestion-replace-color: var(--color-purple-800);
+    --code-suggestion-replace-color-dark: var(--color-purple-200);
+    --code-suggestion-replace-background: color-mix(in srgb, var(--color-purple-200) 55%, transparent);
+    --code-suggestion-replace-background-dark: color-mix(in srgb, var(--color-purple-600) 22%, transparent);
+    --code-suggestion-replace-border: color-mix(in srgb, var(--color-purple-400) 75%, transparent);
+    --code-suggestion-replace-border-dark: color-mix(in srgb, var(--color-purple-500) 45%, transparent);
+    --code-marker-padding-inline: 0.18em;
+    --code-marker-padding-block: 0.05em;
+    --code-marker-border-radius: var(--radius-xs);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -308,6 +359,30 @@
         --code-meta: var(--code-meta-dark);
         --code-invalid: var(--code-invalid-dark);
         --code-invalid-deprecated: var(--code-invalid-deprecated-dark);
+
+        --code-attributes-color: var(--code-attributes-color-dark);
+        --code-attributes-background: var(--code-attributes-background-dark);
+        --code-attributes-border: var(--code-attributes-border-dark);
+        --code-attributes-name: var(--code-attributes-name-dark);
+        --code-attributes-punctuation: var(--code-attributes-punctuation-dark);
+        --code-comment-anchor-color: var(--code-comment-anchor-color-dark);
+        --code-comment-anchor-background: var(--code-comment-anchor-background-dark);
+        --code-comment-anchor-border: var(--code-comment-anchor-border-dark);
+        --code-comment-label-color: var(--code-comment-label-color-dark);
+        --code-comment-label-background: var(--code-comment-label-background-dark);
+        --code-comment-label-border: var(--code-comment-label-border-dark);
+        --code-suggestion-delimiter-color: var(--code-suggestion-delimiter-color-dark);
+        --code-suggestion-delimiter-background: var(--code-suggestion-delimiter-background-dark);
+        --code-suggestion-delimiter-border: var(--code-suggestion-delimiter-border-dark);
+        --code-suggestion-insert-color: var(--code-suggestion-insert-color-dark);
+        --code-suggestion-insert-background: var(--code-suggestion-insert-background-dark);
+        --code-suggestion-insert-border: var(--code-suggestion-insert-border-dark);
+        --code-suggestion-delete-color: var(--code-suggestion-delete-color-dark);
+        --code-suggestion-delete-background: var(--code-suggestion-delete-background-dark);
+        --code-suggestion-delete-border: var(--code-suggestion-delete-border-dark);
+        --code-suggestion-replace-color: var(--code-suggestion-replace-color-dark);
+        --code-suggestion-replace-background: var(--code-suggestion-replace-background-dark);
+        --code-suggestion-replace-border: var(--code-suggestion-replace-border-dark);
     }
 }
 
@@ -373,6 +448,30 @@
     --code-meta: var(--code-meta-dark);
     --code-invalid: var(--code-invalid-dark);
     --code-invalid-deprecated: var(--code-invalid-deprecated-dark);
+    
+    --code-attributes-color: var(--code-attributes-color-dark);
+    --code-attributes-background: var(--code-attributes-background-dark);
+    --code-attributes-border: var(--code-attributes-border-dark);
+    --code-attributes-name: var(--code-attributes-name-dark);
+    --code-attributes-punctuation: var(--code-attributes-punctuation-dark);
+    --code-comment-anchor-color: var(--code-comment-anchor-color-dark);
+    --code-comment-anchor-background: var(--code-comment-anchor-background-dark);
+    --code-comment-anchor-border: var(--code-comment-anchor-border-dark);
+    --code-comment-label-color: var(--code-comment-label-color-dark);
+    --code-comment-label-background: var(--code-comment-label-background-dark);
+    --code-comment-label-border: var(--code-comment-label-border-dark);
+    --code-suggestion-delimiter-color: var(--code-suggestion-delimiter-color-dark);
+    --code-suggestion-delimiter-background: var(--code-suggestion-delimiter-background-dark);
+    --code-suggestion-delimiter-border: var(--code-suggestion-delimiter-border-dark);
+    --code-suggestion-insert-color: var(--code-suggestion-insert-color-dark);
+    --code-suggestion-insert-background: var(--code-suggestion-insert-background-dark);
+    --code-suggestion-insert-border: var(--code-suggestion-insert-border-dark);
+    --code-suggestion-delete-color: var(--code-suggestion-delete-color-dark);
+    --code-suggestion-delete-background: var(--code-suggestion-delete-background-dark);
+    --code-suggestion-delete-border: var(--code-suggestion-delete-border-dark);
+    --code-suggestion-replace-color: var(--code-suggestion-replace-color-dark);
+    --code-suggestion-replace-background: var(--code-suggestion-replace-background-dark);
+    --code-suggestion-replace-border: var(--code-suggestion-replace-border-dark);
 }
 
 stencila-code-inline {
@@ -558,6 +657,75 @@ stencila-ui-node-code-static {
     .token.colon-delimiter {
         color: var(--color-purple-600);
         font-weight: bold;
+    }
+
+    .token.comment-anchor,
+    .token.suggestion-delimiter {
+        padding: var(--code-marker-padding-block) var(--code-marker-padding-inline);
+        border-radius: var(--code-marker-border-radius);
+        border: 1px solid transparent;
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+
+    .token.comment-anchor {
+        color: var(--code-comment-anchor-color);
+        background-color: var(--code-comment-anchor-background);
+        border-color: var(--code-comment-anchor-border);
+    }
+
+    .token.comment-label {
+        color: var(--code-comment-label-color);
+        background-color: var(--code-comment-label-background);
+        border: 1px solid var(--code-comment-label-border);
+        border-radius: var(--code-marker-border-radius);
+        padding: var(--code-marker-padding-block) var(--code-marker-padding-inline);
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+
+    .token.attributes {
+        color: var(--code-attributes-color);
+        background-color: var(--code-attributes-background);
+        border: 1px solid var(--code-attributes-border);
+        border-radius: var(--code-marker-border-radius);
+        padding: var(--code-marker-padding-block) var(--code-marker-padding-inline);
+        box-decoration-break: clone;
+        -webkit-box-decoration-break: clone;
+    }
+
+    .token.attributes .token.attr-name {
+        color: var(--code-attributes-name);
+        font-weight: 500;
+    }
+
+    .token.attributes .token.punctuation {
+        color: var(--code-attributes-punctuation);
+    }
+
+    .token.suggestion-delimiter {
+        color: var(--code-suggestion-delimiter-color);
+        background-color: var(--code-suggestion-delimiter-background);
+        border-color: var(--code-suggestion-delimiter-border);
+        font-weight: 600;
+    }
+
+    .token.suggestion-delimiter.suggestion-insert {
+        color: var(--code-suggestion-insert-color);
+        background-color: var(--code-suggestion-insert-background);
+        border-color: var(--code-suggestion-insert-border);
+    }
+
+    .token.suggestion-delimiter.suggestion-delete {
+        color: var(--code-suggestion-delete-color);
+        background-color: var(--code-suggestion-delete-background);
+        border-color: var(--code-suggestion-delete-border);
+    }
+
+    .token.suggestion-delimiter.suggestion-replace {
+        color: var(--code-suggestion-replace-color);
+        background-color: var(--code-suggestion-replace-background);
+        border-color: var(--code-suggestion-replace-border);
     }
 
     .token.tag,

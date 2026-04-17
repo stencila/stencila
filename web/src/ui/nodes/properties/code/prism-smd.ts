@@ -28,7 +28,141 @@ if (Array.isArray(smdCode)) {
   )
 }
 
+const attributesGrammar = {
+  pattern: /\{[^}\n]*\}/,
+  greedy: true,
+  inside: {
+    punctuation: /[{}=,]/,
+    'attr-name': /(?:^|[,{]\s*)[\w-]+(?=\s*=)/,
+    string: /"(?:\\.|[^"\\])*"/,
+    number: /(?<==\s*)-?(?:\d+\.\d+|\d+)/,
+    boolean: /(?<==\s*)\b(?:true|false)\b/,
+    'attr-value': /(?<==\s*)[^\s{},"]+/,
+  },
+}
+
 Prism.languages.insertBefore('smd', 'code', {
+  // Suggestion syntax:
+  // - Inline insertion: {++text++}
+  // - Inline deletion: {--text--}
+  // - Inline replacement: {~~old~>new~~}
+  // - Optional metadata: {by="Alice", at="..."}
+  // - Block suggestions: :++, :--, :~~, :~>
+  'suggestion-block': [
+    {
+      pattern: /^([ \t]*)(:\+\+|:--|:~~|:~>)(?:[ \t]+(\{[^}\n]*\}))?[ \t]*$/m,
+      lookbehind: true,
+      inside: {
+        'suggestion-delimiter': [
+          { pattern: /^:\+\+/, alias: 'suggestion-insert' },
+          { pattern: /^:--/, alias: 'suggestion-delete' },
+          { pattern: /^:~~|^:~>/, alias: 'suggestion-replace' },
+        ],
+        punctuation: /^:/,
+        operator: /\+\+|--|~~|~>/,
+        attributes: attributesGrammar,
+      },
+    },
+  ],
+
+  'suggestion-inline': [
+    {
+      pattern: /\{\+\+[\s\S]+?\+\+\}(?:\{[^}\n]*\})?/,
+      greedy: true,
+      inside: {
+        'suggestion-content': {
+          pattern: /(^\{\+\+)[\s\S]+(?=\+\+\})/,
+          lookbehind: true,
+        },
+        'suggestion-delimiter': {
+          pattern: /\{\+\+|\+\+\}/,
+          alias: 'suggestion-insert',
+        },
+        operator: /\+\+/,
+        attributes: {
+          ...attributesGrammar,
+          pattern: /\{[^}\n]*\}$/,
+        },
+      },
+    },
+    {
+      pattern: /\{--[\s\S]+?--\}(?:\{[^}\n]*\})?/,
+      greedy: true,
+      inside: {
+        'suggestion-content': {
+          pattern: /(^\{--)[\s\S]+(?=--\})/,
+          lookbehind: true,
+        },
+        'suggestion-delimiter': {
+          pattern: /\{--|--\}/,
+          alias: 'suggestion-delete',
+        },
+        operator: /--/,
+        attributes: {
+          ...attributesGrammar,
+          pattern: /\{[^}\n]*\}$/,
+        },
+      },
+    },
+    {
+      pattern: /\{~~[\s\S]+?~>[\s\S]+?~~\}(?:\{[^}\n]*\})?/,
+      greedy: true,
+      inside: {
+        'suggestion-old': {
+          pattern: /(^\{~~)[\s\S]+?(?=~>)/,
+          lookbehind: true,
+        },
+        'suggestion-new': {
+          pattern: /(~>)[\s\S]+?(?=~~\})/,
+          lookbehind: true,
+        },
+        'suggestion-delimiter': [
+          { pattern: /\{~~|~~\}/, alias: 'suggestion-replace' },
+          { pattern: /~>/, alias: 'suggestion-replace' },
+        ],
+        operator: /~~|~>/,
+        attributes: {
+          ...attributesGrammar,
+          pattern: /\{[^}\n]*\}$/,
+        },
+      },
+    },
+  ],
+
+  // Comment anchors and definitions:
+  // - Range start: {>>c1}
+  // - Range end / point: {<<c1}
+  // - Definition: [>>c1]{by="Alice"}: text
+  'comment-definition': {
+    pattern: /^\[>>[\w.-]+\](?:\{[^}\n]*\})?:.*$/m,
+    greedy: true,
+    inside: {
+      'comment-label': {
+        pattern: /^\[>>[\w.-]+\]/,
+        inside: {
+          punctuation: /[[\]]/,
+          operator: />>/,
+          variable: /[\w.-]+/,
+        },
+      },
+      attributes: {
+        ...attributesGrammar,
+        pattern: /\{[^}\n]*\}(?=:)/,
+      },
+      punctuation: /^:|:$/,
+    },
+  },
+
+  'comment-anchor': {
+    pattern: /\{(?:>>|<<)[\w.-]+\}/,
+    greedy: true,
+    inside: {
+      punctuation: /[{}]/,
+      operator: />>|<</,
+      variable: /[\w.-]+/,
+    },
+  },
+
   // Colon-fenced blocks: ::: keyword [args]
   // Must come before generic colon fence closer
   'colon-fence': [
@@ -76,17 +210,7 @@ Prism.languages.insertBefore('smd', 'code', {
             selector: /[^\]]+/,
           },
         },
-        attributes: {
-          pattern: /\{[^}\n]*\}/,
-          inside: {
-            punctuation: /[{}=]/,
-            'attr-name': /[\w-]+(?=\s*=)/,
-            string: /"(?:\\.|[^"\\])*"/,
-            number: /(?<==\s*)-?(?:\d+\.\d+|\d+)/,
-            boolean: /(?<==\s*)\b(?:true|false)\b/,
-            'attr-value': /(?<==\s*)[^\s{}"]+/,
-          },
-        },
+        attributes: attributesGrammar,
         'attr-value':
           /(?<=\b(?:figure|table)\s+)(?!\[[^\]]*\]|\{[^}\n]*\})\S+/,
       },
