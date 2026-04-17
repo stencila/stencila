@@ -7,3 +7,5 @@ A suggested deleted paragraph.
 A paragraph before a replaced block.
 
 Original paragraph.
+
+A paragraph before an inserted block with metadata.

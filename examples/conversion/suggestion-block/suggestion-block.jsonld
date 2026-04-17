@@ -101,6 +101,44 @@
           ]
         }
       ]
+    },
+    {
+      "@type": "stencila:Paragraph",
+      "stencila:content": [
+        {
+          "@type": "Text",
+          "value": {
+            "string": "A paragraph before an inserted block with metadata."
+          }
+        }
+      ]
+    },
+    {
+      "@type": "stencila:SuggestionBlock",
+      "stencila:suggestionType": "Insert",
+      "author": [
+        {
+          "@type": "Person",
+          "name": "Alice"
+        }
+      ],
+      "datePublished": {
+        "@type": "DateTime",
+        "value": "2024-04-17T10:14:00+00:00"
+      },
+      "stencila:content": [
+        {
+          "@type": "stencila:Paragraph",
+          "stencila:content": [
+            {
+              "@type": "Text",
+              "value": {
+                "string": "A suggested inserted paragraph with metadata."
+              }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

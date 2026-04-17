@@ -83,6 +83,40 @@
           ]
         }
       ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "A paragraph before an inserted block with metadata." }
+        }
+      ]
+    },
+    {
+      type: "SuggestionBlock",
+      suggestionType: "Insert",
+      authors: [
+        {
+          type: "Person",
+          name: "Alice"
+        }
+      ],
+      datePublished: {
+        type: "DateTime",
+        value: "2024-04-17T10:14:00+00:00"
+      },
+      content: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A suggested inserted paragraph with metadata." }
+            }
+          ]
+        }
+      ]
     }
   ]
 }

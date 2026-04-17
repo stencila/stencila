@@ -3,3 +3,5 @@ A {++suggested insertion++} in a paragraph.
 A {--suggested deletion in a --}paragraph.
 
 A {~~suggested replacement~>actual replacement~~} in a paragraph.
+
+A {++suggested insertion with metadata++}{by="Alice", at="2024-04-17T10:14:00+00:00"} in a paragraph.

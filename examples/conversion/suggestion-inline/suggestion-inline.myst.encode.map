@@ -26,5 +26,12 @@ start     end        offsets   node_type+property                   authorship
     81     97         (0, 0)   Text
     58     97       (-23, 0)   Paragraph.content
     58     98         (0, 1)   Paragraph
-     0     99       (-58, 1)   Article.content
-     0     99         (0, 0)   Article
+    99    101        (41, 3)   Text.value
+    99    101         (0, 0)   Text
+   101    101         (2, 0)   SuggestionInline
+   101    117        (0, 16)   Text.value
+   101    117         (0, 0)   Text
+    99    117        (-2, 0)   Paragraph.content
+    99    118         (0, 1)   Paragraph
+     0    119       (-99, 1)   Article.content
+     0    119         (0, 0)   Article

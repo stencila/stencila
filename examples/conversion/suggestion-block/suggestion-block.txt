@@ -9,3 +9,7 @@ A suggested deleted paragraph.
 A paragraph before a replaced block.
 
 Replacement paragraph.
+
+A paragraph before an inserted block with metadata.
+
+A suggested inserted paragraph with metadata.

@@ -4,5 +4,6 @@
     <p>A paragraph before an inserted block.</p>
     <p>A paragraph before a deleted block.</p>
     <p>A paragraph before a replaced block.</p>
+    <p>A paragraph before an inserted block with metadata.</p>
   </body>
 </article>

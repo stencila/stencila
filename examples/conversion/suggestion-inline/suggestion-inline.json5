@@ -75,6 +75,39 @@
           value: { string: " in a paragraph." }
         }
       ]
+    },
+    {
+      type: "Paragraph",
+      content: [
+        {
+          type: "Text",
+          value: { string: "A " }
+        },
+        {
+          type: "SuggestionInline",
+          suggestionType: "Insert",
+          authors: [
+            {
+              type: "Person",
+              name: "Alice"
+            }
+          ],
+          datePublished: {
+            type: "DateTime",
+            value: "2024-04-17T10:14:00+00:00"
+          },
+          content: [
+            {
+              type: "Text",
+              value: { string: "suggested insertion with metadata" }
+            }
+          ]
+        },
+        {
+          type: "Text",
+          value: { string: " in a paragraph." }
+        }
+      ]
     }
   ]
 }

@@ -25,3 +25,11 @@ Original paragraph.
 Replacement paragraph.
 
 :~~
+
+A paragraph before an inserted block with metadata.
+
+:++ {by="Alice", at="2024-04-17T10:14:00+00:00"}
+
+A suggested inserted paragraph with metadata.
+
+:++

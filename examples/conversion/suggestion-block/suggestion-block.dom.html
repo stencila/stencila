@@ -49,5 +49,23 @@
         </stencila-paragraph>
       </div>
     </stencila-suggestion-block>
+    <stencila-paragraph id=xxx depth=1 ancestors=Article>
+      <p slot=content>
+        <stencila-text id=xxx depth=2 ancestors=Article.Paragraph>A paragraph before an inserted block with metadata.</stencila-text>
+      </p>
+    </stencila-paragraph>
+    <stencila-suggestion-block id=xxx depth=1 ancestors=Article suggestion-type=Insert date-published=2024-04-17T10:14:00+00:00>
+      <span slot=authors>
+        <stencila-person id=xxx depth=2 ancestors=Article.SuggestionBlock name=Alice>
+        </stencila-person>
+      </span>
+      <div slot=content>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.SuggestionBlock>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.SuggestionBlock.Paragraph>A suggested inserted paragraph with metadata.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </div>
+    </stencila-suggestion-block>
   </section>
 </stencila-article>

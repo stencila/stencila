@@ -24,5 +24,10 @@ start     end        offsets   node_type+property                   authorship
    146    166         (0, 1)   Paragraph
    146    167         (0, 1)   SuggestionBlock.original
    146    166        (0, -1)   SuggestionBlock
-     0    167      (-146, 1)   Article.content
-     0    167         (0, 0)   Article
+   167    218       (21, 52)   Text.value
+   167    218         (0, 0)   Text
+   167    218         (0, 0)   Paragraph.content
+   167    219         (0, 1)   Paragraph
+   220    219        (53, 0)   SuggestionBlock
+     0    220      (-220, 1)   Article.content
+     0    220         (0, 0)   Article
