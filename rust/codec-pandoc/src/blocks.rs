@@ -1841,8 +1841,8 @@ fn suggestion_block_to_pandoc(
             .iter()
             .map(|block| {
                 let suggestion_inline = Inline::SuggestionInline(SuggestionInline {
-                    suggestion_type: suggestion.suggestion_type.clone(),
-                    suggestion_status: suggestion.suggestion_status.clone(),
+                    suggestion_type: suggestion.suggestion_type,
+                    suggestion_status: suggestion.suggestion_status,
                     authors: suggestion.authors.clone(),
                     date_published: suggestion.date_published.clone(),
                     content: block.clone().into(),
