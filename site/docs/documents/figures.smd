@@ -594,8 +594,8 @@ Overlays also work with browser-side rendering libraries like Plotly, eCharts, a
 
 ```svg overlay
 <svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg">
-  <s:halo cx="422" cy="25" r="16"/>
-  <s:callout x="460" y="25" label="Peak"/>
+  <s:halo cx="390" cy="30" r="16"/>
+  <s:callout x="440" y="30" label="Peak"/>
   <s:arrow x="170" y="240" to-x="238" to-y="165" stroke="green" stroke-width="3" label="Rising trend" label-position="below" fill="green"/>
 </svg>
 ```
@@ -770,7 +770,7 @@ Padding also works on parent figures with grid layouts. Here the parent figure u
 ```svg overlay
 <svg viewBox="0 0 824 306" xmlns:s="https://stencila.io/svg">
   <s:callout x="370" y="290" label="Points of interest" to-x="220" to-y="210"/>
-  <s:callout x="370" y="290" label="" to-x="610" to-y="90"/>
+  <s:callout x="370" y="290" label="" to-x="610" to-y="90" dy="-25" />
 </svg>
 ```
 
