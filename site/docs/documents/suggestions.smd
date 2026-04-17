@@ -1,0 +1,137 @@
+---
+title: Suggestions
+description: How to author suggestions in Stencila Markdown — inline and block insertions, deletions, replacements, metadata, and track-changes workflows.
+---
+
+Suggestions let you propose edits without immediately applying them to the document's main content. They are useful for review, editorial workflows, collaborative revision, and tracked changes.
+
+Stencila also supports preserving suggestions during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will review or accept suggestions in those tools rather than writing suggestion syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange revised documents with collaborators while keeping tracked changes intact.
+
+This capability also provides a track-changes interface between collaborators using those formats and AI agents working in Stencila. Collaborators can request edits in familiar tools, and AI agents can contribute changes as suggestions so that their insertions, deletions, and replacements remain reviewable before being accepted.
+
+# Syntax
+
+Suggestions come in two forms:
+
+- **Inline suggestions** for edits within a paragraph or other inline content.
+- **Block suggestions** for edits affecting whole paragraphs or other block content.
+
+For inline suggestions, Stencila uses the same marker syntax as [Critic Markup](https://criticmarkup.com/), a lightweight notation for writing insertions, deletions, and replacements in plain text. If you have used Critic Markup before, the inline suggestion forms in Stencila will look familiar.
+
+Both forms support insertions, deletions, replacements, and optional metadata.
+
+# Inline suggestions
+
+Inline suggestions are written directly within text using curly-brace markers.
+
+## Insertions
+
+Use `{++ ... ++}` for suggested inserted text:
+
+```smd
+A {++suggested insertion++} in a paragraph.
+```
+
+## Deletions
+
+Use `{-- ... --}` for suggested deleted text:
+
+```smd
+A {--suggested deletion in a --}paragraph.
+```
+
+## Replacements
+
+Use `{~~ ... ~> ... ~~}` for suggested replacements, where the first part is the original content and the second part is the proposed replacement:
+
+```smd
+A {~~suggested replacement~>actual replacement~~} in a paragraph.
+```
+
+## Metadata
+
+Inline suggestions can include metadata such as the author and timestamp:
+
+```smd
+A {++suggested insertion with metadata++}{by="Alice Andrews", at="2024-04-17T10:14:00Z"} in a paragraph.
+```
+
+# Block suggestions
+
+Block suggestions use colon-fence markers on their own lines. They are useful when the suggested change affects one or more whole blocks.
+
+## Inserted blocks
+
+Use `:++` to wrap suggested inserted blocks:
+
+```smd
+A paragraph before an inserted block.
+
+:++
+
+A suggested inserted paragraph.
+
+:++
+```
+
+## Deleted blocks
+
+Use `:--` to wrap suggested deleted blocks:
+
+```smd
+A paragraph before a deleted block.
+
+:--
+
+A suggested deleted paragraph.
+
+:--
+```
+
+## Replaced blocks
+
+Use `:~~` to start and end a block replacement, with `:~>` separating the original content from the replacement:
+
+```smd
+A paragraph before a replaced block.
+
+:~~
+
+Original paragraph.
+
+:~>
+
+Replacement paragraph.
+
+:~~
+```
+
+## Metadata
+
+Block suggestions can also include metadata on the opening fence:
+
+```smd
+A paragraph before an inserted block with metadata.
+
+:++ {by="Alice Andrews", at="2024-04-17T10:14Z"}
+
+A suggested inserted paragraph with metadata.
+
+:++
+```
+
+# Track changes workflows
+
+Suggestions are the Stencila Markdown representation of tracked changes. They make proposed edits explicit and reviewable, whether those edits come from a human collaborator or an AI agent.
+
+Because Stencila preserves suggestions during conversion to and from formats such as Microsoft Word and Google Docs, tracked changes can move between tools without being flattened into ordinary text. This allows teams to keep using familiar review interfaces while still exchanging documents with Stencila.
+
+For AI-assisted workflows, this means agents can propose edits as suggestions instead of silently rewriting content. Human collaborators can then inspect those changes in Stencila, Microsoft Word, or Google Docs, accept or reject them, and see what the agent contributed as tracked changes.
+
+> [!tip] Tips
+>
+> - Use inline suggestions for small wording changes within a sentence.
+> - Use block suggestions when the change affects one or more whole paragraphs or other block elements.
+> - Add metadata when you need to preserve who proposed a change and when.
+> - Prefer suggestions over direct edits when you want human review before a change is accepted.
+> - In AI-assisted workflows, suggestions provide a clear audit trail of agent contributions.

@@ -1,0 +1,114 @@
+---
+title: Comments
+description: How to author comments in Stencila documents — ranges, point comments, overlapping threads, replies, and metadata.
+---
+
+Comments let you attach discussion to specific text in a document without changing the document's main content. They are useful for review, feedback, editorial notes, and collaborative conversation.
+
+Stencila also supports preserving comments during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will receive or respond to comments through those tools rather than writing comment syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange reviewed documents with collaborators while keeping comment threads intact.
+
+This capability also provides an interface between collaborators using those formats and AI agents working in Stencila. Collaborators can leave requests as comments in Microsoft Word or Google Docs, and agents can respond in the same threads to explain changes they made, answer questions, or report what action they took.
+
+In Stencila Markdown, comments are authored in two parts:
+
+- **Anchors** in the document text mark where a comment applies.
+- **Definitions** later in the document provide the comment content.
+
+# Syntax
+
+A comment thread uses an identifier like `c1`. You place anchor markers in the document body, then define the comment using a reference-style definition.
+
+```smd
+A paragraph with {>>c1}commented text{<<c1}.
+
+[>>c1]: The comment text.
+```
+
+The opening marker `{>>c1}` starts the commented range and the closing marker `{<<c1}` ends it. The definition `[>>c1]: ...` supplies the actual comment content.
+
+# Range comments
+
+The most common form is a range comment, which applies to a span of inline content:
+
+```smd
+A paragraph with {>>c1}a comment on some content{<<c1}.
+
+[>>c1]: This is the first comment.
+```
+
+A range comment can also span across paragraphs and other block content. The opening and closing markers do not need to be in the same paragraph:
+
+```smd
+A paragraph that starts {>>c1}a comment spanning multiple paragraphs.
+
+A second paragraph that is still inside the same comment.
+
+A final paragraph that ends the comment{<<c1}.
+
+[>>c1]: This comment covers several paragraphs.
+```
+
+# Point comments
+
+A comment can also be attached to a single point in the document using only a closing marker:
+
+```smd
+A paragraph with a point comment{<<c1}.
+
+[>>c1]: This comment is attached at a single position.
+```
+
+This is useful when you want to comment on a location between words or at the end of a sentence, rather than on a selected range.
+
+# Overlapping comments
+
+Comments can overlap. This allows one thread to cover a larger passage while another thread discusses a smaller part within it.
+
+```smd
+A paragraph with {>>c1}a comment on some content{<<c1} and {>>c2}an overlapping comment in it.
+
+A paragraph that is {>>c3}within the overlapping comment{<<c2}.
+
+A paragraph with a point comment{<<c3}.
+
+[>>c1]: This is the first comment.
+
+[>>c2]: This is the second comment, spanning multiple paragraphs.
+
+    It has multiple paragraphs.
+
+[>>c3]: A third comment.
+```
+
+# Replies
+
+Replies are comments whose identifiers extend an existing comment identifier with a dotted suffix. For example, `c1.1` is a reply to `c1`.
+
+```smd
+A paragraph with {>>c1}commented text{<<c1}.
+
+[>>c1]: This is the first comment.
+
+[>>c1.1]: A reply to the first comment.
+```
+
+You can add multiple replies to build up a thread.
+
+# Metadata
+
+Comment definitions can include attributes such as the author and timestamp:
+
+```smd
+A paragraph with a point comment{<<c1}.
+
+[>>c1]{by="Alice", at="2026-04-16T10:34:00Z"}: A third comment.
+```
+
+This is especially useful when comments are generated or preserved by collaborative tools.
+
+> [!tip] Tips
+>
+> - Use stable, simple identifiers like `c1`, `c2`, and `c3` when writing by hand.
+> - Keep comment definitions near the end of the relevant section or document so they are easy to find.
+> - Use replies for discussion within a thread instead of creating multiple separate comments on the same passage.
+> - Use metadata when you need to preserve authorship or timing information.
