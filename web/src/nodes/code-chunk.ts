@@ -169,17 +169,8 @@ export class CodeChunk extends CodeExecutable {
 
   private renderOutputs() {
     return html`
-      ${this.labelType === 'TableLabel'
-        ? html`<caption class="block">
-            <slot name="caption"></slot>
-          </caption>`
-        : ''}
-
+      <slot name="caption"></slot>
       <slot name="outputs" @slotchange=${this.handleOutputsChange}></slot>
-
-      ${this.labelType === 'FigureLabel'
-        ? html`<figcaption><slot name="caption"></slot></figcaption>`
-        : ''}
     `
   }
 }

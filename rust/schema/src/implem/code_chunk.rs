@@ -124,6 +124,7 @@ impl DomCodec for CodeChunk {
 
         if let Some(LabelType::TableLabel) = &self.label_type {
             context.push_slot_fn("div", "caption", |context| {
+                context.push_attr("caption-position", "top");
                 caption_to_dom(context, "table-label", "Table", &self.label, &self.caption)
             });
         }
@@ -159,6 +160,7 @@ impl DomCodec for CodeChunk {
             && !context.has_ancestor(NodeType::Figure)
         {
             context.push_slot_fn("div", "caption", |context| {
+                context.push_attr("caption-position", "bottom");
                 caption_to_dom(
                     context,
                     "figure-label",

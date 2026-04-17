@@ -50,6 +50,20 @@
     --code-chunk-max-width-mobile: var(--content-breakout-width-mobile);
     --code-chunk-max-width-print: 100%;
 
+    /* Code chunk caption typography - aligned with figure/table captions */
+    --code-chunk-caption-font-family: var(--caption-font-family);
+    --code-chunk-caption-font-size: var(--caption-font-size);
+    --code-chunk-caption-color: var(--caption-color);
+    --code-chunk-caption-line-height: var(--caption-line-height);
+    --code-chunk-caption-align: var(--caption-align);
+    --code-chunk-caption-max-width: var(--caption-max-width);
+    --code-chunk-caption-spacing: var(--caption-spacing);
+
+    /* Code chunk label styling - aligned with figure/table labels */
+    --code-chunk-label-font-weight: var(--label-font-weight);
+    --code-chunk-label-font-style: var(--label-font-style);
+    --code-chunk-label-color: var(--label-color);
+
     /* Font and Typography */
     --code-color: var(--text-color-primary);
     --code-color-dark: #e8e8e8;
@@ -392,6 +406,47 @@ stencila-code-chunk {
  * whose outputs are wrapped in a .figure-content-area get the same
  * absolute-positioned overlay and stretched image treatment. */
 stencila-code-chunk {
+    /* Captions for figure-like and table-like outputs rendered by code chunks */
+    > [slot="caption"] {
+        display: block;
+        max-width: var(--code-chunk-caption-max-width);
+        width: 100%;
+        box-sizing: border-box;
+
+        stencila-paragraph p {
+            max-width: none;
+            margin: 0;
+            font-family: var(--code-chunk-caption-font-family);
+            font-size: var(--code-chunk-caption-font-size);
+            color: var(--code-chunk-caption-color);
+            line-height: var(--code-chunk-caption-line-height);
+            text-align: var(--code-chunk-caption-align);
+        }
+
+        stencila-paragraph:first-child {
+            margin-top: 0;
+        }
+
+        stencila-paragraph:not(:first-child) {
+            margin-top: var(--code-chunk-caption-spacing);
+        }
+
+        .figure-label,
+        .table-label {
+            font-weight: var(--code-chunk-label-font-weight);
+            font-style: var(--code-chunk-label-font-style);
+            color: var(--code-chunk-label-color);
+        }
+    }
+
+    > [slot="caption"][caption-position="top"] {
+        margin-bottom: var(--code-chunk-caption-spacing);
+    }
+
+    > [slot="caption"][caption-position="bottom"] {
+        margin-top: var(--code-chunk-caption-spacing);
+    }
+
     > [slot="outputs"] > .figure-content-area {
         position: relative;
     }

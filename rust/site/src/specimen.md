@@ -196,6 +196,124 @@ An example figure with a single-paragraph caption describing the placeholder ima
 
 :::
 
+# Code Chunks
+
+Code chunks can have `labelType: FigureLabel`:
+
+::: figure
+
+```echarts exec
+{
+  "xAxis": {
+    "type": "category",
+    "data": ["Jan", "Feb", "Mar", "Apr", "May", "Jun"]
+  },
+  "yAxis": {
+    "type": "value"
+  },
+  "series": [
+    {
+      "type": "line",
+      "smooth": true,
+      "data": [120, 180, 160, 210, 260, 300],
+      "areaStyle": {}
+    }
+  ]
+}
+```
+
+A plot of visitors by month.
+
+:::
+
+Or they can have `labelType: TableLabel`:
+
+::: table
+
+A table of A and B.
+
+```js exec
+({
+  type: "Table",
+  rows: [
+    {
+      type: "TableRow",
+      rowType: "HeaderRow",
+      cells: [
+        {
+          type: "TableCell",
+          cellType: "HeaderCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "A" } }]
+            }
+          ]
+        },
+        {
+          type: "TableCell",
+          cellType: "HeaderCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "B" } }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "TableRow",
+      cells: [
+        {
+          type: "TableCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "1" } }]
+            }
+          ]
+        },
+        {
+          type: "TableCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "2" } }]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      type: "TableRow",
+      cells: [
+        {
+          type: "TableCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "3" } }]
+            }
+          ]
+        },
+        {
+          type: "TableCell",
+          content: [
+            {
+              type: "Paragraph",
+              content: [{ type: "Text", value: { string: "4" } }]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+})
+```
+
+:::
+
 # Admonitions
 
 Exercises: `admonition-*` tokens including type-specific colors, borders, icons, and disclosure
