@@ -6,6 +6,61 @@ use super::{
     resolve_text, svg_text,
 };
 
+#[derive(Clone, Copy)]
+struct LabelBox {
+    center_x: f64,
+    center_y: f64,
+    width: f64,
+    height: f64,
+}
+
+fn leader_start(
+    lx: f64,
+    ly: f64,
+    tx: f64,
+    ty: f64,
+    label_box: &LabelBox,
+    empty_label: bool,
+) -> (f64, f64) {
+    if empty_label {
+        return (lx, ly);
+    }
+
+    let dx = tx - label_box.center_x;
+    let dy = ty - label_box.center_y;
+
+    let half_width = label_box.width / 2.0;
+    let half_height = label_box.height / 2.0;
+
+    if dx == 0.0 && dy == 0.0 {
+        return (lx, ly);
+    }
+
+    let scale_x = if dx == 0.0 {
+        f64::INFINITY
+    } else {
+        half_width / dx.abs()
+    };
+    let scale_y = if dy == 0.0 {
+        f64::INFINITY
+    } else {
+        half_height / dy.abs()
+    };
+    let scale = scale_x.min(scale_y);
+
+    let padding = 4.0;
+    let length = (dx * dx + dy * dy).sqrt();
+
+    if !scale.is_finite() || length == 0.0 {
+        return (lx, ly);
+    }
+
+    (
+        label_box.center_x + dx * scale + (dx / length) * padding,
+        label_box.center_y + dy * scale + (dy / length) * padding,
+    )
+}
+
 /// Expand `<s:callout>` into standard SVG text with optional leader line and background shape.
 ///
 /// Supported attributes:
@@ -53,6 +108,20 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
     // direction.
     let label_position = attr_str(attrs, "label-position", "auto");
     let (text_x, text_y) = label_offset(lx, ly, target.as_ref(), label_position, shape_height);
+    let label_box_width = match shape {
+        "circle" => estimated_width.max(shape_height),
+        _ => estimated_width,
+    };
+    let label_box_height = match shape {
+        "circle" => label_box_width,
+        _ => shape_height,
+    };
+    let label_box = LabelBox {
+        center_x: text_x,
+        center_y: text_y,
+        width: label_box_width,
+        height: label_box_height,
+    };
 
     let mut svg = String::new();
 
@@ -92,9 +161,10 @@ pub fn expand(attrs: &Attrs, ctx: &mut ComponentContext) -> String {
         let tip_style = attr_str(attrs, "tip-style", "s:arrow-closed");
         let curve = attr_str(attrs, "curve", "straight");
         let marker_end = format!(r#" marker-end="url(#{tip_style})""#);
+        let (line_x1, line_y1) = leader_start(lx, ly, tx, ty, &label_box, label.is_empty());
         svg.push_str(&connector_svg(
-            lx,
-            ly,
+            line_x1,
+            line_y1,
             tx,
             ty,
             &ConnectorOpts {
