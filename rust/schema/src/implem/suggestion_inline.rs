@@ -1,6 +1,6 @@
 use stencila_codec_info::lost_options;
 
-use crate::{SuggestionInline, SuggestionType, implem::suggestion::suggestion_attrs, prelude::*};
+use crate::{SuggestionInline, SuggestionType, implem::utils::author_date_to_markdown, prelude::*};
 
 impl MarkdownCodec for SuggestionInline {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
@@ -60,7 +60,7 @@ impl MarkdownCodec for SuggestionInline {
 
         context.push_str(close);
 
-        if let Some(attrs) = suggestion_attrs(&self.authors, &self.date_published) {
+        if let Some(attrs) = author_date_to_markdown(&self.authors, &self.date_published) {
             context.push_str(&attrs);
         }
 

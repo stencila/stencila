@@ -2,7 +2,45 @@ use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
 use stencila_node_id::NodeId;
 use stencila_node_type::NodeType;
 
-use crate::Block;
+use crate::{Author, Block, DateTime};
+
+/// Create curly-braced Markdown attrs for author and date metadata
+pub(crate) fn author_date_to_markdown(
+    authors: &Option<Vec<Author>>,
+    date_published: &Option<DateTime>,
+) -> Option<String> {
+    let mut attrs = Vec::new();
+
+    fn escape_attr_value(value: &str) -> String {
+        value.replace('\\', "\\\\").replace('"', "\\\"")
+    }
+
+    fn format_attr(name: &str, value: &str) -> String {
+        if value.contains([' ', '"']) {
+            format!(r#"{name}="{}""#, escape_attr_value(value))
+        } else {
+            format!("{name}={value}")
+        }
+    }
+
+    if let Some(authors) = authors
+        && !authors.is_empty()
+    {
+        let by = authors
+            .iter()
+            .map(|author| author.name())
+            .collect::<Vec<_>>()
+            .join("; ");
+
+        attrs.push(format_attr("by", &by));
+    }
+
+    if let Some(at) = date_published {
+        attrs.push(format_attr("at", &at.value));
+    }
+
+    (!attrs.is_empty()).then(|| format!(" {{{}}}", attrs.join(", ")))
+}
 
 /// Encode the `caption` of a `Figure`, `Table` or `CodeChunk` to DOM HTML
 ///
