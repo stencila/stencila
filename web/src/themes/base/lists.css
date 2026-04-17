@@ -34,12 +34,12 @@
 
 :root {
     --list-spacing: var(--content-spacing);
-    --list-spacing-nested: calc(var(--content-spacing) * 0.25);
+    --list-spacing-nested: var(--space-1);
 
     --list-indent: calc(var(--content-spacing) * 0.75);
     --list-indent-nested: calc(var(--content-spacing) * 0.25);
 
-    --list-item-spacing: calc(var(--list-spacing) * 0.25);
+    --list-item-spacing: var(--space-2);
 
     --list-marker-gap: var(--space-2);
     --list-marker-color: var(--text-color-muted);
@@ -71,6 +71,10 @@ stencila-list {
 
         padding-left: var(--list-indent);
         list-style-position: outside;
+
+        > stencila-list-item+stencila-list-item {
+            margin-top: var(--list-item-spacing);
+        }
     }
 
     /* Marker types */
@@ -90,17 +94,15 @@ stencila-list {
     stencila-list-item {
         display: block;
         
-        /* Spacing */
-        margin-bottom: var(--list-item-spacing);
-
         li {
             /* Browser normalization */
             margin: 0;
 
             /* Nested lists - spacing and indent at outer element level */
 
-            stencila-list {
+            > stencila-list {
                 margin-top: var(--list-spacing-nested);
+                margin-bottom: 0;
                 margin-left: var(--list-indent-nested);
             }
 
@@ -125,9 +127,15 @@ stencila-list {
                 color: var(--list-marker-color);
             }
 
-            /* Paragraphs spacing: use list-item spacing instead of full
-             * paragraph spacing to maintain visual hierarchy */
+            /* Paragraph spacing: suppress the default leading paragraph
+             * margin so single-paragraph items align tightly with the marker,
+             * while subsequent blocks still get compact intra-item spacing. */
             stencila-paragraph {
+                margin-bottom: 0;
+                margin-top: 0;
+            }
+
+            > * + stencila-paragraph {
                 margin-top: var(--list-item-spacing);
             }
         }
@@ -159,7 +167,7 @@ stencila-list {
         ol ol,
         ul ol,
         ol ul {
-            margin-top: calc(var(--list-spacing) * 0.5);
+            margin-top: var(--list-spacing-nested);
         }
     }
 }
