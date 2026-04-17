@@ -3,6 +3,7 @@
 use crate::prelude::*;
 
 use super::author::Author;
+use super::date_time::DateTime;
 use super::duration::Duration;
 use super::inline::Inline;
 use super::provenance_count::ProvenanceCount;
@@ -53,6 +54,13 @@ pub struct SuggestionInline {
     #[strip(provenance)]
     #[dom(elem = "span")]
     pub provenance: Option<Vec<ProvenanceCount>>,
+
+    /// Date of the suggestion was created.
+    #[serde(alias = "date", alias = "date-published", alias = "date_published")]
+    #[serde(default, deserialize_with = "option_string_or_object")]
+    #[strip(metadata)]
+    #[dom(with = "DateTime::to_dom_attr")]
+    pub date_published: Option<DateTime>,
 
     /// Time taken to generate the suggestion.
     #[serde(alias = "execution-duration", alias = "execution_duration")]

@@ -431,9 +431,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "datePublished",
       "rdfs:comment": "Date of first publication.",
-      "schema:domainIncludes": {
-        "@id": "schema:CreativeWork"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:DateTime"
       }

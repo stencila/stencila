@@ -26,6 +26,7 @@
     "suggestionStatus",
     "authors",
     "provenance",
+    "datePublished",
     "executionDuration",
     "executionEnded",
     "feedback"
@@ -127,6 +128,26 @@
       "items": {
         "$ref": "ProvenanceCount.schema.json"
       }
+    },
+    "datePublished": {
+      "@id": "schema:datePublished",
+      "description": "Date of the suggestion was created.",
+      "$comment": "Provides consistency with `Comment` (and other `CreativeWork` node types)\nas the property for storing the date of creation of the suggestion.\n",
+      "aliases": [
+        "date",
+        "date-published",
+        "date_published"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_string_or_object"
+      },
+      "dom": {
+        "with": "DateTime::to_dom_attr"
+      },
+      "$ref": "DateTime.schema.json"
     },
     "executionDuration": {
       "@id": "stencila:executionDuration",

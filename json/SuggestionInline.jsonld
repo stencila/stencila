@@ -151,6 +151,23 @@
       }
     },
     {
+      "@id": "schema:datePublished",
+      "@type": "rdfs:Property",
+      "rdfs:label": "datePublished",
+      "rdfs:comment": "Date of the suggestion was created.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Suggestion"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:DateTime"
+      }
+    },
+    {
       "@id": "stencila:executionDuration",
       "@type": "rdfs:Property",
       "rdfs:label": "executionDuration",

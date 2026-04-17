@@ -1087,6 +1087,9 @@ class Suggestion(Entity):
     provenance: list[ProvenanceCount] | None = None
     """A summary of the provenance of the content within the suggestion."""
 
+    date_published: DateTime | None = None
+    """Date of the suggestion was created."""
+
     execution_duration: Duration | None = None
     """Time taken to generate the suggestion."""
 

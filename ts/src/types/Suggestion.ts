@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Author } from "./Author.js";
+import { DateTime } from "./DateTime.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
 import { ProvenanceCount } from "./ProvenanceCount.js";
@@ -34,6 +35,11 @@ export class Suggestion extends Entity {
    * A summary of the provenance of the content within the suggestion.
    */
   provenance?: ProvenanceCount[];
+
+  /**
+   * Date of the suggestion was created.
+   */
+  datePublished?: DateTime;
 
   /**
    * Time taken to generate the suggestion.

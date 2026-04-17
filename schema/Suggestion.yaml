@@ -23,6 +23,7 @@ core:
   - suggestionStatus
   - authors
   - provenance
+  - datePublished
   - executionDuration
   - executionEnded
   - feedback
@@ -61,6 +62,20 @@ properties:
     strip: [provenance]
     dom:
       elem: span
+  datePublished:
+    "@id": schema:datePublished
+    aliases:
+      - date
+    description: Date of the suggestion was created.
+    $comment: |
+      Provides consistency with `Comment` (and other `CreativeWork` node types)
+      as the property for storing the date of creation of the suggestion.
+    $ref: DateTime
+    strip: [metadata]
+    serde:
+      deserializeWith: option_string_or_object
+    dom:
+      with: DateTime::to_dom_attr
   executionDuration:
     '@id': stencila:executionDuration
     description: Time taken to generate the suggestion.
