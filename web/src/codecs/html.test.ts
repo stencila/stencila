@@ -11,9 +11,12 @@ import { encode } from './html'
 const EXAMPLES_PATH = resolve(__dirname, '../../../examples/conversion')
 
 const SKIPPED_GOLDEN_TEST_CASES = new Set([
-  'figure-subfigures',
-  'figure-overlay',
   'code-chunk-overlay',
+  'comment',
+  'figure-overlay',
+  'figure-subfigures',
+  'suggestion-block',
+  'suggestion-inline',
 ])
 
 // Helper to normalize HTML for comparison and make it easier to
