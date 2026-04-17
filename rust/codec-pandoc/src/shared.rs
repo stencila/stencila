@@ -183,12 +183,14 @@ pub(super) fn append_suggestion_attrs(
 
 pub(super) fn decode_suggestion_attrs(attrs: &pandoc::Attr) -> DecodedSuggestionAttrs {
     let suggestion_type = suggestion_type_from_attrs(attrs);
+
     let authors = get_attr(attrs, "author").map(|names| {
         names
             .split(';')
-            .map(|name| Author::Person(name.trim().into()))
+            .flat_map(|name| name.parse().ok())
             .collect()
     });
+
     let date_published = get_attr(attrs, "date").and_then(|date| date.parse().ok());
 
     DecodedSuggestionAttrs {
