@@ -78,10 +78,10 @@ async fn encode_comment_definition_attrs() -> Result<()> {
     let (md, ..) = codec.to_string(&Node::Article(article), None).await?;
 
     assert_snapshot!(md, @r#"
-A paragraph.
+    A paragraph.
 
-[>>c1]{by=\"Alice; Bob\", at=\"2026-04-16T10:34:00Z\"}: This is the first comment.
-"#);
+    [>>c1]{by="Alice; Bob", at="2026-04-16T10:34:00Z"}: This is the first comment.
+    "#);
 
     Ok(())
 }

@@ -61,7 +61,7 @@ impl MarkdownCodec for SuggestionInline {
         context.push_str(close);
 
         if let Some(attrs) = author_date_to_markdown(&self.authors, &self.date_published) {
-            context.push_str(&attrs);
+            context.push_str("{").push_str(&attrs).push_str("}");
         }
 
         context.exit_node();

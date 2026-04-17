@@ -30,7 +30,10 @@ impl MarkdownCodec for Comment {
             .push_str(&format!("[>>{id}]"));
 
         if let Some(attrs) = author_date_to_markdown(&self.authors, &self.date_published) {
-            def_context.push_str(attrs.trim_start());
+            def_context
+                .push_str("{")
+                .push_str(attrs.trim_start())
+                .push_str("}");
         }
 
         def_context.push_str(": ").push_line_prefix("    ");

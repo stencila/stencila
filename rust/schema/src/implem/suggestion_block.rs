@@ -52,7 +52,7 @@ impl MarkdownCodec for SuggestionBlock {
         context.push_str(fence);
 
         if let Some(attrs) = author_date_to_markdown(&self.authors, &self.date_published) {
-            context.push_str(&attrs);
+            context.push_str(" {").push_str(&attrs).push_str("}");
         }
 
         if let Some(status) = &self.suggestion_status {

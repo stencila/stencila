@@ -11,16 +11,11 @@ pub(crate) fn author_date_to_markdown(
 ) -> Option<String> {
     let mut attrs = Vec::new();
 
-    fn escape_attr_value(value: &str) -> String {
-        value.replace('\\', "\\\\").replace('"', "\\\"")
-    }
-
     fn format_attr(name: &str, value: &str) -> String {
-        if value.contains([' ', '"']) {
-            format!(r#"{name}="{}""#, escape_attr_value(value))
-        } else {
-            format!("{name}={value}")
-        }
+        format!(
+            r#"{name}="{}""#,
+            value.replace('\\', "\\\\").replace('"', "\\\"")
+        )
     }
 
     if let Some(authors) = authors
@@ -39,7 +34,7 @@ pub(crate) fn author_date_to_markdown(
         attrs.push(format_attr("at", &at.value));
     }
 
-    (!attrs.is_empty()).then(|| format!(" {{{}}}", attrs.join(", ")))
+    (!attrs.is_empty()).then(|| attrs.join(", "))
 }
 
 /// Encode the `caption` of a `Figure`, `Table` or `CodeChunk` to DOM HTML
