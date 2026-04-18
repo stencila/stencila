@@ -15,9 +15,9 @@ use crate::{
 /// For some DOCX imports, Pandoc can represent sibling replies as a nested
 /// chain of `comment-end` spans with no explicit `parent` attributes on the
 /// nested replies. Apply the fallback only to comments observed solely in
-/// nested `comment-end` spans, and only when there is exactly one genuine
-/// top-level comment anchored in the main document content; otherwise,
-/// parentless comments are preserved as distinct top-level comments.
+/// nested `comment-end` spans. When several anchored top-level comments are
+/// present, attach those unresolved nested-only replies to the first anchored
+/// thread rather than flattening them into extra top-level comments.
 fn normalize_reply_parents(pending_comments: &mut [PendingComment]) {
     let anchored_top_level_ids = pending_comments
         .iter()
@@ -209,8 +209,9 @@ fn prepare_nested_reply_inlines(
 ///
 /// This merges duplicate sightings of the same Pandoc comment id, normalizes
 /// missing reply parents seen in DOCX-style nested `comment-end` spans,
-/// converts the flattened pending comments into Stencila `Comment`s, nests
-/// replies under their parents, and strips reply boundary markers from content.
+/// converts the flattened pending comments into Stencila `Comment`s while
+/// preserving explicit reply `parent_item` ids, nests replies under their
+/// parents, and strips reply boundary markers from content.
 pub(super) fn comments_from_pending(
     context: &mut PandocDecodeContext,
     content: &mut [Block],
@@ -304,7 +305,8 @@ fn pending_comments_to_comments(
         .into_iter()
         .enumerate()
         .map(|(index, pending_comment)| {
-            let is_reply = parent_ids[index].is_some();
+            let parent_id = parent_ids[index].clone();
+            let is_reply = parent_id.is_some();
             let pandoc_id = pending_comment.pandoc_id;
 
             Comment {
@@ -318,6 +320,7 @@ fn pending_comments_to_comments(
                 }),
                 date_published: pending_comment.date.map(DateTime::new),
                 options: Box::new(CommentOptions {
+                    parent_item: parent_id,
                     start_location: (!is_reply)
                         .then(|| comment_boundary_location(comment_start_boundary_id(&pandoc_id))),
                     end_location: (!is_reply)

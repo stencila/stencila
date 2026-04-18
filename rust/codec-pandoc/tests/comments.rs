@@ -55,7 +55,7 @@ async fn encode_docx_replies_as_anchored_pandoc_comments() {
         })],
         options: Box::new(ArticleOptions {
             comments: Some(vec![Comment {
-                id: Some("0".into()),
+                id: Some("comment-a".into()),
                 authors: Some(vec![Author::Person(Person::from("nokome"))]),
                 date_published: Some(DateTime::new("2026-04-18T11:14:01Z".to_string())),
                 content: vec![Block::Paragraph(Paragraph {
@@ -65,27 +65,35 @@ async fn encode_docx_replies_as_anchored_pandoc_comments() {
                 options: Box::new(CommentOptions {
                     comments: Some(vec![
                         Comment {
-                            id: Some("0.1".into()),
+                            id: Some("reply-a".into()),
                             authors: Some(vec![Author::Person(Person::from("nokome"))]),
                             date_published: Some(DateTime::new("2026-04-18T11:14:10Z".to_string())),
                             content: vec![Block::Paragraph(Paragraph {
                                 content: vec![Inline::Text(Text::from("Reply to comment"))],
                                 ..Default::default()
                             })],
+                            options: Box::new(CommentOptions {
+                                parent_item: Some("comment-a".into()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         },
                         Comment {
-                            id: Some("0.2".into()),
+                            id: Some("reply-b".into()),
                             authors: Some(vec![Author::Person(Person::from("nokome"))]),
                             date_published: Some(DateTime::new("2026-04-18T11:14:18Z".to_string())),
                             content: vec![Block::Paragraph(Paragraph {
                                 content: vec![Inline::Text(Text::from("Another reply to comment"))],
                                 ..Default::default()
                             })],
+                            options: Box::new(CommentOptions {
+                                parent_item: Some("comment-a".into()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         },
                         Comment {
-                            id: Some("0.3".into()),
+                            id: Some("reply-c".into()),
                             authors: Some(vec![Author::Person(Person::from("nokome"))]),
                             date_published: Some(DateTime::new("2026-04-18T11:14:30Z".to_string())),
                             content: vec![Block::Paragraph(Paragraph {
@@ -94,6 +102,10 @@ async fn encode_docx_replies_as_anchored_pandoc_comments() {
                                 ))],
                                 ..Default::default()
                             })],
+                            options: Box::new(CommentOptions {
+                                parent_item: Some("comment-a".into()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         },
                     ]),
@@ -206,18 +218,22 @@ async fn encode_docx_replies_skip_reserved_top_level_ids() {
         options: Box::new(ArticleOptions {
             comments: Some(vec![
                 Comment {
-                    id: Some("0".into()),
+                    id: Some("comment-a".into()),
                     content: vec![Block::Paragraph(Paragraph {
                         content: vec![Inline::Text(Text::from("Comment"))],
                         ..Default::default()
                     })],
                     options: Box::new(CommentOptions {
                         comments: Some(vec![Comment {
-                            id: Some("0.1".into()),
+                            id: Some("reply-a".into()),
                             content: vec![Block::Paragraph(Paragraph {
                                 content: vec![Inline::Text(Text::from("Reply"))],
                                 ..Default::default()
                             })],
+                            options: Box::new(CommentOptions {
+                                parent_item: Some("comment-a".into()),
+                                ..Default::default()
+                            }),
                             ..Default::default()
                         }]),
                         start_location: Some("#comment-0-start".into()),
@@ -227,7 +243,7 @@ async fn encode_docx_replies_skip_reserved_top_level_ids() {
                     ..Default::default()
                 },
                 Comment {
-                    id: Some("1".into()),
+                    id: Some("comment-b".into()),
                     content: vec![Block::Paragraph(Paragraph {
                         content: vec![Inline::Text(Text::from("Second comment"))],
                         ..Default::default()
@@ -356,9 +372,15 @@ async fn decode_docx_reply_chain_with_second_top_level_comment() {
     assert_eq!(replies[0].id.as_deref(), Some("1"));
     assert_eq!(replies[1].id.as_deref(), Some("2"));
     assert_eq!(replies[2].id.as_deref(), Some("3"));
+    assert!(
+        replies
+            .iter()
+            .all(|reply| reply.options.parent_item.as_deref() == Some("0"))
+    );
 
     let second_root = &comments[1];
     assert_eq!(second_root.id.as_deref(), Some("4"));
+    assert_eq!(second_root.options.parent_item.as_deref(), None);
     assert!(second_root.options.comments.is_none());
 }
 
@@ -484,6 +506,11 @@ async fn decode_docx_reply_chain_as_sibling_replies() {
     assert_eq!(replies[0].id.as_deref(), Some("1"));
     assert_eq!(replies[1].id.as_deref(), Some("2"));
     assert_eq!(replies[2].id.as_deref(), Some("3"));
+    assert!(
+        replies
+            .iter()
+            .all(|reply| reply.options.parent_item.as_deref() == Some("0"))
+    );
 
     assert_eq!(
         root.options.start_location.as_deref(),
