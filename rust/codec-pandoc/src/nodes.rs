@@ -106,25 +106,103 @@ fn comment_end_attrs(pandoc_id: &str, parent_pandoc_id: Option<&str>) -> pandoc:
     attrs
 }
 
-fn prepare_reply_end_spans(
+/// Allocate integer Pandoc comment ids for DOCX flavors.
+///
+/// Word comment ids must be decimal integers. Preserve existing numeric ids
+/// from anchored comments when possible, and allocate new ids for replies or
+/// other comments with non-numeric Stencila ids.
+struct DocxCommentIdAllocator {
+    reserved_ids: HashMap<usize, usize>,
+    next_id: usize,
+}
+
+impl DocxCommentIdAllocator {
+    fn new(comments: &[Comment]) -> Self {
+        let mut reserved_ids = HashMap::new();
+        collect_docx_comment_ids(comments, &mut reserved_ids);
+
+        let next_id = reserved_ids.keys().max().map_or(0, |id| id + 1);
+
+        Self {
+            reserved_ids,
+            next_id,
+        }
+    }
+
+    fn assign(&mut self, comment: &Comment, start_location: Option<&str>) -> String {
+        if let Some(numeric_id) = docx_comment_numeric_id(comment, start_location)
+            && self.reserved_ids.get(&numeric_id) == Some(&1)
+        {
+            return numeric_id.to_string();
+        }
+
+        self.allocate()
+    }
+
+    fn allocate(&mut self) -> String {
+        while self.reserved_ids.contains_key(&self.next_id) {
+            self.next_id += 1;
+        }
+
+        let id = self.next_id;
+        self.next_id += 1;
+
+        id.to_string()
+    }
+}
+
+fn collect_docx_comment_ids(comments: &[Comment], reserved_ids: &mut HashMap<usize, usize>) {
+    for comment in comments {
+        if let Some(numeric_id) =
+            docx_comment_numeric_id(comment, comment.options.start_location.as_deref())
+        {
+            *reserved_ids.entry(numeric_id).or_default() += 1;
+        }
+
+        if let Some(replies) = &comment.options.comments {
+            collect_docx_comment_ids(replies, reserved_ids);
+        }
+    }
+}
+
+fn docx_comment_numeric_id(comment: &Comment, start_location: Option<&str>) -> Option<usize> {
+    start_location
+        .and_then(comment_boundary_id)
+        .and_then(|id| id.parse().ok())
+        .or_else(|| comment.id.as_ref().and_then(|id| id.parse().ok()))
+}
+
+struct PreparedComment {
+    start_inlines: Vec<pandoc::Inline>,
+    end_inline: pandoc::Inline,
+}
+
+fn prepare_reply_inlines(
     replies: &Option<Vec<Comment>>,
     parent_pandoc_id: &str,
     next_id: &mut usize,
+    docx_ids: &mut Option<DocxCommentIdAllocator>,
     context: &mut PandocEncodeContext,
-) -> Vec<pandoc::Inline> {
-    let mut reply_end_spans = Vec::new();
+) -> (Vec<pandoc::Inline>, Vec<pandoc::Inline>) {
+    let mut reply_start_inlines = Vec::new();
+    let mut reply_end_inlines = Vec::new();
 
     if let Some(replies) = replies {
         for reply in replies {
-            if let Some((_, reply_end)) =
-                prepare_comment_for_pandoc(reply, Some(parent_pandoc_id), next_id, context)
-            {
-                reply_end_spans.push(reply_end);
+            if let Some(prepared) = prepare_comment_for_pandoc(
+                reply,
+                Some(parent_pandoc_id),
+                next_id,
+                docx_ids,
+                context,
+            ) {
+                reply_start_inlines.extend(prepared.start_inlines);
+                reply_end_inlines.push(prepared.end_inline);
             }
         }
     }
 
-    reply_end_spans
+    (reply_start_inlines, reply_end_inlines)
 }
 
 fn comments_from_pending(
@@ -362,8 +440,11 @@ fn prepare_comments_for_pandoc(article: &Article, context: &mut PandocEncodeCont
     };
 
     let mut next_id = 0usize;
+    let mut docx_ids = context
+        .is_docx_flavor()
+        .then(|| DocxCommentIdAllocator::new(comments));
     for comment in comments {
-        prepare_comment_for_pandoc(comment, None, &mut next_id, context);
+        prepare_comment_for_pandoc(comment, None, &mut next_id, &mut docx_ids, context);
     }
 }
 
@@ -371,12 +452,16 @@ fn prepare_comment_for_pandoc(
     comment: &Comment,
     parent_pandoc_id: Option<&str>,
     next_id: &mut usize,
+    docx_ids: &mut Option<DocxCommentIdAllocator>,
     context: &mut PandocEncodeContext,
-) -> Option<(String, pandoc::Inline)> {
+) -> Option<PreparedComment> {
     let start_location = comment.options.start_location.as_deref();
     let end_location = comment.options.end_location.as_deref();
+    let should_anchor_reply = parent_pandoc_id.is_some() && context.is_docx_flavor();
 
-    let pandoc_id = if let Some(start_location) = start_location {
+    let pandoc_id = if let Some(docx_ids) = docx_ids.as_mut() {
+        docx_ids.assign(comment, start_location)
+    } else if let Some(start_location) = start_location {
         comment_pandoc_id(start_location, next_id)?
     } else if let Some(id) = &comment.id {
         id.clone()
@@ -386,24 +471,23 @@ fn prepare_comment_for_pandoc(
         id
     };
 
-    if start_location.is_none() || end_location.is_none() {
+    if !should_anchor_reply && (start_location.is_none() || end_location.is_none()) {
         let end_attrs = comment_end_attrs(&pandoc_id, parent_pandoc_id);
         let mut end_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
-        end_inlines.append(&mut prepare_reply_end_spans(
+        let (_, mut reply_end_inlines) = prepare_reply_inlines(
             &comment.options.comments,
             &pandoc_id,
             next_id,
+            docx_ids,
             context,
-        ));
+        );
+        end_inlines.append(&mut reply_end_inlines);
 
-        return Some((pandoc_id, pandoc::Inline::Span(end_attrs, end_inlines)));
+        return Some(PreparedComment {
+            start_inlines: Vec::new(),
+            end_inline: pandoc::Inline::Span(end_attrs, end_inlines),
+        });
     }
-
-    let start_location = start_location?;
-    let end_location = end_location?;
-
-    let start_boundary_id = start_location.strip_prefix('#')?.to_string();
-    let end_boundary_id = end_location.strip_prefix('#')?.to_string();
 
     let mut start_attrs = pandoc::Attr::default();
     start_attrs.classes.push("comment-start".into());
@@ -425,31 +509,55 @@ fn prepare_comment_for_pandoc(
             .push(("date".into(), date.value.to_string()));
     }
 
-    let body_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
-    context.comment_start_spans.insert(
-        start_boundary_id,
-        pandoc::Inline::Span(start_attrs, body_inlines),
-    );
+    if should_anchor_reply && let Some(parent_pandoc_id) = parent_pandoc_id {
+        start_attrs
+            .attributes
+            .push(("parent".into(), parent_pandoc_id.to_string()));
+    }
 
-    let reply_end_spans =
-        prepare_reply_end_spans(&comment.options.comments, &pandoc_id, next_id, context);
+    let body_inlines = comment_blocks_to_pandoc_inlines(&comment.content, context);
+    let (reply_start_inlines, reply_end_inlines) = prepare_reply_inlines(
+        &comment.options.comments,
+        &pandoc_id,
+        next_id,
+        docx_ids,
+        context,
+    );
 
     let end_attrs = comment_end_attrs(&pandoc_id, parent_pandoc_id);
+    let start_inline = pandoc::Inline::Span(start_attrs, body_inlines);
+    let mut start_inlines = vec![start_inline];
+    start_inlines.extend(reply_start_inlines);
+    let end_inline = pandoc::Inline::Span(end_attrs, reply_end_inlines);
 
-    context.comment_end_spans.insert(
-        end_boundary_id.clone(),
-        pandoc::Inline::Span(end_attrs, reply_end_spans),
-    );
+    if let (Some(start_location), Some(end_location)) = (start_location, end_location)
+        && !should_anchor_reply
+    {
+        let start_boundary_id = start_location.strip_prefix('#')?.to_string();
+        let end_boundary_id = end_location.strip_prefix('#')?.to_string();
 
-    let end_span = context.comment_end_spans.get(&end_boundary_id)?.clone();
+        context
+            .comment_start_spans
+            .insert(start_boundary_id, start_inlines.clone());
+        context
+            .comment_end_spans
+            .insert(end_boundary_id, vec![end_inline.clone()]);
+    }
 
-    Some((pandoc_id, end_span))
+    Some(PreparedComment {
+        start_inlines,
+        end_inline,
+    })
+}
+
+fn comment_boundary_id(start_location: &str) -> Option<&str> {
+    let boundary_id = start_location.strip_prefix('#')?;
+    let comment_id = boundary_id.strip_prefix("comment-")?;
+    comment_id.strip_suffix("-start")
 }
 
 fn comment_pandoc_id(start_location: &str, next_id: &mut usize) -> Option<String> {
-    let boundary_id = start_location.strip_prefix('#')?;
-    let comment_id = boundary_id.strip_prefix("comment-")?;
-    let comment_id = comment_id.strip_suffix("-start")?;
+    let comment_id = comment_boundary_id(start_location)?;
 
     if let Ok(numeric) = comment_id.parse::<usize>() {
         *next_id = (*next_id).max(numeric + 1);

@@ -30,6 +30,7 @@ pub(super) fn inlines_to_pandoc(
 
 fn inline_to_pandoc_vec(inline: &Inline, context: &mut PandocEncodeContext) -> Vec<pandoc::Inline> {
     match inline {
+        Inline::Boundary(boundary) => boundary_to_pandoc_inlines(boundary, context),
         Inline::SuggestionInline(suggestion) => {
             suggestion_inline_to_pandoc_inlines(suggestion, context)
         }
@@ -116,7 +117,10 @@ pub(super) fn inline_to_pandoc(
         Inline::Note(note) => note_to_pandoc(note, context),
         Inline::StyledInline(styled) => styled_inline_to_pandoc(styled, context),
         Inline::Parameter(parameter) => parameter_to_pandoc(parameter, context),
-        Inline::Boundary(boundary) => boundary_to_pandoc(boundary, context),
+        Inline::Boundary(boundary) => boundary_to_pandoc_inlines(boundary, context)
+            .into_iter()
+            .next()
+            .unwrap_or_else(|| pandoc::Inline::Span(attrs_empty(), Vec::new())),
         Inline::SuggestionInline(suggestion) => suggestion_inline_to_pandoc(suggestion, context),
 
         // Inline types currently ignored: record loss and encode an empty span
@@ -436,22 +440,25 @@ fn styled_inline_from_pandoc(
     ))
 }
 
-fn boundary_to_pandoc(boundary: &Boundary, context: &mut PandocEncodeContext) -> pandoc::Inline {
+fn boundary_to_pandoc_inlines(
+    boundary: &Boundary,
+    context: &mut PandocEncodeContext,
+) -> Vec<pandoc::Inline> {
     let Some(id) = &boundary.id else {
         context.losses.add("Boundary.id");
-        return pandoc::Inline::Span(attrs_empty(), Vec::new());
+        return vec![pandoc::Inline::Span(attrs_empty(), Vec::new())];
     };
 
-    if let Some(span) = context.comment_start_spans.get(id) {
-        return span.clone();
+    if let Some(inlines) = context.comment_start_spans.get(id) {
+        return inlines.clone();
     }
 
-    if let Some(span) = context.comment_end_spans.get(id) {
-        return span.clone();
+    if let Some(inlines) = context.comment_end_spans.get(id) {
+        return inlines.clone();
     }
 
     context.losses.add("Boundary");
-    pandoc::Inline::Span(attrs_empty(), Vec::new())
+    vec![pandoc::Inline::Span(attrs_empty(), Vec::new())]
 }
 
 pub(super) fn suggestion_inline_to_pandoc_inlines(

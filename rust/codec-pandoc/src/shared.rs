@@ -42,11 +42,11 @@ pub(super) struct PandocEncodeContext {
     /// The commit hash from the root Article (for file link URLs)
     pub commit: Option<String>,
 
-    /// Mapping from boundary ids to encoded Pandoc comment start spans.
-    pub comment_start_spans: HashMap<String, pandoc::Inline>,
+    /// Mapping from boundary ids to encoded Pandoc comment start inline groups.
+    pub comment_start_spans: HashMap<String, Vec<pandoc::Inline>>,
 
-    /// Mapping from boundary ids to encoded Pandoc comment end spans.
-    pub comment_end_spans: HashMap<String, pandoc::Inline>,
+    /// Mapping from boundary ids to encoded Pandoc comment end inline groups.
+    pub comment_end_spans: HashMap<String, Vec<pandoc::Inline>>,
 }
 
 impl PandocEncodeContext {
