@@ -3,9 +3,9 @@ title: Comments
 description: How to author comments in Stencila documents — ranges, point comments, overlapping threads, replies, and metadata.
 ---
 
-Comments let you attach discussion to specific text in a document without changing the document's main content. They are useful for review, feedback, editorial notes, and collaborative conversation.
+Comments let you attach discussion to specific text in a document without changing the document's main content. They are useful for review, feedback, editorial notes, and collaborative discussion.
 
-Stencila also supports preserving comments during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will receive or respond to comments through those tools rather than writing comment syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange reviewed documents with collaborators while keeping comment threads intact.
+Stencila also preserves comments during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will receive or respond to comments through those tools rather than writing comment syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange reviewed documents with collaborators while keeping comment threads intact.
 
 This capability also provides an interface between collaborators using those formats and AI agents working in Stencila. Collaborators can leave requests as comments in Microsoft Word or Google Docs, and agents can respond in the same threads to explain changes they made, answer questions, or report what action they took.
 
@@ -16,7 +16,7 @@ In Stencila Markdown, comments are authored in two parts:
 
 # Syntax
 
-A comment thread uses an identifier like `c1`. You place anchor markers in the document body, then define the comment using a reference-style definition.
+A comment uses an identifier such as `c1`. You place anchor markers in the document body, then define the comment using a reference-style definition.
 
 ```smd
 A paragraph with {>>c1}commented text{<<c1}.
@@ -82,33 +82,53 @@ A paragraph with a point comment{<<c3}.
 
 # Replies
 
-Replies are comments whose identifiers extend an existing comment identifier with a dotted suffix. For example, `c1.1` is a reply to `c1`.
+Replies are regular comments that declare which earlier comment they reply to using a `parent` attribute.
 
 ```smd
 A paragraph with {>>c1}commented text{<<c1}.
 
 [>>c1]: This is the first comment.
 
-[>>c1.1]: A reply to the first comment.
+[>>r1]{parent="c1"}: A reply to the first comment.
 ```
 
-You can add multiple replies to build up a thread.
+Nested replies work the same way: each reply points to its immediate parent comment.
+
+```smd
+A paragraph with {>>c1}commented text{<<c1}.
+
+[>>c1]: This is the first comment.
+
+[>>r1]{parent="c1"}: A reply to the first comment.
+
+[>>r2]{parent="r1"}: A reply to the reply.
+
+[>>r3]{parent="c1"}: Another reply to the original comment.
+```
+
+You can add multiple replies to build up a thread, with each reply using `parent` to indicate where it belongs.
 
 # Metadata
 
-Comment definitions can include attributes such as the author and timestamp:
+Comment definitions can include attributes such as the author (`by`), timestamp (`at`), and parent comment (`parent`):
 
 ```smd
 A paragraph with a point comment{<<c1}.
 
-[>>c1]{by="Alice", at="2026-04-16T10:34:00Z"}: A third comment.
+[>>c1]{by="Arthur Dent", at="1978-10-12T09:00:00Z"}: I think the Heart of Gold should be introduced a little earlier in this section.
+
+[>>r1]{by="Ford Prefect", at="1978-10-12T09:07:00Z", parent="c1"}: Agreed — readers will better understand why the Infinite Improbability Drive matters later.
+
+[>>r2]{by="Zaphod Beeblebrox", at="1978-10-12T09:11:00Z", parent="r1"}: The ship is the important bit, baby. Move it up.
+
+[>>r3]{by="Trillian", at="1978-10-12T09:18:00Z", parent="c1"}: If we do that, let's also mention its stolen prototype status for context.
 ```
 
-This is especially useful when comments are generated or preserved by collaborative tools.
+These attributes are especially useful when comments are generated or preserved by collaborative tools.
 
 > [!tip] Tips
 >
 > - Use stable, simple identifiers like `c1`, `c2`, and `c3` when writing by hand.
 > - Keep comment definitions near the end of the relevant section or document so they are easy to find.
-> - Use replies for discussion within a thread instead of creating multiple separate comments on the same passage.
+> - Use replies for discussion within a thread instead of creating separate top-level comments on the same passage.
 > - Use metadata when you need to preserve authorship or timing information.
