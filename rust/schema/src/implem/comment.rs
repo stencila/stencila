@@ -10,35 +10,45 @@ impl MarkdownCodec for Comment {
             return;
         }
 
-        encode_comment(self, context, None, None);
+        encode_comment(self, context, None);
     }
 }
 
-fn encode_comment(
-    comment: &Comment,
-    context: &mut MarkdownEncodeContext,
-    parent_id: Option<&str>,
-    reply_index: Option<usize>,
-) {
-    // Nested replies use canonical hierarchical IDs derived from their parent
-    // comment and position so that round-tripped comment threads are encoded
-    // consistently as `parent.index`, `parent.index.index`, etc.
-    let id = match (parent_id, reply_index) {
-        (Some(parent_id), Some(index)) => format!("{parent_id}.{index}"),
-        _ => comment
-            .id
-            .clone()
-            .or_else(|| {
-                comment
-                    .options
-                    .start_location
-                    .as_deref()
-                    .and_then(|loc| loc.strip_prefix("#comment-"))
-                    .and_then(|loc| loc.strip_suffix("-start"))
-                    .map(ToString::to_string)
-            })
-            .unwrap_or_else(|| "unknown".to_string()),
-    };
+fn encode_comment(comment: &Comment, context: &mut MarkdownEncodeContext, parent_id: Option<&str>) {
+    let parent_id = comment.options.parent_item.as_deref().or(parent_id);
+
+    let id = comment
+        .id
+        .clone()
+        .or_else(|| {
+            comment
+                .options
+                .start_location
+                .as_deref()
+                .and_then(|loc| loc.strip_prefix("#comment-"))
+                .and_then(|loc| loc.strip_suffix("-start"))
+                .map(ToString::to_string)
+        })
+        .unwrap_or_else(|| "unknown".to_string());
+
+    fn format_attr(name: &str, value: &str) -> String {
+        format!(
+            r#"{name}="{}""#,
+            value.replace('\\', "\\\\").replace('"', "\\\"")
+        )
+    }
+
+    let mut attrs = Vec::new();
+
+    if let Some(author_date_attrs) =
+        author_date_to_markdown(&comment.authors, &comment.date_published)
+    {
+        attrs.push(author_date_attrs);
+    }
+
+    if let Some(parent_id) = parent_id {
+        attrs.push(format_attr("parent", parent_id));
+    }
 
     // Create the definition block: [>>id]: content
     let mut def_context = MarkdownEncodeContext::default();
@@ -46,10 +56,10 @@ fn encode_comment(
         .enter_node(comment.node_type(), comment.node_id())
         .push_str(&format!("[>>{id}]"));
 
-    if let Some(attrs) = author_date_to_markdown(&comment.authors, &comment.date_published) {
+    if !attrs.is_empty() {
         def_context
             .push_str("{")
-            .push_str(attrs.trim_start())
+            .push_str(&attrs.join(", "))
             .push_str("}");
     }
 
@@ -61,8 +71,8 @@ fn encode_comment(
 
     // Recursively encode reply comments
     if let Some(replies) = &comment.options.comments {
-        for (index, reply) in replies.iter().enumerate() {
-            encode_comment(reply, context, Some(&id), Some(index + 1));
+        for reply in replies {
+            encode_comment(reply, context, Some(&id));
         }
     }
 }

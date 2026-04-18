@@ -1726,8 +1726,8 @@ class Comment(CreativeWork):
     content: list[Block]
     """Content of the comment, usually one or more paragraphs."""
 
-    parent_item: Comment | None = None
-    """The parent comment of this comment."""
+    parent_item: str | None = None
+    """The identifier of the parent comment of this comment."""
 
     start_location: str | None = None
     """The location where the commented region begins."""

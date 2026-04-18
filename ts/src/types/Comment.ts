@@ -16,9 +16,9 @@ export class Comment extends CreativeWork {
   content: Block[];
 
   /**
-   * The parent comment of this comment.
+   * The identifier of the parent comment of this comment.
    */
-  parentItem?: Comment;
+  parentItem?: string;
 
   /**
    * The location where the commented region begins.

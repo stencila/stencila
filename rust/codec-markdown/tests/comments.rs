@@ -50,54 +50,12 @@ fn decode_comment_definition_attrs() -> Result<()> {
     Ok(())
 }
 
-/// Ensure dotted comment definition IDs are decoded into nested reply comments.
-#[test]
-fn decode_nested_comment_definitions_as_replies() -> Result<()> {
-    let (node, _) = decode(
-        r#"{>>0}Hello{<<0}.
-
-[>>0]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
-
-[>>0.1]{by="Ford Prefect", at="2026-04-17T16:38:36Z"}: A reply to the comment
-
-[>>0.2]{by="Trillian", at="2026-04-17T16:54:58Z"}: Another reply
-"#,
-        Some(DecodeOptions::default()),
-    )?;
-
-    let Node::Article(article) = node else {
-        return Err(eyre!("expected Article"));
-    };
-
-    let comments = article
-        .options
-        .comments
-        .ok_or_else(|| eyre!("article should have top-level comments"))?;
-    let comment = comments
-        .first()
-        .ok_or_else(|| eyre!("should have first comment"))?;
-
-    let replies = comment
-        .options
-        .comments
-        .as_ref()
-        .ok_or_else(|| eyre!("comment should have replies"))?;
-
-    assert_eq!(replies.len(), 2);
-    assert_eq!(replies[0].id.as_deref(), Some("0.1"));
-    assert_eq!(replies[1].id.as_deref(), Some("0.2"));
-    assert!(replies[0].options.comments.is_none());
-    assert!(replies[1].options.comments.is_none());
-
-    Ok(())
-}
-
-/// Ensure nested reply comments are encoded using canonical parent-based IDs.
+/// Ensure nested reply comments preserve explicit IDs and emit parent attributes.
 #[tokio::test]
-async fn encode_replies_using_canonical_hierarchical_ids() -> Result<()> {
+async fn encode_replies_preserve_explicit_ids() -> Result<()> {
     let codec = MarkdownCodec {};
     let reply = Comment {
-        id: Some("1".into()),
+        id: Some("r1".into()),
         authors: Some(vec![Author::Person(Person::from("Ford Prefect"))]),
         date_published: Some(DateTime::new("2026-04-17T16:38:36Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -107,7 +65,7 @@ async fn encode_replies_using_canonical_hierarchical_ids() -> Result<()> {
     };
 
     let comment = Comment {
-        id: Some("0".into()),
+        id: Some("c1".into()),
         authors: Some(vec![Author::Person(Person::from("Arthur Dent"))]),
         date_published: Some(DateTime::new("2026-04-17T16:38:28Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -136,19 +94,67 @@ async fn encode_replies_using_canonical_hierarchical_ids() -> Result<()> {
     assert_snapshot!(md, @r#"
     Hello.
 
-    [>>0]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
+    [>>c1]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
 
-    [>>0.1]{by="Ford Prefect", at="2026-04-17T16:38:36Z"}: A reply to the comment
+    [>>r1]{by="Ford Prefect", at="2026-04-17T16:38:36Z", parent="c1"}: A reply to the comment
     "#);
 
     Ok(())
 }
 
-/// Ensure nested reply threads are encoded with hierarchical sibling and descendant IDs.
+#[test]
+fn decode_replies_using_explicit_parent_attrs() -> Result<()> {
+    let (node, _) = decode(
+        r#"{>>c1}Hello{<<c1}.
+
+[>>c1]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
+
+[>>r1]{by="Ford Prefect", at="2026-04-17T16:38:36Z", parent="c1"}: A reply to the comment
+
+[>>r2]{by="Zaphod Beeblebrox", at="2026-04-17T16:40:00Z", parent="r1"}: A reply to the reply
+"#,
+        Some(DecodeOptions::default()),
+    )?;
+
+    let Node::Article(article) = node else {
+        return Err(eyre!("expected Article"));
+    };
+
+    let comments = article
+        .options
+        .comments
+        .ok_or_else(|| eyre!("article should have top-level comments"))?;
+    let comment = comments
+        .first()
+        .ok_or_else(|| eyre!("should have first comment"))?;
+    let replies = comment
+        .options
+        .comments
+        .as_ref()
+        .ok_or_else(|| eyre!("comment should have replies"))?;
+
+    assert_eq!(replies.len(), 1);
+    assert_eq!(replies[0].id.as_deref(), Some("r1"));
+    assert_eq!(replies[0].options.parent_item.as_deref(), Some("c1"));
+
+    let nested = replies[0]
+        .options
+        .comments
+        .as_ref()
+        .ok_or_else(|| eyre!("reply should have nested reply"))?;
+    assert_eq!(nested.len(), 1);
+    assert_eq!(nested[0].id.as_deref(), Some("r2"));
+    assert_eq!(nested[0].options.parent_item.as_deref(), Some("r1"));
+
+    Ok(())
+}
+
+/// Ensure nested reply threads use explicit parent attrs without relying on dotted IDs.
 #[tokio::test]
-async fn encode_nested_replies_with_hierarchical_ids() -> Result<()> {
+async fn encode_nested_replies_with_explicit_parent_attrs() -> Result<()> {
     let codec = MarkdownCodec {};
     let nested_reply = Comment {
+        id: Some("r2".into()),
         authors: Some(vec![Author::Person(Person::from("Zaphod Beeblebrox"))]),
         date_published: Some(DateTime::new("2026-04-17T16:40:00Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -158,6 +164,7 @@ async fn encode_nested_replies_with_hierarchical_ids() -> Result<()> {
     };
 
     let first_reply = Comment {
+        id: Some("r1".into()),
         authors: Some(vec![Author::Person(Person::from("Ford Prefect"))]),
         date_published: Some(DateTime::new("2026-04-17T16:38:36Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -171,6 +178,7 @@ async fn encode_nested_replies_with_hierarchical_ids() -> Result<()> {
     };
 
     let second_reply = Comment {
+        id: Some("r3".into()),
         authors: Some(vec![Author::Person(Person::from("Trillian"))]),
         date_published: Some(DateTime::new("2026-04-17T16:54:58Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -180,7 +188,7 @@ async fn encode_nested_replies_with_hierarchical_ids() -> Result<()> {
     };
 
     let comment = Comment {
-        id: Some("0".into()),
+        id: Some("c1".into()),
         authors: Some(vec![Author::Person(Person::from("Arthur Dent"))]),
         date_published: Some(DateTime::new("2026-04-17T16:38:28Z".to_string())),
         content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
@@ -209,13 +217,13 @@ async fn encode_nested_replies_with_hierarchical_ids() -> Result<()> {
     assert_snapshot!(md, @r#"
     Hello.
 
-    [>>0]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
+    [>>c1]{by="Arthur Dent", at="2026-04-17T16:38:28Z"}: A comment
 
-    [>>0.1]{by="Ford Prefect", at="2026-04-17T16:38:36Z"}: A reply to the comment
+    [>>r1]{by="Ford Prefect", at="2026-04-17T16:38:36Z", parent="c1"}: A reply to the comment
 
-    [>>0.1.1]{by="Zaphod Beeblebrox", at="2026-04-17T16:40:00Z"}: A reply to the reply
+    [>>r2]{by="Zaphod Beeblebrox", at="2026-04-17T16:40:00Z", parent="r1"}: A reply to the reply
 
-    [>>0.2]{by="Trillian", at="2026-04-17T16:54:58Z"}: Another reply
+    [>>r3]{by="Trillian", at="2026-04-17T16:54:58Z", parent="c1"}: Another reply
     "#);
 
     Ok(())

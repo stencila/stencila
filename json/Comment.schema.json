@@ -692,12 +692,13 @@
     },
     "parentItem": {
       "@id": "schema:parentItem",
-      "description": "The parent comment of this comment.",
+      "description": "The identifier of the parent comment of this comment.",
+      "$comment": "This stores the identifier of the parent comment rather than embedding the\nparent comment itself. It is useful for preserving service-native comment\nidentities in transport formats such as Markdown.\n",
       "aliases": [
         "parent-item",
         "parent_item"
       ],
-      "$ref": "Comment.schema.json"
+      "type": "string"
     },
     "startLocation": {
       "@id": "stencila:startLocation",

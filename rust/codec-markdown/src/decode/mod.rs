@@ -1,5 +1,6 @@
-use std::{collections::HashMap, ops::Range, sync::LazyLock};
+use std::{collections::HashMap, mem, ops::Range, sync::LazyLock};
 
+use indexmap::IndexMap;
 use markdown::{
     ParseOptions,
     mdast::{self, Root},
@@ -71,7 +72,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
     let (md, comment_definitions) = if matches!(format, Format::Smd) {
         extract_comment_definitions(&md)
     } else {
-        (md, HashMap::new())
+        (md, IndexMap::new())
     };
 
     // Parse Markdown to a MDAST root node and get its children
@@ -151,15 +152,19 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
         let mut top_level: Vec<Comment> = Vec::new();
         let mut replies: Vec<(String, Comment)> = Vec::new();
 
-        // Sort keys for deterministic ordering
-        let mut ids: Vec<String> = context.comment_definitions.keys().cloned().collect();
-        ids.sort();
-
-        for id in ids {
-            let CommentDefinition { by, at, content } =
-                context.comment_definitions.remove(&id).unwrap_or_default();
+        for (
+            id,
+            CommentDefinition {
+                by,
+                at,
+                parent,
+                content,
+            },
+        ) in mem::take(&mut context.comment_definitions)
+        {
             let content = decode_blocks(&content, &mut context);
-            let is_reply = id.contains('.');
+            let parent_id = parent;
+            let is_reply = parent_id.is_some();
 
             let comment = Comment {
                 id: Some(id.clone()),
@@ -175,6 +180,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
                 date_published: at.map(DateTime::new),
                 content,
                 options: Box::new(CommentOptions {
+                    parent_item: parent_id.clone(),
                     start_location: if !is_reply {
                         Some(format!("#comment-{id}-start"))
                     } else {
@@ -190,8 +196,7 @@ pub fn decode(content: &str, options: Option<DecodeOptions>) -> Result<(Node, De
                 ..Default::default()
             };
 
-            if is_reply {
-                let parent_id = id.rsplitn(2, '.').last().unwrap_or(&id).to_string();
+            if let Some(parent_id) = parent_id {
                 replies.push((parent_id, comment));
             } else {
                 top_level.push(comment);
@@ -471,7 +476,7 @@ struct Context {
     footnotes: HashMap<String, Vec<Block>>,
 
     /// Comment definitions extracted during preprocessing
-    comment_definitions: HashMap<String, CommentDefinition>,
+    comment_definitions: IndexMap<String, CommentDefinition>,
 
     /// Losses during decoding
     losses: Losses,
@@ -585,16 +590,17 @@ impl VisitorMut for Context {
 struct CommentDefinition {
     by: Option<String>,
     at: Option<String>,
+    parent: Option<String>,
     content: String,
 }
 
-fn extract_comment_definitions(input: &str) -> (String, HashMap<String, CommentDefinition>) {
+fn extract_comment_definitions(input: &str) -> (String, IndexMap<String, CommentDefinition>) {
     static COMMENT_DEF_REGEX: LazyLock<Regex> = LazyLock::new(|| {
         Regex::new(r"^\[>>([a-zA-Z0-9._-]+)\](\{[^}]*\})?:\s*(.*)$").expect("invalid regex")
     });
 
     let mut cleaned = String::new();
-    let mut defs: HashMap<String, CommentDefinition> = HashMap::new();
+    let mut defs = IndexMap::new();
     let mut current_id: Option<String> = None;
     let mut current_def = CommentDefinition::default();
     let mut in_fenced_code = false;
@@ -624,6 +630,9 @@ fn extract_comment_definitions(input: &str) -> (String, HashMap<String, CommentD
                             ("by", Some(Node::String(by))) => current_def.by = Some(by),
                             ("at", Some(node)) => {
                                 current_def.at = node_to_option_datetime(node).map(|dt| dt.value)
+                            }
+                            ("parent", Some(Node::String(parent))) => {
+                                current_def.parent = Some(parent)
                             }
                             _ => {}
                         }

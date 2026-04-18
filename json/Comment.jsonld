@@ -853,12 +853,12 @@
       "@id": "schema:parentItem",
       "@type": "rdfs:Property",
       "rdfs:label": "parentItem",
-      "rdfs:comment": "The parent comment of this comment.",
+      "rdfs:comment": "The identifier of the parent comment of this comment.",
       "schema:domainIncludes": {
         "@id": "schema:Comment"
       },
       "schema:rangeIncludes": {
-        "@id": "schema:Comment"
+        "@id": "schema:Text"
       }
     },
     {

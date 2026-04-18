@@ -281,9 +281,9 @@ pub struct CommentOptions {
     #[strip(metadata)]
     pub version: Option<StringOrNumber>,
 
-    /// The parent comment of this comment.
+    /// The identifier of the parent comment of this comment.
     #[serde(alias = "parent-item", alias = "parent_item")]
-    pub parent_item: Option<Comment>,
+    pub parent_item: Option<String>,
 
     /// The location where the commented region begins.
     #[serde(alias = "start-location", alias = "start_location")]

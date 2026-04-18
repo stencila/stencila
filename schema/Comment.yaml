@@ -40,8 +40,12 @@ properties:
       elem: aside
   parentItem:
     '@id': schema:parentItem
-    description: The parent comment of this comment.
-    $ref: Comment
+    description: The identifier of the parent comment of this comment.
+    $comment: |
+      This stores the identifier of the parent comment rather than embedding the
+      parent comment itself. It is useful for preserving service-native comment
+      identities in transport formats such as Markdown.
+    type: string
   startLocation:
     '@id': stencila:startLocation
     description: The location where the commented region begins.
