@@ -8,6 +8,7 @@ use stencila_codec::{
 
 mod blocks;
 mod coarse;
+mod comments;
 mod inlines;
 mod meta;
 mod nodes;
