@@ -6,7 +6,7 @@ A paragraph with a point comment{<<c3}.
 
 [>>c1]: This is the first comment.
 
-[>>c1.1]: A reply to the first comment.
+[>>r1]{parent="c1"}: A reply to the first comment.
 
 [>>c2]: This is the second comment, spanning multiple paragraphs.
 

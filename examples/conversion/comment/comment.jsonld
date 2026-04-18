@@ -119,7 +119,7 @@
       "comment": [
         {
           "@type": "Comment",
-          "@id": "c1.1",
+          "@id": "r1",
           "stencila:content": [
             {
               "@type": "stencila:Paragraph",
@@ -132,7 +132,8 @@
                 }
               ]
             }
-          ]
+          ],
+          "parentItem": "c1"
         }
       ],
       "stencila:startLocation": "#comment-c1-start",

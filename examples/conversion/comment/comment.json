@@ -115,7 +115,7 @@
       "comments": [
         {
           "type": "Comment",
-          "id": "c1.1",
+          "id": "r1",
           "content": [
             {
               "type": "Paragraph",
@@ -128,7 +128,8 @@
                 }
               ]
             }
-          ]
+          ],
+          "parentItem": "c1"
         }
       ],
       "startLocation": "#comment-c1-start",

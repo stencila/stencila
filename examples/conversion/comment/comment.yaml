@@ -56,13 +56,14 @@ comments:
         string: This is the first comment.
   comments:
   - type: Comment
-    id: c1.1
+    id: r1
     content:
     - type: Paragraph
       content:
       - type: Text
         value:
           string: A reply to the first comment.
+    parentItem: c1
   startLocation: '#comment-c1-start'
   endLocation: '#comment-c1-end'
 - type: Comment
