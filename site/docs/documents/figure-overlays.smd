@@ -1027,3 +1027,16 @@ A comprehensive annotation using `at` anchors: halos and markers reference named
 
 :::
 ````
+
+# Related guides
+
+For related authoring features, see:
+
+- [Figures](figures)
+- [Media](media)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [Figure](../schema/figure)

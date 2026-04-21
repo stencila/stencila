@@ -781,3 +781,20 @@ A two-panel figure with parent padding that leaves room for a note below the gri
 :::
 ````
 
+# Related guides
+
+For related authoring features, see:
+
+- [Media](media)
+- [Tables](tables)
+- [Execution](execution)
+- [Figure overlay components](figure-overlays)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [Figure](../schema/figure)
+- [ImageObject](../schema/image-object)
+- [AudioObject](../schema/audio-object)
+- [VideoObject](../schema/video-object)

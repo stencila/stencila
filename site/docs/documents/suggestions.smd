@@ -137,3 +137,18 @@ For AI-assisted workflows, this means agents can propose edits as suggestions in
 > - Add metadata when you need to preserve who proposed a change and when.
 > - Prefer suggestions over direct edits when you want human review before a change is accepted.
 > - In AI-assisted workflows, suggestions provide a clear audit trail of agent contributions.
+
+# Related guides
+
+For related authoring features, see:
+
+- [Comments](comments)
+- [Metadata](metadata)
+- [Sections](sections)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [SuggestionBlock](../schema/suggestion-block)
+- [SuggestionInline](../schema/suggestion-inline)

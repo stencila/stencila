@@ -134,3 +134,17 @@ These attributes are especially useful when comments are generated or preserved 
 > - Keep comment definitions near the end of the relevant section or document so they are easy to find.
 > - Use replies for discussion within a thread instead of creating separate top-level comments on the same passage.
 > - Use metadata when you need to preserve authorship or timing information.
+
+# Related guides
+
+For related authoring features, see:
+
+- [Suggestions](suggestions)
+- [Metadata](metadata)
+- [Sections](sections)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [Comment](../schema/comment)
