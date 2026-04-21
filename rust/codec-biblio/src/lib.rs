@@ -1,6 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
-    async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::{Article, Node},
@@ -19,32 +18,12 @@ impl Codec for BiblioCodec {
         "biblio"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Yaml | Format::Bibtex | Format::Text => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Yaml | Format::Bibtex | Format::Text)
     }
 
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        match node_type {
-            NodeType::Reference => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Yaml | Format::Text => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        match node_type {
-            NodeType::Reference => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Yaml | Format::Text)
     }
 
     async fn from_str(

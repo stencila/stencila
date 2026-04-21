@@ -1,6 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
-    async_trait,
+    Codec, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -22,13 +21,8 @@ impl Codec for ArxivCodec {
         "arxiv"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Html => CodecSupport::LowLoss,
-            Format::Latex => CodecSupport::LowLoss,
-            Format::Pdf => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Html | Format::Latex | Format::Pdf)
     }
 
     fn structuring_options(&self, format: &Format) -> StructuringOptions {

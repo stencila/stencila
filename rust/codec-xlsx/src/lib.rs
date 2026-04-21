@@ -1,10 +1,10 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    stencila_schema::Node,
 };
 
 mod conversion;
@@ -25,28 +25,12 @@ impl Codec for XlsxCodec {
         "xlsx"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        use CodecSupport::*;
-        match format {
-            Format::Xlsx | Format::Xls | Format::Ods => LowLoss,
-            _ => None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Xlsx | Format::Xls | Format::Ods)
     }
 
-    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        match node_type {
-            NodeType::Datatable => LowLoss,
-            _ => None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::None
+    fn supports_to_format(&self, _format: &Format) -> bool {
+        false
     }
 
     async fn from_path(

@@ -4,8 +4,8 @@ use tempfile::tempdir;
 use tokio::fs::{read, read_to_string, write};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, NodeType,
-    StructuringOperation, StructuringOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOperation,
+    StructuringOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Article, File, MessagePart, ModelParameters, Node},
@@ -29,26 +29,12 @@ impl Codec for PdfCodec {
         "pdf"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Pdf => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Pdf)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Pdf => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::HighLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::HighLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Pdf)
     }
 
     fn supports_from_string(&self) -> bool {

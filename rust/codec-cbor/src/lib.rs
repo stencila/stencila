@@ -1,8 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,
+    stencila_format::Format, stencila_schema::Node,
 };
 use stencila_node_media::{embed_media, extract_media};
 
@@ -18,20 +16,12 @@ impl Codec for CborCodec {
         "cbor"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Cbor => CodecSupport::NoLoss,
-            Format::CborZstd => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Cbor | Format::CborZstd)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Cbor => CodecSupport::NoLoss,
-            Format::CborZstd => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Cbor | Format::CborZstd)
     }
 
     fn supports_from_bytes(&self) -> bool {
@@ -48,14 +38,6 @@ impl Codec for CborCodec {
 
     fn supports_to_string(&self) -> bool {
         false
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
     }
 
     async fn from_bytes(

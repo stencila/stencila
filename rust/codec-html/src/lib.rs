@@ -1,8 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,
+    stencila_format::Format, stencila_schema::Node,
 };
 
 mod decode;
@@ -20,35 +18,12 @@ impl Codec for HtmlCodec {
         "html"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Html => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Html)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Html => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        use NodeType::*;
-        match node_type {
-            // Data
-            String | Cord => NoLoss,
-            // Prose Inlines
-            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
-            // Prose Blocks
-            Section | Heading | Paragraph | ThematicBreak => NoLoss,
-            // Code
-            CodeInline | CodeBlock => NoLoss,
-            // Fallback to low loss
-            _ => LowLoss,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Html)
     }
 
     async fn from_str(

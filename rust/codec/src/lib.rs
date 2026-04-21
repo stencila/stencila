@@ -1,5 +1,5 @@
 use std::{
-    collections::{BTreeMap, BTreeSet},
+    collections::BTreeSet,
     fmt::{self, Display},
     path::{Path, PathBuf},
     str::FromStr,
@@ -71,38 +71,10 @@ pub trait Codec: Sync + Send {
         matches!(self.availability(), CodecAvailability::Available)
     }
 
-    /// The level of support that the codec provides for decoding from a format
+    /// Whether the codec supports decoding from a format
     #[allow(unused)]
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    /// The level of support that the codec provides for decoding from each format
-    fn supports_from_formats(&self) -> BTreeMap<Format, CodecSupport> {
-        Format::iter()
-            .filter_map(|format| {
-                let support = self.supports_from_format(&format);
-                support.is_supported().then_some((format, support))
-            })
-            .collect()
-    }
-
-    /// The level of support that the codec provides for decoding for a [`NodeType`]
-    #[allow(unused)]
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    /// The level of support that the codec provides for decoding for each [`NodeType`]
-    fn supports_from_types(&self) -> BTreeMap<String, CodecSupport> {
-        NodeType::iter()
-            .filter_map(|node_type| {
-                let support = self.supports_from_type(node_type);
-                support
-                    .is_supported()
-                    .then_some((node_type.to_string(), support))
-            })
-            .collect()
+    fn supports_from_format(&self, format: &Format) -> bool {
+        false
     }
 
     /// Whether the codec supports decoding from bytes
@@ -120,38 +92,10 @@ pub trait Codec: Sync + Send {
         true
     }
 
-    /// The level of support that the codec provides for encoding to a format
+    /// Whether the codec supports encoding to a format
     #[allow(unused)]
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    /// The level of support that the codec provides for encoding to each format
-    fn supports_to_formats(&self) -> BTreeMap<Format, CodecSupport> {
-        Format::iter()
-            .filter_map(|format| {
-                let support = self.supports_to_format(&format);
-                support.is_supported().then_some((format, support))
-            })
-            .collect()
-    }
-
-    /// The level of support that the codec provides for encoding for a [`NodeType`]
-    #[allow(unused)]
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    /// The level of support that the codec provides for encoding for each [`NodeType`]
-    fn supports_to_types(&self) -> BTreeMap<String, CodecSupport> {
-        NodeType::iter()
-            .filter_map(|node_type| {
-                let support = self.supports_to_type(node_type);
-                support
-                    .is_supported()
-                    .then_some((node_type.to_string(), support))
-            })
-            .collect()
+    fn supports_to_format(&self, format: &Format) -> bool {
+        false
     }
 
     /// Whether the codec supports encoding to bytes
@@ -167,29 +111,6 @@ pub trait Codec: Sync + Send {
     /// Whether the codec supports encoding to a file system path
     fn supports_to_path(&self) -> bool {
         true
-    }
-
-    /// Get a list of types that the codec has either lossy decoding, or encoding, or both
-    fn lossy_types(&self, direction: Option<CodecDirection>) -> Vec<NodeType> {
-        let mut types = Vec::new();
-
-        for node_type in NodeType::iter() {
-            if (direction.is_none() || matches!(direction, Some(CodecDirection::Decode)))
-                && self.supports_from_type(node_type).is_lossy()
-                && !types.contains(&node_type)
-            {
-                types.push(node_type)
-            }
-
-            if (direction.is_none() || matches!(direction, Some(CodecDirection::Encode)))
-                && self.supports_to_type(node_type).is_lossy()
-                && !types.contains(&node_type)
-            {
-                types.push(node_type)
-            }
-        }
-
-        types
     }
 
     /// Get a the default structuring options for the format
@@ -347,28 +268,6 @@ pub trait Codec: Sync + Send {
     }
 }
 
-/// The level of support that a codec provides for a format or node type
-#[derive(Debug, Default, Display, Serialize)]
-pub enum CodecSupport {
-    #[default]
-    None,
-    HighLoss,
-    LowLoss,
-    NoLoss,
-}
-
-impl CodecSupport {
-    /// Whether a format or node type is supported
-    pub fn is_supported(&self) -> bool {
-        !matches!(self, CodecSupport::None)
-    }
-
-    /// Whether there is any loss for a format or node type
-    pub fn is_lossy(&self) -> bool {
-        !matches!(self, CodecSupport::NoLoss)
-    }
-}
-
 /// Specifications for a codec
 ///
 /// Currently used only for outputs and display.
@@ -384,14 +283,12 @@ impl From<&dyn Codec> for CodecSpecification {
     fn from(codec: &dyn Codec) -> Self {
         Self {
             name: codec.name().to_string(),
-            from: codec
-                .supports_from_formats()
-                .keys()
+            from: Format::iter()
+                .filter(|format| codec.supports_from_format(format))
                 .map(|format| format.to_string())
                 .collect(),
-            to: codec
-                .supports_to_formats()
-                .keys()
+            to: Format::iter()
+                .filter(|format| codec.supports_to_format(format))
                 .map(|format| format.to_string())
                 .collect(),
         }

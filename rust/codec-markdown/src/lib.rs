@@ -3,11 +3,8 @@ use std::path::Path;
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    StructuringOperation, StructuringOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, StructuringOperation,
+    StructuringOptions, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
 };
 
 pub use stencila_codec_markdown_trait::{to_markdown, to_markdown_flavor};
@@ -30,72 +27,18 @@ impl Codec for MarkdownCodec {
         "markdown"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        use CodecSupport::*;
-        match format {
-            Format::Markdown | Format::Smd | Format::Myst | Format::Qmd => LowLoss,
-            _ => None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(
+            format,
+            Format::Markdown | Format::Smd | Format::Myst | Format::Qmd
+        )
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        use CodecSupport::*;
-        match format {
-            Format::Markdown | Format::Smd | Format::Myst | Format::Qmd | Format::Llmd => LowLoss,
-            _ => None,
-        }
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        use NodeType::*;
-        match node_type {
-            // Data
-            String | Cord => NoLoss,
-            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
-            // Prose Inlines
-            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
-            Link | Parameter | AudioObject | ImageObject | MediaObject | Note => LowLoss,
-            // Prose Blocks
-            Admonition | StyledBlock | Section | Heading | Paragraph | QuoteBlock
-            | ThematicBreak => NoLoss,
-            List | ListItem | Table | TableRow | TableCell => LowLoss,
-            // Code
-            CodeInline | CodeBlock => NoLoss,
-            CodeExpression | CodeChunk => LowLoss,
-            // Math
-            MathInline | MathBlock => NoLoss,
-            // Works,
-            Article => LowLoss,
-            _ => None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        use NodeType::*;
-        match node_type {
-            // Data
-            String | Cord => NoLoss,
-            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
-            // Prose Inlines
-            Text | Emphasis | Strong | Subscript | Superscript | Underline => NoLoss,
-            Link | Parameter | AudioObject | ImageObject | MediaObject | Note => LowLoss,
-            // Prose Blocks
-            Admonition | StyledBlock | Section | Heading | Paragraph | QuoteBlock
-            | ThematicBreak => NoLoss,
-            List | ListItem | Table | TableRow | TableCell => LowLoss,
-            // Code
-            CodeInline | CodeBlock => NoLoss,
-            CodeExpression | CodeChunk => LowLoss,
-            // Math
-            MathInline | MathBlock => NoLoss,
-            // Works,
-            Article => LowLoss,
-            // Because `to_markdown` is implemented for all types, defaulting to
-            // `to_text`, fallback to high loss
-            _ => HighLoss,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(
+            format,
+            Format::Markdown | Format::Smd | Format::Myst | Format::Qmd | Format::Llmd
+        )
     }
 
     fn structuring_options(&self, _format: &Format) -> StructuringOptions {

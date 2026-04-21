@@ -1,8 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, EncodeInfo, EncodeOptions, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 
 use stencila_codec_text_trait::TextCodec as _;
@@ -18,21 +16,8 @@ impl Codec for TextCodec {
         "text"
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Text => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        use NodeType::*;
-        match node_type {
-            String | Text => NoLoss,
-            Null | Boolean | Integer | UnsignedInteger | Number => LowLoss,
-            _ => HighLoss,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Text)
     }
 
     async fn to_string(

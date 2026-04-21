@@ -1,8 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, EncodeInfo, EncodeOptions, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 
 /// A codec for the Rust debug format
@@ -26,15 +24,8 @@ impl Codec for DebugCodec {
         false
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Debug => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Debug)
     }
 
     async fn to_string(

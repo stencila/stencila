@@ -29,10 +29,9 @@ fn codec_name() {
 fn codec_supports_to_oxa_format() {
     let codec = OxaCodec;
     let format = stencila_codec::stencila_format::Format::from_name("oxa");
-    let support = codec.supports_to_format(&format);
     assert!(
-        support.is_supported(),
-        "OxaCodec should support encoding to the OXA format, got {support:?}"
+        codec.supports_to_format(&format),
+        "OxaCodec should support encoding to the OXA format"
     );
 }
 
@@ -41,10 +40,9 @@ fn codec_supports_to_oxa_format() {
 fn codec_supports_from_oxa_format() {
     let codec = OxaCodec;
     let format = stencila_codec::stencila_format::Format::from_name("oxa");
-    let support = codec.supports_from_format(&format);
     assert!(
-        support.is_supported(),
-        "OxaCodec should support decoding from the OXA format, got {support:?}"
+        codec.supports_from_format(&format),
+        "OxaCodec should support decoding from the OXA format"
     );
 }
 
@@ -53,15 +51,11 @@ fn codec_supports_from_oxa_format() {
 fn codec_does_not_support_other_formats() {
     let codec = OxaCodec;
     assert!(
-        !codec
-            .supports_to_format(&stencila_codec::stencila_format::Format::Json)
-            .is_supported(),
+        !codec.supports_to_format(&stencila_codec::stencila_format::Format::Json),
         "OxaCodec should not support encoding to JSON format"
     );
     assert!(
-        !codec
-            .supports_from_format(&stencila_codec::stencila_format::Format::Html)
-            .is_supported(),
+        !codec.supports_from_format(&stencila_codec::stencila_format::Format::Html),
         "OxaCodec should not support decoding from HTML format"
     );
 }

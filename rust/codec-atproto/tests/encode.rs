@@ -6,7 +6,7 @@
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use stencila_codec::{
-    Codec, CodecSupport, Losses,
+    Codec, Losses,
     stencila_format::Format,
     stencila_schema::{
         Article, ArticleOptions, Author, DateTime, Node, Person,
@@ -317,31 +317,29 @@ async fn article_title_with_formatting_has_facets() {
 }
 
 // ===========================================================================
-// AC9: supports_to_format returns LowLoss for AtProtoJson, None otherwise
+// AC9: supports_to_format returns true for AtProtoJson, false otherwise
 // ===========================================================================
 
 #[test]
 fn supports_to_format_atproto_json() {
     let codec = AtProtoCodec;
-    let support = codec.supports_to_format(&Format::AtProtoJson);
     assert!(
-        matches!(support, CodecSupport::LowLoss),
-        "supports_to_format for AtProtoJson should be LowLoss, got: {support:?}"
+        codec.supports_to_format(&Format::AtProtoJson),
+        "supports_to_format for AtProtoJson should be true"
     );
 }
 
 #[test]
 fn supports_to_format_other_returns_none() {
     let codec = AtProtoCodec;
-    let support = codec.supports_to_format(&Format::Json);
     assert!(
-        matches!(support, CodecSupport::None),
-        "supports_to_format for Json should be None, got: {support:?}"
+        !codec.supports_to_format(&Format::Json),
+        "supports_to_format for Json should be false"
     );
 }
 
 // ===========================================================================
-// AC10: supports_from_format returns None for all formats
+// AC10: supports_from_format returns false for all formats
 // ===========================================================================
 
 #[test]
@@ -349,25 +347,16 @@ fn supports_from_format_returns_none() {
     let codec = AtProtoCodec;
 
     assert!(
-        matches!(
-            codec.supports_from_format(&Format::AtProtoJson),
-            CodecSupport::None
-        ),
-        "supports_from_format for AtProtoJson should be None (encode-only codec)"
+        !codec.supports_from_format(&Format::AtProtoJson),
+        "supports_from_format for AtProtoJson should be false (encode-only codec)"
     );
     assert!(
-        matches!(
-            codec.supports_from_format(&Format::Json),
-            CodecSupport::None
-        ),
-        "supports_from_format for Json should be None"
+        !codec.supports_from_format(&Format::Json),
+        "supports_from_format for Json should be false"
     );
     assert!(
-        matches!(
-            codec.supports_from_format(&Format::Html),
-            CodecSupport::None
-        ),
-        "supports_from_format for Html should be None"
+        !codec.supports_from_format(&Format::Html),
+        "supports_from_format for Html should be false"
     );
 }
 

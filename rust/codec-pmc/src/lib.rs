@@ -1,8 +1,7 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions,
-    async_trait,
+    Codec, DecodeInfo, DecodeOptions, StructuringOperation, StructuringOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -24,12 +23,8 @@ impl Codec for PmcCodec {
         "pmc"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::PmcOa => CodecSupport::LowLoss,
-            Format::Html => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::PmcOa | Format::Html)
     }
 
     fn structuring_options(&self, format: &Format) -> StructuringOptions {

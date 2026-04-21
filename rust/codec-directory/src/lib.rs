@@ -6,10 +6,10 @@ use std::{
 use ignore::Walk;
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Directory, File, FileOrDirectory, Node, NodeType},
+    stencila_schema::{Directory, File, FileOrDirectory, Node},
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node
@@ -21,15 +21,12 @@ impl Codec for DirectoryCodec {
         "directory"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Directory => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Directory)
     }
 
-    fn supports_to_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn supports_to_format(&self, _format: &Format) -> bool {
+        false
     }
 
     fn supports_from_bytes(&self) -> bool {
@@ -54,17 +51,6 @@ impl Codec for DirectoryCodec {
 
     fn supports_to_path(&self) -> bool {
         false
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        match node_type {
-            NodeType::Directory => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::None
     }
 
     async fn from_path(

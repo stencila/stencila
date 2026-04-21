@@ -11,8 +11,7 @@ use nbformat::{
 use serde_json::{Map, Value, json};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId,
-    NodeType, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, NodeId, async_trait,
     eyre::{Result, bail, eyre},
     stencila_format::Format,
     stencila_schema::{
@@ -31,26 +30,12 @@ impl Codec for IpynbCodec {
         "ipynb"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Ipynb => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Ipynb)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Ipynb => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Ipynb)
     }
 
     async fn from_str(

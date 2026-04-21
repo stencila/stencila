@@ -1,9 +1,9 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, StructuringOperation, StructuringOptions, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    StructuringOperation, StructuringOptions, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 use stencila_codec_json::JsonCodec;
 use stencila_codec_pandoc::{
@@ -27,26 +27,12 @@ impl Codec for OdtCodec {
         pandoc_availability()
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Odt => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Odt)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Odt => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Odt)
     }
 
     fn supports_from_string(&self) -> bool {

@@ -1,8 +1,8 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Datatable, DatatableColumn, Node, NodeType, Primitive},
+    stencila_schema::{Datatable, DatatableColumn, Node, Primitive},
 };
 
 /// A codec for tabular data formats (CSV, TSV)
@@ -14,36 +14,12 @@ impl Codec for CsvCodec {
         "csv"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        use CodecSupport::*;
-        match format {
-            Format::Csv | Format::Tsv => NoLoss,
-            _ => None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Csv | Format::Tsv)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        use CodecSupport::*;
-        match format {
-            Format::Csv | Format::Tsv => LowLoss,
-            _ => None,
-        }
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        match node_type {
-            NodeType::Datatable => NoLoss,
-            _ => None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        use CodecSupport::*;
-        match node_type {
-            NodeType::Datatable => NoLoss,
-            _ => None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Csv | Format::Tsv)
     }
 
     async fn from_str(

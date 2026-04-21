@@ -1,5 +1,5 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, Losses, async_trait,
     eyre::{self, Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -20,18 +20,12 @@ impl Codec for OxaCodec {
         "oxa"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Oxa => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Oxa)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Oxa => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Oxa)
     }
 
     async fn from_str(

@@ -1,7 +1,7 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, NodeType, async_trait,
+    Codec, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -56,23 +56,12 @@ impl Codec for PngCodec {
         "png"
     }
 
-    fn supports_from_format(&self, _format: &Format) -> CodecSupport {
-        CodecSupport::None
+    fn supports_from_format(&self, _format: &Format) -> bool {
+        false
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Png => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::None
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::HighLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Png)
     }
 
     fn supports_from_string(&self) -> bool {

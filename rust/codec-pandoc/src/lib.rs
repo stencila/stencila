@@ -1,9 +1,6 @@
 use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    eyre::Result, stencila_format::Format, stencila_schema::Node,
 };
 
 mod blocks;
@@ -39,26 +36,12 @@ impl Codec for PandocCodec {
         pandoc_availability()
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Pandoc => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Pandoc)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Pandoc => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Pandoc)
     }
 
     async fn from_str(

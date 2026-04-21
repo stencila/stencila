@@ -3,10 +3,8 @@ use std::{collections::HashMap, sync::LazyLock};
 use serde_json::{Map, Value, json};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,
+    stencila_format::Format, stencila_schema::Node,
 };
 
 /// A codec for JSON-LD
@@ -47,26 +45,12 @@ impl Codec for JsonLdCodec {
         "jsonld"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::JsonLd => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::JsonLd)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::JsonLd => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::JsonLd)
     }
 
     async fn from_str(

@@ -7,7 +7,7 @@ use tempfile::TempDir;
 use tokio::fs::write;
 
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
+    Codec, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Ok, Result},
     stencila_format::Format,
     stencila_schema::Node,
@@ -54,11 +54,8 @@ impl Codec for SwbCodec {
         "swb"
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Swb => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Swb)
     }
 
     async fn to_path(

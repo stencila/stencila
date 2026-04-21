@@ -3,10 +3,10 @@
 use mrml::prelude::render::RenderOptions;
 
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, async_trait,
+    Codec, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail, eyre},
     stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    stencila_schema::Node,
 };
 
 mod encode_article;
@@ -37,18 +37,8 @@ impl Codec for EmailCodec {
         false
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Email | Format::Mjml => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        match node_type {
-            NodeType::Article => CodecSupport::HighLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Email | Format::Mjml)
     }
 
     async fn to_string(

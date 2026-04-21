@@ -7,7 +7,7 @@ use winnow::{
 };
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait,
+    Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
     stencila_schema::{Inline, Link, Node, Paragraph, shortcuts::t},
@@ -28,18 +28,8 @@ impl Codec for LinksCodec {
         "links"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Text => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        match node_type {
-            NodeType::Link => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Text)
     }
 
     async fn from_str(

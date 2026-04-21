@@ -5,8 +5,8 @@
 //! It is an encode-only codec; decoding is not supported.
 
 use stencila_codec::{
-    Codec, CodecSupport, EncodeInfo, EncodeOptions, Losses, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, EncodeInfo, EncodeOptions, Losses, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 
 /// Block-level encoding for AT Protocol JSON.
@@ -26,11 +26,8 @@ impl Codec for AtProtoCodec {
         "atproto"
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::AtProtoJson => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::AtProtoJson)
     }
 
     async fn to_string(

@@ -1,6 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, DecodeInfo, DecodeOptions, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 
 mod date;
@@ -28,11 +28,8 @@ impl Codec for CslCodec {
         "csl"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Csl => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Csl)
     }
 
     async fn from_str(

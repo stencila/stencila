@@ -5,8 +5,8 @@ use tempfile::{NamedTempFile, tempdir};
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, StructuringOperation, StructuringOptions, async_trait,
+    Codec, CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
+    StructuringOperation, StructuringOptions, async_trait,
     eyre::{OptionExt, Result},
     references::{append_references_section, has_references_section, populate_references_section},
     stencila_format::Format,
@@ -50,26 +50,12 @@ impl Codec for DocxCodec {
         pandoc_availability()
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Docx => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Docx)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Docx => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Docx)
     }
 
     fn supports_from_string(&self) -> bool {

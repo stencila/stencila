@@ -1,8 +1,6 @@
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
-    eyre::Result,
-    stencila_format::Format,
-    stencila_schema::{Node, NodeType},
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,
+    stencila_format::Format, stencila_schema::Node,
 };
 
 use stencila_codec_json5_trait::Json5Codec as _;
@@ -19,15 +17,8 @@ impl Codec for Json5Codec {
         "json5"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Json5 => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Json5)
     }
 
     async fn from_str(
@@ -40,15 +31,8 @@ impl Codec for Json5Codec {
         Ok((node, DecodeInfo::none()))
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Json5 => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Json5)
     }
 
     async fn to_string(

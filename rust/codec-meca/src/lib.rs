@@ -1,8 +1,8 @@
 use std::path::Path;
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, NodeType, async_trait, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    Codec, DecodeInfo, DecodeOptions, async_trait, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 
 mod decode;
@@ -19,15 +19,8 @@ impl Codec for MecaCodec {
         "meca"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Meca => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Meca)
     }
 
     async fn from_path(

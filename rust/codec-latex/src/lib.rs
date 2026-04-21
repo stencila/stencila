@@ -4,8 +4,7 @@ use stencila_node_media::extract_media;
 use tokio::fs::{create_dir_all, write};
 
 use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait,
+    Codec, CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
@@ -30,26 +29,12 @@ impl Codec for LatexCodec {
         pandoc_availability()
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Latex | Format::Tex => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Latex | Format::Tex)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Latex | Format::Tex => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::LowLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Latex | Format::Tex)
     }
 
     async fn from_str(

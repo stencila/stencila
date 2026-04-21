@@ -4,8 +4,8 @@ use itertools::Itertools;
 use regex::{Captures, Regex};
 
 use stencila_codec::{
-    Codec, CodecAvailability, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    NodeType, async_trait, eyre::Result, stencila_format::Format, stencila_schema::Node,
+    Codec, CodecAvailability, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    eyre::Result, stencila_format::Format, stencila_schema::Node,
 };
 use stencila_codec_latex::LatexCodec;
 
@@ -28,26 +28,12 @@ impl Codec for RnwCodec {
         LatexCodec.availability()
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Rnw => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Rnw)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Rnw => CodecSupport::LowLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, node_type: NodeType) -> CodecSupport {
-        LatexCodec.supports_from_type(node_type)
-    }
-
-    fn supports_to_type(&self, node_type: NodeType) -> CodecSupport {
-        LatexCodec.supports_to_type(node_type)
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Rnw)
     }
 
     async fn from_str(

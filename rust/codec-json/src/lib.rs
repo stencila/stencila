@@ -8,10 +8,10 @@ use serde_json::{Map, Value};
 use zip::{ZipArchive, write::FileOptions};
 
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Article, Node, NodeType},
+    stencila_schema::{Article, Node},
 };
 use stencila_version::STENCILA_VERSION;
 
@@ -27,30 +27,16 @@ impl Codec for JsonCodec {
         "json"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Json | Format::JsonZip => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Json | Format::JsonZip)
     }
 
     fn supports_from_bytes(&self) -> bool {
         true
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Json | Format::JsonZip => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Json | Format::JsonZip)
     }
 
     async fn from_path(

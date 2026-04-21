@@ -1,9 +1,9 @@
 use serde_yaml::Value;
 use stencila_codec::{
-    Codec, CodecSupport, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
+    Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait,
     eyre::Result,
     stencila_format::Format,
-    stencila_schema::{Article, Node, NodeType},
+    stencila_schema::{Article, Node},
 };
 use stencila_version::STENCILA_VERSION;
 
@@ -22,26 +22,12 @@ impl Codec for YamlCodec {
         "yaml"
     }
 
-    fn supports_from_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Yaml => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
+    fn supports_from_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Yaml)
     }
 
-    fn supports_to_format(&self, format: &Format) -> CodecSupport {
-        match format {
-            Format::Yaml => CodecSupport::NoLoss,
-            _ => CodecSupport::None,
-        }
-    }
-
-    fn supports_from_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
-    }
-
-    fn supports_to_type(&self, _node_type: NodeType) -> CodecSupport {
-        CodecSupport::NoLoss
+    fn supports_to_format(&self, format: &Format) -> bool {
+        matches!(format, Format::Yaml)
     }
 
     async fn from_str(
