@@ -1,0 +1,93 @@
+---
+title: Includes and calls
+description: How to include other documents and call executable documents with arguments in Stencila Markdown.
+---
+
+# Includes and calls
+
+Stencila supports two related document-composition features:
+
+- **includes**, which insert content from another document
+- **calls**, which invoke another executable document, optionally with arguments
+
+These features are useful when you want to compose larger documents from reusable parts or build parameterized document workflows.
+
+# Includes
+
+Use `::: include` to include content from another document:
+
+```smd demo
+::: include ../heading/heading.md
+```
+
+Relative paths are resolved from the current document. Includes are useful when you want to reuse content without duplicating it across files.
+
+Includes can also reference remote documents:
+
+```smd demo
+::: include http://example.org/document.md
+```
+
+You can also add options, for example to control formatting or select a fragment:
+
+```smd demo
+::: include ../paragraph/paragraph.md { always format=text/markdown select=#para-1}
+```
+
+In this example, `format` requests a specific source format, `select` targets a fragment within the source document, and `always` indicates that the include should always be resolved rather than left as a deferred reference.
+
+# Calls
+
+Use `::: call` to call another executable document:
+
+```smd demo
+::: call ../parameter/parameter.md
+```
+
+Calls are most useful when the target document accepts parameters and computes outputs dynamically.
+
+Calls can pass arguments directly:
+
+```smd demo
+::: call ../parameter/parameter.md (arg1=123)
+```
+
+Arguments can also be expressions:
+
+```smd demo
+::: call ../parameter/parameter.md (arg1=`1 + 2 + 3`)
+```
+
+And they can mix names and value types:
+
+```smd demo
+::: call ../parameter/parameter.md (arg1=`1 + 2 + 3`, argtwo="t w o", arg_three=1.23, arg4=`2 * 2`, argFive=[1,2,3])
+```
+
+Arguments are matched to parameters by name. Values can be plain literals or executable expressions, depending on what the called document expects.
+
+# Includes versus calls
+
+Use an **include** when you want to insert existing document content.
+
+Use a **call** when you want to invoke another executable document, especially when that document accepts parameters or produces outputs dynamically.
+
+> [!tip]
+> If you are looking for executable code chunks, inline code expressions, or execution modes, see [Execution](execution).
+
+# Related guides
+
+For related authoring features, see:
+
+- [Execution](execution)
+- [Code](code)
+- [Sections](sections)
+- [Metadata](metadata)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [IncludeBlock](../schema/include-block)
+- [CallBlock](../schema/call-block)
+- [Parameter](../schema/parameter)

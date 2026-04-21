@@ -1,0 +1,98 @@
+---
+title: Tables
+description: How to author tables in Stencila Markdown, including pipe tables, captions, labels, notes, and executable tables.
+---
+
+# Tables
+
+Tables are used to present data and structured comparisons in rows and columns. Stencila Markdown supports simple pipe tables as well as richer table blocks with captions, labels, notes, and executable content.
+
+# Pipe tables
+
+For simple tables, use standard Markdown pipe-table syntax:
+
+```smd demo
+| A   | B   | C   |
+| --- | --- | --- |
+| 1   | 2   | 3   |
+| 4   | 5   | 6   |
+```
+
+# Empty cells
+
+Pipe tables can include empty cells:
+
+```smd demo
+| D   | E   |
+| --- | --- |
+| 1   |     |
+|     | 2   |
+```
+
+# Rich cell content
+
+Table cells can contain more than plain text, including inline formatting, code, and math:
+
+```smd demo
+| _Emphasized header_     | `Code header`   |
+| ----------------------- | --------------- |
+| `Code inline`           | **Strong cell** |
+| `6 * 7`{python exec}    | `2 \\pi r^2`{tex} |
+| `Code with language`{r} | H~2~O           |
+```
+
+# Column alignment
+
+You can specify horizontal alignment in the separator row:
+
+```smd demo
+| Left | Center | Right |
+| :--- | :----: | ----: |
+| L1   |   C1   |    R1 |
+| L2   |   C2   |    R2 |
+```
+
+# Captioned tables
+
+To add a caption, label, and notes, wrap the table in a `::: table` block:
+
+```smd demo
+::: table 3
+
+The caption.
+
+| A   | B   |
+| --- | --- |
+| 1   | 2   |
+
+Some notes.
+
+:::
+```
+
+As with figures, it is usually better to let Stencila manage labels automatically rather than assigning them manually.
+
+# Executable tables
+
+Tables can also be generated from executable code, for example when the tabular output should stay in sync with analysis in the document.
+
+> [!tip]
+> For executable code blocks and outputs, see [Execution](execution).
+
+# Related guides
+
+For related authoring features, see:
+
+- [Basics](basics)
+- [Math](math)
+- [Figures](figures)
+- [Execution](execution)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [Table](../schema/table)
+- [TableRow](../schema/table-row)
+- [TableCell](../schema/table-cell)
+- [Datatable](../schema/datatable)

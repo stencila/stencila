@@ -1,6 +1,20 @@
 items:
+  - index
+  - basics
+  - lists
+  - math
+  - code
+  - execution
+  - media
+  - tables
   - figures
-  - figure-overlay-components
+  - figure-overlays
+  - admonitions
+  - notes
+  - name: include-call
+    label: Includes and Calls
+  - sections
   - comments
   - suggestions
+  - metadata
 

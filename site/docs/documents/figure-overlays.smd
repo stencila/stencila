@@ -3,13 +3,15 @@ title: Figure Overlay Components
 description: A reference for Stencila's declarative SVG overlay components — high-level elements that expand to standard SVG, eliminating coordinate math and boilerplate for figure annotations.
 ---
 
+# Figure Overlay Components
+
 Stencila's [figure overlays](figures#overlays) let you annotate images and charts with standard SVG. That works, but raw SVG is verbose — a simple callout with a curved arrow and arrowhead definition takes 8–15 lines, and small coordinate mistakes produce arrows pointing nowhere or invisible markers.
 
 **Overlay components** solve this. You write high-level elements like `<s:callout>`, `<s:scale-bar>`, and `<s:arrow>` inside your `svg overlay` block, and Stencila expands them to standard SVG during compilation. The source you write is preserved in the document; the compiled SVG is stored separately and used for rendering.
 
 Components reduce a typical annotation from 15+ lines of raw SVG to 1–3 elements. They handle the geometry, arrowhead definitions, label positioning, and coordinate math automatically — making overlays more readable for authors and more reliable for LLM agents generating annotations.
 
-> [!NOTE]
+> [!note]
 > Overlay components are fully backward-compatible. You can mix `s:` components and standard SVG freely in the same overlay. Any existing overlay without `s:` elements works exactly as before.
 
 # Namespace
@@ -403,7 +405,7 @@ Three badges using a mix of auto-anchor and direct coordinate positioning: a flu
 :::
 ````
 
-> [!TIP]
+> [!tip]
 > Use `<s:badge>` for short identifiers (A, B, ①, DAPI). Use `<s:callout>` for explanatory text, longer labels, or anything that needs a leader line.
 
 # Measurement & scale

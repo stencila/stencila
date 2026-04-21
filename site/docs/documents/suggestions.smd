@@ -3,6 +3,8 @@ title: Suggestions
 description: How to author suggestions in Stencila Markdown — inline and block insertions, deletions, replacements, metadata, and track-changes workflows.
 ---
 
+# Suggestions
+
 Suggestions let you propose edits without immediately applying them to the document's main content. They are useful for review, editorial workflows, collaborative revision, and tracked changes.
 
 Stencila also supports preserving suggestions during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will review or accept suggestions in those tools rather than writing suggestion syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange revised documents with collaborators while keeping tracked changes intact.

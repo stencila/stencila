@@ -1,0 +1,96 @@
+---
+title: Notes
+description: How to author footnotes, endnotes, and sidenotes in Stencila Markdown.
+---
+
+# Notes
+
+Notes let you attach additional content to a point in the main document flow without interrupting the main prose. Depending on the output format and note type, they may be rendered as footnotes, endnotes, or sidenotes.
+
+In Stencila Markdown, notes are written using reference-style note markers and note definitions.
+
+# Basic notes
+
+Use `[^id]` in the text to create a note reference, then define the note later in the document:
+
+```smd demo
+This paragraph has a footnote[^1].
+
+[^1]: A footnote.
+```
+
+You can have multiple note references in the same paragraph:
+
+```smd demo
+This paragraph has several notes: [^1], [^2], and [^3].
+
+[^1]: A footnote.
+
+[^2]: An endnote.
+
+[^3]: A sidenote.
+```
+
+# Rich note content
+
+Notes are not limited to a single line of text. They can contain multiple paragraphs and other block content.
+
+## Multiple paragraphs
+
+Indent additional paragraphs so they remain part of the same note:
+
+```smd demo
+This paragraph has a richer note[^1].
+
+[^1]: A footnote with...
+
+    Another paragraph.
+```
+
+## Code blocks in notes
+
+Notes can include code blocks:
+
+````smd demo
+This paragraph has a note containing code[^1].
+
+[^1]: An endnote with...
+
+    ```
+    A code block
+    ```
+````
+
+## Quote blocks in notes
+
+Notes can also include quoted content:
+
+```smd demo
+This paragraph has a note containing a quote[^1].
+
+[^1]: A sidenote with...
+
+    > A quote block
+```
+
+# Where note content appears
+
+The note syntax in Stencila Markdown is the same regardless of whether a note is eventually rendered as a footnote, endnote, or sidenote. The exact placement depends on the note type and the output format.
+
+This means you can author notes once in Stencila Markdown and let Stencila handle how they are rendered in different publishing targets.
+
+# Related guides
+
+For related authoring features, see:
+
+- [Basics](basics)
+- [Lists](lists)
+- [Metadata](metadata)
+- [Sections](sections)
+
+# Schema types
+
+For the formal Stencila Schema definitions behind these features, see:
+
+- [Note](../schema/note)
+- [NoteType](../schema/note-type)

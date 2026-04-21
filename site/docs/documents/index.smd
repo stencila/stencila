@@ -1,0 +1,87 @@
+---
+title: Documents
+description: An introduction to authoring documents in Stencila, the formats it supports, and where to find documentation for core document elements.
+---
+
+# Documents in Stencila
+
+Stencila documents combine familiar authoring patterns such as Markdown, frontmatter, figures, tables, footnotes, and code blocks with richer document features for execution, review, and publishing.
+
+You can work with documents in several formats, including [Stencila Markdown](../formats/smd), MyST, Quarto, and DOCX. This makes it possible to exchange documents with other tools and workflows while still using Stencila to edit, execute, review, and publish them.
+
+However, **Stencila Markdown is the only format that supports all of Stencila's document features**. It is Stencila's native authoring format, and it is the format used throughout examples and demos in the documentation.
+
+If you are learning how document syntax works in Stencila, Stencila Markdown is the best place to start.
+
+# Supported formats
+
+Stencila can read and write multiple document formats, but they do not all support the same feature set.
+
+- **Stencila Markdown** is the native format and has the broadest feature coverage.
+- **MyST** and **Quarto** are useful when you want compatibility with those Markdown ecosystems.
+- **DOCX** is useful for exchanging documents with collaborators using word processors such as Microsoft Word.
+
+In practice, this means you can often _convert_ advanced Stencila documents to other formats, but some features may be simplified, approximated, or omitted when those formats do not have an equivalent representation.
+
+For example:
+
+- basic prose, headings, lists, links, and math often map well across formats
+- advanced review features such as comments and suggestions may only be preserved in some formats and workflows
+- executable and richly structured Stencila-specific nodes are best authored in Stencila Markdown
+
+If you need the full Stencila feature set, author in [Stencila Markdown](../formats/smd).
+
+# Writing documents in Stencila Markdown
+
+Most documents begin with the same core building blocks you would expect in Markdown:
+
+- paragraphs
+- headings
+- inline formatting such as emphasis and strong text
+- links
+- lists
+- notes
+- quotes
+- code
+- math
+- tables and figures
+
+Stencila Markdown extends those basics with syntax for richer document structures and workflows, including:
+
+- executable code chunks and expressions
+- captions, labels, and cross-referenceable figures and tables
+- admonitions and structured sections
+- comments and suggestions for review workflows
+- overlays and other advanced figure annotation features
+
+# Start with these guides
+
+If you are new to authoring Stencila documents, these pages are the best place to start:
+
+- [Basics](basics) for paragraphs, headings, links, inline formatting, quotes, and thematic breaks
+- [Lists](lists) for ordered, unordered, nested, and task lists
+- [Notes](notes) for footnotes, endnotes, and sidenotes
+- [Math](math) for inline and block mathematics
+- [Tables](tables) for table syntax, captions, and notes
+- [Figures](figures) for figures, subfigures, captions, layouts, and overlays
+
+# Richer document features
+
+Once you are comfortable with the basics, you can explore Stencila's richer authoring features:
+
+- [Admonitions](admonitions) for notes, warnings, tips, and other callout blocks
+- [Code](code) for static code blocks and code fragments
+- [Execution](execution) for executable code chunks and inline expressions
+- [Includes and calls](include-call) for document composition and executable document calls
+- [Media](media) for images, audio, and video
+- [Metadata](metadata) for article-level metadata and frontmatter
+- [Sections](sections) for document structure and recognized section types
+
+# Review and collaboration
+
+Stencila also supports authoring and preserving review information inside documents:
+
+- [Comments](comments) for anchored discussion threads and replies
+- [Suggestions](suggestions) for tracked insertions, deletions, and replacements
+
+These features are especially useful when documents move between Stencila and collaborative formats such as DOCX or Google Docs.

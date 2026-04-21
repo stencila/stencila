@@ -3,6 +3,8 @@ title: Comments
 description: How to author comments in Stencila documents — ranges, point comments, overlapping threads, replies, and metadata.
 ---
 
+# Comments
+
 Comments let you attach discussion to specific text in a document without changing the document's main content. They are useful for review, feedback, editorial notes, and collaborative discussion.
 
 Stencila also preserves comments during bi-directional conversion between Stencila Markdown and common authoring formats such as Microsoft Word and Google Docs. In practice, many people will receive or respond to comments through those tools rather than writing comment syntax by hand in Stencila Markdown, but this conversion makes it possible to exchange reviewed documents with collaborators while keeping comment threads intact.
