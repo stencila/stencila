@@ -1,6 +1,6 @@
-use stencila_codec_info::lost_options;
-
-use crate::{SuggestionBlock, SuggestionType, implem::utils::author_date_to_markdown, prelude::*};
+use crate::{
+    SuggestionBlock, SuggestionType, implem::utils::suggestion_attrs_to_markdown, prelude::*,
+};
 
 impl SuggestionBlock {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -39,9 +39,7 @@ impl MarkdownCodec for SuggestionBlock {
             return;
         }
 
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id));
+        context.enter_node(self.node_type(), self.node_id());
 
         let fence = match self.suggestion_type {
             Some(SuggestionType::Delete) => ":--",
@@ -51,7 +49,9 @@ impl MarkdownCodec for SuggestionBlock {
 
         context.push_str(fence);
 
-        if let Some(attrs) = author_date_to_markdown(&self.authors, &self.date_published) {
+        if let Some(attrs) =
+            suggestion_attrs_to_markdown(&self.id, &self.authors, &self.date_published)
+        {
             context.push_str(" {").push_str(&attrs).push_str("}");
         }
 

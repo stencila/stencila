@@ -5,6 +5,7 @@ edition = "2024"
 
 [dependencies]
 eyre = { workspace = true }
+rand = { workspace = true }
 stencila-ask = { path = "../ask" }
 schema = { path = "../schema", package = "stencila-schema" }
 

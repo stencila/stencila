@@ -11560,6 +11560,7 @@ name = "stencila-node-suggestions"
 version = "0.0.0"
 dependencies = [
  "eyre",
+ "rand 0.10.0",
  "stencila-ask",
  "stencila-schema",
 ]

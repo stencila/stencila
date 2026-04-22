@@ -11,13 +11,6 @@ pub(crate) fn author_date_to_markdown(
 ) -> Option<String> {
     let mut attrs = Vec::new();
 
-    fn format_attr(name: &str, value: &str) -> String {
-        format!(
-            r#"{name}="{}""#,
-            value.replace('\\', "\\\\").replace('"', "\\\"")
-        )
-    }
-
     if let Some(authors) = authors
         && !authors.is_empty()
     {
@@ -27,14 +20,40 @@ pub(crate) fn author_date_to_markdown(
             .collect::<Vec<_>>()
             .join("; ");
 
-        attrs.push(format_attr("by", &by));
+        attrs.push(markdown_attr("by", &by));
     }
 
     if let Some(at) = date_published {
-        attrs.push(format_attr("at", &at.value));
+        attrs.push(markdown_attr("at", &at.value));
     }
 
     (!attrs.is_empty()).then(|| attrs.join(", "))
+}
+
+/// Create curly-braced Markdown attrs for suggestion metadata.
+pub(crate) fn suggestion_attrs_to_markdown(
+    id: &Option<String>,
+    authors: &Option<Vec<Author>>,
+    date_published: &Option<DateTime>,
+) -> Option<String> {
+    let mut attrs = Vec::new();
+
+    if let Some(id) = id {
+        attrs.push(markdown_attr("id", id));
+    }
+
+    if let Some(author_date) = author_date_to_markdown(authors, date_published) {
+        attrs.push(author_date);
+    }
+
+    (!attrs.is_empty()).then(|| attrs.join(", "))
+}
+
+fn markdown_attr(name: &str, value: &str) -> String {
+    format!(
+        r#"{name}="{}""#,
+        value.replace('\\', "\\\\").replace('"', "\\\"")
+    )
 }
 
 /// Encode the `caption` of a `Figure`, `Table` or `CodeChunk` to DOM HTML

@@ -18,7 +18,7 @@ struct SuggestionInfo {
 
 /// Interactively review all suggestions in a node, prompting the user for each one.
 ///
-/// Uses `node_id()` to key suggestions, so no ID assignment is needed.
+/// Uses `node_id()` to key suggestions, so no ID assignment is required.
 ///
 /// Uses the `ask` crate for prompting, so it works in both CLI and LSP contexts.
 ///

@@ -1048,9 +1048,10 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
         )
             .map(
                 |(original, content, _, attrs): (&str, &str, &str, Option<Attrs>)| {
-                    let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+                    let (id, authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
                     Inline::SuggestionInline(SuggestionInline {
+                        id,
                         suggestion_type: Some(SuggestionType::Replace),
                         content: inlines_only(content),
                         original: Some(inlines_only(original)),
@@ -1062,9 +1063,10 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
             ),
         (delimited("{++", take_until(0.., "++}"), "++}"), opt(attrs)).map(
             |(content, attrs): (&str, Option<Attrs>)| {
-                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+                let (id, authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
                 Inline::SuggestionInline(SuggestionInline {
+                    id,
                     suggestion_type: Some(SuggestionType::Insert),
                     content: inlines_only(content),
                     authors,
@@ -1075,9 +1077,10 @@ fn suggestion_inline(input: &mut Located<&str>) -> ModalResult<Inline> {
         ),
         (delimited("{--", take_until(0.., "--}"), "--}"), opt(attrs)).map(
             |(content, attrs): (&str, Option<Attrs>)| {
-                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+                let (id, authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
                 Inline::SuggestionInline(SuggestionInline {
+                    id,
                     suggestion_type: Some(SuggestionType::Delete),
                     content: inlines_only(content),
                     authors,

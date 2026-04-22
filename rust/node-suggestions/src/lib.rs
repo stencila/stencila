@@ -4,7 +4,10 @@ use std::collections::HashMap;
 
 use schema::{Block, Inline, Node, NodeId, SuggestionBlock, SuggestionInline, SuggestionType};
 
+mod ensure_ids;
 pub mod review;
+
+pub use ensure_ids::ensure_suggestion_ids;
 
 /// The action to take when resolving suggestions
 #[derive(Debug, Clone)]

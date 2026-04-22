@@ -198,13 +198,15 @@ pub(super) fn take_until_unbalanced<'s>(
 /// Decode suggestion metadata from curly-braced attrs
 pub(super) fn suggestion_metadata_from_attrs(
     attrs: Option<Attrs>,
-) -> (Option<Vec<Author>>, Option<DateTime>) {
+) -> (Option<String>, Option<Vec<Author>>, Option<DateTime>) {
+    let mut id = None;
     let mut authors = None;
     let mut date = None;
 
     if let Some(attrs) = attrs {
         for (name, value) in attrs {
             match (name, value) {
+                ("id", Some(Node::String(value))) => id = Some(value),
                 ("by", Some(Node::String(by))) => {
                     let parsed = by
                         .split(';')
@@ -224,7 +226,7 @@ pub(super) fn suggestion_metadata_from_attrs(
         }
     }
 
-    (authors, date)
+    (id, authors, date)
 }
 
 /// Parse "curly braced attrs" (options inside curly braces)

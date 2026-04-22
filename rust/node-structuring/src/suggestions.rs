@@ -5,6 +5,7 @@ use stencila_schema::{
 
 #[derive(Debug, Clone, PartialEq, Default)]
 struct SuggestionMetadata {
+    id: Option<stencila_schema::String>,
     suggestion_status: Option<SuggestionStatus>,
     authors: Option<Vec<Author>>,
     provenance: Option<Vec<ProvenanceCount>>,
@@ -40,6 +41,7 @@ impl SuggestionNode for SuggestionInline {
 
     fn metadata(&self) -> SuggestionMetadata {
         SuggestionMetadata {
+            id: self.id.clone(),
             suggestion_status: self.suggestion_status,
             authors: self.authors.clone(),
             provenance: self.provenance.clone(),
@@ -85,6 +87,7 @@ impl SuggestionNode for SuggestionInline {
             },
         };
 
+        suggestion.id = metadata.id;
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
@@ -105,6 +108,7 @@ impl SuggestionNode for SuggestionBlock {
 
     fn metadata(&self) -> SuggestionMetadata {
         SuggestionMetadata {
+            id: self.id.clone(),
             suggestion_status: self.suggestion_status,
             authors: self.authors.clone(),
             provenance: self.provenance.clone(),
@@ -150,6 +154,7 @@ impl SuggestionNode for SuggestionBlock {
             },
         };
 
+        suggestion.id = metadata.id;
         suggestion.suggestion_status = metadata.suggestion_status;
         suggestion.authors = metadata.authors;
         suggestion.provenance = metadata.provenance;
@@ -278,4 +283,36 @@ pub(super) fn normalize_suggestion_blocks(blocks: &mut Vec<Block>) {
     normalize_suggestions(&mut pending);
     normalized.extend(pending.into_iter().map(Block::SuggestionBlock));
     *blocks = normalized;
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use stencila_schema::{Paragraph, Text};
+
+    fn paragraph(value: &str) -> Block {
+        Block::Paragraph(Paragraph::new(vec![Inline::Text(Text::from(value))]))
+    }
+
+    #[test]
+    fn normalize_preserves_distinct_suggestion_ids() {
+        let mut blocks = vec![
+            Block::SuggestionBlock(SuggestionBlock {
+                id: Some("sg-one".into()),
+                suggestion_type: Some(SuggestionType::Insert),
+                content: vec![paragraph("first")],
+                ..Default::default()
+            }),
+            Block::SuggestionBlock(SuggestionBlock {
+                id: Some("sg-two".into()),
+                suggestion_type: Some(SuggestionType::Insert),
+                content: vec![paragraph("second")],
+                ..Default::default()
+            }),
+        ];
+
+        normalize_suggestion_blocks(&mut blocks);
+
+        assert_eq!(blocks.len(), 2);
+    }
 }

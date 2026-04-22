@@ -1202,9 +1202,10 @@ fn suggestion_block_critic(input: &mut Located<&str>) -> ModalResult<Block> {
                 Option<&str>,
             )| {
                 let feedback = feedback.map(|f| f.trim()).filter(|f| !f.is_empty());
-                let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+                let (id, authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
                 let mut block = SuggestionBlock {
+                    id,
                     suggestion_type: Some(suggestion_type),
                     suggestion_status,
                     authors,
@@ -1262,11 +1263,12 @@ fn suggestion_block(input: &mut Located<&str>) -> ModalResult<Block> {
                 None => (None, 2),
             };
 
-            let (authors, date_published) = suggestion_metadata_from_attrs(attrs);
+            let (id, authors, date_published) = suggestion_metadata_from_attrs(attrs);
 
             let content = Vec::with_capacity(capacity);
 
             Block::SuggestionBlock(SuggestionBlock {
+                id,
                 suggestion_status,
                 authors,
                 date_published,

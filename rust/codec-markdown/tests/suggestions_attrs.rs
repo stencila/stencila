@@ -11,7 +11,7 @@ use stencila_codec_markdown::{MarkdownCodec, decode};
 #[test]
 fn decode_suggestion_inline_attrs() -> Result<()> {
     let (node, _) = decode(
-        r#"A {++change++}{by="Alice", at="2026-04-16T10:34:00Z"}."#,
+        r#"A {++change++}{id="suggestion-inline", by="Alice", at="2026-04-16T10:34:00Z"}."#,
         Some(DecodeOptions::default()),
     )?;
 
@@ -27,6 +27,7 @@ fn decode_suggestion_inline_attrs() -> Result<()> {
         return Err(eyre!("expected suggestion inline"));
     };
 
+    assert_eq!(suggestion.id.as_deref(), Some("suggestion-inline"));
     assert_eq!(
         suggestion.authors,
         Some(vec![Author::Person(Person::from("Alice"))])
@@ -42,7 +43,7 @@ fn decode_suggestion_inline_attrs() -> Result<()> {
 #[test]
 fn decode_suggestion_block_attrs() -> Result<()> {
     let (node, _) = decode(
-        ":++ {by=\"Alice\" at=\"2026-04-16T10:34:00Z\"}\n\nA block change.\n\n:++\n",
+        ":++ {id=\"suggestion-block\" by=\"Alice\" at=\"2026-04-16T10:34:00Z\"}\n\nA block change.\n\n:++\n",
         Some(DecodeOptions::default()),
     )?;
 
@@ -54,6 +55,7 @@ fn decode_suggestion_block_attrs() -> Result<()> {
         return Err(eyre!("expected suggestion block"));
     };
 
+    assert_eq!(suggestion.id.as_deref(), Some("suggestion-block"));
     assert_eq!(
         suggestion.authors,
         Some(vec![Author::Person(Person::from("Alice"))])
@@ -73,6 +75,7 @@ async fn encode_suggestion_inline_attrs() -> Result<()> {
         content: vec![Block::Paragraph(Paragraph::new(vec![
             Inline::Text(Text::from("A ")),
             Inline::SuggestionInline(SuggestionInline {
+                id: Some("suggestion-inline".into()),
                 suggestion_type: Some(SuggestionType::Insert),
                 authors: Some(vec![Author::Person(Person::from("Alice"))]),
                 date_published: Some(DateTime::new("2024-04-17T10:14:00+00:00".to_string())),
@@ -85,7 +88,7 @@ async fn encode_suggestion_inline_attrs() -> Result<()> {
     };
 
     let (md, ..) = codec.to_string(&Node::Article(article), None).await?;
-    assert!(md.contains("{++change++}{by=\"Alice\""));
+    assert!(md.contains(r#"{++change++}{id="suggestion-inline", by="Alice""#));
     assert!(md.contains("at=\"2024-04-17T10:14:00+00:00\""));
 
     Ok(())
@@ -96,6 +99,7 @@ async fn encode_suggestion_block_attrs() -> Result<()> {
     let codec = MarkdownCodec {};
     let article = Article {
         content: vec![Block::SuggestionBlock(SuggestionBlock {
+            id: Some("suggestion-block".into()),
             suggestion_type: Some(SuggestionType::Insert),
             authors: Some(vec![Author::Person(Person::from("Alice"))]),
             date_published: Some(DateTime::new("2024-04-17T10:14:00+00:00".to_string())),
@@ -109,7 +113,7 @@ async fn encode_suggestion_block_attrs() -> Result<()> {
     };
 
     let (md, ..) = codec.to_string(&Node::Article(article), None).await?;
-    assert!(md.contains(":++ {by=\"Alice\""));
+    assert!(md.contains(r#":++ {id="suggestion-block", by="Alice""#));
     assert!(md.contains("at=\"2024-04-17T10:14:00+00:00\""));
 
     Ok(())
