@@ -15,7 +15,7 @@
       "notes": "Closest JATS cross-reference analogue for in-text citations, though Stencila citations carry richer citation-specific metadata and resolved reference data."
     },
     {
-      "id": "pandoc:Cite",
+      "id": "pandoc:Citation",
       "notes": "Closest Pandoc analogue for inline citations, with similar support for grouped items and prefixes or suffixes."
     },
     {

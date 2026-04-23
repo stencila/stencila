@@ -14,6 +14,8 @@ $comment: |
   See [`Citation.citationMode`](./citation.md#citationmode) for the property
   that uses this enumeration.
 analogues:
+  - id: pandoc:CitationMode
+    notes: Close Pandoc analogue for citation presentation modes. `Parenthetical` maps to `NormalCitation`, `Narrative` to `SuppressAuthor`, and `NarrativeAuthor` to `AuthorInText`, while `NarrativeYear` has no direct Pandoc equivalent.
   - name: CSL citation position and narrative conventions
     url: https://docs.citationstyles.org/en/stable/specification.html
     notes: Close analogue for distinctions such as parenthetical versus narrative citation rendering, though Stencila exposes them as a compact schema enumeration.

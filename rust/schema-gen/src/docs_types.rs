@@ -414,6 +414,7 @@ fn pandoc_url(name: &str) -> Result<String> {
         "Caption",
         "Cell",
         "Citation",
+        "CitationMode",
         "ColSpec",
         "Definition",
         "Format",
