@@ -19,6 +19,7 @@ Key properties include `target`, `cites`, `citationMode`,
 The following external types, elements, or nodes are similar to a `Citation`:
 
 - JATS [`<xref>`](https://jats.nlm.nih.gov/archiving/tag-library/1.2/element/xref.html): Closest JATS cross-reference analogue for in-text citations, though Stencila citations carry richer citation-specific metadata and resolved reference data.
+- Pandoc [`Citation`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:Citation): Closest Pandoc analogue for inline citations, with similar support for grouped items and prefixes or suffixes.
 - MyST role [`cite`](https://mystmd.org/guide/roles#role-cite): Close MyST analogue for citation syntax in authoring, though Stencila stores the citation as a resolved inline node with additional metadata.
 
 # Properties

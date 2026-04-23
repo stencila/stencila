@@ -18,6 +18,7 @@ that uses this enumeration.
 
 The following external types, elements, or nodes are similar to a `CitationMode`:
 
+- Pandoc [`CitationMode`](https://hackage-content.haskell.org/package/pandoc-types-1.23.1.1/docs/Text-Pandoc-Definition.html#t:CitationMode): Close Pandoc analogue for citation presentation modes. `Parenthetical` maps to `NormalCitation`, `Narrative` to `SuppressAuthor`, and `NarrativeAuthor` to `AuthorInText`, while `NarrativeYear` has no direct Pandoc equivalent.
 - [CSL citation position and narrative conventions](https://docs.citationstyles.org/en/stable/specification.html): Close analogue for distinctions such as parenthetical versus narrative citation rendering, though Stencila exposes them as a compact schema enumeration.
 
 # Members

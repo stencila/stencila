@@ -30,6 +30,7 @@ The `Suggestion` type has these properties:
 | `suggestionStatus`  | The status of the suggestion including whether it is the original, or is accepted, or rejected. | [`SuggestionStatus`](./suggestion-status.md) | -                       |
 | `authors`           | The authors of the suggestion                                                                   | [`Author`](./author.md)*                     | -                       |
 | `provenance`        | A summary of the provenance of the content within the suggestion.                               | [`ProvenanceCount`](./provenance-count.md)*  | -                       |
+| `datePublished`     | Date of the suggestion was created.                                                             | [`DateTime`](./date-time.md)                 | -                       |
 | `executionDuration` | Time taken to generate the suggestion.                                                          | [`Duration`](./duration.md)                  | -                       |
 | `executionEnded`    | The timestamp when the generation ended.                                                        | [`Timestamp`](./timestamp.md)                | -                       |
 | `feedback`          | Feedback on the suggestion                                                                      | [`String`](./string.md)                      | -                       |
