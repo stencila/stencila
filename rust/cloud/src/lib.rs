@@ -16,6 +16,7 @@ pub mod db;
 pub mod email;
 mod github;
 mod google;
+pub mod links;
 mod microsoft;
 pub mod outputs;
 pub mod sites;
