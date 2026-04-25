@@ -7,6 +7,10 @@ use stencila_node_type::NodeType;
 
 pub use stencila_node_url::{NodePosition, NodeUrl};
 
+// There is no official limit to the length of URLs. Use the maximum length that
+// Cloudflare Workers will accept.
+const MAX_EMBEDDED_NODE_URL_LENGTH: usize = 16_384;
+
 /// Whether a link target looks like a file path
 pub fn is_file_target(target: &str) -> bool {
     /// Schemes that indicate a target is already a URL (not a local file path)
@@ -58,17 +62,49 @@ pub fn node_url_jzb64<T>(
 where
     T: Serialize + Clone + StripNode,
 {
-    // There is no official limit to the length of URLs.
-    // Using the maximum length that Cloudflare Workers will accept (16k)
-    const MAX_LENGTH: usize = 16_384;
+    node_url_embedded(node, "jzb64", |node| {
+        Ok(NodeUrl {
+            r#type: Some(node_type),
+            jzb64: Some(NodeUrl::to_jzb64(node)?),
+            position,
+            ..Default::default()
+        })
+    })
+}
 
-    let mut url = NodeUrl {
-        r#type: Some(node_type),
-        jzb64: Some(NodeUrl::to_jzb64(node)?),
-        position,
-        ..Default::default()
-    };
-    if url.to_string().len() < MAX_LENGTH {
+/// Create a [`NodeUrl`] with the `jb64` field to allow reconstitution
+///
+/// If the URL is more than 16k in length will successively strip
+/// properties (starting with output, which tend to be large)
+/// until the URL is below that.
+pub fn node_url_jb64<T>(
+    node_type: NodeType,
+    node: &T,
+    position: Option<NodePosition>,
+) -> Result<NodeUrl>
+where
+    T: Serialize + Clone + StripNode,
+{
+    node_url_embedded(node, "jb64", |node| {
+        Ok(NodeUrl {
+            r#type: Some(node_type),
+            jb64: Some(NodeUrl::to_jb64(node)?),
+            position,
+            ..Default::default()
+        })
+    })
+}
+
+fn node_url_embedded<T>(
+    node: &T,
+    field_name: &str,
+    mut encode: impl FnMut(&T) -> Result<NodeUrl>,
+) -> Result<NodeUrl>
+where
+    T: Serialize + Clone + StripNode,
+{
+    let mut url = encode(node)?;
+    if url.to_string().len() < MAX_EMBEDDED_NODE_URL_LENGTH {
         return Ok(url);
     }
 
@@ -89,11 +125,13 @@ where
             ..Default::default()
         });
 
-        url.jzb64 = Some(NodeUrl::to_jzb64(&node)?);
-        if url.to_string().len() < MAX_LENGTH {
+        url = encode(&node)?;
+        if url.to_string().len() < MAX_EMBEDDED_NODE_URL_LENGTH {
             return Ok(url);
         }
     }
 
-    bail!("Unable to generate node url with `jzb64` less than `{MAX_LENGTH}` chars long")
+    bail!(
+        "Unable to generate node url with `{field_name}` less than `{MAX_EMBEDDED_NODE_URL_LENGTH}` chars long"
+    )
 }

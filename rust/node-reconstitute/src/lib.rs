@@ -10,7 +10,7 @@ use stencila_schema::{
 /// Reconstitute a node from a cache
 ///
 /// Walks over the node an when it encounters a `https://stencila.link`, replaces it with
-/// the node in the cache at the `path` query param, or with the self-contained `jzb64` query param.
+/// the node in the cache at the `path` query param, or with a self-contained embedded node query param.
 pub fn reconstitute(node: &mut Node, cache: Option<Node>) {
     Reconstituter {
         cache,
@@ -121,7 +121,7 @@ impl VisitorMut for Reconstituter {
         };
 
         // ...with a path as a target (and cache is available)
-        let node = if let (Some(node_path), Some(cache)) = (node_url.path, &self.cache) {
+        let node = if let (Some(node_path), Some(cache)) = (node_url.path.clone(), &self.cache) {
             // ...that is getable from the cache
             match get(cache, node_path.clone()) {
                 Ok(node_set) => match node_set {
@@ -136,17 +136,15 @@ impl VisitorMut for Reconstituter {
                     return WalkControl::Continue;
                 }
             }
-        } else if let Some(jzb64) = node_url.jzb64 {
-            // ...that has a jzb64 field that can be deserialized to a node
-            match NodeUrl::from_jzb64::<Node>(&jzb64) {
-                Ok(node) => node,
+        } else {
+            match node_url.embedded_node::<Node>() {
+                Ok(Some(node)) => node,
+                Ok(None) => return self.collect_block_if_necessary(block),
                 Err(error) => {
-                    tracing::error!("While decoding `jzb64`: {error}");
+                    tracing::error!("While decoding embedded node URL: {error}");
                     return WalkControl::Continue;
                 }
             }
-        } else {
-            return self.collect_block_if_necessary(block);
         };
 
         // ...and is a block node.
@@ -275,7 +273,7 @@ impl VisitorMut for Reconstituter {
         }
 
         // ...with a path as a target (and cache is available)
-        let node = if let (Some(node_path), Some(cache)) = (node_url.path, &self.cache) {
+        let node = if let (Some(node_path), Some(cache)) = (node_url.path.clone(), &self.cache) {
             // ...that is getable from the cache
             match get(cache, node_path.clone()) {
                 Ok(node_set) => match node_set {
@@ -290,17 +288,15 @@ impl VisitorMut for Reconstituter {
                     return WalkControl::Continue;
                 }
             }
-        } else if let Some(jzb64) = node_url.jzb64 {
-            // ...that has a jzb64 field that can be deserialized to a node
-            match NodeUrl::from_jzb64::<Node>(&jzb64) {
-                Ok(node) => node,
+        } else {
+            match node_url.embedded_node::<Node>() {
+                Ok(Some(node)) => node,
+                Ok(None) => return WalkControl::Continue,
                 Err(error) => {
-                    tracing::error!("While decoding `jzb64`: {error}");
+                    tracing::error!("While decoding embedded node URL: {error}");
                     return WalkControl::Continue;
                 }
             }
-        } else {
-            return WalkControl::Continue;
         };
 
         // ...and is an inline node.
@@ -419,7 +415,7 @@ mod tests {
 
     use eyre::{Result, bail};
     use stencila_schema::{
-        Article, Block, ForBlock, Inline, NodePath, NodeType, RawBlock, node_url_path,
+        Article, Block, ForBlock, Inline, Node, NodePath, NodeType, RawBlock, node_url_path,
         shortcuts::{art, cb, cc, ce, em, fig, frb, ibc, ifb, inb, lnk, p, qb, sec, stb, stg, t},
     };
 
@@ -509,6 +505,51 @@ mod tests {
             )
             .to_string(),
         ))
+    }
+
+    #[test]
+    fn reconstitutes_jb64_block_links() -> Result<()> {
+        let paragraph = p([t("Created paragraph")]);
+        let url = NodeUrl {
+            r#type: Some(NodeType::Paragraph),
+            jb64: Some(NodeUrl::to_jb64(Node::from(paragraph.clone()))?),
+            ..Default::default()
+        };
+        let mut edited = art([p([lnk([t("Paragraph instruction")], url.to_string())])]);
+
+        reconstitute(&mut edited, None);
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+
+        assert_eq!(content, vec![paragraph]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn reconstitutes_jgb64_inline_links() -> Result<()> {
+        let inline = t("inline instruction");
+        let url = NodeUrl {
+            r#type: Some(NodeType::Text),
+            jgb64: Some(NodeUrl::to_jgb64(Node::from(inline.clone()))?),
+            ..Default::default()
+        };
+        let mut edited = art([p([lnk([t("Inline instruction")], url.to_string())])]);
+
+        reconstitute(&mut edited, None);
+
+        let Node::Article(Article { content, .. }) = edited else {
+            bail!("Node should be an article");
+        };
+        let [Block::Paragraph(paragraph)] = content.as_slice() else {
+            bail!("Article should have one paragraph");
+        };
+
+        assert_eq!(paragraph.content, vec![inline]);
+
+        Ok(())
     }
 
     #[test]

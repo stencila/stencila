@@ -6,7 +6,11 @@ use std::{
 
 use base64::{Engine as _, prelude::BASE64_URL_SAFE_NO_PAD};
 use eyre::{Report, Result};
-use flate2::{Compression, read::ZlibDecoder, write::ZlibEncoder};
+use flate2::{
+    Compression,
+    read::{GzDecoder, ZlibDecoder},
+    write::{GzEncoder, ZlibEncoder},
+};
 use percent_encoding::{AsciiSet, CONTROLS, percent_encode};
 use serde::{Serialize, de::DeserializeOwned};
 use strum::{Display, EnumString};
@@ -45,10 +49,28 @@ pub struct NodeUrl {
     /// The position of the link within the node
     pub position: Option<NodePosition>,
 
+    /// The node as JSON and Base64 encoded
+    ///
+    /// This is useful for environments where zlib compression is not
+    /// directly available.
+    pub jb64: Option<String>,
+
+    /// The node as JSON, compressed using GZip, and Base64 encoded
+    ///
+    /// This is useful for environments where gzip support is available
+    /// but zlib support is not.
+    ///
+    /// GZip has a larger wrapper than ZLib, but is often easier to create from browser,
+    /// serverless, and scripting runtimes.
+    pub jgb64: Option<String>,
+
     /// The node as JSON, compressed using ZLib, and Base64 encoded
     ///
     /// This is useful for formats, such as Google Docs, where it is not possible to embed
     /// a cache of the root node in the document.
+    ///
+    /// ZLib usually has slightly less wrapper overhead than GZip, but is less widely
+    /// available in some host environments.
     pub jzb64: Option<String>,
 
     /// A file path for file link URLs
@@ -76,6 +98,52 @@ pub enum NodePosition {
 }
 
 impl NodeUrl {
+    /// Convert a node to the `jb64` field of the URL
+    pub fn to_jb64<T>(node: T) -> Result<String>
+    where
+        T: Serialize,
+    {
+        let json = serde_json::to_string(&node)?;
+        Ok(BASE64_URL_SAFE_NO_PAD.encode(json.as_bytes()))
+    }
+
+    /// Create a node from the `jb64` field of the URL
+    pub fn from_jb64<T>(jb64: &str) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        let json = BASE64_URL_SAFE_NO_PAD.decode(jb64)?;
+        Ok(serde_json::from_slice(&json)?)
+    }
+
+    /// Convert a node to the `jgb64` field of the URL
+    pub fn to_jgb64<T>(node: T) -> Result<String>
+    where
+        T: Serialize,
+    {
+        let json = serde_json::to_string(&node)?;
+
+        let mut encoder = GzEncoder::new(Vec::new(), Compression::best());
+        encoder.write_all(json.as_bytes())?;
+
+        let compressed = encoder.finish()?;
+        Ok(BASE64_URL_SAFE_NO_PAD.encode(&compressed))
+    }
+
+    /// Create a node from the `jgb64` field of the URL
+    pub fn from_jgb64<T>(jgb64: &str) -> Result<T>
+    where
+        T: DeserializeOwned,
+    {
+        let compressed = BASE64_URL_SAFE_NO_PAD.decode(jgb64)?;
+
+        let mut decoder = GzDecoder::new(compressed.as_slice());
+        let mut json = String::new();
+        decoder.read_to_string(&mut json)?;
+
+        Ok(serde_json::from_str(&json)?)
+    }
+
     /// Convert a node to the the `jzb64` field of the URL
     ///
     /// This uses ZLib encoding to reduce the length of the encoded JSON and Base64 encodes it to
@@ -112,6 +180,26 @@ impl NodeUrl {
         let node: T = serde_json::from_str(&json)?;
         Ok(node)
     }
+
+    /// Create a node from the first embedded node field in priority order
+    pub fn embedded_node<T>(&self) -> Result<Option<T>>
+    where
+        T: DeserializeOwned,
+    {
+        if let Some(jb64) = &self.jb64 {
+            return Self::from_jb64(jb64).map(Some);
+        }
+
+        if let Some(jgb64) = &self.jgb64 {
+            return Self::from_jgb64(jgb64).map(Some);
+        }
+
+        if let Some(jzb64) = &self.jzb64 {
+            return Self::from_jzb64(jzb64).map(Some);
+        }
+
+        Ok(None)
+    }
 }
 
 impl FromStr for NodeUrl {
@@ -128,6 +216,8 @@ impl FromStr for NodeUrl {
                 "id" => node_url.id = value.parse().ok(),
                 "path" => node_url.path = value.parse().ok(),
                 "position" => node_url.position = value.parse().ok(),
+                "jb64" => node_url.jb64 = Some(value.to_string()),
+                "jgb64" => node_url.jgb64 = Some(value.to_string()),
                 "jzb64" => node_url.jzb64 = Some(value.to_string()),
                 "file" => node_url.file = Some(value.to_string()),
                 "repo" => node_url.repo = Some(value.to_string()),
@@ -155,6 +245,12 @@ impl Display for NodeUrl {
         }
         if let Some(pos) = &self.position {
             pairs.push(format!("position={pos}"));
+        }
+        if let Some(jb64) = &self.jb64 {
+            pairs.push(format!("jb64={jb64}"));
+        }
+        if let Some(jgb64) = &self.jgb64 {
+            pairs.push(format!("jgb64={jgb64}"));
         }
         if let Some(jzb64) = &self.jzb64 {
             pairs.push(format!("jzb64={jzb64}"));
@@ -217,6 +313,41 @@ mod tests {
     }
 
     #[test]
+    fn roundtrip_jb64() -> Result<()> {
+        let node = "Hello world!";
+
+        let url = NodeUrl {
+            jb64: Some(NodeUrl::to_jb64(node)?),
+            ..Default::default()
+        }
+        .to_string();
+
+        let url = NodeUrl::from_str(&url)?;
+        let round_tripped: String = NodeUrl::from_jb64(&url.jb64.ok_or_eyre("should have jb64")?)?;
+        assert_eq!(node, round_tripped);
+
+        Ok(())
+    }
+
+    #[test]
+    fn roundtrip_jgb64() -> Result<()> {
+        let node = "Hello world!";
+
+        let url = NodeUrl {
+            jgb64: Some(NodeUrl::to_jgb64(node)?),
+            ..Default::default()
+        }
+        .to_string();
+
+        let url = NodeUrl::from_str(&url)?;
+        let round_tripped: String =
+            NodeUrl::from_jgb64(&url.jgb64.ok_or_eyre("should have jgb64")?)?;
+        assert_eq!(node, round_tripped);
+
+        Ok(())
+    }
+
+    #[test]
     fn roundtrip_jzb64() -> Result<()> {
         let node = "Hello world!";
 
@@ -230,6 +361,30 @@ mod tests {
         let round_tripped: String =
             NodeUrl::from_jzb64(&url.jzb64.ok_or_eyre("should have jzb64")?)?;
         assert_eq!(node, round_tripped);
+
+        Ok(())
+    }
+
+    #[test]
+    fn embedded_node_uses_priority_order() -> Result<()> {
+        let url = NodeUrl {
+            jb64: Some(NodeUrl::to_jb64("json")?),
+            jgb64: Some(NodeUrl::to_jgb64("gzip")?),
+            jzb64: Some(NodeUrl::to_jzb64("zlib")?),
+            ..Default::default()
+        };
+
+        let node: Option<String> = url.embedded_node()?;
+        assert_eq!(node.as_deref(), Some("json"));
+
+        let url = NodeUrl {
+            jgb64: Some(NodeUrl::to_jgb64("gzip")?),
+            jzb64: Some(NodeUrl::to_jzb64("zlib")?),
+            ..Default::default()
+        };
+
+        let node: Option<String> = url.embedded_node()?;
+        assert_eq!(node.as_deref(), Some("gzip"));
 
         Ok(())
     }
