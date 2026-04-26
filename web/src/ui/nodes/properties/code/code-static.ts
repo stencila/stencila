@@ -53,9 +53,6 @@ export class UINodeCodeStatic extends LitElement {
     shell: 'bash',
     // CSS
     css: 'css',
-    // Cypher (not available in Prism core, fallback to plain)
-    cypher: 'plain',
-    kuzu: 'plain',
     // Graphviz DOT (not available in Prism core, fallback to plain)
     dot: 'plain',
     dotlang: 'plain',
@@ -86,7 +83,6 @@ export class UINodeCodeStatic extends LitElement {
     // Python
     python: 'python',
     py: 'python',
-    docsql: 'python',
     // R
     r: 'r',
     // SQL

@@ -236,15 +236,6 @@ export class UINodeCode extends LitElement {
       },
     }),
     LanguageDescription.of({
-      name: 'cypher',
-      alias: ['kuzu', 'docs'],
-      load: async () => {
-        return import('@codemirror/legacy-modes/mode/cypher').then(
-          (mode) => new LanguageSupport(StreamLanguage.define(mode.cypher))
-        )
-      },
-    }),
-    LanguageDescription.of({
       name: 'dot',
       alias: ['dotlang', 'graphviz'],
       load: async () => {
@@ -299,12 +290,7 @@ export class UINodeCode extends LitElement {
     }),
     LanguageDescription.of({
       name: 'python',
-      // Previously 'docsql' was an alias for 'jinja'. However, the Jinja mode
-      // oly highlights Jinja syntax like `{{% if a < 1 %}}` and `{{ 1 + 3 }}`.
-      // It does not highlight bare Jinja expressions. So given, keyword-style
-      // syntax for filters in DocsQL are similar to Python, putting that alias
-      // here.
-      alias: ['py', 'docsql'],
+      alias: ['py'],
       load: async () => {
         return import('@codemirror/lang-python').then((obj) => obj.python())
       },

@@ -303,13 +303,7 @@ async fn kernel_snippets(line_num: u32) -> Result<Option<CompletionResponse>, Re
                     },
                 ]
                 .concat(),
-                KernelType::Database => match kernel.name().as_str() {
-                    "kuzu" => "Query a Kuzu graph DB with Cypher",
-                    "docsdb" => "Query a Stencila doc DB with Cypher",
-                    "docsql" => "Query a Stencila doc DB with DocsQL",
-                    _ => "Query a database",
-                }
-                .to_string(),
+                KernelType::Database => "Query a database".to_string(),
                 KernelType::Math => [
                     "Write math using ",
                     lang.as_deref().unwrap_or("math markup"),

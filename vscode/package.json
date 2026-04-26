@@ -1285,30 +1285,6 @@
         }
       },
       {
-        "id": "docsql",
-        "aliases": [
-          "Documents Query Language",
-          "docsql"
-        ],
-        "extensions": [
-          ".docsql"
-        ],
-        "configuration": "./syntaxes/docsql/configuration.json"
-      },
-      {
-        "id": "cypher",
-        "aliases": [
-          "Cypher Query Language",
-          "cypher"
-        ],
-        "extensions": [
-          ".cql",
-          ".cyp",
-          ".cypher"
-        ],
-        "configuration": "./syntaxes/cypher/cypher.configuration.json"
-      },
-      {
         "id": "myst",
         "aliases": [
           "MyST Markdown",
@@ -1348,8 +1324,6 @@
         "embeddedLanguages": {
           "source.js": "javascript",
           "meta.embedded.language.css": "css",
-          "meta.embedded.language.cypher": "cypher",
-          "meta.embedded.language.docsql": "docsql",
           "meta.embedded.language.javascript": "javascript",
           "meta.embedded.language.html": "html",
           "meta.embedded.language.python": "python",
@@ -1359,16 +1333,6 @@
           "meta.embedded.language.xml": "xml",
           "meta.embedded.block.frontmatter": "yaml"
         }
-      },
-      {
-        "language": "docsql",
-        "scopeName": "source.docsql",
-        "path": "./syntaxes/docsql/tmGrammar.json"
-      },
-      {
-        "language": "cypher",
-        "scopeName": "source.cypher",
-        "path": "./syntaxes/cypher/cypher.tmLanguage"
       },
       {
         "language": "myst",
@@ -1564,12 +1528,10 @@
     "fix": "eslint \"src/**/*.ts\" --fix --ignore-pattern src/node-colours.ts",
     "lint": "eslint \"src/**/*.ts\" --ignore-pattern src/node-colours.ts  && tsc --noEmit",
     "compile:web": "cd ../web/ && npm run build:vscode",
-    "fetch:cypher": "node syntaxes/cypher/fetch.js",
     "fetch:myst": "node syntaxes/myst/fetch.js",
     "fetch:qmd": "node syntaxes/qmd/fetch.js",
     "compile:smd": "node syntaxes/smd/compile.js",
-    "compile:docsql": "node syntaxes/docsql/compile.js",
-    "compile:syntaxes": "npm run compile:smd && npm run compile:docsql",
+    "compile:syntaxes": "npm run compile:smd",
     "compile:ts": "node esbuild.mjs",
     "compile": "npm run compile:web && npm run compile:syntaxes && npm run compile:ts",
     "watch": "tsc -watch -p ./",
