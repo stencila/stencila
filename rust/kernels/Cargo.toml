@@ -10,12 +10,9 @@ stencila-cli-utils = { path = "../cli-utils" }
 stencila-kernel = { path = "../kernel" }
 stencila-kernel-asciimath = { path = "../kernel-asciimath" }
 stencila-kernel-bash = { path = "../kernel-bash" }
-stencila-kernel-docsdb = { path = "../kernel-docsdb" }
-stencila-kernel-docsql = { path = "../kernel-docsql" }
 stencila-kernel-graphviz = { path = "../kernel-graphviz" }
 stencila-kernel-jinja = { path = "../kernel-jinja" }
 stencila-kernel-jviz = { path = "../kernel-jviz" }
-stencila-kernel-kuzu = { path = "../kernel-kuzu" }
 stencila-kernel-mermaid = { path = "../kernel-mermaid" }
 stencila-kernel-nodejs = { path = "../kernel-nodejs" }
 stencila-kernel-python = { path = "../kernel-python" }
