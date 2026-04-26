@@ -1720,7 +1720,7 @@ fn md_to_block(md: mdast::Node, context: &mut Context) -> Option<(Block, Option<
                 })),
             ) = (inlines.len(), inlines.first())
             {
-                if lang == "docsql" {
+                if lang == "jinja" {
                     Block::CodeChunk(CodeChunk {
                         programming_language: Some(lang.to_string()),
                         code: code.clone(),

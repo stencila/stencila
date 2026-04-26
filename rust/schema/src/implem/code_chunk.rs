@@ -588,7 +588,7 @@ impl MarkdownCodec for CodeChunk {
                 };
 
             if !wrapped
-                && matches!(self.programming_language.as_deref(), Some("docsql"))
+                && matches!(self.programming_language.as_deref(), Some("jinja"))
                 && !self.code.contains(['\n', ';'])
                 && !self.code.contains("let ")
             {
