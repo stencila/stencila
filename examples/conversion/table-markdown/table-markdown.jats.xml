@@ -39,7 +39,7 @@
             </td>
             <td>
               <p>
-                <code executable="yes" language="docsql">2 * 2</code>
+                <code executable="yes" language="jinja">2 * 2</code>
               </p>
             </td>
           </tr>
