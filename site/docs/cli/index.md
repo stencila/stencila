@@ -56,7 +56,6 @@ stencila open document.md
 | [`lint`](lint.md)                 | Lint one or more documents                                           |
 | [`execute`](execute.md)           | Execute a document                                                   |
 | [`render`](render.md)             | Render a document                                                    |
-| [`query`](query.md)               | Query a workspace database                                           |
 | [`open`](open.md)                 | Open a document in the browser                                       |
 | [`publish`](publish/index.md)     | Publish one or more documents                                        |
 | [`demo`](demo.md)                 | Run a terminal demonstration from a document                         |

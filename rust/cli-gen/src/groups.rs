@@ -30,7 +30,7 @@ pub const COMMAND_GROUPS: &[CommandGroup] = &[
     },
     CommandGroup {
         label: "Processing",
-        commands: &["compile", "lint", "execute", "render", "query"],
+        commands: &["compile", "lint", "execute", "render"],
     },
     CommandGroup {
         label: "View & Publish",
