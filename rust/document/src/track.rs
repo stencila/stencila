@@ -9,7 +9,6 @@ use std::{
 
 use chrono::Utc;
 use eyre::{OptionExt, Result, bail};
-use itertools::Itertools;
 use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use tokio::{
@@ -17,14 +16,11 @@ use tokio::{
     fs::{read_to_string, remove_dir_all, remove_file, rename, write},
 };
 
-use stencila_codecs::{DecodeOptions, EncodeOptions};
+use stencila_codecs::EncodeOptions;
 use stencila_dirs::{
-    CACHE_DIR, DB_FILE, DOCS_FILE, closest_stencila_dir, stencila_artifacts_dir,
-    stencila_cache_dir, stencila_db_file, stencila_docs_file, workspace_dir,
-    workspace_relative_path,
+    CACHE_DIR, DOCS_FILE, closest_stencila_dir, stencila_artifacts_dir, stencila_cache_dir,
+    stencila_docs_file, workspace_dir, workspace_relative_path,
 };
-use stencila_node_canonicalize::canonicalize;
-use stencila_node_db::NodeDatabase;
 use stencila_schema::{Node, NodeId};
 
 use crate::Document;
@@ -228,7 +224,7 @@ impl Document {
         path: &Path,
         cached_at: Option<u64>,
         added_at: Option<u64>,
-    ) -> Result<(NodeId, bool, PathBuf, PathBuf)> {
+    ) -> Result<(NodeId, bool, PathBuf)> {
         if !(path.exists() && path.is_file()) {
             bail!("Path does not exist or is not a file: {}", path.display())
         }
@@ -242,7 +238,6 @@ impl Document {
             .ok_or_eyre("no tracking file despite ensure")?;
 
         let cache_dir = stencila_dir.join(CACHE_DIR);
-        let db_path = stencila_dir.join(DB_FILE);
         let relative_path = workspace_relative_path(&stencila_dir, path, true)?;
 
         match entries.entry(relative_path) {
@@ -257,7 +252,7 @@ impl Document {
 
                 write_entries(&stencila_dir, &entries).await?;
 
-                Ok((id, true, cache_path, db_path))
+                Ok((id, true, cache_path))
             }
             Entry::Vacant(vacant_entry) => {
                 // Create a new entry
@@ -273,88 +268,9 @@ impl Document {
                 vacant_entry.insert(entry);
                 write_entries(&stencila_dir, &entries).await?;
 
-                Ok((id, false, cache_path, db_path))
+                Ok((id, false, cache_path))
             }
         }
-    }
-
-    /// Add documents to a workspace database
-    #[tracing::instrument(skip(identifiers))]
-    pub async fn add_docs(
-        stencila_dir: &Path,
-        identifiers: &[String],
-        decode_options: Option<DecodeOptions>,
-        should_canonicalize: bool,
-    ) -> Result<()> {
-        let db_path = stencila_db_file(stencila_dir, true).await?;
-        let mut db = NodeDatabase::new(&db_path)?;
-
-        // Open each document, store it and upsert to database
-        for identifier in identifiers {
-            let path = PathBuf::from(identifier);
-            let (doc_id, cache_path, mut root) = if path.exists() {
-                let (doc_id, _, cache_path, _) =
-                    Document::track_path(&path, Some(time_now()), Some(time_now())).await?;
-                let root = Document::open(&path, decode_options.clone())
-                    .await?
-                    .root()
-                    .await;
-                (doc_id, cache_path, root)
-            } else {
-                let doc_id = new_id();
-                let cache_dir = stencila_cache_dir(stencila_dir, true).await?;
-                let cache_path = cache_dir.join(format!("{doc_id}.json"));
-                let root =
-                    stencila_codecs::from_identifier(identifier, decode_options.clone()).await?;
-                (doc_id, cache_path, root)
-            };
-
-            if should_canonicalize {
-                canonicalize(&mut root).await?;
-            }
-
-            // Store root node
-            stencila_codec_json::to_path(
-                &root,
-                &cache_path,
-                Some(EncodeOptions {
-                    compact: Some(false),
-                    ..Default::default()
-                }),
-            )?;
-
-            // Upsert root node to database
-            db.upsert(&doc_id, &root)?;
-        }
-
-        Ok(())
-    }
-
-    /// Remove documents from a workspace database
-    #[tracing::instrument(skip(identifiers))]
-    pub async fn remove_docs(stencila_dir: &Path, identifiers: &[String]) -> Result<()> {
-        let db_path = stencila_db_file(stencila_dir, false).await?;
-        if !db_path.exists() {
-            return Ok(());
-        }
-
-        let mut db = NodeDatabase::new(&db_path)?;
-
-        // Remove any db nodes for document
-        let entries = read_entries(stencila_dir).await?;
-        for identifier in identifiers {
-            let path = PathBuf::from(identifier);
-            let relative_path = workspace_relative_path(stencila_dir, &path, false)?;
-
-            let Some(entry) = entries.get(&relative_path) else {
-                continue;
-            };
-
-            // Delete database nodes
-            db.delete(&entry.id)?;
-        }
-
-        Ok(())
     }
 
     /// Stop tracking the document
@@ -393,15 +309,6 @@ impl Document {
             return Ok(());
         };
         write_entries(&stencila_dir, &entries).await?;
-
-        // Remove from database
-        if entry.added_at.is_some() {
-            let db_path = stencila_db_file(&stencila_dir, false).await?;
-            if db_path.exists() {
-                let mut db = NodeDatabase::new(&db_path)?;
-                db.delete(&entry.id)?;
-            }
-        }
 
         // Remove store file
         let cache_path = entry.cache_path(&stencila_dir);
@@ -567,36 +474,5 @@ impl Document {
         Ok(closest_entries(path, false)
             .await?
             .map(|(.., entries)| entries))
-    }
-
-    /// Rebuild the store and db directories
-    ///
-    /// Deletes any existing `store` and `db` directories and re-stores document's in
-    /// the `docs.json file`.
-    ///
-    /// Useful if any changes to the Stencila Schema require a rebuild of the stored
-    /// JSON and/or database without having to remove other tracking information.
-    pub async fn tracking_rebuild(path: &Path) -> Result<()> {
-        let Some((stencila_dir, entries)) = closest_entries(path, false).await? else {
-            bail!("No `.stencila/docs.json` entries to rebuild")
-        };
-
-        let cache_dir = stencila_cache_dir(&stencila_dir, false).await?;
-        if cache_dir.exists() {
-            remove_dir_all(&cache_dir).await?;
-        }
-
-        let db_file = stencila_db_file(&stencila_dir, false).await?;
-        if db_file.exists() {
-            remove_file(&db_file).await?;
-        }
-
-        let identifiers = entries
-            .into_keys()
-            .map(|path| path.to_string_lossy().to_string())
-            .collect_vec();
-        Self::add_docs(&stencila_dir, &identifiers, None, true).await?;
-
-        Ok(())
     }
 }

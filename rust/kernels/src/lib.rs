@@ -15,14 +15,9 @@ use stencila_kernel::{
 };
 use stencila_kernel_asciimath::AsciiMathKernel;
 use stencila_kernel_bash::BashKernel;
-use stencila_kernel_docsdb::{
-    DocsDBKernel, DocsDBKernelInstance, DocsDBVariableListReceiver, DocsDBVariableListSender,
-};
-use stencila_kernel_docsql::{DocsQLKernel, DocsQLKernelInstance};
 use stencila_kernel_graphviz::GraphvizKernel;
 use stencila_kernel_jinja::JinjaKernel;
 use stencila_kernel_jviz::JvizKernel;
-use stencila_kernel_kuzu::KuzuKernel;
 use stencila_kernel_mermaid::MermaidKernel;
 use stencila_kernel_nodejs::NodeJsKernel;
 use stencila_kernel_python::PythonKernel;
@@ -52,10 +47,6 @@ pub async fn list() -> Vec<Box<dyn Kernel>> {
         Box::<BashKernel>::default(),
         //#[cfg(feature = "stencila-kernel-rhai")]
         //Box::<RhaiKernel>::default(),
-        // Database
-        Box::<KuzuKernel>::default(),
-        Box::<DocsDBKernel>::default(),
-        Box::<DocsQLKernel>::default(),
         // Diagrams
         Box::<MermaidKernel>::default(),
         Box::<GraphvizKernel>::default(),
@@ -136,9 +127,6 @@ pub struct Kernels {
     /// A sender for responses to kernels for variables
     variable_response_sender: broadcast::Sender<KernelVariableResponse>,
 
-    /// A sender of requests for a list of all variables in kernels
-    variables_list_sender: DocsDBVariableListSender,
-
     /// A receiver for the root of the document
     ///
     /// Passed on to certain kernel instances so that they can update
@@ -176,14 +164,6 @@ impl Kernels {
             });
         }
 
-        let (variable_list_sender, variable_list_receiver) = mpsc::channel(32);
-        {
-            let instances = instances.clone();
-            tokio::spawn(async move {
-                Self::variable_list_task(instances, variable_list_receiver).await
-            });
-        }
-
         let home = if home.to_string_lossy() == "" {
             match env::current_dir() {
                 Ok(dir) => dir,
@@ -203,7 +183,6 @@ impl Kernels {
             variable_request_sender,
             variable_response_sender,
             root_receiver,
-            variables_list_sender: variable_list_sender,
         }
     }
 
@@ -252,38 +231,6 @@ impl Kernels {
         tracing::trace!("Kernels variable request task stopped");
     }
 
-    /// A task to handle requests for list of all variables
-    async fn variable_list_task(
-        instances: KernelInstances,
-        mut receiver: DocsDBVariableListReceiver,
-    ) {
-        tracing::trace!("Kernels variable list task started");
-
-        while let Some((instance, sender)) = receiver.recv().await {
-            let mut variables = Vec::new();
-            for entry in instances.read().await.iter() {
-                if entry.id == instance {
-                    continue;
-                }
-
-                let mut instance = entry.instance.lock().await;
-                match instance.list().await {
-                    Ok(mut list) => variables.append(&mut list),
-                    Err(error) => tracing::error!(
-                        "Error getting variable list from kernel `{}`: {error}",
-                        entry.id
-                    ),
-                }
-            }
-
-            if sender.send(variables).is_err() {
-                tracing::debug!("Error sending variable list response");
-            }
-        }
-
-        tracing::trace!("Kernels variable list task stopped");
-    }
-
     /// Create a kernel instance
     ///
     /// The `language` argument can be the name of a kernel or a programming language.
@@ -298,25 +245,7 @@ impl Kernels {
 
         let kernel = get_for(language).await?;
 
-        let kernel_name = kernel.name();
-        let mut instance = if matches!(kernel_name.as_str(), "docsql" | "docsdb") {
-            let dir = Some(self.home.clone());
-
-            let channels = match &self.root_receiver {
-                Some(root_receiver) => {
-                    Some((root_receiver.clone(), self.variables_list_sender.clone()))
-                }
-                None => None,
-            };
-
-            if kernel_name == "docsql" {
-                Box::new(DocsQLKernelInstance::new(dir, channels)?) as Box<dyn KernelInstance>
-            } else {
-                Box::new(DocsDBKernelInstance::new(dir, channels, None)?) as Box<dyn KernelInstance>
-            }
-        } else {
-            kernel.create_instance(self.bounds)?
-        };
+        let mut instance = kernel.create_instance(self.bounds)?;
 
         let id = instance.id().to_string();
         if kernel.supports_variable_requests() {

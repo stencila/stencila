@@ -192,7 +192,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8454c8a44ce2cb9cc7e7fae67fc6128465b343b92c6631e94beca3c8d1524ea5"
 dependencies = [
- "unicode-width 0.2.2",
+ "unicode-width",
  "yansi",
 ]
 
@@ -1480,23 +1480,13 @@ dependencies = [
 
 [[package]]
 name = "codespan-reporting"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3538270d33cc669650c4b093848450d380def10c331d38c768e34cac80576e6e"
-dependencies = [
- "termcolor",
- "unicode-width 0.1.14",
-]
-
-[[package]]
-name = "codespan-reporting"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fe6d2e5af09e8c8ad56c969f2157a3d4238cebc7c55f0a517728c38f7b200f81"
 dependencies = [
  "serde",
  "termcolor",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -1587,7 +1577,7 @@ checksum = "958c5d6ecf1f214b4c2bbbbf6ab9523a864bd136dcf71a7e8904799acfe1ad47"
 dependencies = [
  "crossterm",
  "unicode-segmentation",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -1651,7 +1641,7 @@ dependencies = [
  "encode_unicode",
  "libc",
  "once_cell",
- "unicode-width 0.2.2",
+ "unicode-width",
  "windows-sys 0.59.0",
 ]
 
@@ -1664,7 +1654,7 @@ dependencies = [
  "encode_unicode",
  "libc",
  "once_cell",
- "unicode-width 0.2.2",
+ "unicode-width",
  "windows-sys 0.61.2",
 ]
 
@@ -2484,66 +2474,6 @@ checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
 dependencies = [
  "proc-macro2",
  "quote",
- "syn 2.0.117",
-]
-
-[[package]]
-name = "cxx"
-version = "1.0.138"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3956d60afa98653c5a57f60d7056edd513bfe0307ef6fb06f6167400c3884459"
-dependencies = [
- "cc",
- "cxxbridge-cmd",
- "cxxbridge-flags",
- "cxxbridge-macro",
- "foldhash 0.1.5",
- "link-cplusplus",
-]
-
-[[package]]
-name = "cxx-build"
-version = "1.0.186"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5cf2909d37d80633ddd208676fc27c2608a7f035fff69c882421168038b26dd"
-dependencies = [
- "cc",
- "codespan-reporting 0.12.0",
- "indexmap 2.13.0",
- "proc-macro2",
- "quote",
- "scratch",
- "syn 2.0.117",
-]
-
-[[package]]
-name = "cxxbridge-cmd"
-version = "1.0.138"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0f01e92ab4ce9fd4d16e3bb11b158d98cbdcca803c1417aa43130a6526fbf208"
-dependencies = [
- "clap",
- "codespan-reporting 0.11.1",
- "proc-macro2",
- "quote",
- "syn 2.0.117",
-]
-
-[[package]]
-name = "cxxbridge-flags"
-version = "1.0.138"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c41cbfab344869e70998b388923f7d1266588f56c8ca284abf259b1c1ffc695"
-
-[[package]]
-name = "cxxbridge-macro"
-version = "1.0.138"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "88d82a2f759f0ad3eae43b96604efd42b1d4729a35a6f2dc7bdb797ae25d9284"
-dependencies = [
- "proc-macro2",
- "quote",
- "rustversion",
  "syn 2.0.117",
 ]
 
@@ -3944,7 +3874,7 @@ version = "0.2.24"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cfe4fbac503b8d1f88e6676011885f34b7174f46e59956bba534ba83abded4df"
 dependencies = [
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -4213,7 +4143,7 @@ dependencies = [
  "trie-rs",
  "unicode-blocks",
  "unicode-script",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -4854,7 +4784,7 @@ dependencies = [
  "console 0.15.11",
  "number_prefix",
  "portable-atomic",
- "unicode-width 0.2.2",
+ "unicode-width",
  "web-time",
 ]
 
@@ -4866,7 +4796,7 @@ checksum = "25470f23803092da7d239834776d653104d551bc4d7eacaf31e6837854b8e9eb"
 dependencies = [
  "console 0.16.2",
  "portable-atomic",
- "unicode-width 0.2.2",
+ "unicode-width",
  "unit-prefix",
  "web-time",
 ]
@@ -5344,21 +5274,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kuzu"
-version = "0.11.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "06952b00b1a2eabf4caf1426672395f9b1def04207d984af204693dec3da287a"
-dependencies = [
- "cmake",
- "cxx",
- "cxx-build",
- "rust_decimal",
- "rustversion",
- "time",
- "uuid",
-]
-
-[[package]]
 name = "latex2mathml"
 version = "0.3.0"
 source = "git+https://github.com/TheClams/latex2mathml?rev=26cdf2be7f58663b3274fadf4118e9ec86ca21ce#26cdf2be7f58663b3274fadf4118e9ec86ca21ce"
@@ -5531,15 +5446,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "5f4de44e98ddbf09375cbf4d17714d18f39195f4f4894e8524501726fd9a8a4a"
 dependencies = [
  "bitflags 2.11.0",
-]
-
-[[package]]
-name = "link-cplusplus"
-version = "1.0.12"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7f78c730aaa7d0b9336a299029ea49f9ee53b0ed06e9202e8cb7db9bae7b8c82"
-dependencies = [
- "cc",
 ]
 
 [[package]]
@@ -6038,7 +5944,7 @@ dependencies = [
  "bitflags 2.11.0",
  "cfg-if",
  "cfg_aliases",
- "codespan-reporting 0.12.0",
+ "codespan-reporting",
  "half",
  "hashbrown 0.15.5",
  "hexf-parse",
@@ -7636,7 +7542,7 @@ dependencies = [
  "thiserror 2.0.18",
  "unicode-segmentation",
  "unicode-truncate",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -7667,7 +7573,7 @@ dependencies = [
  "strum 0.27.2",
  "time",
  "unicode-segmentation",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -8234,16 +8140,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "rust_decimal"
-version = "1.38.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c8975fc98059f365204d635119cf9c5a60ae67b841ed49b5422a9a7e56cdfac0"
-dependencies = [
- "arrayvec",
- "num-traits",
-]
-
-[[package]]
 name = "rustc-demangle"
 version = "0.1.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8528,12 +8424,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "scratch"
-version = "1.0.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d68f2ec51b097e4c1a75b681a8bec621909b5e91f15bb7b840c4f2f7b01148b2"
 
 [[package]]
 name = "sdd"
@@ -9433,7 +9323,7 @@ dependencies = [
  "terminal_size",
  "textwrap",
  "toml 1.1.0+spec-1.1.0",
- "unicode-width 0.2.2",
+ "unicode-width",
  "url",
 ]
 
@@ -10566,8 +10456,6 @@ dependencies = [
  "stencila-dirs",
  "stencila-format",
  "stencila-kernels",
- "stencila-node-canonicalize",
- "stencila-node-db",
  "stencila-node-diagnostics",
  "stencila-node-execute",
  "stencila-node-find",
@@ -10696,51 +10584,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "stencila-kernel-docsdb"
-version = "0.0.0"
-dependencies = [
- "futures",
- "itertools 0.14.0",
- "lru",
- "regex",
- "serde_json",
- "serde_yaml",
- "stencila-codec-json",
- "stencila-codec-markdown",
- "stencila-codecs",
- "stencila-dirs",
- "stencila-kernel-kuzu",
- "stencila-node-canonicalize",
- "stencila-node-db",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "stencila-kernel-docsql"
-version = "0.0.0"
-dependencies = [
- "Inflector",
- "eyre",
- "glob",
- "itertools 0.14.0",
- "pretty_assertions",
- "regex",
- "serde_json",
- "stencila-codec-github",
- "stencila-codec-openalex",
- "stencila-codec-text-trait",
- "stencila-codec-zenodo",
- "stencila-codecs",
- "stencila-embed",
- "stencila-kernel-docsdb",
- "stencila-kernel-jinja",
- "stencila-secrets",
- "tokio",
- "tracing",
-]
-
-[[package]]
 name = "stencila-kernel-graphviz"
 version = "0.0.0"
 dependencies = [
@@ -10771,25 +10614,6 @@ dependencies = [
  "stencila-kernel",
  "stencila-kernel-jinja",
  "stencila-version",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "stencila-kernel-kuzu"
-version = "0.0.0"
-dependencies = [
- "indexmap 2.13.0",
- "itertools 0.14.0",
- "kuzu",
- "pretty_assertions",
- "regex",
- "serde",
- "serde_json",
- "stencila-kernel",
- "stencila-kernel-jinja",
- "strum 0.28.0",
- "tempfile",
  "tokio",
  "tracing",
 ]
@@ -10910,12 +10734,9 @@ dependencies = [
  "stencila-kernel",
  "stencila-kernel-asciimath",
  "stencila-kernel-bash",
- "stencila-kernel-docsdb",
- "stencila-kernel-docsql",
  "stencila-kernel-graphviz",
  "stencila-kernel-jinja",
  "stencila-kernel-jviz",
- "stencila-kernel-kuzu",
  "stencila-kernel-mermaid",
  "stencila-kernel-nodejs",
  "stencila-kernel-python",
@@ -11298,33 +11119,6 @@ name = "stencila-node-contains"
 version = "0.0.0"
 dependencies = [
  "stencila-schema",
-]
-
-[[package]]
-name = "stencila-node-db"
-version = "0.0.0"
-dependencies = [
- "chrono",
- "clap",
- "derive_more 2.1.1",
- "eyre",
- "itertools 0.14.0",
- "rust-embed",
- "semver",
- "serde",
- "sha2 0.10.9",
- "stencila-ask",
- "stencila-cli-utils",
- "stencila-codec-text-trait",
- "stencila-dirs",
- "stencila-embed",
- "stencila-kernel-kuzu",
- "stencila-schema",
- "stencila-version",
- "tempfile",
- "time",
- "tokio",
- "tracing",
 ]
 
 [[package]]
@@ -12128,7 +11922,7 @@ dependencies = [
  "tokio",
  "tracing",
  "tracing-subscriber",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -12486,7 +12280,7 @@ dependencies = [
  "smawk",
  "terminal_size",
  "unicode-linebreak",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -13445,14 +13239,8 @@ checksum = "16b380a1238663e5f8a691f9039c73e1cdae598a30e9855f541d29b08b53e9a5"
 dependencies = [
  "itertools 0.14.0",
  "unicode-segmentation",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
-
-[[package]]
-name = "unicode-width"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 
 [[package]]
 name = "unicode-width"

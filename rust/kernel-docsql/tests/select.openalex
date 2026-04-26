@@ -1,3 +1,0 @@
-openalex.works().select('type', 'title', 'doi')
----
-GET https://api.openalex.org/works?select=type,title,doi
