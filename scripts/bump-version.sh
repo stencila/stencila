@@ -65,21 +65,7 @@ sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila_types/pyproj
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila/pyproject.toml
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila/Cargo.toml
 
-# 5. Rename schema snapshot and migration files
-SCHEMAS_DIR="rust/node-db/schemas"
-MIGRATIONS_DIR="rust/node-db/migrations"
-
-if [ -f "$SCHEMAS_DIR/v99.99.99.json" ]; then
-    echo "Renaming schema snapshot v99.99.99.json to v$VERSION.json"
-    mv "$SCHEMAS_DIR/v99.99.99.json" "$SCHEMAS_DIR/v$VERSION.json"
-fi
-
-if [ -f "$MIGRATIONS_DIR/v99.99.99.cypher" ]; then
-    echo "Renaming migration v99.99.99.cypher to v$VERSION.cypher"
-    mv "$MIGRATIONS_DIR/v99.99.99.cypher" "$MIGRATIONS_DIR/v$VERSION.cypher"
-fi
-
-# 6. Build and update lock files
+# 5. Build and update lock files
 echo "Building version crate and updating lock files..."
 # Building the version crate is sufficient to update Cargo.lock with the new version
 # Note: DO NOT use `cargo generate-lockfile` as it would update ALL dependencies to their
@@ -87,7 +73,7 @@ echo "Building version crate and updating lock files..."
 cargo build -p stencila-version
 npm install
 
-# 7. Update VSCode CHANGELOG
+# 6. Update VSCode CHANGELOG
 echo "Updating VSCode CHANGELOG..."
 cd vscode
 sed -i "3i## $VERSION $(date '+%Y-%m-%d')\n\n\n" CHANGELOG.md
