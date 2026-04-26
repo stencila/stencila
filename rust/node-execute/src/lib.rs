@@ -191,11 +191,6 @@ pub struct Executor {
     /// to pending.
     execution_status: ExecutionStatus,
 
-    /// The position (relative index of block of inline node) in the walk
-    ///
-    /// Used to set the `currentPosition` in any `docsql` and `docsdb` kernels
-    walk_position: u64,
-
     /// A list of the ancestors node types in the current walk
     ///
     /// Used to skip headings within figures, tables and code chunk captions.
@@ -444,7 +439,6 @@ impl Executor {
             node_ids: None,
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
-            walk_position: 0,
             walk_ancestors: Default::default(),
             headings: Vec::new(),
             appendix_count: None,
@@ -470,7 +464,6 @@ impl Executor {
     /// tables, figures etc.
     fn fork_for_supplement(&self) -> Self {
         Self {
-            walk_position: 0,
             walk_ancestors: Default::default(),
             headings: Vec::new(),
             appendix_count: None,
@@ -561,7 +554,6 @@ impl Executor {
         self.equation_count = 0;
         self.supplement_count = 0;
         self.linting_context.clear();
-        self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
@@ -580,7 +572,6 @@ impl Executor {
     /// Run [`Phase::Link`]
     async fn link<N: WalkNode + PatchNode + Debug>(&mut self, root: &mut N) -> Result<()> {
         self.phase = Phase::Link;
-        self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
@@ -954,7 +945,6 @@ impl Executor {
     /// Run [`Phase::Prepare`]
     async fn prepare(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Prepare;
-        self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await
     }
@@ -962,7 +952,6 @@ impl Executor {
     /// Run [`Phase::Execute`]
     async fn execute(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Execute;
-        self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await?;
 
@@ -972,7 +961,6 @@ impl Executor {
     /// Run [`Phase::Interrupt`]
     async fn interrupt(&mut self, root: &mut Node) -> Result<()> {
         self.phase = Phase::Interrupt;
-        self.walk_position = 0;
         self.walk_ancestors.clear();
         root.walk_async(self).await
     }
@@ -1376,8 +1364,6 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_block(&mut self, block: &mut Block) -> Result<WalkControl> {
-        self.walk_position += 1;
-
         use Block::*;
         Ok(match block {
             AppendixBreak(node) => self.visit_executable(node).await,
@@ -1412,8 +1398,6 @@ impl VisitorAsync for Executor {
     }
 
     async fn visit_inline(&mut self, inline: &mut Inline) -> Result<WalkControl> {
-        self.walk_position += 1;
-
         use Inline::*;
         Ok(match inline {
             Citation(node) => self.visit_executable(node).await,
