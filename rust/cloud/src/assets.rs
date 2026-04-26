@@ -10,9 +10,7 @@ use reqwest::{
 };
 use serde::Deserialize;
 
-use stencila_version::STENCILA_USER_AGENT;
-
-use crate::{base_url, check_response, client, process_response};
+use crate::{base_url, check_response, client, process_response, public_client};
 
 /// Maximum asset size accepted by the Stencila Cloud API.
 pub const MAX_ASSET_SIZE: usize = 10 * 1024 * 1024;
@@ -80,14 +78,25 @@ pub async fn upload_asset(
     content_type: &str,
     bytes: impl Into<Bytes>,
 ) -> Result<AssetUploadResponse> {
+    let client = client().await?;
+    upload_asset_with_client(&client, workspace_id, content_type, bytes).await
+}
+
+/// Upload a temporary image asset using an explicit Cloud API client.
+#[tracing::instrument(skip(client, bytes))]
+pub async fn upload_asset_with_client(
+    client: &Client,
+    workspace_id: &str,
+    content_type: &str,
+    bytes: impl Into<Bytes>,
+) -> Result<AssetUploadResponse> {
     let bytes = bytes.into();
     let content_length = bytes.len();
     let url = format!("{}/workspaces/{workspace_id}/assets", base_url());
 
     tracing::debug!("Uploading asset to workspace {workspace_id}");
 
-    let response = client()
-        .await?
+    let response = client
         .post(&url)
         .header(CONTENT_TYPE, content_type)
         .header(CONTENT_LENGTH, content_length.to_string())
@@ -148,10 +157,6 @@ pub async fn check_asset(workspace_id: &str, token: &str) -> Result<AssetMetadat
 /// Build the public URL for a temporary workspace asset.
 pub fn asset_url(workspace_id: &str, token: &str) -> String {
     format!("{}/workspaces/{workspace_id}/assets/{token}", base_url())
-}
-
-fn public_client() -> Result<Client> {
-    Ok(Client::builder().user_agent(STENCILA_USER_AGENT).build()?)
 }
 
 fn asset_metadata(headers: &HeaderMap) -> Result<AssetMetadata> {

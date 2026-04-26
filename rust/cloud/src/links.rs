@@ -106,12 +106,38 @@ where
     write_snapshot_bytes(workspace_id, body, None).await
 }
 
+/// Write a JSON snapshot to a workspace using an explicit Cloud API client.
+#[tracing::instrument(skip(client, snapshot))]
+pub async fn write_snapshot_with_client<T>(
+    client: &reqwest::Client,
+    workspace_id: &str,
+    snapshot: &T,
+) -> Result<LinkSnapshotResponse>
+where
+    T: Serialize + ?Sized,
+{
+    let body = snapshot_body(snapshot)?;
+    write_snapshot_bytes_with_client(client, workspace_id, body, None).await
+}
+
 /// Write a raw JSON snapshot body to a workspace and create a link.
 ///
 /// Use `encoding` when `body` is already gzip-compressed JSON. This uses the
 /// configured Stencila API token as a bearer token.
 #[tracing::instrument(skip(body))]
 pub async fn write_snapshot_bytes(
+    workspace_id: &str,
+    body: impl Into<Vec<u8>>,
+    encoding: Option<SnapshotContentEncoding>,
+) -> Result<LinkSnapshotResponse> {
+    let client = client().await?;
+    write_snapshot_bytes_with_client(&client, workspace_id, body, encoding).await
+}
+
+/// Write a raw JSON snapshot body using an explicit Cloud API client.
+#[tracing::instrument(skip(client, body))]
+pub async fn write_snapshot_bytes_with_client(
+    client: &reqwest::Client,
     workspace_id: &str,
     body: impl Into<Vec<u8>>,
     encoding: Option<SnapshotContentEncoding>,
@@ -123,7 +149,7 @@ pub async fn write_snapshot_bytes(
 
     tracing::debug!("Writing link snapshot to workspace {workspace_id}");
 
-    let response = request_with_body(client().await?.post(&url), body, encoding)
+    let response = request_with_body(client.post(&url), body, encoding)
         .send()
         .await?;
 
@@ -143,8 +169,23 @@ pub async fn write_prehashed_snapshot<T>(
 where
     T: Serialize + ?Sized,
 {
+    let client = client().await?;
+    write_prehashed_snapshot_with_client(&client, workspace_id, sha256, snapshot).await
+}
+
+/// Write a pre-hashed JSON snapshot using an explicit Cloud API client.
+#[tracing::instrument(skip(client, snapshot))]
+pub async fn write_prehashed_snapshot_with_client<T>(
+    client: &reqwest::Client,
+    workspace_id: &str,
+    sha256: &str,
+    snapshot: &T,
+) -> Result<LinkSnapshotResponse>
+where
+    T: Serialize + ?Sized,
+{
     let body = snapshot_body(snapshot)?;
-    write_prehashed_snapshot_bytes(workspace_id, sha256, body, None).await
+    write_prehashed_snapshot_bytes_with_client(client, workspace_id, sha256, body, None).await
 }
 
 /// Write a raw pre-hashed JSON snapshot body to a workspace.
@@ -158,6 +199,19 @@ pub async fn write_prehashed_snapshot_bytes(
     body: impl Into<Vec<u8>>,
     encoding: Option<SnapshotContentEncoding>,
 ) -> Result<LinkSnapshotResponse> {
+    let client = client().await?;
+    write_prehashed_snapshot_bytes_with_client(&client, workspace_id, sha256, body, encoding).await
+}
+
+/// Write a raw pre-hashed JSON snapshot body using an explicit Cloud API client.
+#[tracing::instrument(skip(client, body))]
+pub async fn write_prehashed_snapshot_bytes_with_client(
+    client: &reqwest::Client,
+    workspace_id: &str,
+    sha256: &str,
+    body: impl Into<Vec<u8>>,
+    encoding: Option<SnapshotContentEncoding>,
+) -> Result<LinkSnapshotResponse> {
     let body = body.into();
     validate_snapshot_size(body.len())?;
 
@@ -165,7 +219,7 @@ pub async fn write_prehashed_snapshot_bytes(
 
     tracing::debug!("Writing pre-hashed link snapshot {sha256} to workspace {workspace_id}");
 
-    let response = request_with_body(client().await?.put(&url), body, encoding)
+    let response = request_with_body(client.put(&url), body, encoding)
         .send()
         .await?;
 
@@ -182,11 +236,22 @@ pub async fn check_snapshot(
     workspace_id: &str,
     sha256: &str,
 ) -> Result<Option<LinkSnapshotMetadata>> {
+    let client = client().await?;
+    check_snapshot_with_client(&client, workspace_id, sha256).await
+}
+
+/// Check whether a snapshot object is already linked using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn check_snapshot_with_client(
+    client: &reqwest::Client,
+    workspace_id: &str,
+    sha256: &str,
+) -> Result<Option<LinkSnapshotMetadata>> {
     let url = format!("{}/workspaces/{workspace_id}/objects/{sha256}", base_url());
 
     tracing::debug!("Checking link snapshot {sha256} in workspace {workspace_id}");
 
-    let response = client().await?.head(&url).send().await?;
+    let response = client.head(&url).send().await?;
 
     process_check_response(response).await
 }
@@ -196,11 +261,21 @@ pub async fn check_snapshot(
 /// This uses the configured Stencila API token as a bearer token.
 #[tracing::instrument]
 pub async fn read_snapshot(public_id: &str) -> Result<SnapshotEnvelope> {
+    let client = client().await?;
+    read_snapshot_with_client(&client, public_id).await
+}
+
+/// Read a JSON snapshot using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn read_snapshot_with_client(
+    client: &reqwest::Client,
+    public_id: &str,
+) -> Result<SnapshotEnvelope> {
     let url = link_json_url(public_id);
 
     tracing::debug!("Reading link snapshot from {url}");
 
-    let response = client().await?.get(url).send().await?;
+    let response = client.get(url).send().await?;
 
     process_response(response).await
 }

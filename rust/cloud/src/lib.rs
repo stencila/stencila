@@ -18,21 +18,33 @@ mod github;
 mod google;
 pub mod links;
 mod microsoft;
+pub mod mirror;
 pub mod outputs;
 pub mod sites;
+mod tokens;
 mod watch;
 pub mod workspace;
 
 pub use github::get_repo_token;
+pub use github::{
+    get_repo_token_with_client, get_token_once_with_client as github_get_token_once_with_client,
+};
 pub use google::{
-    GoogleTokenError, get_token_once as google_get_token_once, picker_url as google_picker_url,
+    GoogleTokenError, get_token_once as google_get_token_once,
+    get_token_once_with_client as google_get_token_once_with_client,
+    picker_url as google_picker_url,
 };
 pub use microsoft::{
     MicrosoftTokenError, get_token_once as microsoft_get_token_once,
+    get_token_once_with_client as microsoft_get_token_once_with_client,
     picker_url as microsoft_picker_url,
 };
 pub use watch::*;
-pub use workspace::{WorkspaceResponse, create_or_get_workspace, ensure_workspace, get_workspace};
+pub use workspace::{
+    WorkspaceResponse, create_or_get_workspace, create_or_get_workspace_with_client,
+    ensure_workspace, ensure_workspace_with_client, get_workspace, get_workspace_with_client,
+    list_workspaces, list_workspaces_with_client,
+};
 
 /// The base URL for the Stencila Cloud API
 ///
@@ -234,12 +246,8 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
     })
 }
 
-/// Get an authenticated client for the Stencila Cloud API
-pub async fn client() -> Result<Client> {
-    let Some(token) = api_token() else {
-        bail!("Please *stencila signin* first and try again.")
-    };
-
+/// Build an authenticated client for the Stencila Cloud API with an explicit token.
+pub fn client_with_api_token(token: &str) -> Result<Client> {
     let client = Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .default_headers(HeaderMap::from_iter([(
@@ -249,6 +257,20 @@ pub async fn client() -> Result<Client> {
         .build()?;
 
     Ok(client)
+}
+
+/// Build an authenticated client for the Stencila Cloud API
+pub async fn client() -> Result<Client> {
+    let Some(token) = api_token() else {
+        bail!("Please *stencila signin* first and try again.")
+    };
+
+    client_with_api_token(&token)
+}
+
+/// Build an unauthenticated client for the Stencila Cloud API
+fn public_client() -> Result<Client> {
+    Ok(Client::builder().user_agent(STENCILA_USER_AGENT).build()?)
 }
 
 /// Get an access token for a remote service with interactive retry flow

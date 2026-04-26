@@ -100,6 +100,15 @@ pub struct WorkspaceResponse {
 #[tracing::instrument]
 pub async fn create_or_get_workspace(github_url: &str) -> Result<WorkspaceResponse> {
     let client = client().await?;
+    create_or_get_workspace_with_client(&client, github_url).await
+}
+
+/// Create or get a workspace using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn create_or_get_workspace_with_client(
+    client: &reqwest::Client,
+    github_url: &str,
+) -> Result<WorkspaceResponse> {
     let url = format!("{}/workspaces", base_url());
 
     let request = CreateWorkspaceRequest {
@@ -120,6 +129,15 @@ pub async fn create_or_get_workspace(github_url: &str) -> Result<WorkspaceRespon
 #[tracing::instrument]
 pub async fn get_workspace(workspace_id: &str) -> Result<WorkspaceResponse> {
     let client = client().await?;
+    get_workspace_with_client(&client, workspace_id).await
+}
+
+/// Get a workspace by its public ID using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn get_workspace_with_client(
+    client: &reqwest::Client,
+    workspace_id: &str,
+) -> Result<WorkspaceResponse> {
     let url = format!("{}/workspaces/{}", base_url(), workspace_id);
 
     tracing::debug!("Getting workspace {workspace_id}");
@@ -132,6 +150,14 @@ pub async fn get_workspace(workspace_id: &str) -> Result<WorkspaceResponse> {
 #[tracing::instrument]
 pub async fn list_workspaces() -> Result<Vec<WorkspaceResponse>> {
     let client = client().await?;
+    list_workspaces_with_client(&client).await
+}
+
+/// List workspaces using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn list_workspaces_with_client(
+    client: &reqwest::Client,
+) -> Result<Vec<WorkspaceResponse>> {
     let url = format!("{}/workspaces", base_url());
 
     tracing::debug!("Listing workspaces");
@@ -157,6 +183,16 @@ pub async fn list_workspaces() -> Result<Vec<WorkspaceResponse>> {
 /// if the workspace configuration was already present.
 #[tracing::instrument]
 pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
+    let client = client().await?;
+    ensure_workspace_with_client(&client, path).await
+}
+
+/// Ensure a workspace exists using an explicit Cloud API client.
+#[tracing::instrument(skip(client))]
+pub async fn ensure_workspace_with_client(
+    client: &reqwest::Client,
+    path: &Path,
+) -> Result<(String, bool)> {
     // Check if workspace config already exists
     let cfg = get()?;
 
@@ -184,7 +220,7 @@ pub async fn ensure_workspace(path: &Path) -> Result<(String, bool)> {
     tracing::info!("No workspace.id found, creating workspace for {github_url}");
 
     // Create or get workspace
-    let workspace = create_or_get_workspace(&github_url).await?;
+    let workspace = create_or_get_workspace_with_client(client, &github_url).await?;
 
     // Write to config
     set_value("workspace.id", &workspace.public_id, ConfigTarget::Nearest)?;
