@@ -48,7 +48,6 @@ checks and extends inheritance, expands union types, and then generates:
 - Python types in `python/stencila_types/src/stencila_types/types.py`
 - JSON Schema files in `json/*.schema.json`
 - JSON-LD contexts in `json/*.jsonld`
-- Kuzu graph schema, migrations, and Rust ORM code in `rust/node-db/`
 
 ## Using this reference
 

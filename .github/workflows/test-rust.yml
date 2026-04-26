@@ -59,10 +59,6 @@ jobs:
         if: ${{ contains(inputs.platforms, matrix.platform) }}
         uses: astral-sh/setup-uv@v5
 
-      - name: Install Ninja for Kuzu (Windows)
-        if: ${{ contains(inputs.platforms, 'windows') && matrix.platform == 'windows' }}
-        run: choco install ninja --yes
-
       - name: Setup Pandoc
         uses: pandoc/actions/setup@v1
 
