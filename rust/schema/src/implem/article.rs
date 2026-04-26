@@ -232,8 +232,8 @@ impl DomCodec for Article {
                 });
             }
         } else {
-            // If this article is not the root (e.g an article output from an
-            // OpenAlex DocsQL query) then represent as a reference
+            // If this article is not the root (e.g. an article output from a
+            // search query) then represent as a reference
             let reference = Reference::from(self);
             context.push_slot_fn("div", "reference", |context| reference.to_dom(context));
         }
