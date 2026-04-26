@@ -330,7 +330,7 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
         bail!("Error or unexpected node type when decoding")
     };
 
-    let content = unwrap_docsql(content);
+    let content = unwrap_jinja_expressions(content);
 
     let chat_message = Block::ChatMessage(ChatMessage {
         content,
@@ -351,12 +351,12 @@ async fn chat_patch(chat_id: &NodeId, text: String, files: Option<Vec<File>>) ->
     })
 }
 
-/// Unwrap DocsQL [`CodeExpression`] inlines into a [`CodeChunk`] so that
-/// it may have multiple [`Excerpt`] outputs
+/// Unwrap Jinja [`CodeExpression`] inlines into [`CodeChunk`] blocks so that
+/// they may produce rich outputs.
 ///
-/// Applied so that users can write single line messages with double brace enclosed DocsQL
-/// queries within them.
-fn unwrap_docsql(blocks: Vec<Block>) -> Vec<Block> {
+/// Applied so that users can write messages with double brace enclosed Jinja
+/// expressions within them.
+fn unwrap_jinja_expressions(blocks: Vec<Block>) -> Vec<Block> {
     let mut expanded = Vec::with_capacity(blocks.len());
 
     for block in blocks {
@@ -372,7 +372,7 @@ fn unwrap_docsql(blocks: Vec<Block>) -> Vec<Block> {
                     ..,
                 ) = &inline
                 {
-                    if lang == "docsql" {
+                    if lang == "jinja" {
                         if !inlines.is_empty() {
                             expanded.push(Block::Paragraph(Paragraph {
                                 content: std::mem::take(&mut inlines),
