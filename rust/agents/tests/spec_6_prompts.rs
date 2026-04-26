@@ -62,6 +62,35 @@ async fn build_system_prompt_includes_pre_run_tool_context() -> AgentResult<()> 
     Ok(())
 }
 
+#[cfg(feature = "skills")]
+#[tokio::test]
+async fn build_system_prompt_does_not_pre_run_list_skills() -> AgentResult<()> {
+    let env = MockEnv::new("/project").with_command(
+        "git rev-parse --abbrev-ref HEAD",
+        ExecResult {
+            stdout: String::new(),
+            stderr: String::new(),
+            exit_code: 1,
+            timed_out: false,
+            duration_ms: 5,
+        },
+    );
+    let mut profile = AnthropicProfile::new("test-model", 600_000)?;
+    stencila_agents::tools::register_delegation_tools(profile.tool_registry_mut())?;
+
+    let config = stencila_agents::types::SessionConfig {
+        allowed_tools: Some(vec!["list_skills".into()]),
+        ..Default::default()
+    };
+
+    let (prompt, _mcp) = build_system_prompt(&mut profile, &env, &config).await?;
+
+    assert!(!prompt.contains("<pre_run_tools>"));
+    assert!(!prompt.contains("Tool: list_skills"));
+
+    Ok(())
+}
+
 impl MockEnv {
     fn new(working_dir: &str) -> Self {
         Self {

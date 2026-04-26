@@ -17,6 +17,8 @@ pub mod inspect_image;
 pub mod lint_svg;
 pub mod list_agents;
 pub mod list_dir;
+#[cfg(feature = "skills")]
+pub mod list_skills;
 pub mod list_workflows;
 pub mod read_file;
 pub mod read_many_files;
@@ -36,6 +38,9 @@ use crate::registry::{RegisteredTool, ToolRegistry};
 /// Keep this list intentionally small and side-effect free. Tools listed here
 /// should be inexpensive, deterministic enough for prompt context, and safe to
 /// execute without explicit model initiation.
+// `list_skills` is intentionally excluded. It is available as a routing
+// fallback for the manager, but should not be pre-run because that would make
+// the manager too eager to consider skills before agent/workflow matches.
 const PRE_RUN_TOOLS: &[&str] = &["list_agents", "list_workflows"];
 
 /// Execute eligible pre-run tools and format their text output for prompt injection.
@@ -186,17 +191,26 @@ pub fn register_optional_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
     ])
 }
 
-/// Register the delegation tools: `list_agents`, `list_workflows`, `delegate`.
+/// Register the delegation tools: `list_agents`, `list_workflows`, `list_skills`, `delegate`.
 ///
 /// These are used by the manager agent for routing and handoff. They are
 /// registered separately from core tools so that only agents whose
 /// `allowedTools` includes them will see them.
+#[allow(unused_mut)]
 pub fn register_delegation_tools(registry: &mut ToolRegistry) -> AgentResult<()> {
-    registry.register_all(vec![
+    let mut tools = vec![
         RegisteredTool::new(list_agents::definition(), list_agents::executor()),
         RegisteredTool::new(list_workflows::definition(), list_workflows::executor()),
         RegisteredTool::new(delegate::definition(), delegate::executor()),
-    ])
+    ];
+
+    #[cfg(feature = "skills")]
+    tools.push(RegisteredTool::new(
+        list_skills::definition(),
+        list_skills::executor(),
+    ));
+
+    registry.register_all(tools)
 }
 
 /// Strip line-number prefixes from `FileContent::Text` output.

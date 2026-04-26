@@ -401,14 +401,14 @@ pub async fn build_system_prompt(
     #[cfg(not(any(feature = "mcp", feature = "codemode")))]
     let mcp_context: Option<McpContext> = None;
 
-    // Register delegation tools (list_agents, list_workflows, delegate) early
+    // Register delegation tools (list_agents, list_workflows, list_skills, delegate) early
     // so they are available for pre-run execution below. These are registered
     // conditionally — only when the agent's `allowed_tools` includes them.
     {
         let needs_delegation = config.allowed_tools.as_ref().is_some_and(|tools| {
-            tools
-                .iter()
-                .any(|t| t == "list_agents" || t == "list_workflows" || t == "delegate")
+            tools.iter().any(|t| {
+                t == "list_agents" || t == "list_workflows" || t == "list_skills" || t == "delegate"
+            })
         });
         if needs_delegation && let Err(e) = register_delegation_tools(profile.tool_registry_mut()) {
             tracing::warn!("failed to register delegation tools: {e}");

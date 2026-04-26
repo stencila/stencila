@@ -1029,14 +1029,20 @@ fn register_default_tools_matches_anthropic() -> AgentResult<()> {
 }
 
 #[test]
-fn register_delegation_tools_adds_three() -> AgentResult<()> {
+fn register_delegation_tools_adds_routing_tools() -> AgentResult<()> {
     let mut registry = ToolRegistry::new();
     tools::register_delegation_tools(&mut registry)?;
 
+    #[cfg(feature = "skills")]
+    assert_eq!(registry.len(), 4);
+    #[cfg(not(feature = "skills"))]
     assert_eq!(registry.len(), 3);
+
     let names = registry.names();
     assert!(names.contains(&"list_agents"));
     assert!(names.contains(&"list_workflows"));
+    #[cfg(feature = "skills")]
+    assert!(names.contains(&"list_skills"));
     assert!(names.contains(&"delegate"));
     Ok(())
 }
@@ -1158,6 +1164,20 @@ async fn list_agents_returns_json_array() {
 async fn list_workflows_returns_json_array() {
     let env = MockExecutionEnvironment::new();
     let exec = tools::list_workflows::executor();
+    let result = exec(json!({}), &env).await;
+
+    assert!(result.is_ok());
+    if let Ok(ToolOutput::Text(text)) = result {
+        let parsed: serde_json::Value = serde_json::from_str(&text).expect("should be valid JSON");
+        assert!(parsed.is_array());
+    }
+}
+
+#[cfg(feature = "skills")]
+#[tokio::test]
+async fn list_skills_returns_json_array() {
+    let env = MockExecutionEnvironment::new();
+    let exec = tools::list_skills::executor();
     let result = exec(json!({}), &env).await;
 
     assert!(result.is_ok());

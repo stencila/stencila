@@ -15,7 +15,8 @@ pub fn definition() -> ToolDefinition {
         name: "delegate".into(),
         description: "Delegate the current task to another agent or workflow. This ends \
             the current exchange and launches the delegatee. Use this after inspecting \
-            available agents and workflows with list_agents and list_workflows."
+            available agents and workflows with list_agents and list_workflows. Use list_skills \
+            only when falling back to a general agent with a specific skill instruction."
             .into(),
         parameters: json!({
             "type": "object",
