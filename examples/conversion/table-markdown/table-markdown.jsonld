@@ -136,7 +136,7 @@
                       "stencila:code": {
                         "string": " 2 * 2 "
                       },
-                      "programmingLanguage": "docsql"
+                      "programmingLanguage": "jinja"
                     }
                   ]
                 }
