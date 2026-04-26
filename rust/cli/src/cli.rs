@@ -254,7 +254,6 @@ pub enum Command {
     Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
-    Query(stencila_document::cli::Query),
 
     Open(open::Cli),
     Publish(stencila_publish::Cli),
@@ -335,7 +334,6 @@ impl Cli {
             Command::Lint(lint) => lint.run().await,
             Command::Execute(execute) => execute.run().await,
             Command::Render(render) => render.run().await,
-            Command::Query(query) => query.run().await,
 
             Command::Open(open) => open.run().await,
             Command::Publish(publish) => publish.run().await,

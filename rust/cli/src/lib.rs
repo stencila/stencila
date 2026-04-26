@@ -104,7 +104,6 @@ mod tests {
             ("document::track", stencila_document::cli::TRACK_AFTER_LONG_HELP),
             ("document::untrack", stencila_document::cli::UNTRACK_AFTER_LONG_HELP),
             ("document::clean", stencila_document::cli::CLEAN_AFTER_LONG_HELP),
-            ("document::query", stencila_document::cli::QUERY_AFTER_LONG_HELP),
             // DB module help strings
             ("db", crate::db::CLI_AFTER_LONG_HELP),
             ("db::push", crate::db::PUSH_AFTER_LONG_HELP),
