@@ -540,12 +540,10 @@ impl Cli {
                 .map(|info| info.url.clone())
         };
 
-        if matches!(service, RemoteService::GitHubPullRequests) {
-            if self.watch {
-                bail!(
-                    "`--watch` is not supported with `--to ghpr`. GitHub PR pushes are repository-native and do not currently create Stencila Cloud watches."
-                );
-            }
+        if matches!(service, RemoteService::GitHubPullRequests) && self.watch {
+            bail!(
+                "`--watch` is not supported with `--to ghpr`. GitHub PR pushes are repository-native and do not currently create Stencila Cloud watches."
+            );
         }
 
         // Display appropriate message
