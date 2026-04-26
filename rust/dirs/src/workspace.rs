@@ -14,7 +14,6 @@ pub const ARTIFACTS_DIR: &str = "artifacts";
 pub const SKILLS_DIR: &str = "skills";
 pub const AGENTS_DIR: &str = "agents";
 pub const WORKFLOWS_DIR: &str = "workflows";
-pub const DB_FILE: &str = "db.kuzu";
 pub const DB_SQLITE_FILE: &str = "db.sqlite3";
 
 #[derive(SmartDefault)]
@@ -31,7 +30,6 @@ pub struct CreateStencilaDirOptions {
 
 /// Create a `.stencila` directory initialized with expected file and directory structure
 ///
-/// Does not create the DB directory as that is done by Kuzu on database creation.
 pub async fn stencila_dir_create(path: &Path, options: CreateStencilaDirOptions) -> Result<()> {
     if !path.exists() {
         create_dir_all(path).await?;
@@ -116,20 +114,6 @@ pub async fn stencila_workflows_dir(stencila_dir: &Path, ensure: bool) -> Result
     }
 
     Ok(workflows_dir)
-}
-
-/// Get the path of the `.stencila/db.kuzu` file and optionally ensure its parent exists
-pub async fn stencila_db_file(stencila_dir: &Path, ensure: bool) -> Result<PathBuf> {
-    let db_file = stencila_dir.join(DB_FILE);
-
-    if let Some(parent) = db_file.parent()
-        && ensure
-        && !parent.exists()
-    {
-        create_dir_all(&parent).await?;
-    }
-
-    Ok(db_file)
 }
 
 /// Find the closest ancestor directory containing a subdirectory named `dir_name`.
