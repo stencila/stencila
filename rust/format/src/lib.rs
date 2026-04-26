@@ -62,7 +62,6 @@ pub enum Format {
     // Database query languages
     Cypher,
     Sql,
-    DocsQL,
     // Diagramming languages
     Dot,
     Mermaid,
@@ -160,7 +159,6 @@ impl Format {
             Cytoscape => "Cytoscape",
             Debug => "Debug",
             Directory => "Directory",
-            DocsQL => "Stencila DocsQL",
             Docx => "Microsoft Word",
             Dom => "DOM HTML",
             Dot => "Graphviz DOT",
@@ -384,7 +382,6 @@ impl Format {
             "cytoscape" => Cytoscape,
             "debug" => Debug,
             "directory" | "dir" => Directory,
-            "docsql" => DocsQL,
             "docx" => Docx,
             "dom" | "dom.html" => Dom,
             "dot" => Dot,
@@ -635,7 +632,6 @@ impl Display for Format {
             Cytoscape => "cytoscape",
             Debug => "debug",
             Directory => "directory",
-            DocsQL => "docsql",
             Docx => "docx",
             Dom => "dom.html",
             Dot => "dot",
