@@ -7,8 +7,11 @@ use thiserror::Error;
 use url::Url;
 
 use stencila_codec::{
-    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult, stencila_format::Format,
-    stencila_schema::Node,
+    Codec, EncodeOptions, PushDryRunFile, PushDryRunOptions, PushResult,
+    stencila_format::Format,
+    stencila_schema::{
+        Block, CreativeWorkVariant, ImageObject, Inline, Node, Visitor, WalkControl, WalkNode,
+    },
 };
 use stencila_codec_docx::DocxCodec;
 
@@ -98,6 +101,13 @@ pub async fn push(
         return upload_dry_run(node, path, title, dry_run).await;
     }
 
+    let workspace_id = if workspace_required(node) {
+        let workspace_path = path.unwrap_or_else(|| Path::new("."));
+        Some(stencila_cloud::ensure_workspace(workspace_path).await?.0)
+    } else {
+        None
+    };
+
     let remote_url: Url = stencila_cloud::mirror::call::<_, _, GDocError>(
         "codec-gdoc.push",
         PushParams {
@@ -105,6 +115,7 @@ pub async fn push(
             path: path.map(PathBuf::from),
             title,
             url,
+            workspace_id,
         },
     )
     .await?;
@@ -121,6 +132,97 @@ struct PushParams<'a> {
     title: Option<&'a str>,
     #[serde(skip_serializing_if = "Option::is_none")]
     url: Option<&'a Url>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    workspace_id: Option<String>,
+}
+
+/// Check whether a hosted Google Docs push needs a Stencila Cloud workspace.
+///
+/// Most pushes only need a Google access token, so the mirror can handle them
+/// without any caller-local project context. Some node types, such as local
+/// images, citations, code expressions, and visible code-chunk outputs, are
+/// first uploaded to Stencila Cloud assets or links. Those callbacks require a
+/// workspace id, which must be resolved by the CLI before the request is sent
+/// to the deployed mirror container because the container cannot discover the
+/// caller's local Git repository from the serialized source path.
+fn workspace_required(node: &Node) -> bool {
+    struct Detector {
+        required: bool,
+    }
+
+    fn cloud_uploaded_image(image: &ImageObject) -> bool {
+        !image.content_url.is_empty()
+            && !starts_with_ignore_ascii_case(&image.content_url, "http://")
+            && !starts_with_ignore_ascii_case(&image.content_url, "https://")
+    }
+
+    fn starts_with_ignore_ascii_case(value: &str, prefix: &str) -> bool {
+        value
+            .get(..prefix.len())
+            .is_some_and(|start| start.eq_ignore_ascii_case(prefix))
+    }
+
+    impl Visitor for Detector {
+        fn visit_node(&mut self, node: &Node) -> WalkControl {
+            if let Node::ImageObject(image) = node
+                && cloud_uploaded_image(image)
+            {
+                self.required = true;
+                return WalkControl::Break;
+            }
+
+            WalkControl::Continue
+        }
+
+        fn visit_work(&mut self, work: &CreativeWorkVariant) -> WalkControl {
+            if let CreativeWorkVariant::ImageObject(image) = work
+                && cloud_uploaded_image(image)
+            {
+                self.required = true;
+                return WalkControl::Break;
+            }
+
+            WalkControl::Continue
+        }
+
+        fn visit_block(&mut self, block: &Block) -> WalkControl {
+            match block {
+                Block::CodeChunk(code_chunk)
+                    if code_chunk.outputs.as_deref().is_some_and(|outputs| {
+                        outputs
+                            .iter()
+                            .any(|output| matches!(output, Node::Datatable(..) | Node::Table(..)))
+                    }) =>
+                {
+                    self.required = true;
+                    WalkControl::Break
+                }
+                Block::ImageObject(image) if cloud_uploaded_image(image) => {
+                    self.required = true;
+                    WalkControl::Break
+                }
+                _ => WalkControl::Continue,
+            }
+        }
+
+        fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
+            match inline {
+                Inline::Citation(..) | Inline::CodeExpression(..) => {
+                    self.required = true;
+                    WalkControl::Break
+                }
+                Inline::ImageObject(image) if cloud_uploaded_image(image) => {
+                    self.required = true;
+                    WalkControl::Break
+                }
+                _ => WalkControl::Continue,
+            }
+        }
+    }
+
+    let mut detector = Detector { required: false };
+    node.walk(&mut detector);
+    detector.required
 }
 
 #[derive(Serialize)]
