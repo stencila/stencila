@@ -410,9 +410,15 @@ digraph {name_underscored} {{
 
 /// Run a workflow
 ///
-/// Executes a workflow pipeline. Discovers the workflow by name, parses the
-/// DOT pipeline, resolves agents, and runs the pipeline through the attractor
-/// engine. Currently uses stub backends that log what they would do.
+/// Validates and executes a workflow from the current workspace.
+///
+/// The command finds the workflow by name, applies any CLI overrides such as
+/// `--goal`, validates the definition, and then runs the pipeline using the
+/// configured workflow, shell, and agent handlers. By default it shows compact
+/// progress output; use `--verbose` to show prompts and responses for each
+/// stage, or `--dry-run` to preview the workflow configuration without
+/// executing it. Human approval gates wait by default, and can be auto-approved
+/// with `--auto-approve` or `--auto-approve-after`.
 #[derive(Debug, Args)]
 #[command(after_long_help = RUN_AFTER_LONG_HELP)]
 struct Run {
@@ -435,7 +441,10 @@ struct Run {
     #[arg(long, short)]
     verbose: bool,
 
-    /// Show workflow config and pipeline without executing
+    /// Preview workflow details and pipeline without executing
+    ///
+    /// Prints the workflow description, goal, agents, pipeline DOT, and any
+    /// overrides, then exits.
     #[arg(long)]
     dry_run: bool,
 
@@ -455,15 +464,39 @@ struct Run {
 }
 
 pub static RUN_AFTER_LONG_HELP: &str = cstr!(
-    "<bold><b>Examples</b></bold>
+    "<bold><b>What it does</b></bold>
+  Validates the workflow, applies any CLI overrides, and executes the pipeline
+  from the current workspace. Progress is shown while the workflow runs, and
+  the final outcome is reported when execution completes.
+
+<bold><b>Output modes</b></bold>
+  <b>Default</>   Compact progress output
+  <b>--verbose</> Show detailed prompts and responses for each stage
+  <b>--dry-run</> Preview workflow configuration without executing
+
+<bold><b>Human approval gates</b></bold>
+  By default, human gates wait for manual approval.
+  Use <c>--auto-approve</> to approve immediately, or
+  <c>--auto-approve-after</> <y>DURATION</> to approve after a delay.
+
+<bold><b>Examples</b></bold>
   <dim># Run a workflow</dim>
   <b>stencila workflows run</> <g>code-review</>
 
   <dim># Run with a goal override</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--goal</> <y>\"Implement login feature\"</>
 
-  <dim># Dry run to see pipeline config</dim>
+  <dim># Preview workflow details and pipeline without executing</dim>
   <b>stencila workflows run</> <g>code-review</> <c>--dry-run</>
+
+  <dim># Show detailed prompts and responses for each stage</dim>
+  <b>stencila workflows run</> <g>code-review</> <c>--verbose</>
+
+  <dim># Automatically approve human gates for unattended runs</dim>
+  <b>stencila workflows run</> <g>code-review</> <c>--auto-approve</>
+
+  <dim># Auto-approve human gates after 30 seconds</dim>
+  <b>stencila workflows run</> <g>code-review</> <c>--auto-approve-after</> <y>30s</>
 "
 );
 
