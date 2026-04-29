@@ -132,6 +132,18 @@
     "output_cost_per_million": 15.0
   },
   {
+    "id": "claude-opus-4-7",
+    "provider": "anthropic",
+    "display_name": "Claude Opus 4.7",
+    "context_window": 1000000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 5.0,
+    "output_cost_per_million": 25.0
+  },
+  {
     "id": "gemini-2.5-flash",
     "provider": "gemini",
     "display_name": "Gemini 2.5 Flash",
@@ -264,8 +276,10 @@
     "context_window": 32768,
     "max_output": 8192,
     "supports_tools": false,
-    "supports_vision": false,
-    "supports_reasoning": false
+    "supports_vision": true,
+    "supports_reasoning": false,
+    "input_cost_per_million": 0.0,
+    "output_cost_per_million": 0.0
   },
   {
     "id": "gemma-3-12b-it",
@@ -274,8 +288,10 @@
     "context_window": 32768,
     "max_output": 8192,
     "supports_tools": false,
-    "supports_vision": false,
-    "supports_reasoning": false
+    "supports_vision": true,
+    "supports_reasoning": false,
+    "input_cost_per_million": 0.0,
+    "output_cost_per_million": 0.0
   },
   {
     "id": "gemma-3-27b-it",
@@ -294,20 +310,24 @@
     "provider": "gemini",
     "display_name": "Gemma 3n E4B",
     "context_window": 8192,
-    "max_output": 2048,
+    "max_output": 2000,
     "supports_tools": false,
     "supports_vision": false,
-    "supports_reasoning": false
+    "supports_reasoning": false,
+    "input_cost_per_million": 0.0,
+    "output_cost_per_million": 0.0
   },
   {
     "id": "gemma-3n-e2b-it",
     "provider": "gemini",
     "display_name": "Gemma 3n E2B",
     "context_window": 8192,
-    "max_output": 2048,
+    "max_output": 2000,
     "supports_tools": false,
     "supports_vision": false,
-    "supports_reasoning": false
+    "supports_reasoning": false,
+    "input_cost_per_million": 0.0,
+    "output_cost_per_million": 0.0
   },
   {
     "id": "gemini-flash-latest",
@@ -520,6 +540,86 @@
     "supports_reasoning": true,
     "input_cost_per_million": 0.25,
     "output_cost_per_million": 60.0
+  },
+  {
+    "id": "gemma-4-26b-a4b-it",
+    "provider": "gemini",
+    "display_name": "Gemma 4 26B A4B IT",
+    "context_window": 256000,
+    "max_output": 8192,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true
+  },
+  {
+    "id": "gemma-4-31b-it",
+    "provider": "gemini",
+    "display_name": "Gemma 4 31B IT",
+    "context_window": 256000,
+    "max_output": 8192,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true
+  },
+  {
+    "id": "lyria-3-clip-preview",
+    "provider": "gemini",
+    "display_name": "Lyria 3 Clip Preview",
+    "context_window": 1048576,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "lyria-3-pro-preview",
+    "provider": "gemini",
+    "display_name": "Lyria 3 Pro Preview",
+    "context_window": 1048576,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gemini-3.1-flash-tts-preview",
+    "provider": "gemini",
+    "display_name": "Gemini 3.1 Flash TTS Preview",
+    "context_window": 8192,
+    "max_output": 16384,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gemini-robotics-er-1.6-preview",
+    "provider": "gemini",
+    "display_name": "Gemini Robotics-ER 1.6 Preview",
+    "context_window": 131072,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "deep-research-max-preview-04-2026",
+    "provider": "gemini",
+    "display_name": "Deep Research Max Preview (Apr-21-2026)",
+    "context_window": 131072,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "deep-research-preview-04-2026",
+    "provider": "gemini",
+    "display_name": "Deep Research Preview (Apr-21-2026)",
+    "context_window": 131072,
+    "max_output": 65536,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
   },
   {
     "id": "gpt-4-0613",
@@ -1306,9 +1406,12 @@
     "provider": "openai",
     "display_name": "gpt-5.3-chat-latest",
     "context_window": 128000,
-    "supports_tools": false,
-    "supports_vision": false,
-    "supports_reasoning": false
+    "max_output": 16384,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": false,
+    "input_cost_per_million": 1.75,
+    "output_cost_per_million": 14.0
   },
   {
     "id": "gpt-5.4-2026-03-05",
@@ -1405,6 +1508,54 @@
     "supports_tools": false,
     "supports_vision": false,
     "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.5-pro-2026-04-23",
+    "provider": "openai",
+    "display_name": "gpt-5.5-pro-2026-04-23",
+    "context_window": 0,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false,
+    "auth_types": [
+      "api_key"
+    ]
+  },
+  {
+    "id": "gpt-5.5",
+    "provider": "openai",
+    "display_name": "gpt-5.5",
+    "context_window": 1050000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 5.0,
+    "output_cost_per_million": 30.0
+  },
+  {
+    "id": "gpt-5.5-2026-04-23",
+    "provider": "openai",
+    "display_name": "gpt-5.5-2026-04-23",
+    "context_window": 0,
+    "supports_tools": false,
+    "supports_vision": false,
+    "supports_reasoning": false
+  },
+  {
+    "id": "gpt-5.5-pro",
+    "provider": "openai",
+    "display_name": "gpt-5.5-pro",
+    "context_window": 1050000,
+    "max_output": 128000,
+    "supports_tools": true,
+    "supports_vision": true,
+    "supports_reasoning": true,
+    "input_cost_per_million": 30.0,
+    "output_cost_per_million": 180.0,
+    "auth_types": [
+      "api_key"
+    ]
   },
   {
     "id": "mistral-medium-2505",
@@ -1662,13 +1813,13 @@
     "id": "mistral-small-latest",
     "provider": "mistral",
     "display_name": "mistral-small-latest",
-    "context_window": 128000,
-    "max_output": 16384,
+    "context_window": 256000,
+    "max_output": 256000,
     "supports_tools": true,
     "supports_vision": true,
-    "supports_reasoning": false,
-    "input_cost_per_million": 0.1,
-    "output_cost_per_million": 0.3
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.15,
+    "output_cost_per_million": 0.6
   },
   {
     "id": "labs-mistral-small-creative",
@@ -1851,10 +2002,13 @@
     "id": "mistral-small-2603",
     "provider": "mistral",
     "display_name": "mistral-small-2603",
-    "context_window": 262144,
+    "context_window": 256000,
+    "max_output": 256000,
     "supports_tools": true,
     "supports_vision": true,
-    "supports_reasoning": false
+    "supports_reasoning": true,
+    "input_cost_per_million": 0.15,
+    "output_cost_per_million": 0.6
   },
   {
     "id": "mistral-vibe-cli-fast",
