@@ -12,6 +12,13 @@ use stencila_models3::error::{SdkError, SdkResult};
 pub fn has_provider(provider: &str) -> bool {
     use stencila_models3::secret::get_secret;
 
+    let Ok(client) = client_from_env() else {
+        return false;
+    };
+    if !client.has_provider(provider) {
+        return false;
+    }
+
     match provider {
         "openai" => get_secret("OPENAI_API_KEY").is_some(),
         "anthropic" => get_secret("ANTHROPIC_API_KEY").is_some(),
