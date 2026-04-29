@@ -595,6 +595,8 @@ pub enum EventKind {
     SessionEnd,
     /// User submitted input.
     UserInput,
+    /// Current processing cycle finished.
+    ProcessingEnd,
     /// Model began generating text.
     AssistantTextStart,
     /// Incremental text token.

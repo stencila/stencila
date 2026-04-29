@@ -26,7 +26,7 @@ This spec layers on top of the [Unified LLM Client Specification](./unified-llm-
 
 A coding agent is a system that takes a natural language instruction ("fix the login bug", "add dark mode", "write tests for this module"), plans a solution, and executes it by reading files, editing code, running commands, and iterating until the task is done. The core challenge is orchestrating an agentic loop that coordinates LLM calls, tool execution, context management, and provider-specific behavior into a reliable autonomous workflow.
 
-Each LLM provider's models are trained and optimized for specific tool interfaces and system prompts. GPT-5.2 and the GPT-5.2-codex series work best with the same tools and prompts as codex-rs. Gemini models work best with the same tools and prompts as gemini-cli. Anthropic models work best with the same tools and prompts as Claude Code. A good coding agent respects this reality rather than forcing a universal toolset on all models.
+Each LLM provider's models are trained and optimized for specific tool interfaces and system prompts. GPT-5+ OpenAI models work best with the same tools and prompts as codex-rs. Gemini 3+ models work best with the same tools and prompts as gemini-cli. Anthropic models work best with the same tools and prompts as Claude Code. A good coding agent respects this reality rather than forcing a universal toolset on all models.
 
 ### 1.2 Why a Library, Not a CLI
 
@@ -57,7 +57,7 @@ The fidelity of control is the point. Every coding agent CLI is built on an agen
 
 **Language-agnostic.** All code is pseudocode. Data structures use neutral notation. No specific programming language is assumed.
 
-### 1.3 Architecture
+### 1.4 Architecture
 
 ```
 +--------------------------------------------------+
@@ -96,17 +96,17 @@ The fidelity of control is the point. Every coding agent CLI is built on an agen
 
 The agent loop does NOT use the Unified LLM SDK's `generate()` high-level function (which has its own tool loop). It uses the low-level `Client.complete()` and implements its own loop because it needs to interleave tool execution with output truncation, steering message injection, event emission, timeout enforcement, and loop detection -- concerns that the SDK's generic tool loop does not handle.
 
-### 1.4 Reference Projects
+### 1.5 Reference Projects
 
 The following open-source projects solve related problems and are worth studying for anyone implementing this spec.
 
 - **codex-rs** (https://github.com/openai/codex/tree/main/codex-rs) -- Rust. OpenAI's coding agent. Demonstrates async turn-based loop, 15+ tools including `apply_patch` (v4a diff format), output truncation with head/tail split (1 MiB cap), 10-second default command timeout, platform-specific sandboxing, sub-agent spawning, and environment variable filtering.
 
-- **pi-agent-core** (https://github.com/badlogic/pi-mono/tree/main/packages/agent) -- TypeScript. Minimal agent core by @mariozechner. Demonstrates 4-tool minimalism (read, write, edit, bash), explicit `steer()` and `followUp()` queues for mid-turn message injection, 15+ event types, configurable thinking levels, context transform hooks, and abort signal support.
+- **pi-agent-core** (https://github.com/badlogic/pi-mono/tree/main/packages/agent) -- TypeScript. Minimal agent core by @mariozechner. Demonstrates a pluggable `tools: AgentTool[]` architecture, explicit `steer()` and `followUp()` queues for mid-turn message injection, 15+ event types, configurable thinking levels, context transform hooks, and abort signal support.
 
 - **gemini-cli** (https://github.com/google-gemini/gemini-cli) -- TypeScript. Google's CLI agent. Demonstrates ReAct loop, 18+ built-in tools including web search and web fetch, GEMINI.md for project-specific instructions, headless/non-interactive mode for automation, and multiple authentication methods.
 
-### 1.5 Relationship to the Unified LLM SDK
+### 1.6 Relationship to the Unified LLM SDK
 
 This spec assumes the companion Unified LLM Client Specification is implemented. The agent loop imports and uses these types directly:
 
@@ -152,6 +152,7 @@ RECORD SessionConfig:
     max_command_timeout_ms      : Integer = 600000  -- 10 minutes
     reasoning_effort            : String | None     -- "low", "medium", "high", or null
     tool_output_limits          : Map<String, Integer>  -- per-tool char limits (see Section 5)
+    tool_line_limits            : Map<String, Integer>  -- per-tool line limits (see Section 5)
     enable_loop_detection       : Boolean = true
     loop_detection_window       : Integer = 10      -- consecutive identical calls before warning
     max_subagent_depth          : Integer = 1       -- max nesting level for subagents
@@ -176,7 +177,7 @@ PROCESSING -> AWAITING_INPUT -- model asks user a question (no tool calls, open-
 PROCESSING -> IDLE          -- natural completion or turn limit
 PROCESSING -> CLOSED        -- unrecoverable error
 IDLE -> CLOSED              -- explicit close()
-any -> CLOSED               -- abort signal
+any -> CLOSED               -- abort signal (after graceful shutdown cleanup)
 AWAITING_INPUT -> PROCESSING -- user provides answer
 ```
 
@@ -299,7 +300,7 @@ FUNCTION process_input(session, user_input):
         RETURN
 
     session.state = IDLE
-    session.emit(SESSION_END)
+    session.emit(PROCESSING_END)
 
 
 FUNCTION drain_steering(session):
@@ -334,9 +335,15 @@ FUNCTION execute_single_tool(session, tool_call):
         session.emit(TOOL_CALL_END, call_id = tool_call.id, error = error_msg)
         RETURN ToolResult(tool_call_id = tool_call.id, content = error_msg, is_error = true)
 
+    -- Validate arguments against the tool schema
+    IF NOT validate_arguments(tool_call.arguments, registered.definition.parameters):
+        error_msg = "Invalid arguments for tool: " + tool_call.name
+        session.emit(TOOL_CALL_END, call_id = tool_call.id, error = error_msg)
+        RETURN ToolResult(tool_call_id = tool_call.id, content = error_msg, is_error = true)
+
     -- Execute via execution environment
     TRY:
-        raw_output = registered.execute(tool_call.arguments, session.execution_env)
+        raw_output = registered.executor(tool_call.arguments, session.execution_env)
 
         -- Truncate output before sending to LLM (character-based first, then line-based)
         truncated_output = truncate_tool_output(raw_output, tool_call.name, session.config)
@@ -385,7 +392,7 @@ The `reasoning_effort` config controls how much reasoning/thinking the model doe
 | "high"   | Deep reasoning. Slower, more expensive. Good for complex tasks. |
 | null     | Provider default (no override).                                 |
 
-Changing `reasoning_effort` mid-session takes effect on the next LLM call. For OpenAI reasoning models (GPT-5.2 series), this controls the reasoning token budget. For Anthropic models with extended thinking, this maps to the thinking budget. For Gemini models with thinking, this maps to thinkingConfig.
+Changing `reasoning_effort` mid-session takes effect on the next LLM call. For OpenAI reasoning models (GPT-5+), this controls the reasoning token budget. For Anthropic models with extended thinking, this maps to the thinking budget. For Gemini 3+ models with thinking, this maps to thinkingConfig.
 
 ### 2.8 Stop Conditions
 
@@ -394,8 +401,8 @@ The loop exits when any of these conditions is met:
 1. **Natural completion.** The model responds with text only (no tool calls). The model is done.
 2. **Round limit.** `max_tool_rounds_per_input` is reached. The agent stops and returns what it has.
 3. **Turn limit.** `max_turns` across the entire session is reached.
-4. **Abort signal.** The host application signals cancellation. The current LLM stream is closed, running processes are killed, and the session transitions to CLOSED.
-5. **Unrecoverable error.** An authentication error, context overflow, or other non-retryable error. The session transitions to CLOSED.
+4. **Abort signal.** The host application signals cancellation. The current LLM stream is closed, running processes are killed, cleanup runs, and the session transitions to CLOSED.
+5. **Unrecoverable error.** An authentication error or other non-retryable error requires graceful shutdown and a transition to CLOSED. Context window overflow is handled separately as a warning signal.
 
 ### 2.9 Event System
 
@@ -412,6 +419,7 @@ ENUM EventKind:
     SESSION_START           -- session created
     SESSION_END             -- session closed (includes final state)
     USER_INPUT              -- user submitted input
+    PROCESSING_END          -- current processing cycle finished; session returned to IDLE
     ASSISTANT_TEXT_START     -- model began generating text
     ASSISTANT_TEXT_DELTA     -- incremental text token
     ASSISTANT_TEXT_END       -- model finished text (includes full text)
@@ -421,6 +429,7 @@ ENUM EventKind:
     STEERING_INJECTED       -- a steering message was added to history
     TURN_LIMIT              -- a turn limit was hit
     LOOP_DETECTION          -- a loop pattern was detected
+    WARNING                 -- non-fatal issue (context usage, deprecation, etc.)
     ERROR                   -- an error occurred
 ```
 
@@ -515,7 +524,7 @@ TOOL write_file:
 
 #### edit_file
 
-Searches for an exact string in a file and replaces it. This is the native editing format for Anthropic models.
+Searches for an exact string in a file and replaces it. This is the native editing format for Anthropic models, though other provider profiles may also expose search-and-replace editing tools.
 
 ```
 TOOL edit_file:
@@ -581,7 +590,7 @@ TOOL glob:
 
 ### 3.4 OpenAI Profile (codex-rs-aligned)
 
-For GPT-5.2, GPT-5.2-codex, and other OpenAI models. Mirrors the codex-rs toolset.
+For GPT-5+ OpenAI models, including codex-family variants. Aligned with the codex-rs toolset and preserves its key affordances where practical.
 
 **Key difference: `apply_patch` replaces `edit_file` and `write_file` for file modifications.** OpenAI models are specifically trained on this format and produce significantly better edits when using it.
 
@@ -616,7 +625,7 @@ The patch format is defined in full in [Appendix A](#appendix-a-apply_patch-v4a-
 
 ### 3.5 Anthropic Profile (Claude Code-aligned)
 
-For Claude Opus 4.6, Opus 4.5, Sonnet 4.5, Haiku 4.5, and older Claude models. Mirrors the Claude Code toolset.
+For Claude Opus 4.6, Opus 4.5, Sonnet 4.5, Haiku 4.5, and older Claude models. Aligned with the Claude Code toolset and preserves its key affordances where practical.
 
 **Key difference: `edit_file` with `old_string`/`new_string` is the native editing format.** Anthropic models are specifically trained on this exact-match search-and-replace pattern. Do NOT use apply_patch with Anthropic models.
 
@@ -631,16 +640,18 @@ For Claude Opus 4.6, Opus 4.5, Sonnet 4.5, Haiku 4.5, and older Claude models. M
 
 **System prompt:** Should mirror the Claude Code system prompt structure. Cover identity, tool selection guidance, the edit_file format (explain that `old_string` must be unique), file operation preferences (edit existing files over creating new ones), and coding best practices.
 
+**Profile-specific timeout default:** The Anthropic profile sets a 120s default for its shell tool. This overrides `SessionConfig.default_command_timeout_ms` for this profile unless the tool call explicitly sets `timeout_ms`. `max_command_timeout_ms` still applies.
+
 **Provider options:** The Anthropic profile should pass beta headers (e.g., for extended thinking, 1M context) via `provider_options.anthropic.beta_headers`.
 
 ### 3.6 Gemini Profile (gemini-cli-aligned)
 
-For Gemini 3 Flash, Gemini 2.5 Pro/Flash, and other Gemini models. Mirrors the gemini-cli toolset.
+For Gemini 3 Pro/Flash and other Gemini 3+ models. Aligned with the gemini-cli toolset and preserves its key affordances where practical.
 
 **Profile tool list for Gemini:**
 - `read_file` / `read_many_files` (batch reading support)
 - `write_file`
-- `edit_file` (search-and-replace style, matching gemini-cli conventions)
+- `edit_file` (search-and-replace style, matching gemini-cli conventions; the exact parameter schema may differ from Anthropic's profile)
 - `shell` (command execution, 10s default timeout)
 - `grep` (ripgrep semantics)
 - `glob` (file pattern matching)
@@ -1087,10 +1098,15 @@ TOOL close_agent:
 ### 7.3 SubAgent Lifecycle
 
 ```
+ENUM SubAgentStatus:
+    RUNNING
+    COMPLETED
+    FAILED
+
 RECORD SubAgentHandle:
     id          : String
     session     : Session           -- independent session with own history
-    status      : "running" | "completed" | "failed"
+    status      : SubAgentStatus
 
 RECORD SubAgentResult:
     output      : String            -- final text output from the subagent
@@ -1126,7 +1142,7 @@ The following features are intentionally excluded from this core spec. They are 
 
 **Compaction / Context Summarization.** Automatic conversation history summarization when approaching context limits. This is a complex feature with significant tradeoffs (information loss, summarization cost, pinned turns). The context window awareness signal (Section 5.5) gives host applications the information they need to implement their own strategy.
 
-**Approval / Permission System.** User approval gates for sensitive operations (file writes, shell commands, destructive actions). The tool execution pipeline (Section 3.8) has a natural extension point between VALIDATE and EXECUTE where an approval step can be inserted.
+**Approval / Permission System.** User approval gates for sensitive operations (file writes, shell commands, destructive actions). The tool execution pipeline described in Section 3.8 (Tool Registry) has a natural extension point between VALIDATE and EXECUTE where an approval step can be inserted.
 
 **Read-Before-Write Guardrail.** Tracking which files have been read and blocking writes to unread files. A heuristic safety net that can be implemented as a tool execution middleware wrapping the execution environment.
 
@@ -1226,7 +1242,7 @@ This section defines how to validate that an implementation of this spec is comp
 - [ ] LLM API transient errors (429, 500-503) -> retry with backoff (handled by Unified LLM SDK layer)
 - [ ] Authentication errors -> surface immediately, no retry, session transitions to CLOSED
 - [ ] Context window overflow -> emit warning event (no automatic compaction)
-- [ ] Graceful shutdown: abort signal -> cancel LLM stream -> kill running processes -> flush events -> emit SESSION_END
+- [ ] Graceful shutdown: abort signal -> cancel LLM stream -> kill running processes -> flush events -> clean up subagents -> emit SESSION_END -> transition to CLOSED
 
 ### 9.12 Cross-Provider Parity Matrix
 
@@ -1413,7 +1429,7 @@ These errors affect the session itself, not individual tool calls.
 | ProviderError (429)     | Yes       | Retry with backoff (handled by Unified LLM SDK) |
 | ProviderError (500-503) | Yes       | Retry with backoff (handled by Unified LLM SDK) |
 | AuthenticationError     | No        | Surface immediately, session -> CLOSED           |
-| ContextLengthError      | No        | Emit warning, session -> CLOSED                  |
+| ContextLengthError      | No        | Emit warning event, session continues            |
 | NetworkError            | Yes       | Retry with backoff (handled by Unified LLM SDK) |
 | TurnLimitExceeded       | No        | Emit TURN_LIMIT event, session -> IDLE           |
 
@@ -1427,8 +1443,8 @@ When an abort signal fires or an unrecoverable error occurs:
 3. Wait 2 seconds
 4. Send SIGKILL to any remaining processes
 5. Flush pending events
-6. Emit SESSION_END event with final state
-7. Clean up subagents (close_agent on all active subagents)
+6. Clean up subagents (close_agent on all active subagents)
+7. Emit SESSION_END event with final state
 8. Transition session to CLOSED
 ```
 
@@ -1436,7 +1452,7 @@ When an abort signal fires or an unrecoverable error occurs:
 
 ## Appendix C: Design Decision Rationale
 
-**Why provider-aligned toolsets instead of a universal tool set?** Models may be trained on specific tool formats. GPT-5.2-codex is trained on apply_patch; forcing it to use old_string/new_string editing produces worse results. Claude is trained on old_string/new_string; forcing it to use apply_patch produces worse results. The initial base for each provider profile should be the exact system prompt and tool harness from that provider's reference agent -- not a similar prompt, not similar tools, but a 1:1 byte-for-byte copy of the original prompt and tool definitions as the starting point. Then extend from there. Starting from the native toolset gives the best baseline experience because the model has been evaluated and optimized against exactly that harness.
+**Why provider-aligned toolsets instead of a universal tool set?** Models may be trained on specific tool formats. GPT-5+ codex-family models are trained on apply_patch-style editing; forcing them to use old_string/new_string editing produces worse results. Claude is trained on old_string/new_string editing; forcing it to use apply_patch produces worse results. Each provider profile should start from the native reference agent's prompt structure and tool semantics, then adapt them as needed for the host library's abstractions. The goal is behavioral alignment with the reference agent, not a byte-for-byte copy of prompts or tool definitions, because real implementations may rename tools, factor prompts into layers, or normalize schemas while preserving the model-facing affordances that matter.
 
 **Why an extensible execution environment instead of a fixed local implementation?** A coding agent that can only run on the local machine is limited. By abstracting tool execution behind an interface, the same agent logic works in Docker (for sandboxing), in Kubernetes (for cloud execution), over SSH (for remote development), or in WASM (for browser-based agents). The abstraction costs almost nothing in complexity but opens up major deployment flexibility.
 

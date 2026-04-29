@@ -1136,6 +1136,7 @@ impl ApiSession {
         } else {
             SessionState::Idle
         };
+        self.events.emit_processing_end(self.state);
         let cp = self.checkpoint();
         self.handle_checkpoint_result(cp)
     }
@@ -2081,9 +2082,10 @@ impl ApiSession {
                 .emit_error(agent_error.code(), agent_error.to_string());
         }
 
-        if is_retryable {
+        if is_context_length || is_retryable {
             // Retryable errors: keep the session open so the user can retry.
-            // Transition back to IDLE rather than CLOSED.
+            // Context-length errors are also warnings rather than terminal
+            // errors per the spec; transition back to IDLE rather than CLOSED.
             self.state = SessionState::Idle;
             Err(agent_error)
         } else {

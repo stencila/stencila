@@ -798,11 +798,13 @@ async fn events_natural_completion() -> AgentResult<()> {
 
     let kinds: Vec<EventKind> = events.iter().map(|e| e.kind).collect();
 
-    // SESSION_START (from constructor), USER_INPUT, ASSISTANT_TEXT_START, ASSISTANT_TEXT_END
+    // SESSION_START (from constructor), USER_INPUT, ASSISTANT_TEXT_START,
+    // ASSISTANT_TEXT_END, PROCESSING_END
     assert!(kinds.contains(&EventKind::SessionStart));
     assert!(kinds.contains(&EventKind::UserInput));
     assert!(kinds.contains(&EventKind::AssistantTextStart));
     assert!(kinds.contains(&EventKind::AssistantTextEnd));
+    assert!(kinds.contains(&EventKind::ProcessingEnd));
 
     Ok(())
 }
@@ -1452,7 +1454,7 @@ async fn authentication_error_closes_session() -> AgentResult<()> {
 }
 
 #[tokio::test]
-async fn context_length_error_closes_session_with_warning_severity() -> AgentResult<()> {
+async fn context_length_error_emits_warning_and_keeps_session_open() -> AgentResult<()> {
     let (mut session, mut rx, _) = test_session(vec![Err(SdkError::ContextLength {
         message: "too long".into(),
         details: ProviderDetails::default(),
@@ -1460,7 +1462,7 @@ async fn context_length_error_closes_session_with_warning_severity() -> AgentRes
 
     let result = session.submit("Very long context").await;
     assert!(result.is_err());
-    assert_eq!(session.state(), SessionState::Closed);
+    assert_eq!(session.state(), SessionState::Idle);
 
     // Context-length errors should emit ERROR with severity:warning
     let events = drain_events(&mut rx).await;
@@ -1480,7 +1482,10 @@ async fn context_length_error_closes_session_with_warning_severity() -> AgentRes
     );
 
     let has_end = events.iter().any(|e| e.kind == EventKind::SessionEnd);
-    assert!(has_end, "Expected SESSION_END after context length error");
+    assert!(
+        !has_end,
+        "Context length warning should not close the session"
+    );
 
     Ok(())
 }

@@ -23,7 +23,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.4 | Turn::Steering | spec_1_types.rs | turn_steering_construction | Pass |
 | 2.4 | Turn tagged serde | spec_1_types.rs | turn_tagged_serialization | Pass |
 | 2.4 | Turn timestamp required | spec_1_types.rs | turn_deser_missing_timestamp_rejected, turn_deser_with_explicit_timestamp, turn_timestamp_accessor | Pass |
-| 2.9 | EventKind variants | spec_1_types.rs | event_kind_all_variants_exist (13 kinds) | Pass |
+| 2.9 | EventKind variants | spec_1_types.rs | event_kind_all_variants_exist (14 kinds) | Pass |
 | 2.9 | EventKind serde | spec_1_types.rs | event_kind_serde_screaming_snake, event_kind_equality | Pass |
 | 2.9 | EventKind negative | spec_1_types.rs | event_kind_invalid_string_rejected | Pass |
 | 2.9 | SessionEvent | spec_1_types.rs | session_event_construction, session_event_serde_roundtrip, session_event_empty_data | Pass |
@@ -104,6 +104,7 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 2.9 | SESSION_START event | spec_2_events.rs | emit_session_start | Pass |
 | 2.9 | SESSION_END event (includes final_state) | spec_2_events.rs | emit_session_end | Pass |
 | 2.9 | USER_INPUT event | spec_2_events.rs | emit_user_input | Pass |
+| 2.9 | PROCESSING_END event | spec_2_events.rs | emit_processing_end | Pass |
 | 2.9 | ASSISTANT_TEXT lifecycle | spec_2_events.rs | emit_assistant_text_lifecycle | Pass |
 | 2.9 | TOOL_CALL lifecycle | spec_2_events.rs | emit_tool_call_lifecycle | Pass |
 | 9.10 | TOOL_CALL_END full output | spec_2_events.rs | emit_tool_call_end_carries_full_untruncated_output | Pass |
@@ -312,10 +313,10 @@ Maps test cases to sections of the [Coding Agent Loop Specification](../specs/co
 | 5.5 | Context usage warning when exceeding 80% | spec_2_loop.rs | context_usage_warning_emitted_at_80_percent | Pass |
 | 5.5 | No warning below threshold | spec_2_loop.rs | context_usage_no_warning_below_threshold | Pass |
 | App B | Authentication error closes session | spec_2_loop.rs | authentication_error_closes_session | Pass |
-| App B | Context length error closes session with warning severity | spec_2_loop.rs | context_length_error_closes_session_with_warning_severity | Pass |
-| App B | Server error closes session | spec_2_loop.rs | server_error_closes_session | Pass |
-| App B | Rate limit error closes session | spec_2_loop.rs | rate_limit_error_closes_session | Pass |
-| App B | Network error closes session | spec_2_loop.rs | network_error_closes_session | Pass |
+| App B | Context length error emits warning and keeps session open | spec_2_loop.rs | context_length_error_emits_warning_and_keeps_session_open | Pass |
+| App B | Server error keeps session open after retries | spec_2_loop.rs | server_error_keeps_session_open | Pass |
+| App B | Rate limit error keeps session open after retries | spec_2_loop.rs | rate_limit_error_keeps_session_open | Pass |
+| App B | Network error keeps session open after retries | spec_2_loop.rs | network_error_keeps_session_open | Pass |
 | 2.1 | System prompt in request | spec_2_loop.rs | system_prompt_in_request | Pass |
 | 2.1 | End-to-end prompt has base instructions and env context | spec_2_loop.rs | end_to_end_prompt_has_base_instructions_and_env_context | Pass |
 | 6.1, 6.5 | Prompt includes project docs layer when present | spec_2_loop.rs | end_to_end_prompt_includes_project_docs_layer | Pass |

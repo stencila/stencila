@@ -157,7 +157,7 @@ fn model_size_uses_configured_provider_preferences_when_supplied() -> AgentResul
         decision.route,
         SessionRoute::Api {
             provider: "openai".into(),
-            model: "gpt-5.4-pro".into(),
+            model: "gpt-5.5-pro".into(),
         }
     );
     assert_eq!(

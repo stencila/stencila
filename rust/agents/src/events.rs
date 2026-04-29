@@ -107,6 +107,15 @@ impl EventEmitter {
         self.emit(EventKind::UserInput, data);
     }
 
+    /// Emit a `PROCESSING_END` event with the state reached after processing.
+    pub fn emit_processing_end(&self, final_state: crate::types::SessionState) {
+        let mut data = serde_json::Map::new();
+        if let Ok(val) = serde_json::to_value(final_state) {
+            data.insert("final_state".into(), val);
+        }
+        self.emit(EventKind::ProcessingEnd, data);
+    }
+
     /// Emit an `ASSISTANT_TEXT_START` event.
     pub fn emit_assistant_text_start(&self) {
         self.emit(EventKind::AssistantTextStart, serde_json::Map::new());

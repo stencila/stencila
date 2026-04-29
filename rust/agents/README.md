@@ -191,7 +191,7 @@ The pseudocode emits `SESSION_END` at each loop completion, but this implementat
 
 ### Context warning event kind (`§5.5`)
 
-The spec pseudocode uses a `WARNING` event, but the spec event enum does not define that kind. This implementation emits `ERROR` events with `"severity": "warning"` for context-usage warnings.
+The spec defines a `WARNING` event, but this implementation predates that event kind and continues to emit `ERROR` events with `"severity": "warning"` for context-usage warnings.
 
 ### `send_input` target status (`§7.2`)
 

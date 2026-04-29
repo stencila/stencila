@@ -1,6 +1,6 @@
 //! Spec 2.9: Event system — EventEmitter / EventReceiver channel.
 //!
-//! Tests cover channel construction, all 13 event kinds, ordering
+//! Tests cover channel construction, all event kinds, ordering
 //! guarantees, and drop semantics.
 
 #![allow(clippy::result_large_err)]
@@ -114,6 +114,20 @@ async fn emit_user_input() -> Result<(), AgentError> {
     let event = recv_event(&mut rx).await?;
     assert_eq!(event.kind, EventKind::UserInput);
     assert_eq!(str_field(&event, "content")?, "hello world");
+    Ok(())
+}
+
+#[tokio::test]
+async fn emit_processing_end() -> Result<(), AgentError> {
+    let (emitter, mut rx) = channel_with_id("s1".into());
+    emitter.emit_processing_end(SessionState::Idle);
+
+    let event = recv_event(&mut rx).await?;
+    assert_eq!(event.kind, EventKind::ProcessingEnd);
+    assert_eq!(
+        event.data.get("final_state").and_then(|v| v.as_str()),
+        Some("IDLE")
+    );
     Ok(())
 }
 

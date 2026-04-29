@@ -941,6 +941,7 @@ fn event_kind_all_variants_exist() {
         EventKind::SessionStart,
         EventKind::SessionEnd,
         EventKind::UserInput,
+        EventKind::ProcessingEnd,
         EventKind::AssistantTextStart,
         EventKind::AssistantTextDelta,
         EventKind::AssistantTextEnd,
@@ -952,7 +953,7 @@ fn event_kind_all_variants_exist() {
         EventKind::LoopDetection,
         EventKind::Error,
     ];
-    assert_eq!(kinds.len(), 13, "spec defines 13 event kinds");
+    assert_eq!(kinds.len(), 14, "spec defines 14 event kinds");
 }
 
 #[test]

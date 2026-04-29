@@ -121,12 +121,13 @@ fn openai_oauth_falls_back_to_compatible_gpt_family_model() -> AgentResult<()> {
 
     let decision = route_direct(Some("openai"), Some("gpt"), &client)?;
 
-    // Should fall back from the api-key-only gpt-5.4-pro to gpt-5.4
+    // Should fall back from the api-key-only pro alias to the latest
+    // OAuth-compatible GPT family model.
     assert_eq!(
         decision.route,
         SessionRoute::Api {
             provider: "openai".into(),
-            model: "gpt-5.4".into(),
+            model: "gpt-5.5".into(),
         }
     );
     assert!(decision.fallback_used);
@@ -140,7 +141,7 @@ fn openai_oauth_falls_back_to_compatible_gpt_family_model() -> AgentResult<()> {
         decision
             .fallback_reason
             .as_deref()
-            .is_some_and(|reason| reason.contains("gpt-5.4-pro") && reason.contains("gpt-5.4"))
+            .is_some_and(|reason| reason.contains("pro") && reason.contains("gpt-5.5"))
     );
     // fallback_warning should produce a message for API-route fallbacks too
     assert!(decision.fallback_warning().is_some());
@@ -159,7 +160,7 @@ fn models_path_respects_openai_oauth_compatibility() -> AgentResult<()> {
         decision.route,
         SessionRoute::Api {
             provider: "openai".into(),
-            model: "gpt-5.4".into(),
+            model: "gpt-5.5".into(),
         }
     );
     assert!(decision.fallback_used);
@@ -182,7 +183,7 @@ fn providers_path_respects_openai_oauth_compatibility() -> AgentResult<()> {
         decision.route,
         SessionRoute::Api {
             provider: "openai".into(),
-            model: "gpt-5.4".into(),
+            model: "gpt-5.5".into(),
         }
     );
     assert!(decision.fallback_used);
