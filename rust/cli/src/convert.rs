@@ -128,7 +128,7 @@ impl Cli {
         } else if suggestion_options.reject_suggestions {
             node.resolve_suggestions(&SuggestionAction::RejectAll);
         } else if suggestion_options.review_suggestions {
-            let action = interactive_review(&mut node).await?;
+            let action = interactive_review(&node).await?;
             node.resolve_suggestions(&action);
         }
 

@@ -365,7 +365,7 @@ pub async fn pull(url: &Url, dest: &Path) -> Result<(), GDocError> {
             }),
         )
         .await
-        .map_err(|error| GDocError::Other(error.into()))?;
+        .map_err(GDocError::Other)?;
 
     Ok(())
 }
