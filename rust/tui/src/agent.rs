@@ -1399,7 +1399,7 @@ mod tests {
         let args = serde_json::json!({"route": "/docs", "device": "mobile", "selector": "header"});
         assert_eq!(
             format_tool_start("snap", &args),
-            "Snap /docs (mobile) [header]"
+            "Snap /docs (mobile) header"
         );
     }
 
