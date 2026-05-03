@@ -5,7 +5,9 @@ description: Run a workflow
 
 Run a workflow
 
-Executes a workflow pipeline. Discovers the workflow by name, parses the DOT pipeline, resolves agents, and runs the pipeline through the attractor engine. Currently uses stub backends that log what they would do.
+Validates and executes a workflow from the current workspace.
+
+The command finds the workflow by name, applies any CLI overrides such as `--goal`, validates the definition, and then runs the pipeline using the configured workflow, shell, and agent handlers. By default it shows compact progress output; use `--verbose` to show prompts and responses for each stage, or `--dry-run` to preview the workflow configuration without executing it. Human approval gates wait by default, and can be auto-approved with `--auto-approve` or `--auto-approve-after`.
 
 # Usage
 
@@ -22,8 +24,17 @@ stencila workflows run code-review
 # Run with a goal override
 stencila workflows run code-review --goal "Implement login feature"
 
-# Dry run to see pipeline config
+# Preview workflow details and pipeline without executing
 stencila workflows run code-review --dry-run
+
+# Show detailed prompts and responses for each stage
+stencila workflows run code-review --verbose
+
+# Automatically approve human gates for unattended runs
+stencila workflows run code-review --auto-approve
+
+# Auto-approve human gates after 30 seconds
+stencila workflows run code-review --auto-approve-after 30s
 ```
 
 # Arguments
@@ -34,10 +45,10 @@ stencila workflows run code-review --dry-run
 
 # Options
 
-| Name                   | Description                                                                            |
-| ---------------------- | -------------------------------------------------------------------------------------- |
-| `-g, --goal`           | Override the pipeline goal.                                                            |
-| `-v, --verbose`        | Show detailed output with prompts and responses. Possible values: `true`, `false`.     |
-| `--dry-run`            | Show workflow config and pipeline without executing. Possible values: `true`, `false`. |
-| `--auto-approve`       | Auto-approve all human gates immediately. Possible values: `true`, `false`.            |
-| `--auto-approve-after` | Auto-approve human gates after a duration.                                             |
+| Name                   | Description                                                                                |
+| ---------------------- | ------------------------------------------------------------------------------------------ |
+| `-g, --goal`           | Override the pipeline goal.                                                                |
+| `-v, --verbose`        | Show detailed output with prompts and responses. Possible values: `true`, `false`.         |
+| `--dry-run`            | Preview workflow details and pipeline without executing. Possible values: `true`, `false`. |
+| `--auto-approve`       | Auto-approve all human gates immediately. Possible values: `true`, `false`.                |
+| `--auto-approve-after` | Auto-approve human gates after a duration.                                                 |
