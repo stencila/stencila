@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use insta::{assert_json_snapshot, assert_yaml_snapshot};
 use stencila_codec::{
-    Codec,
+    Codec, DecodeOptions,
     eyre::{OptionExt, Result},
 };
 
@@ -11,6 +11,13 @@ use stencila_codec_meca::MecaCodec;
 /// Decode each example of a MECA and create JSON snapshots (including for losses)
 #[tokio::test]
 async fn examples() -> Result<()> {
+    let options = Some(DecodeOptions {
+        // Set to non-reproducible decode so that temporary local file paths and
+        // commits are not captured
+        reproducible: Some(false),
+        ..Default::default()
+    });
+
     let pattern = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
         .join("tests/examples")
         .canonicalize()?
@@ -19,7 +26,7 @@ async fn examples() -> Result<()> {
         + "/**/*.meca";
 
     for path in glob::glob(&pattern)?.flatten() {
-        let (article, .., info) = MecaCodec.from_path(&path, None).await?;
+        let (article, .., info) = MecaCodec.from_path(&path, options.clone()).await?;
 
         let id = path
             .file_name()

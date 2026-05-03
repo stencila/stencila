@@ -30,10 +30,13 @@ async fn examples() -> Result<()> {
         .join("tests/examples")
         .canonicalize()?;
 
-    // Do not embed supplements so that JSON snapshot based on HTML are more
-    // easily comparable to those based on TAR package
     let options = Some(DecodeOptions {
+        // Do not embed supplements so that JSON snapshot based on HTML are more
+        // easily comparable to those based on TAR package
         embed_supplements: Some(false),
+        // Set to non-reproducible decode so that temporary local file paths and
+        // commits are not captured
+        reproducible: Some(false),
         ..Default::default()
     });
 

@@ -22,6 +22,16 @@ use stencila_codec::{
     },
 };
 
+fn decode_options(format: Option<Format>) -> DecodeOptions {
+    DecodeOptions {
+        format,
+        // Set to non-reproducible decode so that temporary local file paths and
+        // commits are not captured
+        reproducible: Some(false),
+        ..Default::default()
+    }
+}
+
 // ===========================================================================
 // File-based round-trip via stencila_codecs::convert (same path as CLI)
 // ===========================================================================
@@ -61,7 +71,7 @@ async fn convert_roundtrip_simple_article_via_files() -> Result<()> {
     stencila_codecs::convert(
         Some(json_input.as_path()),
         Some(oxa_file.as_path()),
-        None,
+        Some(decode_options(None)),
         None,
     )
     .await?;
@@ -78,7 +88,7 @@ async fn convert_roundtrip_simple_article_via_files() -> Result<()> {
     stencila_codecs::convert(
         Some(oxa_file.as_path()),
         Some(json_output.as_path()),
-        None,
+        Some(decode_options(None)),
         None,
     )
     .await?;
@@ -86,10 +96,7 @@ async fn convert_roundtrip_simple_article_via_files() -> Result<()> {
     // Read back the output and decode
     let round_tripped = stencila_codecs::from_path(
         json_output.as_path(),
-        Some(DecodeOptions {
-            format: Some(Format::Json),
-            ..Default::default()
-        }),
+        Some(decode_options(Some(Format::Json))),
     )
     .await?;
 
@@ -137,7 +144,7 @@ async fn convert_roundtrip_all_inline_types_via_files() -> Result<()> {
     stencila_codecs::convert(
         Some(json_input.as_path()),
         Some(oxa_file.as_path()),
-        None,
+        Some(decode_options(None)),
         None,
     )
     .await?;
@@ -145,17 +152,14 @@ async fn convert_roundtrip_all_inline_types_via_files() -> Result<()> {
     stencila_codecs::convert(
         Some(oxa_file.as_path()),
         Some(json_output.as_path()),
-        None,
+        Some(decode_options(None)),
         None,
     )
     .await?;
 
     let round_tripped = stencila_codecs::from_path(
         json_output.as_path(),
-        Some(DecodeOptions {
-            format: Some(Format::Json),
-            ..Default::default()
-        }),
+        Some(decode_options(Some(Format::Json))),
     )
     .await?;
 
