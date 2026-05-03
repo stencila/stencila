@@ -1,5 +1,12 @@
 # Change Log
 
+## 2.15.0 2026-05-03
+
+- Based on Stencila CLI [v2.15.0](https://github.com/stencila/stencila/releases/tag/v2.15.0) which adds figure layouts and visual overlays, richer comment and suggestion round-tripping, GitHub pull request review workflows, improved agent screenshot and image inspection tools, site specimen pages, sitemap configuration, and Cloud workspace asset support.
+
+- Removes the legacy Kuzu/DocsQL database workflow and associated database syntax support from the editor tooling, matching the CLI and language server changes in this release.
+
+
 ## 2.14.1 2026-03-27
 
 - Based on Stencila CLI [v2.14.1](https://github.com/stencila/stencila/releases/tag/v2.14.1) which adds a `--dev` flag for testing unreleased web assets on pushed sites, site redirect support, and fixes for site logo rendering in dark mode, web asset URL migration to stencila.dev, and a Windows compilation fix in the TUI. Also drops macOS Intel builds for the CLI and VSCode extension.

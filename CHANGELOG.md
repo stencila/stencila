@@ -1,3 +1,40 @@
+# [2.15.0](https://github.com/stencila/stencila/compare/v2.14.1...v2.15.0) (2026-05-03)
+
+### Bug Fixes
+
+* **Comments, suggestions, and document round-tripping:** Improve preservation of comments and suggestions across Markdown, Pandoc, and DOCX, including threaded DOCX replies, explicit parent IDs, author and date metadata, replacement suggestion content, and adjacent suggestion chains. Markdown encoding now handles non-SMD flavors more carefully, nested comment IDs are canonicalized, and comment/suggestion metadata is encoded more consistently.
+
+* **GitHub pull request reviews:** Improve PR review export and update behavior by using more reliable anchors, better auth selection, safer retries, deduplication of pushed review items, clearer messaging, and fallback behavior when review paths cannot be resolved. Optional review comment content is now handled correctly.
+
+* **Figures, themes, and web rendering:** Fix figure and subfigure rendering, caption ordering, mixed-aspect subfigure grids, figure HTML encoding, code chunk caption rendering, list spacing, callout leader positioning, and base theme asset paths. Theme and SVG component rendering received several legibility and color handling fixes, including better marker fill/stroke behavior and more robust light/dark styling.
+
+* **Agents, models, TUI, and snap:** Make the snap tool more robust for screenshot and measurement capture, including deterministic output, better selector handling, large image resizing, and safer route/path detection. Agents now preserve streamed text when final response text is empty, guard oversized image attachments, support brace expansion in grep, and handle Anthropic image tool results correctly. The TUI now reports actual preview ports and improves file and command autocomplete behavior.
+
+* **Cloud, remotes, and codecs:** Fix Google Docs mirror calls that require a workspace ID, preserve explicit comment parent IDs, and improve default citation style behavior after theme removal.
+
+
+### Features
+
+* **Figures and visual overlays:** Add figure layout support across the schema, Markdown and Pandoc codecs, execution engine, and web rendering. Figures and code chunk outputs can now use overlays, padding, default subfigure badges, theme-aware styling, automatic IDs for cross-referencing, and a small layout language for arranging subfigures. A new SVG component system adds reusable overlay elements such as brackets, halos, spotlights, markers, labels, and dimension annotations, with linting support for figure and SVG quality checks.
+
+* **Comments, suggestions, and review workflows:** Add first-class round-tripping for comments and suggestions in Markdown and Pandoc, including comment author/date metadata, replacement suggestions via CriticMarkup, suggestion dates, and support for comment and suggestion node types in Pandoc output. The CLI gains suggestion accept, reject, and review options, and a new GitHub pull request push workflow can export document comments and suggestions as PR review activity.
+
+* **Agents, skills, workflows, and visual QA:** Add image inspection, SVG linting, and screenshot/measurement capture tools for agents, plus new and improved skills and workflows for figure creation, figure review, site configuration, theme QA, parallel code review, and software delivery completion. Coding agents now expose more explicit manager routing instructions and a skill-listing tool, and the TUI supports inline goals when starting workflows with the tilde shortcut.
+
+* **Sites, configuration, and Cloud:** Add a built-in specimen page to the site render pipeline for theme and layout review, sitemap configuration, a `config show` command with YAML output by default, and site configuration creation guidance through skills and workflows. Cloud support now includes temporary workspace assets, workspace object snapshots, and workspace links.
+
+* **Formats, web, and node metadata:** Add node URL support for additional embedding schemes, clean Markdown encode mode, automatic figure/table/supplement IDs, `Figure.layout`, `CodeBlock.isDemo`, `CodeBlock.content`, `Boundary`, `Comment.startLocation`, `Comment.endLocation`, suggestion type variants, `Suggestion.datePublished`, and higher-precision date properties on creative work types. Web rendering gains SMD syntax highlighting, code chunk output overlays, and improved Prism highlighting.
+
+
+### Performance Improvements
+
+* **TUI:** Cache agent and workflow discovery results for autocomplete, skip repeated filesystem work on each keystroke, and add TTL expiration for file autocomplete caches to keep interactive command entry responsive.
+
+### Breaking Changes
+
+* **CLI, database, and editor tooling:** Remove the legacy Kuzu/DocsQL workflow, including the query command, DocsQL format mapping, database execution hooks, generated Kuzu schema output, and database syntax support in the LSP, Web, and VSCode tooling. Projects using those experimental database features should move to the current document, site, and remote review workflows.
+
+
 # [2.14.1](https://github.com/stencila/stencila/compare/v2.14.0...v2.14.1) (2026-03-27)
 
 
