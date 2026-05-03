@@ -25,7 +25,7 @@ use stencila_config::{
     config_add_redirect_route, config_add_route, config_remove_route, config_set_route_spread, get,
     set_value, unset_value, validate_placeholders,
 };
-use stencila_server::{ServeOptions, SiteMessage, get_server_token};
+use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, SiteMessage, get_server_token};
 use tokio::sync::{broadcast, mpsc};
 
 /// Helper for managing render progress display with spinner and progress bar
@@ -844,7 +844,7 @@ pub struct Preview {
     route: String,
 
     /// Port to serve on
-    #[arg(long, short, default_value_t = 9000)]
+    #[arg(long, short, default_value_t = DEFAULT_PORT)]
     port: u16,
 
     /// Do not open browser automatically
@@ -891,10 +891,6 @@ impl Preview {
         let temp_dir = tempfile::tempdir()?;
         let temp_path = temp_dir.path().to_path_buf();
 
-        // Initial render (render() outputs uncompressed HTML with flat structure)
-        message!("📁 Rendering site to temporary directory...");
-        Self::render_site_with_progress(&site_root, &temp_path, self.port, None).await?;
-
         // Serve directly from temp_path (render uses flat structure, no decompression needed)
         let serve_dir = temp_path.clone();
 
@@ -903,9 +899,11 @@ impl Preview {
 
         // Create shutdown channel
         let (shutdown_tx, shutdown_rx) = tokio::sync::oneshot::channel();
+        let (started_tx, started_rx) = tokio::sync::oneshot::channel::<ServerStarted>();
+        let (startup_tx, startup_rx) = tokio::sync::oneshot::channel();
 
         // Start server
-        let server_port = self.port;
+        let requested_port = self.port;
         let server_token_clone = server_token.clone();
 
         // Create broadcast channel for site notifications
@@ -916,9 +914,11 @@ impl Preview {
         let server_handle = tokio::spawn(async move {
             let options = ServeOptions {
                 dir: serve_dir.clone(),
-                port: server_port,
+                port: requested_port,
                 server_token: Some(server_token_clone),
                 no_startup_message: true,
+                started_sender: Some(started_tx),
+                startup_gate: Some(startup_rx),
                 shutdown_receiver: Some(shutdown_rx),
                 // Serve pre-rendered HTML files directly without document processing
                 static_dir: Some(serve_dir),
@@ -929,13 +929,37 @@ impl Preview {
             stencila_server::serve(options).await
         });
 
-        message!("🌐 Preview at http://localhost:{}", self.port);
+        let started = match started_rx.await {
+            Ok(started) => started,
+            Err(_) => {
+                server_handle.await??;
+                bail!("Server stopped before startup completed");
+            }
+        };
+        let server_port = started.port;
+
+        // Initial render (render() outputs uncompressed HTML with flat structure)
+        message!("📁 Rendering site to temporary directory...");
+        if let Err(error) =
+            Self::render_site_with_progress(&site_root, &temp_path, server_port, None).await
+        {
+            drop(startup_tx);
+            let _ = server_handle.await;
+            return Err(error);
+        }
+
+        if startup_tx.send(()).is_err() {
+            server_handle.await??;
+            bail!("Server stopped before startup completed");
+        }
+
+        message!("🌐 Preview at http://localhost:{}", server_port);
 
         // Open browser
         if !self.no_open {
             let url = format!(
                 "http://localhost:{}/~login?sst={}&next={}",
-                self.port, server_token, self.route
+                server_port, server_token, self.route
             );
             if let Err(error) = webbrowser::open(&url) {
                 tracing::warn!("Failed to open browser: {error}");
@@ -952,7 +976,7 @@ impl Preview {
                 &cfg.workspace_dir,
                 &site_root,
                 &temp_path,
-                self.port,
+                server_port,
                 site_notify_tx,
             )
             .await?;

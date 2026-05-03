@@ -23,7 +23,7 @@ use serde::{Deserialize, Serialize};
 use smart_default::SmartDefault;
 use tokio::{
     net::TcpListener,
-    sync::{broadcast, mpsc},
+    sync::{broadcast, mpsc, oneshot},
 };
 use tower_cookies::{Cookie, CookieManagerLayer, Cookies};
 use tower_http::{
@@ -46,6 +46,12 @@ use crate::{
     statics, themes, workflows,
 };
 
+/// The port the server attempts to bind first when no port is specified.
+pub const DEFAULT_PORT: u16 = 9000;
+
+/// Number of subsequent ports to try when the requested port is unavailable.
+const PORT_SEARCH_ATTEMPTS: u16 = 100;
+
 /// The mode a server is running in
 #[derive(Debug, Clone, Serialize, Deserialize, Default, PartialEq, Eq)]
 pub enum ServerMode {
@@ -54,6 +60,19 @@ pub enum ServerMode {
     DocumentPreview,
     /// Serving a pre-rendered static site (e.g. `stencila site preview`)
     SitePreview,
+}
+
+/// Information emitted once the server has bound to a port.
+#[derive(Debug, Clone)]
+pub struct ServerStarted {
+    /// Address the server is listening on
+    pub address: SocketAddr,
+
+    /// Port the server is listening on
+    pub port: u16,
+
+    /// Login URL for the server, including the server token if authentication is enabled
+    pub url: String,
 }
 
 /// Server runtime information written to disk for discovery
@@ -223,8 +242,8 @@ pub struct ServeOptions {
     /// The port to serve on
     ///
     /// Defaults to port 9000.
-    #[arg(long, short, default_value_t = 9000)]
-    #[default(9000)]
+    #[arg(long, short, default_value_t = DEFAULT_PORT)]
+    #[default(DEFAULT_PORT)]
     pub port: u16,
 
     /// Do not authenticate or authorize requests
@@ -277,12 +296,20 @@ pub struct ServeOptions {
     #[clap(skip)]
     pub no_startup_message: bool,
 
+    /// Sender notified after the server has bound to its actual port
+    #[clap(skip)]
+    pub started_sender: Option<oneshot::Sender<ServerStarted>>,
+
+    /// Receiver used to delay publishing and accepting requests until startup work is complete
+    #[clap(skip)]
+    pub startup_gate: Option<oneshot::Receiver<()>>,
+
     /// External shutdown receiver for programmatic shutdown control
     ///
     /// When provided, the server will listen for shutdown signals on this channel
     /// in addition to SIGINT (Ctrl+C).
     #[clap(skip)]
-    pub shutdown_receiver: Option<tokio::sync::oneshot::Receiver<()>>,
+    pub shutdown_receiver: Option<oneshot::Receiver<()>>,
 }
 
 /// Start the server
@@ -302,6 +329,8 @@ pub async fn serve(
         cors,
         server_token,
         no_startup_message,
+        started_sender,
+        startup_gate,
         shutdown_receiver: external_shutdown_receiver,
     }: ServeOptions,
 ) -> eyre::Result<()> {
@@ -317,20 +346,20 @@ pub async fn serve(
     };
 
     // Try to bind to the requested port, or the next available port
-    const MAX_PORT_ATTEMPTS: u16 = 100;
     let mut current_port = port;
+    let max_port = port.saturating_add(PORT_SEARCH_ATTEMPTS);
     let listener = loop {
         let socket_addr = SocketAddr::new(address, current_port);
         match TcpListener::bind(&socket_addr).await {
             Ok(listener) => {
-                if current_port != port {
+                if port != 0 && current_port != port {
                     tracing::info!(
                         "Port {port} was unavailable, using port {current_port} instead",
                     );
                 }
                 break listener;
             }
-            Err(error) if current_port < port + MAX_PORT_ATTEMPTS => {
+            Err(error) if current_port < max_port => {
                 // Only try next port if it's an "address already in use" error
                 if error.kind() == std::io::ErrorKind::AddrInUse {
                     current_port += 1;
@@ -346,7 +375,8 @@ pub async fn serve(
     };
 
     // Use the actual port that was bound
-    let actual_address = SocketAddr::new(address, current_port);
+    let actual_address = listener.local_addr()?;
+    let actual_port = actual_address.port();
     let mut url = format!("http://{actual_address}");
     if let Some(sst) = &server_token {
         url.push_str("/~login?sst=");
@@ -362,7 +392,7 @@ pub async fn serve(
     } else {
         ServerMode::DocumentPreview
     };
-    let server_info = ServerInfo::new(current_port, server_token.clone(), dir.clone(), mode);
+    let server_info = ServerInfo::new(actual_port, server_token.clone(), dir.clone(), mode);
 
     let state = ServerState {
         dir,
@@ -434,11 +464,48 @@ pub async fn serve(
             )
     }
     .layer(create_server_header_layer())
-    .layer(create_cors_layer(cors))
+    .layer(create_cors_layer(cors, actual_port)?)
     .layer(TraceLayer::new_for_http())
     .layer(CookieManagerLayer::new())
     .with_state(state)
     .into_make_service();
+
+    if let Some(started_sender) = started_sender {
+        let _ = started_sender.send(ServerStarted {
+            address: actual_address,
+            port: actual_port,
+            url: url.clone(),
+        });
+    }
+
+    let mut external_shutdown_receiver = external_shutdown_receiver;
+
+    if let Some(mut startup_gate) = startup_gate {
+        tokio::select! {
+            result = &mut startup_gate => {
+                if result.is_err() {
+                    tracing::debug!("Startup gate closed before server startup completed");
+                    return Ok(());
+                }
+            }
+            _ = tokio::signal::ctrl_c() => {
+                tracing::info!("Received SIGINT before server startup completed");
+                return Ok(());
+            }
+            result = internal_shutdown_receiver.recv() => {
+                log_internal_shutdown(
+                    result,
+                    "Internal shutdown signal received before server startup completed",
+                    "Internal shutdown channel closed before server startup completed",
+                );
+                return Ok(());
+            }
+            _ = external_shutdown(&mut external_shutdown_receiver) => {
+                tracing::debug!("External shutdown signal received before server startup completed");
+                return Ok(());
+            }
+        }
+    }
 
     if !no_startup_message {
         tracing::info!("Starting server at {url}");
@@ -450,34 +517,19 @@ pub async fn serve(
     // Run server with graceful shutdown support
     let result = axum::serve(listener, router)
         .with_graceful_shutdown(async move {
-            if let Some(mut external_shutdown_receiver) = external_shutdown_receiver {
-                tokio::select! {
-                    _ = tokio::signal::ctrl_c() => {
-                        tracing::info!("Received SIGINT, stopping server gracefully");
-                    }
-                    result = internal_shutdown_receiver.recv() => {
-                        if result.is_some() {
-                            tracing::debug!("Internal shutdown signal received, stopping server gracefully");
-                        } else {
-                            tracing::warn!("Internal shutdown channel closed without signal");
-                        }
-                    }
-                    _ = &mut external_shutdown_receiver => {
-                        tracing::debug!("External shutdown signal received, stopping server gracefully");
-                    }
+            tokio::select! {
+                _ = tokio::signal::ctrl_c() => {
+                    tracing::info!("Received SIGINT, stopping server gracefully");
                 }
-            } else {
-                tokio::select! {
-                    _ = tokio::signal::ctrl_c() => {
-                        tracing::info!("Received SIGINT, stopping server gracefully");
-                    }
-                    result = internal_shutdown_receiver.recv() => {
-                        if result.is_some() {
-                            tracing::debug!("Internal shutdown signal received, stopping server gracefully");
-                        } else {
-                            tracing::warn!("Internal shutdown channel closed without signal");
-                        }
-                    }
+                result = internal_shutdown_receiver.recv() => {
+                    log_internal_shutdown(
+                        result,
+                        "Internal shutdown signal received, stopping server gracefully",
+                        "Internal shutdown channel closed without signal",
+                    );
+                }
+                _ = external_shutdown(&mut external_shutdown_receiver) => {
+                    tracing::debug!("External shutdown signal received, stopping server gracefully");
                 }
             }
         })
@@ -491,6 +543,27 @@ pub async fn serve(
     result?;
 
     Ok(())
+}
+
+async fn external_shutdown(receiver: &mut Option<oneshot::Receiver<()>>) {
+    match receiver {
+        Some(receiver) => {
+            let _ = receiver.await;
+        }
+        None => std::future::pending().await,
+    }
+}
+
+fn log_internal_shutdown(
+    result: Option<()>,
+    signal_message: &'static str,
+    closed_message: &'static str,
+) {
+    if result.is_some() {
+        tracing::debug!("{signal_message}");
+    } else {
+        tracing::warn!("{closed_message}");
+    }
 }
 
 /// Get or generate a server token token
@@ -585,19 +658,22 @@ fn create_server_header_layer() -> SetResponseHeaderLayer<HeaderValue> {
 }
 
 /// Create a CORS layer based on the specified level
-fn create_cors_layer(level: CorsLevel) -> CorsLayer {
+fn create_cors_layer(level: CorsLevel, port: u16) -> eyre::Result<CorsLayer> {
     match level {
-        CorsLevel::None => CorsLayer::new(),
-        CorsLevel::Restrictive => CorsLayer::new()
-            .allow_origin(HeaderValue::from_static("http://localhost"))
+        CorsLevel::None => Ok(CorsLayer::new()),
+        CorsLevel::Restrictive => Ok(CorsLayer::new()
+            .allow_origin([
+                HeaderValue::from_str(&format!("http://localhost:{port}"))?,
+                HeaderValue::from_str(&format!("http://127.0.0.1:{port}"))?,
+            ])
             .allow_methods([Method::GET, Method::POST])
-            .allow_headers(Any),
-        CorsLevel::Local => CorsLayer::new()
+            .allow_headers(Any)),
+        CorsLevel::Local => Ok(CorsLayer::new()
             .allow_origin([
                 HeaderValue::from_static("http://localhost:3000"),
                 HeaderValue::from_static("http://127.0.0.1:3000"),
-                HeaderValue::from_static("http://localhost:9000"),
-                HeaderValue::from_static("http://127.0.0.1:9000"),
+                HeaderValue::from_str(&format!("http://localhost:{port}"))?,
+                HeaderValue::from_str(&format!("http://127.0.0.1:{port}"))?,
             ])
             .allow_methods([
                 Method::GET,
@@ -607,7 +683,83 @@ fn create_cors_layer(level: CorsLevel) -> CorsLayer {
                 Method::PATCH,
             ])
             .allow_headers(Any)
-            .allow_credentials(true),
-        CorsLevel::Permissive => CorsLayer::permissive(),
+            .allow_credentials(true)),
+        CorsLevel::Permissive => Ok(CorsLayer::permissive()),
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn serve_reports_actual_port_when_requested_port_is_unavailable() -> eyre::Result<()> {
+        let blocker = loop {
+            let listener = TcpListener::bind((Ipv4Addr::LOCALHOST, 0)).await?;
+            if listener.local_addr()?.port() < u16::MAX - PORT_SEARCH_ATTEMPTS {
+                break listener;
+            }
+        };
+        let requested_port = blocker.local_addr()?.port();
+        let dir = tempfile::tempdir()?;
+        let (started_tx, started_rx) = oneshot::channel();
+        let (shutdown_tx, shutdown_rx) = oneshot::channel();
+
+        let server = tokio::spawn(serve(ServeOptions {
+            dir: dir.path().to_path_buf(),
+            port: requested_port,
+            no_auth: true,
+            no_startup_message: true,
+            started_sender: Some(started_tx),
+            shutdown_receiver: Some(shutdown_rx),
+            ..Default::default()
+        }));
+
+        let started = match started_rx.await {
+            Ok(started) => started,
+            Err(error) => {
+                server.await??;
+                return Err(error.into());
+            }
+        };
+        assert!(started.port > requested_port);
+        assert_ne!(started.port, requested_port);
+        assert!(started.url.contains(&format!(":{}", started.port)));
+
+        let _ = shutdown_tx.send(());
+        server.await??;
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn serve_exits_when_startup_gate_is_dropped() -> eyre::Result<()> {
+        let dir = tempfile::tempdir()?;
+        let (started_tx, started_rx) = oneshot::channel();
+        let (startup_tx, startup_rx) = oneshot::channel();
+
+        let server = tokio::spawn(serve(ServeOptions {
+            dir: dir.path().to_path_buf(),
+            port: 0,
+            no_auth: true,
+            no_startup_message: true,
+            started_sender: Some(started_tx),
+            startup_gate: Some(startup_rx),
+            ..Default::default()
+        }));
+
+        let started = match started_rx.await {
+            Ok(started) => started,
+            Err(error) => {
+                server.await??;
+                return Err(error.into());
+            }
+        };
+        assert_ne!(started.port, 0);
+
+        drop(startup_tx);
+        server.await??;
+
+        Ok(())
     }
 }

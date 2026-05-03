@@ -8,7 +8,7 @@ use stencila_document::{Document, ExecuteOptions};
 use stencila_web_dist::web_static_path_dev;
 use tokio::sync::{broadcast, mpsc, oneshot};
 
-use crate::{ServeOptions, SiteMessage, get_server_token, serve};
+use crate::{ServeOptions, ServerStarted, SiteMessage, get_server_token, serve};
 
 /// Events emitted by a running site preview.
 #[derive(Debug, Clone)]
@@ -268,14 +268,13 @@ pub async fn start_preview(port: u16) -> Result<PreviewHandle> {
     let temp_dir = tempfile::tempdir()?;
     let temp_path = temp_dir.path().to_path_buf();
 
-    // Initial render
-    render_site(&site_root, &temp_path, port, None, None).await?;
-
     let server_token = get_server_token();
 
     // Shutdown channels
     let (server_shutdown_tx, server_shutdown_rx) = oneshot::channel();
     let (watch_shutdown_tx, watch_shutdown_rx) = oneshot::channel();
+    let (started_tx, started_rx) = oneshot::channel::<ServerStarted>();
+    let (startup_tx, startup_rx) = oneshot::channel();
 
     // Site notification broadcast channel
     let (site_notify_tx, _) = broadcast::channel::<SiteMessage>(16);
@@ -284,19 +283,46 @@ pub async fn start_preview(port: u16) -> Result<PreviewHandle> {
     // Start server
     let serve_dir = temp_path.clone();
     let server_token_clone = server_token.clone();
-    tokio::spawn(async move {
+    let server_handle = tokio::spawn(async move {
         let options = ServeOptions {
             dir: serve_dir.clone(),
             port,
             server_token: Some(server_token_clone),
             no_startup_message: true,
+            started_sender: Some(started_tx),
+            startup_gate: Some(startup_rx),
             shutdown_receiver: Some(server_shutdown_rx),
             static_dir: Some(serve_dir),
             site_notify: Some(site_notify_tx_clone),
             ..Default::default()
         };
-        let _ = serve(options).await;
+        serve(options).await
     });
+
+    let started = match started_rx.await {
+        Ok(started) => started,
+        Err(_) => match server_handle.await {
+            Ok(Err(error)) => return Err(error),
+            Ok(Ok(())) => eyre::bail!("Server stopped before startup completed"),
+            Err(error) => return Err(error.into()),
+        },
+    };
+    let port = started.port;
+
+    // Initial render
+    if let Err(error) = render_site(&site_root, &temp_path, port, None, None).await {
+        drop(startup_tx);
+        let _ = server_handle.await;
+        return Err(error);
+    }
+
+    if startup_tx.send(()).is_err() {
+        match server_handle.await {
+            Ok(Err(error)) => return Err(error),
+            Ok(Ok(())) => eyre::bail!("Server stopped before startup completed"),
+            Err(error) => return Err(error.into()),
+        }
+    }
 
     let url = format!("http://localhost:{port}");
 

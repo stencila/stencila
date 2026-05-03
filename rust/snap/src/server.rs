@@ -255,7 +255,7 @@ mod tests {
     fn test_resolve_route() {
         let info = ServerInfo {
             pid: 1234,
-            port: 9000,
+            port: 9107,
             token: Some("sst_testtoken".to_string()),
             directory: PathBuf::from("/tmp/test"),
             started_at: 0,
@@ -264,13 +264,13 @@ mod tests {
 
         assert_eq!(
             info.resolve_route("/docs/guide/"),
-            "http://127.0.0.1:9000/docs/guide/?sst=sst_testtoken"
+            "http://127.0.0.1:9107/docs/guide/?sst=sst_testtoken"
         );
 
         // Route with existing query string
         assert_eq!(
             info.resolve_route("/search?q=test"),
-            "http://127.0.0.1:9000/search?q=test&sst=sst_testtoken"
+            "http://127.0.0.1:9107/search?q=test&sst=sst_testtoken"
         );
 
         let info_no_token = ServerInfo {
@@ -279,21 +279,21 @@ mod tests {
         };
         assert_eq!(
             info_no_token.resolve_route("/docs/guide/"),
-            "http://127.0.0.1:9000/docs/guide/"
+            "http://127.0.0.1:9107/docs/guide/"
         );
     }
 
     #[test]
     fn test_server_mode_serde() {
         // Test that mode defaults to empty string when missing from JSON
-        let json = r#"{"pid":1,"port":9000,"token":null,"directory":"/tmp","started_at":0}"#;
+        let json = r#"{"pid":1,"port":9107,"token":null,"directory":"/tmp","started_at":0}"#;
         let info: ServerInfo = serde_json::from_str(json).expect("should parse without mode");
         assert_eq!(info.mode, "");
 
         // Test round-trip with explicit mode
         let json_with_mode = serde_json::to_string(&ServerInfo {
             pid: 1,
-            port: 9000,
+            port: 9107,
             token: None,
             directory: PathBuf::from("/tmp"),
             started_at: 0,

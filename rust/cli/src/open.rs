@@ -2,12 +2,13 @@ use std::path::PathBuf;
 
 use clap::Parser;
 use eyre::{OptionExt, Result, bail, eyre};
+use tokio::sync::oneshot;
 use url::Url;
 
 use stencila_cli_utils::{color_print::cstr, message};
 use stencila_document::Document;
 use stencila_remotes::{RemoteService, get_remotes_for_path};
-use stencila_server::{ServeOptions, get_server_token};
+use stencila_server::{ServeOptions, ServerStarted, get_server_token};
 
 /// Open a document in the browser
 ///
@@ -185,17 +186,31 @@ impl Cli {
 
             message("🖥️ Starting local preview server");
 
+            let (started_tx, started_rx) = oneshot::channel::<ServerStarted>();
+
             // Serve the directory
             let options = ServeOptions {
                 dir: dir.clone(),
                 server_token: Some(server_token.clone()),
+                started_sender: Some(started_tx),
                 ..Default::default()
             };
             let serve = tokio::spawn(async move { stencila_server::serve(options).await });
 
+            let started = match started_rx.await {
+                Ok(started) => started,
+                Err(_) => {
+                    serve.await??;
+                    bail!("Server stopped before startup completed");
+                }
+            };
+
             // Open the browser to the login page with redirect to the document path
             let path = file.strip_prefix(&dir)?.to_string_lossy();
-            let url = format!("http://127.0.0.1:9000/~login?sst={server_token}&next={path}");
+            let url = format!(
+                "http://127.0.0.1:{}/~login?sst={server_token}&next={path}",
+                started.port
+            );
             webbrowser::open(&url)?;
 
             // Await the serve task

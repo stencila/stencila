@@ -11,5 +11,7 @@ mod statics;
 mod themes;
 mod workflows;
 
-pub use crate::server::{ServeOptions, ServerMode, get_server_token, serve};
+pub use crate::server::{
+    DEFAULT_PORT, ServeOptions, ServerMode, ServerStarted, get_server_token, serve,
+};
 pub use crate::site::SiteMessage;

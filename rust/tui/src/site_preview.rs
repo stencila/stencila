@@ -1,9 +1,6 @@
 use eyre::Result;
-use stencila_server::preview::PreviewEvent;
+use stencila_server::{DEFAULT_PORT, preview::PreviewEvent};
 use tokio::{sync::mpsc, task::JoinHandle};
-
-/// Default port for the TUI site preview server.
-const PREVIEW_PORT: u16 = 9000;
 
 /// Handle to the background site preview task.
 ///
@@ -34,7 +31,7 @@ pub fn spawn_preview() -> Result<Option<SitePreviewHandle>> {
     let (event_tx, event_rx) = mpsc::unbounded_channel();
 
     let task = tokio::spawn(async move {
-        match stencila_server::preview::start_preview(PREVIEW_PORT).await {
+        match stencila_server::preview::start_preview(DEFAULT_PORT).await {
             Ok(mut handle) => {
                 // `start_preview` returns url/token as struct fields rather
                 // than emitting a `ServerReady` event on the channel, so we

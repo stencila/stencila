@@ -1,6 +1,7 @@
 use clap::{Args, Parser, Subcommand};
 use eyre::{Result, bail};
 use textwrap::{Options, termwidth, wrap};
+use tokio::sync::oneshot;
 use url::Url;
 
 use stencila_ask::ask_for_password;
@@ -9,7 +10,7 @@ use stencila_cli_utils::{
     message,
 };
 use stencila_cloud::TokenSource;
-use stencila_server::{ServeOptions, get_server_token};
+use stencila_server::{ServeOptions, ServerStarted, get_server_token};
 
 /// Manage Stencila Cloud account
 #[derive(Debug, Parser)]
@@ -140,18 +141,30 @@ impl Signin {
         // Get (or generate) an access token so it can be included in the URL
         let server_token = get_server_token();
 
+        let (started_tx, started_rx) = oneshot::channel::<ServerStarted>();
+
         // Serve with access token
         let options = ServeOptions {
             server_token: Some(server_token.clone()),
             no_startup_message: true,
+            started_sender: Some(started_tx),
             ..Default::default()
         };
 
         let serve = tokio::spawn(async move { stencila_server::serve(options).await });
 
+        let started = match started_rx.await {
+            Ok(started) => started,
+            Err(_) => {
+                serve.await??;
+                bail!("Server stopped before startup completed");
+            }
+        };
+
         // Open the browser to the Stencila Cloud CLI signin page with a callback
         // to the ~auth endpoint.
-        let mut callback = Url::parse("http://127.0.0.1:9000/~auth/callback")?;
+        let mut callback =
+            Url::parse(&format!("http://127.0.0.1:{}/~auth/callback", started.port))?;
         callback.query_pairs_mut().append_pair("sst", &server_token);
         let url = format!("https://stencila.cloud/signin/cli?callback={callback}");
 
