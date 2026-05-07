@@ -3,11 +3,10 @@
 use std::sync::{Arc, Mutex};
 
 use serde_json::json;
+use stencila_agents::error::AgentError;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_db::rusqlite::Connection;
 use stencila_models3::types::tool::ToolDefinition;
-
-type AgentIoError = stencila_agents::error::AgentError;
 
 fn definition() -> ToolDefinition {
     ToolDefinition {
@@ -33,11 +32,11 @@ fn definition() -> ToolDefinition {
     }
 }
 
-fn validate_context_key(key: &str) -> Option<ToolOutput> {
+fn context_key_error(key: &str) -> Option<String> {
     if key.starts_with("internal.") {
-        Some(ToolOutput::Text(format!(
-            "Error: Key `{key}` starts with reserved prefix `internal.`."
-        )))
+        Some(format!(
+            "key `{key}` starts with reserved prefix `internal.`"
+        ))
     } else {
         None
     }
@@ -73,48 +72,49 @@ fn executor(
             let writable = context_writable;
             Box::pin(async move {
                 if !writable {
-                    return Ok(ToolOutput::Text(
-                        "Error: Context writes are not enabled for this node. \
-                         The workflow author must set context_writable=true on the node."
+                    return Err(AgentError::PermissionDenied {
+                        path: "workflow context (set context_writable=true on the workflow node)"
                             .to_string(),
-                    ));
+                    });
                 }
 
                 let entries = args
                     .get("entries")
                     .and_then(|value| value.as_object())
-                    .ok_or_else(|| AgentIoError::Io {
-                        message: "Missing required parameter: entries".to_string(),
+                    .ok_or_else(|| AgentError::ValidationError {
+                        reason: "missing required parameter: entries".to_string(),
                     })?;
 
+                if entries.is_empty() {
+                    return Err(AgentError::ValidationError {
+                        reason: "entries must contain at least one context key".to_string(),
+                    });
+                }
+
                 for key in entries.keys() {
-                    if let Some(error) = validate_context_key(key) {
-                        return Ok(error);
+                    if let Some(reason) = context_key_error(key) {
+                        return Err(AgentError::ValidationError { reason });
                     }
                 }
 
                 let mut conn = conn.lock().unwrap_or_else(|e| e.into_inner());
-                let tx = conn.transaction().map_err(|e| AgentIoError::Io {
+                let tx = conn.transaction().map_err(|e| AgentError::Io {
                     message: format!("Failed to start context transaction: {e}"),
                 })?;
 
                 for (key, value) in entries {
-                    if let Err(e) = upsert_context(&tx, &run_id, key, value) {
-                        return Ok(ToolOutput::Text(format!("Error setting context: {e}")));
-                    }
+                    upsert_context(&tx, &run_id, key, value).map_err(|e| AgentError::Io {
+                        message: format!("Failed to set context key `{key}`: {e}"),
+                    })?;
                 }
 
-                if let Err(e) = tx.commit() {
-                    return Ok(ToolOutput::Text(format!("Error setting context: {e}")));
-                }
+                tx.commit().map_err(|e| AgentError::Io {
+                    message: format!("Failed to commit context transaction: {e}"),
+                })?;
 
                 let mut keys = entries.keys().cloned().collect::<Vec<_>>();
                 keys.sort();
-                let message = if keys.is_empty() {
-                    "Set context keys: none".to_string()
-                } else {
-                    format!("Set context keys: {}", keys.join(", "))
-                };
+                let message = format!("Set context keys: {}", keys.join(", "));
                 Ok(ToolOutput::Text(message))
             })
         },
@@ -196,19 +196,17 @@ mod tests {
         let executor = executor(conn.clone(), "run-1".to_string(), true);
         let env = LocalExecutionEnvironment::new(".");
 
-        let output = executor(
+        let error = executor(
             json!({"entries": {"visible": true, "internal.secret": "nope"}}),
             &env,
         )
         .await
-        .unwrap_or_else(|error| panic!("{error}"));
+        .expect_err("reserved context key should fail");
 
-        let ToolOutput::Text(text) = output else {
-            panic!("expected text output")
-        };
+        assert!(matches!(error, AgentError::ValidationError { .. }));
         assert_eq!(
-            text,
-            "Error: Key `internal.secret` starts with reserved prefix `internal.`."
+            error.to_string(),
+            "validation error: key `internal.secret` starts with reserved prefix `internal.`"
         );
 
         let count: i64 = conn
@@ -219,5 +217,23 @@ mod tests {
             })
             .unwrap_or_else(|error| panic!("{error}"));
         assert_eq!(count, 0);
+    }
+
+    #[tokio::test]
+    async fn rejects_empty_context_entries() {
+        let conn = empty_context_conn();
+        let executor = executor(conn, "run-1".to_string(), true);
+        let env = LocalExecutionEnvironment::new(".");
+
+        let error = executor(json!({"entries": {}}), &env)
+            .await
+            .expect_err("empty context entries should fail");
+
+        assert_eq!(
+            error,
+            AgentError::ValidationError {
+                reason: "entries must contain at least one context key".to_string()
+            }
+        );
     }
 }

@@ -3,6 +3,7 @@
 use std::sync::{Arc, Mutex};
 
 use serde_json::json;
+use stencila_agents::error::AgentError;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_db::rusqlite::Connection;
 use stencila_models3::types::tool::ToolDefinition;
@@ -52,7 +53,7 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                         .prepare(
                             "SELECT value FROM workflow_context WHERE run_id = ?1 AND key = ?2",
                         )
-                        .map_err(|e| stencila_agents::error::AgentError::Io {
+                        .map_err(|e| AgentError::Io {
                             message: format!("Failed to prepare query: {e}"),
                         })?;
 
@@ -64,7 +65,11 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                                 map.insert(key.to_string(), parse_context_value(value));
                             }
                             Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => {}
-                            Err(e) => return Ok(ToolOutput::Text(format!("Error: {e}"))),
+                            Err(e) => {
+                                return Err(AgentError::Io {
+                                    message: format!("Failed to get context key `{key}`: {e}"),
+                                });
+                            }
                         }
                     }
 
@@ -73,7 +78,7 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                     // Full snapshot
                     let mut stmt = conn
                         .prepare("SELECT key, value FROM workflow_context WHERE run_id = ?1 ORDER BY rowid")
-                        .map_err(|e| stencila_agents::error::AgentError::Io {
+                        .map_err(|e| AgentError::Io {
                             message: format!("Failed to prepare query: {e}"),
                         })?;
 
@@ -81,11 +86,13 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                         .query_map((&run_id,), |row| {
                             Ok((row.get::<_, String>(0)?, row.get::<_, String>(1)?))
                         })
-                        .map_err(|e| stencila_agents::error::AgentError::Io {
+                        .map_err(|e| AgentError::Io {
                             message: format!("Failed to query context: {e}"),
                         })?
-                        .filter_map(Result::ok)
-                        .collect();
+                        .collect::<Result<_, _>>()
+                        .map_err(|e| AgentError::Io {
+                            message: format!("Failed to read context row: {e}"),
+                        })?;
 
                     let mut map = serde_json::Map::new();
                     for (k, v) in rows {

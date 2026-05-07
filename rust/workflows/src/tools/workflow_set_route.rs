@@ -3,6 +3,7 @@
 use std::sync::{Arc, Mutex};
 
 use serde_json::json;
+use stencila_agents::error::AgentError;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_models3::types::tool::ToolDefinition;
 
@@ -41,8 +42,8 @@ fn executor(labels: Vec<String>, chosen: Arc<Mutex<Option<String>>>) -> ToolExec
             let chosen = chosen.clone();
             Box::pin(async move {
                 let label = args.get("label").and_then(|v| v.as_str()).ok_or_else(|| {
-                    stencila_agents::error::AgentError::Io {
-                        message: "Missing required parameter: label".to_string(),
+                    AgentError::ValidationError {
+                        reason: "missing required parameter: label".to_string(),
                     }
                 })?;
 
@@ -52,10 +53,12 @@ fn executor(labels: Vec<String>, chosen: Arc<Mutex<Option<String>>>) -> ToolExec
                     .cloned();
 
                 let Some(canonical) = canonical else {
-                    return Ok(ToolOutput::Text(format!(
-                        "Error: '{label}' is not a valid label. Valid labels: {}",
-                        labels.join(", ")
-                    )));
+                    return Err(AgentError::ValidationError {
+                        reason: format!(
+                            "`{label}` is not a valid label. Valid labels: {}",
+                            labels.join(", ")
+                        ),
+                    });
                 };
 
                 // Poison recovery is safe: the guarded value is a simple Option<String>

@@ -3,6 +3,7 @@
 use std::sync::{Arc, Mutex};
 
 use serde_json::json;
+use stencila_agents::error::AgentError;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_db::rusqlite::Connection;
 use stencila_models3::types::tool::ToolDefinition;
@@ -45,7 +46,9 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                 );
                 match result {
                     Ok(info) => Ok(ToolOutput::Text(info.to_string())),
-                    Err(e) => Ok(ToolOutput::Text(format!("Error: {e}"))),
+                    Err(e) => Err(AgentError::Io {
+                        message: format!("Failed to get workflow run metadata: {e}"),
+                    }),
                 }
             })
         },

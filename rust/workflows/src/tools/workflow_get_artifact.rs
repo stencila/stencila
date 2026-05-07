@@ -3,6 +3,7 @@
 use std::sync::{Arc, Mutex};
 
 use serde_json::json;
+use stencila_agents::error::AgentError;
 use stencila_agents::registry::{RegisteredTool, ToolExecutorFn, ToolOutput};
 use stencila_db::rusqlite::Connection;
 use stencila_models3::types::tool::ToolDefinition;
@@ -37,8 +38,8 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                 let artifact_id = args
                     .get("artifact_id")
                     .and_then(|v| v.as_str())
-                    .ok_or_else(|| stencila_agents::error::AgentError::Io {
-                        message: "Missing required parameter: artifact_id".to_string(),
+                    .ok_or_else(|| AgentError::ValidationError {
+                        reason: "missing required parameter: artifact_id".to_string(),
                     })?;
 
                 let conn = conn.lock().unwrap_or_else(|e| e.into_inner());
@@ -62,7 +63,9 @@ fn executor(conn: Arc<Mutex<Connection>>, run_id: String) -> ToolExecutorFn {
                     Err(stencila_db::rusqlite::Error::QueryReturnedNoRows) => Ok(ToolOutput::Text(
                         format!("Artifact not found: {artifact_id}"),
                     )),
-                    Err(e) => Ok(ToolOutput::Text(format!("Error: {e}"))),
+                    Err(e) => Err(AgentError::Io {
+                        message: format!("Failed to get workflow artifact `{artifact_id}`: {e}"),
+                    }),
                 }
             })
         },
