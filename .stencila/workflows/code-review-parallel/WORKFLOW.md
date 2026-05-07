@@ -18,7 +18,7 @@ when-not-to-use:
   - when the task is implementation, refactoring, or test writing rather than review
 ---
 
-This workflow fans out to three parallel code reviews of the same target, each using the `software-code-reviewer` agent but forced to a different model provider (Anthropic, OpenAI, Google). After all three complete, a synthesis node merges the reviews into a single numbered, prioritized findings list that calls out agreement and disagreement across reviewers. A human review gate at the end lets you accept or send the synthesis back for revision.
+This workflow fans out to three parallel code reviews of the same target, each using the `software-code-reviewer` agent but forced to a different model provider (Anthropic, OpenAI, Google). After all three complete, a synthesis node merges the reviews into a single numbered, prioritized findings list that calls out agreement and disagreement across reviewers. The workflow ends immediately after synthesis so it can be composed by parent workflows without an extra human gate; callers that need human approval should add their own review step after this workflow.
 
 ```dot
 digraph code_review_parallel {
@@ -39,11 +39,7 @@ digraph code_review_parallel {
   ReviewC -> Synthesize
 
   Synthesize [prompt-ref="#synthesize-prompt"]
-  Synthesize -> HumanReview
-
-  HumanReview [interview-ref="#human-review"]
-  HumanReview -> End     [label="Accept"]
-  HumanReview -> Synthesize [label="Revise"]
+  Synthesize -> End
 }
 ```
 
@@ -72,25 +68,4 @@ Before finalizing, validate each finding against the actual code. Pay particular
 Be concise. Do not reproduce the full text of each review — synthesize and deduplicate.
 
 Write the final report to `.stencila/reviews/` as a Markdown file. Derive the filename from the review target using kebab-case (e.g., `.stencila/reviews/codec-markdown-review.md`). Create the directory if it does not exist. If a file with that name already exists, chose another name.
-```
-
-```yaml #human-review
-preamble: |
-  The three parallel code reviews have been synthesized into a unified findings report.
-  Please review the synthesis and decide whether to accept or request revisions.
-
-questions:
-  - header: Decision
-    question: Is the synthesized review report acceptable?
-    type: single-select
-    options:
-      - label: Accept
-      - label: Revise
-    store: human.decision
-    finish-if: Accept
-
-  - header: Revision Notes
-    question: What should be changed in the synthesis?
-    show-if: "human.decision == Revise"
-    store: human.feedback
 ```
