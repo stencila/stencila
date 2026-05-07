@@ -1347,9 +1347,9 @@ impl CodergenBackend for AgentCodergenBackend {
                  WORKFLOW CONTEXT TOOLS: You have access to workflow tools for retrieving \
                  prior state. Call `workflow_get_output` to fetch the full output from the \
                  previous pipeline node (e.g. reviewer feedback or a prior draft). Call \
-                 `workflow_get_context` with a key (e.g. \"human.feedback\") to read stored \
-                 values such as human revision notes. Use these tools to obtain context \
-                 rather than assuming it is included in this prompt.",
+                 `workflow_get_context` with `keys` to read one or more stored values (e.g. \
+                 [\"human.feedback\"]), or with no keys to read all context. Use these tools \
+                 to obtain context rather than assuming it is included in this prompt.",
             );
         }
 

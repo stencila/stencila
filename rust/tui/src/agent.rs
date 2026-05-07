@@ -653,6 +653,19 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             .and_then(Value::as_str)
             .map(strip_cwd)
     };
+    let string_array_arg = |key: &str| -> Vec<String> {
+        args_obj
+            .and_then(|o| o.get(key))
+            .and_then(Value::as_array)
+            .map(|values| {
+                values
+                    .iter()
+                    .filter_map(Value::as_str)
+                    .map(strip_cwd)
+                    .collect()
+            })
+            .unwrap_or_default()
+    };
     let bool_arg = |key: &str| -> bool {
         args_obj
             .and_then(|o| o.get(key))
@@ -772,11 +785,27 @@ fn format_tool_start(tool_name: &str, arguments: &Value) -> String {
             }
         }
         "workflow_get_context" => {
-            let key = str_arg("key").unwrap_or_default();
-            if key.is_empty() {
+            let keys = string_array_arg("keys");
+            if keys.is_empty() {
                 "Get workflow context".to_string()
             } else {
-                format!("Get workflow context: {key}")
+                format!("Get workflow context: {}", keys.join(", "))
+            }
+        }
+        "workflow_set_context" => {
+            let entry_keys = args_obj
+                .and_then(|o| o.get("entries"))
+                .and_then(Value::as_object)
+                .map(|entries| {
+                    let mut keys = entries.keys().cloned().collect::<Vec<_>>();
+                    keys.sort();
+                    keys
+                })
+                .unwrap_or_default();
+            if entry_keys.is_empty() {
+                "Set workflow context".to_string()
+            } else {
+                format!("Set workflow context: {}", entry_keys.join(", "))
             }
         }
         "workflow_store_artifact" => {
@@ -1356,10 +1385,26 @@ mod tests {
             format_tool_start("workflow_get_output", &Value::Null),
             "Get last output"
         );
-        let args = serde_json::json!({"key": "human.feedback"});
+        let args = serde_json::json!({"keys": ["human.feedback"]});
         assert_eq!(
             format_tool_start("workflow_get_context", &args),
             "Get workflow context: human.feedback"
+        );
+        let args = serde_json::json!({"keys": ["current_slice", "slice.scope"]});
+        assert_eq!(
+            format_tool_start("workflow_get_context", &args),
+            "Get workflow context: current_slice, slice.scope"
+        );
+        let args =
+            serde_json::json!({"entries": {"current_slice": "Slice 1", "slice.scope": "Scope"}});
+        assert_eq!(
+            format_tool_start("workflow_set_context", &args),
+            "Set workflow context: current_slice, slice.scope"
+        );
+        let args = serde_json::json!({"entries": {"current_slice": "Slice 1"}});
+        assert_eq!(
+            format_tool_start("workflow_set_context", &args),
+            "Set workflow context: current_slice"
         );
         let args = serde_json::json!({"node_id": "Review"});
         assert_eq!(

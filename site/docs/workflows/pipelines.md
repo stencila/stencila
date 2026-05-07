@@ -1163,14 +1163,14 @@ Available tools:
 | Tool                     | Purpose                                                                 |
 | ------------------------ | ----------------------------------------------------------------------- |
 | `workflow_get_output`    | Get the output of a pipeline node by ID, or the most recent output if no node_id is given |
-| `workflow_get_context`   | Read a specific context key (e.g., `human.feedback`) or all context     |
-| `workflow_set_context`   | Write a value to the workflow context (requires `context-writable=true` on the node) |
+| `workflow_get_context`   | Read one or more context keys with `keys`, or all context with no `keys` / empty `keys` |
+| `workflow_set_context`   | Write one or more values atomically with `entries` (requires `context-writable=true` on the node) |
 | `workflow_get_run`       | Get metadata about the current run (name, goal, status, start time)     |
 | `workflow_list_nodes`    | List all workflow nodes with status and duration                        |
 | `workflow_store_artifact`| Store a file artifact associated with this run                          |
 | `workflow_get_artifact`  | Retrieve a previously stored artifact by ID                             |
 
-The engine appends usage instructions to each agent's prompt when these tools are available. Agents are told to call `workflow_get_output` for prior output (e.g., reviewer feedback or a previous draft) and `workflow_get_context` for stored values (e.g., `human.feedback`).
+The engine appends usage instructions to each agent's prompt when these tools are available. Agents are told to call `workflow_get_output` for prior output (e.g., reviewer feedback or a previous draft) and `workflow_get_context` for stored values (e.g., `keys: ["human.feedback"]`). When an agent needs several stored values, it should prefer one `workflow_get_context` call with `keys` over repeated single-key calls.
 
 > **When to use tools vs variables:** Use `$`-variable interpolation for short values like `$goal`, `$last_stage`, and `$last_outcome`, and in shell commands and edge conditions where tools are not available. Prefer tools like `workflow_get_output` and `workflow_get_context` when the content may be long (full drafts, detailed reviews) to keep prompts compact.
 

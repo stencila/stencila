@@ -42,7 +42,7 @@ Iteratively refactor part or all of a software project using the `software-code-
 
 # Pipeline
 
-This workflow first uses the `software-code-refactorer` agent to apply safe transformations, then the `software-test-executor` agent runs scoped tests to verify no regressions. If tests fail, control loops back to the refactorer with the failure output as feedback. If tests pass, the `software-code-reviewer` agent evaluates the refactored code and chooses Accept or Revise — on Revise its response provides specific feedback for the next refactoring pass. After the reviewer accepts, a structured human review interview lets the user accept, accept and commit, or send the changes back for further revision with specific notes. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the changes before ending the workflow. The `Refactor` node uses `workflow_get_output` to retrieve reviewer or test-failure feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes. All iterating agent nodes use `fidelity="full"` with explicit `thread-id` values so each agent's LLM session is reused across iterations, avoiding the cost of re-reading files and re-discovering conventions on every loop. A graph-wide `max-session-turns` default of 10 caps context growth, with the heavy-context `Refactor` node overridden to 5.
+This workflow first uses the `software-code-refactorer` agent to apply safe transformations, then the `software-test-executor` agent runs scoped tests to verify no regressions. If tests fail, control loops back to the refactorer with the failure output as feedback. If tests pass, the `software-code-reviewer` agent evaluates the refactored code and chooses Accept or Revise — on Revise its response provides specific feedback for the next refactoring pass. After the reviewer accepts, a structured human review interview lets the user accept, accept and commit, or send the changes back for further revision with specific notes. Choosing "Accept and Commit" routes through a Commit agent node that stages and commits the changes before ending the workflow. The `Refactor` node uses `workflow_get_output` to retrieve reviewer or test-failure feedback and `workflow_get_context` with `keys: ["human.feedback"]` to retrieve human revision notes. All iterating agent nodes use `fidelity="full"` with explicit `thread-id` values so each agent's LLM session is reused across iterations, avoiding the cost of re-reading files and re-discovering conventions on every loop. A graph-wide `max-session-turns` default of 10 caps context growth, with the heavy-context `Refactor` node overridden to 5.
 
 ```dot
 digraph software_refactor_iterative {
@@ -99,7 +99,7 @@ Before starting, use `workflow_get_output` to check for feedback from a previous
 
 If feedback is present, use it to address the specific issues identified rather than starting over. If you disagree with a specific review finding, you may skip it but note your reasoning.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 
 Requirements:
 

@@ -30,5 +30,5 @@ digraph Workflow {
 ```
 
 ```text #seed-prompt
-You must call the workflow_set_context tool exactly once to store a JSON array with key "items" and value ["alpha","beta","gamma"]. Do not output anything else.
+You must call the workflow_set_context tool exactly once to store a JSON array with `entries: {"items": ["alpha","beta","gamma"]}`. Do not output anything else.
 ```

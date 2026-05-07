@@ -26,7 +26,7 @@ when-not-to-use:
 
 This workflow first uses the `site-config-creator` agent to draft or revise the `[site]` section of `stencila.toml`, then passes the draft to the `site-config-reviewer` agent for review. The reviewer uses the `workflow_set_route` tool to choose between the `Accept` and `Revise` edge labels; when it chooses `Revise` its response text contains concrete revision feedback.
 
-The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with key `human.feedback` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Choosing `Revise` continues the interview to collect feedback (stored as `human.feedback` for the next creator pass). Choosing `Accept and Commit` routes through a `Commit` agent node that stages and commits the config changes before ending the workflow.
+The `Create` node uses the `workflow_get_output` tool to retrieve reviewer feedback and `workflow_get_context` with `keys: ["human.feedback"]` to retrieve human revision notes, so both automated and human guidance are available on iterative passes without bloating the prompt. After the reviewer accepts, the workflow enters a structured human review interview. Choosing `Revise` continues the interview to collect feedback (stored as `human.feedback` for the next creator pass). Choosing `Accept and Commit` routes through a `Commit` agent node that stages and commits the config changes before ending the workflow.
 
 The `Create` node uses `persist="full"` so the creator agent's LLM session is reused across revision loops, avoiding the cost of re-exploring the workspace and re-reading files on every iteration. The `Review` node intentionally does not persist its session — a fresh session on each pass gives the reviewer unbiased "fresh eyes" on the current draft, avoiding anchoring on prior assessments that could mask regressions. The artifact being reviewed is a single file, so the re-read cost is low. A graph-wide `max-session-turns` default of 10 caps context growth.
 
@@ -60,7 +60,7 @@ $goal
 
 Before starting, use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 ```
 
 ```markdown #reviewer-prompt

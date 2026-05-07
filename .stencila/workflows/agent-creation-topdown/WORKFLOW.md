@@ -86,9 +86,9 @@ $goal
 
 Before starting, use `workflow_get_output` to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 
-After producing the design document, you MUST call `workflow_set_context` to store the skills list. Use key "skills" and provide a JSON array of objects, where each object has "name" (kebab-case skill name), "description" (one-line description), and "capabilities" (key capabilities the skill should provide). For example:
+After producing the design document, you MUST call `workflow_set_context` to store the skills list. Use `entries: {"skills": [...]}` and provide a JSON array of objects, where each object has "name" (kebab-case skill name), "description" (one-line description), and "capabilities" (key capabilities the skill should provide). For example:
 
 `[{"name": "data-analysis", "description": "Analyze datasets and produce summaries", "capabilities": "Statistical analysis, visualization, trend detection"}]`
 
@@ -141,7 +141,7 @@ Create the agent defined in the approved design, now that all its skills have be
 
 Use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing agent draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 
 The agent's goal is:
 

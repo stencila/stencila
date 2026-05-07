@@ -199,7 +199,7 @@ batch of adjacent compatible plan slices.
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the most recently selected execution unit (treat as just-completed when
   re-entering after acceptance; empty on first invocation)
 - key "completed_slices" — the list of previously completed slice names
@@ -215,7 +215,7 @@ the completed slices list, and the plan goal to the slice-selection skill. The s
 
 **Step 3: clear stale slice-scoped context**
 
-Use `workflow_set_context` to clear transient state from the previous slice so it cannot
+Use `workflow_set_context` once with `entries` to clear transient state from the previous slice so it cannot
 leak into the next one:
 - key "human.feedback" — set to ""
 - key "slice.test_files" — set to ""
@@ -223,7 +223,7 @@ leak into the next one:
 
 **Step 4: store the skill's outputs into workflow context**
 
-Use `workflow_set_context` to store:
+Use `workflow_set_context` once with `entries` to store:
 - key "completed_slices" — the updated completed slices list returned by the skill
 If a slice or slice batch was selected, also store:
 - key "current_slice" — the selected execution unit name or identifier
@@ -242,14 +242,14 @@ Write failing tests for the current slice of work (Red step of TDD).
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the slice name
 - key "slice.scope" — what the slice covers
 - key "slice.acceptance_criteria" — the criteria the tests must verify
 - key "slice.packages" — the packages or directories involved
 
 Check for reviewer feedback from a previous iteration using `workflow_get_output`.
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes.
 
 **Step 2: delegate to the test-creation skill**
 
@@ -260,7 +260,7 @@ and report the test file paths and test command.
 
 **Step 3: store the skill's outputs into workflow context**
 
-Use `workflow_set_context` to store:
+Use `workflow_set_context` once with `entries` to store:
 - key "slice.test_files" — the list of test file paths created or modified
 - key "slice.test_command" — the specific command to run only these tests
 
@@ -272,7 +272,7 @@ Review the tests written for the current slice of work.
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the slice name
 - key "slice.scope" — what the slice covers
 - key "slice.acceptance_criteria" — the criteria the tests must verify
@@ -303,7 +303,7 @@ Delivery plan goal: $goal
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "slice.test_command" — the test command to run
 - key "slice.test_files" — the test file paths
 - key "slice.scope" — what the slice covers
@@ -326,7 +326,7 @@ Implement the minimum code necessary to make all tests pass (Green step of TDD).
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the slice name
 - key "slice.scope" — what the slice covers
 - key "slice.acceptance_criteria" — the criteria being implemented
@@ -355,7 +355,7 @@ Refactor the implementation while keeping all tests passing (Refactor step of TD
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the slice name
 - key "slice.scope" — what the slice covers
 - key "slice.packages" — the packages or directories to work in
@@ -406,7 +406,7 @@ Commit the changes from the completed TDD slice.
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the slice name
 - key "slice.scope" — what the slice covers
 - key "slice.packages" — the packages or directories involved
@@ -438,7 +438,7 @@ The delivery plan goal is: $goal
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 - key "current_slice" — the most recently completed execution unit
 - key "completed_slices" — the completed plan slice identifiers
 - key "completion.feedback" — any final-review follow-up notes from a prior closeout pass

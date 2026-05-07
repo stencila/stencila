@@ -137,9 +137,9 @@ $goal
 
 Before starting, use `workflow_get_output` to check for feedback from a previous iteration. If feedback is present, revise the design accordingly rather than starting over.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 
-After producing the design document, you MUST call `workflow_set_context` three times to store the dependency lists. Use the following keys and provide JSON arrays of objects:
+After producing the design document, you MUST call `workflow_set_context` once with `entries` to store the dependency lists. Use the following keys and provide JSON arrays of objects:
 
 1. Key "agents-with-skills" — agents that need custom skills. Each object: `{"name": "agent-name", "description": "one-line description", "skills-needed": "brief description of skills"}`
 2. Key "agents-without-skills" — agents that use existing skills or need none. Each object: `{"name": "agent-name", "description": "one-line description"}`
@@ -217,7 +217,7 @@ Create the workflow defined in the approved design, now that all its dependencie
 
 Use `workflow_get_output` to check for reviewer feedback from a previous iteration. If feedback is present, use it to revise the existing workflow draft instead of starting over. If you disagree with a specific finding, you may provide a reasoned rebuttal instead of incorporating it.
 
-Also use `workflow_get_context` with key "human.feedback" to check for human revision notes and incorporate those as well.
+Also use `workflow_get_context` with `keys: ["human.feedback"]` to check for human revision notes and incorporate those as well.
 
 The workflow's goal is:
 

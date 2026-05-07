@@ -100,7 +100,7 @@ Note on "current_slice": this key serves a dual role. When entering SelectSlice 
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 
 - key "current_slice" — the most recently selected execution unit; treat it as just completed when re-entering after an accepted review, empty on first invocation
 - key "completed_slices" — the list of previously completed slice names
@@ -119,7 +119,7 @@ The selected execution unit details should include the slice name, included plan
 
 **Step 3: clear stale slice-scoped context**
 
-Use `workflow_set_context` to clear transient state from the previous slice so it cannot leak into the next one:
+Use `workflow_set_context` once with `entries` to clear transient state from the previous slice so it cannot leak into the next one:
 
 - key "review.feedback" — set to ""
 - key "review.blocking_findings" — set to ""
@@ -129,7 +129,7 @@ Do not clear "review.summary" here. It intentionally remains available to the co
 
 **Step 4: store the skill's outputs into workflow context**
 
-Use `workflow_set_context` to store:
+Use `workflow_set_context` once with `entries` to store:
 
 - key "completed_slices" — the updated completed slices list returned by the skill
 
@@ -154,7 +154,7 @@ The design or delivery plan goal is: $goal
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 
 - key "current_slice" — the selected execution unit name
 - key "slice.scope" — what this execution unit covers
@@ -200,7 +200,7 @@ Assess the synthesized parallel code review and decide whether the current slice
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 
 - key "current_slice" — the selected execution unit name
 - key "slice.scope" — what this execution unit covers
@@ -247,7 +247,7 @@ If reviewers continue to find substantial non-critical work after repeated passe
 
 **Step 3: store concise review context**
 
-Use `workflow_set_context` to store:
+Use `workflow_set_context` once with `entries` to store:
 
 - key "review.summary" — a concise summary of the synthesized review and your decision
 - key "review.blocking_findings" — a compact bullet list of findings that must be addressed before this slice can be accepted, or an empty string if none
@@ -269,7 +269,7 @@ The design or delivery plan goal is: $goal
 
 **Step 1: read workflow state**
 
-Use `workflow_get_context` to read:
+Use `workflow_get_context` once with `keys` to read:
 
 - key "current_slice" — the most recently completed execution unit
 - key "completed_slices" — the completed plan slice identifiers
