@@ -54,7 +54,7 @@ digraph software_delivery_reviewed {
   ReviewChanges [
     workflow="code-review-parallel",
     label="Parallel code review",
-    goal="Review the implementation for the current delivery slice from this design or delivery plan:\n\n$goal\n\nFocus on correctness, acceptance criteria, regressions, security, maintainability, integration risks, and whether the slice is ready to mark complete. Review the changed files and the implementation report below.\n\nImplementation report:\n$last_output"
+    goal-ref="#review-changes-goal"
   ]
   ReviewChanges -> AssessReview
 
@@ -193,6 +193,17 @@ End with a concise report containing:
 - known limitations or deferred items
 
 The next node will pass this report to the parallel code review workflow.
+```
+
+```markdown #review-changes-goal
+Review the implementation for the current delivery slice from this design or delivery plan:
+
+$goal
+
+Focus on correctness, acceptance criteria, regressions, security, maintainability, integration risks, and whether the slice is ready to mark complete. Review the changed files and the implementation report below.
+
+Implementation report:
+$last_output
 ```
 
 ```markdown #assess-review-prompt

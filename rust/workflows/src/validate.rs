@@ -6,7 +6,7 @@
 use regex::Regex;
 use thiserror::Error;
 
-use stencila_schema::Workflow;
+use stencila_schema::{Block, Workflow};
 
 /// Validation errors for a workflow definition
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -102,7 +102,52 @@ fn validate_workflow_handler_node(
 ///
 /// Should be called on the **pre-transform** graph so that `$goal` placeholders
 /// have not yet been expanded by the variable-expansion transform.
-fn check_goal_pass_through(node: &stencila_attractor::graph::Node) -> Option<ValidationWarning> {
+fn content_blocks_by_id(
+    content: Option<&Vec<Block>>,
+) -> std::collections::BTreeMap<String, String> {
+    content
+        .into_iter()
+        .flatten()
+        .filter_map(|block| match block {
+            Block::CodeBlock(cb) => cb.id.as_ref().map(|id| (id.clone(), cb.code.to_string())),
+            Block::CodeChunk(cc) => cc.id.as_ref().map(|id| (id.clone(), cc.code.to_string())),
+            _ => None,
+        })
+        .collect()
+}
+
+fn node_attr_or_ref_contains_goal_var(
+    node: &stencila_attractor::graph::Node,
+    attr: &str,
+    content_blocks: &std::collections::BTreeMap<String, String>,
+) -> bool {
+    if node
+        .get_str_attr(attr)
+        .is_some_and(|value| value.contains("$goal"))
+    {
+        return true;
+    }
+
+    for ref_attr in [format!("{attr}_ref"), format!("{attr}-ref")] {
+        let Some(reference) = node.get_str_attr(&ref_attr) else {
+            continue;
+        };
+        let id = reference.trim_start_matches('#');
+        if content_blocks
+            .get(id)
+            .is_some_and(|value| value.contains("$goal"))
+        {
+            return true;
+        }
+    }
+
+    false
+}
+
+fn check_goal_pass_through(
+    node: &stencila_attractor::graph::Node,
+    content_blocks: &std::collections::BTreeMap<String, String>,
+) -> Option<ValidationWarning> {
     // Before transforms, workflow nodes are identified by an explicit `type="workflow"`
     // attribute or the presence of a `workflow` attribute.
     if node.get_str_attr("type") != Some("workflow") && !node.attrs.contains_key("workflow") {
@@ -111,7 +156,7 @@ fn check_goal_pass_through(node: &stencila_attractor::graph::Node) -> Option<Val
 
     let attrs_contain_goal_var = ["goal", "prompt", "label"]
         .iter()
-        .any(|attr| node.get_str_attr(attr).is_some_and(|v| v.contains("$goal")));
+        .any(|attr| node_attr_or_ref_contains_goal_var(node, attr, content_blocks));
 
     if attrs_contain_goal_var {
         return None;
@@ -211,8 +256,9 @@ pub fn validate_workflow(
                 // transforms, because variable expansion replaces `$goal`
                 // placeholders and would hide them from the check.
                 if parent_has_user_goal {
+                    let content_blocks = content_blocks_by_id(workflow.content.as_ref());
                     for node in graph.nodes.values() {
-                        warnings.extend(check_goal_pass_through(node));
+                        warnings.extend(check_goal_pass_through(node, &content_blocks));
                     }
                 }
 
@@ -475,6 +521,51 @@ mod tests {
                 .iter()
                 .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
             "should not warn when $goal is passed: {warnings:?}"
+        );
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn validate_workflow_no_goal_warning_when_goal_ref_contains_goal() -> eyre::Result<()> {
+        let workflow = stencila_codecs::from_str(
+            r##"---
+name: parent
+description: A test workflow
+goal-hint: What do you want to build?
+---
+
+```markdown #child-goal
+Do this: $goal
+```
+
+```dot
+digraph parent {
+    start [shape=Mdiamond]
+    exit  [shape=Msquare]
+    Design [workflow="software-design-iterative", goal-ref="#child-goal"]
+    start -> Design -> exit
+}
+```
+"##,
+            Some(stencila_codecs::DecodeOptions {
+                format: Some(stencila_codecs::Format::Markdown),
+                node_type: Some(stencila_schema::NodeType::Workflow),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+        let stencila_schema::Node::Workflow(workflow) = workflow else {
+            eyre::bail!("expected workflow node");
+        };
+
+        let (errors, warnings) = validate_workflow(&workflow, None);
+        assert!(errors.is_empty(), "should have no errors: {errors:?}");
+        assert!(
+            !warnings
+                .iter()
+                .any(|w| matches!(w, ValidationWarning::GoalNotPassedToChild(_))),
+            "should not warn when goal-ref content includes $goal: {warnings:?}"
         );
         Ok(())
     }

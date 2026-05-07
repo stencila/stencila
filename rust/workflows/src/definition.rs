@@ -202,6 +202,7 @@ impl WorkflowInstance {
     fn resolve_content_references(&self, graph: &mut Graph) -> Result<()> {
         const REF_ATTRS: &[(&str, &[&str])] = &[
             ("prompt", &["prompt_ref", "prompt-ref"]),
+            ("goal", &["goal_ref", "goal-ref"]),
             ("shell", &["shell_ref", "shell-ref"]),
             ("ask", &["ask_ref", "ask-ref"]),
             ("interview", &["interview_ref", "interview-ref"]),
@@ -763,6 +764,40 @@ digraph refs_content {
 
         let ask = graph.nodes.get("Ask").expect("Ask node");
         assert_eq!(ask.get_str_attr("ask"), Some("What should change next?"));
+    }
+
+    #[tokio::test]
+    async fn graph_resolves_goal_ref() {
+        let (_tmp, instance) = load_inline_workflow(
+            "goal-ref",
+            r##"---
+name: goal-ref
+description: Test goal ref
+---
+
+```markdown #child-goal
+Review the implementation for:
+
+$goal
+```
+
+```dot
+digraph goal_ref {
+    Start -> Review -> End
+    Review [workflow="code-review-parallel", goal-ref="#child-goal"]
+}
+```
+"##,
+        )
+        .await;
+        let graph = instance.graph().expect("graph");
+
+        let review = graph.nodes.get("Review").expect("Review node");
+        assert_eq!(
+            review.get_str_attr("goal"),
+            Some("Review the implementation for:\n\n$goal")
+        );
+        assert!(!review.attrs.contains_key("goal-ref"));
     }
 
     #[tokio::test]
