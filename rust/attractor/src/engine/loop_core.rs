@@ -14,6 +14,7 @@ use crate::events::PipelineEvent;
 use crate::fidelity::{resolve_fidelity, resolve_thread_id};
 use crate::graph::{AttrValue, Graph, Node, attr};
 use crate::retry::{build_retry_policy, execute_with_retry};
+use crate::sqlite_backend::SqliteBackend;
 use crate::types::FidelityMode;
 use crate::types::{HandlerType, Outcome, StageStatus};
 
@@ -286,6 +287,7 @@ async fn execute_loop(
             }
 
             let outcome = execute_node(node, graph, &config, &context, state.stage_index).await?;
+            let outcome = with_context_output(outcome, &context);
             record_and_checkpoint(node, &outcome, &context, &mut state, None);
             config.emitter.emit(PipelineEvent::CheckpointSaved {
                 node_id: node.id.clone(),
@@ -422,11 +424,12 @@ async fn execute_loop(
                 state = LoopState::new(target);
             }
             Some(AdvanceResult::End) | None => {
+                let outcome = with_context_output(state.last_outcome, &context);
                 config.emitter.emit(PipelineEvent::PipelineCompleted {
                     pipeline_name: graph.name.clone(),
-                    outcome: state.last_outcome.clone(),
+                    outcome: outcome.clone(),
                 });
-                return Ok(state.last_outcome);
+                return Ok(outcome);
             }
         }
     }
@@ -519,6 +522,8 @@ fn record_and_checkpoint(
         if let Err(e) = backend.upsert_node(&record) {
             tracing::warn!("SQLite upsert_node({}) failed: {e}", node.id);
         }
+
+        save_outcome_node_output(backend, &node.id, outcome);
     }
 
     let checkpoint = Checkpoint::from_context(
@@ -532,6 +537,149 @@ fn record_and_checkpoint(
         Some(next) => checkpoint.with_next_node(next),
         None => checkpoint,
     };
+}
+
+/// Persist a node's semantic output, when one is available in its outcome.
+///
+/// Output-producing handlers communicate their canonical downstream value via
+/// the standard `last_output_full` / `last_output` context keys. Codergen nodes
+/// also persist their raw streamed response from the backend, but other
+/// handlers such as shell and child-workflow nodes may only expose output via
+/// outcome context updates. Mirroring that semantic output into `SQLite` here
+/// keeps `workflow_get_output(node_id=...)` consistent across handler types and
+/// allows a parent workflow node to expose its child workflow's final result as
+/// the parent's node output.
+fn save_outcome_node_output(backend: &SqliteBackend, node_id: &str, outcome: &Outcome) {
+    let Some(output) = outcome_output_text(outcome) else {
+        return;
+    };
+
+    let Ok(compressed) = zstd::encode_all(std::io::Cursor::new(output.as_bytes()), 3) else {
+        tracing::warn!("Failed to compress outcome output for node {node_id}");
+        return;
+    };
+
+    if let Err(e) = backend.save_node_output(node_id, &compressed) {
+        tracing::warn!("SQLite save_node_output({node_id}) from outcome failed: {e}");
+    }
+}
+
+/// Extract the best text representation of the output carried by an outcome.
+///
+/// The full output is preferred because it is the value used by runtime
+/// interpolation for `$last_output`; the truncated output is only a fallback
+/// for handlers or older persisted state that did not provide the full key.
+/// Notes are treated conservatively: they are output only for failed outcomes,
+/// so bookkeeping notes from successful control handlers are not mistaken for
+/// user-visible node output.
+fn outcome_output_text(outcome: &Outcome) -> Option<String> {
+    outcome_output_value(outcome).and_then(|value| value_to_output_text(&value))
+}
+
+/// Extract the canonical output value carried by an outcome.
+fn outcome_output_value(outcome: &Outcome) -> Option<Value> {
+    output_value_from_updates(&outcome.context_updates).or_else(|| {
+        (outcome.status == StageStatus::Fail && !outcome.notes.is_empty())
+            .then(|| Value::String(outcome.notes.clone()))
+    })
+}
+
+/// Extract the canonical output value from a context update map.
+fn output_value_from_updates(updates: &IndexMap<String, Value>) -> Option<Value> {
+    updates
+        .get(ctx::LAST_OUTPUT_FULL)
+        .filter(|value| value_to_output_text(value).is_some())
+        .cloned()
+        .or_else(|| {
+            updates
+                .get(ctx::LAST_OUTPUT)
+                .filter(|value| value_to_output_text(value).is_some())
+                .cloned()
+        })
+}
+
+/// Extract the canonical output value from the current context.
+fn context_output_value(context: &Context) -> Option<Value> {
+    context
+        .get(ctx::LAST_OUTPUT_FULL)
+        .filter(|value| value_to_output_text(value).is_some())
+        .or_else(|| {
+            context
+                .get(ctx::LAST_OUTPUT)
+                .filter(|value| value_to_output_text(value).is_some())
+        })
+}
+
+/// Convert a JSON context value into text suitable for output persistence.
+///
+/// Context output keys are stored as JSON values so handlers can pass either
+/// plain strings or structured data. String values are preserved without extra
+/// quoting for readability, structured values are serialized as JSON so they
+/// remain unambiguous, and `null` is ignored because it represents an absent
+/// output rather than the literal string `"null"`.
+fn value_to_output_text(value: &Value) -> Option<String> {
+    match value {
+        Value::Null => None,
+        Value::String(text) => Some(text.clone()),
+        other => Some(other.to_string()),
+    }
+}
+
+/// Attach the current context output to an outcome that has no output of its own.
+///
+/// Exit nodes and other terminal control nodes can return an empty success
+/// outcome even though the workflow as a whole has a meaningful result from the
+/// last output-producing node. Before emitting completion events or returning a
+/// child workflow outcome to its parent, copy the standard output keys from the
+/// context into the outcome so workflow composition, `SQLite` persistence, and
+/// `workflow_get_output` all agree on the workflow's final observable output.
+fn with_context_output(mut outcome: Outcome, context: &Context) -> Outcome {
+    if let Some(output) = outcome_output_value(&outcome) {
+        ensure_standard_output_keys(&mut outcome, output, None);
+        return outcome;
+    }
+
+    let Some(output) = context_output_value(context) else {
+        return outcome;
+    };
+
+    if let Some(last_stage) = context.get(ctx::LAST_STAGE) {
+        outcome
+            .context_updates
+            .insert(ctx::LAST_STAGE.into(), last_stage);
+    }
+    ensure_standard_output_keys(&mut outcome, output, Some(context));
+
+    outcome
+}
+
+/// Ensure both standard output keys are present and non-null in an outcome.
+fn ensure_standard_output_keys(outcome: &mut Outcome, output: Value, context: Option<&Context>) {
+    if outcome
+        .context_updates
+        .get(ctx::LAST_OUTPUT_FULL)
+        .and_then(value_to_output_text)
+        .is_none()
+    {
+        outcome
+            .context_updates
+            .insert(ctx::LAST_OUTPUT_FULL.into(), output.clone());
+    }
+
+    if outcome
+        .context_updates
+        .get(ctx::LAST_OUTPUT)
+        .and_then(value_to_output_text)
+        .is_none()
+    {
+        let output = context
+            .and_then(|context| context.get(ctx::LAST_OUTPUT))
+            .filter(|value| value_to_output_text(value).is_some())
+            .unwrap_or(output);
+        outcome
+            .context_updates
+            .insert(ctx::LAST_OUTPUT.into(), output);
+    }
 }
 
 /// Try to find a retry target for a failed goal gate.
@@ -646,6 +794,7 @@ mod tests {
     use crate::Edge;
     use crate::graph::attr;
     use crate::handler::Handler;
+    use crate::handlers::{ExitHandler, StartHandler, build_output_outcome};
 
     use super::*;
 
@@ -683,6 +832,7 @@ mod tests {
     struct CapturingHandler {
         captured: Arc<Mutex<CapturedFidelity>>,
         jump_targets: HashMap<String, String>,
+        outputs: HashMap<String, String>,
     }
 
     #[async_trait]
@@ -698,7 +848,12 @@ mod tests {
                 .unwrap_or_else(std::sync::PoisonError::into_inner)
                 .insert(node.id.clone(), capture_fidelity(context));
 
-            let mut outcome = Outcome::success();
+            let mut outcome = self
+                .outputs
+                .get(&node.id)
+                .map_or_else(Outcome::success, |output| {
+                    build_output_outcome(&node.id, output, context)
+                });
             if let Some(target) = self.jump_targets.get(&node.id) {
                 outcome.jump_target = Some(target.clone());
             }
@@ -728,6 +883,7 @@ mod tests {
         let handler = CapturingHandler {
             captured: captured.clone(),
             jump_targets: HashMap::new(),
+            outputs: HashMap::new(),
         };
 
         let mut config = EngineConfig::new();
@@ -773,6 +929,257 @@ mod tests {
             None,
             "internal.thread_id should be absent when fidelity is not 'full' (node B)"
         );
+
+        Ok(())
+    }
+
+    #[test]
+    fn outcome_output_text_uses_last_output_full() {
+        let mut outcome = Outcome::success();
+        outcome.notes = "handler notes".into();
+        outcome.context_updates.insert(
+            ctx::LAST_OUTPUT_FULL.into(),
+            serde_json::json!("semantic output"),
+        );
+
+        assert_eq!(
+            outcome_output_text(&outcome).as_deref(),
+            Some("semantic output")
+        );
+    }
+
+    #[test]
+    fn outcome_output_text_ignores_notes_when_context_updates_exist_without_output() {
+        let mut outcome = Outcome::success();
+        outcome.notes = "non-output notes".into();
+        outcome
+            .context_updates
+            .insert("current_slice".into(), serde_json::json!("Slice 1"));
+
+        assert_eq!(outcome_output_text(&outcome), None);
+    }
+
+    #[test]
+    fn outcome_output_text_ignores_successful_notes_only_outcomes() {
+        let mut outcome = Outcome::success();
+        outcome.notes = "Conditional node: routing handled by edge selection".into();
+
+        assert_eq!(outcome_output_text(&outcome), None);
+    }
+
+    #[test]
+    fn outcome_output_text_falls_back_to_last_output() {
+        let mut outcome = Outcome::success();
+        outcome
+            .context_updates
+            .insert(ctx::LAST_OUTPUT_FULL.into(), Value::Null);
+        outcome.context_updates.insert(
+            ctx::LAST_OUTPUT.into(),
+            serde_json::json!("truncated output"),
+        );
+
+        assert_eq!(
+            outcome_output_text(&outcome).as_deref(),
+            Some("truncated output")
+        );
+    }
+
+    #[test]
+    fn with_context_output_adds_final_context_output_to_empty_outcome() {
+        let context = Context::new();
+        context.set(ctx::LAST_STAGE, serde_json::json!("Synthesize"));
+        context.set(ctx::LAST_OUTPUT, serde_json::json!("short report"));
+        context.set(
+            ctx::LAST_OUTPUT_FULL,
+            serde_json::json!("full synthesized report"),
+        );
+
+        let outcome = with_context_output(Outcome::success(), &context);
+
+        assert_eq!(
+            outcome.context_updates.get(ctx::LAST_STAGE),
+            Some(&serde_json::json!("Synthesize"))
+        );
+        assert_eq!(
+            outcome.context_updates.get(ctx::LAST_OUTPUT_FULL),
+            Some(&serde_json::json!("full synthesized report"))
+        );
+        assert_eq!(
+            outcome_output_text(&outcome).as_deref(),
+            Some("full synthesized report")
+        );
+    }
+
+    #[test]
+    fn with_context_output_normalizes_outcome_last_output_fallback() {
+        let context = Context::new();
+        context.set(ctx::LAST_OUTPUT_FULL, serde_json::json!("previous output"));
+
+        let mut outcome = Outcome::success();
+        outcome
+            .context_updates
+            .insert(ctx::LAST_OUTPUT_FULL.into(), Value::Null);
+        outcome.context_updates.insert(
+            ctx::LAST_OUTPUT.into(),
+            serde_json::json!("fallback output"),
+        );
+
+        let outcome = with_context_output(outcome, &context);
+
+        assert_eq!(
+            outcome.context_updates.get(ctx::LAST_OUTPUT_FULL),
+            Some(&serde_json::json!("fallback output"))
+        );
+        assert_eq!(
+            outcome.context_updates.get(ctx::LAST_OUTPUT),
+            Some(&serde_json::json!("fallback output"))
+        );
+    }
+
+    #[test]
+    fn save_outcome_node_output_persists_standard_output() -> Result<(), Box<dyn std::error::Error>>
+    {
+        let conn = stencila_db::rusqlite::Connection::open_in_memory()?;
+        conn.execute(
+            "CREATE TABLE workflow_node_outputs (
+                run_id   TEXT NOT NULL,
+                node_id  TEXT NOT NULL,
+                output   BLOB NOT NULL,
+                PRIMARY KEY (run_id, node_id)
+            )",
+            (),
+        )?;
+        let conn = Arc::new(Mutex::new(conn));
+        let backend = SqliteBackend::from_shared(conn.clone(), "run-1".to_string());
+
+        let mut outcome = Outcome::success();
+        outcome.context_updates.insert(
+            ctx::LAST_OUTPUT_FULL.into(),
+            serde_json::json!("child workflow report"),
+        );
+
+        save_outcome_node_output(&backend, "ReviewChanges", &outcome);
+
+        let blob: Vec<u8> = conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner).query_row(
+            "SELECT output FROM workflow_node_outputs WHERE run_id = 'run-1' AND node_id = 'ReviewChanges'",
+            (),
+            |row| row.get(0),
+        )?;
+        let decoded = zstd::decode_all(std::io::Cursor::new(blob))?;
+        assert_eq!(String::from_utf8(decoded)?, "child workflow report");
+
+        Ok(())
+    }
+
+    #[test]
+    fn save_outcome_node_output_ignores_successful_notes_only_outcomes()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let conn = stencila_db::rusqlite::Connection::open_in_memory()?;
+        conn.execute(
+            "CREATE TABLE workflow_node_outputs (
+                run_id   TEXT NOT NULL,
+                node_id  TEXT NOT NULL,
+                output   BLOB NOT NULL,
+                PRIMARY KEY (run_id, node_id)
+            )",
+            (),
+        )?;
+        let conn = Arc::new(Mutex::new(conn));
+        let backend = SqliteBackend::from_shared(conn.clone(), "run-1".to_string());
+
+        let mut outcome = Outcome::success();
+        outcome.notes = "Conditional node: routing handled by edge selection".into();
+
+        save_outcome_node_output(&backend, "Route", &outcome);
+
+        let count: i64 = conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner).query_row(
+            "SELECT COUNT(*) FROM workflow_node_outputs WHERE run_id = 'run-1' AND node_id = 'Route'",
+            (),
+            |row| row.get(0),
+        )?;
+        assert_eq!(count, 0);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn run_persists_last_node_output_for_workflow_output_tools()
+    -> Result<(), Box<dyn std::error::Error>> {
+        let conn = stencila_db::rusqlite::Connection::open_in_memory()?;
+        conn.execute(
+            "CREATE TABLE workflow_context (
+                run_id TEXT NOT NULL,
+                key TEXT NOT NULL,
+                value TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (run_id, key)
+            )",
+            (),
+        )?;
+        conn.execute(
+            "CREATE TABLE workflow_nodes (
+                run_id         TEXT NOT NULL,
+                node_id        TEXT NOT NULL,
+                status         TEXT NOT NULL DEFAULT 'pending',
+                started_at     TEXT,
+                completed_at   TEXT,
+                duration_ms    INTEGER,
+                model          TEXT,
+                provider       TEXT,
+                input_tokens   INTEGER DEFAULT 0,
+                output_tokens  INTEGER DEFAULT 0,
+                retry_count    INTEGER DEFAULT 0,
+                failure_reason TEXT,
+                PRIMARY KEY (run_id, node_id)
+            )",
+            (),
+        )?;
+        conn.execute(
+            "CREATE TABLE workflow_node_outputs (
+                run_id   TEXT NOT NULL,
+                node_id  TEXT NOT NULL,
+                output   BLOB NOT NULL,
+                PRIMARY KEY (run_id, node_id)
+            )",
+            (),
+        )?;
+        let conn = Arc::new(Mutex::new(conn));
+
+        let mut graph = Graph::new("persist_output");
+        graph.add_node(make_start_node());
+        graph.add_node(Node::new("ReviewChanges"));
+        graph.add_node(make_exit_node());
+        graph.add_edge(Edge::new("Start", "ReviewChanges"));
+        graph.add_edge(Edge::new("ReviewChanges", "Exit"));
+
+        let handler = CapturingHandler {
+            captured: Arc::new(Mutex::new(HashMap::new())),
+            jump_targets: HashMap::new(),
+            outputs: HashMap::from([(
+                "ReviewChanges".to_string(),
+                "synthesized child report".to_string(),
+            )]),
+        };
+
+        let mut config = EngineConfig::new();
+        config.skip_validation = true;
+        config.registry.register(HandlerType::Start, StartHandler);
+        config.registry.register(HandlerType::Exit, ExitHandler);
+        config.registry.register(HandlerType::Codergen, handler);
+
+        let context = Context::with_backend(Box::new(SqliteBackend::from_shared(
+            conn.clone(),
+            "run-1".to_string(),
+        )));
+        crate::engine::run_with_context(&graph, config, context).await?;
+
+        let blob: Vec<u8> = conn.lock().unwrap_or_else(std::sync::PoisonError::into_inner).query_row(
+            "SELECT output FROM workflow_node_outputs WHERE run_id = 'run-1' AND node_id = 'ReviewChanges'",
+            (),
+            |row| row.get(0),
+        )?;
+        let decoded = zstd::decode_all(std::io::Cursor::new(blob))?;
+        assert_eq!(String::from_utf8(decoded)?, "synthesized child report");
 
         Ok(())
     }
@@ -959,6 +1366,7 @@ mod tests {
         let handler = CapturingHandler {
             captured: captured.clone(),
             jump_targets: HashMap::from([("B".to_string(), "C".to_string())]),
+            outputs: HashMap::new(),
         };
 
         let mut config = EngineConfig::new();

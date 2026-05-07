@@ -4,7 +4,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use indexmap::IndexMap;
 use stencila_attractor::{
-    context::Context,
+    context::{Context, ctx},
     events::{EventEmitter, PipelineEvent},
     graph::{Graph, Node},
     handler::Handler,
@@ -66,7 +66,7 @@ impl Handler for WorkflowHandler {
         }
 
         #[allow(clippy::cast_possible_truncation, clippy::cast_sign_loss)]
-        let stage_index = context.get_i64("internal.stage_index").unwrap_or(0) as usize;
+        let stage_index = context.get_i64(ctx::STAGE_INDEX).unwrap_or(0) as usize;
 
         let raw_input = node
             .get_str_attr("prompt")
@@ -136,21 +136,18 @@ impl Handler for WorkflowHandler {
 fn map_child_outcome(node: &Node, child: Outcome) -> Outcome {
     let mut outcome = child.clone();
 
-    let child_output = child
-        .context_updates
-        .get("last_output_full")
-        .cloned()
-        .unwrap_or_else(|| serde_json::json!(child.notes.clone()));
+    let child_output = child_output_value(&child);
 
+    outcome.context_updates.insert(
+        ctx::LAST_STAGE.to_string(),
+        serde_json::json!(node.id.clone()),
+    );
     outcome
         .context_updates
-        .insert("last_stage".to_string(), serde_json::json!(node.id.clone()));
+        .insert(ctx::LAST_OUTPUT.to_string(), child_output.clone());
     outcome
         .context_updates
-        .insert("last_output".to_string(), child_output.clone());
-    outcome
-        .context_updates
-        .insert("last_output_full".to_string(), child_output.clone());
+        .insert(ctx::LAST_OUTPUT_FULL.to_string(), child_output.clone());
     outcome
         .context_updates
         .insert("shell.output".to_string(), child_output.clone());
@@ -170,6 +167,22 @@ fn map_child_outcome(node: &Node, child: Outcome) -> Outcome {
     }
 
     outcome
+}
+
+fn child_output_value(child: &Outcome) -> serde_json::Value {
+    child
+        .context_updates
+        .get(ctx::LAST_OUTPUT_FULL)
+        .filter(|value| !value.is_null())
+        .cloned()
+        .or_else(|| {
+            child
+                .context_updates
+                .get(ctx::LAST_OUTPUT)
+                .filter(|value| !value.is_null())
+                .cloned()
+        })
+        .unwrap_or_else(|| serde_json::json!(child.notes.clone()))
 }
 
 #[cfg(test)]
@@ -201,6 +214,59 @@ mod tests {
         assert_eq!(
             mapped.context_updates.get("workflow.output.compose"),
             Some(&serde_json::json!("hello"))
+        );
+    }
+
+    #[test]
+    fn map_child_outcome_uses_last_child_output_as_parent_output() {
+        let node = Node::new("ReviewChanges");
+        let mut child = Outcome::success();
+        child.notes = "Workflow completed".into();
+        child
+            .context_updates
+            .insert("last_stage".into(), serde_json::json!("Synthesize"));
+        child.context_updates.insert(
+            "last_output_full".into(),
+            serde_json::json!("synthesized review"),
+        );
+
+        let mapped = map_child_outcome(&node, child);
+
+        assert_eq!(
+            mapped.context_updates.get("last_stage"),
+            Some(&serde_json::json!("ReviewChanges"))
+        );
+        assert_eq!(
+            mapped.context_updates.get("last_output_full"),
+            Some(&serde_json::json!("synthesized review"))
+        );
+        assert_eq!(
+            mapped.context_updates.get("workflow.output.ReviewChanges"),
+            Some(&serde_json::json!("synthesized review"))
+        );
+    }
+
+    #[test]
+    fn map_child_outcome_falls_back_to_last_output_when_full_is_null() {
+        let node = Node::new("ReviewChanges");
+        let mut child = Outcome::success();
+        child
+            .context_updates
+            .insert(ctx::LAST_OUTPUT_FULL.into(), serde_json::Value::Null);
+        child.context_updates.insert(
+            ctx::LAST_OUTPUT.into(),
+            serde_json::json!("fallback review"),
+        );
+
+        let mapped = map_child_outcome(&node, child);
+
+        assert_eq!(
+            mapped.context_updates.get(ctx::LAST_OUTPUT_FULL),
+            Some(&serde_json::json!("fallback review"))
+        );
+        assert_eq!(
+            mapped.context_updates.get(ctx::LAST_OUTPUT),
+            Some(&serde_json::json!("fallback review"))
         );
     }
 
