@@ -67,5 +67,7 @@ Before finalizing, validate each finding against the actual code. Pay particular
 
 Be concise. Do not reproduce the full text of each review — synthesize and deduplicate.
 
-Write the final report to `.stencila/reviews/` as a Markdown file. Derive the filename from the review target using kebab-case (e.g., `.stencila/reviews/codec-markdown-review.md`). Create the directory if it does not exist. If a file with that name already exists, chose another name.
+Write the final report to `.stencila/reviews/` as a Markdown file. Derive the filename from the review target using kebab-case (e.g., `.stencila/reviews/codec-markdown-review.md`). Create the directory if it does not exist. If a file with that name already exists, choose another name.
+
+Then output the same report in full as your final message. The final message is the canonical workflow output for composition by parent workflows. Do not respond with only a file path, success message, or summary. After the report, add a final line indicating where the copy was saved.
 ```
