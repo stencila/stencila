@@ -452,6 +452,7 @@ fn reasoning_effort_serde_and_default() -> Result<(), Box<dyn std::error::Error>
         ReasoningEffort::Low,
         ReasoningEffort::Medium,
         ReasoningEffort::High,
+        ReasoningEffort::Xhigh,
     ];
     for effort in all {
         let json = serde_json::to_string(&effort)?;

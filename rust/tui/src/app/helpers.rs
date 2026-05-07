@@ -1,9 +1,12 @@
+use stencila_agents::types::ReasoningEffort;
+
 use super::{AgentColorRegistry, AgentSession, App, AppMessage, AppMode};
 
 impl App {
     /// Dismiss all autocomplete popups and ghost suggestion.
     pub(super) fn dismiss_all_autocomplete(&mut self) {
         self.cancel_state.dismiss();
+        self.effort_state.dismiss();
         self.agents_state.dismiss();
         self.workflows_state.dismiss();
         self.mentions_state.dismiss();
@@ -13,6 +16,54 @@ impl App {
         self.responses_state.dismiss();
         self.ghost_suggestion = None;
         self.ghost_is_truncated = false;
+    }
+
+    /// Set the reasoning effort for the active agent session.
+    pub async fn set_active_reasoning_effort(&mut self, effort: Option<ReasoningEffort>) {
+        let session = &mut self.sessions[self.active_session];
+        let has_running_turns = !session.running_agent_exchanges.is_empty();
+
+        let mut detail = String::new();
+        if let Some(agent) = &session.agent {
+            if has_running_turns {
+                match agent.queue_reasoning_effort(effort.clone()) {
+                    Ok(()) => {
+                        detail =
+                            " The current turn is already running; this applies after it finishes."
+                                .to_string();
+                    }
+                    Err(error) => {
+                        detail = format!(
+                            " Could not queue the live-session update: {error}. The override will apply when a new session is created."
+                        );
+                    }
+                }
+            } else {
+                match agent.set_reasoning_effort(effort.clone()).await {
+                    Ok(true) => {}
+                    Ok(false) => {
+                        session.agent = None;
+                        detail = " Dynamic changes are not supported by the active CLI-backed session; a new session will be created for the next turn.".to_string();
+                    }
+                    Err(error) => {
+                        session.agent = None;
+                        detail = format!(
+                            " Could not update the live session: {error}. A new session will be created for the next turn."
+                        );
+                    }
+                }
+            }
+        }
+
+        session.reasoning_effort_override.clone_from(&effort);
+
+        let effort_label = effort.as_ref().map_or("default", ReasoningEffort::as_str);
+        self.messages.push(AppMessage::System {
+            content: format!(
+                "Reasoning effort for agent '{}' set to {effort_label} for subsequent turns.{detail}",
+                session.name
+            ),
+        });
     }
 
     /// Re-filter all autocomplete states based on current input.
@@ -120,6 +171,7 @@ impl App {
     /// Whether any autocomplete popup is currently visible.
     pub(super) fn any_popup_visible(&self) -> bool {
         self.cancel_state.is_visible()
+            || self.effort_state.is_visible()
             || self.agents_state.is_visible()
             || self.workflows_state.is_visible()
             || self.mentions_state.is_visible()

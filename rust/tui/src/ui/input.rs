@@ -412,10 +412,14 @@ pub(super) fn hints(frame: &mut Frame, app: &App, area: Rect) {
         workflow_label_spans(workflow)
     } else if app.mode == AppMode::Agent {
         // Always show active agent name in agent's color
-        let name = &app.active().name;
+        let active = app.active();
+        let name = &active.name;
         let color = app.color_registry.get(name).unwrap_or(Color::Blue);
-        let pct = app.active().context_usage_percent;
+        let pct = active.context_usage_percent;
         let mut spans = vec![Span::styled(format!("   {name}"), Style::new().fg(color))];
+        if let Some(effort) = &active.reasoning_effort_override {
+            spans.push(Span::styled(format!(" ({effort})"), Style::new().fg(color).add_modifier(Modifier::DIM)));
+        }
         if pct > 0 {
             spans.push(Span::styled(format!(" {pct}%"), Style::new().fg(color).add_modifier(Modifier::DIM)));
         }

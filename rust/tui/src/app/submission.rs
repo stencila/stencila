@@ -183,7 +183,8 @@ impl App {
 
         // Lazily create the agent handle on first use
         if session.agent.is_none() {
-            session.agent = AgentHandle::spawn(&session.name);
+            session.agent =
+                AgentHandle::spawn(&session.name, session.reasoning_effort_override.clone());
         }
 
         self.messages.push(AppMessage::Exchange {

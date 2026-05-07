@@ -1,7 +1,7 @@
 use std::fmt::Write;
 
 use stencila_agents::store::{AgentSessionStore, ListSessionsFilter};
-use stencila_agents::types::{SessionState, Turn};
+use stencila_agents::types::{ReasoningEffort, SessionState, Turn};
 use strum::{Display, EnumMessage, EnumString};
 
 use crate::agent::truncate_for_display;
@@ -23,13 +23,16 @@ pub enum SlashCommand {
     #[strum(message = "Start and switch agent sessions")]
     Agent,
 
+    #[strum(message = "Set reasoning effort for the current agent")]
+    Effort,
+
     #[strum(message = "Resume a workflow or agent session")]
     Resume,
 
     #[strum(message = "Cancel a running command")]
     Cancel,
 
-    #[strum(message = "New session for current agent")]
+    #[strum(message = "Clear current agent conversation")]
     Clear,
 
     #[strum(message = "Show help information")]
@@ -54,6 +57,43 @@ pub enum SlashCommand {
     Quit,
 }
 
+fn parse_reasoning_effort(args: &str) -> Result<Option<ReasoningEffort>, String> {
+    let value = args.trim();
+    if value.is_empty() {
+        return Err("Usage: /effort <low|medium|high|xhigh|none>".to_string());
+    }
+
+    match value.to_ascii_lowercase().as_str() {
+        "none" | "off" | "default" => Ok(None),
+        other => ReasoningEffort::parse_portable(other)
+            .map(Some)
+            .ok_or_else(|| {
+                format!(
+                    "Invalid reasoning effort '{value}'. Use low, medium, high, xhigh, or none."
+                )
+            }),
+    }
+}
+
+async fn execute_effort(app: &mut App, args: &str) {
+    if args.trim().is_empty() {
+        let session = &app.sessions[app.active_session];
+        app.effort_state
+            .open(session.reasoning_effort_override.as_ref());
+        return;
+    }
+
+    let effort = match parse_reasoning_effort(args) {
+        Ok(effort) => effort,
+        Err(message) => {
+            app.messages.push(AppMessage::System { content: message });
+            return;
+        }
+    };
+
+    app.set_active_reasoning_effort(effort).await;
+}
+
 /// A slot in the display ordering: either a built-in command or a CLI
 /// passthrough command (by name).
 #[derive(Debug, Clone, Copy)]
@@ -74,12 +114,14 @@ impl SlashCommand {
     pub fn display_order() -> &'static [CommandSlot] {
         use CommandSlot::{Builtin, Cli};
         use SlashCommand::{
-            Agent, Cancel, Clear, Exit, Help, History, New, Quit, Resume, Shell, Upgrade, Workflow,
+            Agent, Cancel, Clear, Effort, Exit, Help, History, New, Quit, Resume, Shell, Upgrade,
+            Workflow,
         };
         &[
             Builtin(Workflow),
             Cli("workflows"),
             Builtin(Agent),
+            Builtin(Effort),
             Cli("agents"),
             Cli("skills"),
             Cli("models"),
@@ -155,9 +197,10 @@ impl SlashCommand {
     }
 
     /// Execute this command, mutating the app state.
-    pub async fn execute(self, app: &mut App, _args: &str) {
+    pub async fn execute(self, app: &mut App, args: &str) {
         match self {
             Self::Agent => execute_agents(app).await,
+            Self::Effort => execute_effort(app, args).await,
             Self::Resume => execute_resume(app).await,
             Self::Cancel => execute_cancel(app),
             Self::Clear => execute_clear(app),
@@ -522,7 +565,7 @@ fn execute_help(app: &mut App) {
     help.push_str("  Up/Down        History / cursor movement\n");
     help.push_str("  Ctrl+C         Cancel running / quit (chat) / clear (shell)\n");
     help.push_str("  Ctrl+D         Exit shell mode\n");
-    help.push_str("  Ctrl+L         New session for current agent\n");
+    help.push_str("  Ctrl+L         Clear current agent conversation\n");
     help.push_str("  Ctrl+A         Cycle agents\n");
     help.push_str("  PageUp/Down    Scroll messages\n");
     help.push_str("  Esc            Scroll to bottom (when scrolled up)\n");

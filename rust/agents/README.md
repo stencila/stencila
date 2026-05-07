@@ -115,7 +115,9 @@ The core loop prefers `Client::stream()` for incremental `ASSISTANT_TEXT_DELTA` 
 
 ### Forward-compatible reasoning effort values (`§2.2`, `§2.7`)
 
-The spec enumerates `"low" | "medium" | "high" | null`. This implementation additionally accepts arbitrary strings via `ReasoningEffort::Custom(String)` for provider-specific or future effort levels.
+The spec enumerates `"low" | "medium" | "high" | null`. This implementation also treats `"xhigh"` as a portable named value because extra-high reasoning effort is now supported by both OpenAI and Anthropic for at least some reasoning-capable models. For providers or models that do not support it, the provider may still reject the request at the API boundary.
+
+The implementation also accepts arbitrary strings via `ReasoningEffort::Custom(String)` for provider-specific or future effort levels.
 
 ### Explicit line-limit overrides in `SessionConfig` (`§5.3`)
 

@@ -327,12 +327,10 @@ async fn create_session_full(
     // Apply overrides from stylesheet / agent.* node attributes before routing.
     if let Some(ovr) = overrides {
         if let Some(ref effort) = ovr.reasoning_effort {
-            config.reasoning_effort = Some(match effort.as_str() {
-                "low" => ReasoningEffort::Low,
-                "medium" => ReasoningEffort::Medium,
-                "high" => ReasoningEffort::High,
-                other => ReasoningEffort::Custom(other.to_string()),
-            });
+            config.reasoning_effort = Some(
+                ReasoningEffort::parse_portable(effort)
+                    .unwrap_or_else(|| ReasoningEffort::Custom(effort.clone())),
+            );
         }
         if let Some(turns) = ovr.max_turns {
             config.max_turns = turns;

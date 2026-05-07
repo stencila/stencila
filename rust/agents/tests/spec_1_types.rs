@@ -550,6 +550,7 @@ fn reasoning_effort_known_values() -> AgentResult<()> {
         ("\"low\"", ReasoningEffort::Low),
         ("\"medium\"", ReasoningEffort::Medium),
         ("\"high\"", ReasoningEffort::High),
+        ("\"xhigh\"", ReasoningEffort::Xhigh),
     ] {
         let parsed: ReasoningEffort =
             serde_json::from_str(json_str).map_err(|e| AgentError::ValidationError {
@@ -576,12 +577,14 @@ fn reasoning_effort_as_str() {
     assert_eq!(ReasoningEffort::Low.as_str(), "low");
     assert_eq!(ReasoningEffort::Medium.as_str(), "medium");
     assert_eq!(ReasoningEffort::High.as_str(), "high");
+    assert_eq!(ReasoningEffort::Xhigh.as_str(), "xhigh");
     assert_eq!(ReasoningEffort::Custom("turbo".into()).as_str(), "turbo");
 }
 
 #[test]
 fn reasoning_effort_display() {
     assert_eq!(format!("{}", ReasoningEffort::High), "high");
+    assert_eq!(format!("{}", ReasoningEffort::Xhigh), "xhigh");
     assert_eq!(
         format!("{}", ReasoningEffort::Custom("turbo".into())),
         "turbo"
@@ -594,6 +597,7 @@ fn reasoning_effort_roundtrip() -> AgentResult<()> {
         ReasoningEffort::Low,
         ReasoningEffort::Medium,
         ReasoningEffort::High,
+        ReasoningEffort::Xhigh,
     ] {
         let json = serde_json::to_string(&effort).map_err(|e| AgentError::ValidationError {
             reason: e.to_string(),

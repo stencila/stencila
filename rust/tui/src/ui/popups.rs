@@ -254,6 +254,45 @@ pub(super) fn cancel(frame: &mut Frame, app: &App, input_area: Rect) {
     render_popup(frame, area, lines, Some(" Cancel "));
 }
 
+/// Render the reasoning effort picker popup floating above the input area.
+pub(super) fn effort(frame: &mut Frame, app: &App, input_area: Rect) {
+    let candidates = app.effort_state.candidates();
+    let Some(area) = popup_area(input_area, candidates.len()) else {
+        return;
+    };
+
+    let max_label_width = candidates.iter().map(|c| c.label.len()).max().unwrap_or(0);
+    let selected = app.effort_state.selected();
+    let current = app.sessions[app.active_session]
+        .reasoning_effort_override
+        .as_ref()
+        .map_or("default", stencila_agents::types::ReasoningEffort::as_str);
+
+    let lines: Vec<Line> = candidates
+        .iter()
+        .enumerate()
+        .map(|(i, candidate)| {
+            let is_current = candidate.label == current;
+            let marker = if is_current { ">" } else { " " };
+            let label = format!(" {marker} {:<max_label_width$}  ", candidate.label);
+
+            if i == selected {
+                Line::from(vec![
+                    Span::styled(label, selected_style()),
+                    Span::styled(candidate.description, selected_secondary_style()),
+                ])
+            } else {
+                Line::from(vec![
+                    Span::styled(label, unselected_style()),
+                    Span::styled(candidate.description, dim()),
+                ])
+            }
+        })
+        .collect();
+
+    render_popup(frame, area, lines, Some(" Effort "));
+}
+
 /// Render the agent picker popup floating above the input area.
 pub(super) fn agents(frame: &mut Frame, app: &App, input_area: Rect) {
     let candidates = app.agents_state.candidates();

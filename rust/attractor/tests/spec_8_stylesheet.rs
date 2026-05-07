@@ -155,7 +155,7 @@ fn parse_rejects_invalid_reasoning_effort_value() {
 
 #[test]
 fn parse_accepts_all_valid_reasoning_effort_values() -> AttractorResult<()> {
-    for val in &["low", "medium", "high"] {
+    for val in &["low", "medium", "high", "xhigh"] {
         let input = format!("* {{ reasoning_effort: {val}; }}");
         let s = parse_stylesheet(&input)?;
         assert_eq!(s.rules[0].declarations[0].value, *val);

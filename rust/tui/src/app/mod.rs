@@ -16,13 +16,14 @@ use ratatui::style::Color;
 use strum::Display;
 use tokio::{sync::mpsc, task::JoinHandle};
 
+use stencila_agents::types::ReasoningEffort;
 use stencila_attractor::interviewer::{Answer, Interview};
 
 use crate::{
     agent::{AgentHandle, AgentProgress, ResponseSegment, RunningAgentExchange},
     autocomplete::{
-        AgentsState, CancelState, CommandsState, FilesState, HistoryState, MentionsState,
-        ResponsesState, ResumeState, WorkflowsState, agents::AgentDefinitionInfo,
+        AgentsState, CancelState, CommandsState, EffortState, FilesState, HistoryState,
+        MentionsState, ResponsesState, ResumeState, WorkflowsState, agents::AgentDefinitionInfo,
         workflows::WorkflowDefinitionInfo,
     },
     cli_commands::CliCommandNode,
@@ -140,7 +141,7 @@ pub struct AgentSession {
 
     /// Agent handle for submitting chat messages.
     /// Created lazily on first chat submit.
-    agent: Option<AgentHandle>,
+    pub(crate) agent: Option<AgentHandle>,
 
     /// Agent exchanges currently running in the background.
     /// Each entry is `(message_index, running_exchange)`.
@@ -148,6 +149,9 @@ pub struct AgentSession {
 
     /// Approximate context usage percentage (0–100+), updated from agent events.
     pub context_usage_percent: u32,
+
+    /// Runtime override for reasoning effort applied to subsequent agent turns.
+    pub reasoning_effort_override: Option<ReasoningEffort>,
 }
 
 impl AgentSession {
@@ -159,6 +163,7 @@ impl AgentSession {
             definition: None,
             running_agent_exchanges: Vec::new(),
             context_usage_percent: 0,
+            reasoning_effort_override: None,
         }
     }
 }
@@ -449,6 +454,8 @@ pub struct App {
     pub responses_state: ResponsesState,
     /// Cancel picker popup state.
     pub cancel_state: CancelState,
+    /// Reasoning effort picker popup state.
+    pub effort_state: EffortState,
     /// Agent picker popup state.
     pub agents_state: AgentsState,
     /// Workflow picker popup state.
@@ -585,6 +592,7 @@ impl App {
             history_state: HistoryState::new(),
             responses_state: ResponsesState::new(),
             cancel_state: CancelState::new(),
+            effort_state: EffortState::new(),
             agents_state: AgentsState::new(),
             workflows_state: WorkflowsState::new(),
             resume_state: ResumeState::new(),

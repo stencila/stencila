@@ -60,6 +60,7 @@ impl App {
     /// Dispatch a key event.
     pub(super) async fn handle_key(&mut self, key: &KeyEvent) {
         let consumed = (self.cancel_state.is_visible() && self.handle_cancel_autocomplete(key))
+            || (self.effort_state.is_visible() && self.handle_effort_autocomplete(key).await)
             || (self.resume_state.is_visible() && self.handle_resume_autocomplete(key))
             || (self.agents_state.is_visible() && self.handle_agents_autocomplete(key))
             || (self.workflows_state.is_visible() && self.handle_workflows_autocomplete(key))
@@ -118,6 +119,25 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Esc) => self.cancel_state.dismiss(),
             (KeyModifiers::NONE, KeyCode::Up) => self.cancel_state.select_prev(),
             (KeyModifiers::NONE, KeyCode::Down) => self.cancel_state.select_next(),
+            _ => return false,
+        }
+        true
+    }
+
+    /// Handle a key event when the effort picker popup is visible.
+    ///
+    /// Returns `true` if the key was consumed.
+    async fn handle_effort_autocomplete(&mut self, key: &KeyEvent) -> bool {
+        match (key.modifiers, key.code) {
+            (KeyModifiers::NONE, KeyCode::Tab | KeyCode::Enter) => {
+                if let Some(candidate) = self.effort_state.accept() {
+                    self.input.clear();
+                    self.set_active_reasoning_effort(candidate.effort).await;
+                }
+            }
+            (KeyModifiers::NONE, KeyCode::Esc) => self.effort_state.dismiss(),
+            (KeyModifiers::NONE, KeyCode::Up) => self.effort_state.select_prev(),
+            (KeyModifiers::NONE, KeyCode::Down) => self.effort_state.select_next(),
             _ => return false,
         }
         true

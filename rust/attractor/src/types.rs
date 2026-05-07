@@ -400,6 +400,8 @@ pub enum ReasoningEffort {
     Medium,
     /// Maximum reasoning depth.
     High,
+    /// Extra-high reasoning depth.
+    Xhigh,
 }
 
 impl Default for ReasoningEffort {
@@ -416,6 +418,7 @@ impl ReasoningEffort {
             Self::Low => "low",
             Self::Medium => "medium",
             Self::High => "high",
+            Self::Xhigh => "xhigh",
         }
     }
 }

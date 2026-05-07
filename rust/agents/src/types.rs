@@ -38,6 +38,7 @@ pub enum ReasoningEffort {
     Low,
     Medium,
     High,
+    Xhigh,
     /// A provider-specific effort level not covered by spec 2.2/2.7.
     ///
     /// Providers may reject unknown values. Prefer the named variants
@@ -75,7 +76,22 @@ impl ReasoningEffort {
             Self::Low => "low",
             Self::Medium => "medium",
             Self::High => "high",
+            Self::Xhigh => "xhigh",
             Self::Custom(s) => s,
+        }
+    }
+}
+
+impl ReasoningEffort {
+    /// Parse a portable reasoning effort value.
+    #[must_use]
+    pub fn parse_portable(value: &str) -> Option<Self> {
+        match value.trim().to_ascii_lowercase().as_str() {
+            "low" => Some(Self::Low),
+            "medium" => Some(Self::Medium),
+            "high" => Some(Self::High),
+            "xhigh" | "x-high" | "extra-high" => Some(Self::Xhigh),
+            _ => None,
         }
     }
 }
@@ -297,12 +313,10 @@ impl SessionConfig {
         };
 
         if let Some(effort) = &agent.reasoning_effort {
-            config.reasoning_effort = Some(match effort.as_str() {
-                "low" => ReasoningEffort::Low,
-                "medium" => ReasoningEffort::Medium,
-                "high" => ReasoningEffort::High,
-                other => ReasoningEffort::Custom(other.to_string()),
-            });
+            config.reasoning_effort = Some(
+                ReasoningEffort::parse_portable(effort)
+                    .unwrap_or_else(|| ReasoningEffort::Custom(effort.clone())),
+            );
         }
 
         if let Some(val) = agent.options.max_turns

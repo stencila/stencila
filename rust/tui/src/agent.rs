@@ -5,9 +5,10 @@ use std::sync::{Arc, Mutex};
 
 use inflector::Inflector;
 use serde_json::Value;
-use stencila_agents::convenience::create_session_with_interviewer;
+use stencila_agents::convenience::{SessionOverrides, create_session_with_overrides};
 use stencila_agents::types::AbortController;
 use stencila_agents::types::EventKind;
+use stencila_agents::types::ReasoningEffort;
 use stencila_attractor::interviewer::Interviewer;
 use tokio::sync::mpsc;
 
@@ -421,6 +422,13 @@ enum AgentCommand {
         cancelled: Arc<AtomicBool>,
         abort_controller: AbortController,
     },
+    SetReasoningEffort {
+        effort: Option<ReasoningEffort>,
+        result: tokio::sync::oneshot::Sender<Result<bool, String>>,
+    },
+    QueueReasoningEffort {
+        effort: Option<ReasoningEffort>,
+    },
 }
 
 /// Data needed to resume a persisted agent session in the background task.
@@ -445,8 +453,8 @@ impl AgentHandle {
     /// The session is created lazily on the first
     /// submit. Returns `None` if no Tokio runtime is available (e.g. in
     /// synchronous tests).
-    pub fn spawn(name: &str) -> Option<Self> {
-        Self::spawn_inner(name, None)
+    pub fn spawn(name: &str, reasoning_effort: Option<ReasoningEffort>) -> Option<Self> {
+        Self::spawn_inner(name, None, reasoning_effort)
     }
 
     /// Spawn the background agent task with persisted session data for resume.
@@ -454,15 +462,29 @@ impl AgentHandle {
     /// The session is created lazily on the first submit, then hydrated
     /// with the persisted turn history so the conversation continues where
     /// it left off.
-    pub fn spawn_with_resume(name: &str, resume: ResumeData) -> Option<Self> {
-        Self::spawn_inner(name, Some(resume))
+    pub fn spawn_with_resume(
+        name: &str,
+        resume: ResumeData,
+        reasoning_effort: Option<ReasoningEffort>,
+    ) -> Option<Self> {
+        Self::spawn_inner(name, Some(resume), reasoning_effort)
     }
 
-    fn spawn_inner(name: &str, resume: Option<ResumeData>) -> Option<Self> {
+    fn spawn_inner(
+        name: &str,
+        resume: Option<ResumeData>,
+        reasoning_effort: Option<ReasoningEffort>,
+    ) -> Option<Self> {
         let _handle = tokio::runtime::Handle::try_current().ok()?;
         let (tx, rx) = mpsc::unbounded_channel();
         let (interview_tx, interview_rx) = mpsc::unbounded_channel::<PendingTuiInterview>();
-        tokio::spawn(agent_task(rx, name.to_string(), interview_tx, resume));
+        tokio::spawn(agent_task(
+            rx,
+            name.to_string(),
+            interview_tx,
+            resume,
+            reasoning_effort,
+        ));
         Some(Self { tx, interview_rx })
     }
 
@@ -490,6 +512,30 @@ impl AgentHandle {
 
         Some(exchange)
     }
+
+    /// Set reasoning effort for subsequent submissions without dropping context.
+    pub async fn set_reasoning_effort(
+        &self,
+        effort: Option<ReasoningEffort>,
+    ) -> Result<bool, String> {
+        let (result, rx) = tokio::sync::oneshot::channel();
+        self.tx
+            .send(AgentCommand::SetReasoningEffort { effort, result })
+            .map_err(|_| "Agent unavailable, will retry with a new session".to_string())?;
+        rx.await
+            .map_err(|_| "Agent task stopped before applying reasoning effort".to_string())?
+    }
+
+    /// Queue a reasoning effort change without waiting for the agent task.
+    ///
+    /// This is used while a turn is running: the background task cannot mutate
+    /// the live session config until the current submit future releases its
+    /// mutable borrow, but queuing the change avoids blocking the TUI.
+    pub fn queue_reasoning_effort(&self, effort: Option<ReasoningEffort>) -> Result<(), String> {
+        self.tx
+            .send(AgentCommand::QueueReasoningEffort { effort })
+            .map_err(|_| "Agent unavailable, will retry with a new session".to_string())
+    }
 }
 
 /// Background task that owns the agent session.
@@ -500,28 +546,66 @@ impl AgentHandle {
 ///
 /// When `resume` is `Some`, the session is hydrated with persisted turn
 /// history after creation so the conversation continues where it left off.
+#[allow(clippy::too_many_lines)]
 async fn agent_task(
     mut rx: mpsc::UnboundedReceiver<AgentCommand>,
     name: String,
     interview_tx: mpsc::UnboundedSender<PendingTuiInterview>,
     resume: Option<ResumeData>,
+    mut reasoning_effort_override: Option<ReasoningEffort>,
 ) {
     // Session and event receiver are created lazily on first submit.
     let mut session = None;
     let mut event_rx = None;
 
-    while let Some(AgentCommand::Submit {
-        text,
-        progress,
-        cancelled,
-        abort_controller,
-    }) = rx.recv().await
-    {
+    while let Some(command) = rx.recv().await {
+        let (text, progress, cancelled, abort_controller) = match command {
+            AgentCommand::Submit {
+                text,
+                progress,
+                cancelled,
+                abort_controller,
+            } => (text, progress, cancelled, abort_controller),
+            AgentCommand::SetReasoningEffort { effort, result } => {
+                reasoning_effort_override.clone_from(&effort);
+                let response = session.as_mut().map_or(
+                    Ok(true),
+                    |sess: &mut stencila_agents::session::AgentSession| {
+                        Ok(sess.set_reasoning_effort(effort))
+                    },
+                );
+                let _ = result.send(response);
+                continue;
+            }
+            AgentCommand::QueueReasoningEffort { effort } => {
+                reasoning_effort_override.clone_from(&effort);
+                if let Some(sess) = &mut session
+                    && !sess.set_reasoning_effort(effort)
+                {
+                    session = None;
+                    event_rx = None;
+                }
+                continue;
+            }
+        };
+
         // Lazy session init
         if session.is_none() {
             let interviewer: Arc<dyn Interviewer> =
                 Arc::new(TuiInterviewer::new(interview_tx.clone()));
-            match create_session_with_interviewer(&name, interviewer).await {
+            let overrides = reasoning_effort_override
+                .as_ref()
+                .map(|effort| SessionOverrides {
+                    reasoning_effort: Some(effort.as_str().to_string()),
+                    ..Default::default()
+                });
+            match create_session_with_overrides(
+                &name,
+                Some(interviewer),
+                &overrides.unwrap_or_default(),
+            )
+            .await
+            {
                 Ok((.., mut s, er)) => {
                     // Hydrate with persisted conversation history when resuming
                     if let Some(ref resume_data) = resume {

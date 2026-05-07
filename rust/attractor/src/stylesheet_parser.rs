@@ -49,7 +49,7 @@ const ACCEPTED_PROPERTIES: &[&str] = &[
 ];
 
 /// Valid values for `reasoning_effort` per §8.4.
-const REASONING_EFFORT_VALUES: &[&str] = &["low", "medium", "high"];
+const REASONING_EFFORT_VALUES: &[&str] = &["low", "medium", "high", "xhigh"];
 
 /// Valid values for `trust_level`.
 const TRUST_LEVEL_VALUES: &[&str] = &["low", "medium", "high"];

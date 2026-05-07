@@ -12,7 +12,7 @@ use crate::api_session::ApiSession;
 use crate::cli_providers::CliSession;
 use crate::error::AgentResult;
 use crate::store::{AgentSessionStore, SessionPersistence, WorkflowAttribution};
-use crate::types::{AbortSignal, SessionConfig, SessionState, Turn};
+use crate::types::{AbortSignal, ReasoningEffort, SessionConfig, SessionState, Turn};
 
 /// Unified agent session that routes to either an API or CLI backend.
 ///
@@ -92,6 +92,21 @@ impl AgentSession {
         match self {
             Self::Api(s) => s.config(),
             Self::Cli(s) => s.config(),
+        }
+    }
+
+    /// Set the reasoning effort for subsequent model requests.
+    ///
+    /// Returns `true` when the underlying session supports dynamic reasoning
+    /// effort changes. CLI-backed sessions currently do not expose a portable
+    /// way to change this without starting a new external CLI process.
+    pub fn set_reasoning_effort(&mut self, effort: Option<ReasoningEffort>) -> bool {
+        match self {
+            Self::Api(s) => {
+                s.config_mut().reasoning_effort = effort;
+                true
+            }
+            Self::Cli(_) => false,
         }
     }
 

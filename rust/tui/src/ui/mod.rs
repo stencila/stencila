@@ -68,9 +68,11 @@ pub fn render(frame: &mut Frame, app: &mut App) {
     input::hints(frame, app, hints_area);
 
     // --- Render autocomplete popup (floats above input) ---
-    // Cancel popup has highest priority, then agents, model, history, commands, files, responses.
+    // Cancel popup has highest priority, then effort, agents, model, history, commands, files, responses.
     if app.cancel_state.is_visible() {
         popups::cancel(frame, app, input_area);
+    } else if app.effort_state.is_visible() {
+        popups::effort(frame, app, input_area);
     } else if app.resume_state.is_visible() {
         popups::resume(frame, app, input_area);
     } else if app.agents_state.is_visible() {

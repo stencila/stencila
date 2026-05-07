@@ -32,7 +32,11 @@ impl App {
                 persisted_state: record.state,
                 turns: turns.clone(),
             };
-            session.agent = AgentHandle::spawn_with_resume(agent_name, resume_data);
+            session.agent = AgentHandle::spawn_with_resume(
+                agent_name,
+                resume_data,
+                session.reasoning_effort_override.clone(),
+            );
 
             self.sessions.push(session);
             self.active_session = self.sessions.len() - 1;
