@@ -3,6 +3,7 @@
 mod common;
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use async_trait::async_trait;
 
@@ -12,7 +13,7 @@ use stencila_attractor::events::NoOpEmitter;
 use stencila_attractor::graph::{AttrValue, Edge, Graph, Node, attr};
 use stencila_attractor::handler::{Handler, HandlerRegistry};
 use stencila_attractor::handlers::{DEFAULT_MAX_PARALLEL, FanInHandler, ParallelHandler};
-use stencila_attractor::types::{Outcome, StageStatus};
+use stencila_attractor::types::{Duration as AttractorDuration, Outcome, StageStatus};
 
 /// A handler that always returns FAIL.
 struct FailHandler;
@@ -26,6 +27,22 @@ impl Handler for FailHandler {
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
         Ok(Outcome::fail("intentional failure"))
+    }
+}
+
+/// A handler that sleeps long enough to exercise parallel branch timeouts.
+struct SlowHandler;
+
+#[async_trait]
+impl Handler for SlowHandler {
+    async fn execute(
+        &self,
+        _node: &Node,
+        _context: &Context,
+        _graph: &Graph,
+    ) -> AttractorResult<Outcome> {
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        Ok(Outcome::success())
     }
 }
 
@@ -221,6 +238,12 @@ fn mixed_parallel_graph(
 fn mixed_registry() -> Arc<HandlerRegistry> {
     let mut reg = HandlerRegistry::with_defaults();
     reg.register("fail_node", FailHandler);
+    Arc::new(reg)
+}
+
+fn timeout_registry() -> Arc<HandlerRegistry> {
+    let mut reg = HandlerRegistry::with_defaults();
+    reg.register("slow_node", SlowHandler);
     Arc::new(reg)
 }
 
@@ -428,6 +451,163 @@ async fn parallel_max_parallel_from_attr() -> AttractorResult<()> {
     let results = ctx.get(ctx::PARALLEL_RESULTS);
     let arr = results.as_ref().and_then(|v| v.as_array());
     assert_eq!(arr.map(Vec::len), Some(3));
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_timeout_applies_to_each_branch() -> AttractorResult<()> {
+    let registry = timeout_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = parallel_graph(&["fast", "slow"]);
+    let parallel = g.get_node_mut("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    parallel
+        .attrs
+        .insert(attr::TIMEOUT.into(), AttrValue::from("10ms"));
+
+    let slow = g.get_node_mut("slow").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "slow".into(),
+        }
+    })?;
+    slow.attrs
+        .insert(attr::TYPE.into(), AttrValue::from("slow_node"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::PartialSuccess);
+    assert_eq!(
+        outcome
+            .context_updates
+            .get(ctx::PARALLEL_SUCCESS_COUNT)
+            .and_then(|value| value.as_u64()),
+        Some(1)
+    );
+    assert_eq!(
+        outcome
+            .context_updates
+            .get(ctx::PARALLEL_FAIL_COUNT)
+            .and_then(|value| value.as_u64()),
+        Some(1)
+    );
+
+    let results = ctx
+        .get(ctx::PARALLEL_RESULTS)
+        .and_then(|value| value.as_array().cloned())
+        .unwrap_or_default();
+    let slow_result = results
+        .iter()
+        .find(|result| result.get("target").and_then(|value| value.as_str()) == Some("slow"));
+    assert_eq!(
+        slow_result
+            .and_then(|result| result.get("outcome"))
+            .and_then(|value| value.as_str()),
+        Some("fail")
+    );
+    assert!(
+        slow_result
+            .and_then(|result| result.get("failure_reason"))
+            .and_then(|value| value.as_str())
+            .is_some_and(|notes| notes.contains("timed out"))
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_timeout_reason_keeps_milliseconds() -> AttractorResult<()> {
+    let registry = timeout_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = parallel_graph(&["slow"]);
+    let parallel = g.get_node_mut("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    parallel.attrs.insert(
+        attr::TIMEOUT.into(),
+        AttrValue::Duration(AttractorDuration::from(std::time::Duration::from_millis(1))),
+    );
+
+    let slow = g.get_node_mut("slow").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "slow".into(),
+        }
+    })?;
+    slow.attrs
+        .insert(attr::TYPE.into(), AttrValue::from("slow_node"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::PartialSuccess);
+
+    let results = ctx
+        .get(ctx::PARALLEL_RESULTS)
+        .and_then(|value| value.as_array().cloned())
+        .unwrap_or_default();
+    let reason = results
+        .first()
+        .and_then(|result| result.get("failure_reason"))
+        .and_then(|value| value.as_str())
+        .unwrap_or_default();
+    assert!(
+        reason.contains("1ms"),
+        "expected millisecond-precise timeout reason, got {reason:?}"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn parallel_invalid_timeout_attribute_fails() -> AttractorResult<()> {
+    let registry = timeout_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = parallel_graph(&["fast"]);
+    let parallel = g.get_node_mut("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    parallel
+        .attrs
+        .insert(attr::TIMEOUT.into(), AttrValue::from("15min"));
+
+    let node = g.get_node("parallel_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "parallel_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::Fail);
+    assert!(outcome.failure_reason.contains("invalid timeout attribute"));
+    assert!(ctx.get(ctx::PARALLEL_RESULTS).is_none());
+
     Ok(())
 }
 

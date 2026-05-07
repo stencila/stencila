@@ -24,7 +24,7 @@ This workflow fans out to three parallel code reviews of the same target, each u
 digraph code_review_parallel {
   Start -> FanOutReviews
 
-  FanOutReviews [label="Review in parallel with three model families"]
+  FanOutReviews [label="Review in parallel with three model families", timeout="15m"]
   FanOutReviews -> ReviewA
   FanOutReviews -> ReviewB
   FanOutReviews -> ReviewC

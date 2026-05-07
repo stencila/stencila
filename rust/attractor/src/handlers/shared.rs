@@ -8,6 +8,8 @@
 use indexmap::IndexMap;
 
 use crate::context::{Context, ctx};
+use crate::error::{AttractorError, AttractorResult};
+use crate::graph::{AttrValue, Node, attr};
 use crate::types::Outcome;
 
 /// Maximum length for the truncated response stored in context updates.
@@ -68,4 +70,36 @@ pub fn build_output_outcome(node_id: &str, output: &str, context: &Context) -> O
     );
 
     outcome
+}
+
+/// Resolve a node's optional `timeout` attribute as a duration.
+///
+/// Accepts both parsed DOT duration values (e.g. `timeout=250ms`) and quoted
+/// duration strings (e.g. `timeout="15m"`). Invalid string values return a
+/// pipeline error instead of silently disabling timeout enforcement.
+///
+/// # Errors
+///
+/// Returns [`AttractorError::InvalidPipeline`] if a string timeout cannot be
+/// parsed, or if the attribute uses an unsupported value type.
+pub fn resolve_timeout_attr(node: &Node) -> AttractorResult<Option<std::time::Duration>> {
+    let Some(value) = node.get_attr(attr::TIMEOUT) else {
+        return Ok(None);
+    };
+
+    match value {
+        AttrValue::Duration(duration) => Ok(Some(duration.inner())),
+        AttrValue::String(spec) => crate::types::Duration::from_spec_str(spec)
+            .map(|duration| Some(duration.inner()))
+            .map_err(|error| AttractorError::InvalidPipeline {
+                reason: format!("node '{}': invalid timeout attribute: {error}", node.id),
+            }),
+        other => Err(AttractorError::InvalidPipeline {
+            reason: format!(
+                "node '{}': timeout attribute has unsupported type '{}'; expected duration string",
+                node.id,
+                other.type_name()
+            ),
+        }),
+    }
 }

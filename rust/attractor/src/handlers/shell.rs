@@ -10,7 +10,7 @@ use std::sync::Arc;
 
 use async_trait::async_trait;
 
-use super::shared::build_output_outcome;
+use super::shared::{build_output_outcome, resolve_timeout_attr};
 use crate::context::{Context, ctx};
 use crate::error::AttractorResult;
 use crate::events::{EventEmitter, NoOpEmitter, PipelineEvent};
@@ -80,13 +80,10 @@ impl Handler for ShellHandler {
             agent_name: String::new(),
         });
 
-        let timeout = node.get_attr(attr::TIMEOUT).and_then(|v| match v {
-            crate::graph::AttrValue::Duration(d) => Some(d.inner()),
-            crate::graph::AttrValue::String(s) => crate::types::Duration::from_spec_str(s)
-                .ok()
-                .map(crate::types::Duration::inner),
-            _ => None,
-        });
+        let timeout = match resolve_timeout_attr(node) {
+            Ok(timeout) => timeout,
+            Err(error) => return Ok(Outcome::fail(error.to_string())),
+        };
 
         let result = run_command(&command, timeout).await;
 
@@ -161,12 +158,15 @@ async fn run_command(
     command: &str,
     timeout: Option<std::time::Duration>,
 ) -> AttractorResult<CommandOutput> {
-    let mut child = tokio::process::Command::new("sh")
+    let mut command_builder = tokio::process::Command::new("sh");
+    command_builder
         .arg("-c")
         .arg(command)
         .stdout(std::process::Stdio::piped())
         .stderr(std::process::Stdio::piped())
-        .spawn()?;
+        .kill_on_drop(true);
+
+    let mut child = command_builder.spawn()?;
 
     // Take the pipes before awaiting — we drain them concurrently with
     // the wait so the child never blocks on a full pipe buffer.

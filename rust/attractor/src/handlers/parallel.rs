@@ -26,6 +26,8 @@ use crate::handler::{Handler, HandlerRegistry};
 use crate::retry::{build_retry_policy, execute_with_retry};
 use crate::types::{HandlerType, Outcome, StageStatus};
 
+use super::shared::resolve_timeout_attr;
+
 /// Default max concurrency when `max_parallel` is not set on the node (§4.8).
 pub const DEFAULT_MAX_PARALLEL: usize = 4;
 
@@ -73,11 +75,12 @@ struct ParallelPolicies {
     join: JoinPolicy,
     error: ErrorPolicy,
     max_parallel: usize,
+    branch_timeout: Option<std::time::Duration>,
 }
 
-/// Resolve join, error, and max-parallel policies from node attributes.
-fn resolve_policies(node: &Node) -> ParallelPolicies {
-    ParallelPolicies {
+/// Resolve join, error, max-parallel, and timeout policies from node attributes.
+fn resolve_policies(node: &Node) -> AttractorResult<ParallelPolicies> {
+    Ok(ParallelPolicies {
         join: JoinPolicy::from_str_or_default(node.get_str_attr(attr::JOIN_POLICY)),
         error: ErrorPolicy::from_str_or_default(node.get_str_attr(attr::ERROR_POLICY)),
         max_parallel: node
@@ -89,7 +92,13 @@ fn resolve_policies(node: &Node) -> ParallelPolicies {
             })
             .unwrap_or(DEFAULT_MAX_PARALLEL)
             .max(1),
-    }
+        // The existing `timeout` attribute is interpreted by the parallel
+        // handler as a limit for each branch after it has acquired a
+        // concurrency permit. This keeps slow branches from blocking
+        // `wait_all` joins indefinitely while still allowing queued branches
+        // to wait behind `max_parallel` without consuming their budget.
+        branch_timeout: resolve_timeout_attr(node)?,
+    })
 }
 
 /// Result of a single parallel branch execution.
@@ -153,7 +162,10 @@ impl Handler for ParallelHandler {
             return Ok(Outcome::fail("parallel node has no outgoing edges"));
         }
 
-        let policies = resolve_policies(node);
+        let policies = match resolve_policies(node) {
+            Ok(policies) => policies,
+            Err(error) => return Ok(Outcome::fail(error.to_string())),
+        };
 
         // Compute the structural fan-in node before launching branches so
         // that (a) branches can stop when they reach it, and (b) the engine
@@ -212,6 +224,7 @@ impl Handler for ParallelHandler {
                     "target": br.target,
                     "outcome": br.outcome.status.as_str(),
                     "notes": br.outcome.notes,
+                    "failure_reason": br.outcome.failure_reason,
                 })
             })
             .collect();
@@ -494,7 +507,10 @@ impl ParallelHandler {
 
         let template_entry_id = edges[0].to.clone();
         let fan_in_id = find_dynamic_fan_in_node(graph, &template_entry_id);
-        let policies = resolve_policies(node);
+        let policies = match resolve_policies(node) {
+            Ok(policies) => policies,
+            Err(error) => return Ok(Outcome::fail(error.to_string())),
+        };
 
         // Empty-list bypass: skip the fan-in node entirely
         if items.is_empty() {
@@ -579,6 +595,7 @@ impl ParallelHandler {
                     "target": br.target,
                     "outcome": br.outcome.status.as_str(),
                     "notes": br.outcome.notes,
+                    "failure_reason": br.outcome.failure_reason,
                     "fan_out_index": br.index,
                     "fan_out_item": items.get(br.index).unwrap_or(&serde_json::Value::Null),
                 })
@@ -665,12 +682,13 @@ impl ParallelHandler {
                         branch_index: idx,
                     });
 
-                    let result = execute_branch_subgraph(
+                    let result = execute_branch_subgraph_with_timeout(
                         &target_id,
                         &branch_context,
                         &graph,
                         &registry,
                         fan_in_id.as_deref(),
+                        policies.branch_timeout,
                     )
                     .await;
 
@@ -768,12 +786,13 @@ impl ParallelHandler {
                         branch_index: idx,
                     });
 
-                    let result = execute_branch_subgraph(
+                    let result = execute_branch_subgraph_with_timeout(
                         &target_id,
                         &branch_context,
                         &graph,
                         &registry,
                         fan_in_id.as_deref(),
+                        policies.branch_timeout,
                     )
                     .await;
 
@@ -998,4 +1017,28 @@ async fn execute_branch_subgraph(
     }
 
     Ok(last_outcome)
+}
+
+/// Execute a branch subgraph, optionally bounding its runtime.
+async fn execute_branch_subgraph_with_timeout(
+    start_id: &str,
+    context: &Context,
+    graph: &Graph,
+    registry: &HandlerRegistry,
+    fan_in_id: Option<&str>,
+    timeout: Option<std::time::Duration>,
+) -> AttractorResult<Outcome> {
+    let branch = execute_branch_subgraph(start_id, context, graph, registry, fan_in_id);
+
+    if let Some(duration) = timeout {
+        match tokio::time::timeout(duration, branch).await {
+            Ok(result) => result,
+            Err(..) => Ok(Outcome::fail(format!(
+                "parallel branch timed out after {}",
+                crate::types::Duration::from(duration)
+            ))),
+        }
+    } else {
+        branch.await
+    }
 }

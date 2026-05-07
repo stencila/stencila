@@ -252,6 +252,25 @@ After all branches complete, results are aggregated into `parallel.results` (wit
 
 For empty lists, the handler sets empty `parallel.results` and `parallel.outputs`, then jumps past the fan-in node to its successor. Three validation rules enforce correctness: `dynamic_fan_out` (exactly one outgoing edge), `dynamic_fan_out_missing_fan_in` (warn if no `tripleoctagon` fan-in is reachable), and `nested_dynamic_fan_out` (reject dynamic fan-out inside another dynamic fan-out's template subgraph).
 
+### Parallel branch timeout (`timeout` attribute)
+
+The `timeout` attribute on a parallel fan-out node limits each branch's execution time. This applies to both static fan-out and dynamic `fan_out` branches.
+
+```dot
+FanOutReviews [timeout="20m"]
+FanOutReviews -> ReviewA
+FanOutReviews -> ReviewB
+FanOutReviews -> ReviewC
+```
+
+The timeout is applied per branch after the branch has acquired its `max_parallel` concurrency permit, so queued branches do not consume their execution budget while waiting behind the concurrency limit.
+
+If a branch exceeds the limit, that branch returns a `fail` outcome with a failure reason such as `parallel branch timed out after 1200s`. The usual parallel aggregation rules then apply: under the default `wait_all`/`continue` policies, the parallel node returns `partial_success` when at least one branch times out; with `error_policy="ignore"`, timed-out branches are suppressed from `parallel.results`; with `error_policy="fail_fast"`, the first timeout stops the join early.
+
+Timed-out branch futures are cancelled by dropping the branch future. Handlers that launch external work should be cancellation-safe; the built-in `shell` handler marks subprocesses `kill_on_drop` and also kills the child on its own timeout path so cancelled shell branches do not leave long-running subprocesses behind.
+
+Branch results include both `notes` and `failure_reason` fields in `parallel.results` so downstream fan-in or synthesis nodes can distinguish timeout failures from normal branch output.
+
 ### Outcome status-file compatibility alias
 
 Outcome deserialization accepts both `preferred_next_label` (spec field name) and `preferred_label` as input keys for compatibility with legacy/external status producers.
@@ -342,7 +361,7 @@ During run initialization, `graph.*` keys are mirrored into context as strings v
 
 ### Node `timeout` enforcement is not centralized (§2.6, §4.*)
 
-There is no engine-level timeout wrapper applied uniformly to all handlers. `shell` applies `timeout`; other handlers generally do not enforce node-level timeouts.
+There is no engine-level timeout wrapper applied uniformly to all handlers. `shell` applies `timeout` to the shell command, and `parallel` applies `timeout` to each branch. Other handlers generally do not enforce node-level timeouts.
 
 ### Auto-status synthesis (§2.6, Appendix C)
 

@@ -3,6 +3,7 @@
 mod common;
 
 use std::sync::Arc;
+use std::time::Duration;
 
 use async_trait::async_trait;
 
@@ -30,6 +31,22 @@ impl Handler for FailHandler {
         _graph: &Graph,
     ) -> AttractorResult<Outcome> {
         Ok(Outcome::fail("intentional failure"))
+    }
+}
+
+/// A handler that sleeps long enough to exercise dynamic branch timeouts.
+struct SlowHandler;
+
+#[async_trait]
+impl Handler for SlowHandler {
+    async fn execute(
+        &self,
+        _node: &Node,
+        _context: &Context,
+        _graph: &Graph,
+    ) -> AttractorResult<Outcome> {
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        Ok(Outcome::success())
     }
 }
 
@@ -72,6 +89,12 @@ fn mixed_registry() -> Arc<HandlerRegistry> {
 fn echo_registry() -> Arc<HandlerRegistry> {
     let mut reg = HandlerRegistry::with_defaults();
     reg.register("echo_fan_out", EchoFanOutItemNameHandler);
+    Arc::new(reg)
+}
+
+fn timeout_registry() -> Arc<HandlerRegistry> {
+    let mut reg = HandlerRegistry::with_defaults();
+    reg.register("slow_node", SlowHandler);
     Arc::new(reg)
 }
 
@@ -1107,6 +1130,71 @@ async fn dynamic_fan_out_success_fail_counts() -> AttractorResult<()> {
         .and_then(|v| v.as_u64());
     assert_eq!(success_count, Some(3));
     assert_eq!(fail_count, Some(0));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn dynamic_fan_out_timeout_applies_to_each_branch() -> AttractorResult<()> {
+    let registry = timeout_registry();
+    let emitter = Arc::new(NoOpEmitter);
+    let handler = ParallelHandler::new(registry, emitter);
+
+    let mut g = dynamic_fan_out_graph();
+    let fan = g.get_node_mut("fan_out_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "fan_out_node".into(),
+        }
+    })?;
+    fan.attrs
+        .insert(attr::TIMEOUT.into(), AttrValue::from("10ms"));
+
+    let template = g.get_node_mut("template_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "template_node".into(),
+        }
+    })?;
+    template
+        .attrs
+        .insert(attr::TYPE.into(), AttrValue::from("slow_node"));
+
+    let node = g.get_node("fan_out_node").ok_or_else(|| {
+        stencila_attractor::error::AttractorError::NodeNotFound {
+            node_id: "fan_out_node".into(),
+        }
+    })?;
+    let ctx = Context::new();
+    ctx.set("items", serde_json::json!(["a", "b"]));
+
+    let outcome = handler.execute(node, &ctx, &g).await?;
+
+    assert_eq!(outcome.status, StageStatus::PartialSuccess);
+    assert_eq!(
+        outcome
+            .context_updates
+            .get(ctx::PARALLEL_SUCCESS_COUNT)
+            .and_then(|value| value.as_u64()),
+        Some(0)
+    );
+    assert_eq!(
+        outcome
+            .context_updates
+            .get(ctx::PARALLEL_FAIL_COUNT)
+            .and_then(|value| value.as_u64()),
+        Some(2)
+    );
+
+    let results = ctx
+        .get(ctx::PARALLEL_RESULTS)
+        .and_then(|value| value.as_array().cloned())
+        .unwrap_or_default();
+    assert_eq!(results.len(), 2);
+    assert!(results.iter().all(|result| {
+        result
+            .get("failure_reason")
+            .and_then(|value| value.as_str())
+            .is_some_and(|reason| reason.contains("timed out"))
+    }));
 
     Ok(())
 }
