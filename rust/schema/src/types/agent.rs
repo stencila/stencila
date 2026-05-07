@@ -342,7 +342,7 @@ pub struct AgentOptions {
     #[serde(alias = "truncation-preset", alias = "truncation_preset")]
     pub truncation_preset: Option<String>,
 
-    /// Context usage percentage that triggers proactive history compaction.
+    /// Projected context usage percentage that triggers proactive history compaction.
     #[serde(alias = "compaction-trigger-percent", alias = "compaction_trigger_percent")]
     pub compaction_trigger_percent: Option<UnsignedInteger>,
 

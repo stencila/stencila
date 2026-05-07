@@ -985,7 +985,7 @@
       "@id": "stencila:compactionTriggerPercent",
       "@type": "rdfs:Property",
       "rdfs:label": "compactionTriggerPercent",
-      "rdfs:comment": "Context usage percentage that triggers proactive history compaction.",
+      "rdfs:comment": "Projected context usage percentage that triggers proactive history compaction.",
       "schema:domainIncludes": {
         "@id": "stencila:Agent"
       },

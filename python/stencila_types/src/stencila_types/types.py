@@ -1169,7 +1169,7 @@ class Agent(CreativeWork):
     """Named preset for tool output truncation limits."""
 
     compaction_trigger_percent: UnsignedInteger | None = None
-    """Context usage percentage that triggers proactive history compaction."""
+    """Projected context usage percentage that triggers proactive history compaction."""
 
     trust_level: str | None = None
     """Trust level controlling how strictly the agent's operations are guarded."""

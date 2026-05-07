@@ -73,7 +73,7 @@ export class Agent extends CreativeWork {
   truncationPreset?: string;
 
   /**
-   * Context usage percentage that triggers proactive history compaction.
+   * Projected context usage percentage that triggers proactive history compaction.
    */
   compactionTriggerPercent?: UnsignedInteger;
 

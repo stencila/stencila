@@ -152,21 +152,12 @@ pub struct SessionConfig {
     /// Named truncation preset used as baseline tool-output limits.
     pub truncation_preset: TruncationPreset,
 
-    /// Proactive compaction trigger as percent of context window.
-    #[default(70)]
+    /// Proactive compaction trigger as projected percent of context window.
+    ///
+    /// The projection includes estimated current request tokens plus internally
+    /// derived response headroom. Set to 0 to disable proactive compaction.
+    #[default(90)]
     pub compaction_trigger_percent: u8,
-
-    /// Compact tool results older than this number of most-recent turns.
-    #[default(2)]
-    pub compact_tool_results_older_than_turns: u32,
-
-    /// Maximum chars to preserve for compacted tool-result entries.
-    #[default(600)]
-    pub compact_max_tool_result_chars: usize,
-
-    /// Number of most-recent turns to preserve during context compaction.
-    #[default(4)]
-    pub compact_preserve_recent_turns: u32,
 
     /// Maximum bytes of discovered project docs to include in system prompt.
     #[default(12_000)]

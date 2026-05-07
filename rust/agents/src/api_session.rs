@@ -26,13 +26,13 @@ use serde_json::Value;
 use stencila_interviews::interviewer::Interviewer;
 use stencila_models3::api::accumulator::StreamAccumulator;
 use stencila_models3::error::SdkError;
-use stencila_models3::types::content::ContentPart;
+use stencila_models3::types::content::{ContentPart, ToolResultData};
 use stencila_models3::types::message::Message;
 use stencila_models3::types::request::Request;
 use stencila_models3::types::response::Response;
 use stencila_models3::types::role::Role;
 use stencila_models3::types::stream_event::{StreamEvent, StreamEventType};
-use stencila_models3::types::tool::{ToolCall, ToolChoice, ToolResult};
+use stencila_models3::types::tool::{ToolCall, ToolChoice, ToolDefinition, ToolResult};
 
 use crate::error::{AgentError, AgentResult};
 use crate::events::{self, EventEmitter, EventReceiver};
@@ -183,16 +183,58 @@ enum ImageStrategy {
     None,
 }
 
+const APPROX_CHARS_PER_TOKEN: u64 = 4;
+const MIN_COMPACTION_RESERVE_TOKENS: u64 = 256;
+const MAX_COMPACTION_RESERVE_TOKENS: u64 = 8_192;
+const INTERNAL_COMPACT_TOOL_RESULTS_OLDER_THAN_ENTRIES: usize = 2;
+const INTERNAL_COMPACT_MAX_TOOL_RESULT_CHARS: usize = 600;
+const INTERNAL_COMPACT_PRESERVE_RECENT_ENTRIES: usize = 4;
+const DROPPED_HISTORY_SUMMARY_MAX_CHARS: usize = 1_800;
+const REACTIVE_TARGET_REDUCTION_PERCENT: u64 = 10;
+const REACTIVE_TARGET_REDUCTION_MIN_CHARS: u64 = 16_000;
+
+/// Estimated size of the next provider request.
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq)]
+struct ContextUsageEstimate {
+    request_chars: u64,
+    request_tokens: u64,
+    tool_chars: u64,
+    message_chars: u64,
+}
+
+/// Budget used to decide when to compact and what input size to target.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+struct ContextBudget {
+    context_window: u64,
+    trigger_percent: u8,
+    reserve_tokens: u64,
+    trigger_tokens: u64,
+    target_input_tokens: u64,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct CompactionGoal<'a> {
+    trigger: &'a str,
+    target_chars: Option<u64>,
+    force_shrink: bool,
+}
+
 /// Metrics collected during a single context compaction pass.
 #[derive(Debug, Clone, Copy)]
 struct CompactionStats {
+    before_chars: u64,
+    after_chars: u64,
+    removed_chars: u64,
     before_tokens: u64,
     after_tokens: u64,
+    target_chars: Option<u64>,
+    target_reached: bool,
     stripped_reasoning_turns: usize,
     stripped_thinking_parts: usize,
     summarized_tool_results: usize,
     removed_tool_result_chars: usize,
     removed_turns: usize,
+    phases_applied: usize,
 }
 
 // ---------------------------------------------------------------------------
@@ -784,11 +826,16 @@ impl ApiSession {
             //    consumed without a subsequent LLM call to deliver them)
             self.drain_steering();
 
-            // 4. Context-usage warning (spec 5.5)
-            self.check_context_usage();
+            // 4. Proactive context compaction before hitting hard overflow.
+            // If a reactive compaction just happened for this retry path, do
+            // not compact again before giving the retry a chance to succeed.
+            if !compaction_attempted {
+                self.maybe_proactive_compaction();
+            }
 
-            // 4b. Proactive context compaction before hitting hard overflow.
-            self.maybe_proactive_compaction();
+            // 4b. Context-usage warning (spec 5.5). Emit after any proactive
+            // compaction so usage telemetry reflects the outgoing request.
+            self.check_context_usage();
 
             // 5. Build and send LLM request (streaming, abort-aware)
             let request = self.build_request();
@@ -981,21 +1028,36 @@ impl ApiSession {
                     // On context-length errors, attempt automatic compaction
                     // once before giving up. This drops thinking blocks and
                     // summarises older tool results to free context space.
-                    if matches!(e, SdkError::ContextLength { .. })
-                        && !compaction_attempted
-                        && self.compact_history("reactive").is_some()
-                    {
-                        compaction_attempted = true;
-                        let mut data = serde_json::Map::new();
-                        data.insert("severity".into(), Value::String("warning".into()));
-                        data.insert(
-                            "message".into(),
-                            Value::String(
-                                "Context length exceeded — compacted history and retrying".into(),
-                            ),
-                        );
-                        self.events.emit(EventKind::Error, data);
-                        continue;
+                    if matches!(e, SdkError::ContextLength { .. }) && !compaction_attempted {
+                        let current = self.estimate_request_chars();
+                        let reduction = current
+                            .saturating_mul(REACTIVE_TARGET_REDUCTION_PERCENT)
+                            .saturating_div(100)
+                            .max(REACTIVE_TARGET_REDUCTION_MIN_CHARS)
+                            .min(current);
+                        let target_chars = current.saturating_sub(reduction);
+
+                        if self
+                            .compact_history(CompactionGoal {
+                                trigger: "reactive",
+                                target_chars: Some(target_chars),
+                                force_shrink: true,
+                            })
+                            .is_some()
+                        {
+                            compaction_attempted = true;
+                            let mut data = serde_json::Map::new();
+                            data.insert("severity".into(), Value::String("warning".into()));
+                            data.insert(
+                                "message".into(),
+                                Value::String(
+                                    "Context length exceeded — compacted history and retrying"
+                                        .into(),
+                                ),
+                            );
+                            self.events.emit(EventKind::Error, data);
+                            continue;
+                        }
                     }
 
                     return self.handle_sdk_error(e);
@@ -1211,23 +1273,7 @@ impl ApiSession {
         messages.extend(self.convert_history_to_messages());
 
         let mut request = Request::new(self.profile.model(), messages);
-        let tools = if let Some(ref allowed) = self.config.allowed_tools {
-            let filtered: Vec<_> = self
-                .profile
-                .tools()
-                .into_iter()
-                .filter(|t| allowed.iter().any(|a| a == &t.name))
-                .collect();
-            if filtered.is_empty() {
-                // No tools match — omit tools and tool_choice entirely so
-                // providers don't reject the request.
-                None
-            } else {
-                Some(filtered)
-            }
-        } else {
-            Some(self.profile.tools())
-        };
+        let tools = self.request_tools();
         if tools.is_some() {
             request.tool_choice = Some(ToolChoice::Auto);
         }
@@ -1720,24 +1766,53 @@ impl ApiSession {
     /// Uses heuristic: 1 token ~ 4 characters. Always emits a
     /// `ContextUsage` event with the current percentage. Additionally emits
     /// a warning `Error` event at 80% of the profile's
-    /// `context_window_size`. Informational only — no automatic compaction.
+    /// `context_window_size`. Called after any proactive compaction so the
+    /// emitted telemetry reflects the outgoing request estimate.
     fn check_context_usage(&self) {
-        let total_chars = self.estimate_history_chars();
-        let approx_tokens = total_chars / 4;
+        let usage = self.estimate_context_usage();
+        let approx_tokens = usage.request_tokens;
         let context_size = self.profile.context_window_size();
-        let pct = if context_size > 0 {
-            (approx_tokens as f64 / context_size as f64 * 100.0) as u32
+        let budget = ContextBudget::new(
+            context_size,
+            self.config.compaction_trigger_percent,
+            self.profile.max_output_tokens(),
+        );
+        let current_pct = if context_size > 0 {
+            (approx_tokens.saturating_mul(100) / context_size) as u32
+        } else {
+            0
+        };
+        let projected_tokens = approx_tokens.saturating_add(budget.reserve_tokens);
+        let projected_pct = if context_size > 0 {
+            (projected_tokens.saturating_mul(100) / context_size) as u32
         } else {
             0
         };
 
         // Always emit context usage info
         let mut usage_data = serde_json::Map::new();
-        usage_data.insert("percent".into(), Value::Number(pct.into()));
+        usage_data.insert("percent".into(), Value::Number(current_pct.into()));
+        usage_data.insert("current_percent".into(), Value::Number(current_pct.into()));
         usage_data.insert("approx_tokens".into(), Value::Number(approx_tokens.into()));
         usage_data.insert(
             "context_window_size".into(),
             Value::Number(context_size.into()),
+        );
+        usage_data.insert(
+            "reserve_tokens".into(),
+            Value::Number(budget.reserve_tokens.into()),
+        );
+        usage_data.insert(
+            "projected_tokens".into(),
+            Value::Number(projected_tokens.into()),
+        );
+        usage_data.insert(
+            "projected_percent".into(),
+            Value::Number(projected_pct.into()),
+        );
+        usage_data.insert(
+            "target_input_tokens".into(),
+            Value::Number(budget.target_input_tokens.into()),
         );
         self.events
             .emit(crate::types::EventKind::ContextUsage, usage_data);
@@ -1749,71 +1824,85 @@ impl ApiSession {
             data.insert("severity".into(), Value::String("warning".into()));
             data.insert(
                 "message".into(),
-                Value::String(format!("Context usage at ~{pct}% of context window")),
+                Value::String(format!(
+                    "Context usage at ~{current_pct}% of context window (~{projected_pct}% projected with response reserve)"
+                )),
             );
             data.insert("approx_tokens".into(), Value::Number(approx_tokens.into()));
             data.insert(
                 "context_window_size".into(),
                 Value::Number(context_size.into()),
             );
+            data.insert(
+                "reserve_tokens".into(),
+                Value::Number(budget.reserve_tokens.into()),
+            );
+            data.insert(
+                "projected_tokens".into(),
+                Value::Number(projected_tokens.into()),
+            );
+            data.insert(
+                "projected_percent".into(),
+                Value::Number(projected_pct.into()),
+            );
+            data.insert(
+                "target_input_tokens".into(),
+                Value::Number(budget.target_input_tokens.into()),
+            );
             self.events.emit(crate::types::EventKind::Error, data);
         }
     }
 
-    /// Estimate total character count across history and system prompt.
-    fn estimate_history_chars(&self) -> u64 {
-        let mut chars: u64 = self.system_prompt.len() as u64;
-        for turn in &self.history {
-            match turn {
-                Turn::User { content, .. }
-                | Turn::Steering { content, .. }
-                | Turn::System { content, .. } => {
-                    chars += content.len() as u64;
-                }
-                Turn::Assistant {
-                    content,
-                    tool_calls,
-                    reasoning,
-                    thinking_parts,
-                    response_content_parts,
-                    ..
-                } => {
-                    if !response_content_parts.is_empty() {
-                        // Estimate from the original parts (what we actually
-                        // send) to avoid undercounting provider metadata such
-                        // as Gemini thought_signature strings.
-                        chars += estimate_content_parts_chars(response_content_parts);
-                    } else {
-                        // Legacy turns without response_content_parts: fall
-                        // back to the decomposed fields.
-                        chars += content.len() as u64;
-                        for tc in tool_calls {
-                            chars += tc.name.len() as u64;
-                            chars += tc.arguments.to_string().len() as u64;
-                        }
-                        if let Some(r) = reasoning {
-                            chars += r.len() as u64;
-                        }
-                        for part in thinking_parts {
-                            if let ContentPart::Thinking { thinking }
-                            | ContentPart::RedactedThinking { thinking } = part
-                            {
-                                chars += thinking.text.len() as u64;
-                                if let Some(ref sig) = thinking.signature {
-                                    chars += sig.len() as u64;
-                                }
-                            }
-                        }
-                    }
-                }
-                Turn::ToolResults { results, .. } => {
-                    for r in results {
-                        chars += r.content.to_string().len() as u64;
-                    }
-                }
-            }
+    /// Estimate total character count for the next provider request.
+    ///
+    /// The estimate is intentionally derived from the message content that
+    /// `build_request` will send rather than the raw persisted history. This
+    /// keeps proactive compaction aligned with history thinking replay
+    /// filtering and multimodal image injection decisions.
+    fn estimate_request_chars(&self) -> u64 {
+        self.estimate_context_usage().request_chars
+    }
+
+    /// Estimate message and tool-schema size for the next provider request.
+    fn estimate_context_usage(&self) -> ContextUsageEstimate {
+        let message_chars = self.estimate_request_messages_chars();
+        let tool_chars = estimate_tools_chars(&self.request_tools());
+        let request_chars = message_chars.saturating_add(tool_chars);
+
+        ContextUsageEstimate {
+            request_chars,
+            request_tokens: request_chars / APPROX_CHARS_PER_TOKEN,
+            tool_chars,
+            message_chars,
         }
-        chars
+    }
+
+    /// Estimate character count for request messages only.
+    fn estimate_request_messages_chars(&self) -> u64 {
+        let mut messages = vec![Message::system(&self.system_prompt)];
+        messages.extend(self.convert_history_to_messages());
+
+        messages.iter().map(estimate_message_chars).sum::<u64>()
+    }
+
+    /// Resolve the tool definitions that would be sent with the next request.
+    fn request_tools(&self) -> Option<Vec<ToolDefinition>> {
+        if let Some(ref allowed) = self.config.allowed_tools {
+            let filtered: Vec<_> = self
+                .profile
+                .tools()
+                .into_iter()
+                .filter(|tool| allowed.iter().any(|name| name == &tool.name))
+                .collect();
+
+            if filtered.is_empty() {
+                None
+            } else {
+                Some(filtered)
+            }
+        } else {
+            Some(self.profile.tools())
+        }
     }
 
     /// Trigger context compaction when projected usage exceeds the configured threshold.
@@ -1828,177 +1917,190 @@ impl ApiSession {
             return;
         }
 
-        let approx_tokens = self.estimate_history_chars() / 4;
-        // Reserve response headroom so proactive compaction happens before
-        // we are fully pinned against the context window.
-        let reserve_tokens = (context_size / 10).clamp(1_024, 8_192);
-        let projected_tokens = approx_tokens.saturating_add(reserve_tokens);
-        let projected_pct = (projected_tokens.saturating_mul(100)) / context_size;
+        let usage = self.estimate_context_usage();
+        let budget = ContextBudget::new(
+            context_size,
+            trigger_pct as u8,
+            self.profile.max_output_tokens(),
+        );
 
-        if projected_pct < trigger_pct {
+        if usage.request_tokens < budget.target_input_tokens {
             return;
         }
 
-        self.compact_history(&format!(
-            "proactive (projected {projected_pct}% >= trigger {trigger_pct}%)"
-        ));
+        let projected_tokens = usage.request_tokens.saturating_add(budget.reserve_tokens);
+        let projected_pct = (projected_tokens.saturating_mul(100)) / context_size;
+
+        self.compact_history(CompactionGoal {
+            trigger: &format!(
+                "proactive (current {} tokens + reserve {} = projected {projected_pct}% >= trigger {trigger_pct}%)",
+                usage.request_tokens, budget.reserve_tokens
+            ),
+            target_chars: Some(compaction_target_chars(&budget)),
+            force_shrink: false,
+        });
     }
 
     /// Attempt to compact the conversation history to reduce context size.
     ///
-    /// Returns compaction stats when history was modified, or `None` when
-    /// there was nothing left to compact.
-    fn compact_history(&mut self, trigger: &str) -> Option<CompactionStats> {
-        let before = self.estimate_history_chars();
-        let mut modified = false;
+    /// Returns compaction stats when the outgoing request shrank, or `None`
+    /// when compaction could not reduce the next provider request.
+    fn compact_history(&mut self, goal: CompactionGoal) -> Option<CompactionStats> {
+        let before = self.estimate_request_chars();
         let mut stripped_reasoning_turns = 0usize;
         let mut stripped_thinking_parts = 0usize;
         let mut summarized_tool_results = 0usize;
         let mut removed_tool_result_chars = 0usize;
         let mut removed_turns = 0usize;
+        let mut phases_applied = 0usize;
 
-        // Phase 1: strip thinking/reasoning from ALL assistant turns.
-        for turn in self.history.iter_mut() {
-            if let Turn::Assistant {
-                reasoning,
-                thinking_parts,
-                response_content_parts,
-                ..
-            } = turn
-            {
-                if reasoning.is_some() {
-                    *reasoning = None;
-                    modified = true;
-                    stripped_reasoning_turns += 1;
-                }
-                if !thinking_parts.is_empty() {
-                    stripped_thinking_parts += thinking_parts.len();
-                    thinking_parts.clear();
-                    modified = true;
-                }
-                let before_len = response_content_parts.len();
-                response_content_parts.retain(|p| {
-                    !matches!(
-                        p,
-                        ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
-                    )
-                });
-                if response_content_parts.len() != before_len {
-                    modified = true;
-                    stripped_thinking_parts += before_len - response_content_parts.len();
-                }
+        if matches!(
+            self.config.history_thinking_replay,
+            HistoryThinkingReplay::Full
+        ) {
+            let (reasoning, thinking) = strip_replayed_thinking(&mut self.history);
+            if reasoning > 0 || thinking > 0 {
+                stripped_reasoning_turns += reasoning;
+                stripped_thinking_parts += thinking;
+                phases_applied += 1;
             }
         }
 
-        // Phase 2: summarise tool results in older turns and remove
-        // associated image attachments.
-        // Keep the last 4 history entries intact (roughly the last
-        // assistant + tool_results pair).
-        let len = self.history.len();
-        let compact_older_than = self.config.compact_tool_results_older_than_turns as usize;
-        let preserve_tail = compact_older_than.min(len);
-        let compactable = len.saturating_sub(preserve_tail);
-        for turn in self.history[..compactable].iter_mut() {
-            if let Turn::ToolResults { results, .. } = turn {
-                for r in results.iter_mut() {
-                    // Always strip image attachments from older turns —
-                    // image bytes can be megabytes while the textual
-                    // content is short.
-                    if self.image_attachments.remove(&r.tool_call_id).is_some() {
-                        modified = true;
-                    }
-                    let s = r.content.to_string();
-                    let max_chars = self.config.compact_max_tool_result_chars;
-                    if s.len() > max_chars {
-                        let removed = s.len().saturating_sub(max_chars);
-                        removed_tool_result_chars += removed;
-                        summarized_tool_results += 1;
-                        r.content = Value::String(format!(
-                            "[Output compacted — {} chars removed to free context space]",
-                            removed
-                        ));
-                        modified = true;
-                    }
-                }
-            }
+        if self.compaction_target_reached(goal.target_chars) {
+            return self.finish_compaction(
+                goal,
+                before,
+                stripped_reasoning_turns,
+                stripped_thinking_parts,
+                summarized_tool_results,
+                removed_tool_result_chars,
+                removed_turns,
+                phases_applied,
+            );
         }
 
-        // Phase 3: if the history is very long, drop middle exchanges.
-        // Keep the first turn (user task) and the last turns, removing
-        // everything in between if there are more than 10 turns total.
-        //
-        // The tail boundary is adjusted backwards to avoid starting with
-        // an orphaned ToolResults turn (whose matching Assistant was
-        // dropped). This keeps tool-call/tool-result pairs intact so
-        // providers don't reject the request.
-        let preserve_recent = (self.config.compact_preserve_recent_turns as usize).max(1);
-        if self.history.len() > (preserve_recent + 6) {
-            let keep_head = 1;
-            let total = self.history.len();
-            let mut tail_start = total.saturating_sub(preserve_recent);
+        let (summarized, removed_chars) = compact_old_tool_results(
+            &mut self.history,
+            &mut self.image_attachments,
+            if goal.force_shrink {
+                0
+            } else {
+                INTERNAL_COMPACT_TOOL_RESULTS_OLDER_THAN_ENTRIES
+            },
+            INTERNAL_COMPACT_MAX_TOOL_RESULT_CHARS,
+        );
+        if summarized > 0 || removed_chars > 0 {
+            summarized_tool_results += summarized;
+            removed_tool_result_chars += removed_chars;
+            phases_applied += 1;
+        }
 
-            // Walk forward from the candidate boundary until we find a
-            // turn that is safe to start with (anything other than
-            // ToolResults, which would be orphaned).
-            while tail_start < total {
-                if matches!(self.history[tail_start], Turn::ToolResults { .. }) {
-                    tail_start += 1;
+        if self.compaction_target_reached(goal.target_chars) {
+            return self.finish_compaction(
+                goal,
+                before,
+                stripped_reasoning_turns,
+                stripped_thinking_parts,
+                summarized_tool_results,
+                removed_tool_result_chars,
+                removed_turns,
+                phases_applied,
+            );
+        }
+
+        let summary_max_chars = goal
+            .target_chars
+            .map_or(DROPPED_HISTORY_SUMMARY_MAX_CHARS, |target| {
+                let current = self.estimate_request_chars();
+                if current <= target {
+                    DROPPED_HISTORY_SUMMARY_MAX_CHARS
                 } else {
-                    break;
+                    DROPPED_HISTORY_SUMMARY_MAX_CHARS.min((current - target) as usize)
                 }
-            }
-
-            let keep_tail = total - tail_start;
-            if keep_head + keep_tail < total {
-                let removed = total - keep_head - keep_tail;
-                removed_turns += removed;
-                // Remove image attachments for tool results in dropped turns.
-                for turn in &self.history[keep_head..tail_start] {
-                    if let Turn::ToolResults { results, .. } = turn {
-                        for r in results {
-                            self.image_attachments.remove(&r.tool_call_id);
-                        }
-                    }
-                }
-                let summary = Turn::system(format!(
-                    "[Context compacted: {removed} earlier turns were removed to fit within \
-                     the model's context window. The original user request and recent \
-                     conversation are preserved.]"
-                ));
-                let mut new_history = Vec::with_capacity(keep_head + 1 + keep_tail);
-                new_history.extend(self.history.drain(..keep_head));
-                new_history.push(summary);
-                let remaining = self.history.len();
-                new_history.extend(self.history.drain(remaining - keep_tail..));
-                self.history = new_history;
-                modified = true;
-            }
+            })
+            .max(256);
+        if let Some(removed) = drop_middle_history_with_summary(
+            &mut self.history,
+            &mut self.image_attachments,
+            INTERNAL_COMPACT_PRESERVE_RECENT_ENTRIES,
+            summary_max_chars,
+        ) {
+            removed_turns += removed;
+            phases_applied += 1;
         }
 
-        let after = self.estimate_history_chars();
-        let stats = CompactionStats {
-            before_tokens: before / 4,
-            after_tokens: after / 4,
+        self.finish_compaction(
+            goal,
+            before,
             stripped_reasoning_turns,
             stripped_thinking_parts,
             summarized_tool_results,
             removed_tool_result_chars,
             removed_turns,
+            phases_applied,
+        )
+    }
+
+    fn compaction_target_reached(&self, target_chars: Option<u64>) -> bool {
+        target_chars.is_some_and(|target| self.estimate_request_chars() <= target)
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn finish_compaction(
+        &self,
+        goal: CompactionGoal,
+        before: u64,
+        stripped_reasoning_turns: usize,
+        stripped_thinking_parts: usize,
+        summarized_tool_results: usize,
+        removed_tool_result_chars: usize,
+        removed_turns: usize,
+        phases_applied: usize,
+    ) -> Option<CompactionStats> {
+        let after = self.estimate_request_chars();
+        let removed_chars = before.saturating_sub(after);
+        let target_reached = goal.target_chars.is_some_and(|target| after <= target);
+        let stats = CompactionStats {
+            before_chars: before,
+            after_chars: after,
+            removed_chars,
+            before_tokens: before / APPROX_CHARS_PER_TOKEN,
+            after_tokens: after / APPROX_CHARS_PER_TOKEN,
+            target_chars: goal.target_chars,
+            target_reached,
+            stripped_reasoning_turns,
+            stripped_thinking_parts,
+            summarized_tool_results,
+            removed_tool_result_chars,
+            removed_turns,
+            phases_applied,
         };
         tracing::debug!(
             before_chars = before,
             after_chars = after,
-            modified,
-            trigger,
+            removed_chars,
+            trigger = goal.trigger,
+            target_reached,
             "context compaction complete"
         );
-        if modified {
+
+        let shrank = after < before;
+        if shrank || (goal.force_shrink && removed_chars > 0) {
             self.events.emit_info(
                 "CONTEXT_COMPACTION",
                 format!(
-                    "trigger={trigger}, ~{} -> ~{} tokens, reasoning_turns={}, thinking_parts={}, summarized_results={}, removed_result_chars={}, removed_turns={}",
+                    "trigger={}, chars={} -> {}, ~{} -> ~{} tokens, removed_chars={}, target_chars={}, target_reached={}, phases_applied={}, reasoning_turns={}, thinking_parts={}, summarized_results={}, removed_result_chars={}, removed_turns={}",
+                    goal.trigger,
+                    stats.before_chars,
+                    stats.after_chars,
                     stats.before_tokens,
                     stats.after_tokens,
+                    stats.removed_chars,
+                    stats
+                        .target_chars
+                        .map_or_else(|| "none".to_string(), |target| target.to_string()),
+                    stats.target_reached,
+                    stats.phases_applied,
                     stats.stripped_reasoning_turns,
                     stats.stripped_thinking_parts,
                     stats.summarized_tool_results,
@@ -2125,22 +2227,358 @@ impl Drop for ApiSession {
     }
 }
 
-/// Estimate character count from a slice of [`ContentPart`]s.
-///
-/// Used by [`ApiSession::estimate_history_chars`] when `response_content_parts`
-/// is available, so that provider metadata (e.g. Gemini `thought_signature`)
-/// is included in the estimate.
+impl ContextBudget {
+    fn new(context_window: u64, trigger_percent: u8, max_output_tokens: Option<u64>) -> Self {
+        let trigger_percent = trigger_percent.min(100);
+        let reserve_tokens = default_compaction_reserve_tokens(context_window, max_output_tokens);
+        let trigger_tokens = context_window.saturating_mul(u64::from(trigger_percent)) / 100;
+        let target_input_tokens = trigger_tokens.saturating_sub(reserve_tokens);
+
+        Self {
+            context_window,
+            trigger_percent,
+            reserve_tokens,
+            trigger_tokens,
+            target_input_tokens,
+        }
+    }
+}
+
+fn default_compaction_reserve_tokens(context_window: u64, max_output_tokens: Option<u64>) -> u64 {
+    if context_window == 0 {
+        return 0;
+    }
+
+    let half_window = (context_window / 2).max(1);
+    let proportional = (context_window / 10)
+        .clamp(MIN_COMPACTION_RESERVE_TOKENS, MAX_COMPACTION_RESERVE_TOKENS)
+        .min(half_window);
+
+    max_output_tokens.map_or(proportional, |max_output| proportional.min(max_output))
+}
+
+fn compaction_target_chars(budget: &ContextBudget) -> u64 {
+    budget
+        .target_input_tokens
+        .saturating_mul(APPROX_CHARS_PER_TOKEN)
+}
+
+fn strip_replayed_thinking(history: &mut [Turn]) -> (usize, usize) {
+    let mut stripped_reasoning_turns = 0usize;
+    let mut stripped_thinking_parts = 0usize;
+
+    for turn in history.iter_mut() {
+        if let Turn::Assistant {
+            reasoning,
+            thinking_parts,
+            response_content_parts,
+            ..
+        } = turn
+        {
+            if reasoning.is_some() {
+                *reasoning = None;
+                stripped_reasoning_turns += 1;
+            }
+            if !thinking_parts.is_empty() {
+                stripped_thinking_parts += thinking_parts.len();
+                thinking_parts.clear();
+            }
+            let before_len = response_content_parts.len();
+            response_content_parts.retain(|part| {
+                !matches!(
+                    part,
+                    ContentPart::Thinking { .. } | ContentPart::RedactedThinking { .. }
+                )
+            });
+            stripped_thinking_parts += before_len - response_content_parts.len();
+        }
+    }
+
+    (stripped_reasoning_turns, stripped_thinking_parts)
+}
+
+fn compact_old_tool_results(
+    history: &mut [Turn],
+    image_attachments: &mut HashMap<String, ImageAttachment>,
+    preserve_tail_entries: usize,
+    max_tool_result_chars: usize,
+) -> (usize, usize) {
+    let len = history.len();
+    let compactable = len.saturating_sub(preserve_tail_entries.min(len));
+    let mut summarized_tool_results = 0usize;
+    let mut removed_tool_result_chars = 0usize;
+
+    for turn in history[..compactable].iter_mut() {
+        if let Turn::ToolResults { results, .. } = turn {
+            for result in results.iter_mut() {
+                image_attachments.remove(&result.tool_call_id);
+
+                let text = tool_result_content_text(&result.content);
+                let char_count = text.chars().count();
+                if char_count > max_tool_result_chars {
+                    let removed = char_count.saturating_sub(max_tool_result_chars);
+                    removed_tool_result_chars += removed;
+                    summarized_tool_results += 1;
+                    result.content =
+                        Value::String(compact_tool_result_text(&text, max_tool_result_chars));
+                }
+            }
+        }
+    }
+
+    (summarized_tool_results, removed_tool_result_chars)
+}
+
+fn drop_middle_history_with_summary(
+    history: &mut Vec<Turn>,
+    image_attachments: &mut HashMap<String, ImageAttachment>,
+    preserve_recent_entries: usize,
+    summary_max_chars: usize,
+) -> Option<usize> {
+    let preserve_recent = preserve_recent_entries.max(1);
+    if history.len() <= preserve_recent + 6 {
+        return None;
+    }
+
+    let keep_head = 1;
+    let total = history.len();
+    let tail_start = safe_tail_start(history, total.saturating_sub(preserve_recent));
+    let keep_tail = total - tail_start;
+    if keep_head + keep_tail >= total {
+        return None;
+    }
+
+    let removed_turns = total - keep_head - keep_tail;
+    let removed = &history[keep_head..tail_start];
+    for turn in removed {
+        if let Turn::ToolResults { results, .. } = turn {
+            for result in results {
+                image_attachments.remove(&result.tool_call_id);
+            }
+        }
+    }
+
+    let summary = Turn::system(summarize_removed_turns(removed, summary_max_chars));
+    let mut new_history = Vec::with_capacity(keep_head + 1 + keep_tail);
+    new_history.extend(history.drain(..keep_head));
+    new_history.push(summary);
+    let remaining = history.len();
+    new_history.extend(history.drain(remaining - keep_tail..));
+    *history = new_history;
+
+    Some(removed_turns)
+}
+
+fn safe_tail_start(history: &[Turn], candidate: usize) -> usize {
+    let mut tail_start = candidate;
+    while tail_start < history.len() && matches!(history[tail_start], Turn::ToolResults { .. }) {
+        tail_start += 1;
+    }
+    tail_start
+}
+
+fn summarize_removed_turns(turns: &[Turn], max_chars: usize) -> String {
+    let tool_call_count = turns
+        .iter()
+        .map(|turn| match turn {
+            Turn::Assistant { tool_calls, .. } => tool_calls.len(),
+            _ => 0,
+        })
+        .sum::<usize>();
+    let tool_result_count = turns
+        .iter()
+        .map(|turn| match turn {
+            Turn::ToolResults { results, .. } => results.len(),
+            _ => 0,
+        })
+        .sum::<usize>();
+
+    let mut summary = format!(
+        "[Context compacted: {} earlier history entries removed. Extractive summary follows.]\n- Omitted tool calls: {tool_call_count}; omitted tool results: {tool_result_count}.",
+        turns.len()
+    );
+
+    for (index, turn) in turns.iter().enumerate() {
+        match turn {
+            Turn::User { content, .. } => push_summary_line(
+                &mut summary,
+                max_chars,
+                format_args!("User requested: {}", compact_summary_text(content, 220)),
+            ),
+            Turn::Steering { content, .. } => push_summary_line(
+                &mut summary,
+                max_chars,
+                format_args!("Steering: {}", compact_summary_text(content, 180)),
+            ),
+            Turn::System { content, .. } => push_summary_line(
+                &mut summary,
+                max_chars,
+                format_args!("System note: {}", compact_summary_text(content, 180)),
+            ),
+            Turn::Assistant {
+                content,
+                tool_calls,
+                ..
+            } => {
+                if !content.trim().is_empty() {
+                    push_summary_line(
+                        &mut summary,
+                        max_chars,
+                        format_args!("Assistant outcome: {}", compact_summary_text(content, 220)),
+                    );
+                }
+                for call in tool_calls {
+                    push_summary_line(
+                        &mut summary,
+                        max_chars,
+                        format_args!(
+                            "Tool call: {} {}",
+                            call.name,
+                            compact_summary_text(&call.arguments.to_string(), 220)
+                        ),
+                    );
+                }
+            }
+            Turn::ToolResults { results, .. } => {
+                for result in results {
+                    let status = if result.is_error { "error" } else { "ok" };
+                    push_summary_line(
+                        &mut summary,
+                        max_chars,
+                        format_args!(
+                            "Tool result ({status}) for {}: {}",
+                            result.tool_call_id,
+                            compact_summary_text(&tool_result_content_text(&result.content), 240)
+                        ),
+                    );
+                }
+            }
+        }
+
+        if summary.chars().count() >= max_chars
+            || (index + 1 < turns.len() && summary.ends_with("[summary truncated]"))
+        {
+            break;
+        }
+    }
+
+    limit_summary(summary, max_chars)
+}
+
+fn push_summary_line(summary: &mut String, max_chars: usize, args: std::fmt::Arguments<'_>) {
+    if summary.chars().count() >= max_chars {
+        return;
+    }
+
+    let line = format!("\n- {args}");
+    summary.push_str(&line);
+    if summary.chars().count() > max_chars {
+        *summary = limit_summary(std::mem::take(summary), max_chars);
+    }
+}
+
+fn limit_summary(summary: String, max_chars: usize) -> String {
+    let char_count = summary.chars().count();
+    if char_count <= max_chars {
+        return summary;
+    }
+
+    let marker = "\n- [summary truncated]";
+    if max_chars <= marker.chars().count() {
+        return marker.chars().take(max_chars).collect();
+    }
+
+    let keep = max_chars - marker.chars().count();
+    let mut limited: String = summary.chars().take(keep).collect();
+    limited.push_str(marker);
+    limited
+}
+
+fn compact_summary_text(text: &str, max_chars: usize) -> String {
+    let sanitized = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    let char_count = sanitized.chars().count();
+    if char_count <= max_chars {
+        sanitized
+    } else if max_chars <= 1 {
+        "…".chars().take(max_chars).collect()
+    } else {
+        let keep = max_chars - 1;
+        let mut truncated: String = sanitized.chars().take(keep).collect();
+        truncated.push('…');
+        truncated
+    }
+}
+
+/// Estimate character count for a request message.
+fn estimate_message_chars(message: &Message) -> u64 {
+    let role_chars = match message.role {
+        Role::System => "system".len() as u64,
+        Role::User => "user".len() as u64,
+        Role::Assistant => "assistant".len() as u64,
+        Role::Tool => "tool".len() as u64,
+        Role::Developer => "developer".len() as u64,
+    };
+
+    role_chars
+        .saturating_add(message.name.as_ref().map_or(0, |name| name.len() as u64))
+        .saturating_add(
+            message
+                .tool_call_id
+                .as_ref()
+                .map_or(0, |id| id.len() as u64),
+        )
+        .saturating_add(estimate_content_parts_chars(&message.content))
+}
+
+/// Estimate character count for a slice of [`ContentPart`]s.
 fn estimate_content_parts_chars(parts: &[ContentPart]) -> u64 {
     let mut chars: u64 = 0;
     for part in parts {
         match part {
             ContentPart::Text { text } => chars += text.len() as u64,
+            ContentPart::Image { image } => {
+                chars += image.url.as_ref().map_or(0, |url| url.len() as u64);
+                chars += image.data.as_ref().map_or(0, |data| data.len() as u64);
+                chars += image
+                    .media_type
+                    .as_ref()
+                    .map_or(0, |media_type| media_type.len() as u64);
+                chars += image
+                    .detail
+                    .as_ref()
+                    .map_or(0, |detail| detail.len() as u64);
+            }
+            ContentPart::Audio { audio } => {
+                chars += audio.url.as_ref().map_or(0, |url| url.len() as u64);
+                chars += audio.data.as_ref().map_or(0, |data| data.len() as u64);
+                chars += audio
+                    .media_type
+                    .as_ref()
+                    .map_or(0, |media_type| media_type.len() as u64);
+            }
+            ContentPart::Document { document } => {
+                chars += document.url.as_ref().map_or(0, |url| url.len() as u64);
+                chars += document.data.as_ref().map_or(0, |data| data.len() as u64);
+                chars += document
+                    .media_type
+                    .as_ref()
+                    .map_or(0, |media_type| media_type.len() as u64);
+                chars += document
+                    .file_name
+                    .as_ref()
+                    .map_or(0, |file_name| file_name.len() as u64);
+            }
             ContentPart::ToolCall { tool_call } => {
+                chars += tool_call.id.len() as u64;
                 chars += tool_call.name.len() as u64;
                 chars += tool_call.arguments.to_string().len() as u64;
+                chars += tool_call.call_type.len() as u64;
                 if let Some(ref sig) = tool_call.thought_signature {
                     chars += sig.len() as u64;
                 }
+            }
+            ContentPart::ToolResult { tool_result } => {
+                chars += estimate_tool_result_data_chars(tool_result);
             }
             ContentPart::Thinking { thinking } | ContentPart::RedactedThinking { thinking } => {
                 chars += thinking.text.len() as u64;
@@ -2148,10 +2586,98 @@ fn estimate_content_parts_chars(parts: &[ContentPart]) -> u64 {
                     chars += sig.len() as u64;
                 }
             }
-            _ => {}
+            ContentPart::Extension(value) => chars += value.to_string().len() as u64,
         }
     }
     chars
+}
+
+/// Estimate character count for tool definitions sent outside messages.
+fn estimate_tools_chars(tools: &Option<Vec<ToolDefinition>>) -> u64 {
+    tools.as_ref().map_or(0, |tools| {
+        tools
+            .iter()
+            .map(|tool| {
+                (tool.name.len() + tool.description.len() + tool.parameters.to_string().len())
+                    as u64
+            })
+            .sum()
+    })
+}
+
+fn estimate_tool_result_data_chars(tool_result: &ToolResultData) -> u64 {
+    (tool_result.tool_call_id.len() + tool_result.content.to_string().len()) as u64
+        + tool_result
+            .image_data
+            .as_ref()
+            .map_or(0, |data| data.len() as u64)
+        + tool_result
+            .image_media_type
+            .as_ref()
+            .map_or(0, |media_type| media_type.len() as u64)
+}
+
+fn tool_result_content_text(content: &Value) -> String {
+    content
+        .as_str()
+        .map_or_else(|| content.to_string(), ToString::to_string)
+}
+
+fn compact_tool_result_text(text: &str, max_chars: usize) -> String {
+    let char_count = text.chars().count();
+    if char_count <= max_chars {
+        return text.to_string();
+    }
+
+    if max_chars == 0 {
+        return String::new();
+    }
+
+    let no_original_marker = format!(
+        "[Output compacted — {char_count} chars removed to free context space. No original output preserved.]"
+    );
+    if max_chars <= no_original_marker.chars().count() {
+        return no_original_marker.chars().take(max_chars).collect();
+    }
+
+    let (marker, preserved_chars) = compact_tool_result_marker_and_preserved_chars(
+        char_count,
+        max_chars,
+        " chars removed from the middle to free context space.",
+    );
+
+    if preserved_chars == 0 {
+        return no_original_marker.chars().take(max_chars).collect();
+    }
+
+    let tail_chars = preserved_chars / 2;
+    let head_chars = preserved_chars - tail_chars;
+    let head: String = text.chars().take(head_chars).collect();
+    let tail: String = text.chars().skip(char_count - tail_chars).collect();
+
+    format!("{head}\n\n{marker}\n\n{tail}")
+}
+
+fn compact_tool_result_marker_and_preserved_chars(
+    char_count: usize,
+    max_chars: usize,
+    marker_suffix: &str,
+) -> (String, usize) {
+    let mut preserved_chars = max_chars;
+
+    loop {
+        let removed = char_count.saturating_sub(preserved_chars);
+        let marker = format!("[Output compacted — {removed}{marker_suffix}]");
+        let separators = 4usize;
+        let overhead = marker.chars().count().saturating_add(separators);
+        let next_preserved_chars = max_chars.saturating_sub(overhead);
+
+        if next_preserved_chars == preserved_chars {
+            return (marker, preserved_chars);
+        }
+
+        preserved_chars = next_preserved_chars;
+    }
 }
 
 /// Human-readable label for a retryable error, used in the `LLM_RETRY` info
@@ -2463,7 +2989,7 @@ fn normalize_turns_for_hydration(persisted_state: SessionState, mut turns: Vec<T
 }
 
 #[cfg(test)]
-mod guard_wiring_tests {
+mod tests {
     use super::*;
     use crate::registry::ToolOutput;
     use serde_json::json;
@@ -2472,6 +2998,105 @@ mod guard_wiring_tests {
     use stencila_models3::types::request::Request;
     use stencila_models3::types::response::Response;
     use stencila_models3::types::tool::ToolDefinition;
+
+    #[test]
+    fn reserve_and_target_calculation_for_common_windows() {
+        let cases = [
+            (4_096, 409, 3_072),
+            (8_192, 819, 6_144),
+            (32_000, 3_200, 24_000),
+            (200_000, 8_192, 161_808),
+            (1_000_000, 8_192, 841_808),
+        ];
+
+        for (context_window, expected_reserve, min_target) in cases {
+            let budget = ContextBudget::new(context_window, 85, None);
+            assert_eq!(budget.reserve_tokens, expected_reserve);
+            assert!(
+                budget.target_input_tokens >= min_target,
+                "target for {context_window} should not be over-eager"
+            );
+            assert_eq!(
+                compaction_target_chars(&budget),
+                budget.target_input_tokens * APPROX_CHARS_PER_TOKEN
+            );
+        }
+    }
+
+    #[test]
+    fn reserve_uses_known_max_output_as_upper_bound() {
+        let budget = ContextBudget::new(200_000, 85, Some(4_096));
+        assert_eq!(budget.reserve_tokens, 4_096);
+        assert_eq!(budget.target_input_tokens, 165_904);
+    }
+
+    #[test]
+    fn compact_tool_result_text_respects_total_output_budget() {
+        for max_chars in [0, 1, 8, 64, 600] {
+            let compacted = compact_tool_result_text(&"x".repeat(2_000), max_chars);
+            assert!(
+                compacted.chars().count() <= max_chars,
+                "compacted tool result should fit within {max_chars} chars"
+            );
+        }
+    }
+
+    #[test]
+    fn compact_tool_result_text_preserves_head_and_tail_when_budget_allows() {
+        let text = format!("{}{}{}", "a".repeat(200), "b".repeat(200), "c".repeat(200));
+        let compacted = compact_tool_result_text(&text, 180);
+
+        assert!(compacted.chars().count() <= 180);
+        assert!(compacted.starts_with('a'));
+        assert!(compacted.ends_with('c'));
+        assert!(compacted.contains("Output compacted"));
+    }
+
+    #[test]
+    fn extractive_summary_preserves_high_value_facts_and_is_bounded() {
+        let turns = vec![
+            Turn::user("Please inspect src/lib.rs and fix the parser error"),
+            Turn::Assistant {
+                content: "I found the parser failure and will patch it.".into(),
+                tool_calls: vec![ToolCall {
+                    id: "call-1".into(),
+                    name: "shell".into(),
+                    arguments: json!({"command":"cargo test -p stencila-agents", "path":"src/lib.rs"}),
+                    raw_arguments: None,
+                    parse_error: None,
+                }],
+                reasoning: None,
+                thinking_parts: Vec::new(),
+                response_content_parts: Vec::new(),
+                usage: stencila_models3::types::usage::Usage::default(),
+                response_id: None,
+                timestamp: now_timestamp(),
+            },
+            Turn::tool_results(vec![ToolResult {
+                tool_call_id: "call-1".into(),
+                content: Value::String("error[E0425]: cannot find value `parser`".into()),
+                is_error: true,
+            }]),
+        ];
+
+        let summary = summarize_removed_turns(&turns, 700);
+        assert!(summary.contains("3 earlier history entries removed"));
+        assert!(summary.contains("src/lib.rs"));
+        assert!(summary.contains("cargo test -p stencila-agents"));
+        assert!(summary.contains("error[E0425]"));
+        assert!(summary.chars().count() <= 700);
+    }
+
+    #[test]
+    fn extractive_summary_truncates_long_content() {
+        let turns = (0..20)
+            .map(|index| Turn::user(format!("request {index} {}", "x".repeat(200))))
+            .collect::<Vec<_>>();
+
+        let summary = summarize_removed_turns(&turns, 300);
+        assert!(summary.chars().count() <= 300);
+        assert!(summary.contains("[summary truncated]"));
+    }
 
     struct CapturingClient {
         requests: std::sync::Mutex<Vec<Request>>,

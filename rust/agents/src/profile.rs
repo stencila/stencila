@@ -123,6 +123,11 @@ pub trait ProviderProfile: fmt::Debug + Send + Sync {
     /// The model's context window size in tokens.
     fn context_window_size(&self) -> u64;
 
+    /// The model's maximum output size in tokens, when known.
+    fn max_output_tokens(&self) -> Option<u64> {
+        None
+    }
+
     /// Register the four subagent tools (`spawn_agent`, `send_input`,
     /// `wait`, `close_agent`) into this profile's tool registry.
     ///

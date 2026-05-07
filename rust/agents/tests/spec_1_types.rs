@@ -438,10 +438,7 @@ fn session_config_defaults_match_spec() {
     assert_eq!(config.reasoning_effort, None);
     assert_eq!(config.history_thinking_replay, HistoryThinkingReplay::None);
     assert_eq!(config.truncation_preset, TruncationPreset::Balanced);
-    assert_eq!(config.compaction_trigger_percent, 70);
-    assert_eq!(config.compact_tool_results_older_than_turns, 2);
-    assert_eq!(config.compact_max_tool_result_chars, 600);
-    assert_eq!(config.compact_preserve_recent_turns, 4);
+    assert_eq!(config.compaction_trigger_percent, 90);
     assert_eq!(config.project_docs_max_bytes, 12_000);
     assert_eq!(config.git_recent_commits_count, 3);
     assert!(config.include_git_status_in_prompt);

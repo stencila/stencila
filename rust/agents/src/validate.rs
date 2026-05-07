@@ -4,12 +4,13 @@
 //! property constraints. Optionally cross-references the agent's
 //! `allowedTools` with skills' `allowedTools` to surface mismatches.
 
-use std::collections::BTreeSet;
-
 use regex::Regex;
 use thiserror::Error;
 
 use stencila_schema::Agent;
+
+#[cfg(feature = "skills")]
+use std::collections::BTreeSet;
 
 /// Validation warnings for an agent definition
 ///

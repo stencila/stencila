@@ -274,7 +274,8 @@ fn openai_capability_flags() -> AgentResult<()> {
     assert!(profile.supports_reasoning());
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
-    assert_eq!(profile.context_window_size(), 200_000);
+    assert_eq!(profile.context_window_size(), 400_000);
+    assert_eq!(profile.max_output_tokens(), Some(128_000));
     Ok(())
 }
 
@@ -284,7 +285,8 @@ fn anthropic_capability_flags() -> AgentResult<()> {
     assert!(profile.supports_reasoning());
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
-    assert_eq!(profile.context_window_size(), 200_000);
+    assert_eq!(profile.context_window_size(), 1_000_000);
+    assert_eq!(profile.max_output_tokens(), Some(128_000));
     Ok(())
 }
 
@@ -295,6 +297,22 @@ fn gemini_capability_flags() -> AgentResult<()> {
     assert!(profile.supports_streaming());
     assert!(profile.supports_parallel_tool_calls());
     assert_eq!(profile.context_window_size(), 1_000_000);
+    assert_eq!(profile.max_output_tokens(), None);
+    Ok(())
+}
+
+#[test]
+fn first_class_profiles_fall_back_for_unknown_models() -> AgentResult<()> {
+    let openai = OpenAiProfile::new("unknown-openai-model", 600_000)?;
+    let anthropic = AnthropicProfile::new("unknown-anthropic-model", 600_000)?;
+    let gemini = GeminiProfile::new("unknown-gemini-model", 600_000)?;
+
+    assert_eq!(openai.context_window_size(), 200_000);
+    assert_eq!(openai.max_output_tokens(), None);
+    assert_eq!(anthropic.context_window_size(), 200_000);
+    assert_eq!(anthropic.max_output_tokens(), None);
+    assert_eq!(gemini.context_window_size(), 1_000_000);
+    assert_eq!(gemini.max_output_tokens(), None);
     Ok(())
 }
 

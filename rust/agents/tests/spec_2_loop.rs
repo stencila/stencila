@@ -592,6 +592,109 @@ async fn natural_completion_text_only() -> AgentResult<()> {
 }
 
 #[tokio::test]
+async fn compaction_stops_after_tool_result_compaction_when_target_reached() -> AgentResult<()> {
+    let config = SessionConfig {
+        compaction_trigger_percent: 1,
+        ..SessionConfig::default()
+    };
+    let (mut session, mut rx, _) = test_session_with_config(vec![text_response("ok")], config)?;
+
+    let call = echo_call(&"x".repeat(8_000));
+    let mut history = vec![stencila_agents::types::Turn::user("original task")];
+    history.push(stencila_agents::types::Turn::Assistant {
+        content: "calling tool".into(),
+        tool_calls: vec![call.clone()],
+        reasoning: None,
+        thinking_parts: Vec::new(),
+        response_content_parts: Vec::new(),
+        usage: Usage::default(),
+        response_id: None,
+        timestamp: stencila_agents::types::now_timestamp(),
+    });
+    history.push(stencila_agents::types::Turn::tool_results(vec![
+        stencila_models3::types::tool::ToolResult {
+            tool_call_id: call.id,
+            content: json!("y".repeat(8_000)),
+            is_error: false,
+        },
+    ]));
+    for index in 0..2 {
+        history.push(stencila_agents::types::Turn::user(format!(
+            "important middle user request {index}"
+        )));
+        history.push(stencila_agents::types::Turn::assistant(format!(
+            "important middle assistant outcome {index}"
+        )));
+    }
+    session.hydrate(SessionState::Idle, history);
+
+    session.submit("continue").await?;
+
+    assert!(session.history().iter().any(|turn| matches!(
+        turn,
+        stencila_agents::types::Turn::User { content, .. }
+            if content.contains("important middle user request 1")
+    )));
+    assert!(!session.history().iter().any(|turn| matches!(
+        turn,
+        stencila_agents::types::Turn::System { content, .. }
+            if content.contains("Context compacted:")
+    )));
+
+    let events = drain_events(&mut rx).await;
+    assert!(events.iter().any(|event| {
+        event.kind == EventKind::Info
+            && event.data.get("code").and_then(serde_json::Value::as_str)
+                == Some("CONTEXT_COMPACTION")
+            && event
+                .data
+                .get("message")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|message| message.contains("summarized_results=1"))
+    }));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn middle_drop_inserts_extractive_summary_when_needed() -> AgentResult<()> {
+    let config = SessionConfig {
+        compaction_trigger_percent: 1,
+        ..SessionConfig::default()
+    };
+    let (mut session, _rx, _) = test_session_with_config(vec![text_response("ok")], config)?;
+    let mut history = vec![stencila_agents::types::Turn::user("original task")];
+    for index in 0..14 {
+        history.push(stencila_agents::types::Turn::user(format!(
+            "edit /tmp/file-{index}.rs and keep fact-{index}"
+        )));
+        history.push(stencila_agents::types::Turn::assistant(format!(
+            "completed fact-{index}"
+        )));
+    }
+    session.hydrate(SessionState::Idle, history);
+
+    session.submit("continue").await?;
+
+    let summary = session.history().iter().find_map(|turn| match turn {
+        stencila_agents::types::Turn::System { content, .. }
+            if content.contains("Context compacted:") =>
+        {
+            Some(content)
+        }
+        _ => None,
+    });
+    let summary = summary.ok_or_else(|| AgentError::ValidationError {
+        reason: "missing compaction summary".into(),
+    })?;
+    assert!(summary.contains("earlier history entries removed"));
+    assert!(summary.contains("/tmp/file-"));
+    assert!(summary.contains("fact-"));
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn single_tool_round() -> AgentResult<()> {
     let (mut session, _rx, _) = test_session(vec![
         tool_call_response("", vec![echo_call("hello")]),
@@ -2273,6 +2376,159 @@ async fn proactive_compaction_emits_info_event() -> AgentResult<()> {
                 .is_some_and(|m| m.contains("proactive"))
     });
     assert!(has_proactive, "expected proactive compaction info event");
+    Ok(())
+}
+
+#[tokio::test]
+async fn context_usage_event_reports_budget_fields() -> AgentResult<()> {
+    let (mut session, mut rx, _) = test_session(vec![text_response("ok")])?;
+
+    session.submit("Short question").await?;
+
+    let events = drain_events(&mut rx).await;
+    let context_usage = events
+        .iter()
+        .find(|event| event.kind == EventKind::ContextUsage)
+        .ok_or_else(|| AgentError::ValidationError {
+            reason: "missing ContextUsage event".into(),
+        })?;
+
+    for field in [
+        "approx_tokens",
+        "context_window_size",
+        "current_percent",
+        "reserve_tokens",
+        "projected_tokens",
+        "projected_percent",
+        "target_input_tokens",
+    ] {
+        assert!(
+            context_usage.data.contains_key(field),
+            "ContextUsage missing {field}"
+        );
+    }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn thinking_only_cleanup_is_not_success_when_thinking_not_replayed() -> AgentResult<()> {
+    let thinking_response = {
+        use stencila_models3::types::content::ThinkingData;
+
+        let parts = vec![ContentPart::Thinking {
+            thinking: ThinkingData {
+                text: "private reasoning excluded from replay".into(),
+                signature: Some("sig-none".into()),
+                redacted: false,
+            },
+        }];
+        Ok(Response {
+            id: "resp-thinking".into(),
+            model: "test-model".into(),
+            provider: "test".into(),
+            message: Message::new(Role::Assistant, parts),
+            finish_reason: FinishReason::new(Reason::Stop, None),
+            usage: Usage::default(),
+            raw: None,
+            warnings: None,
+            rate_limit: None,
+        })
+    };
+
+    let config = SessionConfig {
+        history_thinking_replay: HistoryThinkingReplay::None,
+        compaction_trigger_percent: 1,
+        ..SessionConfig::default()
+    };
+    let (mut session, mut rx, _) = test_session_with_config(vec![thinking_response], config)?;
+
+    session.submit("Think only").await?;
+
+    let events = drain_events(&mut rx).await;
+    let has_compaction = events.iter().any(|event| {
+        event.kind == EventKind::Info
+            && event.data.get("code").and_then(serde_json::Value::as_str)
+                == Some("CONTEXT_COMPACTION")
+    });
+    assert!(
+        !has_compaction,
+        "thinking already excluded from request replay must not count as successful compaction"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn reactive_context_length_retry_requires_request_shrink() -> AgentResult<()> {
+    let context_error = SdkError::ContextLength {
+        message: "too long".into(),
+        details: ProviderDetails::default(),
+    };
+    let config = SessionConfig {
+        compaction_trigger_percent: 0,
+        ..SessionConfig::default()
+    };
+    let (mut session, mut rx, client) = test_session_with_config(
+        vec![Err(context_error.clone()), text_response("unused")],
+        config,
+    )?;
+
+    let result = session.submit("Short question").await;
+    assert!(result.is_err());
+    assert_eq!(client.take_requests()?.len(), 1);
+
+    let events = drain_events(&mut rx).await;
+    let has_retry_notice = events.iter().any(|event| {
+        event.kind == EventKind::Error
+            && event
+                .data
+                .get("message")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|message| message.contains("compacted history and retrying"))
+    });
+    assert!(!has_retry_notice);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn reactive_context_length_retries_after_tool_result_compaction() -> AgentResult<()> {
+    let context_error = SdkError::ContextLength {
+        message: "too long".into(),
+        details: ProviderDetails::default(),
+    };
+    let config = SessionConfig {
+        compaction_trigger_percent: 0,
+        ..SessionConfig::default()
+    };
+    let (mut session, mut rx, client) = test_session_with_config(
+        vec![
+            tool_call_response("", vec![echo_call(&"x".repeat(8_000))]),
+            Err(context_error),
+            text_response("ok"),
+        ],
+        config,
+    )?;
+
+    session.submit("Run tool then recover").await?;
+    assert_eq!(client.take_requests()?.len(), 3);
+
+    let events = drain_events(&mut rx).await;
+    let has_reactive = events.iter().any(|event| {
+        event.kind == EventKind::Info
+            && event.data.get("code").and_then(serde_json::Value::as_str)
+                == Some("CONTEXT_COMPACTION")
+            && event
+                .data
+                .get("message")
+                .and_then(serde_json::Value::as_str)
+                .is_some_and(|message| {
+                    message.contains("reactive") && message.contains("removed_chars=")
+                })
+    });
+    assert!(has_reactive, "expected reactive compaction event");
+
     Ok(())
 }
 

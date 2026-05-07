@@ -155,12 +155,12 @@ properties:
     type: string
   compactionTriggerPercent:
     "@id": stencila:compactionTriggerPercent
-    description: Context usage percentage that triggers proactive history compaction.
+    description: Projected context usage percentage that triggers proactive history compaction.
     $comment: |
-      When estimated context usage exceeds this percentage of the model's context
-      window, the agent proactively compacts conversation history (stripping
-      thinking blocks, summarizing old tool results, dropping oldest turns).
-      Set to 0 to disable proactive compaction. Defaults to 70.
+      When estimated current request tokens plus internally derived response
+      headroom reaches this percentage of the model's context window, the agent
+      proactively compacts conversation history. Set to 0 to disable proactive
+      compaction. Defaults to 90.
     $ref: UnsignedInteger
   trustLevel:
     "@id": stencila:trustLevel

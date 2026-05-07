@@ -143,17 +143,17 @@ When `spawn_agent` includes `working_dir`, the child system prompt is augmented 
 
 The spec explicitly leaves compaction out of scope: "The agent does NOT perform automatic compaction or summarization" (§5.5) and recommends that hosts implement their own strategy using context-usage signals. This implementation adds two complementary compaction triggers:
 
-**Proactive compaction** runs on every loop iteration before the LLM request is built. It estimates context usage (history chars ÷ 4, plus a response-headroom reserve clamped to 1024–8192 tokens) and fires when the projected percentage exceeds `SessionConfig::compaction_trigger_percent` (default 70%, 0 to disable).
+**Proactive compaction** runs on every loop iteration before the LLM request is built. It estimates context usage from the request messages and tool definitions that will be sent to the provider (chars ÷ 4, plus an internally derived response-headroom reserve capped at 8,192 tokens) and fires when the projected percentage exceeds `SessionConfig::compaction_trigger_percent` (default 90%, 0 to disable).
 
 **Reactive compaction** fires when the LLM returns a context-length error. On the first such error per LLM call, compaction runs and the request is retried once. If the retry also fails or nothing could be compacted, the error propagates normally.
 
-Both triggers run the same three-phase compaction pipeline:
+Both triggers run the same progressive compaction pipeline and stop once the target budget is reached:
 
-1. **Strip thinking/reasoning** — removes reasoning text and provider-specific thinking parts (including Anthropic extended-thinking blocks) from all assistant turns.
-2. **Summarise old tool results** — in turns older than the most recent `compact_tool_results_older_than_turns` (default 2), replaces tool-result content longer than `compact_max_tool_result_chars` (default 600) with a placeholder noting how many characters were removed. Associated image attachments are also dropped.
-3. **Drop middle exchanges** — when history exceeds `compact_preserve_recent_turns + 6` entries, removes everything between the first turn (original user task) and the last `compact_preserve_recent_turns` (default 4) entries, inserting a system message noting how many turns were removed. The tail boundary is adjusted forward to avoid orphaning a `ToolResults` turn whose matching `Assistant` was dropped.
+1. **Strip replayed thinking/reasoning** — removes reasoning text and provider-specific thinking parts only when thinking is configured for history replay and therefore affects the next request.
+2. **Compact old tool results** — older tool-result entries have image attachments removed and long text replaced with a bounded head/tail compacted form noting how many characters were removed from the middle.
+3. **Drop middle exchanges with summary** — when cheaper phases cannot reach the target and history is long enough, removes the middle range between the original user task and recent entries, inserting a bounded extractive system summary of removed user requests, assistant outcomes, tool calls, file paths, commands, and error snippets. The tail boundary is adjusted forward to avoid orphaning a `ToolResults` turn whose matching `Assistant` was dropped.
 
-A single `CONTEXT_COMPACTION` info event is emitted with before/after token estimates and per-phase statistics (reasoning turns stripped, thinking parts stripped, tool results summarised, characters removed, turns dropped). The trigger field distinguishes proactive from reactive compaction.
+A single `CONTEXT_COMPACTION` info event is emitted only when the outgoing request estimate shrinks. It includes before/after token estimates, removed characters, target budget status, and per-phase statistics. The trigger field distinguishes proactive from reactive compaction.
 
 **History thinking replay.** Independently of compaction, `SessionConfig::history_thinking_replay` (default `"none"`) controls whether assistant thinking and reasoning content is included when replaying history in subsequent requests. When set to `"none"`, thinking parts are filtered from history messages at request-build time, reducing context usage without mutating stored history. Set to `"full"` to preserve all thinking content.
 

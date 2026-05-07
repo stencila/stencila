@@ -64,6 +64,7 @@ pub struct DefaultProfile {
     provider: String,
     model: String,
     context_window: u64,
+    max_output: Option<u64>,
     reasoning: bool,
     vision: bool,
     registry: ToolRegistry,
@@ -89,6 +90,7 @@ impl DefaultProfile {
             .flatten();
 
         let context_window = info.as_ref().map_or(128_000, |i| i.context_window);
+        let max_output = info.as_ref().and_then(|i| i.max_output);
         let reasoning = info.as_ref().is_some_and(|i| i.supports_reasoning);
         let vision = info.as_ref().is_some_and(|i| i.supports_vision);
 
@@ -103,6 +105,7 @@ impl DefaultProfile {
             provider,
             model,
             context_window,
+            max_output,
             reasoning,
             vision,
             registry,
@@ -149,5 +152,9 @@ impl ProviderProfile for DefaultProfile {
 
     fn context_window_size(&self) -> u64 {
         self.context_window
+    }
+
+    fn max_output_tokens(&self) -> Option<u64> {
+        self.max_output
     }
 }

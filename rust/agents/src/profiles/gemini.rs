@@ -70,6 +70,8 @@ These files provide project-specific guidance and conventions.
 #[derive(Debug)]
 pub struct GeminiProfile {
     model: String,
+    context_window: u64,
+    max_output: Option<u64>,
     registry: ToolRegistry,
 }
 
@@ -95,8 +97,15 @@ impl GeminiProfile {
             max_command_timeout_ms,
         )?;
 
+        let model = model.into();
+        let info = stencila_models3::catalog::get_model_info(&model)
+            .ok()
+            .flatten();
+
         Ok(Self {
-            model: model.into(),
+            model,
+            context_window: info.as_ref().map_or(1_000_000, |info| info.context_window),
+            max_output: info.as_ref().and_then(|info| info.max_output),
             registry,
         })
     }
@@ -140,7 +149,11 @@ impl ProviderProfile for GeminiProfile {
     }
 
     fn context_window_size(&self) -> u64 {
-        1_000_000
+        self.context_window
+    }
+
+    fn max_output_tokens(&self) -> Option<u64> {
+        self.max_output
     }
 
     fn provider_options(&self) -> Option<HashMap<String, Value>> {
