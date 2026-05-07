@@ -21,6 +21,7 @@ use tokio::process::{Child, ChildStdout, Command};
 
 use crate::error::{AgentError, AgentResult};
 use crate::events::{self, EventEmitter, EventReceiver};
+use crate::tool_guard::TrustLevel;
 use crate::types::{AbortKind, AbortSignal, SessionConfig, SessionState, Turn};
 
 // ---------------------------------------------------------------------------
@@ -86,18 +87,24 @@ pub trait CliProvider: Send + std::fmt::Debug {
 // ---------------------------------------------------------------------------
 
 /// Configuration passed to CLI providers, derived from agent definition.
-#[derive(Debug, Clone)]
+#[derive(Debug, Default, Clone)]
+#[non_exhaustive]
 pub struct CliProviderConfig {
     /// Model identifier to pass to the CLI tool.
     pub model: Option<String>,
 
     /// System prompt / instructions to append.
-    ///
-    /// Currently unused: CLI tools are full agents with their own system
-    /// prompts and tool registries, so [`from_session_config`](Self::from_session_config)
-    /// always sets this to `None`. Retained for potential future use (e.g.
-    /// lightweight hints that don't conflict with the CLI tool's own prompt).
     pub instructions: Option<String>,
+
+    /// Tool names to pass to the CLI tool, if supported.
+    ///
+    /// These are provider-specific names, not necessarily Stencila tool names.
+    /// An empty list means disable all CLI-agent tools when the provider has a
+    /// flag for that behavior.
+    pub allowed_tools: Option<Vec<String>>,
+
+    /// Permission mode to pass to the CLI tool, if supported.
+    pub permission_mode: Option<String>,
 
     /// Maximum turns for the CLI tool (if supported).
     pub max_turns: Option<u32>,
@@ -115,15 +122,17 @@ impl CliProviderConfig {
     /// catalog, the original string is passed through so that the CLI tool
     /// can attempt to use it directly.
     ///
-    /// **Note:** `instructions` is always set to `None`. CLI tools (Claude
-    /// Code, Codex, Gemini CLI) are full agents with their own system prompts
-    /// and tool registries. Injecting Stencila's system prompt or user
-    /// instructions would conflict with the CLI tool's own configuration.
+    /// **Note:** `instructions` is set to `None` for the generic CLI path. CLI
+    /// tools are full agents with their own system prompts and tool registries;
+    /// provider-specific constructors can opt in to lightweight prompt or
+    /// policy hints when the CLI exposes suitable flags.
     #[must_use]
     pub fn from_session_config(config: &SessionConfig, model: Option<&str>) -> Self {
         Self {
             model: model.map(resolve_model_alias),
             instructions: None,
+            allowed_tools: None,
+            permission_mode: None,
             max_turns: if config.max_turns > 0 {
                 Some(config.max_turns)
             } else {
@@ -132,6 +141,137 @@ impl CliProviderConfig {
             working_dir: None,
         }
     }
+
+    /// Build Claude CLI configuration from a Stencila session configuration.
+    ///
+    /// Claude Code exposes first-class flags for appending Stencila's agent
+    /// instructions and approximating Stencila's tool/trust policy. Claude
+    /// still owns tool execution internally; these flags constrain Claude Code
+    /// rather than applying Stencila's API-session [`ToolGuard`](crate::tool_guard::ToolGuard).
+    #[must_use]
+    pub fn from_session_config_for_claude(
+        config: &SessionConfig,
+        model: Option<&str>,
+        trust_level: TrustLevel,
+    ) -> Self {
+        let mut cli_config = Self::from_session_config(config, model);
+
+        cli_config.instructions = claude_instructions(config);
+        cli_config.allowed_tools = config
+            .allowed_tools
+            .as_ref()
+            .map(|tools| map_stencila_tools_to_claude_tools(tools, trust_level));
+        cli_config.permission_mode = Some(
+            match trust_level {
+                TrustLevel::Low => "plan",
+                TrustLevel::Medium => "default",
+                TrustLevel::High => "acceptEdits",
+            }
+            .to_string(),
+        );
+
+        cli_config
+    }
+}
+
+/// Build the prompt fragment appended to Claude Code's default system prompt.
+fn claude_instructions(config: &SessionConfig) -> Option<String> {
+    let mut layers = Vec::new();
+
+    if let Some(instructions) = config
+        .commit_instructions
+        .as_deref()
+        .filter(|instructions| !instructions.trim().is_empty())
+    {
+        layers.push(instructions);
+    }
+
+    if let Some(instructions) = config
+        .user_instructions
+        .as_deref()
+        .filter(|instructions| !instructions.trim().is_empty())
+    {
+        layers.push(instructions);
+    }
+
+    (!layers.is_empty()).then(|| layers.join("\n\n"))
+}
+
+/// Map Stencila and Claude tool names to Claude Code built-in tool names.
+///
+/// Existing agent allowlists may already contain Claude-native names such as
+/// `Read` or constrained patterns such as `Bash(python:*)`; these are preserved
+/// directly. Unknown tools are omitted because passing Stencila-specific names
+/// to Claude's `--tools` flag can fail startup. If every requested tool is
+/// unknown, the returned list is empty, causing Claude tools to be disabled
+/// rather than silently falling back to all tools.
+///
+/// Stencila's `shell` tool is only translated to unrestricted Claude `Bash` at
+/// high trust. API-backed Stencila sessions apply command-level shell guarding,
+/// but in Claude CLI sessions Claude owns the internal tool loop and Stencila
+/// cannot apply that guard to individual commands. Agents that need narrower
+/// shell permissions should specify Claude-native patterns such as
+/// `Bash(python:*)` explicitly.
+fn map_stencila_tools_to_claude_tools(tools: &[String], trust_level: TrustLevel) -> Vec<String> {
+    let mut claude_tools = Vec::new();
+
+    for tool in tools {
+        let tool = tool.trim();
+        if tool.is_empty() {
+            continue;
+        }
+
+        let mapped = match tool {
+            "read_file" | "read_many_files" => Some("Read".to_string()),
+            "write_file" => Some("Write".to_string()),
+            "edit_file" | "apply_patch" => Some("Edit".to_string()),
+            "shell" if matches!(trust_level, TrustLevel::High) => Some("Bash".to_string()),
+            "shell" => None,
+            "grep" => Some("Grep".to_string()),
+            "glob" => Some("Glob".to_string()),
+            "list_dir" => Some("LS".to_string()),
+            "web_fetch" => Some("WebFetch".to_string()),
+            tool if is_claude_tool_spec(tool) => Some(tool.to_string()),
+            _ => None,
+        };
+
+        if let Some(tool) = mapped
+            && !claude_tools.iter().any(|existing| existing == &tool)
+        {
+            claude_tools.push(tool);
+        }
+    }
+
+    claude_tools
+}
+
+/// Whether a tool allowlist entry is already a Claude Code tool spec.
+fn is_claude_tool_spec(tool: &str) -> bool {
+    const CLAUDE_TOOLS: &[&str] = &[
+        "Bash",
+        "BashOutput",
+        "Edit",
+        "ExitPlanMode",
+        "Glob",
+        "Grep",
+        "KillBash",
+        "LS",
+        "MultiEdit",
+        "NotebookEdit",
+        "Read",
+        "Task",
+        "TodoWrite",
+        "WebFetch",
+        "WebSearch",
+        "Write",
+    ];
+
+    CLAUDE_TOOLS.iter().any(|name| {
+        tool == *name
+            || tool
+                .strip_prefix(name)
+                .is_some_and(|suffix| suffix.starts_with('(') && suffix.ends_with(')'))
+    })
 }
 
 /// Resolve a model name through the catalog, returning the canonical ID.
@@ -601,5 +741,96 @@ pub fn require_cli(binary: &str) -> AgentResult<()> {
         Err(AgentError::CliNotFound {
             binary: binary.to_string(),
         })
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn claude_config_includes_instructions_tools_and_permission_mode() {
+        let config = SessionConfig {
+            commit_instructions: Some("Use conventional commits".to_string()),
+            user_instructions: Some("Review code carefully".to_string()),
+            allowed_tools: Some(vec![
+                "read_file".to_string(),
+                "apply_patch".to_string(),
+                "read_file".to_string(),
+            ]),
+            ..Default::default()
+        };
+
+        let cli_config = CliProviderConfig::from_session_config_for_claude(
+            &config,
+            Some("sonnet"),
+            TrustLevel::Low,
+        );
+
+        assert_eq!(cli_config.permission_mode.as_deref(), Some("plan"));
+        assert_eq!(
+            cli_config.allowed_tools,
+            Some(vec!["Read".into(), "Edit".into()])
+        );
+
+        let instructions = cli_config.instructions.as_deref().unwrap_or_default();
+        assert!(instructions.contains("Use conventional commits"));
+        assert!(instructions.contains("Review code carefully"));
+    }
+
+    #[test]
+    fn claude_config_omits_empty_instruction_layers() {
+        let config = SessionConfig {
+            commit_instructions: Some("  \n".to_string()),
+            user_instructions: Some("Review code carefully".to_string()),
+            ..Default::default()
+        };
+
+        assert_eq!(
+            claude_instructions(&config).as_deref(),
+            Some("Review code carefully")
+        );
+    }
+
+    #[test]
+    fn claude_tool_mapping_preserves_native_tools_and_patterns() {
+        let tools = vec![
+            "Read".to_string(),
+            "Write".to_string(),
+            "Bash".to_string(),
+            "Bash(python:*)".to_string(),
+            "Read".to_string(),
+        ];
+
+        assert_eq!(
+            map_stencila_tools_to_claude_tools(&tools, TrustLevel::Medium),
+            vec![
+                "Read".to_string(),
+                "Write".to_string(),
+                "Bash".to_string(),
+                "Bash(python:*)".to_string(),
+            ]
+        );
+    }
+
+    #[test]
+    fn claude_tool_mapping_only_maps_stencila_shell_at_high_trust() {
+        let tools = vec!["shell".to_string()];
+
+        assert!(map_stencila_tools_to_claude_tools(&tools, TrustLevel::Low).is_empty());
+        assert!(map_stencila_tools_to_claude_tools(&tools, TrustLevel::Medium).is_empty());
+        assert_eq!(
+            map_stencila_tools_to_claude_tools(&tools, TrustLevel::High),
+            vec!["Bash".to_string()]
+        );
+    }
+
+    #[test]
+    fn claude_tool_mapping_returns_empty_for_empty_or_unknown_allowlist() {
+        assert!(map_stencila_tools_to_claude_tools(&[], TrustLevel::Medium).is_empty());
+        assert!(
+            map_stencila_tools_to_claude_tools(&["delegate".to_string()], TrustLevel::Medium)
+                .is_empty()
+        );
     }
 }

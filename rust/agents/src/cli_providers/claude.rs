@@ -54,6 +54,11 @@ impl ClaudeCliProvider {
         // --print enables non-interactive mode: read prompt from stdin,
         // write response to stdout. --verbose is required when using
         // stream-json output format.
+        //
+        // Do not pass --bare here: Claude Code currently treats bare mode as
+        // requiring API-key authentication and does not use the user's existing
+        // Claude CLI login, causing "Not logged in" for otherwise working
+        // installations.
         cmd.args(["--print", "--verbose", "--output-format", "stream-json"]);
 
         // Model selection
@@ -64,6 +69,18 @@ impl ClaudeCliProvider {
         // System prompt / instructions
         if let Some(ref instructions) = self.config.instructions {
             cmd.arg("--append-system-prompt").arg(instructions);
+        }
+
+        // Claude owns its internal tool loop; these flags approximate
+        // Stencila's tool allowlist and trust policy in Claude Code terms.
+        // Claude Code documents `--tools ""` as the mechanism for disabling
+        // all built-in tools, so an explicitly empty allowlist is passed through.
+        if let Some(ref tools) = self.config.allowed_tools {
+            cmd.arg("--tools").arg(tools.join(","));
+        }
+
+        if let Some(ref mode) = self.config.permission_mode {
+            cmd.arg("--permission-mode").arg(mode);
         }
 
         // Max turns
@@ -410,9 +427,7 @@ mod tests {
     fn test_build_command_basic() {
         let config = CliProviderConfig {
             model: Some("claude-sonnet-4-5".to_string()),
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
+            ..Default::default()
         };
         let provider = ClaudeCliProvider::new(config);
         let cmd = provider.build_command();
@@ -421,6 +436,7 @@ mod tests {
 
         let args: Vec<_> = cmd.as_std().get_args().collect();
         assert!(args.contains(&std::ffi::OsStr::new("--print")));
+        assert!(!args.contains(&std::ffi::OsStr::new("--bare")));
         assert!(args.contains(&std::ffi::OsStr::new("--verbose")));
         assert!(args.contains(&std::ffi::OsStr::new("stream-json")));
         assert!(args.contains(&std::ffi::OsStr::new("--model")));
@@ -432,10 +448,9 @@ mod tests {
     #[test]
     fn test_build_command_with_resume() {
         let config = CliProviderConfig {
-            model: None,
             instructions: Some("Be helpful".to_string()),
             max_turns: Some(10),
-            working_dir: None,
+            ..Default::default()
         };
         let mut provider = ClaudeCliProvider::new(config);
         provider.cli_session_id = Some("test-session-123".to_string());
@@ -450,13 +465,39 @@ mod tests {
     }
 
     #[test]
-    fn test_process_text_delta_event() {
+    fn test_build_command_with_tools_and_permission_mode() {
         let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
+            allowed_tools: Some(vec!["Read".to_string(), "Edit".to_string()]),
+            permission_mode: Some("default".to_string()),
+            ..Default::default()
         };
+        let provider = ClaudeCliProvider::new(config);
+
+        let cmd = provider.build_command();
+        let args: Vec<_> = cmd.as_std().get_args().collect();
+        assert!(args.contains(&std::ffi::OsStr::new("--tools")));
+        assert!(args.contains(&std::ffi::OsStr::new("Read,Edit")));
+        assert!(args.contains(&std::ffi::OsStr::new("--permission-mode")));
+        assert!(args.contains(&std::ffi::OsStr::new("default")));
+    }
+
+    #[test]
+    fn test_build_command_with_empty_tools_disables_claude_tools() {
+        let config = CliProviderConfig {
+            allowed_tools: Some(Vec::new()),
+            ..Default::default()
+        };
+        let provider = ClaudeCliProvider::new(config);
+
+        let cmd = provider.build_command();
+        let args: Vec<_> = cmd.as_std().get_args().collect();
+        assert!(args.contains(&std::ffi::OsStr::new("--tools")));
+        assert!(args.contains(&std::ffi::OsStr::new("")));
+    }
+
+    #[test]
+    fn test_process_text_delta_event() {
+        let config = CliProviderConfig::default();
         let mut provider = ClaudeCliProvider::new(config);
         let (emitter, mut receiver) = crate::events::channel_with_id("test".to_string());
 
@@ -496,12 +537,7 @@ mod tests {
 
     #[test]
     fn test_process_session_id_extraction() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = ClaudeCliProvider::new(config);
         let (emitter, _receiver) = crate::events::channel_with_id("test".to_string());
 
@@ -528,12 +564,7 @@ mod tests {
 
     #[test]
     fn test_process_tool_use_event() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = ClaudeCliProvider::new(config);
         let (emitter, mut receiver) = crate::events::channel_with_id("test".to_string());
 
@@ -570,12 +601,7 @@ mod tests {
 
     #[test]
     fn test_process_thinking_event() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = ClaudeCliProvider::new(config);
         let (emitter, mut receiver) = crate::events::channel_with_id("test".to_string());
 

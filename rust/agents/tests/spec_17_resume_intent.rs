@@ -460,12 +460,7 @@ async fn hydrate_idle_session_with_nonempty_final_assistant_preserves_it() {
 
 #[test]
 fn claude_cli_resume_state_returns_none_initially() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let provider = ClaudeCliProvider::new(config);
 
     // Before any session is established, resume_state should return None
@@ -477,12 +472,7 @@ fn claude_cli_resume_state_returns_none_initially() {
 
 #[test]
 fn claude_cli_resume_state_round_trips_through_set_resume_state() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let mut provider = ClaudeCliProvider::new(config);
 
     // Set a session continuation ID via set_resume_state
@@ -508,12 +498,7 @@ fn claude_cli_resume_state_round_trips_through_set_resume_state() {
 
 #[test]
 fn claude_cli_set_resume_state_reimports_session_id() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let mut provider = ClaudeCliProvider::new(config);
 
     // Initially no session ID
@@ -538,12 +523,7 @@ fn claude_cli_set_resume_state_reimports_session_id() {
 
 #[test]
 fn codex_cli_resume_state_returns_none_initially() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let provider = CodexCliProvider::new(config);
 
     // Before any conversation is established
@@ -555,12 +535,7 @@ fn codex_cli_resume_state_returns_none_initially() {
 
 #[test]
 fn codex_cli_set_resume_state_reimports_conversation_id() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let mut provider = CodexCliProvider::new(config);
 
     // Initially no conversation ID
@@ -595,12 +570,7 @@ fn codex_cli_set_resume_state_reimports_conversation_id() {
 
 #[test]
 fn gemini_cli_resume_state_returns_none() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let provider = GeminiCliProvider::new(config);
 
     assert!(
@@ -611,12 +581,7 @@ fn gemini_cli_resume_state_returns_none() {
 
 #[test]
 fn gemini_cli_set_resume_state_is_noop() {
-    let config = CliProviderConfig {
-        model: None,
-        instructions: None,
-        max_turns: None,
-        working_dir: None,
-    };
+    let config = CliProviderConfig::default();
     let mut provider = GeminiCliProvider::new(config);
 
     // set_resume_state on Gemini should be a no-op that succeeds

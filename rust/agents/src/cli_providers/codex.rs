@@ -655,8 +655,7 @@ mod tests {
         let config = CliProviderConfig {
             model: Some("o3".to_string()),
             instructions: Some("Be helpful".to_string()),
-            max_turns: None,
-            working_dir: None,
+            ..Default::default()
         };
         let provider = CodexCliProvider::new(config);
 
@@ -669,12 +668,7 @@ mod tests {
 
     #[test]
     fn test_build_session_params_continue() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = CodexCliProvider::new(config);
         provider.codex_session_id = Some("sess-1".to_string());
         provider.codex_conversation_id = Some("conv-1".to_string());
@@ -688,12 +682,7 @@ mod tests {
 
     #[test]
     fn test_process_agent_message_event() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = CodexCliProvider::new(config);
         let (emitter, mut receiver) = crate::events::channel_with_id("test".to_string());
 
@@ -726,12 +715,7 @@ mod tests {
 
     #[test]
     fn test_process_exec_command_events() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = CodexCliProvider::new(config);
         let (emitter, mut receiver) = crate::events::channel_with_id("test".to_string());
 
@@ -770,12 +754,7 @@ mod tests {
 
     #[test]
     fn test_process_session_id_extraction() {
-        let config = CliProviderConfig {
-            model: None,
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
-        };
+        let config = CliProviderConfig::default();
         let mut provider = CodexCliProvider::new(config);
         let (emitter, _receiver) = crate::events::channel_with_id("test".to_string());
 

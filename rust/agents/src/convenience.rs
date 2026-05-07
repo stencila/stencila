@@ -390,7 +390,7 @@ async fn create_session_full(
             ref model,
         } => {
             let (session, event_receiver) =
-                create_cli_session_inner(provider, model.as_deref(), &config)?;
+                create_cli_session_inner(provider, model.as_deref(), &config, &agent, overrides)?;
             emit_routing_events(session.events(), &decision, credential_source.as_ref());
             Ok((agent, AgentSession::Cli(session), event_receiver))
         }
@@ -494,10 +494,22 @@ fn create_cli_session_inner(
     cli_provider: &str,
     model: Option<&str>,
     config: &SessionConfig,
+    agent: &AgentInstance,
+    overrides: Option<&SessionOverrides>,
 ) -> AgentResult<(crate::cli_providers::CliSession, EventReceiver)> {
     use crate::cli_providers::{CliProviderConfig, CliSession};
 
-    let cli_config = CliProviderConfig::from_session_config(config, model);
+    let trust_level = overrides
+        .and_then(|o| o.trust_level.as_deref())
+        .or(agent.trust_level.as_deref());
+    let trust_level = TrustLevel::from_schema(trust_level);
+
+    let cli_config = match cli_provider {
+        "claude-cli" => {
+            CliProviderConfig::from_session_config_for_claude(config, model, trust_level)
+        }
+        _ => CliProviderConfig::from_session_config(config, model),
+    };
 
     let provider: Box<dyn crate::cli_providers::CliProvider> = match cli_provider {
         "claude-cli" => Box::new(crate::cli_providers::claude::ClaudeCliProvider::new(

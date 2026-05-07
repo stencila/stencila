@@ -303,9 +303,7 @@ mod tests {
     fn test_build_command_basic() {
         let config = CliProviderConfig {
             model: Some("gemini-2.5-pro".to_string()),
-            instructions: None,
-            max_turns: None,
-            working_dir: None,
+            ..Default::default()
         };
         let provider = GeminiCliProvider::new(config);
         let cmd = provider.build_command();
