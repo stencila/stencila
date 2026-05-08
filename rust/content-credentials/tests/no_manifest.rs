@@ -19,6 +19,7 @@ async fn verify_unsigned_png_reports_no_manifest() {
             asset_path: asset,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            trust_anchors: None,
         })
         .await
         .expect("verify");

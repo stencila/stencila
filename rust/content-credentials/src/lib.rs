@@ -17,6 +17,7 @@ pub mod producer;
 pub mod report;
 pub mod schema;
 pub mod signer;
+pub mod trust;
 pub mod verifier;
 
 pub mod media;
@@ -33,4 +34,5 @@ pub use report::{
 };
 pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1};
 pub use signer::{CredentialSignerConfig, init_dev_cert};
+pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
 pub use verifier::{CredentialVerifier, VerifyAssetRequest};

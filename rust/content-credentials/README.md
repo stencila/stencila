@@ -68,6 +68,30 @@ Stencila reproducibility checked: not checked
 
 `Signer trusted: no` is expected for `credentials init` certificates.
 
+For certificate material that requires an external timestamp authority, pass
+`--tsa-url` or set `STENCILA_CREDENTIALS_TSA_URL`:
+
+```sh
+cargo run --bin stencila -- credentials sign image.png \
+  --cert /path/to/cert-or-chain.pem \
+  --key /path/to/private-key.pem \
+  --tsa-url https://tsa.example.org
+```
+
+To perform local signer-trust checks when verifying, Stencila uses the official
+C2PA trust-list cache by default. The cache is refreshed automatically when
+missing or stale. You can also refresh or inspect it explicitly:
+
+```sh
+cargo run --bin stencila -- credentials trust refresh
+cargo run --bin stencila -- credentials trust status
+
+cargo run --bin stencila -- credentials verify image.png
+```
+
+Use `--trust-anchors` or `STENCILA_CREDENTIALS_TRUST_ANCHORS` to override the
+official cache with a local PEM bundle.
+
 ## Inspect With Content Credentials Verify
 
 Use an embedded-image output such as PNG for web-tool testing. Sidecar workflows
@@ -113,6 +137,18 @@ Stencila reproducibility checked: not checked
 
 If the asset uses a sidecar manifest, keep the `.c2pa` file next to the asset
 with the same stem, for example `photo.jpg` and `photo.c2pa`.
+
+## Conformance Interoperability Evidence
+
+For C2PA conformance prep, use the scripts in
+[`interop/`](interop/README.md). They produce evidence directories containing
+tool versions, asset digests, Stencila verification output, Stencila inspection
+JSON, and `c2patool` output.
+
+```sh
+rust/content-credentials/interop/stencila-to-c2patool.sh
+rust/content-credentials/interop/other-to-stencila.sh path/to/other-producer.jpg
+```
 
 ## Useful References
 

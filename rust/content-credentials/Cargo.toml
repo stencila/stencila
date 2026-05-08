@@ -14,6 +14,7 @@ clap = { workspace = true, optional = true }
 eyre = { workspace = true }
 mime_guess = { workspace = true }
 rcgen = { version = "0.14.7", default-features = false, features = ["pem", "ring"] }
+reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 sha2 = { workspace = true }

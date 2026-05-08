@@ -1,6 +1,6 @@
 //! `stencila credentials verify` — verify a signed asset.
 
-use std::path::PathBuf;
+use std::{env, fs, path::PathBuf};
 
 use clap::{Args, ValueEnum};
 use eyre::Result;
@@ -8,8 +8,11 @@ use stencila_cli_utils::{AsFormat, Code, ToStdout, stencila_format::Format};
 
 use crate::{
     report::VerificationReport,
+    trust,
     verifier::{CredentialVerifier, VerifyAssetRequest},
 };
+
+const ENV_TRUST_ANCHORS: &str = "STENCILA_CREDENTIALS_TRUST_ANCHORS";
 
 /// Verify the C2PA Content Credentials on an asset.
 #[derive(Debug, Args)]
@@ -24,6 +27,12 @@ pub struct Cli {
     /// Output format. Defaults to a four-status table.
     #[arg(long, short)]
     r#as: Option<AsFormat>,
+
+    /// PEM bundle of C2PA trust anchors for local signer trust checks.
+    ///
+    /// Can also be supplied with `STENCILA_CREDENTIALS_TRUST_ANCHORS`.
+    #[arg(long, value_name = "PEM")]
+    trust_anchors: Option<PathBuf>,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
@@ -35,11 +44,13 @@ enum Requirement {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        let trust_anchors = resolve_trust_anchors(self.trust_anchors).await?;
         let verifier = CredentialVerifier::new();
         let request = VerifyAssetRequest {
             asset_path: self.asset,
             require_trusted_signer: self.require.contains(&Requirement::TrustedSigner),
             require_stencila_assertion: self.require.contains(&Requirement::StencilaAssertion),
+            trust_anchors,
         };
         let report = verifier.verify_asset(request).await?;
 
@@ -61,6 +72,19 @@ impl Cli {
 
         Ok(())
     }
+}
+
+async fn resolve_trust_anchors(path: Option<PathBuf>) -> Result<Option<String>> {
+    let path = match path {
+        Some(path) => Some(path),
+        None => env::var_os(ENV_TRUST_ANCHORS).map(PathBuf::from),
+    };
+
+    if let Some(path) = path {
+        return Ok(Some(fs::read_to_string(path)?));
+    }
+
+    Ok(trust::official_trust_anchors_best_effort().await?)
 }
 
 fn has_verification_failure(report: &VerificationReport) -> bool {

@@ -52,6 +52,9 @@ pub enum Error {
     #[error("json error: {0}")]
     Json(#[from] serde_json::Error),
 
+    #[error("http error: {0}")]
+    Http(#[from] reqwest::Error),
+
     #[error("task join error: {0}")]
     Join(#[from] tokio::task::JoinError),
 

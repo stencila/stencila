@@ -47,6 +47,7 @@ async fn sign_then_verify_png() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            trust_anchors: None,
         })
         .await
         .expect("verify");
@@ -122,6 +123,7 @@ async fn embedded_manifest_wins_over_stale_sidecar() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            trust_anchors: None,
         })
         .await
         .expect("verify");
@@ -163,6 +165,7 @@ async fn malformed_embedded_manifest_does_not_fall_back_to_sidecar() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            trust_anchors: None,
         })
         .await
         .expect("verify");

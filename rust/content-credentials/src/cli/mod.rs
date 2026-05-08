@@ -7,6 +7,7 @@ use stencila_cli_utils::color_print::cstr;
 mod init;
 mod inspect;
 mod sign;
+mod trust;
 mod verify;
 
 /// Manage and inspect Stencila C2PA Content Credentials
@@ -40,6 +41,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Inspect the full manifest as JSON</dim>
   <b>stencila credentials inspect</b> <g>figure.png</g>
 
+  <dim># Refresh the official C2PA trust list cache</dim>
+  <b>stencila credentials trust refresh</b>
+
 <bold><b>Trust</b></bold>
   Identities created by <c>credentials init</c> are local self-signed
   certificates. They are not on any C2PA trust list and will display as
@@ -54,6 +58,7 @@ enum Command {
     Sign(sign::Cli),
     Verify(verify::Cli),
     Inspect(inspect::Cli),
+    Trust(trust::Cli),
 }
 
 impl Cli {
@@ -68,6 +73,7 @@ impl Cli {
             Command::Sign(cmd) => cmd.run().await,
             Command::Verify(cmd) => cmd.run().await,
             Command::Inspect(cmd) => cmd.run().await,
+            Command::Trust(cmd) => cmd.run().await,
         }
     }
 }

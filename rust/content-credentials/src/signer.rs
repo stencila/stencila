@@ -27,6 +27,7 @@ const DEV_KEY_FILENAME: &str = "dev-key.pem";
 
 const ENV_CERT: &str = "STENCILA_CREDENTIALS_CERT";
 const ENV_KEY: &str = "STENCILA_CREDENTIALS_KEY";
+const ENV_TSA_URL: &str = "STENCILA_CREDENTIALS_TSA_URL";
 
 /// Resolved signer configuration.
 #[derive(Debug, Clone)]
@@ -50,14 +51,38 @@ impl CredentialSignerConfig {
     /// is supplied, a configured certificate or key path does not exist, the
     /// credentials directory cannot be resolved, or no signer is configured.
     pub fn resolve(cert_override: Option<PathBuf>, key_override: Option<PathBuf>) -> Result<Self> {
+        Self::resolve_with_options(cert_override, key_override, None)
+    }
+
+    /// Resolve a signer config, optionally overriding the timestamp authority URL.
+    ///
+    /// The TSA URL is resolved from the explicit override first, then
+    /// `STENCILA_CREDENTIALS_TSA_URL`, then left unset.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if only one explicit override or environment variable
+    /// is supplied, a configured certificate or key path does not exist, the
+    /// credentials directory cannot be resolved, or no signer is configured.
+    pub fn resolve_with_options(
+        cert_override: Option<PathBuf>,
+        key_override: Option<PathBuf>,
+        tsa_url_override: Option<String>,
+    ) -> Result<Self> {
+        let tsa_url = tsa_url_override.or_else(|| {
+            env::var(ENV_TSA_URL)
+                .ok()
+                .filter(|url| !url.trim().is_empty())
+        });
+
         match (cert_override, key_override) {
-            (Some(cert), Some(key)) => return Self::from_paths(cert, key),
+            (Some(cert), Some(key)) => return Self::from_paths(cert, key, tsa_url),
             (Some(_), None) | (None, Some(_)) => return Err(Error::SignerOverridesIncomplete),
             (None, None) => {}
         }
 
         if let (Ok(cert), Ok(key)) = (env::var(ENV_CERT), env::var(ENV_KEY)) {
-            return Self::from_paths(PathBuf::from(cert), PathBuf::from(key));
+            return Self::from_paths(PathBuf::from(cert), PathBuf::from(key), tsa_url);
         }
         if env::var_os(ENV_CERT).is_some() || env::var_os(ENV_KEY).is_some() {
             return Err(Error::SignerEnvIncomplete(ENV_CERT, ENV_KEY));
@@ -67,13 +92,13 @@ impl CredentialSignerConfig {
         let cert = dir.join(DEV_CERT_FILENAME);
         let key = dir.join(DEV_KEY_FILENAME);
         if cert.exists() && key.exists() {
-            return Self::from_paths(cert, key);
+            return Self::from_paths(cert, key, tsa_url);
         }
 
         Err(Error::NoSignerConfigured)
     }
 
-    fn from_paths(cert_path: PathBuf, key_path: PathBuf) -> Result<Self> {
+    fn from_paths(cert_path: PathBuf, key_path: PathBuf, tsa_url: Option<String>) -> Result<Self> {
         if !cert_path.exists() {
             return Err(Error::CertNotFound(cert_path));
         }
@@ -84,7 +109,7 @@ impl CredentialSignerConfig {
             cert_path,
             key_path,
             alg: SigningAlg::Es256,
-            tsa_url: None,
+            tsa_url,
         })
     }
 
@@ -250,6 +275,26 @@ mod tests {
         )
         .expect_err("err");
         assert!(matches!(err, Error::CertNotFound(_)));
+    }
+
+    /// Ensures explicit TSA URLs are carried into resolved signer configuration.
+    #[test]
+    fn resolve_with_options_sets_tsa_url() -> Result<()> {
+        let tmp = tempfile::tempdir()?;
+        let cert = tmp.path().join("cert.pem");
+        let key = tmp.path().join("key.pem");
+        fs::write(&cert, "cert")?;
+        fs::write(&key, "key")?;
+
+        let config = CredentialSignerConfig::resolve_with_options(
+            Some(cert),
+            Some(key),
+            Some("https://tsa.example.test".to_string()),
+        )?;
+
+        assert_eq!(config.tsa_url.as_deref(), Some("https://tsa.example.test"));
+
+        Ok(())
     }
 
     /// Ensures secret material is written with private permissions and repairs loose ones.

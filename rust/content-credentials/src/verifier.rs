@@ -6,7 +6,8 @@ use std::{
 };
 
 use c2pa::{
-    Manifest, Reader, ValidationState,
+    Context, Manifest, Reader, ValidationState,
+    settings::Settings,
     validation_status::ValidationStatus,
     validation_status::{
         ASSERTION_BMFFHASH_MALFORMED, ASSERTION_BMFFHASH_MATCH, ASSERTION_BMFFHASH_MISMATCH,
@@ -39,6 +40,8 @@ pub struct VerifyAssetRequest {
     pub asset_path: PathBuf,
     pub require_trusted_signer: bool,
     pub require_stencila_assertion: bool,
+    /// Optional PEM bundle of C2PA trust anchors for local signer trust checks.
+    pub trust_anchors: Option<String>,
 }
 
 /// High-level credential verifier.
@@ -62,6 +65,7 @@ impl CredentialVerifier {
             asset_path,
             require_trusted_signer,
             require_stencila_assertion,
+            trust_anchors,
         } = request;
 
         if !asset_path.exists() {
@@ -70,7 +74,10 @@ impl CredentialVerifier {
 
         // c2pa Reader is sync; run on a blocking thread.
         let path_for_task = asset_path.clone();
-        let report = tokio::task::spawn_blocking(move || read_report(&path_for_task)).await?;
+        let report = tokio::task::spawn_blocking(move || {
+            read_report(&path_for_task, trust_anchors.as_deref())
+        })
+        .await?;
 
         let mut report = report;
 
@@ -95,10 +102,10 @@ impl CredentialVerifier {
     ///
     /// Returns an error if the c2pa SDK cannot open the asset, the reader JSON
     /// cannot be parsed, or the blocking inspection task fails.
-    pub async fn inspect_asset(&self, path: &Path) -> Result<Value> {
+    pub async fn inspect_asset(&self, path: &Path, trust_anchors: Option<String>) -> Result<Value> {
         let path_for_task = path.to_path_buf();
         let json_str = tokio::task::spawn_blocking(move || -> Result<String> {
-            let reader = open_reader(&path_for_task)?;
+            let reader = open_reader(&path_for_task, trust_anchors.as_deref())?;
             Ok(reader.json())
         })
         .await??;
@@ -107,12 +114,12 @@ impl CredentialVerifier {
     }
 }
 
-fn read_report(asset_path: &Path) -> VerificationReport {
+fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationReport {
     let media_type = media::guess_media_type(asset_path).unwrap_or_default();
     let sidecar_path = media::sidecar_path(asset_path);
 
     let (reader_result, from_sidecar) =
-        open_reader_with_source(asset_path, &sidecar_path, &media_type);
+        open_reader_with_source(asset_path, &sidecar_path, &media_type, trust_anchors);
 
     let reader = match reader_result {
         Ok(reader) => reader,
@@ -338,10 +345,11 @@ fn is_asset_binding_failure(code: &str) -> bool {
     )
 }
 
-fn open_reader(path: &Path) -> Result<Reader> {
+fn open_reader(path: &Path, trust_anchors: Option<&str>) -> Result<Reader> {
     let media_type = media::guess_media_type(path).unwrap_or_default();
     let sidecar_path = media::sidecar_path(path);
-    let (reader_result, _) = open_reader_with_source(path, &sidecar_path, &media_type);
+    let (reader_result, _) =
+        open_reader_with_source(path, &sidecar_path, &media_type, trust_anchors);
     reader_result
 }
 
@@ -349,13 +357,19 @@ fn open_reader_with_source(
     asset_path: &Path,
     sidecar_path: &Path,
     media_type: &str,
+    trust_anchors: Option<&str>,
 ) -> (Result<Reader>, bool) {
     if media::could_have_embedded(media_type) {
-        match read_embedded(asset_path, media_type) {
+        match read_embedded(asset_path, media_type, trust_anchors) {
             Ok(reader) => return (Ok(reader), false),
             Err(embedded_err) => {
                 if is_missing_manifest(&embedded_err) && sidecar_path.exists() {
-                    return match read_with_sidecar(asset_path, sidecar_path, media_type) {
+                    return match read_with_sidecar(
+                        asset_path,
+                        sidecar_path,
+                        media_type,
+                        trust_anchors,
+                    ) {
                         Ok(reader) => (Ok(reader), true),
                         Err(err) => (Err(err), true),
                     };
@@ -367,27 +381,47 @@ fn open_reader_with_source(
     }
 
     if sidecar_path.exists() {
-        return match read_with_sidecar(asset_path, sidecar_path, media_type) {
+        return match read_with_sidecar(asset_path, sidecar_path, media_type, trust_anchors) {
             Ok(reader) => (Ok(reader), true),
             Err(err) => (Err(err), true),
         };
     }
 
-    (read_embedded(asset_path, media_type), false)
+    (read_embedded(asset_path, media_type, trust_anchors), false)
 }
 
-fn read_embedded(asset_path: &Path, media_type: &str) -> Result<Reader> {
+fn read_embedded(
+    asset_path: &Path,
+    media_type: &str,
+    trust_anchors: Option<&str>,
+) -> Result<Reader> {
     let mut asset = File::open(asset_path)?;
-    #[allow(deprecated)]
-    Reader::from_stream(media_type, &mut asset).map_err(Error::C2pa)
+    reader_with_context(trust_anchors)?
+        .with_stream(media_type, &mut asset)
+        .map_err(Error::C2pa)
 }
 
-fn read_with_sidecar(asset_path: &Path, sidecar_path: &Path, media_type: &str) -> Result<Reader> {
+fn read_with_sidecar(
+    asset_path: &Path,
+    sidecar_path: &Path,
+    media_type: &str,
+    trust_anchors: Option<&str>,
+) -> Result<Reader> {
     let manifest_bytes = std::fs::read(sidecar_path)?;
     let mut asset = File::open(asset_path)?;
-    #[allow(deprecated)]
-    Reader::from_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
+    reader_with_context(trust_anchors)?
+        .with_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
         .map_err(Error::C2pa)
+}
+
+fn reader_with_context(trust_anchors: Option<&str>) -> Result<Reader> {
+    let Some(trust_anchors) = trust_anchors else {
+        return Ok(Reader::default());
+    };
+
+    let settings = Settings::new().with_value("trust.trust_anchors", trust_anchors)?;
+    let context = Context::new().with_settings(settings)?;
+    Ok(Reader::from_context(context))
 }
 
 fn is_missing_manifest(err: &Error) -> bool {
@@ -471,5 +505,15 @@ mod tests {
         assert!(status.schema_known);
         assert!(status.assertion.is_some());
         assert!(problem.is_none());
+    }
+
+    /// Ensures verifier trust-anchor settings can be loaded into a reader context.
+    #[test]
+    fn reader_context_accepts_trust_anchors() {
+        let reader = reader_with_context(Some(
+            "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----",
+        ));
+
+        assert!(reader.is_ok());
     }
 }

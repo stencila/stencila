@@ -34,6 +34,12 @@ pub struct Cli {
     #[arg(long)]
     key: Option<PathBuf>,
 
+    /// Timestamp authority URL to use when signing.
+    ///
+    /// Can also be supplied with `STENCILA_CREDENTIALS_TSA_URL`.
+    #[arg(long, value_name = "URL")]
+    tsa_url: Option<String>,
+
     /// Title to record in the manifest. Defaults to the asset filename.
     #[arg(long)]
     title: Option<String>,
@@ -41,7 +47,8 @@ pub struct Cli {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let signer_config = CredentialSignerConfig::resolve(self.cert, self.key)?;
+        let signer_config =
+            CredentialSignerConfig::resolve_with_options(self.cert, self.key, self.tsa_url)?;
         let producer = CredentialProducer::new(signer_config);
 
         let request = SignAssetRequest {
