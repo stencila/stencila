@@ -75,6 +75,8 @@ impl Cli {
                 }
             }
         }
+
+        message!("");
         message!("   Assertion: `{}`", signed_asset.assertion_label);
         message!("   Schema:    `{}`", signed_asset.assertion_schema);
         message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);

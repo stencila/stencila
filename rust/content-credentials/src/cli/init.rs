@@ -27,13 +27,14 @@ impl Cli {
         } else {
             message!("ℹ️  Reusing existing dev signing identity (pass --force to regenerate)");
         }
+
+        message!("");
         message!("   Cert: `{}`", result.cert_path.display());
         message!("   Key:  `{}`", result.key_path.display());
         message!("   CN:   `{}`", result.common_name);
-        message!(
-            "⚠️ This identity is **untrusted** outside of local development. \
-            Third-party verifiers (Adobe, contentcredentials.org) will mark assets signed with it as untrusted."
-        );
+        message!("");
+
+        message!("⚠️ This identity is untrusted outside of local development.");
 
         Ok(())
     }

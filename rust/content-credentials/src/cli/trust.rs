@@ -2,7 +2,10 @@
 
 use clap::{Args, Subcommand};
 use eyre::Result;
-use stencila_cli_utils::{AsFormat, Code, ToStdout, message};
+use stencila_cli_utils::{
+    AsFormat, Code, Tabulated, ToStdout, message,
+    tabulated::{Attribute, Cell, Color},
+};
 
 use crate::trust;
 
@@ -68,7 +71,6 @@ impl Refresh {
             Code::new_from(format.into(), &status)?.to_stdout();
         } else {
             message!("Refreshed official C2PA trust list");
-            print_status(&status);
         }
 
         Ok(())
@@ -76,21 +78,55 @@ impl Refresh {
 }
 
 fn print_status(status: &trust::TrustListStatus) {
-    message!("Official C2PA trust list: `{}`", status.url);
-    message!("Cache path: `{}`", status.path.display());
-    message!("Present: {}", yes_no(status.present));
-    message!("Fresh: {}", yes_no(status.fresh));
+    let mut table = Tabulated::new();
+    table.set_header(["Field", "Value"]);
+    table.add_row([
+        Cell::new("C2PA trust list").add_attribute(Attribute::Bold),
+        Cell::new(status.url).fg(Color::Blue),
+    ]);
+    table.add_row([
+        Cell::new("Cache path").add_attribute(Attribute::Bold),
+        Cell::new(status.path.display()).fg(Color::Rgb {
+            r: 200,
+            g: 160,
+            b: 255,
+        }),
+    ]);
+    table.add_row([
+        Cell::new("Present").add_attribute(Attribute::Bold),
+        yes_no_cell(status.present),
+    ]);
+    table.add_row([
+        Cell::new("Fresh").add_attribute(Attribute::Bold),
+        yes_no_cell(status.fresh),
+    ]);
+
     if let Some(fetched_at) = status.fetched_at {
-        message!("Fetched at: {}", fetched_at.to_rfc3339());
+        table.add_row([
+            Cell::new("Fetched at").add_attribute(Attribute::Bold),
+            Cell::new(fetched_at.to_rfc3339()),
+        ]);
     }
     if let Some(expires_at) = status.expires_at {
-        message!("Expires at: {}", expires_at.to_rfc3339());
+        table.add_row([
+            Cell::new("Expires at").add_attribute(Attribute::Bold),
+            Cell::new(expires_at.to_rfc3339()),
+        ]);
     }
     if let Some(sha256) = &status.sha256 {
-        message!("SHA-256: `{}`", sha256);
+        table.add_row([
+            Cell::new("SHA-256").add_attribute(Attribute::Bold),
+            Cell::new(sha256),
+        ]);
     }
+
+    table.to_stdout();
 }
 
-fn yes_no(value: bool) -> &'static str {
-    if value { "yes" } else { "no" }
+fn yes_no_cell(value: bool) -> Cell {
+    if value {
+        Cell::new("yes").fg(Color::Green)
+    } else {
+        Cell::new("no").add_attribute(Attribute::Dim)
+    }
 }

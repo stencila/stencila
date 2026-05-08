@@ -4,10 +4,13 @@ use std::{env, fs, path::PathBuf};
 
 use clap::{Args, ValueEnum};
 use eyre::Result;
-use stencila_cli_utils::{AsFormat, Code, ToStdout, stencila_format::Format};
+use stencila_cli_utils::{
+    AsFormat, Code, Tabulated, ToStdout,
+    tabulated::{Attribute, Cell, Color},
+};
 
 use crate::{
-    report::VerificationReport,
+    report::{ReproducibilityStatus, VerificationReport},
     trust,
     verifier::{CredentialVerifier, VerifyAssetRequest},
 };
@@ -59,7 +62,7 @@ impl Cli {
                 Code::new_from(format.into(), &report)?.to_stdout();
             }
             None => {
-                Code::new(Format::Text, &report.to_string()).to_stdout();
+                print_report(&report);
             }
         }
 
@@ -85,6 +88,109 @@ async fn resolve_trust_anchors(path: Option<PathBuf>) -> Result<Option<String>> 
     }
 
     Ok(trust::official_trust_anchors_best_effort().await?)
+}
+
+fn print_report(report: &VerificationReport) {
+    let mut table = Tabulated::new();
+    table.set_header(["Check", "Status", "Details"]);
+
+    table.add_row([
+        Cell::new("Manifest valid").add_attribute(Attribute::Bold),
+        if report.manifest.present {
+            yes_no_cell(report.manifest.valid)
+        } else {
+            Cell::new("no manifest").fg(Color::Red)
+        },
+        manifest_details(report),
+    ]);
+    table.add_row([
+        Cell::new("Claim signature valid").add_attribute(Attribute::Bold),
+        yes_no_cell(report.signature.valid),
+        Cell::new(""),
+    ]);
+    table.add_row([
+        Cell::new("Signer trusted").add_attribute(Attribute::Bold),
+        yes_no_cell(report.signature.trusted),
+        signer_details(report),
+    ]);
+    table.add_row([
+        Cell::new("Stencila provenance attested").add_attribute(Attribute::Bold),
+        yes_no_cell(report.provenance.attested),
+        provenance_details(report),
+    ]);
+    table.add_row([
+        Cell::new("Stencila reproducibility checked").add_attribute(Attribute::Bold),
+        reproducibility_cell(report.reproducibility),
+        Cell::new(""),
+    ]);
+
+    for problem in &report.problems {
+        table.add_row([
+            Cell::new("Problem")
+                .fg(Color::Red)
+                .add_attribute(Attribute::Bold),
+            Cell::new(""),
+            Cell::new(problem),
+        ]);
+    }
+
+    table.to_stdout();
+}
+
+fn manifest_details(report: &VerificationReport) -> Cell {
+    if report.manifest.present {
+        if report.manifest.from_sidecar {
+            Cell::new("sidecar")
+        } else {
+            Cell::new("embedded")
+        }
+    } else {
+        Cell::new("")
+    }
+}
+
+fn signer_details(report: &VerificationReport) -> Cell {
+    match (&report.signature.signer, report.signature.trusted) {
+        (Some(signer), true) => Cell::new(signer),
+        (Some(signer), false) if report.signature.valid => {
+            Cell::new(format!("{signer}; local trust not configured"))
+        }
+        (Some(signer), false) => Cell::new(format!("{signer}; signature invalid")),
+        (None, _) => Cell::new(""),
+    }
+}
+
+fn provenance_details(report: &VerificationReport) -> Cell {
+    if report.provenance.attested {
+        match &report.provenance.schema_url {
+            Some(url) if report.provenance.schema_known => Cell::new(url).fg(Color::Blue),
+            Some(url) => Cell::new(format!("{url}; schema unknown")).fg(Color::Yellow),
+            None => Cell::new(""),
+        }
+    } else if report.provenance.assertion_present {
+        Cell::new("assertion present, claim signature invalid")
+    } else {
+        Cell::new("assertion not present")
+    }
+}
+
+fn reproducibility_cell(status: ReproducibilityStatus) -> Cell {
+    match status {
+        ReproducibilityStatus::NotChecked => Cell::new(status).add_attribute(Attribute::Dim),
+        ReproducibilityStatus::Exact | ReproducibilityStatus::Equivalent => {
+            Cell::new(status).fg(Color::Green)
+        }
+        ReproducibilityStatus::Failed => Cell::new(status).fg(Color::Red),
+        ReproducibilityStatus::Unavailable => Cell::new(status).fg(Color::Yellow),
+    }
+}
+
+fn yes_no_cell(value: bool) -> Cell {
+    if value {
+        Cell::new("yes").fg(Color::Green)
+    } else {
+        Cell::new("no").fg(Color::Red)
+    }
 }
 
 fn has_verification_failure(report: &VerificationReport) -> bool {
