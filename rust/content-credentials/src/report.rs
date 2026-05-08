@@ -47,7 +47,9 @@ pub struct AssetBindingStatus {
 #[derive(Debug, Clone, Default, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct ProvenanceStatus {
-    /// Stencila assertion present and signed.
+    /// Stencila assertion is present in the active manifest.
+    pub assertion_present: bool,
+    /// Stencila assertion is present and covered by a valid claim signature.
     pub attested: bool,
     /// Schema URL declared in the assertion payload, if any.
     pub schema_url: Option<String>,
@@ -92,20 +94,29 @@ impl Display for ReproducibilityStatus {
 
 impl Display for VerificationReport {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        // Four-line status display, matching the design's UX section.
+        // Layered status display, matching the design's trust model.
         let manifest_valid = if self.manifest.present {
             yes_no(self.manifest.valid)
         } else {
             "no manifest"
         };
-        writeln!(f, "Manifest valid:           {manifest_valid}")?;
+        writeln!(f, "Manifest valid:                  {manifest_valid}")?;
+
+        writeln!(
+            f,
+            "Claim signature valid:           {}",
+            yes_no(self.signature.valid)
+        )?;
 
         let signer_line = match (&self.signature.signer, self.signature.trusted) {
             (Some(cn), true) => format!("yes  ({cn})"),
-            (Some(cn), false) => format!("no   ({cn})"),
+            (Some(cn), false) if self.signature.valid => {
+                format!("no   ({cn}; local trust not configured)")
+            }
+            (Some(cn), false) => format!("no   ({cn}; signature invalid)"),
             (None, _) => yes_no(self.signature.trusted).to_string(),
         };
-        writeln!(f, "Signer trusted:           {signer_line}")?;
+        writeln!(f, "Signer trusted:                  {signer_line}")?;
 
         let provenance_line = if self.provenance.attested {
             match &self.provenance.schema_url {
@@ -117,12 +128,18 @@ impl Display for VerificationReport {
                 }
                 None => "yes".to_string(),
             }
+        } else if self.provenance.assertion_present {
+            "no   (assertion present, claim signature invalid)".to_string()
         } else {
-            "no".to_string()
+            "no   (assertion not present)".to_string()
         };
-        writeln!(f, "Provenance attested:      {provenance_line}")?;
+        writeln!(f, "Stencila provenance attested:    {provenance_line}")?;
 
-        writeln!(f, "Reproducibility verified: {}", self.reproducibility)?;
+        writeln!(
+            f,
+            "Stencila reproducibility checked: {}",
+            self.reproducibility
+        )?;
 
         if !self.problems.is_empty() {
             writeln!(f)?;
@@ -158,6 +175,7 @@ mod tests {
             },
             asset_binding: AssetBindingStatus { valid: true },
             provenance: ProvenanceStatus {
+                assertion_present: true,
                 attested: true,
                 schema_url: Some(crate::PROVENANCE_SCHEMA_V1.to_string()),
                 schema_known: true,
@@ -174,11 +192,13 @@ mod tests {
     fn display_full_report() {
         let report = base_report();
         let rendered = report.to_string();
-        assert!(rendered.contains("Manifest valid:           yes"));
-        assert!(rendered.contains("Signer trusted:           no"));
+        assert!(rendered.contains("Manifest valid:                  yes"));
+        assert!(rendered.contains("Claim signature valid:           yes"));
+        assert!(rendered.contains("Signer trusted:                  no"));
+        assert!(rendered.contains("local trust not configured"));
         assert!(rendered.contains("Local Stencila Dev (untrusted)"));
-        assert!(rendered.contains("Provenance attested:      yes"));
-        assert!(rendered.contains("Reproducibility verified: not checked"));
+        assert!(rendered.contains("Stencila provenance attested:    yes"));
+        assert!(rendered.contains("Stencila reproducibility checked: not checked"));
     }
 
     /// Ensures an unsigned human-readable report makes the missing manifest explicit.
@@ -189,9 +209,23 @@ mod tests {
         report.signature = SignerStatus::default();
         report.provenance = ProvenanceStatus::default();
         let rendered = report.to_string();
-        assert!(rendered.contains("Manifest valid:           no manifest"));
-        assert!(rendered.contains("Signer trusted:           no"));
-        assert!(rendered.contains("Provenance attested:      no"));
+        assert!(rendered.contains("Manifest valid:                  no manifest"));
+        assert!(rendered.contains("Claim signature valid:           no"));
+        assert!(rendered.contains("Signer trusted:                  no"));
+        assert!(rendered.contains("Stencila provenance attested:    no   (assertion not present)"));
+    }
+
+    /// Ensures assertion presence is distinct from signed provenance attestation.
+    #[test]
+    fn display_assertion_present_but_not_attested() {
+        let mut report = base_report();
+        report.signature.valid = false;
+        report.provenance.attested = false;
+
+        let rendered = report.to_string();
+        assert!(rendered.contains(
+            "Stencila provenance attested:    no   (assertion present, claim signature invalid)"
+        ));
     }
 
     /// Ensures nested report JSON uses the same camelCase convention as the top level.

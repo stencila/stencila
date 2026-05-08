@@ -79,7 +79,7 @@ impl CredentialVerifier {
                 .problems
                 .push("required: signer trusted (--require trusted-signer)".to_string());
         }
-        if require_stencila_assertion && !report.provenance.attested {
+        if require_stencila_assertion && !report.provenance.assertion_present {
             report.problems.push(
                 "required: org.stencila.provenance assertion (--require stencila-assertion)"
                     .to_string(),
@@ -190,7 +190,9 @@ fn read_report(asset_path: &Path) -> VerificationReport {
 
     let asset_binding = read_asset_binding(&reader);
 
-    let (provenance, provenance_problem) = active.map(read_provenance).unwrap_or_default();
+    let (provenance, provenance_problem) = active
+        .map(|manifest| read_provenance(manifest, signature_valid))
+        .unwrap_or_default();
 
     let mut problems = collect_problems(&reader);
     if let Some(problem) = provenance_problem {
@@ -207,16 +209,24 @@ fn read_report(asset_path: &Path) -> VerificationReport {
     }
 }
 
-fn read_provenance(manifest: &Manifest) -> (ProvenanceStatus, Option<String>) {
+fn read_provenance(
+    manifest: &Manifest,
+    signature_valid: bool,
+) -> (ProvenanceStatus, Option<String>) {
     // Try to find the assertion as an opaque JSON value first so we can
     // report unknown-schema cases without losing the payload.
     let raw_value: Option<Value> = manifest.find_assertion::<Value>(PROVENANCE_LABEL).ok();
-    parse_provenance(raw_value)
+    parse_provenance(raw_value, signature_valid)
 }
 
-fn parse_provenance(raw_value: Option<Value>) -> (ProvenanceStatus, Option<String>) {
+fn parse_provenance(
+    raw_value: Option<Value>,
+    signature_valid: bool,
+) -> (ProvenanceStatus, Option<String>) {
+    let assertion_present = raw_value.is_some();
     let mut status = ProvenanceStatus {
-        attested: raw_value.is_some(),
+        assertion_present,
+        attested: assertion_present && signature_valid,
         schema_url: None,
         schema_known: false,
         assertion: None,
@@ -396,7 +406,8 @@ mod tests {
     /// Ensures missing Stencila provenance assertions produce an unattested status cleanly.
     #[test]
     fn parse_provenance_none() {
-        let (status, problem) = parse_provenance(None);
+        let (status, problem) = parse_provenance(None, true);
+        assert!(!status.assertion_present);
         assert!(!status.attested);
         assert!(status.schema_url.is_none());
         assert!(!status.schema_known);
@@ -413,7 +424,8 @@ mod tests {
             "producer": { "name": "Stencila", "version": "9.9.9" },
             "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
         });
-        let (status, problem) = parse_provenance(Some(raw.clone()));
+        let (status, problem) = parse_provenance(Some(raw.clone()), true);
+        assert!(status.assertion_present);
         assert!(status.attested);
         assert_eq!(
             status.schema_url.as_deref(),
@@ -432,7 +444,8 @@ mod tests {
             "schema": PROVENANCE_SCHEMA_V1,
             "producer": { "name": "Stencila" }, // missing required `version`
         });
-        let (status, problem) = parse_provenance(Some(raw));
+        let (status, problem) = parse_provenance(Some(raw), true);
+        assert!(status.assertion_present);
         assert!(status.attested);
         assert!(status.schema_known);
         assert!(status.assertion.is_none());
@@ -441,5 +454,22 @@ mod tests {
             problem.contains(PROVENANCE_LABEL) && problem.contains("malformed"),
             "unexpected problem text: {problem}"
         );
+    }
+
+    /// Ensures an assertion is not reported as attested unless the claim signature is valid.
+    #[test]
+    fn parse_provenance_requires_valid_signature_for_attestation() {
+        let raw = json!({
+            "schema": PROVENANCE_SCHEMA_V1,
+            "producer": { "name": "Stencila", "version": "9.9.9" },
+            "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
+        });
+        let (status, problem) = parse_provenance(Some(raw), false);
+
+        assert!(status.assertion_present);
+        assert!(!status.attested);
+        assert!(status.schema_known);
+        assert!(status.assertion.is_some());
+        assert!(problem.is_none());
     }
 }

@@ -69,7 +69,7 @@ fn has_verification_failure(report: &VerificationReport) -> bool {
         || !report.manifest.active
         || !report.signature.valid
         || !report.asset_binding.valid
-        || (report.provenance.attested
+        || (report.provenance.assertion_present
             && report.provenance.schema_known
             && report.provenance.assertion.is_none())
         || report.problems.iter().any(|p| p.starts_with("required:"))
@@ -97,7 +97,7 @@ fn failure_summary(report: &VerificationReport) -> String {
         reasons.push("asset binding invalid".to_string());
     }
 
-    if report.provenance.attested
+    if report.provenance.assertion_present
         && report.provenance.schema_known
         && report.provenance.assertion.is_none()
     {
@@ -146,6 +146,7 @@ mod tests {
             },
             asset_binding: AssetBindingStatus { valid: true },
             provenance: ProvenanceStatus {
+                assertion_present: true,
                 attested: true,
                 schema_url: Some(crate::PROVENANCE_SCHEMA_V1.to_string()),
                 schema_known: true,
