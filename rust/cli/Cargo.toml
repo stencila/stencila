@@ -42,6 +42,7 @@ stencila-codec-m365 = { path = "../codec-m365" }
 stencila-codemode = { path = "../codemode" }
 stencila-codecs = { path = "../codecs" }
 stencila-config = { path = "../config" }
+stencila-content-credentials = { path = "../content-credentials", features = ["cli"] }
 stencila-db = { path = "../db" }
 stencila-dirs = { path = "../dirs" }
 stencila-document = { path = "../document" }

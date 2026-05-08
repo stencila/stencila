@@ -120,7 +120,7 @@ pub struct Cli {
     /// syntax such as `tokio=debug`.
     #[arg(
         long,
-        default_value = "globset=warn,headless_chrome=off,h2=info,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,rustls=info,sled=info,tokenizers:=info,tokio=info,tungstenite=info",
+        default_value = "c2pa::context=warn,globset=warn,headless_chrome=off,h2=info,hyper=info,hyper_util=info,ignore=warn,keyring=info,mio=info,notify=warn,ort=error,reqwest=info,rustls=info,sled=info,tokenizers:=info,tokio=info,tungstenite=info",
         global = true,
         hide = true
     )]
@@ -281,6 +281,8 @@ pub enum Command {
     Secrets(stencila_secrets::cli::Cli),
     Auth(stencila_auth::cli::Cli),
 
+    Credentials(stencila_content_credentials::cli::Cli),
+
     Serve(ServeOptions),
     Snap(stencila_snap::cli::Cli),
     /// Run the Language Server Protocol server
@@ -367,6 +369,8 @@ impl Cli {
 
             Command::Secrets(secrets) => secrets.run().await,
             Command::Auth(oauth) => oauth.run().await,
+
+            Command::Credentials(creds) => creds.run().await,
 
             Command::Serve(options) => stencila_server::serve(options).await,
             Command::Snap(snap) => snap.run().await,
