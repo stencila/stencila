@@ -415,11 +415,12 @@ fn read_with_sidecar(
 }
 
 fn reader_with_context(trust_anchors: Option<&str>) -> Result<Reader> {
-    let Some(trust_anchors) = trust_anchors else {
-        return Ok(Reader::default());
-    };
+    let mut settings = Settings::new().with_value("builder.thumbnail.enabled", false)?;
 
-    let settings = Settings::new().with_value("trust.trust_anchors", trust_anchors)?;
+    if let Some(trust_anchors) = trust_anchors {
+        settings = settings.with_value("trust.trust_anchors", trust_anchors)?;
+    }
+
     let context = Context::new().with_settings(settings)?;
     Ok(Reader::from_context(context))
 }
@@ -507,9 +508,13 @@ mod tests {
         assert!(problem.is_none());
     }
 
-    /// Ensures verifier trust-anchor settings can be loaded into a reader context.
+    /// Ensures verifier settings can be loaded into a reader context.
     #[test]
-    fn reader_context_accepts_trust_anchors() {
+    fn reader_context_accepts_settings() {
+        let reader = reader_with_context(None);
+
+        assert!(reader.is_ok());
+
         let reader = reader_with_context(Some(
             "-----BEGIN CERTIFICATE-----\n-----END CERTIFICATE-----",
         ));
