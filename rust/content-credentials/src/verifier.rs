@@ -30,7 +30,7 @@ use crate::{
         AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
         VerificationReport,
     },
-    schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1, ProvenanceAssertion},
+    schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion},
 };
 
 /// Inputs for verifying an asset.
@@ -243,7 +243,10 @@ fn parse_provenance(
     if let Some(value) = raw_value {
         if let Some(schema) = value.get("schema").and_then(Value::as_str) {
             status.schema_url = Some(schema.to_string());
-            status.schema_known = schema == PROVENANCE_SCHEMA_V1;
+            status.schema_known = schema == PROVENANCE_SCHEMA;
+        }
+        if value.get("version").and_then(Value::as_u64) == Some(1) {
+            status.schema_known = true;
         }
         if status.schema_known {
             match serde_json::from_value::<ProvenanceAssertion>(value) {
@@ -454,7 +457,7 @@ mod tests {
     #[test]
     fn parse_provenance_unknown_schema_url() {
         let raw = json!({
-            "schema": "https://stencila.org/v999/ProvenanceAssertion.schema.json",
+            "schema": "https://stencila.org/stencila-provenance-assertion-v999.schema.json",
             "producer": { "name": "Stencila", "version": "9.9.9" },
             "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
         });
@@ -463,7 +466,7 @@ mod tests {
         assert!(status.attested);
         assert_eq!(
             status.schema_url.as_deref(),
-            Some("https://stencila.org/v999/ProvenanceAssertion.schema.json")
+            Some("https://stencila.org/stencila-provenance-assertion-v999.schema.json")
         );
         assert!(!status.schema_known);
         assert!(status.assertion.is_none(), "no v1 parse for unknown schema");
@@ -475,7 +478,7 @@ mod tests {
     #[test]
     fn parse_provenance_v1_malformed() {
         let raw = json!({
-            "schema": PROVENANCE_SCHEMA_V1,
+            "schema": PROVENANCE_SCHEMA,
             "asset": { "mediaType": 42, "digest": "sha256:abc" },
         });
         let (status, problem) = parse_provenance(Some(raw), true);

@@ -10,3 +10,4 @@ items:
   - cli
   - config
   - schema
+  - content-credentials

@@ -31,14 +31,15 @@ pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
     VerificationReport,
 };
-pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1, ProvenanceAssertion};
+pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion};
 pub use signer::{CredentialSignerConfig, init_dev_cert};
 pub use snapshot::{
-    AgentSnapshot, AssetSnapshot, DefinitionSnapshot, DependencySnapshot, DocumentSnapshot,
+    ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
+    DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,
     EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
-    FileDigestSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
-    ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot,
-    RuntimeSnapshot, SkillUsageSnapshot, SourceSnapshot, VerificationSnapshot, WorkflowSnapshot,
+    FileDigestSnapshot, IdentifierSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot,
+    ProducerSnapshot, ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot,
+    RedactionSnapshot, RuntimeSnapshot, SourceSnapshot, VerificationSnapshot, WorkflowSnapshot,
 };
 pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
 pub use verifier::{CredentialVerifier, VerifyAssetRequest};

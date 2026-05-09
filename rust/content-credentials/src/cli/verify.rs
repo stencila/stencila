@@ -278,7 +278,7 @@ mod tests {
             provenance: ProvenanceStatus {
                 assertion_present: true,
                 attested: true,
-                schema_url: Some(crate::PROVENANCE_SCHEMA_V1.to_string()),
+                schema_url: Some(crate::PROVENANCE_SCHEMA.to_string()),
                 schema_known: true,
                 assertion: Some(ProvenanceAssertion::new_v1("image/png", "sha256:abc")),
                 raw: None,

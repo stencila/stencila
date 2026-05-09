@@ -178,7 +178,7 @@ fn embed_manifest_in_place(asset: &Path) -> Result<()> {
     let definition = json!({
         "claim_generator_info": [{
             "name": "Stencila test",
-            "version": stencila_content_credentials::schema::PROVENANCE_SCHEMA_V1,
+            "version": stencila_content_credentials::schema::PROVENANCE_SCHEMA,
         }],
         "title": "Embedded GIF",
         "format": "image/gif",

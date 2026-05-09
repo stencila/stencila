@@ -61,7 +61,7 @@ async fn sign_then_verify_png() {
     assert!(report.provenance.schema_known, "v1 schema known");
     assert_eq!(
         report.provenance.schema_url.as_deref(),
-        Some(stencila_content_credentials::PROVENANCE_SCHEMA_V1)
+        Some(stencila_content_credentials::PROVENANCE_SCHEMA)
     );
     let assertion = report
         .provenance

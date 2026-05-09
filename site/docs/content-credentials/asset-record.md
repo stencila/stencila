@@ -1,0 +1,120 @@
+---
+title: "Asset Record"
+description: "Facts about the signed asset entity."
+---
+
+# Asset Record
+
+Facts about the signed asset entity.
+
+The asset record is deliberately byte-oriented: C2PA binds the manifest to
+asset bytes, so this record stores media type, size, dimensions, and a digest
+of the pre-signing content rather than a full Stencila node.
+
+## Fields
+
+| Field | Type | Required | Description |
+|-------|------|----------|-------------|
+| [`id`](#id) | `string` | No | Optional asset identifier used by activity references. |
+| [`kind`](#kind) | `string` | Yes | Stencila or C2PA-facing asset class. |
+| [`mediaType`](#media-type) | `string` | Yes | IANA media type for the asset bytes. |
+| [`digest`](#digest) | `string` | Yes | Digest of the pre-signing asset bytes. |
+| [`label`](#label) | `string` | No | Stencila label associated with the asset. |
+| [`title`](#title) | `string` | No | Human-readable title for the asset. |
+| [`size`](#size) | `integer` | No | Asset byte length before signing. |
+| [`width`](#width) | `integer` | No | Width for image or video assets. |
+| [`height`](#height) | `integer` | No | Height for image or video assets. |
+
+### `id`
+
+Optional asset identifier used by activity references.
+
+The digest is the cryptographic identity, but a short ID is useful when
+`activity.generatedOutputIds` or external reports need to refer to this
+asset without repeating a long digest.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `kind`
+
+Stencila or C2PA-facing asset class.
+
+The initial vocabulary is `asset`, `image`, `figure`, `table`, `dataset`,
+and `document`; reverse-DNS extension values are allowed. The value is a
+broad class for UI and policy decisions, not a replacement for
+`mediaType`.
+
+**Type:** `string` | **Required:** Yes
+
+### `mediaType`
+
+IANA media type for the asset bytes.
+
+Media type is required because C2PA validators and reproducibility tools
+need to know how the bytes should be interpreted independently of file
+extension or URL.
+
+**Type:** `string` | **Required:** Yes
+
+### `digest`
+
+Digest of the pre-signing asset bytes.
+
+The value should use `algorithm:hex` form, for example `sha256:...`.
+Keeping the algorithm in the value avoids baking `sha256` into every
+field name and leaves room for future digest algorithms.
+
+**Type:** `string` | **Required:** Yes
+
+### `label`
+
+Stencila label associated with the asset.
+
+Labels such as `fig:example` are how authors and readers often refer to
+outputs in a document. They are optional because not every signed asset is
+a labelled Stencila node.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `title`
+
+Human-readable title for the asset.
+
+This is display metadata for reviewers. It is optional and should not be
+treated as a stable identifier because titles can change independently of
+the underlying bytes.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `size`
+
+Asset byte length before signing.
+
+Size is a cheap consistency check and useful in audit output. It is
+optional because some producers may stream content without retaining a
+length at projection time.
+
+**Type:** `integer` | **Required:** No | **Nullable:** Yes
+
+### `width`
+
+Width for image or video assets.
+
+Dimensions help consumers understand the signed rendition without opening
+the asset. Width is optional because it only applies to some media types.
+
+**Type:** `integer` | **Required:** No | **Nullable:** Yes
+
+### `height`
+
+Height for image or video assets.
+
+Dimensions are recorded as unsigned integers in rendered pixel units
+unless the media type defines a different native unit.
+
+**Type:** `integer` | **Required:** No | **Nullable:** Yes
+
+
+---
+
+This documentation was generated from [`schema.rs`](https://github.com/stencila/stencila/blob/main/rust/content-credentials/src/schema.rs) by [`generate.rs`](https://github.com/stencila/stencila/blob/main/rust/content-credentials/src/bin/generate.rs).

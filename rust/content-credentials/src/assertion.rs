@@ -5,28 +5,25 @@
 //! snapshot shape can evolve without accidentally changing the external
 //! `org.stencila.provenance` schema.
 
-#![expect(
-    clippy::needless_update,
-    reason = "struct update syntax keeps snapshot-to-schema mappings robust when optional wire fields are added"
-)]
-
 use serde_json::Map;
 
 use crate::{
     schema::{
-        AgentRecord, AssetRecord, DefinitionRecord, DependencyRecord, DocumentRecord,
-        EnvironmentRecord, ExecutionDigestRecord, ExecutionMessageRecord, ExecutionRecord,
-        FileDigestRecord, IoRecord, KernelRecord, PROVENANCE_SCHEMA_V1, PrivacyRecord,
-        ProducerRecord, ProvenanceAssertion, ProvenanceCategoryRecord, ProvenanceSummaryRecord,
-        RedactionRecord, RuntimeRecord, SkillUsageRecord, SourceRecord, VerificationRecord,
-        WorkflowRecord,
+        ActivityRecord, AgentRecord, AiContentProfileRecord, AiDisclosureRecord, AssetRecord,
+        AttributionRecord, DefinitionRecord, DependencyRecord, DisclosureAssessmentRecord,
+        DocumentRecord, EnvironmentRecord, ExecutionDigestRecord, ExecutionMessageRecord,
+        ExecutionRecord, FileDigestRecord, IdentifierRecord, IoRecord, KernelRecord,
+        PROVENANCE_SCHEMA, PrivacyRecord, ProducerRecord, ProvenanceAssertion,
+        ProvenanceCategoryRecord, ProvenanceSummaryRecord, RedactionRecord, RuntimeRecord,
+        SourceRecord, VerificationRecord, WorkflowRecord,
     },
     snapshot::{
-        AgentSnapshot, AssetSnapshot, DefinitionSnapshot, DependencySnapshot, DocumentSnapshot,
+        ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
+        DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,
         EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
-        FileDigestSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
-        ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot,
-        RedactionSnapshot, RuntimeSnapshot, SkillUsageSnapshot, SourceSnapshot,
+        FileDigestSnapshot, IdentifierSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot,
+        ProducerSnapshot, ProvenanceCategorySnapshot, ProvenanceSnapshot,
+        ProvenanceSummarySnapshot, RedactionSnapshot, RuntimeSnapshot, SourceSnapshot,
         VerificationSnapshot, WorkflowSnapshot,
     },
 };
@@ -56,32 +53,47 @@ impl ProvenanceAssertion {
             profile,
             asset,
             document,
+            activity,
             producer,
+            attributions,
             source,
             execution,
             workflow,
             environment,
             inputs,
             outputs,
+            ai_disclosure,
             provenance_summary,
             verification,
             privacy,
         } = snapshot;
 
         let profile = profile.unwrap_or_else(|| default_profile(&asset.kind));
+        let has_execution = execution.is_some();
+        let has_workflow = workflow.is_some();
 
         Self {
-            schema: PROVENANCE_SCHEMA_V1.to_string(),
-            profile,
+            schema: PROVENANCE_SCHEMA.to_string(),
+            version: 1,
+            profile: profile.clone(),
             producer: producer.map_or_else(ProducerRecord::default, ProducerRecord::from),
             asset: AssetRecord::from(asset),
             document: DocumentRecord::from(document),
+            activity: activity.map_or_else(
+                || default_activity(&profile, has_execution, has_workflow),
+                ActivityRecord::from,
+            ),
+            attributions: attributions
+                .into_iter()
+                .map(AttributionRecord::from)
+                .collect(),
             source: source.map(SourceRecord::from),
             execution: execution.map(ExecutionRecord::from),
             workflow: workflow.map(WorkflowRecord::from),
             environment: environment.map(EnvironmentRecord::from),
             inputs: inputs.into_iter().map(IoRecord::from).collect(),
             outputs: outputs.into_iter().map(IoRecord::from).collect(),
+            ai_disclosure: ai_disclosure.map(AiDisclosureRecord::from),
             provenance_summary: provenance_summary.map(ProvenanceSummaryRecord::from),
             verification: verification
                 .map_or_else(VerificationRecord::default, VerificationRecord::from),
@@ -90,10 +102,10 @@ impl ProvenanceAssertion {
         }
     }
 
-    /// Whether this payload's schema URL is one this build understands.
+    /// Whether this payload version is one this build understands.
     #[must_use]
     pub fn is_known_schema(&self) -> bool {
-        self.schema == PROVENANCE_SCHEMA_V1
+        self.version == 1
     }
 }
 
@@ -102,9 +114,10 @@ impl Default for ProducerRecord {
         Self {
             name: "Stencila".to_string(),
             version: stencila_version::STENCILA_VERSION.to_string(),
-            schema_version: None,
+            stencila_schema_version: None,
             codec: None,
             renderer: None,
+            extra: Map::new(),
         }
     }
 }
@@ -116,7 +129,7 @@ impl From<ProducerSnapshot> for ProducerRecord {
             version: snapshot
                 .version
                 .unwrap_or_else(|| stencila_version::STENCILA_VERSION.to_string()),
-            schema_version: snapshot.schema_version,
+            stencila_schema_version: snapshot.stencila_schema_version,
             codec: snapshot.codec,
             renderer: snapshot.renderer,
             ..Self::default()
@@ -127,6 +140,7 @@ impl From<ProducerSnapshot> for ProducerRecord {
 impl From<AssetSnapshot> for AssetRecord {
     fn from(snapshot: AssetSnapshot) -> Self {
         Self {
+            id: snapshot.id,
             kind: snapshot.kind,
             media_type: snapshot.media_type,
             digest: snapshot.digest,
@@ -156,6 +170,71 @@ impl From<DocumentSnapshot> for DocumentRecord {
     }
 }
 
+impl From<ActivitySnapshot> for ActivityRecord {
+    fn from(snapshot: ActivitySnapshot) -> Self {
+        Self {
+            id: snapshot.id,
+            kind: snapshot.kind.unwrap_or_else(|| "asset-signing".to_string()),
+            name: snapshot.name,
+            started_at: snapshot.started_at,
+            ended_at: snapshot.ended_at,
+            duration_ms: snapshot.duration_ms,
+            associated_attribution_ids: snapshot.associated_attribution_ids,
+            used_input_ids: snapshot.used_input_ids,
+            generated_output_ids: snapshot.generated_output_ids,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<AttributionSnapshot> for AttributionRecord {
+    fn from(snapshot: AttributionSnapshot) -> Self {
+        Self {
+            id: snapshot.id,
+            agent: AgentRecord::from(snapshot.agent),
+            role_name: snapshot.role_name,
+            format: snapshot.format,
+            last_modified: snapshot.last_modified,
+            scope: snapshot.scope,
+            provenance_category: snapshot.provenance_category,
+            character_count: snapshot.character_count,
+            character_percent: snapshot.character_percent,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<AgentSnapshot> for AgentRecord {
+    fn from(snapshot: AgentSnapshot) -> Self {
+        Self {
+            kind: snapshot.kind,
+            name: snapshot.name,
+            id: snapshot.id,
+            identifiers: snapshot
+                .identifiers
+                .into_iter()
+                .map(IdentifierRecord::from)
+                .collect(),
+            provider: snapshot.provider,
+            version: snapshot.version,
+            model: snapshot.model,
+            model_identifier: snapshot.model_identifier,
+            url: snapshot.url,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<IdentifierSnapshot> for IdentifierRecord {
+    fn from(snapshot: IdentifierSnapshot) -> Self {
+        Self {
+            kind: snapshot.kind,
+            value: snapshot.value,
+            ..Self::default()
+        }
+    }
+}
+
 impl From<ExecutionDigestSnapshot> for ExecutionDigestRecord {
     fn from(snapshot: ExecutionDigestSnapshot) -> Self {
         Self {
@@ -176,7 +255,7 @@ impl From<SourceSnapshot> for SourceRecord {
             commit: snapshot.commit,
             path: snapshot.path,
             dirty: snapshot.dirty,
-            patch_sha256: snapshot.patch_sha256,
+            patch_digest: snapshot.patch_digest,
             tag: snapshot.tag,
             ..Self::default()
         }
@@ -187,7 +266,7 @@ impl From<ExecutionSnapshot> for ExecutionRecord {
     fn from(snapshot: ExecutionSnapshot) -> Self {
         Self {
             status: snapshot.status,
-            ended: snapshot.ended,
+            ended_at: snapshot.ended_at,
             duration_ms: snapshot.duration_ms,
             execution_count: snapshot.execution_count,
             kernel: snapshot.kernel.map(KernelRecord::from),
@@ -256,22 +335,6 @@ impl From<WorkflowSnapshot> for WorkflowRecord {
                 .into_iter()
                 .map(DefinitionRecord::from)
                 .collect(),
-            skill_usages: snapshot
-                .skill_usages
-                .into_iter()
-                .map(SkillUsageRecord::from)
-                .collect(),
-            ..Self::default()
-        }
-    }
-}
-
-impl From<AgentSnapshot> for AgentRecord {
-    fn from(snapshot: AgentSnapshot) -> Self {
-        Self {
-            name: snapshot.name,
-            provider: snapshot.provider,
-            model: snapshot.model,
             ..Self::default()
         }
     }
@@ -282,23 +345,10 @@ impl From<DefinitionSnapshot> for DefinitionRecord {
         Self {
             kind: snapshot.kind,
             name: snapshot.name,
+            role: snapshot.role,
             source_path: snapshot.source_path,
             version: snapshot.version,
-            content_hash: snapshot.content_hash,
-            ..Self::default()
-        }
-    }
-}
-
-impl From<SkillUsageSnapshot> for SkillUsageRecord {
-    fn from(snapshot: SkillUsageSnapshot) -> Self {
-        Self {
-            name: snapshot.name,
-            source_path: snapshot.source_path,
-            content_hash: snapshot.content_hash,
-            loaded_by: snapshot.loaded_by,
-            tool_call_id: snapshot.tool_call_id,
-            turn_index: snapshot.turn_index,
+            content_digest: snapshot.content_digest,
             ..Self::default()
         }
     }
@@ -339,7 +389,7 @@ impl From<FileDigestSnapshot> for FileDigestRecord {
     fn from(snapshot: FileDigestSnapshot) -> Self {
         Self {
             path: snapshot.path,
-            sha256: snapshot.sha256,
+            digest: snapshot.digest,
             ..Self::default()
         }
     }
@@ -348,6 +398,7 @@ impl From<FileDigestSnapshot> for FileDigestRecord {
 impl From<IoSnapshot> for IoRecord {
     fn from(snapshot: IoSnapshot) -> Self {
         Self {
+            id: snapshot.id,
             kind: snapshot.kind,
             name: snapshot.name,
             uri: snapshot.uri,
@@ -361,7 +412,26 @@ impl From<IoSnapshot> for IoRecord {
             height: snapshot.height,
             row_count: snapshot.row_count,
             column_count: snapshot.column_count,
-            extra: snapshot.extra,
+            metadata: snapshot.metadata,
+            ..Self::default()
+        }
+    }
+}
+
+impl From<AiDisclosureSnapshot> for AiDisclosureRecord {
+    fn from(snapshot: AiDisclosureSnapshot) -> Self {
+        Self {
+            model_type: snapshot.model_type,
+            model_name: snapshot.model_name,
+            model_identifier: snapshot.model_identifier,
+            content_profile: snapshot.human_oversight_level.map(|human_oversight_level| {
+                AiContentProfileRecord {
+                    human_oversight_level: Some(human_oversight_level),
+                    ..Default::default()
+                }
+            }),
+            scientific_domain: snapshot.scientific_domains,
+            standard_assertion: snapshot.standard_assertion,
             ..Self::default()
         }
     }
@@ -370,11 +440,12 @@ impl From<IoSnapshot> for IoRecord {
 impl From<ProvenanceSummarySnapshot> for ProvenanceSummaryRecord {
     fn from(snapshot: ProvenanceSummarySnapshot) -> Self {
         Self {
-            human: snapshot.human,
-            machine: snapshot.machine,
-            ai_assisted: snapshot.ai_assisted,
+            basis: snapshot.basis,
+            human_percent: snapshot.human_percent,
+            machine_percent: snapshot.machine_percent,
+            ai_assisted_percent: snapshot.ai_assisted_percent,
             source: snapshot.source,
-            schema_version: snapshot.schema_version,
+            source_version: snapshot.source_version,
             categories: snapshot
                 .categories
                 .into_iter()
@@ -388,9 +459,10 @@ impl From<ProvenanceSummarySnapshot> for ProvenanceSummaryRecord {
 impl From<ProvenanceCategorySnapshot> for ProvenanceCategoryRecord {
     fn from(snapshot: ProvenanceCategorySnapshot) -> Self {
         Self {
-            category: snapshot.category,
+            provenance_category: snapshot.provenance_category,
             character_count: snapshot.character_count,
             character_percent: snapshot.character_percent,
+            ..Self::default()
         }
     }
 }
@@ -403,6 +475,7 @@ impl Default for VerificationRecord {
             verified_by: None,
             verified_at: None,
             comparison: None,
+            extra: Map::new(),
         }
     }
 }
@@ -420,6 +493,28 @@ impl From<VerificationSnapshot> for VerificationRecord {
     }
 }
 
+impl Default for DisclosureAssessmentRecord {
+    fn default() -> Self {
+        Self {
+            status: "not-assessed".to_string(),
+            policy: None,
+            assessed_at: None,
+            extra: Map::new(),
+        }
+    }
+}
+
+impl From<DisclosureAssessmentSnapshot> for DisclosureAssessmentRecord {
+    fn from(snapshot: DisclosureAssessmentSnapshot) -> Self {
+        Self {
+            status: snapshot.status,
+            policy: snapshot.policy,
+            assessed_at: snapshot.assessed_at,
+            ..Self::default()
+        }
+    }
+}
+
 impl From<PrivacySnapshot> for PrivacyRecord {
     fn from(snapshot: PrivacySnapshot) -> Self {
         Self {
@@ -428,8 +523,9 @@ impl From<PrivacySnapshot> for PrivacyRecord {
                 .into_iter()
                 .map(RedactionRecord::from)
                 .collect(),
-            contains_personal_data: snapshot.contains_personal_data,
-            contains_secrets: snapshot.contains_secrets,
+            personal_data: DisclosureAssessmentRecord::from(snapshot.personal_data),
+            secrets: DisclosureAssessmentRecord::from(snapshot.secrets),
+            ..Self::default()
         }
     }
 }
@@ -451,6 +547,23 @@ fn default_profile(asset_kind: &str) -> String {
         _ => "asset",
     }
     .to_string()
+}
+
+fn default_activity(profile: &str, has_execution: bool, has_workflow: bool) -> ActivityRecord {
+    let kind = if has_workflow {
+        "workflow-run"
+    } else if has_execution {
+        "code-execution"
+    } else if profile == "document-export" {
+        "document-export"
+    } else {
+        "asset-signing"
+    };
+
+    ActivityRecord {
+        kind: kind.to_string(),
+        ..Default::default()
+    }
 }
 
 pub(crate) fn asset_kind_for_media_type(media_type: &str) -> &'static str {
@@ -486,14 +599,18 @@ mod tests {
         let json = serde_json::to_string(&original).expect("serialize");
         let parsed: ProvenanceAssertion = serde_json::from_str(&json).expect("deserialize");
 
-        assert_eq!(parsed.schema, PROVENANCE_SCHEMA_V1);
+        assert_eq!(parsed.schema, PROVENANCE_SCHEMA);
+        assert_eq!(parsed.version, 1);
         assert_eq!(parsed.profile, "computational-output");
         assert_eq!(parsed.producer.name, "Stencila");
         assert_eq!(parsed.asset.media_type, "image/png");
         assert_eq!(parsed.asset.digest, "sha256:abc");
         assert_eq!(parsed.asset.kind, "image");
         assert_eq!(parsed.document.node_type, "File");
+        assert_eq!(parsed.activity.kind, "asset-signing");
         assert_eq!(parsed.verification.reproducibility_status, "not-checked");
+        assert_eq!(parsed.privacy.personal_data.status, "not-assessed");
+        assert_eq!(parsed.privacy.secrets.status, "not-assessed");
         assert!(parsed.is_known_schema());
         assert!(parsed.extra.is_empty());
     }
@@ -503,13 +620,23 @@ mod tests {
     fn unknown_fields_preserved() {
         // A future payload includes fields this build does not know about.
         let raw = json!({
-            "schema": PROVENANCE_SCHEMA_V1,
+            "schema": PROVENANCE_SCHEMA,
+            "version": 1,
             "profile": "computational-output",
             "producer": { "name": "Stencila", "version": "9.9.9" },
-            "asset": { "kind": "figure", "mediaType": "image/png", "digest": "sha256:abc" },
+            "asset": {
+                "kind": "figure",
+                "mediaType": "image/png",
+                "digest": "sha256:abc",
+                "assetFuture": "kept"
+            },
             "document": { "nodeType": "CodeChunk" },
+            "activity": { "kind": "code-execution" },
             "verification": { "reproducibilityStatus": "not-checked" },
-            "privacy": { "containsPersonalData": false, "containsSecrets": false },
+            "privacy": {
+                "personalData": { "status": "not-assessed" },
+                "secrets": { "status": "not-assessed" }
+            },
             "newField": "future",
             "nested": { "more": [1, 2, 3] }
         });
@@ -517,10 +644,17 @@ mod tests {
         let parsed: ProvenanceAssertion = serde_json::from_value(raw.clone()).expect("deserialize");
         assert_eq!(parsed.extra.get("newField"), Some(&json!("future")));
         assert!(parsed.extra.contains_key("nested"));
+        assert_eq!(parsed.asset.extra.get("assetFuture"), Some(&json!("kept")));
 
         let again = serde_json::to_value(&parsed).expect("serialize");
         assert_eq!(again.get("newField"), Some(&json!("future")));
         assert_eq!(again.get("nested"), Some(&json!({ "more": [1, 2, 3] })));
+        assert_eq!(
+            again
+                .get("asset")
+                .and_then(|asset| asset.get("assetFuture")),
+            Some(&json!("kept"))
+        );
     }
 
     /// Ensures the previous `sourceDigest` field name is still accepted for asset digests.
@@ -536,11 +670,15 @@ mod tests {
         assert_eq!(parsed.digest, "sha256:abc");
     }
 
-    /// Ensures schema URLs outside the current v1 URL are reported as unknown.
+    /// Ensures compatible v1 schema URLs are accepted but incompatible versions are not.
     #[test]
-    fn unknown_schema_url_detected() {
+    fn schema_compatibility_uses_payload_version() {
         let mut a = ProvenanceAssertion::new_v1("image/png", "sha256:abc");
-        a.schema = "https://stencila.org/v999/ProvenanceAssertion.schema.json".to_string();
+        a.schema =
+            "https://stencila.org/stencila-provenance-assertion-v1.1.schema.json".to_string();
+        assert!(a.is_known_schema());
+
+        a.version = 2;
         assert!(!a.is_known_schema());
     }
 }

@@ -160,7 +160,7 @@ impl CredentialProducer {
             },
             sidecar_path: result.1,
             assertion_label: PROVENANCE_LABEL,
-            assertion_schema: crate::schema::PROVENANCE_SCHEMA_V1,
+            assertion_schema: crate::schema::PROVENANCE_SCHEMA,
             source_digest: source_digest_for_result,
             signed_asset_digest,
             media_type: media_type_for_result,

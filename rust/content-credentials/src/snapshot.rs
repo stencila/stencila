@@ -1,15 +1,16 @@
 //! Stencila provenance facts captured before C2PA signing.
 //!
 //! A snapshot is the boundary between Stencila's document, execution, workflow,
-//! and export layers and this C2PA-facing crate. It intentionally uses simple
-//! serializable values rather than generated Stencila Schema types so callers can
-//! project only the facts they want to attest under the selected privacy profile.
+//! authorship, environment, and export layers and this C2PA-facing crate. It
+//! intentionally uses simple serializable values rather than generated Stencila
+//! Schema types so callers can project only the facts they want to attest under
+//! the selected privacy profile.
 //!
 //! This module is an internal Stencila Rust API. It is not the C2PA wire format
-//! and is not what `https://stencila.org/c2pa/v1/ProvenanceAssertion.schema.json`
-//! describes. Before signing, a [`ProvenanceSnapshot`] is normalized into a
-//! [`crate::ProvenanceAssertion`], and that assertion is the versioned payload
-//! serialized into the `org.stencila.provenance` C2PA assertion.
+//! and is not what [`crate::PROVENANCE_SCHEMA`] describes. Before signing, a
+//! [`ProvenanceSnapshot`] is normalized into a [`crate::ProvenanceAssertion`],
+//! and that assertion is the versioned payload serialized into the
+//! `org.stencila.provenance` C2PA assertion.
 
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -17,9 +18,10 @@ use serde_with::skip_serializing_none;
 
 /// Internal handoff object used to construct a signed Stencila C2PA assertion.
 ///
-/// Other Stencila crates should populate this from document nodes, execution
-/// state, workflow context, environment probes, export reports, and privacy
-/// policy. The signing layer then converts it to [`crate::ProvenanceAssertion`].
+/// Other Stencila crates should populate this from document nodes, author roles,
+/// execution state, workflow context, environment probes, export reports, and
+/// privacy policy. The signing layer then converts it to
+/// [`crate::ProvenanceAssertion`].
 ///
 /// This type is intentionally not the stable published assertion schema. It can
 /// evolve as Stencila integration points evolve. Compatibility guarantees belong
@@ -37,8 +39,15 @@ pub struct ProvenanceSnapshot {
     /// Facts about the Stencila document node that produced or represents the asset.
     pub document: DocumentSnapshot,
 
+    /// Activity that generated, exported, or signed the asset.
+    pub activity: Option<ActivitySnapshot>,
+
     /// Software that produced the C2PA claim and Stencila assertion.
     pub producer: Option<ProducerSnapshot>,
+
+    /// Role-bearing authorship and responsibility facts.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub attributions: Vec<AttributionSnapshot>,
 
     /// Source-control facts for the document or project.
     pub source: Option<SourceSnapshot>,
@@ -46,7 +55,7 @@ pub struct ProvenanceSnapshot {
     /// Execution facts for executable outputs.
     pub execution: Option<ExecutionSnapshot>,
 
-    /// Workflow, agent, and skill attribution supplied by an explicit provenance context.
+    /// Workflow, agent, and definition attribution supplied by an explicit provenance context.
     pub workflow: Option<WorkflowSnapshot>,
 
     /// Environment facts that help a verifier reproduce the output.
@@ -59,6 +68,9 @@ pub struct ProvenanceSnapshot {
     /// Outputs produced by the same operation.
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub outputs: Vec<IoSnapshot>,
+
+    /// Projection of C2PA AI disclosure details.
+    pub ai_disclosure: Option<AiDisclosureSnapshot>,
 
     /// Compact projection of Stencila `ProvenanceCount` values.
     pub provenance_summary: Option<ProvenanceSummarySnapshot>,
@@ -89,29 +101,15 @@ impl ProvenanceSnapshot {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct AssetSnapshot {
-    /// Stencila or C2PA-facing asset class, such as `figure`, `document`, or `dataset`.
+    pub id: Option<String>,
     pub kind: String,
-
-    /// IANA media type for the asset bytes.
     pub media_type: String,
-
-    /// Digest of the pre-signing asset bytes.
     #[serde(alias = "sourceDigest")]
     pub digest: String,
-
-    /// Stencila label, such as `fig:example`.
     pub label: Option<String>,
-
-    /// Human-readable title for the asset.
     pub title: Option<String>,
-
-    /// Asset byte length before signing.
     pub size: Option<u64>,
-
-    /// Width for image or video assets.
     pub width: Option<u64>,
-
-    /// Height for image or video assets.
     pub height: Option<u64>,
 }
 
@@ -135,6 +133,7 @@ impl AssetSnapshot {
 impl Default for AssetSnapshot {
     fn default() -> Self {
         Self {
+            id: None,
             kind: "asset".to_string(),
             media_type: String::new(),
             digest: String::new(),
@@ -152,28 +151,13 @@ impl Default for AssetSnapshot {
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct DocumentSnapshot {
-    /// Stencila Schema node type, such as `CodeChunk`, `Figure`, or `Article`.
     pub node_type: String,
-
-    /// Stencila node identifier.
     pub node_id: Option<String>,
-
-    /// Path to the node within the document tree.
     pub node_path: Option<String>,
-
-    /// Label type for labelled executable or creative-work nodes.
     pub label_type: Option<String>,
-
-    /// Stencila label for the document node.
     pub label: Option<String>,
-
-    /// Human-readable node title.
     pub title: Option<String>,
-
-    /// Programming language for executable nodes.
     pub programming_language: Option<String>,
-
-    /// Compilation digest values recorded on executable nodes.
     pub execution_digest: Option<ExecutionDigestSnapshot>,
 }
 
@@ -203,6 +187,26 @@ impl Default for DocumentSnapshot {
     }
 }
 
+/// Activity that generated, exported, or signed the asset.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct ActivitySnapshot {
+    pub id: Option<String>,
+    pub kind: Option<String>,
+    pub name: Option<String>,
+    pub started_at: Option<String>,
+    pub ended_at: Option<String>,
+    pub duration_ms: Option<u64>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(alias = "associatedAgentIds")]
+    pub associated_attribution_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub used_input_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub generated_output_ids: Vec<String>,
+}
+
 /// Software that produced the assertion.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
@@ -210,9 +214,52 @@ impl Default for DocumentSnapshot {
 pub struct ProducerSnapshot {
     pub name: Option<String>,
     pub version: Option<String>,
-    pub schema_version: Option<String>,
+    #[serde(alias = "schemaVersion")]
+    pub stencila_schema_version: Option<String>,
     pub codec: Option<String>,
     pub renderer: Option<String>,
+}
+
+/// Role-bearing authorship and responsibility facts.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct AttributionSnapshot {
+    pub id: Option<String>,
+    pub agent: AgentSnapshot,
+    pub role_name: Option<String>,
+    pub format: Option<String>,
+    pub last_modified: Option<String>,
+    pub scope: Option<String>,
+    pub provenance_category: Option<String>,
+    pub character_count: Option<u64>,
+    pub character_percent: Option<f64>,
+}
+
+/// Agent participating in provenance.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct AgentSnapshot {
+    pub kind: Option<String>,
+    pub name: Option<String>,
+    pub id: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub identifiers: Vec<IdentifierSnapshot>,
+    pub provider: Option<String>,
+    pub version: Option<String>,
+    pub model: Option<String>,
+    pub model_identifier: Option<String>,
+    pub url: Option<String>,
+}
+
+/// Identifier for an agent.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct IdentifierSnapshot {
+    pub kind: Option<String>,
+    pub value: Option<String>,
 }
 
 /// Digest values corresponding to Stencila `CompilationDigest`.
@@ -236,7 +283,8 @@ pub struct SourceSnapshot {
     pub commit: Option<String>,
     pub path: Option<String>,
     pub dirty: Option<bool>,
-    pub patch_sha256: Option<String>,
+    #[serde(alias = "patchSha256")]
+    pub patch_digest: Option<String>,
     pub tag: Option<String>,
 }
 
@@ -246,7 +294,8 @@ pub struct SourceSnapshot {
 #[serde(default, rename_all = "camelCase")]
 pub struct ExecutionSnapshot {
     pub status: Option<String>,
-    pub ended: Option<String>,
+    #[serde(alias = "ended")]
+    pub ended_at: Option<String>,
     pub duration_ms: Option<u64>,
     pub execution_count: Option<i64>,
     pub kernel: Option<KernelSnapshot>,
@@ -284,7 +333,7 @@ pub struct ExecutionMessageSnapshot {
     pub message: Option<String>,
 }
 
-/// Explicit workflow, agent, and skill attribution.
+/// Explicit workflow, agent, and definition attribution.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(default, rename_all = "camelCase")]
@@ -299,17 +348,6 @@ pub struct WorkflowSnapshot {
     pub agent: Option<AgentSnapshot>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub definitions: Vec<DefinitionSnapshot>,
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub skill_usages: Vec<SkillUsageSnapshot>,
-}
-
-#[skip_serializing_none]
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(default, rename_all = "camelCase")]
-pub struct AgentSnapshot {
-    pub name: Option<String>,
-    pub provider: Option<String>,
-    pub model: Option<String>,
 }
 
 #[skip_serializing_none]
@@ -318,21 +356,11 @@ pub struct AgentSnapshot {
 pub struct DefinitionSnapshot {
     pub kind: Option<String>,
     pub name: Option<String>,
+    pub role: Option<String>,
     pub source_path: Option<String>,
     pub version: Option<String>,
-    pub content_hash: Option<String>,
-}
-
-#[skip_serializing_none]
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
-#[serde(default, rename_all = "camelCase")]
-pub struct SkillUsageSnapshot {
-    pub name: Option<String>,
-    pub source_path: Option<String>,
-    pub content_hash: Option<String>,
-    pub loaded_by: Option<String>,
-    pub tool_call_id: Option<String>,
-    pub turn_index: Option<u64>,
+    #[serde(alias = "contentHash")]
+    pub content_digest: Option<String>,
 }
 
 /// Environment facts selected for publication under the active privacy profile.
@@ -362,7 +390,8 @@ pub struct RuntimeSnapshot {
 #[serde(default, rename_all = "camelCase")]
 pub struct FileDigestSnapshot {
     pub path: Option<String>,
-    pub sha256: Option<String>,
+    #[serde(alias = "sha256")]
+    pub digest: Option<String>,
 }
 
 /// Input or output record.
@@ -370,6 +399,7 @@ pub struct FileDigestSnapshot {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct IoSnapshot {
+    pub id: Option<String>,
     pub kind: Option<String>,
     pub name: Option<String>,
     pub uri: Option<String>,
@@ -383,7 +413,23 @@ pub struct IoSnapshot {
     pub height: Option<u64>,
     pub row_count: Option<u64>,
     pub column_count: Option<u64>,
-    pub extra: Option<Value>,
+    #[serde(alias = "extra")]
+    pub metadata: Option<Value>,
+}
+
+/// Projection of C2PA AI disclosure details.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct AiDisclosureSnapshot {
+    pub model_type: String,
+    pub model_name: Option<String>,
+    pub model_identifier: Option<String>,
+    pub human_oversight_level: Option<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    #[serde(alias = "scientificDomain")]
+    pub scientific_domains: Vec<String>,
+    pub standard_assertion: Option<String>,
 }
 
 /// Compact projection of Stencila provenance categories.
@@ -391,11 +437,16 @@ pub struct IoSnapshot {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ProvenanceSummarySnapshot {
-    pub human: Option<f64>,
-    pub machine: Option<f64>,
-    pub ai_assisted: Option<f64>,
+    pub basis: Option<String>,
+    #[serde(alias = "human")]
+    pub human_percent: Option<f64>,
+    #[serde(alias = "machine")]
+    pub machine_percent: Option<f64>,
+    #[serde(alias = "aiAssisted")]
+    pub ai_assisted_percent: Option<f64>,
     pub source: Option<String>,
-    pub schema_version: Option<String>,
+    #[serde(alias = "schemaVersion")]
+    pub source_version: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub categories: Vec<ProvenanceCategorySnapshot>,
 }
@@ -404,7 +455,8 @@ pub struct ProvenanceSummarySnapshot {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ProvenanceCategorySnapshot {
-    pub category: String,
+    #[serde(alias = "category")]
+    pub provenance_category: String,
     pub character_count: u64,
     pub character_percent: Option<f64>,
 }
@@ -440,8 +492,28 @@ impl Default for VerificationSnapshot {
 pub struct PrivacySnapshot {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub redactions: Vec<RedactionSnapshot>,
-    pub contains_personal_data: bool,
-    pub contains_secrets: bool,
+    pub personal_data: DisclosureAssessmentSnapshot,
+    pub secrets: DisclosureAssessmentSnapshot,
+}
+
+/// Assessment of whether a class of sensitive data is present.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct DisclosureAssessmentSnapshot {
+    pub status: String,
+    pub policy: Option<String>,
+    pub assessed_at: Option<String>,
+}
+
+impl Default for DisclosureAssessmentSnapshot {
+    fn default() -> Self {
+        Self {
+            status: "not-assessed".to_string(),
+            policy: None,
+            assessed_at: None,
+        }
+    }
 }
 
 #[skip_serializing_none]
