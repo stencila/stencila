@@ -702,6 +702,7 @@ async fn sign_encoded_paths(
             .sign_exported_asset(SignAssetRequest {
                 input_path: asset_path,
                 media_type,
+                credential_profile: credential_profile(credentials.profile.clone()),
                 provenance: Some(provenance),
                 ..Default::default()
             })
@@ -740,6 +741,16 @@ fn provenance_for_encoded_asset(
         privacy.secrets.policy = Some(policy);
     }
     snapshot
+}
+
+fn credential_profile(
+    profile: CredentialProfile,
+) -> stencila_content_credentials::CredentialProfile {
+    match profile {
+        CredentialProfile::Public => stencila_content_credentials::CredentialProfile::Public,
+        CredentialProfile::Private => stencila_content_credentials::CredentialProfile::Private,
+        CredentialProfile::Full => stencila_content_credentials::CredentialProfile::Full,
+    }
 }
 
 /// Convert a document from one format to another

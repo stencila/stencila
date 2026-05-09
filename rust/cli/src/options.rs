@@ -248,7 +248,8 @@ pub struct EncodeOptions {
     /// Sign encoded outputs with C2PA Content Credentials
     ///
     /// With no value, uses the public profile. Use `--credentials=private` or
-    /// `--credentials=full` to opt into more local provenance detail.
+    /// `--credentials=full` to opt into more local provenance detail. The
+    /// equivalent explicit form is `--credentials-profile private`.
     #[arg(
         long,
         num_args = 0..=1,
@@ -258,6 +259,15 @@ pub struct EncodeOptions {
         help_heading = "Encoding Options"
     )]
     credentials: Option<CredentialProfile>,
+
+    /// Sign encoded outputs with the selected C2PA Content Credentials profile
+    #[arg(
+        long = "credentials-profile",
+        value_name = "PROFILE",
+        conflicts_with = "credentials",
+        help_heading = "Encoding Options"
+    )]
+    credentials_profile: Option<CredentialProfile>,
 
     /// Highlight the rendered outputs of executable nodes
     ///
@@ -425,6 +435,7 @@ impl EncodeOptions {
         let credentials = self
             .credentials
             .clone()
+            .or_else(|| self.credentials_profile.clone())
             .map(|profile| stencila_codecs::CredentialsOptions { profile });
 
         let highlight = self

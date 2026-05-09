@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use stencila_content_credentials::{
     AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error, ManifestKind,
     ProducerSnapshot, ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
-    init_dev_cert, signer::CredentialSignerConfig,
+    init_dev_cert, signer::CredentialSignerConfig, snapshot::IoSnapshot,
 };
 use tempfile::TempDir;
 
@@ -155,6 +155,93 @@ async fn sign_with_provenance_snapshot() {
         Some("0123456789abcdef")
     );
     assert_eq!(assertion.producer.codec.as_deref(), Some("png"));
+}
+
+/// Ensures public profile redactions are applied before signing the assertion.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn sign_with_public_profile_redacts_private_snapshot_fields() {
+    let _guard = common::set_isolated_config_dir();
+    let _ = init_dev_cert(true).expect("init dev cert");
+
+    let tmp = TempDir::new().expect("tmp");
+    let asset_path = tmp.path().join("sample.png");
+    fs::copy(fixture_path(), &asset_path).expect("copy fixture");
+
+    let home_path = std::env::var("HOME")
+        .map(|home| format!("{home}/private-project/article.smd"))
+        .unwrap_or_else(|_| "/home/alice/private-project/article.smd".to_string());
+
+    let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
+    let producer = CredentialProducer::new(signer);
+    producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset_path.clone(),
+            title: Some("Private Figure".to_string()),
+            provenance: Some(ProvenanceSnapshot {
+                asset: AssetSnapshot {
+                    kind: "figure".to_string(),
+                    ..Default::default()
+                },
+                document: DocumentSnapshot {
+                    node_type: "CodeChunk".to_string(),
+                    ..Default::default()
+                },
+                source: Some(SourceSnapshot {
+                    repository: Some("git@github.com:private/repo.git".to_string()),
+                    path: Some(home_path.clone()),
+                    dirty: Some(true),
+                    patch_digest: Some("sha256:private-patch".to_string()),
+                    ..Default::default()
+                }),
+                inputs: vec![IoSnapshot {
+                    name: Some("customers.csv".to_string()),
+                    uri: Some("s3://private-bucket/customers.csv?token=secret".to_string()),
+                    digest: Some("sha256:private-input".to_string()),
+                    access: Some("private".to_string()),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .await
+        .expect("sign");
+
+    let verifier = CredentialVerifier::new();
+    let report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path,
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            trust_anchors: None,
+        })
+        .await
+        .expect("verify");
+
+    let assertion = report
+        .provenance
+        .assertion
+        .as_ref()
+        .expect("parsed Stencila assertion");
+    assert!(assertion.source.as_ref().is_some_and(|source| {
+        source.repository.is_none() && source.path.is_none() && source.patch_digest.is_none()
+    }));
+    assert!(assertion.inputs.first().is_some_and(|input| {
+        input.name.as_deref() == Some("redacted") && input.uri.is_none() && input.digest.is_none()
+    }));
+    assert!(
+        assertion
+            .privacy
+            .redactions
+            .iter()
+            .any(|redaction| redaction.reason.as_deref() == Some("digest-omitted"))
+    );
+
+    let assertion_json = serde_json::to_string(assertion).expect("serialize assertion");
+    assert!(!assertion_json.contains("git@github.com:private"));
+    assert!(!assertion_json.contains(&home_path));
+    assert!(!assertion_json.contains("sha256:private-input"));
+    assert!(!assertion_json.contains("s3://private-bucket"));
 }
 
 /// Ensures a signed output cannot change extension to a different media type.

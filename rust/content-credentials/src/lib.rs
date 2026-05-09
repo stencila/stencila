@@ -12,6 +12,7 @@
 
 pub mod assertion;
 pub mod error;
+pub mod policy;
 pub mod producer;
 pub mod report;
 pub mod schema;
@@ -26,6 +27,7 @@ pub mod media;
 pub mod cli;
 
 pub use error::{Error, Result};
+pub use policy::{CredentialProfile, ProjectionPolicy};
 pub use producer::{CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset};
 pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,

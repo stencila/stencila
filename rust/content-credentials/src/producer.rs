@@ -16,6 +16,7 @@ use crate::{
     assertion::asset_kind_for_media_type,
     error::{Error, Result},
     media,
+    policy::{CredentialProfile, ProjectionPolicy},
     schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::CredentialSignerConfig,
     snapshot::{AssetSnapshot, ProvenanceSnapshot},
@@ -55,6 +56,9 @@ pub struct SignAssetRequest {
 
     /// Optional Stencila provenance facts to embed in `org.stencila.provenance`.
     pub provenance: Option<ProvenanceSnapshot>,
+
+    /// Privacy projection profile applied before signing.
+    pub credential_profile: CredentialProfile,
 }
 
 /// Result of a successful signing operation.
@@ -95,6 +99,7 @@ impl CredentialProducer {
             output_path,
             title,
             provenance,
+            credential_profile,
         } = request;
 
         if !input_path.exists() {
@@ -120,14 +125,25 @@ impl CredentialProducer {
             })
             .unwrap_or_else(|| "asset".to_string());
 
-        let assertion = provenance.map_or_else(
-            || ProvenanceAssertion::new_v1(&media_type, &source_digest),
-            |mut snapshot| {
-                snapshot.asset =
-                    normalize_asset_snapshot(snapshot.asset, &media_type, &source_digest);
-                ProvenanceAssertion::from_snapshot(snapshot)
-            },
-        );
+        let policy = ProjectionPolicy::for_profile(credential_profile);
+        let assertion = {
+            let snapshot = provenance.map_or_else(
+                || {
+                    ProvenanceSnapshot::for_asset(AssetSnapshot::new(
+                        asset_kind_for_media_type(&media_type),
+                        media_type.clone(),
+                        source_digest.clone(),
+                    ))
+                },
+                |mut snapshot| {
+                    snapshot.asset =
+                        normalize_asset_snapshot(snapshot.asset, &media_type, &source_digest);
+                    snapshot
+                },
+            );
+            ProvenanceAssertion::from_snapshot(policy.project_snapshot(snapshot))
+        };
+        policy.validate_assertion_size(&assertion)?;
 
         let media_for_task = media_type.clone();
         let source_digest_for_result = source_digest.clone();
