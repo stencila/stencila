@@ -1,0 +1,41 @@
+# Content Credentials R Plot Test
+
+This document is a small fixture for testing render/export signing with R plots.
+It uses only base R datasets and plotting functions so it does not require extra
+R packages.
+
+::: figure
+
+Stopping distance against speed for the built-in `cars` dataset.
+
+```r exec
+plot(
+  cars$speed,
+  cars$dist,
+  pch = 19,
+  col = "#2f6f9f",
+  xlab = "Speed",
+  ylab = "Stopping distance"
+)
+lines(lowess(cars$speed, cars$dist), col = "#c43d3d", lwd = 2)
+```
+
+:::
+
+::: figure
+
+Temperature distribution from the built-in `airquality` dataset.
+
+```r exec
+hist(
+  airquality$Temp,
+  breaks = 10,
+  col = "#7aa35a",
+  border = "white",
+  xlab = "Temperature",
+  main = ""
+)
+rug(airquality$Temp, col = "#333333")
+```
+
+:::

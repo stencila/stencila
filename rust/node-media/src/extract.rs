@@ -32,6 +32,18 @@ pub fn extract_media<T>(node: &mut T, document_path: Option<&Path>, media_dir: &
 where
     T: WalkNode,
 {
+    extract_media_with_paths(node, document_path, media_dir).map(|_| ())
+}
+
+/// Extract media and return the filesystem paths written.
+pub fn extract_media_with_paths<T>(
+    node: &mut T,
+    document_path: Option<&Path>,
+    media_dir: &Path,
+) -> Result<Vec<PathBuf>>
+where
+    T: WalkNode,
+{
     // Determine the document directory (base for relative paths)
     let document_dir = match document_path {
         Some(path) => {
@@ -47,10 +59,11 @@ where
     let mut walker = Extractor {
         document_dir,
         media_dir: media_dir.into(),
+        paths: Vec::new(),
     };
     walker.walk(node);
 
-    Ok(())
+    Ok(walker.paths)
 }
 
 struct Extractor {
@@ -59,6 +72,9 @@ struct Extractor {
 
     /// The directory where media files will be written
     media_dir: PathBuf,
+
+    /// The media files written during extraction.
+    paths: Vec<PathBuf>,
 }
 
 impl Extractor {
@@ -68,7 +84,7 @@ impl Extractor {
     /// URI and an extension based on the MIME type of the data URI.
     ///
     /// Returns the relative path of the created media file.
-    fn data_uri_to_file(&self, data_uri: &str) -> Result<String> {
+    fn data_uri_to_file(&mut self, data_uri: &str) -> Result<String> {
         // Parse the data URI
         let Some((header, data)) = data_uri.split(',').collect_tuple() else {
             bail!("Invalid data URI format");
@@ -112,6 +128,7 @@ impl Extractor {
         // Write the decoded data to the file
         let mut file = File::create(&path)?;
         file.write_all(&decoded_data)?;
+        self.paths.push(path.clone());
 
         let relative_path = diff_paths(&path, &self.document_dir)
             .unwrap_or(path)
@@ -121,13 +138,13 @@ impl Extractor {
         Ok(relative_path)
     }
 
-    fn extract_images(&self, images: &mut [ImageObject]) {
+    fn extract_images(&mut self, images: &mut [ImageObject]) {
         images
             .iter_mut()
             .for_each(|image| self.extract_image(image));
     }
 
-    fn extract_image(&self, image: &mut ImageObject) {
+    fn extract_image(&mut self, image: &mut ImageObject) {
         if image.content_url.starts_with("data:") {
             match self.data_uri_to_file(&image.content_url) {
                 Ok(file_path) => {
@@ -138,7 +155,7 @@ impl Extractor {
         }
     }
 
-    fn extract_audio(&self, audio: &mut AudioObject) {
+    fn extract_audio(&mut self, audio: &mut AudioObject) {
         if audio.content_url.starts_with("data:") {
             match self.data_uri_to_file(&audio.content_url) {
                 Ok(file_path) => {
@@ -149,7 +166,7 @@ impl Extractor {
         }
     }
 
-    fn extract_video(&self, video: &mut VideoObject) {
+    fn extract_video(&mut self, video: &mut VideoObject) {
         if video.content_url.starts_with("data:") {
             match self.data_uri_to_file(&video.content_url) {
                 Ok(file_path) => {

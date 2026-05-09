@@ -78,10 +78,41 @@ pub fn sha256_file(path: &Path) -> Result<String> {
 ///
 /// Returns an error when no media type can be inferred from the path.
 pub fn guess_media_type(path: &Path) -> Result<String> {
+    if let Some(media_type) = stencila_media_type(path) {
+        return Ok(media_type.to_string());
+    }
+
     mime_guess::from_path(path)
         .first()
         .map(|m| m.essence_str().to_string())
         .ok_or_else(|| Error::UnknownMediaType(path.to_path_buf()))
+}
+
+fn stencila_media_type(path: &Path) -> Option<&'static str> {
+    let path_string = path.to_string_lossy().to_lowercase();
+
+    for (suffix, media_type) in [
+        (".cbor.zstd", "application/cbor+zstd"),
+        (".dom.html", "text/dom"),
+        (".email.html", "text/html"),
+        (".jats.xml", "text/jats+xml"),
+        (".json.zip", "application/json+zip"),
+    ] {
+        if path_string.ends_with(suffix) {
+            return Some(media_type);
+        }
+    }
+
+    match Path::new(path_string.as_str())
+        .extension()
+        .and_then(|extension| extension.to_str())
+    {
+        Some("llmd") => Some("text/llmd"),
+        Some("myst") => Some("text/myst"),
+        Some("qmd") => Some("text/qmd"),
+        Some("smd") => Some("text/smd"),
+        _ => None,
+    }
 }
 
 /// Sidecar filename convention: replace the asset extension with `.c2pa`.
@@ -147,5 +178,22 @@ mod tests {
             "image/png"
         );
         assert!(guess_media_type(Path::new("foo.unknownext")).is_err());
+    }
+
+    /// Ensures Stencila-specific extensions override generic MIME guesses.
+    #[test]
+    fn guess_media_type_stencila_paths() {
+        assert_eq!(
+            guess_media_type(Path::new("foo.smd")).expect("smd"),
+            "text/smd"
+        );
+        assert_eq!(
+            guess_media_type(Path::new("foo.dom.html")).expect("dom"),
+            "text/dom"
+        );
+        assert_eq!(
+            guess_media_type(Path::new("foo.json.zip")).expect("json zip"),
+            "application/json+zip"
+        );
     }
 }

@@ -32,6 +32,19 @@ pub fn collect_media<T>(
 where
     T: WalkNode,
 {
+    collect_media_with_paths(node, document_path, to_path, media_dir).map(|_| ())
+}
+
+/// Collect media files and return the filesystem paths copied or referenced.
+pub fn collect_media_with_paths<T>(
+    node: &mut T,
+    document_path: Option<&Path>,
+    to_path: &Path,
+    media_dir: &Path,
+) -> Result<Vec<PathBuf>>
+where
+    T: WalkNode,
+{
     // Determine the document directory for resolving relative paths
     let document_dir = match document_path {
         Some(path) => {
@@ -58,10 +71,11 @@ where
         document_dir: document_dir.into(),
         to_dir: to_dir.into(),
         media_dir: media_dir.into(),
+        paths: Vec::new(),
     };
     collector.walk(node);
 
-    Ok(())
+    Ok(collector.paths)
 }
 
 struct Collector {
@@ -73,6 +87,9 @@ struct Collector {
 
     /// The directory where media files are stored
     media_dir: PathBuf,
+
+    /// The media files copied or selected while collecting.
+    paths: Vec<PathBuf>,
 }
 
 impl Collector {
@@ -126,6 +143,7 @@ impl Collector {
                 return None;
             }
         };
+        self.paths.push(dest_path.clone());
 
         // Create relative URL from document directory to the media file
         let relative_url = diff_paths(&dest_path, &self.to_dir)

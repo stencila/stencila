@@ -16,7 +16,7 @@ pub use decode::preprocess;
 
 mod encode;
 pub use encode::encode;
-use stencila_node_media::{embed_media, extract_media};
+use stencila_node_media::{embed_media, extract_media_with_paths};
 
 /// A codec for Markdown
 pub struct MarkdownCodec;
@@ -74,12 +74,14 @@ impl Codec for MarkdownCodec {
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            extract_media(
+            let assets = extract_media_with_paths(
                 &mut copy,
                 options.as_ref().and_then(|opts| opts.to_path.as_deref()),
                 media,
             )?;
-            encode(&copy, options)
+            let (md, mut info) = encode(&copy, options)?;
+            info.assets.extend(assets);
+            Ok((md, info))
         } else if options
             .as_ref()
             .and_then(|opts| opts.embed_media)

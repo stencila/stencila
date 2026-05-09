@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeSet,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -20,14 +21,19 @@ use stencila_codec::stencila_schema::{
     Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode,
 };
 pub use stencila_codec::{
-    CitationStyle, Codec, CodecDirection, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, NodeType,
-    PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile, PushDryRunOptions,
-    PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
+    CitationStyle, Codec, CodecDirection, CredentialProfile, CredentialsOptions, DecodeInfo,
+    DecodeOptions, EncodeInfo, EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry,
+    Message, MessageLevel, Messages, NodeType, PageSelector, PoshMap, Position8, Position16,
+    Positions, PushDryRunFile, PushDryRunOptions, PushResult, Range8, Range16,
+    StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
+    stencila_schema,
 };
 use stencila_codec_utils::rebase_edits;
+use stencila_content_credentials::{
+    AssetSnapshot, CredentialProducer, CredentialSignerConfig, ProvenanceSnapshot, SignAssetRequest,
+};
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
 
@@ -627,7 +633,7 @@ pub async fn to_path_with_info(
         ..options.unwrap_or_default()
     });
 
-    if let Some(EncodeOptions {
+    let mut info = if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
         strip_props,
@@ -637,10 +643,103 @@ pub async fn to_path_with_info(
     {
         let mut node = node.clone();
         node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-        return codec.to_path(&node, path, options).await;
+        codec.to_path(&node, path, options.clone()).await?
+    } else {
+        codec.to_path(node, path, options.clone()).await?
+    };
+
+    sign_encoded_paths(path, options.as_ref(), &mut info).await?;
+
+    Ok(info)
+}
+
+async fn sign_encoded_paths(
+    path: &Path,
+    options: Option<&EncodeOptions>,
+    info: &mut EncodeInfo,
+) -> Result<()> {
+    let Some(credentials) = options.and_then(|options| options.credentials.as_ref()) else {
+        return Ok(());
+    };
+
+    let signer = CredentialSignerConfig::resolve(None, None)?;
+    let producer = CredentialProducer::new(signer);
+
+    let mut paths = BTreeSet::new();
+    paths.insert(path.to_path_buf());
+    paths.extend(info.assets.iter().cloned());
+
+    for asset_path in paths {
+        if !asset_path.is_file() {
+            continue;
+        }
+
+        let primary = asset_path == path;
+        let media_type = if primary {
+            match stencila_content_credentials::media::guess_media_type(&asset_path) {
+                Ok(media_type) => Some(media_type),
+                Err(error) => {
+                    tracing::debug!("{error}");
+                    options.and_then(|options| options.format.as_ref().map(Format::media_type))
+                }
+            }
+        } else {
+            match stencila_content_credentials::media::guess_media_type(&asset_path) {
+                Ok(media_type) => Some(media_type),
+                Err(error) => {
+                    tracing::warn!(
+                        "Skipping content credentials for asset with unknown media type: {}",
+                        asset_path.display()
+                    );
+                    tracing::debug!("{error}");
+                    continue;
+                }
+            }
+        };
+
+        let provenance = provenance_for_encoded_asset(&asset_path, primary, credentials);
+        let signed = producer
+            .sign_exported_asset(SignAssetRequest {
+                input_path: asset_path,
+                media_type,
+                provenance: Some(provenance),
+                ..Default::default()
+            })
+            .await?;
+        if let Some(sidecar_path) = signed.sidecar_path
+            && !info.assets.contains(&sidecar_path)
+        {
+            info.assets.push(sidecar_path);
+        }
     }
 
-    codec.to_path(node, path, options).await
+    Ok(())
+}
+
+fn provenance_for_encoded_asset(
+    path: &Path,
+    primary: bool,
+    credentials: &CredentialsOptions,
+) -> ProvenanceSnapshot {
+    let mut snapshot = ProvenanceSnapshot::for_asset(AssetSnapshot::default());
+    snapshot.profile = Some(
+        if primary {
+            "document-export"
+        } else {
+            "computational-output"
+        }
+        .to_string(),
+    );
+    snapshot.asset.title = path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .map(ToString::to_string);
+    if let Some(privacy) = &mut snapshot.privacy {
+        let policy = format!("org.stencila.credentials.{}.v1", credentials.profile);
+        privacy.personal_data.policy = Some(policy.clone());
+        privacy.secrets.policy = Some(policy);
+    }
+    snapshot
 }
 
 /// Convert a document from one format to another

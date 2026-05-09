@@ -5,7 +5,7 @@ use std::{
 
 use clap::Args;
 
-use stencila_codecs::{PageSelector, StructuringOptions};
+use stencila_codecs::{CredentialProfile, PageSelector, StructuringOptions};
 use stencila_format::Format;
 use stencila_node_strip::StripScope;
 
@@ -245,6 +245,20 @@ pub struct EncodeOptions {
     #[arg(long, alias = "repro", help_heading = "Encoding Options")]
     reproducible: bool,
 
+    /// Sign encoded outputs with C2PA Content Credentials
+    ///
+    /// With no value, uses the public profile. Use `--credentials=private` or
+    /// `--credentials=full` to opt into more local provenance detail.
+    #[arg(
+        long,
+        num_args = 0..=1,
+        default_missing_value = "public",
+        require_equals = true,
+        value_name = "PROFILE",
+        help_heading = "Encoding Options"
+    )]
+    credentials: Option<CredentialProfile>,
+
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
@@ -408,6 +422,11 @@ impl EncodeOptions {
 
         let reproducible = self.reproducible.then_some(true);
 
+        let credentials = self
+            .credentials
+            .clone()
+            .map(|profile| stencila_codecs::CredentialsOptions { profile });
+
         let highlight = self
             .highlight
             .then_some(true)
@@ -456,6 +475,7 @@ impl EncodeOptions {
             compact,
             highlight,
             reproducible,
+            credentials,
             template,
             standalone,
             theme: self.theme.clone(),

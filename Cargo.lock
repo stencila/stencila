@@ -11098,6 +11098,7 @@ dependencies = [
  "stencila-codec-xlsx",
  "stencila-codec-yaml",
  "stencila-codec-zenodo",
+ "stencila-content-credentials",
  "stencila-node-stabilize",
  "stencila-node-strip",
  "stencila-node-structuring",

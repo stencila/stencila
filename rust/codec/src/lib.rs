@@ -436,6 +436,35 @@ impl DecodeOptions {
     }
 }
 
+/// Content Credentials signing profile.
+///
+/// The profile controls how much local provenance detail may be projected into
+/// a signed C2PA manifest. The default public profile is conservative.
+#[derive(
+    Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, ValueEnum, Display, EnumString,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum CredentialProfile {
+    /// Public-safe credential metadata.
+    #[default]
+    Public,
+
+    /// More local detail for internal sharing.
+    Private,
+
+    /// Full local detail for controlled archives.
+    Full,
+}
+
+/// Content Credentials options for encoding.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(default, rename_all = "kebab-case")]
+pub struct CredentialsOptions {
+    /// The privacy/signing projection profile to use.
+    pub profile: CredentialProfile,
+}
+
 /// Encoding options
 #[skip_serializing_none]
 #[derive(Debug, SmartDefault, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -460,6 +489,13 @@ pub struct EncodeOptions {
 
     /// Encode such that changes in the encoded document can be applied back to its source
     pub reproducible: Option<bool>,
+
+    /// Sign encoded outputs with C2PA Content Credentials.
+    ///
+    /// Absence means "do not sign". Presence means sign using the selected
+    /// projection profile. The C2PA implementation lives in the dispatcher
+    /// crate, so individual codecs only carry this configuration.
+    pub credentials: Option<CredentialsOptions>,
 
     /// The template document to use
     ///

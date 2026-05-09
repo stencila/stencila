@@ -75,6 +75,7 @@ where
     let info = EncodeInfo {
         losses: context.losses,
         mapping: context.mapping,
+        ..Default::default()
     };
 
     (latex, info)

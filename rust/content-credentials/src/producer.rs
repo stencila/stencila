@@ -34,6 +34,13 @@ pub enum ManifestKind {
 pub struct SignAssetRequest {
     pub input_path: PathBuf,
 
+    /// Optional media type override.
+    ///
+    /// When absent, the media type is inferred from [`input_path`](Self::input_path).
+    /// Use this for Stencila-owned formats whose extension is not reliably
+    /// represented by generic MIME databases.
+    pub media_type: Option<String>,
+
     /// Where the signed asset should be written.
     ///
     /// `None` means in-place for embedded manifests, or sidecar-next-to-input
@@ -84,6 +91,7 @@ impl CredentialProducer {
     pub async fn sign_exported_asset(&self, request: SignAssetRequest) -> Result<SignedAsset> {
         let SignAssetRequest {
             input_path,
+            media_type,
             output_path,
             title,
             provenance,
@@ -93,7 +101,7 @@ impl CredentialProducer {
             return Err(Error::InputNotFound(input_path));
         }
 
-        let media_type = media::guess_media_type(&input_path)?;
+        let media_type = media_type.map_or_else(|| media::guess_media_type(&input_path), Ok)?;
         let embed = media::embed_supported(&media_type);
         if let Some(output_path) = output_path.as_deref() {
             if !embed && media::sidecar_path(output_path) == output_path {
@@ -274,6 +282,19 @@ fn sign_sidecar(
         return sign_prehashed_sidecar(&request, signer);
     }
 
+    if !media::could_have_embedded(media_type) {
+        let request = PrehashedSidecarRequest {
+            input_path,
+            asset_dest: &asset_dest,
+            sidecar_dest: &sidecar_dest,
+            media_type,
+            title,
+            assertion,
+            permissions: &permissions,
+        };
+        return sign_unsupported_sidecar(&request, signer);
+    }
+
     // Capture both outputs from c2pa. For supported writable formats the SDK
     // may rewrite the asset stream, for example to strip an existing embedded
     // manifest before computing the hard binding.
@@ -328,6 +349,46 @@ fn sign_prehashed_sidecar(
     let mut source = File::open(request.input_path)?;
     let mut tmp_asset = NamedTempFile::new_in(&parent)?;
     io::copy(&mut source, &mut tmp_asset)?;
+    tmp_asset.flush()?;
+    persist_with_permissions(tmp_asset, request.asset_dest, request.permissions)?;
+
+    let mut tmp_sidecar = NamedTempFile::new_in(&parent)?;
+    tmp_sidecar.write_all(&manifest_bytes)?;
+    tmp_sidecar.flush()?;
+    persist_with_permissions(tmp_sidecar, request.sidecar_dest, request.permissions)?;
+
+    Ok((
+        request.asset_dest.to_path_buf(),
+        Some(request.sidecar_dest.to_path_buf()),
+    ))
+}
+
+fn sign_unsupported_sidecar(
+    request: &PrehashedSidecarRequest,
+    signer: BoxedSigner,
+) -> Result<(PathBuf, Option<PathBuf>)> {
+    let parent = request
+        .asset_dest
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
+
+    let mut builder =
+        build_builder_with_signer(request.media_type, request.title, request.assertion, signer)?;
+    builder.set_no_embed(true);
+
+    let mut source = File::open(request.input_path)?;
+    let mut sink = Cursor::new(Vec::<u8>::new());
+    let manifest_bytes = builder.save_to_stream(request.media_type, &mut source, &mut sink)?;
+    let signed_asset_bytes = sink.into_inner();
+
+    let mut tmp_asset = NamedTempFile::new_in(&parent)?;
+    if signed_asset_bytes.is_empty() {
+        let mut source = File::open(request.input_path)?;
+        io::copy(&mut source, &mut tmp_asset)?;
+    } else {
+        tmp_asset.write_all(&signed_asset_bytes)?;
+    }
     tmp_asset.flush()?;
     persist_with_permissions(tmp_asset, request.asset_dest, request.permissions)?;
 

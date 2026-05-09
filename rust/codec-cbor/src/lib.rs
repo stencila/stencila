@@ -2,7 +2,7 @@ use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,
     stencila_format::Format, stencila_schema::Node,
 };
-use stencila_node_media::{embed_media, extract_media};
+use stencila_node_media::{embed_media, extract_media_with_paths};
 
 pub mod r#trait;
 use r#trait::CborCodec as _;
@@ -61,12 +61,13 @@ impl Codec for CborCodec {
         node: &Node,
         options: Option<EncodeOptions>,
     ) -> Result<(Vec<u8>, EncodeInfo)> {
+        let mut assets = Vec::new();
         let bytes = if let Some(media) = options
             .as_ref()
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            extract_media(
+            assets = extract_media_with_paths(
                 &mut copy,
                 options.as_ref().and_then(|opts| opts.to_path.as_deref()),
                 media,
@@ -93,6 +94,12 @@ impl Codec for CborCodec {
             bytes
         };
 
-        Ok((bytes, EncodeInfo::none()))
+        Ok((
+            bytes,
+            EncodeInfo {
+                assets,
+                ..EncodeInfo::none()
+            },
+        ))
     }
 }

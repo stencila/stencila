@@ -5,6 +5,8 @@ mod poshmap;
 mod positions;
 mod shifter;
 
+use std::path::PathBuf;
+
 pub use losses::*;
 pub use mapping::*;
 pub use messages::*;
@@ -47,6 +49,13 @@ pub struct EncodeInfo {
 
     /// The mapping between content location and the node and its children
     pub mapping: Mapping,
+
+    /// Additional filesystem assets written while encoding.
+    ///
+    /// Examples include extracted media files written next to Markdown, HTML,
+    /// or LaTeX outputs. Dispatchers can use this to perform follow-up actions
+    /// such as signing side assets without guessing from directory contents.
+    pub assets: Vec<PathBuf>,
 }
 
 impl EncodeInfo {
@@ -55,6 +64,7 @@ impl EncodeInfo {
         Self {
             losses: Losses::none(),
             mapping: Mapping::none(),
+            assets: Vec::new(),
         }
     }
 }

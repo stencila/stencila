@@ -61,6 +61,7 @@ impl Codec for EmailCodec {
         let encode_info = EncodeInfo {
             losses,
             mapping: stencila_codec::Mapping::none(),
+            ..Default::default()
         };
 
         match format {
