@@ -55,6 +55,7 @@ impl Cli {
             input_path: self.input,
             output_path: self.output,
             title: self.title,
+            ..Default::default()
         };
         let signed_asset = producer.sign_exported_asset(request).await?;
 

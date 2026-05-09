@@ -31,8 +31,7 @@ async fn sign_and_verify_pdf_sidecar() {
     let signed = producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset.clone(),
-            output_path: None,
-            title: None,
+            ..Default::default()
         })
         .await
         .expect("sign");
@@ -75,7 +74,7 @@ async fn sidecar_output_cannot_equal_asset_output() {
         .sign_exported_asset(SignAssetRequest {
             input_path: asset,
             output_path: Some(tmp.path().join("doc.c2pa")),
-            title: None,
+            ..Default::default()
         })
         .await
         .expect_err("conflicting output should fail");
@@ -105,8 +104,7 @@ async fn sidecar_signing_persists_rewritten_asset() -> Result<()> {
     let signed = producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset.clone(),
-            output_path: None,
-            title: None,
+            ..Default::default()
         })
         .await?;
 

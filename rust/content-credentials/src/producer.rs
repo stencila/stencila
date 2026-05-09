@@ -13,11 +13,12 @@ use serde_json::json;
 use tempfile::NamedTempFile;
 
 use crate::{
-    assertion::ProvenanceAssertion,
+    assertion::asset_kind_for_media_type,
     error::{Error, Result},
     media,
-    schema::PROVENANCE_LABEL,
+    schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::CredentialSignerConfig,
+    snapshot::{AssetSnapshot, ProvenanceSnapshot},
 };
 
 /// Whether a manifest is embedded in the asset bytes or written to a sidecar.
@@ -29,9 +30,10 @@ pub enum ManifestKind {
 }
 
 /// Inputs for signing an exported asset.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct SignAssetRequest {
     pub input_path: PathBuf,
+
     /// Where the signed asset should be written.
     ///
     /// `None` means in-place for embedded manifests, or sidecar-next-to-input
@@ -40,8 +42,12 @@ pub struct SignAssetRequest {
     /// When supplied, the output extension must resolve to the same media type
     /// as the input so future verification uses the correct C2PA handler.
     pub output_path: Option<PathBuf>,
+
     /// Optional human-readable title surfaced in the C2PA manifest.
     pub title: Option<String>,
+
+    /// Optional Stencila provenance facts to embed in `org.stencila.provenance`.
+    pub provenance: Option<ProvenanceSnapshot>,
 }
 
 /// Result of a successful signing operation.
@@ -80,6 +86,7 @@ impl CredentialProducer {
             input_path,
             output_path,
             title,
+            provenance,
         } = request;
 
         if !input_path.exists() {
@@ -105,7 +112,14 @@ impl CredentialProducer {
             })
             .unwrap_or_else(|| "asset".to_string());
 
-        let assertion = ProvenanceAssertion::new_v1(&media_type, &source_digest);
+        let assertion = provenance.map_or_else(
+            || ProvenanceAssertion::new_v1(&media_type, &source_digest),
+            |mut snapshot| {
+                snapshot.asset =
+                    normalize_asset_snapshot(snapshot.asset, &media_type, &source_digest);
+                ProvenanceAssertion::from_snapshot(snapshot)
+            },
+        );
 
         let media_for_task = media_type.clone();
         let source_digest_for_result = source_digest.clone();
@@ -152,6 +166,19 @@ impl CredentialProducer {
             media_type: media_type_for_result,
         })
     }
+}
+
+fn normalize_asset_snapshot(
+    mut asset: AssetSnapshot,
+    media_type: &str,
+    source_digest: &str,
+) -> AssetSnapshot {
+    asset.media_type = media_type.to_string();
+    asset.digest = source_digest.to_string();
+    if asset.kind.is_empty() || asset.kind == "asset" {
+        asset.kind = asset_kind_for_media_type(media_type).to_string();
+    }
+    asset
 }
 
 fn validate_output_media_type(

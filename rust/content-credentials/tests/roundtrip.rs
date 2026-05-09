@@ -4,8 +4,9 @@ use std::fs;
 use std::path::{Path, PathBuf};
 
 use stencila_content_credentials::{
-    CredentialProducer, CredentialVerifier, Error, ManifestKind, SignAssetRequest,
-    VerifyAssetRequest, init_dev_cert, signer::CredentialSignerConfig,
+    AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error, ManifestKind,
+    ProducerSnapshot, ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
+    init_dev_cert, signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
 
@@ -26,8 +27,8 @@ async fn sign_then_verify_png() {
     let signed = producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset_path.clone(),
-            output_path: None,
             title: Some("Sample".to_string()),
+            ..Default::default()
         })
         .await
         .expect("sign");
@@ -67,7 +68,93 @@ async fn sign_then_verify_png() {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert_eq!(assertion.asset.source_digest, signed.source_digest);
+    assert_eq!(assertion.asset.digest, signed.source_digest);
+    assert_eq!(assertion.asset.kind, "image");
+    assert_eq!(assertion.document.node_type, "File");
+    assert_eq!(assertion.verification.reproducibility_status, "not-checked");
+}
+
+/// Exercises signing with an explicit Stencila provenance snapshot.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn sign_with_provenance_snapshot() {
+    let _guard = common::set_isolated_config_dir();
+    let _ = init_dev_cert(true).expect("init dev cert");
+
+    let tmp = TempDir::new().expect("tmp");
+    let asset_path = tmp.path().join("sample.png");
+    fs::copy(fixture_path(), &asset_path).expect("copy fixture");
+
+    let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
+    let producer = CredentialProducer::new(signer);
+    producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset_path.clone(),
+            title: Some("Figure 1".to_string()),
+            provenance: Some(ProvenanceSnapshot {
+                profile: Some("computational-output".to_string()),
+                asset: AssetSnapshot {
+                    kind: "figure".to_string(),
+                    label: Some("fig:example".to_string()),
+                    title: Some("Figure 1".to_string()),
+                    ..Default::default()
+                },
+                document: DocumentSnapshot {
+                    node_type: "CodeChunk".to_string(),
+                    node_id: Some("chunk-1".to_string()),
+                    label_type: Some("FigureLabel".to_string()),
+                    programming_language: Some("python".to_string()),
+                    ..Default::default()
+                },
+                producer: Some(ProducerSnapshot {
+                    codec: Some("png".to_string()),
+                    renderer: Some("stencila-cli".to_string()),
+                    ..Default::default()
+                }),
+                source: Some(SourceSnapshot {
+                    repository: Some("https://github.com/stencila/example".to_string()),
+                    commit: Some("0123456789abcdef".to_string()),
+                    path: Some("article.smd".to_string()),
+                    dirty: Some(false),
+                    ..Default::default()
+                }),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .await
+        .expect("sign");
+
+    let verifier = CredentialVerifier::new();
+    let report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path,
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            trust_anchors: None,
+        })
+        .await
+        .expect("verify");
+
+    let assertion = report
+        .provenance
+        .assertion
+        .as_ref()
+        .expect("parsed Stencila assertion");
+    assert_eq!(assertion.profile, "computational-output");
+    assert_eq!(assertion.asset.kind, "figure");
+    assert_eq!(assertion.asset.media_type, "image/png");
+    assert!(assertion.asset.digest.starts_with("sha256:"));
+    assert_eq!(assertion.asset.label.as_deref(), Some("fig:example"));
+    assert_eq!(assertion.document.node_type, "CodeChunk");
+    assert_eq!(assertion.document.node_id.as_deref(), Some("chunk-1"));
+    assert_eq!(
+        assertion
+            .source
+            .as_ref()
+            .and_then(|source| source.commit.as_deref()),
+        Some("0123456789abcdef")
+    );
+    assert_eq!(assertion.producer.codec.as_deref(), Some("png"));
 }
 
 /// Ensures a signed output cannot change extension to a different media type.
@@ -86,7 +173,7 @@ async fn output_media_type_must_match_input() {
         .sign_exported_asset(SignAssetRequest {
             input_path: asset_path,
             output_path: Some(tmp.path().join("sample.jpg")),
-            title: None,
+            ..Default::default()
         })
         .await
         .expect_err("mismatched output media type should fail");
@@ -109,8 +196,8 @@ async fn embedded_manifest_wins_over_stale_sidecar() {
     producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset_path.clone(),
-            output_path: None,
             title: Some("Sample".to_string()),
+            ..Default::default()
         })
         .await
         .expect("sign");
@@ -150,8 +237,8 @@ async fn malformed_embedded_manifest_does_not_fall_back_to_sidecar() {
     producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset_path.clone(),
-            output_path: None,
             title: Some("Sample".to_string()),
+            ..Default::default()
         })
         .await
         .expect("sign");

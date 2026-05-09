@@ -4,10 +4,9 @@
 //! C2PA Content Credentials for Stencila assets, with a custom
 //! `org.stencila.provenance` assertion.
 //!
-//! The MVP exposes the underlying C2PA mechanics — sign, embed-or-sidecar,
-//! verify with a four-status report — without committing to a final shape
-//! for the assertion payload. The payload is intentionally minimal here;
-//! richer fields land in a follow-up phase and are designed to be additive.
+//! The crate exposes the underlying C2PA mechanics — sign, embed-or-sidecar,
+//! verify with a four-status report — and maps Stencila provenance snapshots
+//! into a versioned `org.stencila.provenance` assertion payload.
 
 #![warn(clippy::pedantic)]
 
@@ -17,6 +16,7 @@ pub mod producer;
 pub mod report;
 pub mod schema;
 pub mod signer;
+pub mod snapshot;
 pub mod trust;
 pub mod verifier;
 
@@ -25,14 +25,20 @@ pub mod media;
 #[cfg(feature = "cli")]
 pub mod cli;
 
-pub use assertion::ProvenanceAssertion;
 pub use error::{Error, Result};
 pub use producer::{CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset};
 pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
     VerificationReport,
 };
-pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1};
+pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1, ProvenanceAssertion};
 pub use signer::{CredentialSignerConfig, init_dev_cert};
+pub use snapshot::{
+    AgentSnapshot, AssetSnapshot, DefinitionSnapshot, DependencySnapshot, DocumentSnapshot,
+    EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
+    FileDigestSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
+    ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot,
+    RuntimeSnapshot, SkillUsageSnapshot, SourceSnapshot, VerificationSnapshot, WorkflowSnapshot,
+};
 pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
 pub use verifier::{CredentialVerifier, VerifyAssetRequest};

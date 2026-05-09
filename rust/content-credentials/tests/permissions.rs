@@ -30,8 +30,7 @@ async fn embedded_signing_preserves_asset_permissions() -> Result<()> {
     producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset.clone(),
-            output_path: None,
-            title: None,
+            ..Default::default()
         })
         .await?;
 
@@ -56,7 +55,7 @@ async fn sidecar_signing_preserves_output_and_sidecar_permissions() -> Result<()
         .sign_exported_asset(SignAssetRequest {
             input_path: input,
             output_path: Some(output.clone()),
-            title: None,
+            ..Default::default()
         })
         .await?;
 

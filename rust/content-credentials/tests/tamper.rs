@@ -27,8 +27,7 @@ async fn tamper_breaks_binding() {
     producer
         .sign_exported_asset(SignAssetRequest {
             input_path: asset.clone(),
-            output_path: None,
-            title: None,
+            ..Default::default()
         })
         .await
         .expect("sign");

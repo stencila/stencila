@@ -24,14 +24,13 @@ use c2pa::{
 use serde_json::Value;
 
 use crate::{
-    assertion::ProvenanceAssertion,
     error::{Error, Result},
     media,
     report::{
         AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
         VerificationReport,
     },
-    schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1},
+    schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA_V1, ProvenanceAssertion},
 };
 
 /// Inputs for verifying an asset.
@@ -477,7 +476,7 @@ mod tests {
     fn parse_provenance_v1_malformed() {
         let raw = json!({
             "schema": PROVENANCE_SCHEMA_V1,
-            "producer": { "name": "Stencila" }, // missing required `version`
+            "asset": { "mediaType": 42, "digest": "sha256:abc" },
         });
         let (status, problem) = parse_provenance(Some(raw), true);
         assert!(status.assertion_present);
@@ -494,11 +493,8 @@ mod tests {
     /// Ensures an assertion is not reported as attested unless the claim signature is valid.
     #[test]
     fn parse_provenance_requires_valid_signature_for_attestation() {
-        let raw = json!({
-            "schema": PROVENANCE_SCHEMA_V1,
-            "producer": { "name": "Stencila", "version": "9.9.9" },
-            "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
-        });
+        let raw = serde_json::to_value(ProvenanceAssertion::new_v1("image/png", "sha256:abc"))
+            .expect("serialize");
         let (status, problem) = parse_provenance(Some(raw), false);
 
         assert!(status.assertion_present);

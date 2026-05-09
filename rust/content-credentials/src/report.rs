@@ -5,7 +5,7 @@ use std::fmt::{self, Display};
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::assertion::ProvenanceAssertion;
+use crate::schema::ProvenanceAssertion;
 
 /// Top-level structured verification report.
 #[derive(Debug, Clone, Serialize)]
