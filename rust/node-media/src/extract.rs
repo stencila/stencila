@@ -12,10 +12,11 @@ use itertools::Itertools;
 use pathdiff::diff_paths;
 use seahash::SeaHasher;
 
+use stencila_codec_info::EncodedAsset;
 use stencila_format::Format;
 use stencila_schema::{
-    AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, VideoObject, VisitorMut,
-    WalkControl, WalkNode,
+    AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, NodeId, NodeType,
+    VideoObject, VisitorMut, WalkControl, WalkNode,
 };
 
 /// Extract any [`ImageObject`], [`AudioObject`], and [`VideoObject`] with
@@ -35,12 +36,16 @@ where
     extract_media_with_paths(node, document_path, media_dir).map(|_| ())
 }
 
-/// Extract media and return the filesystem paths written.
+/// Extract media and return a record per asset written.
+///
+/// Each [`EncodedAsset`] is annotated with the originating node's id/type and
+/// an asset role (e.g. `computational-output`, `math-image`, `table-image`,
+/// `figure`) so dispatchers can attach per-node provenance to the file.
 pub fn extract_media_with_paths<T>(
     node: &mut T,
     document_path: Option<&Path>,
     media_dir: &Path,
-) -> Result<Vec<PathBuf>>
+) -> Result<Vec<EncodedAsset>>
 where
     T: WalkNode,
 {
@@ -59,11 +64,12 @@ where
     let mut walker = Extractor {
         document_dir,
         media_dir: media_dir.into(),
-        paths: Vec::new(),
+        parent_stack: Vec::new(),
+        assets: Vec::new(),
     };
     walker.walk(node);
 
-    Ok(walker.paths)
+    Ok(walker.assets)
 }
 
 struct Extractor {
@@ -73,8 +79,13 @@ struct Extractor {
     /// The directory where media files will be written
     media_dir: PathBuf,
 
-    /// The media files written during extraction.
-    paths: Vec<PathBuf>,
+    /// Stack of ancestor structs, used to attribute extracted assets to the
+    /// closest meaningful originating node (executable, math/table container,
+    /// or the media object itself).
+    parent_stack: Vec<(NodeType, NodeId)>,
+
+    /// The asset records produced during extraction.
+    assets: Vec<EncodedAsset>,
 }
 
 impl Extractor {
@@ -83,8 +94,9 @@ impl Extractor {
     /// The media will be converted into a file with a name based on the hash of the
     /// URI and an extension based on the MIME type of the data URI.
     ///
-    /// Returns the relative path of the created media file.
-    fn data_uri_to_file(&mut self, data_uri: &str) -> Result<String> {
+    /// Returns the absolute path of the created media file and the relative
+    /// path to use as the rewritten `content_url`.
+    fn data_uri_to_file(&mut self, data_uri: &str) -> Result<(PathBuf, String)> {
         // Parse the data URI
         let Some((header, data)) = data_uri.split(',').collect_tuple() else {
             bail!("Invalid data URI format");
@@ -128,14 +140,56 @@ impl Extractor {
         // Write the decoded data to the file
         let mut file = File::create(&path)?;
         file.write_all(&decoded_data)?;
-        self.paths.push(path.clone());
 
         let relative_path = diff_paths(&path, &self.document_dir)
-            .unwrap_or(path)
+            .unwrap_or_else(|| path.clone())
             .to_string_lossy()
             .to_string();
 
-        Ok(relative_path)
+        Ok((path, relative_path))
+    }
+
+    /// Record an extracted asset with originating-node attribution.
+    fn record_asset(&mut self, path: PathBuf, self_id: Option<&NodeId>, self_type: NodeType) {
+        let (node_type, node_id) = self.originating(self_id, self_type);
+        let role = role_for(node_type);
+        self.assets.push(EncodedAsset {
+            path,
+            node_id: node_id.map(|id| id.to_string()),
+            node_type: Some(node_type.to_string()),
+            role: Some(role.to_string()),
+        });
+    }
+
+    /// Compute the originating node for an asset.
+    ///
+    /// Prefers the closest executable ancestor (CodeChunk, CodeExpression,
+    /// etc.), then any other meaningful container (MathBlock, MathInline,
+    /// Table). Falls back to the media object itself.
+    fn originating(
+        &self,
+        self_id: Option<&NodeId>,
+        self_type: NodeType,
+    ) -> (NodeType, Option<NodeId>) {
+        if let Some((node_type, node_id)) = self
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|(node_type, _)| is_executable(*node_type))
+        {
+            return (*node_type, Some(node_id.clone()));
+        }
+
+        if let Some((node_type, node_id)) = self
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|(node_type, _)| is_media_container(*node_type))
+        {
+            return (*node_type, Some(node_id.clone()));
+        }
+
+        (self_type, self_id.cloned())
     }
 
     fn extract_images(&mut self, images: &mut [ImageObject]) {
@@ -147,7 +201,9 @@ impl Extractor {
     fn extract_image(&mut self, image: &mut ImageObject) {
         if image.content_url.starts_with("data:") {
             match self.data_uri_to_file(&image.content_url) {
-                Ok(file_path) => {
+                Ok((path, file_path)) => {
+                    let id = image.node_id();
+                    self.record_asset(path, Some(&id), NodeType::ImageObject);
                     image.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing image to file: {error}"),
@@ -158,7 +214,9 @@ impl Extractor {
     fn extract_audio(&mut self, audio: &mut AudioObject) {
         if audio.content_url.starts_with("data:") {
             match self.data_uri_to_file(&audio.content_url) {
-                Ok(file_path) => {
+                Ok((path, file_path)) => {
+                    let id = audio.node_id();
+                    self.record_asset(path, Some(&id), NodeType::AudioObject);
                     audio.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing audio to file: {error}"),
@@ -169,7 +227,9 @@ impl Extractor {
     fn extract_video(&mut self, video: &mut VideoObject) {
         if video.content_url.starts_with("data:") {
             match self.data_uri_to_file(&video.content_url) {
-                Ok(file_path) => {
+                Ok((path, file_path)) => {
+                    let id = video.node_id();
+                    self.record_asset(path, Some(&id), NodeType::VideoObject);
                     video.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing video to file: {error}"),
@@ -178,7 +238,64 @@ impl Extractor {
     }
 }
 
+/// Node types that produce media as a side-effect of execution. Extracted
+/// media inside these is attributed to the executable so per-asset
+/// credentials carry that node's execution facts.
+///
+/// `Article` is intentionally excluded: a plain image in article body is
+/// attributed to the image itself, not the article, so the per-asset
+/// snapshot doesn't duplicate the document-level snapshot.
+fn is_executable(node_type: NodeType) -> bool {
+    matches!(
+        node_type,
+        NodeType::Button
+            | NodeType::CallBlock
+            | NodeType::CodeChunk
+            | NodeType::CodeExpression
+            | NodeType::ForBlock
+            | NodeType::Form
+            | NodeType::IfBlock
+            | NodeType::IfBlockClause
+            | NodeType::IncludeBlock
+            | NodeType::InstructionBlock
+            | NodeType::InstructionInline
+            | NodeType::Parameter
+            | NodeType::PromptBlock
+    )
+}
+
+/// Non-executable container types whose own identity is the right credential
+/// subject for media they wrap (rendered math, table images, etc.).
+fn is_media_container(node_type: NodeType) -> bool {
+    matches!(
+        node_type,
+        NodeType::MathBlock | NodeType::MathInline | NodeType::Table | NodeType::Figure
+    )
+}
+
+/// Asset role string derived from the originating node type.
+fn role_for(node_type: NodeType) -> &'static str {
+    if is_executable(node_type) {
+        return "computational-output";
+    }
+    match node_type {
+        NodeType::MathBlock | NodeType::MathInline => "math-image",
+        NodeType::Table => "table-image",
+        NodeType::Figure => "figure",
+        _ => "figure",
+    }
+}
+
 impl VisitorMut for Extractor {
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
+        self.parent_stack.push((node_type, node_id));
+        WalkControl::Continue
+    }
+
+    fn exit_struct(&mut self) {
+        self.parent_stack.pop();
+    }
+
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         match node {
             Node::AudioObject(audio) => self.extract_audio(audio),

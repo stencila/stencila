@@ -18,22 +18,20 @@ use walkdir::WalkDir;
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{Code, ToStdout};
 use stencila_codec::stencila_schema::{
-    Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode,
+    Article, Block, IncludeBlock, Node, NodeId, VisitorAsync, WalkControl, WalkNode,
 };
 pub use stencila_codec::{
     CitationStyle, Codec, CodecDirection, CredentialProfile, CredentialsOptions, DecodeInfo,
-    DecodeOptions, EncodeInfo, EncodeOptions, Losses, LossesResponse, Mapping, MappingEntry,
-    Message, MessageLevel, Messages, NodeType, PageSelector, PoshMap, Position8, Position16,
-    Positions, PushDryRunFile, PushDryRunOptions, PushResult, Range8, Range16,
+    DecodeOptions, EncodeInfo, EncodeOptions, EncodedAsset, Losses, LossesResponse, Mapping,
+    MappingEntry, Message, MessageLevel, Messages, NodeType, PageSelector, PoshMap, Position8,
+    Position16, Positions, PushDryRunFile, PushDryRunOptions, PushResult, Range8, Range16,
     StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
     stencila_schema,
 };
 use stencila_codec_utils::rebase_edits;
-use stencila_content_credentials::{
-    CredentialProducer, CredentialSignerConfig, SignAssetRequest,
-};
+use stencila_content_credentials::{CredentialProducer, CredentialSignerConfig, SignAssetRequest};
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
 
@@ -672,11 +670,27 @@ async fn sign_encoded_paths(
     let source_path = options.and_then(|options| options.from_path.as_deref());
     let profile_label = credentials.profile.to_string();
 
-    let mut paths = BTreeSet::new();
-    paths.insert(path.to_path_buf());
-    paths.extend(info.assets.iter().cloned());
+    // Build the work list as (path, originating-node-id, asset-role) tuples.
+    // The primary export carries no node id (its subject is the document root).
+    // Side assets inherit any node id captured during media extraction so the
+    // signer can attach per-node credentials.
+    let mut targets: Vec<(PathBuf, Option<String>, Option<String>)> = Vec::new();
+    targets.push((path.to_path_buf(), None, None));
+    let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
+    seen.insert(path.to_path_buf());
+    for asset in &info.assets {
+        if !seen.insert(asset.path.clone()) {
+            continue;
+        }
+        targets.push((
+            asset.path.clone(),
+            asset.node_id.clone(),
+            asset.role.clone(),
+        ));
+    }
 
-    for asset_path in paths {
+    let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
+    for (asset_path, originating_id, asset_role) in targets {
         if !asset_path.is_file() {
             continue;
         }
@@ -704,11 +718,22 @@ async fn sign_encoded_paths(
             }
         };
 
+        // For per-asset signing, look up the originating node so its execution
+        // facts land on the asset's snapshot. Fall back to the root when we
+        // can't (or shouldn't, for the primary export).
+        let owned_subject = originating_id
+            .as_deref()
+            .and_then(|id| id.parse::<NodeId>().ok())
+            .and_then(|id| stencila_node_find::find(node, id));
+        let subject = owned_subject.as_ref().unwrap_or(node);
+
         let provenance = credentials::build_export_snapshot(
             node,
+            subject,
             source_path,
             &asset_path,
             primary,
+            asset_role.as_deref(),
             Some(codec_name),
             &profile_label,
         );
@@ -722,11 +747,14 @@ async fn sign_encoded_paths(
             })
             .await?;
         if let Some(sidecar_path) = signed.sidecar_path
-            && !info.assets.contains(&sidecar_path)
+            && !info.assets.iter().any(|asset| asset.path == sidecar_path)
+            && !new_sidecars.iter().any(|asset| asset.path == sidecar_path)
         {
-            info.assets.push(sidecar_path);
+            new_sidecars.push(EncodedAsset::sidecar(sidecar_path));
         }
     }
+
+    info.assets.extend(new_sidecars);
 
     Ok(())
 }

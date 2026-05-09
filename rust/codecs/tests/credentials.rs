@@ -10,7 +10,9 @@ use std::{
 use tempfile::TempDir;
 
 use stencila_codecs::stencila_schema::{
-    Article, Block, ImageObject, Inline, Node, Paragraph, Text,
+    Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionDependency,
+    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, ImageObject, Inline,
+    MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
     CredentialProfile, CredentialsOptions, EncodeOptions, Format, Result, to_path_with_info,
@@ -81,11 +83,16 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
 
     let document_sidecar = sidecar_path(&output);
     assert!(document_sidecar.exists());
-    assert!(info.assets.contains(&document_sidecar));
+    assert!(
+        info.assets
+            .iter()
+            .any(|asset| asset.path == document_sidecar)
+    );
 
     let media_path = info
         .assets
         .iter()
+        .map(|asset| &asset.path)
         .find(|path| path.extension().and_then(|ext| ext.to_str()) != Some("c2pa"))
         .expect("extracted media asset");
     assert!(media_path.exists());
@@ -112,6 +119,19 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .await?;
     assert!(!media_report.manifest.from_sidecar);
     assert!(media_report.provenance.attested);
+    let media_assertion = media_report
+        .provenance
+        .assertion
+        .as_ref()
+        .expect("media assertion");
+    assert_eq!(media_assertion.profile, "figure");
+    assert!(media_assertion.outputs.iter().any(|output| {
+        output.id.as_deref() == Some("exported-asset")
+            && output
+                .digest
+                .as_deref()
+                .is_some_and(|digest| digest.starts_with("sha256:"))
+    }));
 
     Ok(())
 }
@@ -239,7 +259,11 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
 
     let document_sidecar = sidecar_path(&output);
     assert!(document_sidecar.exists());
-    assert!(info.assets.contains(&document_sidecar));
+    assert!(
+        info.assets
+            .iter()
+            .any(|asset| asset.path == document_sidecar)
+    );
 
     let verifier = CredentialVerifier::new();
     let report = verifier
@@ -270,16 +294,207 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
     assert_eq!(assertion.producer.codec.as_deref(), Some("markdown"));
     assert_eq!(assertion.producer.name, "Stencila");
 
-    let source = assertion
-        .source
-        .as_ref()
-        .expect("source snapshot recorded");
+    let source = assertion.source.as_ref().expect("source snapshot recorded");
     assert_eq!(source.path.as_deref(), Some("article.smd"));
     assert_eq!(source.dirty, Some(false));
     assert_eq!(
         source.commit.as_deref().map(str::len),
         Some(40),
         "expected commit SHA, got {source:?}"
+    );
+
+    Ok(())
+}
+
+/// 1×1 transparent PNG used to drive the markdown codec's media-extraction
+/// path so the test can exercise per-asset signing of an extracted figure.
+const PNG_DATA_URI: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+#[tokio::test]
+async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() -> Result<()> {
+    let _config = set_isolated_config_dir();
+    init_dev_cert(true)?;
+
+    let dir = TempDir::new()?;
+    let source_path = dir.path().join("analysis.smd");
+    fs::write(&source_path, "# Analysis\n\n```python\nvalue = 1\n```\n")?;
+    fs::write(dir.path().join("uv.lock"), "version = 1\n")?;
+    fs::write(dir.path().join("data.csv"), "x\n1\n")?;
+
+    let output = dir.path().join("analysis.md");
+    let mut chunk = CodeChunk::new("value = 1".into());
+    chunk.programming_language = Some("python".to_string());
+    chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+        PNG_DATA_URI.to_string(),
+    ))]);
+    chunk.options.execution_digest = Some(CompilationDigest::new(42));
+    chunk.options.execution_status = Some(ExecutionStatus::Succeeded);
+    chunk.options.execution_count = Some(3);
+    chunk.options.execution_duration = Some(Duration::new(250, TimeUnit::Millisecond));
+    chunk.options.execution_instance = Some("python-main".to_string());
+    chunk.options.execution_dependencies = Some(vec![ExecutionDependency::new(
+        ExecutionDependencyRelation::Reads,
+        "File".to_string(),
+        "data.csv".to_string(),
+    )]);
+    chunk.options.execution_messages = Some(vec![ExecutionMessage::new(
+        MessageLevel::Warning,
+        "cached data was used".to_string(),
+    )]);
+    let chunk_id = chunk.node_id().to_string();
+
+    let node = Node::Article(Article {
+        content: vec![Block::CodeChunk(chunk)],
+        ..Default::default()
+    });
+
+    let info = to_path_with_info(
+        &node,
+        &output,
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            from_path: Some(source_path.clone()),
+            credentials: Some(CredentialsOptions {
+                profile: CredentialProfile::Private,
+            }),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    // The markdown codec extracts data-URI media into <output>.media. Find the
+    // figure that was extracted so we can verify its per-asset credentials.
+    let figure_asset = info
+        .assets
+        .iter()
+        .find(|asset| {
+            asset
+                .path
+                .extension()
+                .and_then(|ext| ext.to_str())
+                .is_some_and(|ext| ext.eq_ignore_ascii_case("png"))
+        })
+        .expect("extracted figure asset");
+    assert_eq!(figure_asset.role.as_deref(), Some("computational-output"));
+    assert_eq!(figure_asset.node_type.as_deref(), Some("CodeChunk"));
+    assert_eq!(figure_asset.node_id.as_deref(), Some(chunk_id.as_str()));
+
+    let verifier = CredentialVerifier::new();
+
+    // Document-level snapshot: the Article carries no execution metadata of
+    // its own, so the document export's snapshot has no execution facts.
+    let document_report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path: output,
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            trust_anchors: None,
+        })
+        .await?;
+    let document = document_report
+        .provenance
+        .assertion
+        .as_ref()
+        .expect("document assertion");
+    assert_eq!(document.profile, "document-export");
+    assert!(
+        document.execution.is_none(),
+        "document snapshot should not aggregate chunk execution: {:?}",
+        document.execution
+    );
+    assert!(document.inputs.iter().any(|input| {
+        input.id.as_deref() == Some("source-document")
+            && input.access.as_deref() == Some("private")
+            && input
+                .digest
+                .as_deref()
+                .is_some_and(|digest| digest.starts_with("sha256:"))
+    }));
+
+    // Per-asset snapshot for the extracted figure: subject is the CodeChunk,
+    // so the chunk's execution facts land here, not on the document.
+    let figure_report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path: figure_asset.path.clone(),
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            trust_anchors: None,
+        })
+        .await?;
+    let figure = figure_report
+        .provenance
+        .assertion
+        .as_ref()
+        .expect("figure assertion");
+    assert_eq!(figure.profile, "computational-output");
+    assert_eq!(figure.document.node_type, "CodeChunk");
+    assert_eq!(
+        figure.document.programming_language.as_deref(),
+        Some("python")
+    );
+
+    let execution = figure
+        .execution
+        .as_ref()
+        .expect("figure execution snapshot");
+    assert_eq!(execution.status.as_deref(), Some("Succeeded"));
+    assert_eq!(execution.duration_ms, Some(250));
+    assert_eq!(execution.execution_count, Some(3));
+    assert_eq!(
+        execution
+            .kernel
+            .as_ref()
+            .and_then(|kernel| kernel.name.as_deref()),
+        Some("python-main")
+    );
+    assert_eq!(
+        execution
+            .kernel
+            .as_ref()
+            .and_then(|kernel| kernel.language.as_deref()),
+        Some("python")
+    );
+    assert_eq!(execution.dependencies.len(), 1);
+    assert_eq!(
+        execution.dependencies[0].node_id.as_deref(),
+        Some("data.csv")
+    );
+    assert_eq!(execution.messages.len(), 1);
+    assert_eq!(
+        execution.messages[0].message.as_deref(),
+        Some("cached data was used")
+    );
+
+    assert!(figure.inputs.iter().any(|input| {
+        input.id.as_deref() == Some("execution-input-1")
+            && input.name.as_deref() == Some("data.csv")
+            && input.access.as_deref() == Some("private")
+            && input
+                .digest
+                .as_deref()
+                .is_some_and(|digest| digest.starts_with("sha256:"))
+    }));
+
+    // Environment fields hold for both snapshots; assert on the figure's.
+    let environment = figure.environment.as_ref().expect("environment");
+    assert!(environment.os.is_some());
+    assert!(environment.architecture.is_some());
+    assert!(environment.runtimes.iter().any(|runtime| {
+        runtime.name.as_deref() == Some("stencila") && runtime.version.is_some()
+    }));
+    assert!(
+        environment.lockfiles.iter().any(|lockfile| {
+            lockfile
+                .path
+                .as_deref()
+                .is_some_and(|path| path.ends_with("uv.lock"))
+                && lockfile
+                    .digest
+                    .as_deref()
+                    .is_some_and(|digest| digest.starts_with("sha256:"))
+        }),
+        "lockfiles: {:?}",
+        environment.lockfiles
     );
 
     Ok(())
