@@ -32,7 +32,7 @@ pub use stencila_codec::{
 };
 use stencila_codec_utils::rebase_edits;
 use stencila_content_credentials::{
-    AssetSnapshot, CredentialProducer, CredentialSignerConfig, ProvenanceSnapshot, SignAssetRequest,
+    CredentialProducer, CredentialSignerConfig, SignAssetRequest,
 };
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
@@ -83,6 +83,7 @@ use stencila_codec_zenodo::ZenodoCodec;
 use stencila_remotes::RemoteService;
 
 pub mod cli;
+mod credentials;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -633,6 +634,7 @@ pub async fn to_path_with_info(
         ..options.unwrap_or_default()
     });
 
+    let codec_name = codec.name().to_string();
     let mut info = if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
@@ -648,12 +650,14 @@ pub async fn to_path_with_info(
         codec.to_path(node, path, options.clone()).await?
     };
 
-    sign_encoded_paths(path, options.as_ref(), &mut info).await?;
+    sign_encoded_paths(node, &codec_name, path, options.as_ref(), &mut info).await?;
 
     Ok(info)
 }
 
 async fn sign_encoded_paths(
+    node: &Node,
+    codec_name: &str,
     path: &Path,
     options: Option<&EncodeOptions>,
     info: &mut EncodeInfo,
@@ -664,6 +668,9 @@ async fn sign_encoded_paths(
 
     let signer = CredentialSignerConfig::resolve(None, None)?;
     let producer = CredentialProducer::new(signer);
+
+    let source_path = options.and_then(|options| options.from_path.as_deref());
+    let profile_label = credentials.profile.to_string();
 
     let mut paths = BTreeSet::new();
     paths.insert(path.to_path_buf());
@@ -697,7 +704,14 @@ async fn sign_encoded_paths(
             }
         };
 
-        let provenance = provenance_for_encoded_asset(&asset_path, primary, credentials);
+        let provenance = credentials::build_export_snapshot(
+            node,
+            source_path,
+            &asset_path,
+            primary,
+            Some(codec_name),
+            &profile_label,
+        );
         let signed = producer
             .sign_exported_asset(SignAssetRequest {
                 input_path: asset_path,
@@ -715,32 +729,6 @@ async fn sign_encoded_paths(
     }
 
     Ok(())
-}
-
-fn provenance_for_encoded_asset(
-    path: &Path,
-    primary: bool,
-    credentials: &CredentialsOptions,
-) -> ProvenanceSnapshot {
-    let mut snapshot = ProvenanceSnapshot::for_asset(AssetSnapshot::default());
-    snapshot.profile = Some(
-        if primary {
-            "document-export"
-        } else {
-            "computational-output"
-        }
-        .to_string(),
-    );
-    snapshot.asset.title = path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .map(ToString::to_string);
-    if let Some(privacy) = &mut snapshot.privacy {
-        let policy = format!("org.stencila.credentials.{}.v1", credentials.profile);
-        privacy.personal_data.policy = Some(policy.clone());
-        privacy.secrets.policy = Some(policy);
-    }
-    snapshot
 }
 
 fn credential_profile(
