@@ -8,7 +8,7 @@ use stencila_cli_utils::{
     Code, Tabulated, ToStdout,
     color_print::cstr,
     message,
-    tabulated::{Attribute, Cell},
+    tabulated::{Attribute, Cell, Color},
 };
 use stencila_document::{Document, EncodeInfo};
 use stencila_format::Format;
@@ -546,10 +546,9 @@ fn print_signed_assets_table(info: &EncodeInfo) {
     eprintln!();
 
     let mut table = Tabulated::new();
-    table.set_header(["Signed asset", "Role", "Manifest", "Sidecar"]);
+    table.set_header(["Signed asset", "Role", "Manifest", "Profile", "Sidecar"]);
 
     for asset in signed {
-        let manifest_kind = asset.manifest_kind.as_deref().unwrap_or("");
         let sidecar = asset
             .sidecar_path
             .as_deref()
@@ -557,11 +556,52 @@ fn print_signed_assets_table(info: &EncodeInfo) {
             .unwrap_or_default();
         table.add_row([
             Cell::new(asset.path.display().to_string()).add_attribute(Attribute::Bold),
-            Cell::new(asset.role.as_deref().unwrap_or("")),
-            Cell::new(manifest_kind),
+            role_cell(asset.role.as_deref()),
+            manifest_kind_cell(asset.manifest_kind.as_deref()),
+            profile_cell(asset.credential_profile.as_deref()),
             Cell::new(sidecar),
         ]);
+        for warning in &asset.signing_warnings {
+            table.add_row([
+                Cell::new("Warning").fg(Color::Yellow),
+                Cell::new(""),
+                Cell::new(""),
+                Cell::new(""),
+                Cell::new(warning),
+            ]);
+        }
     }
 
     table.to_stdout();
+}
+
+fn role_cell(role: Option<&str>) -> Cell {
+    match role {
+        Some("document") => Cell::new("document").fg(Color::Blue),
+        Some("figure") => Cell::new("figure").fg(Color::Green),
+        Some("computational-output") => Cell::new("computational-output").fg(Color::Cyan),
+        Some(role @ ("math-image" | "table-image")) => Cell::new(role).fg(Color::Magenta),
+        Some("sidecar") => Cell::new("sidecar").fg(Color::DarkGrey),
+        Some(role) => Cell::new(role).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
+    }
+}
+
+fn manifest_kind_cell(kind: Option<&str>) -> Cell {
+    match kind {
+        Some("embedded") => Cell::new("embedded").fg(Color::Green),
+        Some("sidecar") => Cell::new("sidecar").fg(Color::Yellow),
+        Some(kind) => Cell::new(kind).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
+    }
+}
+
+fn profile_cell(profile: Option<&str>) -> Cell {
+    match profile {
+        Some("public") => Cell::new("public").fg(Color::Green),
+        Some("private") => Cell::new("private").fg(Color::Yellow),
+        Some("full") => Cell::new("full").fg(Color::Magenta),
+        Some(profile) => Cell::new(profile).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
+    }
 }

@@ -77,7 +77,7 @@ impl EncodeInfo {
 /// Carries the originating node's identity so dispatchers can attach
 /// per-node provenance (e.g. Content Credentials) to extracted figures,
 /// table images, or other side assets. After Content Credentials signing
-/// runs, `signed`, `manifest_kind`, and `sidecar_path` describe what the
+/// runs, `signed`, manifest fields, and signing warnings describe what the
 /// signing layer attached to this asset.
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
@@ -114,11 +114,21 @@ pub struct EncodedAsset {
     /// to a `.c2pa` file. Absent when this asset is not signed.
     pub manifest_kind: Option<String>,
 
+    /// Active C2PA manifest identifier, when it could be read after signing.
+    pub manifest_id: Option<String>,
+
     /// Path to this asset's `.c2pa` sidecar manifest, when one was written.
     ///
     /// Distinct from sidecar role entries, which represent the sidecar
     /// file itself as its own asset row.
     pub sidecar_path: Option<PathBuf>,
+
+    /// Content Credentials projection profile used when signing this asset.
+    pub credential_profile: Option<String>,
+
+    /// Non-fatal warnings from the signing layer.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub signing_warnings: Vec<String>,
 }
 
 #[allow(clippy::trivially_copy_pass_by_ref)]

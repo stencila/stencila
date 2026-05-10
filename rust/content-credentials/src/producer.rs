@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use c2pa::{BoxedSigner, Builder, Context, Ingredient, Relationship};
+use c2pa::{BoxedSigner, Builder, Context, Ingredient, Reader, Relationship};
 use serde::Serialize;
 use serde_json::{Value, json};
 use tempfile::NamedTempFile;
@@ -71,12 +71,15 @@ pub struct SignAssetRequest {
 pub struct SignedAsset {
     pub asset_path: PathBuf,
     pub manifest_kind: ManifestKind,
+    pub manifest_id: Option<String>,
     pub sidecar_path: Option<PathBuf>,
     pub assertion_label: &'static str,
     pub assertion_schema: &'static str,
     pub source_digest: String,
     pub signed_asset_digest: String,
     pub media_type: String,
+    pub credential_profile: CredentialProfile,
+    pub warnings: Vec<String>,
 }
 
 /// High-level credential producer.
@@ -183,6 +186,8 @@ impl CredentialProducer {
         .await??;
 
         let signed_asset_digest = media::sha256_file(&result.0)?;
+        let (manifest_id, warnings) =
+            read_signed_manifest_id(&result.0, result.1.as_deref(), &media_type_for_result);
 
         Ok(SignedAsset {
             asset_path: result.0,
@@ -191,13 +196,69 @@ impl CredentialProducer {
             } else {
                 ManifestKind::Sidecar
             },
+            manifest_id,
             sidecar_path: result.1,
             assertion_label: PROVENANCE_LABEL,
             assertion_schema: crate::schema::PROVENANCE_SCHEMA,
             source_digest: source_digest_for_result,
             signed_asset_digest,
             media_type: media_type_for_result,
+            credential_profile,
+            warnings,
         })
+    }
+}
+
+fn read_signed_manifest_id(
+    asset_path: &Path,
+    sidecar_path: Option<&Path>,
+    media_type: &str,
+) -> (Option<String>, Vec<String>) {
+    match read_signed_reader(asset_path, sidecar_path, media_type) {
+        Ok(reader) => {
+            let manifest_id = reader.active_label().map(ToString::to_string).or_else(|| {
+                reader
+                    .active_manifest()
+                    .map(|manifest| manifest.instance_id().to_string())
+            });
+            if manifest_id.is_some() {
+                (manifest_id, Vec::new())
+            } else {
+                (
+                    None,
+                    vec!["signed asset did not expose an active manifest id".to_string()],
+                )
+            }
+        }
+        Err(error) => (
+            None,
+            vec![format!(
+                "signed asset could not be re-read for manifest id: {error}"
+            )],
+        ),
+    }
+}
+
+fn read_signed_reader(
+    asset_path: &Path,
+    sidecar_path: Option<&Path>,
+    media_type: &str,
+) -> Result<Reader> {
+    let reader = Reader::from_context(Context::new());
+    match sidecar_path {
+        Some(sidecar_path) => {
+            let manifest_bytes = fs::read(sidecar_path)?;
+            let mut asset = File::open(asset_path)?;
+            reader
+                .with_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
+                .map_err(Error::C2pa)
+        }
+        None => {
+            let mut asset = File::open(asset_path)?;
+            reader
+                .with_stream(media_type, &mut asset)
+                .map_err(Error::C2pa)
+        }
     }
 }
 

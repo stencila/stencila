@@ -37,6 +37,18 @@ async fn sign_and_verify_pdf_sidecar() {
         .expect("sign");
 
     assert_eq!(signed.manifest_kind, ManifestKind::Sidecar);
+    assert!(
+        signed
+            .manifest_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("urn:c2pa:")),
+        "manifest id should be read from sidecar after signing: {signed:?}"
+    );
+    assert!(
+        signed.warnings.is_empty(),
+        "signing should not produce warnings: {:?}",
+        signed.warnings
+    );
     let sidecar = signed.sidecar_path.as_ref().expect("sidecar present");
     assert!(sidecar.exists(), "sidecar file written");
     assert!(sidecar.to_string_lossy().ends_with("doc.c2pa"));

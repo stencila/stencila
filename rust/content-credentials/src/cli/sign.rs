@@ -57,10 +57,15 @@ pub struct Cli {
 #[derive(Debug, Serialize)]
 #[serde(rename_all = "camelCase")]
 struct SignReport {
-    asset_path: PathBuf,
+    path: PathBuf,
     manifest_kind: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
+    manifest_id: Option<String>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     sidecar_path: Option<PathBuf>,
+    side_assets: Vec<PathBuf>,
+    warnings: Vec<String>,
+    profile: &'static str,
     assertion_label: &'static str,
     assertion_schema: &'static str,
     media_type: String,
@@ -71,12 +76,16 @@ struct SignReport {
 impl From<&SignedAsset> for SignReport {
     fn from(signed: &SignedAsset) -> Self {
         Self {
-            asset_path: signed.asset_path.clone(),
+            path: signed.asset_path.clone(),
             manifest_kind: match signed.manifest_kind {
                 ManifestKind::Embedded => "embedded",
                 ManifestKind::Sidecar => "sidecar",
             },
+            manifest_id: signed.manifest_id.clone(),
             sidecar_path: signed.sidecar_path.clone(),
+            side_assets: signed.sidecar_path.iter().cloned().collect(),
+            warnings: signed.warnings.clone(),
+            profile: profile_label(signed.credential_profile),
             assertion_label: signed.assertion_label,
             assertion_schema: signed.assertion_schema,
             media_type: signed.media_type.clone(),
@@ -132,10 +141,28 @@ fn print_human_summary(signed_asset: &SignedAsset) {
     }
 
     message!("");
+    if let Some(manifest_id) = &signed_asset.manifest_id {
+        message!("   Manifest ID: `{}`", manifest_id);
+    }
+    message!(
+        "   Profile:  `{}`",
+        profile_label(signed_asset.credential_profile)
+    );
     message!("   Assertion: `{}`", signed_asset.assertion_label);
     message!("   Schema:    `{}`", signed_asset.assertion_schema);
     message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);
     if signed_asset.source_digest != signed_asset.signed_asset_digest {
         message!("   Source digest: `{}`", signed_asset.source_digest);
+    }
+    for warning in &signed_asset.warnings {
+        message!("   Warning: {}", warning);
+    }
+}
+
+fn profile_label(profile: crate::policy::CredentialProfile) -> &'static str {
+    match profile {
+        crate::policy::CredentialProfile::Public => "public",
+        crate::policy::CredentialProfile::Private => "private",
+        crate::policy::CredentialProfile::Full => "full",
     }
 }

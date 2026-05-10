@@ -88,15 +88,40 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
             .iter()
             .any(|asset| asset.path == document_sidecar)
     );
+    let document_asset = info
+        .assets
+        .iter()
+        .find(|asset| asset.role.as_deref() == Some("document"))
+        .expect("document asset");
+    assert!(document_asset.signed);
+    assert_eq!(document_asset.manifest_kind.as_deref(), Some("sidecar"));
+    assert!(
+        document_asset
+            .manifest_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("urn:c2pa:"))
+    );
+    assert_eq!(document_asset.credential_profile.as_deref(), Some("public"));
+    assert!(document_asset.signing_warnings.is_empty());
 
-    let media_path = info
+    let media_asset = info
         .assets
         .iter()
         .find(|asset| {
             asset.role.as_deref() != Some("document") && asset.role.as_deref() != Some("sidecar")
         })
-        .map(|asset| &asset.path)
         .expect("extracted media asset");
+    assert!(media_asset.signed);
+    assert_eq!(media_asset.manifest_kind.as_deref(), Some("embedded"));
+    assert!(
+        media_asset
+            .manifest_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("urn:c2pa:"))
+    );
+    assert_eq!(media_asset.credential_profile.as_deref(), Some("public"));
+    assert!(media_asset.signing_warnings.is_empty());
+    let media_path = &media_asset.path;
     assert!(media_path.exists());
 
     let verifier = CredentialVerifier::new();

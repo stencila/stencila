@@ -33,7 +33,7 @@ pub use stencila_codec::{
 use stencila_codec_utils::{git_file_info, rebase_edits};
 use stencila_content_credentials::{
     CredentialProducer, CredentialSignerConfig, IngredientRelationship, IngredientSnapshot,
-    ManifestKind, SignAssetRequest, media as credentials_media,
+    ManifestKind, SignAssetRequest, SignedAsset, media as credentials_media,
 };
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
@@ -683,7 +683,9 @@ pub async fn to_path_with_info(
         node
     };
 
-    let mut info = codec.to_path(node_for_export, path, options.clone()).await?;
+    let mut info = codec
+        .to_path(node_for_export, path, options.clone())
+        .await?;
 
     sign_encoded_paths(
         node_for_export,
@@ -803,9 +805,7 @@ async fn sign_encoded_paths(
             .iter_mut()
             .find(|asset| asset.path == asset_path)
         {
-            asset.signed = true;
-            asset.manifest_kind = Some(manifest_kind_label(signed.manifest_kind));
-            asset.sidecar_path.clone_from(&signed.sidecar_path);
+            apply_signed_asset_metadata(asset, &signed, &profile_label);
         }
 
         if let Some(sidecar_path) = signed.sidecar_path
@@ -874,7 +874,10 @@ async fn sign_encoded_paths(
             role: Some("document".to_string()),
             signed: true,
             manifest_kind: Some(manifest_kind_label(signed.manifest_kind)),
+            manifest_id: signed.manifest_id.clone(),
             sidecar_path: signed.sidecar_path.clone(),
+            credential_profile: Some(profile_label.clone()),
+            signing_warnings: signed.warnings.clone(),
         };
         if let Some(sidecar_path) = signed.sidecar_path
             && !info.assets.iter().any(|asset| asset.path == sidecar_path)
@@ -895,6 +898,15 @@ fn manifest_kind_label(kind: ManifestKind) -> String {
         ManifestKind::Embedded => "embedded".to_string(),
         ManifestKind::Sidecar => "sidecar".to_string(),
     }
+}
+
+fn apply_signed_asset_metadata(asset: &mut EncodedAsset, signed: &SignedAsset, profile: &str) {
+    asset.signed = true;
+    asset.manifest_kind = Some(manifest_kind_label(signed.manifest_kind));
+    asset.manifest_id.clone_from(&signed.manifest_id);
+    asset.sidecar_path.clone_from(&signed.sidecar_path);
+    asset.credential_profile = Some(profile.to_string());
+    asset.signing_warnings.clone_from(&signed.warnings);
 }
 
 /// Build an [`IngredientSnapshot`] for the source document the export came

@@ -36,7 +36,19 @@ async fn sign_then_verify_png() {
         .expect("sign");
 
     assert_eq!(signed.manifest_kind, ManifestKind::Embedded);
+    assert!(
+        signed
+            .manifest_id
+            .as_deref()
+            .is_some_and(|id| id.starts_with("urn:c2pa:")),
+        "manifest id should be read after signing: {signed:?}"
+    );
     assert!(signed.sidecar_path.is_none());
+    assert!(
+        signed.warnings.is_empty(),
+        "signing should not produce warnings: {:?}",
+        signed.warnings
+    );
     assert!(signed.source_digest.starts_with("sha256:"));
     assert!(signed.signed_asset_digest.starts_with("sha256:"));
     assert_ne!(
