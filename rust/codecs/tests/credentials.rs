@@ -92,8 +92,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     let media_path = info
         .assets
         .iter()
+        .find(|asset| {
+            asset.role.as_deref() != Some("document") && asset.role.as_deref() != Some("sidecar")
+        })
         .map(|asset| &asset.path)
-        .find(|path| path.extension().and_then(|ext| ext.to_str()) != Some("c2pa"))
         .expect("extracted media asset");
     assert!(media_path.exists());
 

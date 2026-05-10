@@ -43,7 +43,7 @@ mod task_update;
 mod track;
 
 // Re-exports for convenience of consuming crates
-pub use stencila_codecs::{self, DecodeOptions, EncodeOptions, Format, LossesResponse};
+pub use stencila_codecs::{self, DecodeOptions, EncodeInfo, EncodeOptions, Format, LossesResponse};
 pub use stencila_node_execute::ExecuteOptions;
 pub use stencila_schema;
 pub use sync_dom::DomPatch;
@@ -642,6 +642,40 @@ impl Document {
         let root = self.root.read().await;
 
         stencila_codecs::to_path(&root, dest, options).await
+    }
+
+    /// Export a document to a file and return per-asset encode information.
+    ///
+    /// Same encoding behaviour as [`export`](Self::export), but returns the
+    /// [`EncodeInfo`] from `to_path_with_info` so callers can see which side
+    /// assets were emitted, whether Content Credentials were attached, and
+    /// where any sidecar manifests landed.
+    ///
+    /// Returns `Ok(None)` when the export was skipped (e.g. the
+    /// reproducibility precheck failed), mirroring the `Ok(false)` skip case
+    /// from [`export`](Self::export).
+    #[tracing::instrument(skip(self))]
+    pub async fn export_with_info(
+        &self,
+        dest: &Path,
+        options: Option<EncodeOptions>,
+    ) -> Result<Option<EncodeInfo>> {
+        use stencila_schema::{Article, Node};
+
+        let root = self.root.read().await;
+
+        if options
+            .as_ref()
+            .and_then(|opts| opts.reproducible)
+            .unwrap_or_default()
+            && let Node::Article(Article { options: opts, .. }) = &*root
+            && !stencila_codecs::check_git_for_to_path(&opts.path, &opts.commit).await?
+        {
+            return Ok(None);
+        }
+
+        let info = stencila_codecs::to_path_with_info(&root, dest, options).await?;
+        Ok(Some(info))
     }
 
     /// Save the document to its source file

@@ -172,6 +172,7 @@ impl Collector {
             node_id: node_id.map(|id| id.to_string()),
             node_type: Some(node_type.to_string()),
             role: Some(role.to_string()),
+            ..Default::default()
         });
     }
 

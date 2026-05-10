@@ -7,6 +7,9 @@ mod shifter;
 
 use std::path::PathBuf;
 
+use serde::{Deserialize, Serialize};
+use serde_with::skip_serializing_none;
+
 pub use losses::*;
 pub use mapping::*;
 pub use messages::*;
@@ -73,8 +76,12 @@ impl EncodeInfo {
 ///
 /// Carries the originating node's identity so dispatchers can attach
 /// per-node provenance (e.g. Content Credentials) to extracted figures,
-/// table images, or other side assets.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+/// table images, or other side assets. After Content Credentials signing
+/// runs, `signed`, `manifest_kind`, and `sidecar_path` describe what the
+/// signing layer attached to this asset.
+#[skip_serializing_none]
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct EncodedAsset {
     /// Path to the file on disk.
     pub path: PathBuf,
@@ -91,6 +98,32 @@ pub struct EncodedAsset {
     /// `"computational-output"`, `"math-image"`, `"table-image"`, `"figure"`,
     /// `"document"`, and `"sidecar"`.
     pub role: Option<String>,
+
+    /// Whether Content Credentials were attached to this asset.
+    ///
+    /// `false` for plain side assets, originating sidecar files, or assets
+    /// emitted with credentials disabled. `true` when the signing layer
+    /// produced a manifest for this asset.
+    #[serde(default, skip_serializing_if = "is_false")]
+    pub signed: bool,
+
+    /// Where the C2PA manifest for this asset was written.
+    ///
+    /// Values are `"embedded"` when the manifest sits inside the asset
+    /// bytes (PNG, JPEG, WebP, SVG) and `"sidecar"` when it was detached
+    /// to a `.c2pa` file. Absent when this asset is not signed.
+    pub manifest_kind: Option<String>,
+
+    /// Path to this asset's `.c2pa` sidecar manifest, when one was written.
+    ///
+    /// Distinct from sidecar role entries, which represent the sidecar
+    /// file itself as its own asset row.
+    pub sidecar_path: Option<PathBuf>,
+}
+
+#[allow(clippy::trivially_copy_pass_by_ref)]
+fn is_false(value: &bool) -> bool {
+    !*value
 }
 
 impl EncodedAsset {

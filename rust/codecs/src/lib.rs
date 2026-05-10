@@ -33,7 +33,7 @@ pub use stencila_codec::{
 use stencila_codec_utils::{git_file_info, rebase_edits};
 use stencila_content_credentials::{
     CredentialProducer, CredentialSignerConfig, IngredientRelationship, IngredientSnapshot,
-    SignAssetRequest, media as credentials_media,
+    ManifestKind, SignAssetRequest, media as credentials_media,
 };
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
@@ -795,6 +795,19 @@ async fn sign_encoded_paths(
             .clone()
             .unwrap_or_else(|| signed.asset_path.clone());
 
+        // Reflect the signing result on the original asset entry so callers
+        // see which side assets carry credentials and where the manifest
+        // landed.
+        if let Some(asset) = info
+            .assets
+            .iter_mut()
+            .find(|asset| asset.path == asset_path)
+        {
+            asset.signed = true;
+            asset.manifest_kind = Some(manifest_kind_label(signed.manifest_kind));
+            asset.sidecar_path.clone_from(&signed.sidecar_path);
+        }
+
         if let Some(sidecar_path) = signed.sidecar_path
             && !info.assets.iter().any(|asset| asset.path == sidecar_path)
             && !new_sidecars.iter().any(|asset| asset.path == sidecar_path)
@@ -851,17 +864,37 @@ async fn sign_encoded_paths(
                 ..Default::default()
             })
             .await?;
+
+        // Record the primary export in info.assets with role "document" so
+        // callers can iterate a single list to find every signed output.
+        let primary_asset = EncodedAsset {
+            path: path.to_path_buf(),
+            node_id: node.node_id().map(|id| id.uid_str().to_string()),
+            node_type: Some(node.node_type().to_string()),
+            role: Some("document".to_string()),
+            signed: true,
+            manifest_kind: Some(manifest_kind_label(signed.manifest_kind)),
+            sidecar_path: signed.sidecar_path.clone(),
+        };
         if let Some(sidecar_path) = signed.sidecar_path
             && !info.assets.iter().any(|asset| asset.path == sidecar_path)
             && !new_sidecars.iter().any(|asset| asset.path == sidecar_path)
         {
             new_sidecars.push(EncodedAsset::sidecar(sidecar_path));
         }
+        info.assets.insert(0, primary_asset);
     }
 
     info.assets.extend(new_sidecars);
 
     Ok(())
+}
+
+fn manifest_kind_label(kind: ManifestKind) -> String {
+    match kind {
+        ManifestKind::Embedded => "embedded".to_string(),
+        ManifestKind::Sidecar => "sidecar".to_string(),
+    }
 }
 
 /// Build an [`IngredientSnapshot`] for the source document the export came
