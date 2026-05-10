@@ -39,6 +39,12 @@ pub struct VerifyAssetRequest {
     pub asset_path: PathBuf,
     pub require_trusted_signer: bool,
     pub require_stencila_assertion: bool,
+    /// Require an exact reproducibility match.
+    ///
+    /// Reserved for v1: reproducibility checks are not yet implemented, so
+    /// this requirement currently always reports as `unavailable` rather than
+    /// triggering a real comparison.
+    pub require_repro_exact: bool,
     /// Optional PEM bundle of C2PA trust anchors for local signer trust checks.
     pub trust_anchors: Option<String>,
 }
@@ -64,6 +70,7 @@ impl CredentialVerifier {
             asset_path,
             require_trusted_signer,
             require_stencila_assertion,
+            require_repro_exact,
             trust_anchors,
         } = request;
 
@@ -88,6 +95,17 @@ impl CredentialVerifier {
         if require_stencila_assertion && !report.provenance.assertion_present {
             report.problems.push(
                 "required: org.stencila.provenance assertion (--require stencila-assertion)"
+                    .to_string(),
+            );
+        }
+        if require_repro_exact {
+            // Reserved in v1: reproducibility checks are deferred. Surface as
+            // an `unavailable` problem rather than an error so callers can
+            // discover the requirement now and rely on it once comparison
+            // rules land.
+            report.problems.push(
+                "required: repro-exact unavailable \
+                 (reproducibility checks not implemented in v1)"
                     .to_string(),
             );
         }

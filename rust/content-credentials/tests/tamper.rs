@@ -53,6 +53,7 @@ async fn tamper_breaks_binding() {
             asset_path: asset,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await

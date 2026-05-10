@@ -50,6 +50,7 @@ async fn sign_then_verify_png() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await
@@ -137,6 +138,7 @@ async fn sign_with_provenance_snapshot() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await
@@ -460,6 +462,7 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await
@@ -539,6 +542,7 @@ async fn embedded_manifest_wins_over_stale_sidecar() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await
@@ -581,6 +585,7 @@ async fn malformed_embedded_manifest_does_not_fall_back_to_sidecar() {
             asset_path,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await

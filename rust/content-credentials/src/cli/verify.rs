@@ -41,8 +41,17 @@ pub struct Cli {
 #[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
 #[value(rename_all = "kebab-case")]
 enum Requirement {
+    /// Require that the signing certificate chains to a trusted anchor.
     TrustedSigner,
+    /// Require that the manifest carries an `org.stencila.provenance` assertion.
     StencilaAssertion,
+    /// Require an exact reproducibility match.
+    ///
+    /// Reserved in v1: reproducibility checks are not yet implemented, so
+    /// this requirement currently always reports as `unavailable`. The flag
+    /// exists so that scripts and CI pipelines can adopt the contract now
+    /// and pick up real comparison results once those land.
+    ReproExact,
 }
 
 impl Cli {
@@ -53,6 +62,7 @@ impl Cli {
             asset_path: self.asset,
             require_trusted_signer: self.require.contains(&Requirement::TrustedSigner),
             require_stencila_assertion: self.require.contains(&Requirement::StencilaAssertion),
+            require_repro_exact: self.require.contains(&Requirement::ReproExact),
             trust_anchors,
         };
         let report = verifier.verify_asset(request).await?;

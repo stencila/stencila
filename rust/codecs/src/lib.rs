@@ -558,6 +558,20 @@ pub async fn to_string_with_info(
         ..options.unwrap_or_default()
     });
 
+    // Content Credentials are only produced for path-based outputs, where the
+    // signed bytes can be hashed and a manifest written next to the asset.
+    // Warn the caller rather than silently dropping the request.
+    if options
+        .as_ref()
+        .is_some_and(|options| options.credentials.is_some())
+    {
+        tracing::warn!(
+            "Content Credentials were requested but cannot be applied to a string output; \
+             only path-based exports (`to_path`) can be signed. The string will be returned \
+             unsigned."
+        );
+    }
+
     if let Some(EncodeOptions {
         strip_scopes,
         strip_types,

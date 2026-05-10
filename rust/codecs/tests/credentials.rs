@@ -103,6 +103,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -114,6 +115,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
             asset_path: media_path.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -161,6 +163,7 @@ async fn credentials_sign_smd_with_stencila_media_type() -> Result<()> {
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -266,6 +269,7 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -279,13 +283,9 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
     assert_eq!(assertion.asset.role.as_deref(), Some("document-export"));
     assert_eq!(assertion.root_node.node_type, "Article");
     assert_eq!(assertion.root_node.title.as_deref(), Some("My Title"));
-    assert!(
-        assertion
-            .root_node
-            .node_id
-            .as_deref()
-            .is_some_and(|id| !id.is_empty())
-    );
+    // Root nodes do not record a `nodeId`: the stabilized path is empty by
+    // definition, and `nodeType` already conveys the kind of node.
+    assert!(assertion.root_node.node_id.is_none());
     assert_eq!(assertion.producer.codec.as_deref(), Some("markdown"));
     assert_eq!(assertion.producer.name, "Stencila");
 
@@ -336,12 +336,14 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         MessageLevel::Warning,
         "cached data was used".to_string(),
     )]);
-    let chunk_id = chunk.node_id().to_string();
-
     let node = Node::Article(Article {
         content: vec![Block::CodeChunk(chunk)],
         ..Default::default()
     });
+    // The codec sees a stabilized tree when credentials are requested, so the
+    // CodeChunk at `content[0]` records its stabilized path-based identifier
+    // rather than the random per-load UID.
+    let chunk_id = "cdc_content-0".to_string();
 
     let info = to_path_with_info(
         &node,
@@ -383,6 +385,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -407,6 +410,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
             asset_path: figure_asset.path.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -539,6 +543,7 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -604,6 +609,7 @@ async fn credentials_public_profile_redacts_dirty_patch_digest() -> Result<()> {
             asset_path: output,
             require_trusted_signer: false,
             require_stencila_assertion: true,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;

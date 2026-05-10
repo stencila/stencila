@@ -4,10 +4,11 @@ use std::path::PathBuf;
 
 use clap::Args;
 use eyre::Result;
-use stencila_cli_utils::message;
+use serde::Serialize;
+use stencila_cli_utils::{AsFormat, Code, ToStdout, message};
 
 use crate::{
-    producer::{CredentialProducer, ManifestKind, SignAssetRequest},
+    producer::{CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset},
     signer::CredentialSignerConfig,
 };
 
@@ -43,6 +44,46 @@ pub struct Cli {
     /// Title to record in the manifest. Defaults to the asset filename.
     #[arg(long)]
     title: Option<String>,
+
+    /// Output format. Defaults to a human-readable summary.
+    ///
+    /// Use `json`, `yaml`, or `toml` to emit a structured signing report
+    /// suitable for evidence collection or piping into other tools.
+    #[arg(long, short)]
+    r#as: Option<AsFormat>,
+}
+
+/// Structured result of a `stencila credentials sign` invocation.
+#[derive(Debug, Serialize)]
+#[serde(rename_all = "camelCase")]
+struct SignReport {
+    asset_path: PathBuf,
+    manifest_kind: &'static str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sidecar_path: Option<PathBuf>,
+    assertion_label: &'static str,
+    assertion_schema: &'static str,
+    media_type: String,
+    source_digest: String,
+    signed_asset_digest: String,
+}
+
+impl From<&SignedAsset> for SignReport {
+    fn from(signed: &SignedAsset) -> Self {
+        Self {
+            asset_path: signed.asset_path.clone(),
+            manifest_kind: match signed.manifest_kind {
+                ManifestKind::Embedded => "embedded",
+                ManifestKind::Sidecar => "sidecar",
+            },
+            sidecar_path: signed.sidecar_path.clone(),
+            assertion_label: signed.assertion_label,
+            assertion_schema: signed.assertion_schema,
+            media_type: signed.media_type.clone(),
+            source_digest: signed.source_digest.clone(),
+            signed_asset_digest: signed.signed_asset_digest.clone(),
+        }
+    }
 }
 
 impl Cli {
@@ -59,32 +100,42 @@ impl Cli {
         };
         let signed_asset = producer.sign_exported_asset(request).await?;
 
-        match signed_asset.manifest_kind {
-            ManifestKind::Embedded => {
-                message!(
-                    "✅ Signed asset (embedded): `{}`",
-                    signed_asset.asset_path.display()
-                );
+        match self.r#as {
+            Some(format) => {
+                let report = SignReport::from(&signed_asset);
+                Code::new_from(format.into(), &report)?.to_stdout();
             }
-            ManifestKind::Sidecar => {
-                message!(
-                    "✅ Signed asset (sidecar): `{}`",
-                    signed_asset.asset_path.display()
-                );
-                if let Some(sidecar) = &signed_asset.sidecar_path {
-                    message!("   Sidecar manifest: `{}`", sidecar.display());
-                }
-            }
-        }
-
-        message!("");
-        message!("   Assertion: `{}`", signed_asset.assertion_label);
-        message!("   Schema:    `{}`", signed_asset.assertion_schema);
-        message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);
-        if signed_asset.source_digest != signed_asset.signed_asset_digest {
-            message!("   Source digest: `{}`", signed_asset.source_digest);
+            None => print_human_summary(&signed_asset),
         }
 
         Ok(())
+    }
+}
+
+fn print_human_summary(signed_asset: &SignedAsset) {
+    match signed_asset.manifest_kind {
+        ManifestKind::Embedded => {
+            message!(
+                "✅ Signed asset (embedded): `{}`",
+                signed_asset.asset_path.display()
+            );
+        }
+        ManifestKind::Sidecar => {
+            message!(
+                "✅ Signed asset (sidecar): `{}`",
+                signed_asset.asset_path.display()
+            );
+            if let Some(sidecar) = &signed_asset.sidecar_path {
+                message!("   Sidecar manifest: `{}`", sidecar.display());
+            }
+        }
+    }
+
+    message!("");
+    message!("   Assertion: `{}`", signed_asset.assertion_label);
+    message!("   Schema:    `{}`", signed_asset.assertion_schema);
+    message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);
+    if signed_asset.source_digest != signed_asset.signed_asset_digest {
+        message!("   Source digest: `{}`", signed_asset.source_digest);
     }
 }

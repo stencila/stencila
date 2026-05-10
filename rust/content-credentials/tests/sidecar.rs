@@ -47,6 +47,7 @@ async fn sign_and_verify_pdf_sidecar() {
             asset_path: asset,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await
@@ -120,6 +121,7 @@ async fn sidecar_signing_persists_rewritten_asset() -> Result<()> {
             asset_path: asset,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
@@ -151,6 +153,7 @@ async fn embedded_sdk_supported_format_wins_over_stale_sidecar() -> Result<()> {
             asset_path: asset,
             require_trusted_signer: false,
             require_stencila_assertion: false,
+            require_repro_exact: false,
             trust_anchors: None,
         })
         .await?;
