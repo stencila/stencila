@@ -189,10 +189,23 @@ fn media_node_snapshot_for(node: &Node) -> Option<DocumentSnapshot> {
         _ => return None,
     };
 
-    snapshot.content_url = content_url;
+    snapshot.content_url = compact_media_content_url(content_url);
     snapshot.media_type = media_type;
     snapshot.title = title;
     Some(snapshot)
+}
+
+fn compact_media_content_url(content_url: Option<String>) -> Option<String> {
+    let content_url = content_url?;
+    let trimmed = content_url.trim_start();
+    if trimmed
+        .get(..5)
+        .is_some_and(|scheme| scheme.eq_ignore_ascii_case("data:"))
+    {
+        None
+    } else {
+        Some(content_url)
+    }
 }
 
 fn inlines_to_text(inlines: Option<&[Inline]>) -> Option<String> {
@@ -703,6 +716,20 @@ mod tests {
 
         assert_eq!(output_node.node_type, "ImageObject");
         assert_eq!(output_node.content_url.as_deref(), Some("figures/plot.png"));
+    }
+
+    #[test]
+    fn output_node_snapshot_omits_data_uri_media_output() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+            "data:image/png;base64,abc123".to_string(),
+        ))]);
+
+        let output_node = output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"))
+            .expect("output node");
+
+        assert_eq!(output_node.node_type, "ImageObject");
+        assert!(output_node.content_url.is_none());
     }
 
     fn run_git(repo: &std::path::Path, args: &[&str]) {

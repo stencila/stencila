@@ -425,7 +425,15 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     );
     let output_node = figure.output_node.as_ref().expect("output node");
     assert_eq!(output_node.node_type, "ImageObject");
-    assert_eq!(output_node.content_url.as_deref(), Some(PNG_DATA_URI));
+    assert!(
+        output_node.content_url.is_none(),
+        "data URI output content should be represented by the signed asset, not duplicated in the assertion"
+    );
+    let figure_json = serde_json::to_string(figure).expect("serialize figure assertion");
+    assert!(
+        !figure_json.contains("data:image/"),
+        "figure assertion should not embed data URI payloads"
+    );
 
     let execution = figure
         .execution
