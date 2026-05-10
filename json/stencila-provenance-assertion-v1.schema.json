@@ -216,7 +216,14 @@
           "type": "string"
         },
         "nodeId": {
-          "description": "Stable Stencila node identifier, when available.\n\nNode IDs let later tooling correlate credentials with the source document\ntree. They are optional because standalone asset signing and imported\nfiles may not have a stable Stencila node ID.\n\nDocumentation: https://stencila.io/docs/content-credentials/node-record#node-id",
+          "description": "Stable Stencila node identifier, when available.\n\nThis is a deterministic structural identifier derived from the node's\ncontent, label, or position in the stabilized document tree (e.g.\n`content-1-content-3`). It is stable across re-renders of the same\nsource document and lets later tooling correlate credentials with the\nsource document tree. It is optional because standalone asset signing\nand imported files may not have a stable Stencila node ID.\n\nDocumentation: https://stencila.io/docs/content-credentials/node-record#node-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "persistentId": {
+          "description": "Author-supplied persistent identifier from the Stencila Schema `id`\nfield.\n\nThis is the DOM-style identifier the document author wrote, separate\nfrom the structural `nodeId`. When the author has set an `id` (for\nexample `id: \"fig-plot\"` on a Figure), it is recorded here unchanged so\nverifiers can locate the node by its author-given name without needing\nto know Stencila's structural identifier scheme.\n\nDocumentation: https://stencila.io/docs/content-credentials/node-record#persistent-id",
           "type": [
             "string",
             "null"

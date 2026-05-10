@@ -160,6 +160,7 @@ impl Default for AssetSnapshot {
 pub struct DocumentSnapshot {
     pub node_type: String,
     pub node_id: Option<String>,
+    pub persistent_id: Option<String>,
     pub node_path: Option<String>,
     pub label_type: Option<String>,
     pub label: Option<String>,
@@ -185,6 +186,7 @@ impl Default for DocumentSnapshot {
         Self {
             node_type: "Unknown".to_string(),
             node_id: None,
+            persistent_id: None,
             node_path: None,
             label_type: None,
             label: None,

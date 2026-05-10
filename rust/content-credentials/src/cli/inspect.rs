@@ -1,4 +1,4 @@
-//! `stencila credentials inspect` — print the full C2PA manifest as JSON.
+//! `stencila credentials inspect` — print the full C2PA manifest.
 
 use std::{env, fs, path::PathBuf};
 
@@ -17,7 +17,7 @@ pub struct Cli {
     asset: PathBuf,
 
     /// Output format.
-    #[arg(long, short, default_value = "json")]
+    #[arg(long, short, default_value = "yaml")]
     r#as: AsFormat,
 
     /// PEM bundle of C2PA trust anchors for local signer trust checks.

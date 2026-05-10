@@ -11,8 +11,8 @@ use std::{collections::BTreeSet, path::Path};
 
 use chrono::{DateTime, Utc};
 use stencila_codec::stencila_schema::{
-    Article, CodeChunk, CodeExpression, CompilationDigest, Duration, ExecutionDependency,
-    ExecutionMessage, Inline, Node, Timestamp,
+    Article, CodeBlock, CodeChunk, CodeExpression, CompilationDigest, Duration,
+    ExecutionDependency, ExecutionMessage, Figure, Inline, Node, Table, Timestamp,
 };
 use stencila_codec_text_trait::to_text;
 use stencila_codec_utils::{closest_git_repo, git_file_info, git_head_sha, git_patch_digest};
@@ -86,7 +86,22 @@ pub(crate) fn build_export_snapshot(
 
 fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapshot {
     let node_type = subject.node_type().to_string();
-    let node_id = subject.node_id().map(|id| id.to_string());
+    // Drop the 3-character node-type nickname (e.g. `img_`) so the assertion
+    // exposes the bare stabilized path (e.g. `content-2-outputs-0`). The
+    // `nodeType` field already conveys the kind of node.
+    //
+    // The root node's stabilized UID is empty (the root is the entry point
+    // of the structural path), so omit `nodeId` entirely there rather than
+    // recording an empty string.
+    let node_id = if root_document {
+        None
+    } else {
+        subject
+            .node_id()
+            .map(|id| id.uid_str().to_string())
+            .filter(|uid| !uid.is_empty())
+    };
+    let persistent_id = persistent_id_of(subject);
 
     let title = match subject {
         Node::Article(Article { title, .. }) => inlines_to_text(title.as_deref()),
@@ -96,6 +111,7 @@ fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapsho
     let mut snapshot = DocumentSnapshot {
         node_type,
         node_id,
+        persistent_id,
         title,
         ..Default::default()
     };
@@ -122,6 +138,28 @@ fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapsho
     };
 
     snapshot
+}
+
+/// Return the author-supplied persistent identifier for a node, when present.
+///
+/// This reads the Stencila Schema `id` field directly. It is distinct from
+/// `Node::node_id()`, which returns the structural runtime identifier.
+fn persistent_id_of(node: &Node) -> Option<String> {
+    let id = match node {
+        Node::Article(Article { id, .. })
+        | Node::CodeBlock(CodeBlock { id, .. })
+        | Node::CodeChunk(CodeChunk { id, .. })
+        | Node::CodeExpression(CodeExpression { id, .. })
+        | Node::Figure(Figure { id, .. })
+        | Node::Table(Table { id, .. }) => id.as_deref(),
+        Node::AudioObject(object) => object.id.as_deref(),
+        Node::ImageObject(object) => object.id.as_deref(),
+        Node::MediaObject(object) => object.id.as_deref(),
+        Node::VideoObject(object) => object.id.as_deref(),
+        _ => None,
+    };
+
+    id.map(ToString::to_string)
 }
 
 fn output_node_snapshot_for(subject: &Node, asset_path: &Path) -> Option<DocumentSnapshot> {
@@ -618,9 +656,47 @@ mod tests {
         let snapshot = document_snapshot_for(&root, true);
 
         assert_eq!(snapshot.node_type, "Article");
-        assert!(snapshot.node_id.as_deref().is_some_and(|id| !id.is_empty()));
+        // Root nodes do not record a `nodeId` — the path is empty by
+        // definition, and `nodeType` already conveys the kind of node.
+        assert!(snapshot.node_id.is_none());
         assert_eq!(snapshot.title.as_deref(), Some("Hello world"));
         assert!(snapshot.node_path.is_none());
+    }
+
+    #[test]
+    fn document_snapshot_strips_node_id_nickname() {
+        // A non-root subject reports its stabilized path-based UID without
+        // the 3-character node-type prefix that `NodeId::to_string()` adds.
+        use stencila_codec::stencila_schema::{Block, Paragraph};
+
+        let mut root = Node::Article(Article {
+            content: vec![Block::Paragraph(Paragraph {
+                content: vec![Inline::Text(stencila_codec::stencila_schema::Text::from(
+                    "hi",
+                ))],
+                ..Default::default()
+            })],
+            ..Default::default()
+        });
+        stencila_node_stabilize::stabilize(&mut root);
+
+        let Node::Article(article) = root else {
+            panic!("Expected Article");
+        };
+        let Block::Paragraph(paragraph) = article
+            .content
+            .into_iter()
+            .next()
+            .expect("paragraph block")
+        else {
+            panic!("Expected Paragraph");
+        };
+        let subject = Node::from(Block::Paragraph(paragraph));
+
+        let snapshot = document_snapshot_for(&subject, false);
+
+        assert_eq!(snapshot.node_type, "Paragraph");
+        assert_eq!(snapshot.node_id.as_deref(), Some("content-0"));
     }
 
     #[test]
@@ -702,6 +778,35 @@ mod tests {
 
         assert_eq!(snapshot.asset.role.as_deref(), Some("table-image"));
         assert!(snapshot.executed_node.is_some());
+    }
+
+    #[test]
+    fn persistent_id_of_reads_schema_level_id() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.id = Some("fig-plot".to_string());
+        let node = Node::CodeChunk(chunk);
+
+        assert_eq!(persistent_id_of(&node).as_deref(), Some("fig-plot"));
+    }
+
+    #[test]
+    fn document_snapshot_records_persistent_id_when_set() {
+        let mut article = Article::default();
+        article.id = Some("paper-2026".to_string());
+        let root = Node::Article(article);
+
+        let snapshot = document_snapshot_for(&root, true);
+
+        assert_eq!(snapshot.persistent_id.as_deref(), Some("paper-2026"));
+    }
+
+    #[test]
+    fn document_snapshot_omits_persistent_id_when_unset() {
+        let root = article_with_title("Untitled");
+
+        let snapshot = document_snapshot_for(&root, true);
+
+        assert!(snapshot.persistent_id.is_none());
     }
 
     #[test]

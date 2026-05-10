@@ -636,22 +636,49 @@ pub async fn to_path_with_info(
     });
 
     let codec_name = codec.name().to_string();
-    let mut info = if let Some(EncodeOptions {
-        strip_scopes,
-        strip_types,
-        strip_props,
-        ..
-    }) = options.clone()
-        && !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty())
-    {
-        let mut node = node.clone();
-        node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-        codec.to_path(&node, path, options.clone()).await?
+
+    // When credentials are requested, stabilize the document tree so that
+    // every recorded `nodeId` is a deterministic structural identifier rather
+    // than the random per-load UID. Both the codec output (`info.assets[i]`)
+    // and the downstream provenance projection then see the same stable IDs,
+    // and re-rendering the same source produces byte-identical assertions.
+    let credentials_requested = options
+        .as_ref()
+        .and_then(|options| options.credentials.as_ref())
+        .is_some();
+    let strip_targets = options.as_ref().and_then(|options| {
+        let scopes = options.strip_scopes.clone();
+        let types = options.strip_types.clone();
+        let props = options.strip_props.clone();
+        (!(scopes.is_empty() && types.is_empty() && props.is_empty()))
+            .then(|| StripTargets::new(scopes, types, props))
+    });
+
+    let owned_node;
+    let node_for_export: &Node = if credentials_requested || strip_targets.is_some() {
+        let mut clone = node.clone();
+        if credentials_requested {
+            stencila_node_stabilize::stabilize(&mut clone);
+        }
+        if let Some(targets) = strip_targets {
+            clone.strip(&targets);
+        }
+        owned_node = clone;
+        &owned_node
     } else {
-        codec.to_path(node, path, options.clone()).await?
+        node
     };
 
-    sign_encoded_paths(node, &codec_name, path, options.as_ref(), &mut info).await?;
+    let mut info = codec.to_path(node_for_export, path, options.clone()).await?;
+
+    sign_encoded_paths(
+        node_for_export,
+        &codec_name,
+        path,
+        options.as_ref(),
+        &mut info,
+    )
+    .await?;
 
     Ok(info)
 }

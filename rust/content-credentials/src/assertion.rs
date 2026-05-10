@@ -157,6 +157,7 @@ impl From<DocumentSnapshot> for NodeRecord {
         Self {
             node_type: snapshot.node_type,
             node_id: snapshot.node_id,
+            persistent_id: snapshot.persistent_id,
             node_path: snapshot.node_path,
             label_type: snapshot
                 .label_type

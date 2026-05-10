@@ -400,10 +400,23 @@ pub struct NodeRecord {
 
     /// Stable Stencila node identifier, when available.
     ///
-    /// Node IDs let later tooling correlate credentials with the source document
-    /// tree. They are optional because standalone asset signing and imported
-    /// files may not have a stable Stencila node ID.
+    /// This is a deterministic structural identifier derived from the node's
+    /// content, label, or position in the stabilized document tree (e.g.
+    /// `content-1-content-3`). It is stable across re-renders of the same
+    /// source document and lets later tooling correlate credentials with the
+    /// source document tree. It is optional because standalone asset signing
+    /// and imported files may not have a stable Stencila node ID.
     pub node_id: Option<String>,
+
+    /// Author-supplied persistent identifier from the Stencila Schema `id`
+    /// field.
+    ///
+    /// This is the DOM-style identifier the document author wrote, separate
+    /// from the structural `nodeId`. When the author has set an `id` (for
+    /// example `id: "fig-plot"` on a Figure), it is recorded here unchanged so
+    /// verifiers can locate the node by its author-given name without needing
+    /// to know Stencila's structural identifier scheme.
+    pub persistent_id: Option<String>,
 
     /// Path to the node within the document tree.
     ///
