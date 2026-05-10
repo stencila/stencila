@@ -49,6 +49,8 @@ impl ProvenanceAssertion {
     /// serialized into C2PA.
     #[must_use]
     pub fn from_snapshot(snapshot: ProvenanceSnapshot) -> Self {
+        // Ingredients are surfaced via standard `c2pa.ingredient.v3` assertions
+        // (handled by the producer), not duplicated in the Stencila assertion.
         let ProvenanceSnapshot {
             asset,
             root_node,
@@ -65,6 +67,7 @@ impl ProvenanceAssertion {
             provenance_summary,
             reproducibility,
             privacy,
+            ingredients: _,
         } = snapshot;
 
         let activities =

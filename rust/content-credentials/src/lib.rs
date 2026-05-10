@@ -39,9 +39,10 @@ pub use snapshot::{
     ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
     DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,
     EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
-    FileDigestSnapshot, IdentifierSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
-    ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot,
-    ReproducibilitySnapshot, RuntimeSnapshot, SourceSnapshot, WorkflowSnapshot,
+    FileDigestSnapshot, IdentifierSnapshot, IngredientRelationship, IngredientSnapshot,
+    KernelSnapshot, PrivacySnapshot, ProducerSnapshot, ProvenanceCategorySnapshot,
+    ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot, ReproducibilitySnapshot,
+    RuntimeSnapshot, SourceSnapshot, WorkflowSnapshot,
 };
 pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
 pub use verifier::{CredentialVerifier, VerifyAssetRequest};

@@ -7,9 +7,9 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use c2pa::{BoxedSigner, Builder, Context};
+use c2pa::{BoxedSigner, Builder, Context, Ingredient, Relationship};
 use serde::Serialize;
-use serde_json::json;
+use serde_json::{Value, json};
 use tempfile::NamedTempFile;
 
 use crate::{
@@ -19,8 +19,13 @@ use crate::{
     policy::{CredentialProfile, ProjectionPolicy},
     schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::CredentialSignerConfig,
-    snapshot::{AssetSnapshot, ProvenanceSnapshot},
+    snapshot::{AssetSnapshot, IngredientRelationship, IngredientSnapshot, ProvenanceSnapshot},
 };
+
+/// Maximum image size, in bytes, that is embedded as-is as a `c2pa.thumbnail.claim`.
+///
+/// Larger images are skipped so manifests stay compact.
+const MAX_THUMBNAIL_BYTES: u64 = 256 * 1024;
 
 /// Whether a manifest is embedded in the asset bytes or written to a sidecar.
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
@@ -126,7 +131,7 @@ impl CredentialProducer {
             .unwrap_or_else(|| "asset".to_string());
 
         let policy = ProjectionPolicy::for_profile(credential_profile);
-        let assertion = {
+        let (assertion, ingredients) = {
             let snapshot = provenance.map_or_else(
                 || {
                     ProvenanceSnapshot::for_asset(AssetSnapshot::new(
@@ -141,7 +146,9 @@ impl CredentialProducer {
                     snapshot
                 },
             );
-            ProvenanceAssertion::from_snapshot(policy.project_snapshot(snapshot))
+            let mut snapshot = policy.project_snapshot(snapshot);
+            let ingredients = std::mem::take(&mut snapshot.ingredients);
+            (ProvenanceAssertion::from_snapshot(snapshot), ingredients)
         };
         policy.validate_assertion_size(&assertion)?;
 
@@ -158,6 +165,7 @@ impl CredentialProducer {
                     &media_for_task,
                     &title,
                     &assertion,
+                    &ingredients,
                     &signer,
                 )
             } else {
@@ -167,6 +175,7 @@ impl CredentialProducer {
                     &media_for_task,
                     &title,
                     &assertion,
+                    &ingredients,
                     &signer,
                 )
             }
@@ -230,6 +239,7 @@ fn sign_embedded(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
     signer_config: &CredentialSignerConfig,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
     let dest_path = output_path.map_or_else(|| input_path.to_path_buf(), Path::to_path_buf);
@@ -240,7 +250,7 @@ fn sign_embedded(
         .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
     fs::create_dir_all(&parent)?;
 
-    let mut builder = build_builder(media_type, title, assertion)?;
+    let mut builder = build_builder(media_type, title, assertion, ingredients, Some(input_path))?;
     builder.set_no_embed(false);
 
     let signer = signer_config.create_signer()?;
@@ -265,6 +275,7 @@ fn sign_sidecar(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
     signer_config: &CredentialSignerConfig,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
     let asset_dest = output_path.map_or_else(|| input_path.to_path_buf(), Path::to_path_buf);
@@ -279,7 +290,7 @@ fn sign_sidecar(
         .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
     fs::create_dir_all(&parent)?;
 
-    let mut builder = build_builder(media_type, title, assertion)?;
+    let mut builder = build_builder(media_type, title, assertion, ingredients, Some(input_path))?;
     builder.set_no_embed(true);
 
     let signer = signer_config.create_signer()?;
@@ -293,6 +304,7 @@ fn sign_sidecar(
             media_type,
             title,
             assertion,
+            ingredients,
             permissions: &permissions,
         };
         return sign_prehashed_sidecar(&request, signer);
@@ -306,6 +318,7 @@ fn sign_sidecar(
             media_type,
             title,
             assertion,
+            ingredients,
             permissions: &permissions,
         };
         return sign_unsupported_sidecar(&request, signer);
@@ -341,6 +354,7 @@ struct PrehashedSidecarRequest<'a> {
     media_type: &'a str,
     title: &'a str,
     assertion: &'a ProvenanceAssertion,
+    ingredients: &'a [IngredientSnapshot],
     permissions: &'a Permissions,
 }
 
@@ -354,8 +368,14 @@ fn sign_prehashed_sidecar(
         .filter(|p| !p.as_os_str().is_empty())
         .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
 
-    let mut builder =
-        build_builder_with_signer(request.media_type, request.title, request.assertion, signer)?;
+    let mut builder = build_builder_with_signer(
+        request.media_type,
+        request.title,
+        request.assertion,
+        request.ingredients,
+        Some(request.input_path),
+        signer,
+    )?;
     builder.set_no_embed(true);
 
     let mut source = File::open(request.input_path)?;
@@ -389,8 +409,14 @@ fn sign_unsupported_sidecar(
         .filter(|p| !p.as_os_str().is_empty())
         .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
 
-    let mut builder =
-        build_builder_with_signer(request.media_type, request.title, request.assertion, signer)?;
+    let mut builder = build_builder_with_signer(
+        request.media_type,
+        request.title,
+        request.assertion,
+        request.ingredients,
+        Some(request.input_path),
+        signer,
+    )?;
     builder.set_no_embed(true);
 
     let mut source = File::open(request.input_path)?;
@@ -433,14 +459,25 @@ fn build_builder(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    thumbnail_source: Option<&Path>,
 ) -> Result<Builder> {
-    build_builder_with_context(Context::new(), media_type, title, assertion)
+    build_builder_with_context(
+        Context::new(),
+        media_type,
+        title,
+        assertion,
+        ingredients,
+        thumbnail_source,
+    )
 }
 
 fn build_builder_with_signer(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    thumbnail_source: Option<&Path>,
     signer: BoxedSigner,
 ) -> Result<Builder> {
     build_builder_with_context(
@@ -448,6 +485,8 @@ fn build_builder_with_signer(
         media_type,
         title,
         assertion,
+        ingredients,
+        thumbnail_source,
     )
 }
 
@@ -456,6 +495,8 @@ fn build_builder_with_context(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    thumbnail_source: Option<&Path>,
 ) -> Result<Builder> {
     let definition = json!({
         "claim_generator_info": [{
@@ -464,15 +505,490 @@ fn build_builder_with_context(
         }],
         "title": title,
         "format": media_type,
-        "assertions": [
-            {
-                "label": "c2pa.actions.v2",
-                "data": { "actions": [{ "action": "c2pa.created" }] }
-            }
-        ]
+        "assertions": standard_assertions(assertion, media_type, title, ingredients)
     });
 
     let mut builder = Builder::from_context(context).with_definition(definition.to_string())?;
     builder.add_assertion(PROVENANCE_LABEL, assertion)?;
+
+    for (index, ingredient) in ingredients.iter().enumerate() {
+        attach_ingredient(&mut builder, ingredient, index)?;
+    }
+
+    if let Some(path) = thumbnail_source
+        && let Some(thumbnail_format) = thumbnail_format(media_type)
+        && let Ok(metadata) = fs::metadata(path)
+        && metadata.len() <= MAX_THUMBNAIL_BYTES
+        && let Ok(mut file) = File::open(path)
+    {
+        // Best-effort: failures here are not fatal because the thumbnail is
+        // purely informational metadata.
+        let _ = builder.set_thumbnail(thumbnail_format, &mut file);
+    }
+
     Ok(builder)
+}
+
+fn standard_assertions(
+    assertion: &ProvenanceAssertion,
+    media_type: &str,
+    title: &str,
+    ingredients: &[IngredientSnapshot],
+) -> Vec<Value> {
+    let mut assertions = vec![
+        actions_assertion(assertion, ingredients),
+        metadata_assertion(assertion, media_type, title),
+        asset_type_assertion(assertion),
+    ];
+
+    if let Some(ai_disclosure) = ai_disclosure_assertion(assertion) {
+        assertions.push(ai_disclosure);
+    }
+
+    assertions
+}
+
+fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
+    // The C2PA spec requires the first action to be `c2pa.created` or
+    // `c2pa.opened`. Stencila exports always materialise new bytes (a rendered
+    // file or a freshly generated computational output), so `c2pa.created` is
+    // the appropriate first action. Source-of-derivation linkage is recorded
+    // via `c2pa.ingredient.v3` with `relationship: inputTo` rather than via
+    // `c2pa.opened`/`c2pa.converted`. The c2pa.actions.v2 spec requires that
+    // related ingredients be referenced from the creating action; we satisfy
+    // that by listing input/parent ingredient IDs on c2pa.created.
+    let mut created = json!({
+        "action": "c2pa.created",
+        "description": action_description(assertion),
+        "softwareAgent": software_agent_value(assertion),
+        "parameters": action_parameters(assertion, ingredients),
+    });
+
+    if let Some(when) = action_timestamp(assertion) {
+        created["when"] = json!(when);
+    }
+
+    if let Some(uri) = digital_source_type(assertion) {
+        created["digitalSourceType"] = json!(uri);
+    }
+
+    let mut actions = vec![created];
+    actions.extend(placed_actions(assertion, ingredients));
+
+    json!({
+        "label": "c2pa.actions.v2",
+        "data": {
+            "actions": actions,
+        }
+    })
+}
+
+/// IPTC `DigitalSourceType` URI for the action, when one can be inferred from
+/// the asset role. See <https://cv.iptc.org/newscodes/digitalsourcetype/> for
+/// the controlled vocabulary; the URIs are stable identifiers in C2PA.
+fn digital_source_type(assertion: &ProvenanceAssertion) -> Option<&'static str> {
+    match assertion.asset.role.as_deref() {
+        Some("computational-output" | "figure" | "table-image") => {
+            Some("http://cv.iptc.org/newscodes/digitalsourcetype/dataDrivenMedia")
+        }
+        Some("document-export") => {
+            Some("http://cv.iptc.org/newscodes/digitalsourcetype/digitalCreation")
+        }
+        _ => None,
+    }
+}
+
+fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: &str) -> Value {
+    let label = assertion
+        .asset
+        .title
+        .as_deref()
+        .or(assertion.asset.label.as_deref())
+        .unwrap_or(title);
+
+    // The C2PA spec defines a closed allow-list of fields permitted under
+    // `c2pa.metadata` (see C2PA spec metadata_annex). Anything outside that
+    // list is rejected with `assertion.metadata.disallowed`. The fields below
+    // are all on the allow-list. Stencila-specific identifiers and details
+    // belong in the `org.stencila.provenance` assertion instead.
+    let mut data = json!({
+        "@context": {
+            "xmp": "http://ns.adobe.com/xap/1.0/",
+            "dc": "http://purl.org/dc/elements/1.1/",
+        },
+        "xmp:CreatorTool": producer_software_agent(assertion),
+        "xmp:Label": label,
+        "dc:format": media_type,
+    });
+
+    if let Some(dcmi_type) = dcmi_type_for(assertion) {
+        data["dc:type"] = json!(dcmi_type);
+    }
+
+    if let Some(title) = document_title(assertion) {
+        data["dc:title"] = json!(title);
+    }
+
+    if let Some(when) = action_timestamp(assertion) {
+        data["xmp:CreateDate"] = json!(when);
+    }
+
+    json!({
+        "label": "c2pa.metadata",
+        "kind": "Json",
+        "data": data,
+    })
+}
+
+/// Document-level title for `dc:title`, when one is available and distinct
+/// from the asset label already in `xmp:Label`.
+///
+/// `xmp:Label` carries the asset's display label (often the file name), while
+/// `dc:title` is the canonical Dublin Core title for the resource. Populating
+/// both lets generic metadata consumers see the work title without losing the
+/// per-asset label.
+fn document_title(assertion: &ProvenanceAssertion) -> Option<&str> {
+    let title = assertion.root_node.title.as_deref()?.trim();
+    if title.is_empty() {
+        return None;
+    }
+
+    let label = assertion
+        .asset
+        .title
+        .as_deref()
+        .or(assertion.asset.label.as_deref())
+        .map(str::trim);
+    if label == Some(title) {
+        return None;
+    }
+
+    Some(title)
+}
+
+/// Map the asset's broad type to a DCMI Type vocabulary term.
+///
+/// The DCMI Type vocabulary at <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-7>
+/// is a closed list. Returning `None` here is preferable to emitting an
+/// out-of-vocabulary string under `dc:type`.
+fn dcmi_type_for(assertion: &ProvenanceAssertion) -> Option<&'static str> {
+    match assertion.asset.asset_type.as_str() {
+        "image" | "figure" => Some("StillImage"),
+        "document" => Some("Text"),
+        "dataset" | "table" => Some("Dataset"),
+        _ => None,
+    }
+}
+
+fn asset_type_assertion(assertion: &ProvenanceAssertion) -> Value {
+    // The C2PA asset-type assertion has no `.v2` form: a previous `.v2` suffix
+    // here was silently normalised away by the SDK before being stored. Use the
+    // spec label so the wire form matches the code.
+    json!({
+        "label": "c2pa.asset-type",
+        "data": {
+            "types": [{
+                "type": standard_asset_type(assertion),
+                "dc:format": assertion.asset.media_type,
+            }]
+        }
+    })
+}
+
+/// Standard `c2pa.ai-disclosure` assertion.
+///
+/// Emitted only when the snapshot supplies a fully-formed `standard_assertion`
+/// JSON body. The producer does not synthesise an AI disclosure assertion from
+/// the snapshot's other fields because the C2PA AI disclosure schema is
+/// detailed enough that producing a partial body risks asserting more than the
+/// caller has actually verified. The companion Stencila assertion's
+/// `aiDisclosure` record continues to carry Stencila-specific identifiers in
+/// either case.
+fn ai_disclosure_assertion(assertion: &ProvenanceAssertion) -> Option<Value> {
+    let disclosure = assertion.ai_disclosure.as_ref()?;
+    let body_json = disclosure.standard_assertion.as_deref()?.trim();
+    if body_json.is_empty() {
+        return None;
+    }
+    let body: Value = serde_json::from_str(body_json).ok()?;
+    Some(json!({
+        "label": "c2pa.ai-disclosure",
+        "kind": "Json",
+        "data": body,
+    }))
+}
+
+/// Maps a media type to a thumbnail format the c2pa builder accepts, or
+/// `None` when no thumbnail should be embedded.
+fn thumbnail_format(media_type: &str) -> Option<&'static str> {
+    match media_type {
+        "image/png" => Some("image/png"),
+        "image/jpeg" | "image/jpg" => Some("image/jpeg"),
+        "image/gif" => Some("image/gif"),
+        "image/webp" => Some("image/webp"),
+        _ => None,
+    }
+}
+
+/// Add an ingredient to the builder, linking the child manifest when one
+/// is available so that verifiers can chain provenance across assets.
+fn attach_ingredient(
+    builder: &mut Builder,
+    snapshot: &IngredientSnapshot,
+    index: usize,
+) -> Result<()> {
+    if let Some(manifest_source) = snapshot.manifest_source.as_deref() {
+        match attach_ingredient_with_manifest(builder, snapshot, index, manifest_source) {
+            Ok(()) => return Ok(()),
+            Err(error) => {
+                // Fall back to the unlinked path so a missing or unreadable
+                // child manifest does not abort the parent signing. Verifiers
+                // will report `ingredient.unknownProvenance` for the child.
+                tracing::warn!(
+                    "Failed to read child manifest for ingredient at {}: {error}",
+                    manifest_source.display()
+                );
+            }
+        }
+    }
+
+    builder.add_ingredient(build_ingredient(snapshot, index)?);
+    Ok(())
+}
+
+fn attach_ingredient_with_manifest(
+    builder: &mut Builder,
+    snapshot: &IngredientSnapshot,
+    index: usize,
+    manifest_source: &Path,
+) -> Result<()> {
+    let format = manifest_stream_format(manifest_source, snapshot.media_type.as_deref())?;
+
+    let title = snapshot
+        .title
+        .clone()
+        .unwrap_or_else(|| "ingredient".to_string());
+    let ingredient_format = snapshot
+        .media_type
+        .clone()
+        .unwrap_or_else(|| format.clone());
+
+    // Minimal seed JSON; remaining fields are mutated on the returned
+    // ingredient after the SDK populates manifest_data and instance_id from
+    // the stream.
+    let seed = json!({
+        "label": ingredient_label(snapshot, index),
+        "title": title,
+        "format": ingredient_format,
+    });
+
+    let mut file = File::open(manifest_source)?;
+    let ingredient = builder.add_ingredient_from_stream(seed.to_string(), &format, &mut file)?;
+
+    ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
+    if let Some(hash) = &snapshot.content_digest {
+        ingredient.set_hash(hash.clone());
+    }
+    if let Some(uri) = &snapshot.informational_uri {
+        ingredient.set_informational_uri(uri.clone());
+    }
+    if let Some(description) = &snapshot.description {
+        ingredient.set_description(description.clone());
+    }
+
+    Ok(())
+}
+
+/// Format string to pass to the c2pa SDK when reading a child manifest from a
+/// stream. `.c2pa` sidecars are loaded as `application/c2pa`; everything else
+/// is loaded as the asset's own media type so the SDK can find the embedded
+/// JUMBF box.
+fn manifest_stream_format(path: &Path, ingredient_media_type: Option<&str>) -> Result<String> {
+    if path
+        .extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("c2pa"))
+    {
+        return Ok("application/c2pa".to_string());
+    }
+
+    if let Some(media_type) = ingredient_media_type {
+        return Ok(media_type.to_string());
+    }
+
+    media::guess_media_type(path)
+}
+
+/// Build a c2pa-rs [`Ingredient`] from a Stencila [`IngredientSnapshot`].
+///
+/// Used as a fallback when no child manifest can be linked. The returned
+/// ingredient has no `manifest_data`, so verifiers will surface
+/// `ingredient.unknownProvenance` for it.
+fn build_ingredient(snapshot: &IngredientSnapshot, index: usize) -> Result<Ingredient> {
+    let title = snapshot
+        .title
+        .clone()
+        .unwrap_or_else(|| "ingredient".to_string());
+    let format = snapshot
+        .media_type
+        .clone()
+        .unwrap_or_else(|| "application/octet-stream".to_string());
+
+    let seed = json!({
+        "label": ingredient_label(snapshot, index),
+        "title": title,
+        "format": format,
+    });
+
+    let mut ingredient = Ingredient::from_json(&seed.to_string())?;
+    ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
+    if let Some(hash) = &snapshot.content_digest {
+        ingredient.set_hash(hash.clone());
+    }
+    if let Some(uri) = &snapshot.informational_uri {
+        ingredient.set_informational_uri(uri.clone());
+    }
+    if let Some(description) = &snapshot.description {
+        ingredient.set_description(description.clone());
+    }
+    Ok(ingredient)
+}
+
+fn snapshot_relationship(relationship: IngredientRelationship) -> Relationship {
+    match relationship {
+        IngredientRelationship::ParentOf => Relationship::ParentOf,
+        IngredientRelationship::InputTo => Relationship::InputTo,
+        IngredientRelationship::ComponentOf => Relationship::ComponentOf,
+    }
+}
+
+/// Software agent value used in `c2pa.actions.v2` actions.
+///
+/// Returned as a `ClaimGeneratorInfo` object (`{name, version}`) rather than a
+/// joined string so the agent is machine-parseable and consistent with
+/// `claim_generator_info` at the manifest level.
+fn software_agent_value(assertion: &ProvenanceAssertion) -> Value {
+    json!({
+        "name": assertion.producer.name,
+        "version": assertion.producer.version,
+    })
+}
+
+fn action_description(assertion: &ProvenanceAssertion) -> String {
+    assertion
+        .activities
+        .iter()
+        .rev()
+        .find_map(|activity| activity.name.clone())
+        .unwrap_or_else(|| "Create asset".to_string())
+}
+
+fn action_timestamp(assertion: &ProvenanceAssertion) -> Option<String> {
+    assertion.activities.iter().rev().find_map(|activity| {
+        activity
+            .ended_at
+            .clone()
+            .or_else(|| activity.started_at.clone())
+    })
+}
+
+fn action_parameters(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+) -> Value {
+    let mut parameters = json!({
+        "org.stencila.assetType": assertion.asset.asset_type,
+        "org.stencila.mediaType": assertion.asset.media_type,
+    });
+
+    if let Some(role) = &assertion.asset.role {
+        parameters["org.stencila.assetRole"] = json!(role);
+    }
+    if let Some(codec) = &assertion.producer.codec {
+        parameters["org.stencila.codec"] = json!(codec);
+    }
+    if let Some(renderer) = &assertion.producer.renderer {
+        parameters["org.stencila.renderer"] = json!(renderer);
+    }
+
+    let source_ingredient_ids: Vec<String> = ingredients
+        .iter()
+        .enumerate()
+        .filter(|(_, ingredient)| {
+            matches!(
+                ingredient.relationship,
+                IngredientRelationship::InputTo | IngredientRelationship::ParentOf,
+            )
+        })
+        .map(|(index, ingredient)| ingredient_label(ingredient, index))
+        .collect();
+
+    if !source_ingredient_ids.is_empty() {
+        parameters["ingredientIds"] = json!(source_ingredient_ids);
+    }
+
+    parameters
+}
+
+fn placed_actions(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+) -> Vec<Value> {
+    ingredients
+        .iter()
+        .enumerate()
+        .filter(|(_, ingredient)| ingredient.relationship == IngredientRelationship::ComponentOf)
+        .map(|(index, ingredient)| {
+            let mut action = json!({
+                "action": "c2pa.placed",
+                "description": ingredient
+                    .title
+                    .as_deref()
+                    .map_or_else(|| "Place component".to_string(), |title| format!("Place {title}")),
+                "softwareAgent": software_agent_value(assertion),
+                "parameters": {
+                    "ingredientIds": [ingredient_label(ingredient, index)]
+                }
+            });
+
+            if let Some(when) = action_timestamp(assertion) {
+                action["when"] = json!(when);
+            }
+
+            action
+        })
+        .collect()
+}
+
+fn ingredient_label(snapshot: &IngredientSnapshot, index: usize) -> String {
+    snapshot
+        .label
+        .as_deref()
+        .filter(|label| !label.trim().is_empty())
+        .map_or_else(
+            || format!("stencila-ingredient-{index}"),
+            ToString::to_string,
+        )
+}
+
+fn producer_software_agent(assertion: &ProvenanceAssertion) -> String {
+    format!("{} {}", assertion.producer.name, assertion.producer.version)
+}
+
+fn standard_asset_type(assertion: &ProvenanceAssertion) -> String {
+    let stencila_type = assertion
+        .asset
+        .role
+        .as_deref()
+        .unwrap_or(&assertion.asset.asset_type)
+        .trim()
+        .replace(|ch: char| !ch.is_ascii_alphanumeric(), "-")
+        .trim_matches('-')
+        .to_ascii_lowercase();
+
+    if stencila_type.is_empty() {
+        "org.stencila.asset.asset".to_string()
+    } else {
+        format!("org.stencila.asset.{stencila_type}")
+    }
 }

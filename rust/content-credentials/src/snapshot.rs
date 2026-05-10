@@ -12,6 +12,8 @@
 //! and that assertion is the versioned payload serialized into the
 //! `org.stencila.provenance` C2PA assertion.
 
+use std::path::PathBuf;
+
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use serde_with::skip_serializing_none;
@@ -75,6 +77,14 @@ pub struct ProvenanceSnapshot {
 
     /// Redactions applied while projecting private Stencila state into the assertion.
     pub privacy: Option<PrivacySnapshot>,
+
+    /// Ingredients to declare via standard `c2pa.ingredient.v3` assertions.
+    ///
+    /// Use this to surface input or component assets (source files, embedded
+    /// figures, datasets) so non-Stencila C2PA tooling can see the provenance
+    /// graph rather than treating the asset as appearing from nowhere.
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub ingredients: Vec<IngredientSnapshot>,
 }
 
 impl ProvenanceSnapshot {
@@ -491,4 +501,70 @@ impl Default for DisclosureAssessmentSnapshot {
 pub struct RedactionSnapshot {
     pub field: Option<String>,
     pub reason: Option<String>,
+}
+
+/// C2PA ingredient relationship for an [`IngredientSnapshot`].
+#[derive(Clone, Copy, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum IngredientRelationship {
+    /// Direct derivation parent (the asset was opened/converted from this).
+    ParentOf,
+    /// Input to the process that produced the asset (e.g. a source document
+    /// whose code was executed).
+    #[default]
+    InputTo,
+    /// Component embedded inside the asset (e.g. a figure inside a document).
+    ComponentOf,
+}
+
+/// A standalone asset to declare as a `c2pa.ingredient.v3` ingredient.
+///
+/// Stencila exports rarely have a single "input file" the way image-editing
+/// tools do, but they do have source documents, embedded figures, and other
+/// inputs that belong in the C2PA provenance graph. The producer maps each
+/// snapshot to a c2pa-rs [`c2pa::Ingredient`] and lets the SDK emit the
+/// standard ingredient assertion.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct IngredientSnapshot {
+    /// Stable local label used to connect C2PA actions to this ingredient.
+    ///
+    /// The C2PA SDK resolves action `ingredientIds` against ingredient labels
+    /// before writing the final hashed URI references. When omitted, the
+    /// producer assigns a deterministic label based on ingredient order.
+    pub label: Option<String>,
+
+    /// Display title for the ingredient, typically the file name.
+    pub title: Option<String>,
+
+    /// IANA media type of the ingredient bytes.
+    pub media_type: Option<String>,
+
+    /// Cryptographic digest of the ingredient bytes in `algorithm:hex` form.
+    pub content_digest: Option<String>,
+
+    /// Relationship of the ingredient to the signed asset.
+    pub relationship: IngredientRelationship,
+
+    /// Informational URI for verifiers to locate the ingredient (e.g. a
+    /// repository URL plus path, a DOI, or a pURL).
+    pub informational_uri: Option<String>,
+
+    /// Free-form human-readable description of the ingredient.
+    pub description: Option<String>,
+
+    /// Path to a file whose C2PA manifest should be linked into this
+    /// ingredient assertion, so verifiers can chain provenance from the
+    /// signed asset down to its component or input.
+    ///
+    /// Either:
+    ///
+    /// - the ingredient's own bytes when the manifest is embedded (e.g. a
+    ///   signed `.png`), or
+    /// - a `.c2pa` sidecar file when the manifest is detached.
+    ///
+    /// When absent, the ingredient is recorded without a manifest link and
+    /// verifiers report `ingredient.unknownProvenance` for it.
+    pub manifest_source: Option<PathBuf>,
 }
