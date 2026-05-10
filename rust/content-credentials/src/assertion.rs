@@ -11,20 +11,20 @@ use crate::{
     schema::{
         ActivityRecord, AgentRecord, AiContentProfileRecord, AiDisclosureRecord, AssetRecord,
         AttributionRecord, DefinitionRecord, DependencyRecord, DisclosureAssessmentRecord,
-        DocumentRecord, EnvironmentRecord, ExecutionDigestRecord, ExecutionMessageRecord,
-        ExecutionRecord, FileDigestRecord, IdentifierRecord, IoRecord, KernelRecord,
-        PROVENANCE_SCHEMA, PrivacyRecord, ProducerRecord, ProvenanceAssertion,
-        ProvenanceCategoryRecord, ProvenanceSummaryRecord, RedactionRecord, RuntimeRecord,
-        SourceRecord, VerificationRecord, WorkflowRecord,
+        EnvironmentRecord, ExecutionDigestsRecord, ExecutionMessageRecord, ExecutionRecord,
+        FileDigestRecord, IdentifierRecord, KernelRecord, NodeRecord, PROVENANCE_SCHEMA,
+        PrivacyRecord, ProducerRecord, ProvenanceAssertion, ProvenanceCategoryRecord,
+        ProvenanceRecord, RedactionRecord, ReproducibilityRecord, RuntimeRecord, SourceRecord,
+        WorkflowRecord,
     },
     snapshot::{
         ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
         DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,
         EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
-        FileDigestSnapshot, IdentifierSnapshot, IoSnapshot, KernelSnapshot, PrivacySnapshot,
-        ProducerSnapshot, ProvenanceCategorySnapshot, ProvenanceSnapshot,
-        ProvenanceSummarySnapshot, RedactionSnapshot, RuntimeSnapshot, SourceSnapshot,
-        VerificationSnapshot, WorkflowSnapshot,
+        FileDigestSnapshot, IdentifierSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
+        ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot,
+        RedactionSnapshot, ReproducibilitySnapshot, RuntimeSnapshot, SourceSnapshot,
+        WorkflowSnapshot,
     },
 };
 
@@ -50,9 +50,10 @@ impl ProvenanceAssertion {
     #[must_use]
     pub fn from_snapshot(snapshot: ProvenanceSnapshot) -> Self {
         let ProvenanceSnapshot {
-            profile,
             asset,
-            document,
+            root_node,
+            executed_node,
+            output_node,
             activity,
             producer,
             attributions,
@@ -60,29 +61,24 @@ impl ProvenanceAssertion {
             execution,
             workflow,
             environment,
-            inputs,
-            outputs,
             ai_disclosure,
             provenance_summary,
-            verification,
+            reproducibility,
             privacy,
         } = snapshot;
 
-        let profile = profile.unwrap_or_else(|| default_profile(&asset.kind));
-        let has_execution = execution.is_some();
-        let has_workflow = workflow.is_some();
+        let activities =
+            activities_from_snapshots(activity, execution.as_ref(), workflow.is_some());
 
         Self {
             schema: PROVENANCE_SCHEMA.to_string(),
             version: 1,
-            profile: profile.clone(),
             producer: producer.map_or_else(ProducerRecord::default, ProducerRecord::from),
+            root_node: NodeRecord::from(root_node),
+            executed_node: executed_node.map(NodeRecord::from),
+            output_node: output_node.map(NodeRecord::from),
             asset: AssetRecord::from(asset),
-            document: DocumentRecord::from(document),
-            activity: activity.map_or_else(
-                || default_activity(&profile, has_execution, has_workflow),
-                ActivityRecord::from,
-            ),
+            activities,
             attributions: attributions
                 .into_iter()
                 .map(AttributionRecord::from)
@@ -91,12 +87,10 @@ impl ProvenanceAssertion {
             execution: execution.map(ExecutionRecord::from),
             workflow: workflow.map(WorkflowRecord::from),
             environment: environment.map(EnvironmentRecord::from),
-            inputs: inputs.into_iter().map(IoRecord::from).collect(),
-            outputs: outputs.into_iter().map(IoRecord::from).collect(),
             ai_disclosure: ai_disclosure.map(AiDisclosureRecord::from),
-            provenance_summary: provenance_summary.map(ProvenanceSummaryRecord::from),
-            verification: verification
-                .map_or_else(VerificationRecord::default, VerificationRecord::from),
+            provenance: provenance_summary.map(ProvenanceRecord::from),
+            reproducibility: reproducibility
+                .map_or_else(ReproducibilityRecord::default, ReproducibilityRecord::from),
             privacy: privacy.map_or_else(PrivacyRecord::default, PrivacyRecord::from),
             extra: Map::new(),
         }
@@ -141,9 +135,10 @@ impl From<AssetSnapshot> for AssetRecord {
     fn from(snapshot: AssetSnapshot) -> Self {
         Self {
             id: snapshot.id,
-            kind: snapshot.kind,
+            asset_type: lower_kebab_value(&snapshot.kind),
+            role: snapshot.role.map(|role| lower_kebab_value(&role)),
             media_type: snapshot.media_type,
-            digest: snapshot.digest,
+            content_digest: snapshot.content_digest,
             label: snapshot.label,
             title: snapshot.title,
             size: snapshot.size,
@@ -154,17 +149,22 @@ impl From<AssetSnapshot> for AssetRecord {
     }
 }
 
-impl From<DocumentSnapshot> for DocumentRecord {
+impl From<DocumentSnapshot> for NodeRecord {
     fn from(snapshot: DocumentSnapshot) -> Self {
         Self {
             node_type: snapshot.node_type,
             node_id: snapshot.node_id,
             node_path: snapshot.node_path,
-            label_type: snapshot.label_type,
+            label_type: snapshot
+                .label_type
+                .map(|label_type| lower_kebab_value(&label_type)),
             label: snapshot.label,
             title: snapshot.title,
-            programming_language: snapshot.programming_language,
-            execution_digest: snapshot.execution_digest.map(ExecutionDigestRecord::from),
+            programming_language: snapshot
+                .programming_language
+                .map(|language| lower_kebab_value(&language)),
+            content_url: snapshot.content_url,
+            media_type: snapshot.media_type,
             ..Self::default()
         }
     }
@@ -174,14 +174,18 @@ impl From<ActivitySnapshot> for ActivityRecord {
     fn from(snapshot: ActivitySnapshot) -> Self {
         Self {
             id: snapshot.id,
-            kind: snapshot.kind.unwrap_or_else(|| "asset-signing".to_string()),
+            activity_type: snapshot
+                .kind
+                .map_or_else(|| "sign".to_string(), |kind| lower_kebab_value(&kind)),
             name: snapshot.name,
             started_at: snapshot.started_at,
             ended_at: snapshot.ended_at,
             duration_ms: snapshot.duration_ms,
             associated_attribution_ids: snapshot.associated_attribution_ids,
-            used_input_ids: snapshot.used_input_ids,
-            generated_output_ids: snapshot.generated_output_ids,
+            used_node_ids: snapshot.used_node_ids,
+            generated_node_ids: snapshot.generated_node_ids,
+            used_asset_ids: snapshot.used_asset_ids,
+            generated_asset_ids: snapshot.generated_asset_ids,
             ..Self::default()
         }
     }
@@ -192,11 +196,13 @@ impl From<AttributionSnapshot> for AttributionRecord {
         Self {
             id: snapshot.id,
             agent: AgentRecord::from(snapshot.agent),
-            role_name: snapshot.role_name,
-            format: snapshot.format,
+            role_name: snapshot.role_name.map(|role| lower_kebab_value(&role)),
+            format: snapshot.format.map(|format| lower_kebab_value(&format)),
             last_modified: snapshot.last_modified,
-            scope: snapshot.scope,
-            provenance_category: snapshot.provenance_category,
+            scope: snapshot.scope.map(|scope| lower_kebab_value(&scope)),
+            provenance_category: snapshot
+                .provenance_category
+                .map(|category| lower_kebab_value(&category)),
             character_count: snapshot.character_count,
             character_percent: snapshot.character_percent,
             ..Self::default()
@@ -207,7 +213,7 @@ impl From<AttributionSnapshot> for AttributionRecord {
 impl From<AgentSnapshot> for AgentRecord {
     fn from(snapshot: AgentSnapshot) -> Self {
         Self {
-            kind: snapshot.kind,
+            agent_type: snapshot.kind.map(|kind| lower_kebab_value(&kind)),
             name: snapshot.name,
             id: snapshot.id,
             identifiers: snapshot
@@ -228,19 +234,19 @@ impl From<AgentSnapshot> for AgentRecord {
 impl From<IdentifierSnapshot> for IdentifierRecord {
     fn from(snapshot: IdentifierSnapshot) -> Self {
         Self {
-            kind: snapshot.kind,
+            identifier_type: snapshot.kind.map(|kind| lower_kebab_value(&kind)),
             value: snapshot.value,
             ..Self::default()
         }
     }
 }
 
-impl From<ExecutionDigestSnapshot> for ExecutionDigestRecord {
+impl From<ExecutionDigestSnapshot> for ExecutionDigestsRecord {
     fn from(snapshot: ExecutionDigestSnapshot) -> Self {
         Self {
-            state_digest: snapshot.state_digest,
-            semantic_digest: snapshot.semantic_digest,
-            dependencies_digest: snapshot.dependencies_digest,
+            state: snapshot.state_digest,
+            semantic: snapshot.semantic_digest,
+            dependencies: snapshot.dependencies_digest,
             dependencies_stale: snapshot.dependencies_stale,
             dependencies_failed: snapshot.dependencies_failed,
             ..Self::default()
@@ -265,10 +271,11 @@ impl From<SourceSnapshot> for SourceRecord {
 impl From<ExecutionSnapshot> for ExecutionRecord {
     fn from(snapshot: ExecutionSnapshot) -> Self {
         Self {
-            status: snapshot.status,
+            status: snapshot.status.map(|status| lower_kebab_value(&status)),
             ended_at: snapshot.ended_at,
             duration_ms: snapshot.duration_ms,
-            execution_count: snapshot.execution_count,
+            digests: snapshot.digest.map(ExecutionDigestsRecord::from),
+            count: snapshot.count,
             kernel: snapshot.kernel.map(KernelRecord::from),
             dependencies: snapshot
                 .dependencies
@@ -290,7 +297,9 @@ impl From<KernelSnapshot> for KernelRecord {
         Self {
             name: snapshot.name,
             version: snapshot.version,
-            language: snapshot.language,
+            language: snapshot
+                .language
+                .map(|language| lower_kebab_value(&language)),
             ..Self::default()
         }
     }
@@ -301,7 +310,9 @@ impl From<DependencySnapshot> for DependencyRecord {
         Self {
             node_id: snapshot.node_id,
             node_type: snapshot.node_type,
-            relation: snapshot.relation,
+            relation: snapshot
+                .relation
+                .map(|relation| lower_kebab_value(&relation)),
             digest: snapshot.digest,
             ..Self::default()
         }
@@ -311,8 +322,10 @@ impl From<DependencySnapshot> for DependencyRecord {
 impl From<ExecutionMessageSnapshot> for ExecutionMessageRecord {
     fn from(snapshot: ExecutionMessageSnapshot) -> Self {
         Self {
-            level: snapshot.level,
-            error_type: snapshot.error_type,
+            level: snapshot.level.map(|level| lower_kebab_value(&level)),
+            error_type: snapshot
+                .error_type
+                .map(|error_type| lower_kebab_value(&error_type)),
             message: snapshot.message,
             ..Self::default()
         }
@@ -343,9 +356,9 @@ impl From<WorkflowSnapshot> for WorkflowRecord {
 impl From<DefinitionSnapshot> for DefinitionRecord {
     fn from(snapshot: DefinitionSnapshot) -> Self {
         Self {
-            kind: snapshot.kind,
+            definition_type: snapshot.kind.map(|kind| lower_kebab_value(&kind)),
             name: snapshot.name,
-            role: snapshot.role,
+            role: snapshot.role.map(|role| lower_kebab_value(&role)),
             source_path: snapshot.source_path,
             version: snapshot.version,
             content_digest: snapshot.content_digest,
@@ -395,38 +408,15 @@ impl From<FileDigestSnapshot> for FileDigestRecord {
     }
 }
 
-impl From<IoSnapshot> for IoRecord {
-    fn from(snapshot: IoSnapshot) -> Self {
-        Self {
-            id: snapshot.id,
-            kind: snapshot.kind,
-            name: snapshot.name,
-            uri: snapshot.uri,
-            media_type: snapshot.media_type,
-            digest: snapshot.digest,
-            version: snapshot.version,
-            access: snapshot.access,
-            redaction: snapshot.redaction,
-            size: snapshot.size,
-            width: snapshot.width,
-            height: snapshot.height,
-            row_count: snapshot.row_count,
-            column_count: snapshot.column_count,
-            metadata: snapshot.metadata,
-            ..Self::default()
-        }
-    }
-}
-
 impl From<AiDisclosureSnapshot> for AiDisclosureRecord {
     fn from(snapshot: AiDisclosureSnapshot) -> Self {
         Self {
-            model_type: snapshot.model_type,
+            model_type: lower_kebab_value(&snapshot.model_type),
             model_name: snapshot.model_name,
             model_identifier: snapshot.model_identifier,
             content_profile: snapshot.human_oversight_level.map(|human_oversight_level| {
                 AiContentProfileRecord {
-                    human_oversight_level: Some(human_oversight_level),
+                    human_oversight_level: Some(lower_kebab_value(&human_oversight_level)),
                     ..Default::default()
                 }
             }),
@@ -437,10 +427,10 @@ impl From<AiDisclosureSnapshot> for AiDisclosureRecord {
     }
 }
 
-impl From<ProvenanceSummarySnapshot> for ProvenanceSummaryRecord {
+impl From<ProvenanceSummarySnapshot> for ProvenanceRecord {
     fn from(snapshot: ProvenanceSummarySnapshot) -> Self {
         Self {
-            basis: snapshot.basis,
+            basis: snapshot.basis.map(|basis| lower_kebab_value(&basis)),
             human_percent: snapshot.human_percent,
             machine_percent: snapshot.machine_percent,
             ai_assisted_percent: snapshot.ai_assisted_percent,
@@ -459,7 +449,7 @@ impl From<ProvenanceSummarySnapshot> for ProvenanceSummaryRecord {
 impl From<ProvenanceCategorySnapshot> for ProvenanceCategoryRecord {
     fn from(snapshot: ProvenanceCategorySnapshot) -> Self {
         Self {
-            provenance_category: snapshot.provenance_category,
+            category: lower_kebab_value(&snapshot.provenance_category),
             character_count: snapshot.character_count,
             character_percent: snapshot.character_percent,
             ..Self::default()
@@ -467,26 +457,26 @@ impl From<ProvenanceCategorySnapshot> for ProvenanceCategoryRecord {
     }
 }
 
-impl Default for VerificationRecord {
+impl Default for ReproducibilityRecord {
     fn default() -> Self {
         Self {
-            reproducibility_status: "not-checked".to_string(),
+            status: "not-checked".to_string(),
             policy: None,
-            verified_by: None,
-            verified_at: None,
+            checked_by: None,
+            checked_at: None,
             comparison: None,
             extra: Map::new(),
         }
     }
 }
 
-impl From<VerificationSnapshot> for VerificationRecord {
-    fn from(snapshot: VerificationSnapshot) -> Self {
+impl From<ReproducibilitySnapshot> for ReproducibilityRecord {
+    fn from(snapshot: ReproducibilitySnapshot) -> Self {
         Self {
-            reproducibility_status: snapshot.reproducibility_status,
+            status: lower_kebab_value(&snapshot.reproducibility_status),
             policy: snapshot.policy,
-            verified_by: snapshot.verified_by,
-            verified_at: snapshot.verified_at,
+            checked_by: snapshot.checked_by,
+            checked_at: snapshot.checked_at,
             comparison: snapshot.comparison,
             ..Self::default()
         }
@@ -540,30 +530,99 @@ impl From<RedactionSnapshot> for RedactionRecord {
     }
 }
 
-fn default_profile(asset_kind: &str) -> String {
-    match asset_kind {
-        "figure" | "table" | "image" | "dataset" => "computational-output",
-        "document" => "document-export",
-        _ => "asset",
+fn activities_from_snapshots(
+    activity: Option<ActivitySnapshot>,
+    execution: Option<&ExecutionSnapshot>,
+    has_workflow: bool,
+) -> Vec<ActivityRecord> {
+    let mut activities = Vec::new();
+
+    if let Some(execution) = execution {
+        activities.push(execution_activity(execution, activity.as_ref()));
     }
-    .to_string()
+
+    if let Some(activity) = activity {
+        let record = ActivityRecord::from(activity);
+        if record.activity_type != "execute" || activities.is_empty() {
+            activities.push(record);
+        }
+    }
+
+    if activities.is_empty() {
+        activities.push(default_activity(has_workflow));
+    }
+
+    activities
 }
 
-fn default_activity(profile: &str, has_execution: bool, has_workflow: bool) -> ActivityRecord {
-    let kind = if has_workflow {
-        "workflow-run"
-    } else if has_execution {
-        "code-execution"
-    } else if profile == "document-export" {
-        "document-export"
-    } else {
-        "asset-signing"
-    };
-
+fn execution_activity(
+    execution: &ExecutionSnapshot,
+    related_activity: Option<&ActivitySnapshot>,
+) -> ActivityRecord {
     ActivityRecord {
-        kind: kind.to_string(),
+        activity_type: "execute".to_string(),
+        name: Some("Execute node".to_string()),
+        ended_at: execution.ended_at.clone(),
+        duration_ms: execution.duration_ms,
+        generated_node_ids: related_activity
+            .map(|activity| activity.generated_node_ids.clone())
+            .filter(|ids| !ids.is_empty())
+            .or_else(|| related_activity.map(|activity| activity.used_node_ids.clone()))
+            .unwrap_or_default(),
         ..Default::default()
     }
+}
+
+fn default_activity(has_workflow: bool) -> ActivityRecord {
+    let activity_type = if has_workflow { "run" } else { "sign" };
+
+    ActivityRecord {
+        activity_type: activity_type.to_string(),
+        ..Default::default()
+    }
+}
+
+fn lower_kebab_value(value: &str) -> String {
+    let trimmed = value.trim();
+    let mut result = String::with_capacity(trimmed.len());
+    let chars = trimmed.chars().collect::<Vec<_>>();
+
+    for (index, ch) in chars.iter().copied().enumerate() {
+        let prev = index
+            .checked_sub(1)
+            .and_then(|prev| chars.get(prev))
+            .copied();
+        let next = chars.get(index + 1).copied();
+
+        if ch.is_ascii_alphanumeric() {
+            if ch.is_ascii_uppercase() {
+                let boundary = prev.is_some_and(|prev| {
+                    prev.is_ascii_lowercase()
+                        || prev.is_ascii_digit()
+                        || (prev.is_ascii_uppercase()
+                            && next.is_some_and(|next| next.is_ascii_lowercase()))
+                });
+                if boundary && !result.ends_with('-') && !result.ends_with('.') {
+                    result.push('-');
+                }
+                result.push(ch.to_ascii_lowercase());
+            } else {
+                result.push(ch.to_ascii_lowercase());
+            }
+        } else if ch == '.' {
+            if !result.ends_with('.') && !result.ends_with('-') {
+                result.push('.');
+            }
+        } else if !result.is_empty() && !result.ends_with('-') && !result.ends_with('.') {
+            result.push('-');
+        }
+    }
+
+    while result.ends_with('-') || result.ends_with('.') {
+        result.pop();
+    }
+
+    result
 }
 
 pub(crate) fn asset_kind_for_media_type(media_type: &str) -> &'static str {
@@ -601,14 +660,15 @@ mod tests {
 
         assert_eq!(parsed.schema, PROVENANCE_SCHEMA);
         assert_eq!(parsed.version, 1);
-        assert_eq!(parsed.profile, "computational-output");
         assert_eq!(parsed.producer.name, "Stencila");
         assert_eq!(parsed.asset.media_type, "image/png");
-        assert_eq!(parsed.asset.digest, "sha256:abc");
-        assert_eq!(parsed.asset.kind, "image");
-        assert_eq!(parsed.document.node_type, "File");
-        assert_eq!(parsed.activity.kind, "asset-signing");
-        assert_eq!(parsed.verification.reproducibility_status, "not-checked");
+        assert_eq!(parsed.asset.content_digest, "sha256:abc");
+        assert_eq!(parsed.asset.asset_type, "image");
+        assert_eq!(parsed.root_node.node_type, "File");
+        assert!(parsed.executed_node.is_none());
+        assert!(parsed.output_node.is_none());
+        assert_eq!(parsed.activities[0].activity_type, "sign");
+        assert_eq!(parsed.reproducibility.status, "not-checked");
         assert_eq!(parsed.privacy.personal_data.status, "not-assessed");
         assert_eq!(parsed.privacy.secrets.status, "not-assessed");
         assert!(parsed.is_known_schema());
@@ -622,17 +682,16 @@ mod tests {
         let raw = json!({
             "schema": PROVENANCE_SCHEMA,
             "version": 1,
-            "profile": "computational-output",
             "producer": { "name": "Stencila", "version": "9.9.9" },
             "asset": {
-                "kind": "figure",
+                "assetType": "figure",
                 "mediaType": "image/png",
-                "digest": "sha256:abc",
+                "contentDigest": "sha256:abc",
                 "assetFuture": "kept"
             },
-            "document": { "nodeType": "CodeChunk" },
-            "activity": { "kind": "code-execution" },
-            "verification": { "reproducibilityStatus": "not-checked" },
+            "rootNode": { "nodeType": "CodeChunk" },
+            "activities": [{ "activityType": "execute" }],
+            "reproducibility": { "status": "not-checked" },
             "privacy": {
                 "personalData": { "status": "not-assessed" },
                 "secrets": { "status": "not-assessed" }
@@ -657,17 +716,69 @@ mod tests {
         );
     }
 
-    /// Ensures the previous `sourceDigest` field name is still accepted for asset digests.
+    /// Ensures executable exports record execution before export in the activity list.
     #[test]
-    fn legacy_source_digest_field_is_accepted() {
+    fn executable_export_records_ordered_activities() {
+        let assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot {
+            asset: AssetSnapshot::new("Image", "image/png", "sha256:abc"),
+            executed_node: Some(DocumentSnapshot {
+                node_type: "CodeChunk".to_string(),
+                node_id: Some("chunk-1".to_string()),
+                ..Default::default()
+            }),
+            output_node: Some(DocumentSnapshot {
+                node_type: "ImageObject".to_string(),
+                node_id: Some("image-1".to_string()),
+                content_url: Some("figures/example.png".to_string()),
+                media_type: Some("image/png".to_string()),
+                ..Default::default()
+            }),
+            activity: Some(ActivitySnapshot {
+                kind: Some("Export".to_string()),
+                used_node_ids: vec!["image-1".to_string()],
+                generated_asset_ids: vec!["exported-asset".to_string()],
+                ..Default::default()
+            }),
+            execution: Some(ExecutionSnapshot {
+                status: Some("Succeeded".to_string()),
+                ended_at: Some("2026-05-10T01:12:40Z".to_string()),
+                duration_ms: Some(2110),
+                ..Default::default()
+            }),
+            ..ProvenanceSnapshot::for_asset(AssetSnapshot::new("Image", "image/png", "sha256:abc"))
+        });
+
+        let activity_types = assertion
+            .activities
+            .iter()
+            .map(|activity| activity.activity_type.as_str())
+            .collect::<Vec<_>>();
+
+        assert_eq!(activity_types, ["execute", "export"]);
+        assert_eq!(assertion.activities[0].duration_ms, Some(2110));
+        assert_eq!(assertion.activities[0].generated_node_ids, ["image-1"]);
+        assert_eq!(assertion.activities[1].used_node_ids, ["image-1"]);
+        assert_eq!(
+            assertion.activities[1].generated_asset_ids,
+            ["exported-asset"]
+        );
+        assert_eq!(
+            assertion.execution.and_then(|execution| execution.status),
+            Some("succeeded".to_string())
+        );
+    }
+
+    /// Ensures asset content digests deserialize with the current field name.
+    #[test]
+    fn asset_content_digest_deserializes() {
         let raw = json!({
-            "kind": "image",
+            "assetType": "image",
             "mediaType": "image/png",
-            "sourceDigest": "sha256:abc"
+            "contentDigest": "sha256:abc"
         });
 
         let parsed: AssetRecord = serde_json::from_value(raw).expect("deserialize");
-        assert_eq!(parsed.digest, "sha256:abc");
+        assert_eq!(parsed.content_digest, "sha256:abc");
     }
 
     /// Ensures compatible v1 schema URLs are accepted but incompatible versions are not.

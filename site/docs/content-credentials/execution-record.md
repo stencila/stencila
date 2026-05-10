@@ -18,7 +18,8 @@ a prompt, a query, or another executable document node.
 | [`status`](#status) | `string` | No | Execution status reported by Stencila. |
 | [`endedAt`](#ended-at) | `string` | No | Execution end time in RFC 3339 format. |
 | [`durationMs`](#duration-ms) | `integer` | No | Execution duration in milliseconds. |
-| [`executionCount`](#execution-count) | `integer` | No | Kernel execution counter for the node. |
+| [`digests`](#digests) | [`ExecutionDigestsRecord`](execution-digests-record) | No | Digests representing executable node state at signing time. |
+| [`count`](#count) | `integer` | No | Kernel execution counter for the node. |
 | [`kernel`](#kernel) | [`KernelRecord`](kernel-record) | No | Kernel used to execute the node. |
 | [`dependencies`](#dependencies) | array<[`DependencyRecord`](dependency-record)> | No | Other document nodes or values this execution depended on. |
 | [`messages`](#messages) | array<[`ExecutionMessageRecord`](execution-message-record)> | No | Execution messages emitted while producing the asset. |
@@ -51,7 +52,18 @@ encoding a language-specific duration format.
 
 **Type:** `integer` | **Required:** No | **Nullable:** Yes
 
-### `executionCount`
+### `digests`
+
+Digests representing executable node state at signing time.
+
+These compactly attest the state that Stencila considered relevant to
+generated output, without disclosing the source code or dependency values
+themselves. The field is named `digests` because it is already nested
+under `execution`.
+
+**Type:** [`ExecutionDigestsRecord`](execution-digests-record) | **Required:** No | **Nullable:** Yes
+
+### `count`
 
 Kernel execution counter for the node.
 
@@ -74,8 +86,8 @@ named kernel can wrap a language runtime, container, or remote service.
 Other document nodes or values this execution depended on.
 
 Dependencies explain why an output should be rerun when upstream state
-changes. They can be redacted or summarized independently of digest
-values on the document record.
+changes. They can be redacted or summarized independently of aggregate
+digest values on this execution record.
 
 **Type:** array<[`DependencyRecord`](dependency-record)> | **Required:** No
 

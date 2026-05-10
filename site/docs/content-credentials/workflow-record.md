@@ -58,8 +58,9 @@ disclosing the prompt text.
 
 Stencila node identifier associated with the workflow.
 
-This may differ from `document.nodeId` when a workflow operates over a
-broader scope than the signed node.
+This may differ from `rootNode.nodeId`, `executedNode.nodeId`, or
+`outputNode.nodeId` when a workflow operates over a broader scope than
+the signed asset.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 

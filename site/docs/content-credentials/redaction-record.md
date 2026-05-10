@@ -22,8 +22,8 @@ be audited without exposing the redacted value.
 Redacted field path.
 
 Paths should use assertion JSON field names, for example
-`workflow.goalDigest` or `inputs[0].uri`, so consumers can locate the
-omitted context in the signed payload.
+`workflow.goalDigest` or `execution.dependencies[0].digest`, so
+consumers can locate the omitted context in the signed payload.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 

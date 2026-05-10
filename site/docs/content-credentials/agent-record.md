@@ -15,7 +15,7 @@ while also mapping cleanly to C2PA's broader notion of actors.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`kind`](#kind) | `string` | No | Agent kind. |
+| [`agentType`](#agent-type) | `string` | No | Agent type. |
 | [`name`](#name) | `string` | No | Agent name. |
 | [`id`](#id) | `string` | No | Stable local or external agent identifier. |
 | [`identifiers`](#identifiers) | array<[`IdentifierRecord`](identifier-record)> | No | Structured identifiers for the agent. |
@@ -25,9 +25,9 @@ while also mapping cleanly to C2PA's broader notion of actors.
 | [`modelIdentifier`](#model-identifier) | `string` | No | Durable model identifier, URI, or package URL. |
 | [`url`](#url) | `string` | No | Agent URL. |
 
-### `kind`
+### `agentType`
 
-Agent kind.
+Agent type.
 
 Suggested values are `person`, `organization`, `softwareApplication`,
 `model`, and `thing`. It is optional so redacted or legacy agents can

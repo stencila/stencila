@@ -56,18 +56,29 @@ fn provenance_assertion_docs_nav_uses_schema_first_use_order() -> Result<(), Box
         &[
             "index",
             "producer-record",
+            "node-record",
             "asset-record",
-            "document-record",
-            "execution-digest-record",
             "activity-record",
             "attribution-record",
             "agent-record",
             "identifier-record",
+            "source-record",
+            "execution-record",
+            "execution-digests-record",
         ],
     )?;
     assert_order(
         &nav,
         &["workflow-record", "definition-record", "environment-record"],
+    )?;
+    assert_order(
+        &nav,
+        &[
+            "ai-disclosure-record",
+            "provenance-record",
+            "reproducibility-record",
+            "privacy-record",
+        ],
     )?;
 
     Ok(())

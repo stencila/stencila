@@ -1,9 +1,9 @@
 ---
-title: "Provenance Summary Record"
+title: "Provenance Record"
 description: "Compact projection of Stencila provenance categories."
 ---
 
-# Provenance Summary Record
+# Provenance Record
 
 Compact projection of Stencila provenance categories.
 

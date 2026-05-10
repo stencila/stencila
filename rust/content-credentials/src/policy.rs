@@ -18,9 +18,9 @@ use crate::{
     snapshot::{
         ActivitySnapshot, AgentSnapshot, AssetSnapshot, DefinitionSnapshot, DependencySnapshot,
         DocumentSnapshot, EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot,
-        ExecutionSnapshot, FileDigestSnapshot, IoSnapshot, KernelSnapshot, ProducerSnapshot,
-        ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot, SourceSnapshot,
-        VerificationSnapshot, WorkflowSnapshot,
+        ExecutionSnapshot, FileDigestSnapshot, KernelSnapshot, ProducerSnapshot,
+        ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot, ReproducibilitySnapshot,
+        SourceSnapshot, WorkflowSnapshot,
     },
 };
 
@@ -99,15 +99,19 @@ impl ProjectionPolicy {
         let mut redactions = std::mem::take(&mut privacy.redactions);
 
         self.project_asset(&mut snapshot.asset, &mut redactions);
-        self.project_document(&mut snapshot.document, &mut redactions);
+        self.project_document(&mut snapshot.root_node, &mut redactions);
+        self.project_node(
+            "executedNode",
+            snapshot.executed_node.as_mut(),
+            &mut redactions,
+        );
+        self.project_node("outputNode", snapshot.output_node.as_mut(), &mut redactions);
         self.project_activity(snapshot.activity.as_mut(), &mut redactions);
         self.project_producer(snapshot.producer.as_mut(), &mut redactions);
         self.project_source(snapshot.source.as_mut(), &mut redactions);
         self.project_execution(snapshot.execution.as_mut(), &mut redactions);
         self.project_environment(snapshot.environment.as_mut(), &mut redactions);
         self.project_workflow(snapshot.workflow.as_mut(), &mut redactions);
-        self.project_io("inputs", &mut snapshot.inputs, &mut redactions);
-        self.project_io("outputs", &mut snapshot.outputs, &mut redactions);
         project_agents(
             "attributions",
             snapshot
@@ -132,7 +136,7 @@ impl ProjectionPolicy {
         }
 
         self.project_provenance_summary(snapshot.provenance_summary.as_mut(), &mut redactions);
-        self.project_verification(snapshot.verification.as_mut(), &mut redactions);
+        self.project_reproducibility(snapshot.reproducibility.as_mut(), &mut redactions);
 
         privacy.redactions = redactions;
         privacy.personal_data.policy = Some(self.policy_name());
@@ -202,29 +206,63 @@ impl ProjectionPolicy {
         document: &mut DocumentSnapshot,
         redactions: &mut Vec<RedactionSnapshot>,
     ) {
-        redact_secret_option("document.nodeId", &mut document.node_id, redactions);
-        self.project_path_option("document.nodePath", &mut document.node_path, redactions);
+        redact_secret_option("rootNode.nodeId", &mut document.node_id, redactions);
+        self.project_node_fields("rootNode", document, redactions);
+    }
+
+    fn project_node(
+        &self,
+        prefix: &str,
+        node: Option<&mut DocumentSnapshot>,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
+        let Some(node) = node else {
+            return;
+        };
+
+        redact_secret_option(&format!("{prefix}.nodeId"), &mut node.node_id, redactions);
+        self.project_path_option(
+            &format!("{prefix}.nodePath"),
+            &mut node.node_path,
+            redactions,
+        );
+        self.project_node_fields(prefix, node, redactions);
+    }
+
+    fn project_node_fields(
+        &self,
+        prefix: &str,
+        node: &mut DocumentSnapshot,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
         project_text_option(
-            "document.label",
-            &mut document.label,
+            &format!("{prefix}.label"),
+            &mut node.label,
             self.home_dir.as_deref(),
             redactions,
         );
         project_text_option(
-            "document.title",
-            &mut document.title,
+            &format!("{prefix}.title"),
+            &mut node.title,
             self.home_dir.as_deref(),
             redactions,
         );
         redact_secret_option(
-            "document.programmingLanguage",
-            &mut document.programming_language,
+            &format!("{prefix}.programmingLanguage"),
+            &mut node.programming_language,
             redactions,
         );
-
-        if let Some(digest) = &mut document.execution_digest {
-            project_execution_digest("document.executionDigest", digest, redactions);
-        }
+        self.project_uri_or_path_option(
+            &format!("{prefix}.contentUrl"),
+            &mut node.content_url,
+            true,
+            redactions,
+        );
+        redact_secret_option(
+            &format!("{prefix}.mediaType"),
+            &mut node.media_type,
+            redactions,
+        );
     }
 
     fn project_activity(
@@ -237,7 +275,7 @@ impl ProjectionPolicy {
         };
 
         redact_secret_option("activity.id", &mut activity.id, redactions);
-        redact_secret_option("activity.kind", &mut activity.kind, redactions);
+        redact_secret_option("activity.activityType", &mut activity.kind, redactions);
         project_text_option(
             "activity.name",
             &mut activity.name,
@@ -251,14 +289,26 @@ impl ProjectionPolicy {
             redactions,
         );
         project_string_list(
-            "activity.usedInputIds",
-            &mut activity.used_input_ids,
+            "activity.usedNodeIds",
+            &mut activity.used_node_ids,
             self.home_dir.as_deref(),
             redactions,
         );
         project_string_list(
-            "activity.generatedOutputIds",
-            &mut activity.generated_output_ids,
+            "activity.generatedNodeIds",
+            &mut activity.generated_node_ids,
+            self.home_dir.as_deref(),
+            redactions,
+        );
+        project_string_list(
+            "activity.usedAssetIds",
+            &mut activity.used_asset_ids,
+            self.home_dir.as_deref(),
+            redactions,
+        );
+        project_string_list(
+            "activity.generatedAssetIds",
+            &mut activity.generated_asset_ids,
             self.home_dir.as_deref(),
             redactions,
         );
@@ -337,6 +387,10 @@ impl ProjectionPolicy {
 
         if let Some(kernel) = &mut execution.kernel {
             Self::project_kernel("execution.kernel", kernel, redactions);
+        }
+
+        if let Some(digest) = &mut execution.digest {
+            project_execution_digest("execution.digests", digest, redactions);
         }
 
         for (index, dependency) in execution.dependencies.iter_mut().enumerate() {
@@ -537,67 +591,6 @@ impl ProjectionPolicy {
         redact_secret_option(&format!("{prefix}.digest"), &mut file.digest, redactions);
     }
 
-    fn project_io(
-        &self,
-        field: &str,
-        items: &mut [IoSnapshot],
-        redactions: &mut Vec<RedactionSnapshot>,
-    ) {
-        for (index, item) in items.iter_mut().enumerate() {
-            let prefix = format!("{field}[{index}]");
-            let private = is_private_access(item.access.as_deref());
-
-            let uri_omitted = if has_secret_option(item.uri.as_deref())
-                || (private && self.profile == CredentialProfile::Public)
-            {
-                item.uri = None;
-                redactions.push(redaction(format!("{prefix}.uri"), REDACTION_URI_OMITTED));
-                true
-            } else {
-                self.project_uri_or_path_option(
-                    &format!("{prefix}.uri"),
-                    &mut item.uri,
-                    is_public_access(item.access.as_deref()),
-                    redactions,
-                )
-            };
-
-            if self.profile == CredentialProfile::Public
-                && (private || uri_omitted)
-                && item.digest.is_some()
-            {
-                item.digest = None;
-                item.redaction = Some(REDACTION_DIGEST_OMITTED.to_string());
-                redactions.push(redaction(
-                    format!("{prefix}.digest"),
-                    REDACTION_DIGEST_OMITTED,
-                ));
-            } else {
-                redact_secret_option(&format!("{prefix}.digest"), &mut item.digest, redactions);
-            }
-
-            let public = is_public_access(item.access.as_deref());
-            if self.profile == CredentialProfile::Public
-                && (private || (uri_omitted && !public))
-                && item.name.is_some()
-            {
-                item.name = Some(REDACTED_NAME.to_string());
-                redactions.push(redaction(format!("{prefix}.name"), REDACTION_NAME_REDACTED));
-            } else {
-                redact_secret_option(&format!("{prefix}.name"), &mut item.name, redactions);
-            }
-
-            if let Some(metadata) = &mut item.metadata {
-                project_metadata(
-                    &format!("{prefix}.metadata"),
-                    metadata,
-                    self.home_dir.as_deref(),
-                    redactions,
-                );
-            }
-        }
-    }
-
     fn project_uri_or_path_option(
         &self,
         field: &str,
@@ -631,57 +624,61 @@ impl ProjectionPolicy {
         };
 
         project_text_option(
-            "provenanceSummary.basis",
+            "provenance.basis",
             &mut provenance_summary.basis,
             self.home_dir.as_deref(),
             redactions,
         );
         project_text_option(
-            "provenanceSummary.source",
+            "provenance.source",
             &mut provenance_summary.source,
             self.home_dir.as_deref(),
             redactions,
         );
         redact_secret_option(
-            "provenanceSummary.sourceVersion",
+            "provenance.sourceVersion",
             &mut provenance_summary.source_version,
             redactions,
         );
 
         for (index, category) in provenance_summary.categories.iter_mut().enumerate() {
             redact_secret_string(
-                &format!("provenanceSummary.categories[{index}].provenanceCategory"),
+                &format!("provenance.categories[{index}].category"),
                 &mut category.provenance_category,
                 redactions,
             );
         }
     }
 
-    fn project_verification(
+    fn project_reproducibility(
         &self,
-        verification: Option<&mut VerificationSnapshot>,
+        reproducibility: Option<&mut ReproducibilitySnapshot>,
         redactions: &mut Vec<RedactionSnapshot>,
     ) {
-        let Some(verification) = verification else {
+        let Some(reproducibility) = reproducibility else {
             return;
         };
 
         redact_secret_string(
-            "verification.reproducibilityStatus",
-            &mut verification.reproducibility_status,
+            "reproducibility.status",
+            &mut reproducibility.reproducibility_status,
             redactions,
         );
-        redact_secret_option("verification.policy", &mut verification.policy, redactions);
+        redact_secret_option(
+            "reproducibility.policy",
+            &mut reproducibility.policy,
+            redactions,
+        );
         project_text_option(
-            "verification.verifiedBy",
-            &mut verification.verified_by,
+            "reproducibility.checkedBy",
+            &mut reproducibility.checked_by,
             self.home_dir.as_deref(),
             redactions,
         );
 
-        if let Some(comparison) = &mut verification.comparison {
+        if let Some(comparison) = &mut reproducibility.comparison {
             project_metadata(
-                "verification.comparison",
+                "reproducibility.comparison",
                 comparison,
                 self.home_dir.as_deref(),
                 redactions,
@@ -793,17 +790,17 @@ fn project_execution_digest(
     redactions: &mut Vec<RedactionSnapshot>,
 ) {
     redact_secret_option(
-        &format!("{prefix}.stateDigest"),
+        &format!("{prefix}.state"),
         &mut digest.state_digest,
         redactions,
     );
     redact_secret_option(
-        &format!("{prefix}.semanticDigest"),
+        &format!("{prefix}.semantic"),
         &mut digest.semantic_digest,
         redactions,
     );
     redact_secret_option(
-        &format!("{prefix}.dependenciesDigest"),
+        &format!("{prefix}.dependencies"),
         &mut digest.dependencies_digest,
         redactions,
     );
@@ -981,20 +978,6 @@ fn is_probable_url(value: &str) -> bool {
     value.contains("://") || value.starts_with("git@")
 }
 
-fn is_private_access(access: Option<&str>) -> bool {
-    matches!(
-        access.map(str::to_ascii_lowercase).as_deref(),
-        Some("private" | "restricted" | "undisclosed" | "redacted")
-    )
-}
-
-fn is_public_access(access: Option<&str>) -> bool {
-    matches!(
-        access.map(str::to_ascii_lowercase).as_deref(),
-        Some("public" | "open")
-    )
-}
-
 fn redaction(field: impl Into<String>, reason: impl Into<String>) -> RedactionSnapshot {
     RedactionSnapshot {
         field: Some(field.into()),
@@ -1010,11 +993,11 @@ mod tests {
     use crate::snapshot::{
         ActivitySnapshot, AttributionSnapshot, DisclosureAssessmentSnapshot,
         ExecutionMessageSnapshot, ExecutionSnapshot, FileDigestSnapshot, PrivacySnapshot,
-        ProducerSnapshot, VerificationSnapshot,
+        ProducerSnapshot, ReproducibilitySnapshot,
     };
 
     #[test]
-    fn public_profile_redacts_private_paths_urls_and_input_digests() {
+    fn public_profile_redacts_private_paths_urls_and_secret_ids() {
         let workspace = PathBuf::from("/home/alice/work/project");
         let home = PathBuf::from("/home/alice");
         let policy =
@@ -1035,14 +1018,6 @@ mod tests {
                 }],
                 ..Default::default()
             }),
-            inputs: vec![IoSnapshot {
-                name: Some("customer-data.csv".to_string()),
-                uri: Some("s3://private-bucket/data.csv?token=secret".to_string()),
-                digest: Some("sha256:input".to_string()),
-                access: Some("private".to_string()),
-                metadata: Some(json!({ "apiKey": "secret-value", "rows": 10 })),
-                ..Default::default()
-            }],
             attributions: vec![AttributionSnapshot {
                 agent: AgentSnapshot {
                     id: Some("Bearer abc123".to_string()),
@@ -1064,16 +1039,6 @@ mod tests {
         assert_eq!(lockfile.path.as_deref(), Some("Cargo.lock"));
         assert_eq!(lockfile.digest.as_deref(), Some("sha256:lock"));
 
-        let input = &projected.inputs[0];
-        assert_eq!(input.name.as_deref(), Some(REDACTED_NAME));
-        assert!(input.uri.is_none());
-        assert!(input.digest.is_none());
-        assert_eq!(input.redaction.as_deref(), Some(REDACTION_DIGEST_OMITTED));
-        assert!(matches!(
-            input.metadata.as_ref().and_then(|value| value.pointer("/apiKey")),
-            Some(Value::String(value)) if value == REDACTED_NAME
-        ));
-
         let reasons: Vec<_> = projected
             .privacy
             .expect("privacy")
@@ -1082,28 +1047,7 @@ mod tests {
             .filter_map(|redaction| redaction.reason)
             .collect();
         assert!(reasons.contains(&REDACTION_URI_OMITTED.to_string()));
-        assert!(reasons.contains(&REDACTION_DIGEST_OMITTED.to_string()));
-        assert!(reasons.contains(&REDACTION_NAME_REDACTED.to_string()));
         assert!(reasons.contains(&REDACTION_FULLY_REDACTED.to_string()));
-    }
-
-    #[test]
-    fn public_profile_omits_digest_when_uri_is_omitted_without_access_marker() {
-        let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
-        let snapshot = ProvenanceSnapshot {
-            inputs: vec![IoSnapshot {
-                uri: Some("s3://private-bucket/data.csv".to_string()),
-                digest: Some("sha256:input".to_string()),
-                ..Default::default()
-            }],
-            ..Default::default()
-        };
-
-        let projected = policy.project_snapshot(snapshot);
-        let input = &projected.inputs[0];
-        assert!(input.uri.is_none());
-        assert!(input.digest.is_none());
-        assert_eq!(input.redaction.as_deref(), Some(REDACTION_DIGEST_OMITTED));
     }
 
     #[test]
@@ -1137,41 +1081,24 @@ mod tests {
     }
 
     #[test]
-    fn public_profile_preserves_explicit_public_input_urls() {
-        let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
-        let snapshot = ProvenanceSnapshot {
-            inputs: vec![IoSnapshot {
-                uri: Some("https://example.org/public-data.csv".to_string()),
-                digest: Some("sha256:input".to_string()),
-                access: Some("public".to_string()),
-                ..Default::default()
-            }],
-            ..Default::default()
-        };
-
-        let projected = policy.project_snapshot(snapshot);
-        let input = &projected.inputs[0];
-        assert_eq!(
-            input.uri.as_deref(),
-            Some("https://example.org/public-data.csv")
-        );
-        assert_eq!(input.digest.as_deref(), Some("sha256:input"));
-    }
-
-    #[test]
     fn public_profile_redacts_secret_and_home_path_fields_across_snapshot() {
         let home = PathBuf::from("/home/alice");
         let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, Some(home));
         let snapshot = ProvenanceSnapshot {
-            document: DocumentSnapshot {
+            root_node: DocumentSnapshot {
                 node_type: "Article".to_string(),
-                node_path: Some("/home/alice/private/article.smd".to_string()),
                 title: Some("Draft at /home/alice/private/article.smd".to_string()),
                 ..Default::default()
             },
+            executed_node: Some(DocumentSnapshot {
+                node_type: "CodeChunk".to_string(),
+                node_path: Some("/home/alice/private/article.smd#chunk-1".to_string()),
+                title: Some("Chunk at /home/alice/private/article.smd".to_string()),
+                ..Default::default()
+            }),
             activity: Some(ActivitySnapshot {
                 name: Some("render with Authorization: Bearer abc123".to_string()),
-                used_input_ids: vec!["/home/alice/private/customers.csv".to_string()],
+                used_node_ids: vec!["/home/alice/private/customers.csv".to_string()],
                 ..Default::default()
             }),
             producer: Some(ProducerSnapshot {
@@ -1192,7 +1119,7 @@ mod tests {
                 },
                 ..Default::default()
             }],
-            verification: Some(VerificationSnapshot {
+            reproducibility: Some(ReproducibilitySnapshot {
                 comparison: Some(json!({
                     "token": "abc123",
                     "message": "see /home/alice/private/result.json"
@@ -1203,14 +1130,26 @@ mod tests {
         };
 
         let projected = policy.project_snapshot(snapshot);
-        assert!(projected.document.node_path.is_none());
-        assert_eq!(projected.document.title.as_deref(), Some(REDACTED_NAME));
+        assert!(
+            projected
+                .executed_node
+                .as_ref()
+                .expect("executed node")
+                .node_path
+                .is_none()
+        );
+        assert_eq!(projected.root_node.title.as_deref(), Some(REDACTED_NAME));
         assert_eq!(
             projected
-                .activity
+                .executed_node
                 .as_ref()
-                .expect("activity")
-                .used_input_ids[0],
+                .expect("executed node")
+                .title
+                .as_deref(),
+            Some(REDACTED_NAME)
+        );
+        assert_eq!(
+            projected.activity.as_ref().expect("activity").used_node_ids[0],
             REDACTED_NAME
         );
         assert_eq!(
@@ -1232,26 +1171,6 @@ mod tests {
         assert!(!json.contains("/home/alice"));
         assert!(!json.contains("Bearer abc123"));
         assert!(!json.contains("password: abc123"));
-    }
-
-    #[test]
-    fn public_profile_redacts_name_when_unmarked_uri_is_omitted() {
-        let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
-        let snapshot = ProvenanceSnapshot {
-            inputs: vec![IoSnapshot {
-                name: Some("customer-data.csv".to_string()),
-                uri: Some("s3://private-bucket/data.csv".to_string()),
-                digest: Some("sha256:input".to_string()),
-                ..Default::default()
-            }],
-            ..Default::default()
-        };
-
-        let projected = policy.project_snapshot(snapshot);
-        let input = &projected.inputs[0];
-        assert_eq!(input.name.as_deref(), Some(REDACTED_NAME));
-        assert!(input.uri.is_none());
-        assert!(input.digest.is_none());
     }
 
     #[test]
@@ -1283,36 +1202,10 @@ mod tests {
     }
 
     #[test]
-    fn private_profile_keeps_private_input_digest_but_removes_secrets() {
-        let policy = ProjectionPolicy::with_roots(CredentialProfile::Private, None, None);
-        let snapshot = ProvenanceSnapshot {
-            inputs: vec![IoSnapshot {
-                uri: Some("s3://private-bucket/data.csv".to_string()),
-                digest: Some("sha256:input".to_string()),
-                access: Some("private".to_string()),
-                ..Default::default()
-            }],
-            source: Some(SourceSnapshot {
-                repository: Some("https://example.internal/repo?token=secret".to_string()),
-                ..Default::default()
-            }),
-            ..Default::default()
-        };
-
-        let projected = policy.project_snapshot(snapshot);
-        assert_eq!(projected.inputs[0].digest.as_deref(), Some("sha256:input"));
-        assert_eq!(
-            projected.inputs[0].uri.as_deref(),
-            Some("s3://private-bucket/data.csv")
-        );
-        assert!(projected.source.expect("source").repository.is_none());
-    }
-
-    #[test]
     fn assertion_size_is_bounded() {
         let policy = ProjectionPolicy::for_profile(CredentialProfile::Public);
         let mut assertion = ProvenanceAssertion::new_v1("text/plain", "sha256:abc");
-        assertion.document.title = Some("x".repeat(ASSERTION_HARD_SIZE_LIMIT));
+        assertion.root_node.title = Some("x".repeat(ASSERTION_HARD_SIZE_LIMIT));
 
         assert!(policy.validate_assertion_size(&assertion).is_err());
     }

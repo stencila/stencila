@@ -6,7 +6,7 @@ use std::path::{Path, PathBuf};
 use stencila_content_credentials::{
     AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error, ManifestKind,
     ProducerSnapshot, ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
-    init_dev_cert, signer::CredentialSignerConfig, snapshot::IoSnapshot,
+    init_dev_cert, signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
 
@@ -68,10 +68,10 @@ async fn sign_then_verify_png() {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert_eq!(assertion.asset.digest, signed.source_digest);
-    assert_eq!(assertion.asset.kind, "image");
-    assert_eq!(assertion.document.node_type, "File");
-    assert_eq!(assertion.verification.reproducibility_status, "not-checked");
+    assert_eq!(assertion.asset.content_digest, signed.source_digest);
+    assert_eq!(assertion.asset.asset_type, "image");
+    assert_eq!(assertion.root_node.node_type, "File");
+    assert_eq!(assertion.reproducibility.status, "not-checked");
 }
 
 /// Exercises signing with an explicit Stencila provenance snapshot.
@@ -91,20 +91,25 @@ async fn sign_with_provenance_snapshot() {
             input_path: asset_path.clone(),
             title: Some("Figure 1".to_string()),
             provenance: Some(ProvenanceSnapshot {
-                profile: Some("computational-output".to_string()),
                 asset: AssetSnapshot {
-                    kind: "figure".to_string(),
+                    kind: "image".to_string(),
+                    role: Some("figure".to_string()),
                     label: Some("fig:example".to_string()),
                     title: Some("Figure 1".to_string()),
                     ..Default::default()
                 },
-                document: DocumentSnapshot {
+                root_node: DocumentSnapshot {
+                    node_type: "Article".to_string(),
+                    title: Some("Article".to_string()),
+                    ..Default::default()
+                },
+                executed_node: Some(DocumentSnapshot {
                     node_type: "CodeChunk".to_string(),
                     node_id: Some("chunk-1".to_string()),
                     label_type: Some("FigureLabel".to_string()),
                     programming_language: Some("python".to_string()),
                     ..Default::default()
-                },
+                }),
                 producer: Some(ProducerSnapshot {
                     codec: Some("png".to_string()),
                     renderer: Some("stencila-cli".to_string()),
@@ -140,13 +145,15 @@ async fn sign_with_provenance_snapshot() {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert_eq!(assertion.profile, "computational-output");
-    assert_eq!(assertion.asset.kind, "figure");
+    assert_eq!(assertion.asset.asset_type, "image");
+    assert_eq!(assertion.asset.role.as_deref(), Some("figure"));
     assert_eq!(assertion.asset.media_type, "image/png");
-    assert!(assertion.asset.digest.starts_with("sha256:"));
+    assert!(assertion.asset.content_digest.starts_with("sha256:"));
     assert_eq!(assertion.asset.label.as_deref(), Some("fig:example"));
-    assert_eq!(assertion.document.node_type, "CodeChunk");
-    assert_eq!(assertion.document.node_id.as_deref(), Some("chunk-1"));
+    assert_eq!(assertion.root_node.node_type, "Article");
+    let node = assertion.executed_node.as_ref().expect("executed node");
+    assert_eq!(node.node_type, "CodeChunk");
+    assert_eq!(node.node_id.as_deref(), Some("chunk-1"));
     assert_eq!(
         assertion
             .source
@@ -179,11 +186,12 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
             title: Some("Private Figure".to_string()),
             provenance: Some(ProvenanceSnapshot {
                 asset: AssetSnapshot {
-                    kind: "figure".to_string(),
+                    kind: "image".to_string(),
+                    role: Some("figure".to_string()),
                     ..Default::default()
                 },
-                document: DocumentSnapshot {
-                    node_type: "CodeChunk".to_string(),
+                root_node: DocumentSnapshot {
+                    node_type: "Article".to_string(),
                     ..Default::default()
                 },
                 source: Some(SourceSnapshot {
@@ -193,13 +201,6 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
                     patch_digest: Some("sha256:private-patch".to_string()),
                     ..Default::default()
                 }),
-                inputs: vec![IoSnapshot {
-                    name: Some("customers.csv".to_string()),
-                    uri: Some("s3://private-bucket/customers.csv?token=secret".to_string()),
-                    digest: Some("sha256:private-input".to_string()),
-                    access: Some("private".to_string()),
-                    ..Default::default()
-                }],
                 ..Default::default()
             }),
             ..Default::default()
@@ -226,22 +227,17 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
     assert!(assertion.source.as_ref().is_some_and(|source| {
         source.repository.is_none() && source.path.is_none() && source.patch_digest.is_none()
     }));
-    assert!(assertion.inputs.first().is_some_and(|input| {
-        input.name.as_deref() == Some("redacted") && input.uri.is_none() && input.digest.is_none()
-    }));
     assert!(
         assertion
             .privacy
             .redactions
             .iter()
-            .any(|redaction| redaction.reason.as_deref() == Some("digest-omitted"))
+            .any(|redaction| redaction.reason.as_deref() == Some("uri-omitted"))
     );
 
     let assertion_json = serde_json::to_string(assertion).expect("serialize assertion");
     assert!(!assertion_json.contains("git@github.com:private"));
     assert!(!assertion_json.contains(&home_path));
-    assert!(!assertion_json.contains("sha256:private-input"));
-    assert!(!assertion_json.contains("s3://private-bucket"));
 }
 
 /// Ensures a signed output cannot change extension to a different media type.

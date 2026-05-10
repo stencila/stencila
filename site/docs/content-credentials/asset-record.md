@@ -16,9 +16,10 @@ of the pre-signing content rather than a full Stencila node.
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
 | [`id`](#id) | `string` | No | Optional asset identifier used by activity references. |
-| [`kind`](#kind) | `string` | Yes | Stencila or C2PA-facing asset class. |
+| [`assetType`](#asset-type) | `string` | Yes | Stencila or C2PA-facing asset type. |
+| [`role`](#role) | `string` | No | Asset role in the Stencila export context. |
 | [`mediaType`](#media-type) | `string` | Yes | IANA media type for the asset bytes. |
-| [`digest`](#digest) | `string` | Yes | Digest of the pre-signing asset bytes. |
+| [`contentDigest`](#content-digest) | `string` | Yes | Digest of the pre-signing asset bytes. |
 | [`label`](#label) | `string` | No | Stencila label associated with the asset. |
 | [`title`](#title) | `string` | No | Human-readable title for the asset. |
 | [`size`](#size) | `integer` | No | Asset byte length before signing. |
@@ -30,14 +31,14 @@ of the pre-signing content rather than a full Stencila node.
 Optional asset identifier used by activity references.
 
 The digest is the cryptographic identity, but a short ID is useful when
-`activity.generatedOutputIds` or external reports need to refer to this
+`activities.generatedAssetIds` or external reports need to refer to this
 asset without repeating a long digest.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `kind`
+### `assetType`
 
-Stencila or C2PA-facing asset class.
+Stencila or C2PA-facing asset type.
 
 The initial vocabulary is `asset`, `image`, `figure`, `table`, `dataset`,
 and `document`; reverse-DNS extension values are allowed. The value is a
@@ -45,6 +46,16 @@ broad class for UI and policy decisions, not a replacement for
 `mediaType`.
 
 **Type:** `string` | **Required:** Yes
+
+### `role`
+
+Asset role in the Stencila export context.
+
+The role captures why this asset exists, for example `document-export`,
+`figure`, `table-image`, or `computational-output`. It complements
+`assetType`, which remains the broad media or entity class.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
 
 ### `mediaType`
 
@@ -56,7 +67,7 @@ extension or URL.
 
 **Type:** `string` | **Required:** Yes
 
-### `digest`
+### `contentDigest`
 
 Digest of the pre-signing asset bytes.
 

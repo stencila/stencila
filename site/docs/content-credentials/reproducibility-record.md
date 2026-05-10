@@ -1,9 +1,9 @@
 ---
-title: "Verification Record"
+title: "Reproducibility Record"
 description: "Reproducibility status and comparison details known when signing."
 ---
 
-# Verification Record
+# Reproducibility Record
 
 Reproducibility status and comparison details known when signing.
 
@@ -14,13 +14,13 @@ C2PA manifest validation, which verifies signatures and asset binding.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`reproducibilityStatus`](#reproducibility-status) | `string` | Yes | Reproducibility status. |
-| [`policy`](#policy) | `string` | No | Verification policy used. |
-| [`verifiedBy`](#verified-by) | `string` | No | Verifier identity. |
-| [`verifiedAt`](#verified-at) | `string` | No | Verification timestamp in RFC 3339 format. |
+| [`status`](#status) | `string` | Yes | Reproducibility status. |
+| [`policy`](#policy) | `string` | No | Reproducibility check policy used. |
+| [`checkedBy`](#checked-by) | `string` | No | Reproducibility checker identity. |
+| [`checkedAt`](#checked-at) | `string` | No | Reproducibility check timestamp in RFC 3339 format. |
 | [`comparison`](#comparison) | any JSON value | No | Structured comparison details. |
 
-### `reproducibilityStatus`
+### `status`
 
 Reproducibility status.
 
@@ -32,7 +32,7 @@ intentionally skipped reproducibility check.
 
 ### `policy`
 
-Verification policy used.
+Reproducibility check policy used.
 
 Policy explains how strict the comparison was, which outputs were
 compared, and what tolerances applied. It is optional because initial
@@ -40,18 +40,18 @@ signing often records `not-checked`.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `verifiedBy`
+### `checkedBy`
 
-Verifier identity.
+Reproducibility checker identity.
 
-This can be a person, service, or software identifier. Rich verifier
+This can be a person, service, or software identifier. Rich checker
 attribution should also be represented in `attributions` when relevant.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `verifiedAt`
+### `checkedAt`
 
-Verification timestamp in RFC 3339 format.
+Reproducibility check timestamp in RFC 3339 format.
 
 The timestamp records when reproducibility was checked, not when the C2PA
 claim was signed.

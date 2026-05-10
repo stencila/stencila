@@ -11,16 +11,15 @@ use std::{collections::BTreeSet, path::Path};
 
 use chrono::{DateTime, Utc};
 use stencila_codec::stencila_schema::{
-    Article, Block, CodeChunk, CodeExpression, CompilationDigest, CreativeWorkVariant, Duration,
-    ExecutionDependency, ExecutionMessage, Inline, Node, Timestamp, Visitor, WalkControl,
+    Article, CodeChunk, CodeExpression, CompilationDigest, Duration, ExecutionDependency,
+    ExecutionMessage, Inline, Node, Timestamp,
 };
 use stencila_codec_text_trait::to_text;
 use stencila_codec_utils::{closest_git_repo, git_file_info, git_head_sha, git_patch_digest};
 use stencila_content_credentials::{
     ActivitySnapshot, AssetSnapshot, DependencySnapshot, DocumentSnapshot, EnvironmentSnapshot,
     ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot, FileDigestSnapshot,
-    IoSnapshot, KernelSnapshot, ProducerSnapshot, ProvenanceSnapshot, RuntimeSnapshot,
-    SourceSnapshot, media,
+    KernelSnapshot, ProducerSnapshot, ProvenanceSnapshot, RuntimeSnapshot, SourceSnapshot, media,
 };
 
 /// Build a provenance snapshot for an asset emitted by `to_path_with_info`.
@@ -46,7 +45,8 @@ pub(crate) fn build_export_snapshot(
 ) -> ProvenanceSnapshot {
     let mut snapshot = ProvenanceSnapshot::for_asset(AssetSnapshot::default());
 
-    snapshot.profile = Some(
+    snapshot.asset.id = Some("exported-asset".to_string());
+    snapshot.asset.role = Some(
         if primary {
             "document-export"
         } else {
@@ -63,20 +63,17 @@ pub(crate) fn build_export_snapshot(
         snapshot.asset.size = Some(metadata.len());
     }
 
-    snapshot.document = document_snapshot_for(subject, root, source_path);
+    snapshot.root_node = document_snapshot_for(root, true);
+    if !primary {
+        snapshot.executed_node = Some(document_snapshot_for(subject, false));
+        snapshot.output_node = output_node_snapshot_for(subject, asset_path);
+    }
     snapshot.producer = Some(producer_snapshot_for(codec_name, primary));
     snapshot.source = source_snapshot_for(source_path);
     snapshot.execution = execution_snapshot_for(subject);
     snapshot.environment = Some(environment_snapshot_for(source_path));
 
-    let subject_outputs = subject_output_urls(subject);
-    snapshot.inputs = input_snapshots_for(source_path, subject);
-    snapshot.outputs = output_snapshots_for(subject_outputs, source_path, asset_path);
-    snapshot.activity = Some(activity_snapshot_for(
-        primary,
-        &snapshot.inputs,
-        &snapshot.outputs,
-    ));
+    snapshot.activity = Some(activity_snapshot_for(primary, &snapshot));
 
     if let Some(privacy) = &mut snapshot.privacy {
         let policy = format!("org.stencila.credentials.{profile_label}.v1");
@@ -87,64 +84,115 @@ pub(crate) fn build_export_snapshot(
     snapshot
 }
 
-fn document_snapshot_for(
-    subject: &Node,
-    root: &Node,
-    source_path: Option<&Path>,
-) -> DocumentSnapshot {
+fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapshot {
     let node_type = subject.node_type().to_string();
     let node_id = subject.node_id().map(|id| id.to_string());
 
-    // The root carries the document title; per-asset subjects (e.g. CodeChunks)
-    // contribute their own label/programmingLanguage instead.
-    let title = match root {
+    let title = match subject {
         Node::Article(Article { title, .. }) => inlines_to_text(title.as_deref()),
         _ => None,
     };
 
-    let node_path = source_path.map(|path| path.to_string_lossy().into_owned());
-
     let mut snapshot = DocumentSnapshot {
         node_type,
         node_id,
-        node_path,
         title,
         ..Default::default()
     };
 
+    if root_document {
+        return snapshot;
+    }
+
     match subject {
-        Node::Article(Article { options, .. }) => {
-            snapshot.execution_digest = options
-                .execution_digest
-                .as_ref()
-                .map(execution_digest_snapshot);
-        }
+        Node::Article(Article { .. }) => {}
         Node::CodeChunk(chunk) => {
             snapshot.label_type = chunk.label_type.as_ref().map(ToString::to_string);
             snapshot.label.clone_from(&chunk.label);
             snapshot
                 .programming_language
                 .clone_from(&chunk.programming_language);
-            snapshot.execution_digest = chunk
-                .options
-                .execution_digest
-                .as_ref()
-                .map(execution_digest_snapshot);
         }
         Node::CodeExpression(expression) => {
             snapshot
                 .programming_language
                 .clone_from(&expression.programming_language);
-            snapshot.execution_digest = expression
-                .options
-                .execution_digest
-                .as_ref()
-                .map(execution_digest_snapshot);
         }
         _ => {}
     };
 
     snapshot
+}
+
+fn output_node_snapshot_for(subject: &Node, asset_path: &Path) -> Option<DocumentSnapshot> {
+    let asset_name = asset_path.file_name().and_then(|name| name.to_str());
+
+    match subject {
+        Node::CodeChunk(CodeChunk {
+            outputs: Some(nodes),
+            ..
+        }) => {
+            let candidates = nodes
+                .iter()
+                .filter_map(media_node_snapshot_for)
+                .collect::<Vec<_>>();
+
+            candidates
+                .iter()
+                .find(|node| {
+                    asset_name.is_some_and(|asset_name| {
+                        node.content_url
+                            .as_deref()
+                            .is_some_and(|url| url.ends_with(asset_name))
+                    })
+                })
+                .cloned()
+                .or_else(|| {
+                    if candidates.len() == 1 {
+                        candidates.into_iter().next()
+                    } else {
+                        None
+                    }
+                })
+        }
+        Node::CodeExpression(CodeExpression {
+            output: Some(node), ..
+        }) => media_node_snapshot_for(node),
+        _ => None,
+    }
+}
+
+fn media_node_snapshot_for(node: &Node) -> Option<DocumentSnapshot> {
+    let mut snapshot = document_snapshot_for(node, false);
+
+    let (content_url, media_type, title) = match node {
+        Node::AudioObject(object) => (
+            Some(object.content_url.clone()),
+            object.media_type.clone(),
+            inlines_to_text(object.title.as_deref()),
+        ),
+        Node::ImageObject(object) => (
+            Some(object.content_url.clone()),
+            object.media_type.clone(),
+            inlines_to_text(object.title.as_deref()),
+        ),
+        Node::MediaObject(object) => (
+            Some(object.content_url.clone()),
+            object.media_type.clone(),
+            inlines_to_text(object.options.title.as_deref()),
+        ),
+        Node::VideoObject(object) => (
+            Some(object.content_url.clone()),
+            object.media_type.clone(),
+            inlines_to_text(object.title.as_deref()),
+        ),
+        _ => return None,
+    };
+
+    snapshot.content_url = content_url;
+    snapshot.media_type = media_type;
+    snapshot.title = title;
+    Some(snapshot)
 }
 
 fn inlines_to_text(inlines: Option<&[Inline]>) -> Option<String> {
@@ -180,27 +228,27 @@ fn producer_snapshot_for(codec_name: Option<&str>, primary: bool) -> ProducerSna
     }
 }
 
-fn activity_snapshot_for(
-    primary: bool,
-    inputs: &[IoSnapshot],
-    outputs: &[IoSnapshot],
-) -> ActivitySnapshot {
+fn activity_snapshot_for(primary: bool, snapshot: &ProvenanceSnapshot) -> ActivitySnapshot {
+    let used_node_ids = if primary {
+        snapshot.root_node.node_id.clone()
+    } else {
+        snapshot
+            .output_node
+            .as_ref()
+            .and_then(|node| node.node_id.clone())
+    }
+    .into_iter()
+    .collect();
+
     ActivitySnapshot {
-        kind: Some(if primary {
-            "document-export".to_string()
-        } else {
-            "asset-export".to_string()
-        }),
+        kind: Some("export".to_string()),
         name: Some(if primary {
             "Export document".to_string()
         } else {
             "Export asset".to_string()
         }),
-        used_input_ids: inputs.iter().filter_map(|input| input.id.clone()).collect(),
-        generated_output_ids: outputs
-            .iter()
-            .filter_map(|output| output.id.clone())
-            .collect(),
+        used_node_ids,
+        generated_asset_ids: snapshot.asset.id.clone().into_iter().collect(),
         ..Default::default()
     }
 }
@@ -272,6 +320,7 @@ struct ExecutableView<'a> {
     status: Option<String>,
     ended_at: Option<&'a Timestamp>,
     duration: Option<&'a Duration>,
+    digest: Option<&'a CompilationDigest>,
     execution_count: Option<i64>,
     execution_instance: Option<&'a str>,
     language: Option<&'a str>,
@@ -289,6 +338,7 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
                 .map(ToString::to_string),
             ended_at: article.options.execution_ended.as_ref(),
             duration: article.options.execution_duration.as_ref(),
+            digest: article.options.execution_digest.as_ref(),
             execution_count: article.options.execution_count,
             execution_instance: article.options.execution_instance.as_deref(),
             language: None,
@@ -307,6 +357,7 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
                 .map(ToString::to_string),
             ended_at: chunk.options.execution_ended.as_ref(),
             duration: chunk.options.execution_duration.as_ref(),
+            digest: chunk.options.execution_digest.as_ref(),
             execution_count: chunk.options.execution_count,
             execution_instance: chunk.options.execution_instance.as_deref(),
             language: chunk.programming_language.as_deref(),
@@ -325,6 +376,7 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
                 .map(ToString::to_string),
             ended_at: expression.options.execution_ended.as_ref(),
             duration: expression.options.execution_duration.as_ref(),
+            digest: expression.options.execution_digest.as_ref(),
             execution_count: expression.options.execution_count,
             execution_instance: expression.options.execution_instance.as_deref(),
             language: expression.programming_language.as_deref(),
@@ -352,6 +404,7 @@ fn execution_snapshot_for(subject: &Node) -> Option<ExecutionSnapshot> {
     let has_execution = view.status.is_some()
         || view.ended_at.is_some()
         || view.duration.is_some()
+        || view.digest.is_some()
         || view.execution_count.is_some()
         || view.execution_instance.is_some()
         || view.language.is_some()
@@ -366,7 +419,8 @@ fn execution_snapshot_for(subject: &Node) -> Option<ExecutionSnapshot> {
         status: view.status,
         ended_at: view.ended_at.and_then(timestamp_to_rfc3339),
         duration_ms: view.duration.and_then(duration_to_ms),
-        execution_count: view.execution_count,
+        digest: view.digest.map(execution_digest_snapshot),
+        count: view.execution_count,
         ..Default::default()
     };
 
@@ -386,256 +440,6 @@ fn execution_snapshot_for(subject: &Node) -> Option<ExecutionSnapshot> {
         .collect();
 
     Some(snapshot)
-}
-
-fn input_snapshots_for(source_path: Option<&Path>, subject: &Node) -> Vec<IoSnapshot> {
-    let mut inputs = Vec::new();
-
-    if let Some(input) =
-        source_path.and_then(|path| file_io_snapshot("source-document", "file", path, true))
-    {
-        inputs.push(input);
-    }
-
-    let base_dir = source_path.and_then(Path::parent);
-    let mut seen = BTreeSet::new();
-    if let Some(view) = executable_view(subject) {
-        for dependency in view.dependencies {
-            let uri = dependency.dependency_id.as_str();
-            if !looks_like_io_reference(uri) {
-                continue;
-            }
-            if !seen.insert(uri.to_string()) {
-                continue;
-            }
-
-            let id = format!("execution-input-{}", inputs.len());
-            let kind = dependency.dependency_type.to_ascii_lowercase();
-            let path = resolve_io_path(uri, base_dir);
-
-            if let Some(path) = path.as_deref()
-                && path.exists()
-                && let Some(snapshot) = file_io_snapshot(&id, &kind, path, true)
-            {
-                inputs.push(snapshot);
-                continue;
-            }
-
-            inputs.push(IoSnapshot {
-                id: Some(id),
-                kind: Some(kind),
-                name: Path::new(uri)
-                    .file_name()
-                    .and_then(|name| name.to_str())
-                    .map(ToString::to_string),
-                uri: Some(uri.to_string()),
-                access: Some(
-                    if is_public_url(uri) {
-                        "public"
-                    } else {
-                        "private"
-                    }
-                    .to_string(),
-                ),
-                ..Default::default()
-            });
-        }
-    }
-
-    inputs
-}
-
-fn output_snapshots_for(
-    output_urls: BTreeSet<String>,
-    source_path: Option<&Path>,
-    asset_path: &Path,
-) -> Vec<IoSnapshot> {
-    let mut outputs = Vec::new();
-    if let Some(output) = file_io_snapshot("exported-asset", "asset", asset_path, false) {
-        outputs.push(output);
-    }
-    outputs.extend(execution_output_snapshots_for(output_urls, source_path));
-    outputs
-}
-
-/// Collect non-data content URLs from a subject's outputs (CodeChunk/CodeExpression).
-///
-/// Other node types (or subjects with no outputs) yield an empty set.
-fn subject_output_urls(subject: &Node) -> BTreeSet<String> {
-    let mut urls = BTreeSet::new();
-    match subject {
-        Node::CodeChunk(CodeChunk {
-            outputs: Some(nodes),
-            ..
-        }) => {
-            for node in nodes {
-                collect_content_urls(node, &mut urls);
-            }
-        }
-        Node::CodeExpression(CodeExpression {
-            output: Some(node), ..
-        }) => {
-            collect_content_urls(node, &mut urls);
-        }
-        _ => {}
-    }
-    urls
-}
-
-fn collect_content_urls(node: &Node, urls: &mut BTreeSet<String>) {
-    ContentUrlCollector { urls }.walk(node);
-}
-
-struct ContentUrlCollector<'a> {
-    urls: &'a mut BTreeSet<String>,
-}
-
-impl ContentUrlCollector<'_> {
-    fn collect(&mut self, url: &str) {
-        if !url.starts_with("data:") {
-            self.urls.insert(url.to_string());
-        }
-    }
-}
-
-impl Visitor for ContentUrlCollector<'_> {
-    fn visit_node(&mut self, node: &Node) -> WalkControl {
-        let url = match node {
-            Node::AudioObject(object) => Some(object.content_url.as_str()),
-            Node::ImageObject(object) => Some(object.content_url.as_str()),
-            Node::MediaObject(object) => Some(object.content_url.as_str()),
-            Node::VideoObject(object) => Some(object.content_url.as_str()),
-            _ => None,
-        };
-
-        if let Some(url) = url {
-            self.collect(url);
-        }
-
-        WalkControl::Continue
-    }
-
-    fn visit_work(&mut self, work: &CreativeWorkVariant) -> WalkControl {
-        let url = match work {
-            CreativeWorkVariant::AudioObject(object) => Some(object.content_url.as_str()),
-            CreativeWorkVariant::ImageObject(object) => Some(object.content_url.as_str()),
-            CreativeWorkVariant::MediaObject(object) => Some(object.content_url.as_str()),
-            CreativeWorkVariant::VideoObject(object) => Some(object.content_url.as_str()),
-            _ => None,
-        };
-
-        if let Some(url) = url {
-            self.collect(url);
-        }
-
-        WalkControl::Continue
-    }
-
-    fn visit_block(&mut self, block: &Block) -> WalkControl {
-        let url = match block {
-            Block::AudioObject(object) => Some(object.content_url.as_str()),
-            Block::ImageObject(object) => Some(object.content_url.as_str()),
-            Block::VideoObject(object) => Some(object.content_url.as_str()),
-            _ => None,
-        };
-
-        if let Some(url) = url {
-            self.collect(url);
-        }
-
-        WalkControl::Continue
-    }
-
-    fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
-        let url = match inline {
-            Inline::AudioObject(object) => Some(object.content_url.as_str()),
-            Inline::ImageObject(object) => Some(object.content_url.as_str()),
-            Inline::MediaObject(object) => Some(object.content_url.as_str()),
-            Inline::VideoObject(object) => Some(object.content_url.as_str()),
-            _ => None,
-        };
-
-        if let Some(url) = url {
-            self.collect(url);
-        }
-
-        WalkControl::Continue
-    }
-}
-
-fn execution_output_snapshots_for(
-    urls: BTreeSet<String>,
-    source_path: Option<&Path>,
-) -> Vec<IoSnapshot> {
-    let base_dir = source_path.and_then(Path::parent);
-    urls.into_iter()
-        .enumerate()
-        .map(|(index, url)| execution_output_snapshot(index, &url, base_dir))
-        .collect()
-}
-
-fn execution_output_snapshot(index: usize, uri: &str, base_dir: Option<&Path>) -> IoSnapshot {
-    let id = format!("execution-output-{}", index + 1);
-    let path = Path::new(uri);
-    let path = if path.is_absolute() {
-        Some(path.to_path_buf())
-    } else {
-        base_dir.map(|base_dir| base_dir.join(path))
-    };
-
-    if let Some(path) = path.as_deref()
-        && path.exists()
-        && let Some(snapshot) = file_io_snapshot(&id, "artifact", path, true)
-    {
-        return snapshot;
-    }
-
-    IoSnapshot {
-        id: Some(id),
-        kind: Some("artifact".to_string()),
-        name: Path::new(uri)
-            .file_name()
-            .and_then(|name| name.to_str())
-            .map(ToString::to_string),
-        uri: Some(uri.to_string()),
-        access: Some(
-            if is_public_url(uri) {
-                "public"
-            } else {
-                "private"
-            }
-            .to_string(),
-        ),
-        ..Default::default()
-    }
-}
-
-fn file_io_snapshot(id: &str, kind: &str, path: &Path, private: bool) -> Option<IoSnapshot> {
-    if !path.exists() {
-        return None;
-    }
-
-    Some(IoSnapshot {
-        id: Some(id.to_string()),
-        kind: Some(kind.to_string()),
-        name: path
-            .file_name()
-            .and_then(|name| name.to_str())
-            .map(ToString::to_string),
-        uri: Some(if private {
-            path.to_string_lossy().into_owned()
-        } else {
-            path.file_name()
-                .and_then(|name| name.to_str())
-                .map(ToString::to_string)
-                .unwrap_or_else(|| path.to_string_lossy().into_owned())
-        }),
-        media_type: media::guess_media_type(path).ok(),
-        digest: media::sha256_file(path).ok(),
-        access: Some(if private { "private" } else { "public" }.to_string()),
-        size: std::fs::metadata(path).ok().map(|metadata| metadata.len()),
-        ..Default::default()
-    })
 }
 
 fn environment_snapshot_for(source_path: Option<&Path>) -> EnvironmentSnapshot {
@@ -774,30 +578,6 @@ fn timestamp_to_rfc3339(timestamp: &Timestamp) -> Option<String> {
     DateTime::<Utc>::from_timestamp_millis(millis).map(|time| time.to_rfc3339())
 }
 
-fn is_public_url(value: &str) -> bool {
-    value.starts_with("https://") || value.starts_with("http://")
-}
-
-fn looks_like_io_reference(value: &str) -> bool {
-    is_public_url(value)
-        || value.contains('/')
-        || Path::new(value).extension().is_some()
-        || Path::new(value).is_absolute()
-}
-
-fn resolve_io_path(value: &str, base_dir: Option<&Path>) -> Option<std::path::PathBuf> {
-    if is_public_url(value) {
-        return None;
-    }
-
-    let path = Path::new(value);
-    if path.is_absolute() {
-        Some(path.to_path_buf())
-    } else {
-        base_dir.map(|base_dir| base_dir.join(path))
-    }
-}
-
 #[cfg(test)]
 mod tests {
     use std::{
@@ -806,9 +586,7 @@ mod tests {
         process::{Command, Stdio},
     };
 
-    use stencila_codec::stencila_schema::{
-        Article, Block, Figure, ImageObject, Inline, Node, Text,
-    };
+    use stencila_codec::stencila_schema::{Article, ImageObject, Inline, Node, Text};
     use tempfile::TempDir;
 
     use super::*;
@@ -821,26 +599,22 @@ mod tests {
     }
 
     #[test]
-    fn document_snapshot_uses_root_title_with_subject_identity() {
+    fn document_snapshot_uses_root_title_with_document_identity() {
         let root = article_with_title("Hello world");
-        let source = PathBuf::from("/tmp/example/article.smd");
 
-        let snapshot = document_snapshot_for(&root, &root, Some(&source));
+        let snapshot = document_snapshot_for(&root, true);
 
         assert_eq!(snapshot.node_type, "Article");
         assert!(snapshot.node_id.as_deref().is_some_and(|id| !id.is_empty()));
         assert_eq!(snapshot.title.as_deref(), Some("Hello world"));
-        assert_eq!(
-            snapshot.node_path.as_deref(),
-            Some("/tmp/example/article.smd")
-        );
+        assert!(snapshot.node_path.is_none());
     }
 
     #[test]
     fn document_snapshot_for_non_article_subject_omits_title() {
         let root = Node::String("hi".to_string());
 
-        let snapshot = document_snapshot_for(&root, &root, None);
+        let snapshot = document_snapshot_for(&root, false);
 
         assert_eq!(snapshot.node_type, "String");
         assert!(snapshot.title.is_none());
@@ -877,9 +651,11 @@ mod tests {
             "public",
         );
 
-        assert_eq!(snapshot.profile.as_deref(), Some("document-export"));
+        assert_eq!(snapshot.asset.role.as_deref(), Some("document-export"));
         assert_eq!(snapshot.asset.title.as_deref(), Some("article.md"));
         assert_eq!(snapshot.asset.size, Some(5));
+        assert!(snapshot.executed_node.is_none());
+        assert!(snapshot.output_node.is_none());
         assert!(snapshot.source.is_none());
         assert!(snapshot.execution.is_none());
         assert_eq!(
@@ -894,7 +670,7 @@ mod tests {
     }
 
     #[test]
-    fn build_export_snapshot_uses_side_asset_role_as_profile() {
+    fn build_export_snapshot_uses_side_asset_role() {
         let tmp = TempDir::new().expect("tmp");
         let asset_path = tmp.path().join("table.png");
         fs::write(&asset_path, b"image").expect("write");
@@ -911,19 +687,22 @@ mod tests {
             "public",
         );
 
-        assert_eq!(snapshot.profile.as_deref(), Some("table-image"));
+        assert_eq!(snapshot.asset.role.as_deref(), Some("table-image"));
+        assert!(snapshot.executed_node.is_some());
     }
 
     #[test]
-    fn subject_output_urls_collects_nested_media() {
+    fn output_node_snapshot_matches_media_output() {
         let mut chunk = CodeChunk::new("plot()".into());
-        chunk.outputs = Some(vec![Node::Figure(Figure::new(vec![Block::ImageObject(
-            ImageObject::new("figures/plot.png".to_string()),
-        )]))]);
+        chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+            "figures/plot.png".to_string(),
+        ))]);
 
-        let urls = subject_output_urls(&Node::CodeChunk(chunk));
+        let output_node = output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"))
+            .expect("output node");
 
-        assert!(urls.contains("figures/plot.png"));
+        assert_eq!(output_node.node_type, "ImageObject");
+        assert_eq!(output_node.content_url.as_deref(), Some("figures/plot.png"));
     }
 
     fn run_git(repo: &std::path::Path, args: &[&str]) {

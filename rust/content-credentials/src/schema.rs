@@ -31,14 +31,16 @@ pub const PROVENANCE_SCHEMA: &str =
 
 /// C2PA provenance assertion payload used by Stencila content credentials.
 ///
-/// The assertion records the signed asset, represented Stencila document,
-/// producing activity, attributions, reproducibility context, AI disclosure, and
-/// privacy decisions.
+/// The assertion records the signed asset, root Stencila document node,
+/// executed Stencila node, output Stencila node, producing activities,
+/// attributions, reproducibility context, AI disclosure, and privacy decisions.
 ///
 /// The shape deliberately follows a compact entity, activity, agent model. The
-/// signed asset and represented Stencila document are entities, `activity`
-/// describes the operation that generated or exported them, and `attributions`
-/// carry role-bearing Stencila authorship. This keeps the assertion aligned with
+/// signed asset, root Stencila node, executed Stencila node, and output
+/// Stencila node are entities, `activities` describe the operations that
+/// generated or exported them, and `attributions` carry role-bearing Stencila
+/// authorship. This keeps
+/// the assertion aligned with
 /// C2PA's workflow focus, Stencila's `AuthorRole` model, and general provenance
 /// vocabularies such as W3C PROV without forcing consumers to understand all of
 /// Stencila Schema.
@@ -69,14 +71,14 @@ pub const PROVENANCE_SCHEMA: &str =
 ///
 /// - If a code chunk reads `data.csv` and produces `figure.png`, emit
 ///   `c2pa.ingredient.v3` for `data.csv` with `relationship = "inputTo"` when
-///   the input is disclosed. Also record the input's Stencila node ID, digest,
-///   redaction status, and dependency context in `inputs` and `execution`.
+///   the input is disclosed. Also record Stencila-specific dependency context
+///   in `execution.dependencies` and `execution.digests`.
 /// - If an article is exported to PDF, describe the public creation or export
-///   action with `c2pa.actions.v2`. Use `document`, `source`, and `producer` to
-///   record the Stencila node type, source revision, codec, and renderer.
+///   action with `c2pa.actions.v2`. Use `rootNode`, `source`, and `producer` to
+///   record the root Stencila node type, source revision, codec, and renderer.
 /// - If an LLM contributes text or code, emit `c2pa.ai-disclosure` when model
 ///   use is disclosed. Use `aiDisclosure`, `attributions`, and
-///   `provenanceSummary` to record Stencila author roles and provenance counts.
+///   `provenance` to record Stencila author roles and provenance counts.
 ///
 /// Some overlap is intentional. It becomes a problem only when a fact is stored
 /// **only** in this custom assertion even though generic C2PA consumers need it.
@@ -102,50 +104,57 @@ pub struct ProvenanceAssertion {
     /// compatible payload as unknown.
     pub version: u16,
 
-    /// High-level assertion profile.
-    ///
-    /// The profile lets a verifier choose the relevant interpretation without
-    /// having to infer it from the media type alone. The initial vocabulary is
-    /// `asset`, `document-export`, and `computational-output`; reverse-DNS
-    /// extension values are allowed for workflows that need a narrower profile.
-    pub profile: String,
-
     /// Software that produced the C2PA claim and this Stencila assertion.
     ///
-    /// This is distinct from `activity.associatedAttributionIds` and `attributions`.
+    /// This is distinct from `activities.associatedAttributionIds` and `attributions`.
     /// The producer is the claim generator in the C2PA sense, while attributions
     /// describe who or what is credited with creating, generating, verifying, or
     /// accepting the represented content.
     pub producer: ProducerRecord,
 
+    /// Root Stencila document node containing the signed node.
+    ///
+    /// This gives Stencila-aware consumers a bridge back to the document model
+    /// without embedding the full root node JSON. For a root document manifest,
+    /// this is also the node exported to the signed asset.
+    pub root_node: NodeRecord,
+
+    /// Stencila node that was executed to produce `outputNode`.
+    ///
+    /// Per-output manifests use this field when the signed asset came from an
+    /// executable node, such as a `CodeChunk` that generated an image. It is
+    /// omitted for plain document exports and manually signed standalone files.
+    pub executed_node: Option<NodeRecord>,
+
+    /// Stencila output node represented by the signed asset.
+    ///
+    /// For generated media, this is the node in `executedNode.outputs` whose
+    /// bytes were exported and signed, such as an `ImageObject`. Keeping this
+    /// separate from `asset` matters because the node is Stencila document
+    /// structure, while `asset` is the signed byte rendition.
+    pub output_node: Option<NodeRecord>,
+
     /// The signed C2PA asset entity.
     ///
     /// This record describes the exact bytes that C2PA binds to the manifest
-    /// before signing. Keeping it separate from `document` matters because the
+    /// before signing. Keeping it separate from `outputNode` matters because the
     /// same Stencila node may be exported to several assets, and an asset can be
-    /// a rendition of a larger document rather than the document itself.
+    /// a rendition of a larger document rather than a node itself.
     pub asset: AssetRecord,
 
-    /// The Stencila document node or work represented by the signed asset.
+    /// Activities that generated, exported, or signed the asset.
     ///
-    /// This gives Stencila-aware consumers a bridge back to the document model
-    /// without embedding the full node JSON. The fields are intentionally stable
-    /// identifiers, labels, and digests rather than mutable presentation details.
-    pub document: DocumentRecord,
-
-    /// Activity that generated, exported, or signed the asset.
+    /// Provenance needs explicit operations, not just a pile of facts. Records
+    /// are ordered from earliest to latest, so a rendered executable document can
+    /// record execution before export.
     ///
-    /// Provenance needs an explicit operation, not just a pile of facts. This
-    /// record is the point where inputs, outputs, agents, timing, execution, and
-    /// workflow details can be related without flattening them into ambiguous
-    /// sibling objects.
-    ///
-    /// When the operation is meaningful outside Stencila, producers should also
+    /// When an operation is meaningful outside Stencila, producers should also
     /// record it in
     /// [`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions).
-    /// This field then provides the Stencila activity kind, timing, and local
+    /// This field then provides the Stencila activity type, timing, and local
     /// relationships needed for reproducibility.
-    pub activity: ActivityRecord,
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub activities: Vec<ActivityRecord>,
 
     /// Role-bearing attribution projected from Stencila authorship.
     ///
@@ -187,38 +196,6 @@ pub struct ProvenanceAssertion {
     /// lockfile digests.
     pub environment: Option<EnvironmentRecord>,
 
-    /// Inputs used by the activity.
-    ///
-    /// Inputs are entities in the provenance sense. They can represent files,
-    /// datasets, parameters, prompts, or prior document nodes. Optional IDs allow
-    /// `activity.usedInputIds` to point at them without requiring every consumer
-    /// to parse domain-specific names.
-    ///
-    /// Disclosed asset or data inputs should usually also be represented as
-    /// [`c2pa.ingredient.v3`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ingredient)
-    /// assertions. Use `relationship = "inputTo"` for data used by a
-    /// computational process, `relationship = "componentOf"` for composed
-    /// content, and `relationship = "parentOf"` for a source asset that was
-    /// opened or derived from. Keep Stencila-specific details such as node IDs,
-    /// dependency relation, prompt digests, access policy, and redaction status
-    /// here.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub inputs: Vec<IoRecord>,
-
-    /// Outputs produced by the same activity.
-    ///
-    /// Outputs let the assertion describe siblings of the signed asset, for
-    /// example a table and a figure generated by the same code chunk. The signed
-    /// asset should also be represented by `asset`; outputs are for the broader
-    /// operation context.
-    ///
-    /// Outputs that become separately signed assets can later appear as
-    /// `c2pa.ingredient.v3` entries in downstream manifests. This record is for
-    /// linking those outputs to the Stencila activity and document nodes that
-    /// produced them.
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub outputs: Vec<IoRecord>,
-
     /// Stencila projection of standard C2PA AI disclosure concepts.
     ///
     /// This field is not a replacement for the standard `c2pa.ai-disclosure`
@@ -230,7 +207,7 @@ pub struct ProvenanceAssertion {
     /// When both are present, `standardAssertion` can identify the corresponding
     /// [`c2pa.ai-disclosure`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ai_disclosure)
     /// assertion, while Stencila-specific role and content attribution remains
-    /// in `attributions` and `provenanceSummary`.
+    /// in `attributions` and `provenance`.
     pub ai_disclosure: Option<AiDisclosureRecord>,
 
     /// Compact projection of Stencila `ProvenanceCount` values.
@@ -238,14 +215,14 @@ pub struct ProvenanceAssertion {
     /// This is a summary, not a substitute for attributions. It answers "how
     /// much of the represented content was human written, machine written, or
     /// reviewed?" using Stencila's stable provenance categories.
-    pub provenance_summary: Option<ProvenanceSummaryRecord>,
+    pub provenance: Option<ProvenanceRecord>,
 
     /// Reproducibility status and comparison details known at signing time.
     ///
-    /// Verification is included even when no reproducibility check was run so
+    /// Reproducibility is included even when no check was run so
     /// consumers can distinguish "not checked" from "checked and failed" rather
     /// than treating absence as a hidden result.
-    pub verification: VerificationRecord,
+    pub reproducibility: ReproducibilityRecord,
 
     /// Privacy policy results and redactions applied while building the assertion.
     ///
@@ -329,17 +306,24 @@ pub struct AssetRecord {
     /// Optional asset identifier used by activity references.
     ///
     /// The digest is the cryptographic identity, but a short ID is useful when
-    /// `activity.generatedOutputIds` or external reports need to refer to this
+    /// `activities.generatedAssetIds` or external reports need to refer to this
     /// asset without repeating a long digest.
     pub id: Option<String>,
 
-    /// Stencila or C2PA-facing asset class.
+    /// Stencila or C2PA-facing asset type.
     ///
     /// The initial vocabulary is `asset`, `image`, `figure`, `table`, `dataset`,
     /// and `document`; reverse-DNS extension values are allowed. The value is a
     /// broad class for UI and policy decisions, not a replacement for
     /// `mediaType`.
-    pub kind: String,
+    pub asset_type: String,
+
+    /// Asset role in the Stencila export context.
+    ///
+    /// The role captures why this asset exists, for example `document-export`,
+    /// `figure`, `table-image`, or `computational-output`. It complements
+    /// `assetType`, which remains the broad media or entity class.
+    pub role: Option<String>,
 
     /// IANA media type for the asset bytes.
     ///
@@ -353,8 +337,7 @@ pub struct AssetRecord {
     /// The value should use `algorithm:hex` form, for example `sha256:...`.
     /// Keeping the algorithm in the value avoids baking `sha256` into every
     /// field name and leaves room for future digest algorithms.
-    #[serde(alias = "sourceDigest")]
-    pub digest: String,
+    pub content_digest: String,
 
     /// Stencila label associated with the asset.
     ///
@@ -398,20 +381,21 @@ pub struct AssetRecord {
     pub extra: Map<String, Value>,
 }
 
-/// Facts about the Stencila node or work represented by the signed asset.
+/// Facts about a Stencila node related to the signed asset.
 ///
 /// This record anchors C2PA bytes back to Stencila document structure while
 /// staying compact enough for manifests. It stores stable node identity and
-/// execution-affecting digests rather than embedding private source content.
+/// selected public metadata rather than embedding private source content.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct DocumentRecord {
+pub struct NodeRecord {
     /// Stencila Schema node type.
     ///
     /// Values such as `CodeChunk`, `Figure`, `Table`, `Article`, or `File` let
     /// Stencila-aware consumers recover the kind of work represented by the
-    /// asset without depending on media type heuristics.
+    /// asset without depending on media type heuristics. Values intentionally
+    /// use Stencila Schema's `PascalCase` node type convention.
     pub node_type: String,
 
     /// Stable Stencila node identifier, when available.
@@ -453,12 +437,18 @@ pub struct DocumentRecord {
     /// part of the authored source semantics that affect execution and review.
     pub programming_language: Option<String>,
 
-    /// Digests representing executable node state at signing time.
+    /// URL or path for media-like nodes.
     ///
-    /// These compactly attest the state that Stencila considered relevant to
-    /// generated output, without disclosing the source code or dependency values
-    /// themselves.
-    pub execution_digest: Option<ExecutionDigestRecord>,
+    /// This is useful for output nodes such as `ImageObject`, `AudioObject`,
+    /// `MediaObject`, and `VideoObject`, but is optional because many Stencila
+    /// nodes are not byte-backed media references.
+    pub content_url: Option<String>,
+
+    /// IANA media type for media-like nodes.
+    ///
+    /// This is node metadata. The signed bytes remain described by
+    /// `asset.mediaType`, which may differ for alternate renditions.
+    pub media_type: Option<String>,
 
     /// Forward-compatibility slot for future document metadata.
     ///
@@ -477,25 +467,25 @@ pub struct DocumentRecord {
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct ExecutionDigestRecord {
+pub struct ExecutionDigestsRecord {
     /// Digest of execution state that affects generated output.
     ///
     /// This usually covers code, parameter values, and other state needed to
     /// decide whether an executable node should be rerun.
-    pub state_digest: Option<String>,
+    pub state: Option<String>,
 
     /// Digest of semantic content that affects generated output.
     ///
     /// Semantic digests let Stencila distinguish meaningful source changes from
     /// formatting or metadata churn.
-    pub semantic_digest: Option<String>,
+    pub semantic: Option<String>,
 
     /// Digest of dependencies that affect generated output.
     ///
     /// This summarizes upstream nodes or values used by the executable node. It
     /// is separate from `dependencies` because the digest is compact and stable
     /// even when individual dependencies are redacted.
-    pub dependencies_digest: Option<String>,
+    pub dependencies: Option<String>,
 
     /// Number of stale dependencies known at signing time.
     ///
@@ -522,9 +512,9 @@ pub struct ExecutionDigestRecord {
 /// Activity that generated, exported, or signed the asset.
 ///
 /// This is the provenance relation hub. It intentionally uses IDs to refer to
-/// agents, inputs, and outputs so the assertion can remain compact while still
-/// expressing the important "activity used/generated/was associated with"
-/// relationships.
+/// attributions, Stencila nodes, and byte assets so the assertion can remain
+/// compact while still expressing the important "activity used/generated/was
+/// associated with" relationships.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
@@ -536,18 +526,18 @@ pub struct ActivityRecord {
     /// signing often has no durable external run ID.
     pub id: Option<String>,
 
-    /// Activity kind.
+    /// Activity type.
     ///
-    /// The initial vocabulary is `asset-signing`, `document-export`,
-    /// `code-execution`, and `workflow-run`; reverse-DNS extension values are
-    /// allowed. This field is required so consumers do not have to infer the
-    /// operation from whichever optional detail records happen to be present.
-    pub kind: String,
+    /// The initial vocabulary is `sign`, `export`, `execute`, `render`, and
+    /// `run`; reverse-DNS extension values are allowed. This field is required
+    /// so consumers do not have to infer the operation from whichever optional
+    /// detail records happen to be present.
+    pub activity_type: String,
 
     /// Human-readable activity name.
     ///
     /// A name is useful for workflows and UI summaries, but not stable enough to
-    /// serve as the activity kind or identifier.
+    /// serve as the activity type or identifier.
     pub name: Option<String>,
 
     /// Activity start time in RFC 3339 format.
@@ -574,24 +564,35 @@ pub struct ActivityRecord {
     /// style association without duplicating full attribution records in the
     /// activity.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    // Accepts the earlier draft field name during deserialization only.
-    #[serde(alias = "associatedAgentIds")]
     pub associated_attribution_ids: Vec<String>,
 
-    /// Input IDs used by the activity.
+    /// Stencila node IDs used by the activity.
     ///
-    /// These IDs point at entries in `inputs`. They express use relationships
-    /// while allowing inputs to be redacted or summarized independently.
+    /// These IDs point at `rootNode`, `executedNode`, `outputNode`, or other
+    /// Stencila nodes known to the producer. They express use relationships
+    /// without embedding the full source node content.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub used_input_ids: Vec<String>,
+    pub used_node_ids: Vec<String>,
 
-    /// Output IDs generated by the activity.
+    /// Stencila node IDs generated by the activity.
     ///
-    /// These IDs point at entries in `outputs` or the signed `asset.id`. They
-    /// express generation relationships without assuming the signed asset is the
-    /// only output of the operation.
+    /// For executable output manifests, the execution activity usually records
+    /// `outputNode.nodeId` here.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    pub generated_output_ids: Vec<String>,
+    pub generated_node_ids: Vec<String>,
+
+    /// Asset IDs used by the activity.
+    ///
+    /// These IDs point at byte assets rather than Stencila nodes. They are
+    /// optional because many activities only operate over document nodes.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub used_asset_ids: Vec<String>,
+
+    /// Asset IDs generated by the activity.
+    ///
+    /// For export or signing activities, this usually points at `asset.id`.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub generated_asset_ids: Vec<String>,
 
     /// Forward-compatibility slot for future activity metadata.
     ///
@@ -689,12 +690,12 @@ pub struct AttributionRecord {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct AgentRecord {
-    /// Agent kind.
+    /// Agent type.
     ///
     /// Suggested values are `person`, `organization`, `softwareApplication`,
     /// `model`, and `thing`. It is optional so redacted or legacy agents can
     /// still be represented by name or identifier alone.
-    pub kind: Option<String>,
+    pub agent_type: Option<String>,
 
     /// Agent name.
     ///
@@ -764,11 +765,11 @@ pub struct AgentRecord {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct IdentifierRecord {
-    /// Identifier scheme or kind.
+    /// Identifier type or scheme.
     ///
     /// Examples include `orcid`, `ror`, `url`, `purl`, `doi`, and `modelId`.
-    /// Consumers should treat unknown kinds as opaque labels.
-    pub kind: Option<String>,
+    /// Consumers should treat unknown types as opaque labels.
+    pub identifier_type: Option<String>,
 
     /// Identifier value.
     ///
@@ -822,7 +823,6 @@ pub struct SourceRecord {
     ///
     /// The value should use `algorithm:hex` form. A patch digest lets a signer
     /// attest that local changes existed without embedding the patch itself.
-    #[serde(alias = "patchSha256")]
     pub patch_digest: Option<String>,
 
     /// Source tag or release identifier.
@@ -860,7 +860,6 @@ pub struct ExecutionRecord {
     ///
     /// The field is named `endedAt` to match the activity timing vocabulary.
     /// The legacy `ended` name is accepted for unpublished pre-v1 payloads.
-    #[serde(alias = "ended")]
     pub ended_at: Option<String>,
 
     /// Execution duration in milliseconds.
@@ -869,11 +868,19 @@ pub struct ExecutionRecord {
     /// encoding a language-specific duration format.
     pub duration_ms: Option<u64>,
 
+    /// Digests representing executable node state at signing time.
+    ///
+    /// These compactly attest the state that Stencila considered relevant to
+    /// generated output, without disclosing the source code or dependency values
+    /// themselves. The field is named `digests` because it is already nested
+    /// under `execution`.
+    pub digests: Option<ExecutionDigestsRecord>,
+
     /// Kernel execution counter for the node.
     ///
     /// This preserves notebook-style execution context for reviewers. It is
     /// optional because many kernels or workflows do not expose a counter.
-    pub execution_count: Option<i64>,
+    pub count: Option<i64>,
 
     /// Kernel used to execute the node.
     ///
@@ -884,8 +891,8 @@ pub struct ExecutionRecord {
     /// Other document nodes or values this execution depended on.
     ///
     /// Dependencies explain why an output should be rerun when upstream state
-    /// changes. They can be redacted or summarized independently of digest
-    /// values on the document record.
+    /// changes. They can be redacted or summarized independently of aggregate
+    /// digest values on this execution record.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<DependencyRecord>,
 
@@ -943,7 +950,7 @@ pub struct KernelRecord {
 ///
 /// Dependencies represent the specific upstream nodes, values, or artifacts that
 /// Stencila knew the execution used. They complement the aggregate dependency
-/// digest on `DocumentRecord`.
+/// digest on `ExecutionRecord`.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
@@ -957,7 +964,8 @@ pub struct DependencyRecord {
     /// Depended-on Stencila node type.
     ///
     /// The node type helps consumers understand whether the dependency was code,
-    /// data, prose, a parameter, or another output.
+    /// data, prose, a parameter, or another output. When it names a Stencila
+    /// Schema node type, use Stencila Schema's `PascalCase` convention.
     pub node_type: Option<String>,
 
     /// Dependency relation.
@@ -1047,8 +1055,9 @@ pub struct WorkflowRecord {
 
     /// Stencila node identifier associated with the workflow.
     ///
-    /// This may differ from `document.nodeId` when a workflow operates over a
-    /// broader scope than the signed node.
+    /// This may differ from `rootNode.nodeId`, `executedNode.nodeId`, or
+    /// `outputNode.nodeId` when a workflow operates over a broader scope than
+    /// the signed asset.
     pub node_id: Option<String>,
 
     /// Conversation or workflow thread identifier.
@@ -1093,18 +1102,18 @@ pub struct WorkflowRecord {
 /// Definition loaded by a workflow.
 ///
 /// Definitions represent workflow, agent, skill, policy, or other reusable
-/// resources that may affect generated outputs. The `kind`, `name`, `role`,
+/// resources that may affect generated outputs. The `definitionType`, `name`, `role`,
 /// and `contentDigest` fields are sufficient to link a record back to the
 /// Stencila workspace definition tables when `runId` is also disclosed.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
 pub struct DefinitionRecord {
-    /// Definition kind.
+    /// Definition type.
     ///
-    /// Kind distinguishes workspace definition snapshots such as `workflow`,
+    /// Type distinguishes workspace definition snapshots such as `workflow`,
     /// `agent`, and `skill` without requiring a separate record for each class.
-    pub kind: Option<String>,
+    pub definition_type: Option<String>,
 
     /// Definition name.
     ///
@@ -1135,7 +1144,6 @@ pub struct DefinitionRecord {
     ///
     /// The value should use `algorithm:hex` form. It is preferred over raw
     /// content so private definitions can still be attested.
-    #[serde(alias = "contentHash")]
     pub content_digest: Option<String>,
 
     /// Forward-compatibility slot for future definition metadata.
@@ -1244,122 +1252,12 @@ pub struct FileDigestRecord {
     ///
     /// The value should use `algorithm:hex` form. The legacy `sha256` field name
     /// is accepted for unpublished pre-v1 payloads.
-    #[serde(alias = "sha256")]
     pub digest: Option<String>,
 
     /// Forward-compatibility slot for future file metadata.
     ///
     /// File records may later include size, media type, or package-manager
     /// semantics, so unknown fields are preserved.
-    #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
-    #[schemars(skip)]
-    pub extra: Map<String, Value>,
-}
-
-/// Input or output entity used by a provenance activity.
-///
-/// The same shape is used for inputs and outputs so workflows can describe
-/// files, datasets, prompts, parameters, document nodes, and generated artifacts
-/// using one compact record.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
-#[serde(rename_all = "camelCase")]
-pub struct IoRecord {
-    /// Optional input or output identifier.
-    ///
-    /// IDs allow `activity.usedInputIds` and `activity.generatedOutputIds` to
-    /// express relationships without duplicating entity metadata.
-    pub id: Option<String>,
-
-    /// Input or output kind.
-    ///
-    /// Suggested values include `file`, `dataset`, `parameter`, `prompt`,
-    /// `document-node`, `artifact`, and `asset`; extension values should use a
-    /// reverse-DNS prefix when outside Stencila's vocabulary.
-    pub kind: Option<String>,
-
-    /// Input or output name.
-    ///
-    /// Names are human-facing and optional because they can be private or absent
-    /// for generated intermediate values.
-    pub name: Option<String>,
-
-    /// Input or output URI.
-    ///
-    /// URIs can locate external data or artifacts. They are optional and should
-    /// be redacted when they contain secrets, private hostnames, or signed URLs.
-    pub uri: Option<String>,
-
-    /// IANA media type for the input or output.
-    ///
-    /// Media type is optional because parameters and abstract document nodes may
-    /// not have byte-oriented media types.
-    pub media_type: Option<String>,
-
-    /// Digest of the input or output bytes or value.
-    ///
-    /// The value should use `algorithm:hex` form. It is the preferred identity
-    /// for disclosed files and values because names and URIs can change.
-    pub digest: Option<String>,
-
-    /// Input or output version.
-    ///
-    /// Version is useful for datasets, packages, models, and artifacts that have
-    /// a logical release identity in addition to a digest.
-    pub version: Option<String>,
-
-    /// Access level or policy applied to the input or output.
-    ///
-    /// Suggested values include `public`, `private`, `restricted`, `redacted`,
-    /// and `undisclosed`. This explains why a URI or digest may be absent.
-    pub access: Option<String>,
-
-    /// Redaction applied to this input or output.
-    ///
-    /// This is a compact per-entity redaction signal. Detailed policy and field
-    /// paths belong in `privacy.redactions`.
-    pub redaction: Option<String>,
-
-    /// Byte length.
-    ///
-    /// Size is optional because not all IO entities are byte streams and because
-    /// producers may choose not to disclose exact sizes.
-    pub size: Option<u64>,
-
-    /// Width for image, video, or tabular outputs.
-    ///
-    /// Width is optional and interpreted in the natural unit for the media type,
-    /// usually pixels for images and columns for some tabular projections.
-    pub width: Option<u64>,
-
-    /// Height for image or video outputs.
-    ///
-    /// Height is optional and usually measured in pixels.
-    pub height: Option<u64>,
-
-    /// Row count for tabular outputs.
-    ///
-    /// Row count is useful for data outputs and can be disclosed even when the
-    /// table contents are private.
-    pub row_count: Option<u64>,
-
-    /// Column count for tabular outputs.
-    ///
-    /// Column count complements `rowCount` for quick dataset inspection.
-    pub column_count: Option<u64>,
-
-    /// Structured IO metadata chosen by the producer.
-    ///
-    /// This field is for domain-specific metadata that is intentionally carried
-    /// as JSON rather than promoted into the stable schema. The legacy `extra`
-    /// field name is accepted for unpublished payloads.
-    #[serde(alias = "extra")]
-    pub metadata: Option<Value>,
-
-    /// Forward-compatibility slot for future IO fields.
-    ///
-    /// Unknown fields are preserved separately from `metadata`, which is
-    /// producer-authored data rather than schema-extension data.
     #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
     #[schemars(skip)]
     pub extra: Map<String, Value>,
@@ -1406,7 +1304,6 @@ pub struct AiDisclosureRecord {
     /// Values should follow the C2PA AI disclosure convention, such as arXiv
     /// taxonomy strings, when disclosed.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    #[serde(alias = "scientificDomains")]
     pub scientific_domain: Vec<String>,
 
     /// Label or URI of the corresponding standard C2PA assertion.
@@ -1454,7 +1351,7 @@ pub struct AiContentProfileRecord {
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct ProvenanceSummaryRecord {
+pub struct ProvenanceRecord {
     /// Measurement basis for counts and percentages.
     ///
     /// The default Stencila basis is `characters`. The field exists because
@@ -1467,7 +1364,6 @@ pub struct ProvenanceSummaryRecord {
     /// The value is a 0-100 percentage, not a fraction. It is optional because
     /// consumers can always recompute it from categories when complete category
     /// counts are disclosed.
-    #[serde(alias = "human")]
     pub human_percent: Option<f64>,
 
     /// Percentage attributed to machine-only provenance.
@@ -1475,7 +1371,6 @@ pub struct ProvenanceSummaryRecord {
     /// The value is a 0-100 percentage. This usually covers Stencila provenance
     /// categories where machine generation or editing was present without human
     /// editing or verification.
-    #[serde(alias = "machine")]
     pub machine_percent: Option<f64>,
 
     /// Percentage attributed to mixed human and machine provenance.
@@ -1483,7 +1378,6 @@ pub struct ProvenanceSummaryRecord {
     /// This value is a Stencila summary convenience, not a regulatory AI-use
     /// declaration. Use `aiDisclosure` and standard C2PA AI disclosure for model
     /// transparency.
-    #[serde(alias = "aiAssisted")]
     pub ai_assisted_percent: Option<f64>,
 
     /// Source of the provenance summary.
@@ -1496,7 +1390,6 @@ pub struct ProvenanceSummaryRecord {
     ///
     /// This is separate from the assertion payload version because provenance
     /// counting algorithms may change without changing the wire schema.
-    #[serde(alias = "schemaVersion")]
     pub source_version: Option<String>,
 
     /// Per-category provenance counts.
@@ -1528,12 +1421,11 @@ pub struct ProvenanceCategoryRecord {
     /// Values should come from `ProvenanceCategory`, such as `Hw`, `HwMv`,
     /// `MwHe`, or `MwMeMv`. The legacy `category` field name is accepted for
     /// unpublished payloads.
-    #[serde(alias = "category")]
-    pub provenance_category: String,
+    pub category: String,
 
     /// Number of counted units in the category.
     ///
-    /// The unit is defined by `ProvenanceSummaryRecord.basis`, usually
+    /// The unit is defined by `ProvenanceRecord.basis`, usually
     /// characters. This field is required because percentages alone are not
     /// enough to compare summaries across differently sized works.
     pub character_count: u64,
@@ -1560,32 +1452,32 @@ pub struct ProvenanceCategoryRecord {
 #[skip_serializing_none]
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
-pub struct VerificationRecord {
+pub struct ReproducibilityRecord {
     /// Reproducibility status.
     ///
     /// Suggested values are `not-checked`, `reproduced`, `changed`, `failed`,
     /// and `not-reproducible`. The field is required so absence never masks an
     /// intentionally skipped reproducibility check.
-    pub reproducibility_status: String,
+    pub status: String,
 
-    /// Verification policy used.
+    /// Reproducibility check policy used.
     ///
     /// Policy explains how strict the comparison was, which outputs were
     /// compared, and what tolerances applied. It is optional because initial
     /// signing often records `not-checked`.
     pub policy: Option<String>,
 
-    /// Verifier identity.
+    /// Reproducibility checker identity.
     ///
-    /// This can be a person, service, or software identifier. Rich verifier
+    /// This can be a person, service, or software identifier. Rich checker
     /// attribution should also be represented in `attributions` when relevant.
-    pub verified_by: Option<String>,
+    pub checked_by: Option<String>,
 
-    /// Verification timestamp in RFC 3339 format.
+    /// Reproducibility check timestamp in RFC 3339 format.
     ///
     /// The timestamp records when reproducibility was checked, not when the C2PA
     /// claim was signed.
-    pub verified_at: Option<String>,
+    pub checked_at: Option<String>,
 
     /// Structured comparison details.
     ///
@@ -1593,7 +1485,7 @@ pub struct VerificationRecord {
     /// domain-specific summaries without forcing every detail into v1.
     pub comparison: Option<Value>,
 
-    /// Forward-compatibility slot for future verification metadata.
+    /// Forward-compatibility slot for future reproducibility metadata.
     ///
     /// Verification policy and comparison formats will evolve, so unknown fields
     /// are preserved.
@@ -1687,8 +1579,8 @@ pub struct RedactionRecord {
     /// Redacted field path.
     ///
     /// Paths should use assertion JSON field names, for example
-    /// `workflow.goalDigest` or `inputs[0].uri`, so consumers can locate the
-    /// omitted context in the signed payload.
+    /// `workflow.goalDigest` or `execution.dependencies[0].digest`, so
+    /// consumers can locate the omitted context in the signed payload.
     pub field: Option<String>,
 
     /// Reason the field was redacted.

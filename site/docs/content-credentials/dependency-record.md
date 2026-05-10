@@ -9,7 +9,7 @@ Dependency of an execution.
 
 Dependencies represent the specific upstream nodes, values, or artifacts that
 Stencila knew the execution used. They complement the aggregate dependency
-digest on `DocumentRecord`.
+digest on `ExecutionRecord`.
 
 ## Fields
 
@@ -34,7 +34,8 @@ document tree when that tree is available.
 Depended-on Stencila node type.
 
 The node type helps consumers understand whether the dependency was code,
-data, prose, a parameter, or another output.
+data, prose, a parameter, or another output. When it names a Stencila
+Schema node type, use Stencila Schema's `PascalCase` convention.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 

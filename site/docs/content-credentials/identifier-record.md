@@ -14,15 +14,15 @@ optional fields for every identity scheme that Stencila may later support.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`kind`](#kind) | `string` | No | Identifier scheme or kind. |
+| [`identifierType`](#identifier-type) | `string` | No | Identifier type or scheme. |
 | [`value`](#value) | `string` | No | Identifier value. |
 
-### `kind`
+### `identifierType`
 
-Identifier scheme or kind.
+Identifier type or scheme.
 
 Examples include `orcid`, `ror`, `url`, `purl`, `doi`, and `modelId`.
-Consumers should treat unknown kinds as opaque labels.
+Consumers should treat unknown types as opaque labels.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 

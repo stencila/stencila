@@ -1,9 +1,9 @@
 ---
-title: "Execution Digest Record"
+title: "Execution Digests Record"
 description: "Digest values corresponding to Stencila `CompilationDigest`."
 ---
 
-# Execution Digest Record
+# Execution Digests Record
 
 Digest values corresponding to Stencila `CompilationDigest`.
 
@@ -15,13 +15,13 @@ source. This record preserves that distinction in the public assertion.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`stateDigest`](#state-digest) | `string` | No | Digest of execution state that affects generated output. |
-| [`semanticDigest`](#semantic-digest) | `string` | No | Digest of semantic content that affects generated output. |
-| [`dependenciesDigest`](#dependencies-digest) | `string` | No | Digest of dependencies that affect generated output. |
+| [`state`](#state) | `string` | No | Digest of execution state that affects generated output. |
+| [`semantic`](#semantic) | `string` | No | Digest of semantic content that affects generated output. |
+| [`dependencies`](#dependencies) | `string` | No | Digest of dependencies that affect generated output. |
 | [`dependenciesStale`](#dependencies-stale) | `integer` | No | Number of stale dependencies known at signing time. |
 | [`dependenciesFailed`](#dependencies-failed) | `integer` | No | Number of failed dependencies known at signing time. |
 
-### `stateDigest`
+### `state`
 
 Digest of execution state that affects generated output.
 
@@ -30,7 +30,7 @@ decide whether an executable node should be rerun.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `semanticDigest`
+### `semantic`
 
 Digest of semantic content that affects generated output.
 
@@ -39,7 +39,7 @@ formatting or metadata churn.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `dependenciesDigest`
+### `dependencies`
 
 Digest of dependencies that affect generated output.
 

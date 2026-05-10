@@ -14,11 +14,11 @@ to Stencila concepts without loading the full generated Stencila Schema.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`provenanceCategory`](#provenance-category) | `string` | Yes | Stencila provenance category. |
+| [`category`](#category) | `string` | Yes | Stencila provenance category. |
 | [`characterCount`](#character-count) | `integer` | Yes | Number of counted units in the category. |
 | [`characterPercent`](#character-percent) | `number` | No | Percentage of counted content in this category. |
 
-### `provenanceCategory`
+### `category`
 
 Stencila provenance category.
 
@@ -32,7 +32,7 @@ unpublished payloads.
 
 Number of counted units in the category.
 
-The unit is defined by `ProvenanceSummaryRecord.basis`, usually
+The unit is defined by `ProvenanceRecord.basis`, usually
 characters. This field is required because percentages alone are not
 enough to compare summaries across differently sized works.
 

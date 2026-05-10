@@ -1,15 +1,15 @@
 ---
-title: "Document Record"
-description: "Facts about the Stencila node or work represented by the signed asset."
+title: "Node Record"
+description: "Facts about a Stencila node related to the signed asset."
 ---
 
-# Document Record
+# Node Record
 
-Facts about the Stencila node or work represented by the signed asset.
+Facts about a Stencila node related to the signed asset.
 
 This record anchors C2PA bytes back to Stencila document structure while
 staying compact enough for manifests. It stores stable node identity and
-execution-affecting digests rather than embedding private source content.
+selected public metadata rather than embedding private source content.
 
 ## Fields
 
@@ -22,7 +22,8 @@ execution-affecting digests rather than embedding private source content.
 | [`label`](#label) | `string` | No | Stencila label for the node. |
 | [`title`](#title) | `string` | No | Human-readable node or work title. |
 | [`programmingLanguage`](#programming-language) | `string` | No | Programming language for executable nodes. |
-| [`executionDigest`](#execution-digest) | [`ExecutionDigestRecord`](execution-digest-record) | No | Digests representing executable node state at signing time. |
+| [`contentUrl`](#content-url) | `string` | No | URL or path for media-like nodes. |
+| [`mediaType`](#media-type) | `string` | No | IANA media type for media-like nodes. |
 
 ### `nodeType`
 
@@ -30,7 +31,8 @@ Stencila Schema node type.
 
 Values such as `CodeChunk`, `Figure`, `Table`, `Article`, or `File` let
 Stencila-aware consumers recover the kind of work represented by the
-asset without depending on media type heuristics.
+asset without depending on media type heuristics. Values intentionally
+use Stencila Schema's `PascalCase` node type convention.
 
 **Type:** `string` | **Required:** Yes
 
@@ -91,15 +93,24 @@ part of the authored source semantics that affect execution and review.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 
-### `executionDigest`
+### `contentUrl`
 
-Digests representing executable node state at signing time.
+URL or path for media-like nodes.
 
-These compactly attest the state that Stencila considered relevant to
-generated output, without disclosing the source code or dependency values
-themselves.
+This is useful for output nodes such as `ImageObject`, `AudioObject`,
+`MediaObject`, and `VideoObject`, but is optional because many Stencila
+nodes are not byte-backed media references.
 
-**Type:** [`ExecutionDigestRecord`](execution-digest-record) | **Required:** No | **Nullable:** Yes
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `mediaType`
+
+IANA media type for media-like nodes.
+
+This is node metadata. The signed bytes remain described by
+`asset.mediaType`, which may differ for alternate renditions.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
 
 
 ---

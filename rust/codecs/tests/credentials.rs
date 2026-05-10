@@ -124,14 +124,9 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .assertion
         .as_ref()
         .expect("media assertion");
-    assert_eq!(media_assertion.profile, "figure");
-    assert!(media_assertion.outputs.iter().any(|output| {
-        output.id.as_deref() == Some("exported-asset")
-            && output
-                .digest
-                .as_deref()
-                .is_some_and(|digest| digest.starts_with("sha256:"))
-    }));
+    assert_eq!(media_assertion.asset.id.as_deref(), Some("exported-asset"));
+    assert_eq!(media_assertion.asset.role.as_deref(), Some("figure"));
+    assert!(media_assertion.asset.content_digest.starts_with("sha256:"));
 
     Ok(())
 }
@@ -281,12 +276,12 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
         .as_ref()
         .expect("parsed Stencila assertion");
 
-    assert_eq!(assertion.profile, "document-export");
-    assert_eq!(assertion.document.node_type, "Article");
-    assert_eq!(assertion.document.title.as_deref(), Some("My Title"));
+    assert_eq!(assertion.asset.role.as_deref(), Some("document-export"));
+    assert_eq!(assertion.root_node.node_type, "Article");
+    assert_eq!(assertion.root_node.title.as_deref(), Some("My Title"));
     assert!(
         assertion
-            .document
+            .root_node
             .node_id
             .as_deref()
             .is_some_and(|id| !id.is_empty())
@@ -396,20 +391,14 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .assertion
         .as_ref()
         .expect("document assertion");
-    assert_eq!(document.profile, "document-export");
+    assert_eq!(document.asset.role.as_deref(), Some("document-export"));
+    assert!(document.executed_node.is_none());
+    assert!(document.output_node.is_none());
     assert!(
         document.execution.is_none(),
         "document snapshot should not aggregate chunk execution: {:?}",
         document.execution
     );
-    assert!(document.inputs.iter().any(|input| {
-        input.id.as_deref() == Some("source-document")
-            && input.access.as_deref() == Some("private")
-            && input
-                .digest
-                .as_deref()
-                .is_some_and(|digest| digest.starts_with("sha256:"))
-    }));
 
     // Per-asset snapshot for the extracted figure: subject is the CodeChunk,
     // so the chunk's execution facts land here, not on the document.
@@ -426,20 +415,32 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .assertion
         .as_ref()
         .expect("figure assertion");
-    assert_eq!(figure.profile, "computational-output");
-    assert_eq!(figure.document.node_type, "CodeChunk");
+    assert_eq!(figure.asset.role.as_deref(), Some("computational-output"));
+    assert_eq!(figure.root_node.node_type, "Article");
+    let executed_node = figure.executed_node.as_ref().expect("executed node");
+    assert_eq!(executed_node.node_type, "CodeChunk");
     assert_eq!(
-        figure.document.programming_language.as_deref(),
+        executed_node.programming_language.as_deref(),
         Some("python")
     );
+    let output_node = figure.output_node.as_ref().expect("output node");
+    assert_eq!(output_node.node_type, "ImageObject");
+    assert_eq!(output_node.content_url.as_deref(), Some(PNG_DATA_URI));
 
     let execution = figure
         .execution
         .as_ref()
         .expect("figure execution snapshot");
-    assert_eq!(execution.status.as_deref(), Some("Succeeded"));
+    assert_eq!(execution.status.as_deref(), Some("succeeded"));
     assert_eq!(execution.duration_ms, Some(250));
-    assert_eq!(execution.execution_count, Some(3));
+    assert_eq!(execution.count, Some(3));
+    assert_eq!(
+        execution
+            .digests
+            .as_ref()
+            .and_then(|digests| digests.state.as_deref()),
+        Some("stencila:000000000000002a")
+    );
     assert_eq!(
         execution
             .kernel
@@ -464,16 +465,6 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         execution.messages[0].message.as_deref(),
         Some("cached data was used")
     );
-
-    assert!(figure.inputs.iter().any(|input| {
-        input.id.as_deref() == Some("execution-input-1")
-            && input.name.as_deref() == Some("data.csv")
-            && input.access.as_deref() == Some("private")
-            && input
-                .digest
-                .as_deref()
-                .is_some_and(|digest| digest.starts_with("sha256:"))
-    }));
 
     // Environment fields hold for both snapshots; assert on the figure's.
     let environment = figure.environment.as_ref().expect("environment");

@@ -198,7 +198,7 @@ fn normalize_asset_snapshot(
     source_digest: &str,
 ) -> AssetSnapshot {
     asset.media_type = media_type.to_string();
-    asset.digest = source_digest.to_string();
+    asset.content_digest = source_digest.to_string();
     if asset.kind.is_empty() || asset.kind == "asset" {
         asset.kind = asset_kind_for_media_type(media_type).to_string();
     }

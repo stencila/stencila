@@ -8,7 +8,7 @@ description: "Definition loaded by a workflow."
 Definition loaded by a workflow.
 
 Definitions represent workflow, agent, skill, policy, or other reusable
-resources that may affect generated outputs. The `kind`, `name`, `role`,
+resources that may affect generated outputs. The `definitionType`, `name`, `role`,
 and `contentDigest` fields are sufficient to link a record back to the
 Stencila workspace definition tables when `runId` is also disclosed.
 
@@ -16,18 +16,18 @@ Stencila workspace definition tables when `runId` is also disclosed.
 
 | Field | Type | Required | Description |
 |-------|------|----------|-------------|
-| [`kind`](#kind) | `string` | No | Definition kind. |
+| [`definitionType`](#definition-type) | `string` | No | Definition type. |
 | [`name`](#name) | `string` | No | Definition name. |
 | [`role`](#role) | `string` | No | Role this definition played in the workflow run. |
 | [`sourcePath`](#source-path) | `string` | No | Source path for the definition. |
 | [`version`](#version) | `string` | No | Definition version. |
 | [`contentDigest`](#content-digest) | `string` | No | Digest of definition content. |
 
-### `kind`
+### `definitionType`
 
-Definition kind.
+Definition type.
 
-Kind distinguishes workspace definition snapshots such as `workflow`,
+Type distinguishes workspace definition snapshots such as `workflow`,
 `agent`, and `skill` without requiring a separate record for each class.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes

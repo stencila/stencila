@@ -30,14 +30,17 @@ use serde_with::skip_serializing_none;
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ProvenanceSnapshot {
-    /// Assertion profile, such as `computational-output` or `document-export`.
-    pub profile: Option<String>,
-
     /// Facts about the signed asset.
     pub asset: AssetSnapshot,
 
-    /// Facts about the Stencila document node that produced or represents the asset.
-    pub document: DocumentSnapshot,
+    /// Facts about the root Stencila document node that contains the signed node.
+    pub root_node: DocumentSnapshot,
+
+    /// Facts about the executable Stencila node that produced the output node.
+    pub executed_node: Option<DocumentSnapshot>,
+
+    /// Facts about the Stencila output node represented by the signed asset.
+    pub output_node: Option<DocumentSnapshot>,
 
     /// Activity that generated, exported, or signed the asset.
     pub activity: Option<ActivitySnapshot>,
@@ -61,14 +64,6 @@ pub struct ProvenanceSnapshot {
     /// Environment facts that help a verifier reproduce the output.
     pub environment: Option<EnvironmentSnapshot>,
 
-    /// Inputs used to produce the asset.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub inputs: Vec<IoSnapshot>,
-
-    /// Outputs produced by the same operation.
-    #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub outputs: Vec<IoSnapshot>,
-
     /// Projection of C2PA AI disclosure details.
     pub ai_disclosure: Option<AiDisclosureSnapshot>,
 
@@ -76,7 +71,7 @@ pub struct ProvenanceSnapshot {
     pub provenance_summary: Option<ProvenanceSummarySnapshot>,
 
     /// Reproducibility status and comparison details known at signing time.
-    pub verification: Option<VerificationSnapshot>,
+    pub reproducibility: Option<ReproducibilitySnapshot>,
 
     /// Redactions applied while projecting private Stencila state into the assertion.
     pub privacy: Option<PrivacySnapshot>,
@@ -88,8 +83,8 @@ impl ProvenanceSnapshot {
     pub fn for_asset(asset: AssetSnapshot) -> Self {
         Self {
             asset,
-            document: DocumentSnapshot::default_file(),
-            verification: Some(VerificationSnapshot::default()),
+            root_node: DocumentSnapshot::default_file(),
+            reproducibility: Some(ReproducibilitySnapshot::default()),
             privacy: Some(PrivacySnapshot::default()),
             ..Default::default()
         }
@@ -103,9 +98,9 @@ impl ProvenanceSnapshot {
 pub struct AssetSnapshot {
     pub id: Option<String>,
     pub kind: String,
+    pub role: Option<String>,
     pub media_type: String,
-    #[serde(alias = "sourceDigest")]
-    pub digest: String,
+    pub content_digest: String,
     pub label: Option<String>,
     pub title: Option<String>,
     pub size: Option<u64>,
@@ -123,8 +118,9 @@ impl AssetSnapshot {
     ) -> Self {
         Self {
             kind: kind.into(),
+            role: None,
             media_type: media_type.into(),
-            digest: digest.into(),
+            content_digest: digest.into(),
             ..Default::default()
         }
     }
@@ -135,8 +131,9 @@ impl Default for AssetSnapshot {
         Self {
             id: None,
             kind: "asset".to_string(),
+            role: None,
             media_type: String::new(),
-            digest: String::new(),
+            content_digest: String::new(),
             label: None,
             title: None,
             size: None,
@@ -158,7 +155,8 @@ pub struct DocumentSnapshot {
     pub label: Option<String>,
     pub title: Option<String>,
     pub programming_language: Option<String>,
-    pub execution_digest: Option<ExecutionDigestSnapshot>,
+    pub content_url: Option<String>,
+    pub media_type: Option<String>,
 }
 
 impl DocumentSnapshot {
@@ -182,7 +180,8 @@ impl Default for DocumentSnapshot {
             label: None,
             title: None,
             programming_language: None,
-            execution_digest: None,
+            content_url: None,
+            media_type: None,
         }
     }
 }
@@ -199,12 +198,15 @@ pub struct ActivitySnapshot {
     pub ended_at: Option<String>,
     pub duration_ms: Option<u64>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    #[serde(alias = "associatedAgentIds")]
     pub associated_attribution_ids: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub used_input_ids: Vec<String>,
+    pub used_node_ids: Vec<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    pub generated_output_ids: Vec<String>,
+    pub generated_node_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub used_asset_ids: Vec<String>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub generated_asset_ids: Vec<String>,
 }
 
 /// Software that produced the assertion.
@@ -214,7 +216,6 @@ pub struct ActivitySnapshot {
 pub struct ProducerSnapshot {
     pub name: Option<String>,
     pub version: Option<String>,
-    #[serde(alias = "schemaVersion")]
     pub stencila_schema_version: Option<String>,
     pub codec: Option<String>,
     pub renderer: Option<String>,
@@ -283,7 +284,6 @@ pub struct SourceSnapshot {
     pub commit: Option<String>,
     pub path: Option<String>,
     pub dirty: Option<bool>,
-    #[serde(alias = "patchSha256")]
     pub patch_digest: Option<String>,
     pub tag: Option<String>,
 }
@@ -294,10 +294,10 @@ pub struct SourceSnapshot {
 #[serde(default, rename_all = "camelCase")]
 pub struct ExecutionSnapshot {
     pub status: Option<String>,
-    #[serde(alias = "ended")]
     pub ended_at: Option<String>,
     pub duration_ms: Option<u64>,
-    pub execution_count: Option<i64>,
+    pub digest: Option<ExecutionDigestSnapshot>,
+    pub count: Option<i64>,
     pub kernel: Option<KernelSnapshot>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub dependencies: Vec<DependencySnapshot>,
@@ -359,7 +359,6 @@ pub struct DefinitionSnapshot {
     pub role: Option<String>,
     pub source_path: Option<String>,
     pub version: Option<String>,
-    #[serde(alias = "contentHash")]
     pub content_digest: Option<String>,
 }
 
@@ -390,31 +389,7 @@ pub struct RuntimeSnapshot {
 #[serde(default, rename_all = "camelCase")]
 pub struct FileDigestSnapshot {
     pub path: Option<String>,
-    #[serde(alias = "sha256")]
     pub digest: Option<String>,
-}
-
-/// Input or output record.
-#[skip_serializing_none]
-#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
-#[serde(default, rename_all = "camelCase")]
-pub struct IoSnapshot {
-    pub id: Option<String>,
-    pub kind: Option<String>,
-    pub name: Option<String>,
-    pub uri: Option<String>,
-    pub media_type: Option<String>,
-    pub digest: Option<String>,
-    pub version: Option<String>,
-    pub access: Option<String>,
-    pub redaction: Option<String>,
-    pub size: Option<u64>,
-    pub width: Option<u64>,
-    pub height: Option<u64>,
-    pub row_count: Option<u64>,
-    pub column_count: Option<u64>,
-    #[serde(alias = "extra")]
-    pub metadata: Option<Value>,
 }
 
 /// Projection of C2PA AI disclosure details.
@@ -427,7 +402,6 @@ pub struct AiDisclosureSnapshot {
     pub model_identifier: Option<String>,
     pub human_oversight_level: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
-    #[serde(alias = "scientificDomain")]
     pub scientific_domains: Vec<String>,
     pub standard_assertion: Option<String>,
 }
@@ -438,14 +412,10 @@ pub struct AiDisclosureSnapshot {
 #[serde(default, rename_all = "camelCase")]
 pub struct ProvenanceSummarySnapshot {
     pub basis: Option<String>,
-    #[serde(alias = "human")]
     pub human_percent: Option<f64>,
-    #[serde(alias = "machine")]
     pub machine_percent: Option<f64>,
-    #[serde(alias = "aiAssisted")]
     pub ai_assisted_percent: Option<f64>,
     pub source: Option<String>,
-    #[serde(alias = "schemaVersion")]
     pub source_version: Option<String>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub categories: Vec<ProvenanceCategorySnapshot>,
@@ -455,7 +425,6 @@ pub struct ProvenanceSummarySnapshot {
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
 pub struct ProvenanceCategorySnapshot {
-    #[serde(alias = "category")]
     pub provenance_category: String,
     pub character_count: u64,
     pub character_percent: Option<f64>,
@@ -465,21 +434,21 @@ pub struct ProvenanceCategorySnapshot {
 #[skip_serializing_none]
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]
-pub struct VerificationSnapshot {
+pub struct ReproducibilitySnapshot {
     pub reproducibility_status: String,
     pub policy: Option<String>,
-    pub verified_by: Option<String>,
-    pub verified_at: Option<String>,
+    pub checked_by: Option<String>,
+    pub checked_at: Option<String>,
     pub comparison: Option<Value>,
 }
 
-impl Default for VerificationSnapshot {
+impl Default for ReproducibilitySnapshot {
     fn default() -> Self {
         Self {
             reproducibility_status: "not-checked".to_string(),
             policy: None,
-            verified_by: None,
-            verified_at: None,
+            checked_by: None,
+            checked_at: None,
             comparison: None,
         }
     }
