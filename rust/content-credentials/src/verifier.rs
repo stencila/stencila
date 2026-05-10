@@ -28,7 +28,7 @@ use crate::{
     media,
     report::{
         AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
-        VerificationReport,
+        VerificationReport, VerificationSummary,
     },
     schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion},
 };
@@ -149,6 +149,7 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
                 asset_binding: AssetBindingStatus::default(),
                 provenance: ProvenanceStatus::default(),
                 reproducibility: ReproducibilityStatus::NotChecked,
+                summary: VerificationSummary::default(),
                 problems: Vec::new(),
             };
 
@@ -223,12 +224,19 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
         problems.push(problem);
     }
 
+    let summary = provenance
+        .assertion
+        .as_ref()
+        .map(VerificationSummary::from_assertion)
+        .unwrap_or_default();
+
     VerificationReport {
         manifest,
         signature,
         asset_binding,
         provenance,
         reproducibility: ReproducibilityStatus::NotChecked,
+        summary,
         problems,
     }
 }

@@ -349,8 +349,13 @@ impl ProjectionPolicy {
         };
 
         if let Some(repository) = &mut source.repository {
-            let omit_repository =
-                has_secret(repository) || self.profile == CredentialProfile::Public;
+            // Always strip URLs that carry secrets (basic auth, query
+            // tokens). Under the Public profile, otherwise strip URLs
+            // unless they live on a well-known public hosting domain — a
+            // public GitHub URL is, by construction, already public.
+            let omit_repository = has_secret(repository)
+                || (self.profile == CredentialProfile::Public
+                    && !is_public_hosting_url(repository));
 
             if omit_repository {
                 source.repository = None;
@@ -978,6 +983,46 @@ fn is_probable_url(value: &str) -> bool {
     value.contains("://") || value.starts_with("git@")
 }
 
+/// Whether `value` is a URL on a well-known public source-host domain.
+///
+/// Public profile redaction keeps URLs from these hosts because the URL is
+/// itself already public information — stripping it loses provenance value
+/// without protecting anything.
+fn is_public_hosting_url(value: &str) -> bool {
+    if !public_url(value) {
+        return false;
+    }
+
+    let Ok(url) = url::Url::parse(value) else {
+        return false;
+    };
+
+    let Some(host) = url.host_str() else {
+        return false;
+    };
+
+    let host = host.trim_end_matches('.').to_ascii_lowercase();
+    PUBLIC_HOSTING_DOMAINS
+        .iter()
+        .any(|domain| host == *domain || host.ends_with(&format!(".{domain}")))
+}
+
+/// Public-by-default source-hosting domains.
+///
+/// Repositories on these hosts are public-or-paywalled-public infrastructure
+/// where disclosing the URL itself does not leak private information; private
+/// repositories on the same host are protected by access control on the host
+/// rather than by stripping URL strings from manifests.
+const PUBLIC_HOSTING_DOMAINS: &[&str] = &[
+    "github.com",
+    "gitlab.com",
+    "bitbucket.org",
+    "codeberg.org",
+    "gitee.com",
+    "git.sr.ht",
+    "sourcehut.org",
+];
+
 fn redaction(field: impl Into<String>, reason: impl Into<String>) -> RedactionSnapshot {
     RedactionSnapshot {
         field: Some(field.into()),
@@ -1066,11 +1111,32 @@ mod tests {
     }
 
     #[test]
-    fn public_profile_omits_source_repository_urls_without_public_attestation() {
+    fn public_profile_keeps_repository_urls_on_known_public_hosts() {
         let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
         let snapshot = ProvenanceSnapshot {
             source: Some(SourceSnapshot {
                 repository: Some("https://github.com/stencila/stencila".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let projected = policy.project_snapshot(snapshot);
+        assert_eq!(
+            projected.source.expect("source").repository.as_deref(),
+            Some("https://github.com/stencila/stencila"),
+            "URLs on well-known public hosting domains should pass through under the Public profile"
+        );
+    }
+
+    #[test]
+    fn public_profile_strips_repository_urls_with_secret_query_parameters() {
+        let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
+        let snapshot = ProvenanceSnapshot {
+            source: Some(SourceSnapshot {
+                repository: Some(
+                    "https://github.com/stencila/stencila?token=abc123".to_string(),
+                ),
                 ..Default::default()
             }),
             ..Default::default()

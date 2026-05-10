@@ -145,6 +145,56 @@ fn print_report(report: &VerificationReport) {
     }
 
     table.to_stdout();
+
+    print_summary_table(report);
+}
+
+fn print_summary_table(report: &VerificationReport) {
+    if report.summary.is_empty() {
+        return;
+    }
+
+    let mut table = Tabulated::new();
+    table.set_header(["Provenance", "Value"]);
+
+    if let Some(producer) = &report.summary.producer {
+        table.add_row([
+            Cell::new("Producer").add_attribute(Attribute::Bold),
+            Cell::new(producer),
+        ]);
+    }
+    if let Some(asset_kind) = &report.summary.asset_kind {
+        table.add_row([
+            Cell::new("Asset kind").add_attribute(Attribute::Bold),
+            Cell::new(asset_kind),
+        ]);
+    }
+    if let Some(media_type) = &report.summary.media_type {
+        table.add_row([
+            Cell::new("Media type").add_attribute(Attribute::Bold),
+            Cell::new(media_type),
+        ]);
+    }
+    if let Some(repo) = &report.summary.source_repository {
+        table.add_row([
+            Cell::new("Source repository").add_attribute(Attribute::Bold),
+            Cell::new(repo),
+        ]);
+    }
+    if let Some(file) = &report.summary.source_file {
+        table.add_row([
+            Cell::new("Source file").add_attribute(Attribute::Bold),
+            Cell::new(file),
+        ]);
+    }
+    if let Some(count) = report.summary.redaction_count {
+        table.add_row([
+            Cell::new("Privacy redactions").add_attribute(Attribute::Bold),
+            Cell::new(count),
+        ]);
+    }
+
+    table.to_stdout();
 }
 
 fn manifest_details(report: &VerificationReport) -> Cell {
@@ -172,9 +222,13 @@ fn signer_details(report: &VerificationReport) -> Cell {
 
 fn provenance_details(report: &VerificationReport) -> Cell {
     if report.provenance.attested {
+        // The schema URL is long and not useful in a status table — the
+        // `yes` status already conveys that the assertion was attested with
+        // a known schema. Surface the URL only when this build does not
+        // recognise it, where it points the reader at the right artifact.
         match &report.provenance.schema_url {
-            Some(url) if report.provenance.schema_known => Cell::new(url).fg(Color::Blue),
-            Some(url) => Cell::new(format!("{url}; schema unknown")).fg(Color::Yellow),
+            Some(_) if report.provenance.schema_known => Cell::new(""),
+            Some(url) => Cell::new(format!("schema unknown: {url}")).fg(Color::Yellow),
             None => Cell::new(""),
         }
     } else if report.provenance.assertion_present {
@@ -265,7 +319,7 @@ mod tests {
         ProvenanceAssertion,
         report::{
             AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus,
-            SignerStatus, VerificationReport,
+            SignerStatus, VerificationReport, VerificationSummary,
         },
     };
 
@@ -294,6 +348,7 @@ mod tests {
                 raw: None,
             },
             reproducibility: ReproducibilityStatus::NotChecked,
+            summary: VerificationSummary::default(),
             problems: Vec::new(),
         }
     }

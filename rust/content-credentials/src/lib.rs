@@ -31,7 +31,7 @@ pub use policy::{CredentialProfile, ProjectionPolicy};
 pub use producer::{CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset};
 pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
-    VerificationReport,
+    VerificationReport, VerificationSummary,
 };
 pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion};
 pub use signer::{CredentialSignerConfig, init_dev_cert};
