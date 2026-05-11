@@ -2,6 +2,8 @@
 name = "stencila-kernel-jinja"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 minijinja = { version = "2.17.1", features = ["loader", "json", "debug"] }

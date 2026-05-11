@@ -23,6 +23,24 @@ env:
   PYTHON_VERSION: "3.12"
 
 jobs:
+  license:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install REUSE
+        run: pip install reuse
+
+      - name: Run license checks
+        run: make license
+
   # Detect which folders have changes
   changes:
     runs-on: ubuntu-latest
@@ -99,7 +117,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Setup Python dev dependencies
-        run: pip install ruff pyright
+        run: pip install reuse ruff pyright
 
       - name: Install uv
         uses: astral-sh/setup-uv@v5

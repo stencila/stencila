@@ -2,6 +2,8 @@
 name = "stencila-svg-components"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 quick-xml = { workspace = true }

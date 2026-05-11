@@ -1,5 +1,7 @@
 [package]
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 name = "stencila-node"
 version = "2.15.0"
 

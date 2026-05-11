@@ -1,6 +1,8 @@
 [package]
 name = "stencila-codemode"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 version.workspace = true
 
 [dependencies]

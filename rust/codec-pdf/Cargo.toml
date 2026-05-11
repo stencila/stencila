@@ -2,6 +2,8 @@
 name = "stencila-codec-pdf"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 lopdf = { version = "0.39.0", features = ["async"] }

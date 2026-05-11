@@ -2,6 +2,8 @@
 name = "stencila-linter-ruff"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 serde = { workspace = true }

@@ -2,6 +2,8 @@
 name = "stencila-node-diagnostics"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 ariadne = "0.6.0"

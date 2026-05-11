@@ -1,0 +1,6 @@
+Trademarked asset.
+
+Files under this reference contain third-party names, logos, or marks used for
+identification and integration UI. Original trademark, copyright, and licensing
+terms remain with the respective rightsholders. These files are not relicensed
+by Stencila.

@@ -2,6 +2,8 @@
 name = "stencila-node-stabilize"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 description = "Stabilize node UIDs for deterministic site rendering"
 
 [dependencies]

@@ -1,0 +1,298 @@
+# SPDX-FileCopyrightText: Stencila Labs Limited and contributors
+# SPDX-License-Identifier: Apache-2.0
+
+version = 1
+SPDX-PackageName = "Stencila"
+SPDX-PackageSupplier = "Stencila Labs Limited"
+SPDX-PackageDownloadLocation = "https://github.com/stencila/stencila"
+
+[[annotations]]
+path = [
+    ".github/**",
+    ".all-contributorsrc",
+    ".cargo/**",
+    ".dockerignore",
+    ".gitignore",
+    ".gitmodules",
+    ".nsprc",
+    ".prettierignore",
+    ".prettierrc",
+    ".stencila/**",
+    ".vscode/**",
+    "AGENTS.md",
+    "CHANGELOG.md",
+    "CODE_OF_CONDUCT.md",
+    "CONTRIBUTING.md",
+    "Cargo.toml",
+    "Cargo.lock",
+    "Dockerfile",
+    "install.sh",
+    "Makefile",
+    "mise.toml",
+    "package-lock.json",
+    "package.json",
+    "prompts/**",
+    "README.md",
+    "REUSE.toml",
+    "renovate.json",
+    "codecov.yml",
+    "deny.toml",
+    "docs/**",
+    "docker-compose.yml",
+    "eslint.config.js",
+    "examples/**",
+    "schema/**",
+    "scripts/**",
+    "site/**",
+    "stencila.toml",
+    "rust/*/Cargo.toml",
+    "rust/*/.gitignore",
+    "rust/*/Makefile",
+    "rust/*/README.md",
+    "rust/*/build.rs",
+    "rust/*/clippy.toml",
+    "rust/*/pyproject.toml",
+    "rust/*/ruff.toml",
+    "rust/*/uv.lock",
+    "rust/*/benches/**",
+    "rust/*/proptest-regressions/**",
+    "rust/*/specs/**",
+    "rust/*/src/**",
+    "rust/*/templates/**",
+    "rust/*/tests/**",
+    "rust/kernel-python/test-themes.py",
+    "rust/kernel-r/test-themes.r",
+    "rust/.gitignore",
+    "rust/Makefile",
+    "rust/README.md",
+    "rust-toolchain.toml",
+    "node/**",
+    "python/.gitignore",
+    "python/Makefile",
+    "python/README.md",
+    "python/stencila/**",
+    "ts/**",
+    "workers/**",
+    "python/stencila_types/**",
+    "vscode/.gitignore",
+    "vscode/.vscode-test.mjs",
+    "vscode/.vscodeignore",
+    "vscode/CHANGELOG.md",
+    "vscode/CONTRIBUTING.md",
+    "vscode/Dockerfile",
+    "vscode/LICENSE",
+    "vscode/Makefile",
+    "vscode/README.md",
+    "vscode/esbuild.mjs",
+    "vscode/demos/**",
+    "vscode/images/**",
+    "vscode/install-cli.sh",
+    "vscode/package-lock.json",
+    "vscode/package.json",
+    "vscode/src/**",
+    "vscode/syntaxes/**",
+    "vscode/themes/**",
+    "vscode/tsconfig.json",
+    "vscode/walkthroughs/**",
+    "vscode/icons/stencila*",
+    "web/.dockerignore",
+    "web/.gitignore",
+    "web/.postcssrc",
+    "web/Dockerfile",
+    "web/Makefile",
+    "web/README.md",
+    "web/eslint.config.js",
+    "web/index.html",
+    "web/package.json",
+    "web/playwright.config.ts",
+    "web/postcss.config.js",
+    "web/e2e/**",
+    "web/public/**",
+    "web/scripts/**",
+    "web/src/globals.d.ts",
+    "web/src/clients/**",
+    "web/src/codecs/**",
+    "web/src/images/**",
+    "web/src/nodes/**",
+    "web/src/shoelace.css",
+    "web/src/shoelace.ts",
+    "web/src/site/**",
+    "web/src/site.ts",
+    "web/src/system.ts",
+    "web/src/themes/**",
+    "web/src/twind.ts",
+    "web/src/types.ts",
+    "web/src/unocss.ts",
+    "web/src/ui/animation/**",
+    "web/src/ui/buttons/**",
+    "web/src/ui/document/**",
+    "web/src/ui/inputs/**",
+    "web/src/ui/nodes/**",
+    "web/src/utilities/**",
+    "web/src/views/**",
+    "web/tailwind.config.js",
+    "web/tsconfig.json",
+    "web/vite.config.ts",
+    "web/vite.config.vscode.ts",
+    "web/vite-plugins.ts",
+    "web/vitest.config.ts",
+    "workspace/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Stencila Labs Limited and contributors"
+SPDX-License-Identifier = "Apache-2.0"
+
+[[annotations]]
+path = [
+    "json/**",
+    "python/stencila_types/src/stencila_types/types.py",
+    "site/docs/config/site/layout/components/copyright.md",
+    "site/docs/config/site/layout/components/index.md",
+    "site/docs/schema/**",
+    "ts/src/blockType.ts",
+    "ts/src/executableType.ts",
+    "ts/src/inlineType.ts",
+    "ts/src/nodeType.ts",
+    "ts/src/provenanceCategories.ts",
+    "ts/src/types/**",
+    "web/dist/**",
+]
+precedence = "aggregate"
+SPDX-FileCopyrightText = "Stencila Labs Limited and contributors"
+SPDX-License-Identifier = "Apache-2.0"
+SPDX-FileComment = "Generated from the Stencila schema. Edit the schema and generators rather than these files."
+
+[[annotations]]
+path = [
+    "rust/codec-arxiv/tests/examples/**",
+    "rust/codec-arxiv/tests/snapshots/**",
+    "rust/codec-cff/tests/examples/**",
+    "rust/codec-cff/tests/snapshots/**",
+    "rust/codec-csl/tests/examples/**",
+    "rust/codec-csl/tests/snapshots/**",
+    "rust/codec-jats/tests/examples/**",
+    "rust/codec-jats/tests/snapshots/**",
+    "rust/codec-lexical/tests/examples/**",
+    "rust/codec-lexical/tests/snapshots/**",
+    "rust/codec-pmc/tests/examples/**",
+    "rust/codec-pmc/tests/snapshots/**",
+    "rust/codec-csl/tests/examples/10.1016-j.cell.2024.01.009.json",
+    "rust/codec-jats/tests/examples/biorxiv-465267.jats.xml",
+    "rust/codec-jats/tests/examples/biorxiv-573522.jats.xml",
+    "rust/codec-jats/tests/examples/biorxiv-630838.jats.xml",
+    "rust/codec-jats/tests/examples/elife-94334-v1.jats.xml",
+    "rust/codec-jats/tests/examples/pmc-6849754.jats.xml",
+    "rust/codec-jats/tests/snapshots/examples__pmc-12431436.jats.snap",
+    "rust/codec-jats/tests/snapshots/examples__pmc-12431436.json.snap",
+    "rust/codec-pmc/tests/examples/PMC11518443.html",
+    "rust/codec-pmc/tests/examples/PMC12354728.html",
+    "rust/codec-pmc/tests/examples/PMC12419688.html",
+    "rust/codec-pmc/tests/examples/PMC12431436.html",
+    "rust/codec-pmc/tests/snapshots/examples__PMC12431436.html.json.snap",
+    "rust/codec-pmc/tests/snapshots/examples__PMC12431436.tar.json.snap",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Upstream rightsholders"
+SPDX-License-Identifier = "LicenseRef-Upstream-Test-Fixture"
+SPDX-FileComment = "External article data retained as codec regression fixtures. These files are not relicensed by Stencila."
+
+[[annotations]]
+path = [
+    "docs/images/astera.png",
+    "docs/images/automerge.png",
+    "docs/images/callaghan.png",
+    "docs/images/clap.png",
+    "docs/images/coko.png",
+    "docs/images/css.png",
+    "docs/images/elife.svg",
+    "docs/images/ferris.png",
+    "docs/images/mbie.jpeg",
+    "docs/images/napi.png",
+    "docs/images/nlnet.svg",
+    "docs/images/pyo3.png",
+    "docs/images/rust.png",
+    "docs/images/similar.png",
+    "docs/images/sloan.png",
+    "docs/images/tokio.png",
+    "docs/images/volcanica.png",
+    "vscode/icons/anthropic-dark.svg",
+    "vscode/icons/anthropic-light.svg",
+    "vscode/icons/cloudflare-dark.svg",
+    "vscode/icons/cloudflare-light.svg",
+    "vscode/icons/google-dark.svg",
+    "vscode/icons/google-docs.png",
+    "vscode/icons/google-light.svg",
+    "vscode/icons/groq-dark.svg",
+    "vscode/icons/groq-light.svg",
+    "vscode/icons/microsoft-365.png",
+    "vscode/icons/mistral-dark.svg",
+    "vscode/icons/mistral-light.svg",
+    "vscode/icons/myst-128.png",
+    "vscode/icons/ollama-dark.svg",
+    "vscode/icons/ollama-light.svg",
+    "vscode/icons/openai-dark.svg",
+    "vscode/icons/openai-light.svg",
+    "vscode/icons/quarto-128.png",
+    "web/src/ui/icons/anthropic.svg",
+    "web/src/ui/icons/cloudflare.svg",
+    "web/src/ui/icons/google.svg",
+    "web/src/ui/icons/groq.svg",
+    "web/src/ui/icons/mistral.svg",
+    "web/src/ui/icons/ollama.svg",
+    "web/src/ui/icons/openai.svg",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Respective logo and trademark rightsholders"
+SPDX-License-Identifier = "LicenseRef-Trademarked-Asset"
+SPDX-FileComment = "Third-party names, logos, and marks are retained for identification and integration UI. They are not relicensed by Stencila."
+
+[[annotations]]
+path = "web/src/ui/icons/**"
+precedence = "override"
+SPDX-FileCopyrightText = "2019-2023 The Bootstrap Authors"
+SPDX-License-Identifier = "MIT"
+
+[[annotations]]
+path = [
+    "web/src/ui/icons/anthropic.svg",
+    "web/src/ui/icons/cloudflare.svg",
+    "web/src/ui/icons/google.svg",
+    "web/src/ui/icons/groq.svg",
+    "web/src/ui/icons/mistral.svg",
+    "web/src/ui/icons/ollama.svg",
+    "web/src/ui/icons/openai.svg",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "Respective logo and trademark rightsholders"
+SPDX-License-Identifier = "LicenseRef-Trademarked-Asset"
+SPDX-FileComment = "Third-party names, logos, and marks are retained for identification and integration UI. They are not relicensed by Stencila."
+
+[[annotations]]
+path = [
+    "web/src/ui/nodes/properties/code/themes/abcdef.ts",
+    "web/src/ui/nodes/properties/code/themes/abyss.ts",
+    "web/src/ui/nodes/properties/code/themes/android-studio.ts",
+    "web/src/ui/nodes/properties/code/themes/andromeda.ts",
+    "web/src/ui/nodes/properties/code/themes/basic-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/basic-light.ts",
+    "web/src/ui/nodes/properties/code/themes/forest.ts",
+    "web/src/ui/nodes/properties/code/themes/github-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/github-light.ts",
+    "web/src/ui/nodes/properties/code/themes/gruvbox-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/gruvbox-light.ts",
+    "web/src/ui/nodes/properties/code/themes/material-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/material-light.ts",
+    "web/src/ui/nodes/properties/code/themes/monokai.ts",
+    "web/src/ui/nodes/properties/code/themes/nord.ts",
+    "web/src/ui/nodes/properties/code/themes/palenight.ts",
+    "web/src/ui/nodes/properties/code/themes/solarized-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/solarized-light.ts",
+    "web/src/ui/nodes/properties/code/themes/tokyo-night-day.ts",
+    "web/src/ui/nodes/properties/code/themes/tokyo-night-storm.ts",
+    "web/src/ui/nodes/properties/code/themes/volcano.ts",
+    "web/src/ui/nodes/properties/code/themes/vscode-dark.ts",
+    "web/src/ui/nodes/properties/code/themes/vscode-light.ts",
+]
+precedence = "override"
+SPDX-FileCopyrightText = "fsegurai"
+SPDX-License-Identifier = "MIT"

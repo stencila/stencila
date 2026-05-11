@@ -391,6 +391,10 @@ This repository is organized into the following modules. Please see their respec
 
 - [`scripts`](scripts): Scripts used for making releases and during continuous integration.
 
+### License metadata
+
+Stencila is licensed under Apache-2.0 and uses [REUSE](https://reuse.software/) metadata to make file-level licensing machine-readable. First-party, third-party and generated files are annotated in [`REUSE.toml`](REUSE.toml). Run `make license` to check license metadata locally. This check is also included in `make lint` and CI.
+
 ### Continuous integration and deployment
 
 Several Github Action workflows are used for testing and releases. All products (i.e CLI, Docker image, SKDs) are released at the same time with the same version number. To create and release a new version:

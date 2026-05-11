@@ -3,6 +3,8 @@ name = "stencila-cli"
 version = "0.0.0"
 authors = ["Nokome Bentley <nokome@stencila.io"]
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [[bin]]
 name = "stencila"

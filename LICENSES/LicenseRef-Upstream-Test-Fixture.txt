@@ -1,0 +1,5 @@
+External upstream test fixture.
+
+Files under this reference are retained as codec regression fixtures. Original
+copyright and licensing terms remain with the upstream rightsholders. These
+files are not relicensed by Stencila.

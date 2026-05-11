@@ -2,6 +2,8 @@
 name = "stencila-linter-harper"
 version = "0.0.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [dependencies]
 harper-core = { version = "1.4.1", features = ["concurrent"] }

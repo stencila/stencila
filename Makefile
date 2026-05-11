@@ -26,12 +26,17 @@ fix:
 
 # Run linting checks
 lint:
+	make license
 	make -C rust lint
 	make -C ts lint
 	make -C node lint
 	make -C python/stencila lint
 	make -C web lint
 	make -C vscode lint
+
+# Run license metadata checks
+license:
+	reuse lint
 
 # Run tests
 test:

@@ -2,6 +2,8 @@
 name = "stencila-python"
 version = "2.15.0"
 edition = "2024"
+license.workspace = true
+repository.workspace = true
 
 [lib]
 # The name of the native library. This is the name which will be used in Python to import the
