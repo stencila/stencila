@@ -336,43 +336,53 @@ pub fn name(input: &mut &str) -> Result<String> {
 pub fn name_particles<'s>(input: &mut &'s str) -> Result<&'s str> {
     alt((
         alt((
-            "abu",   // Arabic: e.g abu Bakr
-            "al",    // Arabic: e.g al Rashid
-            "bat",   // Hebrew: e.g bat Cohen
-            "ben",   // Hebrew/Arabic: e.g ben David
-            "bin",   // Arabic/Malay: e.g bin Abdullah
-            "bte",   // Malay: e.g bte Ismail
-            "bti",   // Malay: e.g bti Rahman
-            "dal",   // Italian: e.g dal Pozzo
-            "das",   // Portuguese: e.g das Neves
-            "da",    // Italian/Portuguese: e.g da Silva
-            "degli", // Italian: e.g degli Esposti
-            "della", // Italian: e.g della Rosa
-            "delle", // Italian: e.g delle Grazie
-            "dello", // Italian: e.g dello Russo
-            "del",   // Italian/Spanish: e.g del Campo
-            "den",   // Dutch: e.g den Broeck
-            "der",   // German/Dutch: e.g van der Flier
-            "des",   // French: e.g des Jardins
-            "de",    // Spanish/French/Italian: e.g de Blasio
-            "di",    // Italian: e.g di Marco
+            alt((
+                "abu", // Arabic: e.g abu Bakr
+                "al",  // Arabic: e.g al Rashid
+                "bat", // Hebrew: e.g bat Cohen
+                "ben", // Hebrew/Arabic: e.g ben David
+                "bin", // Arabic/Malay: e.g bin Abdullah
+                "bte", // Malay: e.g bte Ismail
+                "bti", // Malay: e.g bti Rahman
+                "dal", // Italian: e.g dal Pozzo
+                "das", // Portuguese: e.g das Neves
+            )),
+            alt((
+                "da",    // Italian/Portuguese: e.g da Silva
+                "degli", // Italian: e.g degli Esposti
+                "della", // Italian: e.g della Rosa
+                "delle", // Italian: e.g delle Grazie
+                "dello", // Italian: e.g dello Russo
+                "del",   // Italian/Spanish: e.g del Campo
+                "den",   // Dutch: e.g den Broeck
+                "der",   // German/Dutch: e.g van der Flier
+                "des",   // French: e.g des Jardins
+            )),
+            alt((
+                "de", // Spanish/French/Italian: e.g de Blasio
+                "di", // Italian: e.g di Marco
+            )),
         )),
         alt((
-            "dos", // Portuguese: e.g dos Santos
-            "do",  // Portuguese: e.g do Santos
-            "du",  // French: e.g du Maine
-            "el",  // Spanish: e.g el Khoury
-            "ibn", // Arabic: e.g ibn Sina
-            "la",  // Spanish/Italian: e.g la Torre
-            "le",  // French: e.g le Blanc
-            "li",  // Chinese: e.g li Wei
-            "lo",  // Italian: e.g lo Bianco
-            "mac", // Scottish/Irish e.g mac Donald
-            "mc",  // Scottish/Irish e.g mc Carthy
-            "te",  // Dutch: e.g te Velde
-            "van", // Dutch: e.g van Winkle
-            "von", // German: e.g von Neumann
-            "zu",  // German: e.g zu Guttenberg
+            alt((
+                "dos", // Portuguese: e.g dos Santos
+                "do",  // Portuguese: e.g do Santos
+                "du",  // French: e.g du Maine
+                "el",  // Spanish: e.g el Khoury
+                "ibn", // Arabic: e.g ibn Sina
+                "la",  // Spanish/Italian: e.g la Torre
+                "le",  // French: e.g le Blanc
+                "li",  // Chinese: e.g li Wei
+                "lo",  // Italian: e.g lo Bianco
+            )),
+            alt((
+                "mac", // Scottish/Irish e.g mac Donald
+                "mc",  // Scottish/Irish e.g mc Carthy
+                "te",  // Dutch: e.g te Velde
+                "van", // Dutch: e.g van Winkle
+                "von", // German: e.g von Neumann
+                "zu",  // German: e.g zu Guttenberg
+            )),
         )),
     ))
     .parse_next(input)

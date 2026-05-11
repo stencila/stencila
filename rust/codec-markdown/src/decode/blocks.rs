@@ -540,25 +540,29 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
         preceded(
             (take_while(3.., ':'), space0),
             alt((
-                admonition_qmd,
-                styled_block_qmd,
-                appendix_break,
-                call_block,
-                include_block,
-                prompt_block,
-                code_chunk,
-                figure,
-                table,
-                for_block,
-                instruction_block,
-                page,
-                suggestion_block,
-                chat_message,
-                claim,
-                styled_block,
-                // Section parser is permissive of label so needs to
-                // come last to avoid prematurely matching others above
-                section,
+                alt((
+                    admonition_qmd,
+                    styled_block_qmd,
+                    appendix_break,
+                    call_block,
+                    include_block,
+                    prompt_block,
+                    code_chunk,
+                    figure,
+                    table,
+                )),
+                alt((
+                    for_block,
+                    instruction_block,
+                    page,
+                    suggestion_block,
+                    chat_message,
+                    claim,
+                    styled_block,
+                    // Section parser is permissive of label so needs to
+                    // come last to avoid prematurely matching others above
+                    section,
+                )),
             )),
         ),
     ))

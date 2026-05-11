@@ -95,7 +95,7 @@ uuid = { version = "1.23.1", features = ["v4", "v7"] }
 walkdir = "2.5.0"
 webbrowser = "1.2.1"
 which = "8.0.2"
-winnow = "0.7.15"
+winnow = "1.0.2"
 zip = { version = "8.4.0", default-features = false, features = ["deflate", "time"] } # To reduce dependencies avoid bzip2, lzma, xz, and zstd compression which are rare for zip archive. Reinstate those if necessary
 zstd = "0.13.3"
 
