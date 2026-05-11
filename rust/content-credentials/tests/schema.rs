@@ -24,7 +24,7 @@ fn provenance_assertion_schema_has_current_id() -> Result<(), Box<dyn Error>> {
 fn provenance_assertion_schema_links_to_generated_docs() -> Result<(), Box<dyn Error>> {
     let repo_dir = repo_dir()?;
     let schema_path = repo_dir.join("json/stencila-provenance-assertion-v1.schema.json");
-    let docs_path = repo_dir.join("site/docs/content-credentials/index.md");
+    let docs_path = repo_dir.join("site/docs/content-credentials/provenance-assertion/index.md");
 
     let schema_str = fs::read_to_string(&schema_path)?;
     let schema: Value = serde_json::from_str(&schema_str)?;
@@ -38,7 +38,7 @@ fn provenance_assertion_schema_links_to_generated_docs() -> Result<(), Box<dyn E
         ai_disclosure_description,
         Some(description)
             if description
-                .contains("https://stencila.io/docs/content-credentials#ai-disclosure")
+                .contains("https://stencila.io/docs/content-credentials/provenance-assertion#ai-disclosure")
     ));
     assert!(docs.contains("| [`aiDisclosure`](#ai-disclosure) |"));
     assert!(!docs.contains("<a id=\""));
@@ -48,7 +48,7 @@ fn provenance_assertion_schema_links_to_generated_docs() -> Result<(), Box<dyn E
 
 #[test]
 fn provenance_assertion_docs_nav_uses_schema_first_use_order() -> Result<(), Box<dyn Error>> {
-    let nav_path = repo_dir()?.join("site/docs/content-credentials/_nav.yaml");
+    let nav_path = repo_dir()?.join("site/docs/content-credentials/provenance-assertion/_nav.yaml");
     let nav = fs::read_to_string(&nav_path)?;
 
     assert_order(

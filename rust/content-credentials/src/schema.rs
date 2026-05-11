@@ -30,60 +30,6 @@ pub const PROVENANCE_SCHEMA: &str =
     "https://stencila.org/stencila-provenance-assertion-v1.schema.json";
 
 /// C2PA provenance assertion payload used by Stencila content credentials.
-///
-/// The assertion records the signed asset, root Stencila document node,
-/// executed Stencila node, output Stencila node, producing activities,
-/// attributions, reproducibility context, AI disclosure, and privacy decisions.
-///
-/// The shape deliberately follows a compact entity, activity, agent model. The
-/// signed asset, root Stencila node, executed Stencila node, and output
-/// Stencila node are entities, `activities` describe the operations that
-/// generated or exported them, and `attributions` carry role-bearing Stencila
-/// authorship. This keeps
-/// the assertion aligned with
-/// C2PA's workflow focus, Stencila's `AuthorRole` model, and general provenance
-/// vocabularies such as W3C PROV without forcing consumers to understand all of
-/// Stencila Schema.
-///
-/// ## Relationship to standard C2PA assertions
-///
-/// This Stencila assertion is a **Stencila-specific detail and cross-reference
-/// layer**. It should not replace standard C2PA assertions when the same fact
-/// can be represented portably. Standard assertions let generic C2PA tools
-/// understand the broad provenance story, while `org.stencila.provenance`
-/// records Stencila-specific details such as node IDs, execution digests,
-/// provenance counts, workspace run IDs, definition snapshot hashes, and
-/// privacy decisions.
-///
-/// Producers should prefer these standard assertions for ecosystem-visible
-/// facts:
-///
-/// - [`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions)
-///   for public action history such as creation, opening, placement, export, or
-///   transformation.
-/// - [`c2pa.ingredient.v3`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ingredient)
-///   for assets or data used as inputs, components, parents, or process inputs.
-/// - [`c2pa.ai-disclosure`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ai_disclosure)
-///   when AI model use is disclosed.
-///
-/// Use this assertion to connect those portable assertions back to Stencila's
-/// document and execution model. For example:
-///
-/// - If a code chunk reads `data.csv` and produces `figure.png`, emit
-///   `c2pa.ingredient.v3` for `data.csv` with `relationship = "inputTo"` when
-///   the input is disclosed. Also record Stencila-specific dependency context
-///   in `execution.dependencies` and `execution.digests`.
-/// - If an article is exported to PDF, describe the public creation or export
-///   action with `c2pa.actions.v2`. Use `rootNode`, `source`, and `producer` to
-///   record the root Stencila node type, source revision, codec, and renderer.
-/// - If an LLM contributes text or code, emit `c2pa.ai-disclosure` when model
-///   use is disclosed. Use `aiDisclosure`, `attributions`, and
-///   `provenance` to record Stencila author roles and provenance counts.
-///
-/// Some overlap is intentional. It becomes a problem only when a fact is stored
-/// **only** in this custom assertion even though generic C2PA consumers need it.
-/// In that case, emit the standard assertion and use this payload for the
-/// Stencila-specific identifiers, digests, and policy context.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]

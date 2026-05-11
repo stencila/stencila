@@ -2,8 +2,8 @@
 //!
 //! Creates:
 //! 1. `json/stencila-provenance-assertion-v1.schema.json` - JSON Schema with documentation URLs
-//! 2. `site/docs/content-credentials/**/*.md` - Documentation pages
-//! 3. `site/docs/content-credentials/_nav.yaml` - Navigation file
+//! 2. `site/docs/content-credentials/provenance-assertion/**/*.md` - Reference documentation pages
+//! 3. `site/docs/content-credentials/provenance-assertion/_nav.yaml` - Reference navigation file
 
 #![allow(clippy::print_stdout)]
 
@@ -20,7 +20,8 @@ use stencila_content_credentials::schema::{PROVENANCE_SCHEMA, ProvenanceAssertio
 
 const SCHEMA_FILENAME: &str = "stencila-provenance-assertion-v1.schema.json";
 const DOCS_DIR: &str = "content-credentials";
-const DOCS_BASE_URL: &str = "https://stencila.io/docs/content-credentials";
+const REFERENCE_DOCS_DIR: &str = "provenance-assertion";
+const DOCS_BASE_URL: &str = "https://stencila.io/docs/content-credentials/provenance-assertion";
 const GITHUB_BASE_URL: &str = "https://github.com/stencila/stencila/blob/main";
 
 /// A generated documentation page.
@@ -157,7 +158,7 @@ fn collect_definition_names(
     }
 }
 
-/// Generate the top-level reference page for the assertion payload.
+/// Generate the root reference page for the assertion payload.
 fn generate_index_page(
     schema: &Value,
     definitions: &Map<String, Value>,
@@ -175,8 +176,6 @@ fn generate_index_page(
     let mut content = frontmatter(title, &first_paragraph(&description));
     content.push_str("# ");
     content.push_str(title);
-    content.push_str("\n\n");
-    content.push_str(&description);
     content.push_str("\n\n");
     content.push_str("This reference is generated from the Rust wire schema used for the `org.stencila.provenance` C2PA assertion. It documents the public JSON payload shape, including why each field exists and how records relate to Stencila authorship and provenance concepts.\n\n");
 
@@ -394,7 +393,10 @@ fn append_doc_url(value: &mut Value, url: &str) {
 
 /// Write documentation pages and navigation.
 fn write_docs(repo_dir: &Path, pages: &[DocPage]) -> Result<()> {
-    let output_dir = repo_dir.join("site/docs").join(DOCS_DIR);
+    let output_dir = repo_dir
+        .join("site/docs")
+        .join(DOCS_DIR)
+        .join(REFERENCE_DOCS_DIR);
     fs::create_dir_all(&output_dir)?;
 
     for page in pages {

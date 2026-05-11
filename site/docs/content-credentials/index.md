@@ -1,38 +1,146 @@
 ---
-title: "Stencila Provenance Assertion v1"
-description: "C2PA provenance assertion payload used by Stencila content credentials."
+title: Stencila Content Credentials
+description: Signed provenance for Stencila documents, figures, and other research assets.
 ---
 
-# Stencila Provenance Assertion v1
+# Content Credentials
 
-C2PA provenance assertion payload used by Stencila content credentials.
+Research outputs often move through many hands, tools, and file formats. A
+figure may start as a code chunk in a Stencila document, read data from a local
+file or repository, be rendered to PNG or PDF, be revised for submission, and
+then be downloaded by a reader months later.
 
-The assertion records the signed asset, root Stencila document node,
-executed Stencila node, output Stencila node, producing activities,
-attributions, reproducibility context, AI disclosure, and privacy decisions.
+By that point, ordinary file metadata is rarely enough. Reviewers, editors,
+collaborators, and future readers may need to ask:
+
+- Where did this asset come from?
+- Which tool produced or changed it?
+- Was AI involved?
+- Which document node, source revision, code execution, or dataset does it
+  represent?
+- Has the signed asset or its provenance data changed since signing?
+
+Content Credentials give those questions a portable place to live. In Stencila,
+a Content Credential is a signed C2PA manifest that records selected provenance
+for a document, figure, or other exported asset. The manifest can travel inside
+the file when the format supports embedded credentials, or beside the file as a
+`.c2pa` sidecar.
+
+The [Coalition for Content Provenance and Authenticity](https://c2pa.org/)
+(C2PA) defines the open standard Stencila uses. The standard is designed for
+interoperability: a credential produced by Stencila should be inspectable by
+other C2PA-aware tools, and Stencila can verify credentials created elsewhere.
+
+The [Content Authenticity Initiative](https://contentauthenticity.org/) (CAI)
+describes Content Credentials as a kind of "nutrition label" for digital
+content. That analogy is useful for research: the credential gives readers more
+context for judgment, but it does not make the judgment for them.
+
+> [!warning]
+> A Content Credential can show that provenance is intact, still matches the
+> signed file, and was signed by a recognized signer under a verifier's policy.
+> It does not prove that a scientific claim is correct, validate the analysis,
+> or replace peer review.
+
+## What Stencila Records
+
+Stencila adds Content Credentials to exported assets so that provenance from an
+executable document can be carried into downstream review and publishing
+workflows.
+
+For example, a signed figure can record that it was exported by Stencila from a
+specific document node, produced by a particular execution, and associated with:
+
+- selected inputs and source references
+- the software and rendering workflow that produced it
+- code execution details and reproducibility status known at signing time
+- AI-use disclosures and human or software attributions
+- privacy decisions and redactions made before signing
+
+The amount of detail depends on the selected [profile](profiles).
+
+Stencila uses standard C2PA assertions where they apply, including actions,
+ingredients, and AI disclosure. It also adds a Stencila-specific provenance
+assertion for document and execution details that generic C2PA assertions do not
+model directly.
+
+## Reading Order
+
+Start with the everyday workflow:
+
+- [Usage](usage) explains how to sign, verify, and inspect assets.
+- [Profiles](profiles) explains how to choose how much provenance to disclose.
+- [Sidecars](sidecars) explains why some assets need a separate `.c2pa` file.
+- [Trust](trust) explains the difference between an intact signature and a
+  signer your verifier recognizes.
+
+If you are integrating with Stencila or need exact JSON fields, use the
+[Provenance Assertion Reference](provenance-assertion).
+
+> [!tip]
+> For most research users, the main decision is not "how strong should the
+> signature be?" but "which audience should see this provenance?" Use
+> [Profiles](profiles) to make that privacy choice before sharing signed files.
+
+## Terms You Will See
+
+These words appear throughout the Content Credentials pages:
+
+- **Asset**: the file being signed, such as a figure, PDF, image, or exported
+  document.
+- **Manifest**: the structured C2PA data attached to the asset or stored in a
+  sidecar.
+- **Assertion**: one part of a manifest, such as a record of actions, inputs,
+  AI disclosure, or Stencila provenance.
+- **Signer**: the person, organization, device, or software identity that signs
+  the manifest.
+- **Verifier**: the tool that checks whether the manifest is intact, still
+  matches the asset, and is signed by a recognized signer.
+
+If you only need to sign, verify, or choose a privacy profile, the pages above
+are enough. The rest of this page is for publishers, reviewers, and tool authors
+who need to understand the Stencila-specific payload.
+
+## The Stencila Provenance Assertion
+
+The Stencila provenance assertion is the Stencila-specific part of the
+credential. It connects a C2PA manifest back to the Stencila document and
+execution model.
+
+It can record the signed asset, root Stencila document node, executed node,
+output node, producing activities, attributions, reproducibility context, AI
+disclosure, and privacy decisions.
+
+> [!info]
+> Most users do not need to read the assertion schema. It is mainly for tool
+> authors, publishers, and reviewers who need exact field names or want to
+> integrate Stencila credentials into another system.
 
 The shape deliberately follows a compact entity, activity, agent model. The
-signed asset, root Stencila node, executed Stencila node, and output
-Stencila node are entities, `activities` describe the operations that
-generated or exported them, and `attributions` carry role-bearing Stencila
-authorship. This keeps
-the assertion aligned with
-C2PA's workflow focus, Stencila's `AuthorRole` model, and general provenance
-vocabularies such as W3C PROV without forcing consumers to understand all of
-Stencila Schema.
+signed asset, root Stencila node, executed Stencila node, and output Stencila
+node are entities, `activities` describe the operations that generated or
+exported them, and `attributions` carry role-bearing Stencila authorship. This
+keeps the assertion aligned with C2PA's workflow focus, Stencila's `AuthorRole`
+model, and general provenance vocabularies such as W3C PROV without forcing
+consumers to understand all of Stencila Schema.
 
-## Relationship to standard C2PA assertions
+The generated schema reference starts at
+[Provenance Assertion Reference](provenance-assertion). Use it for the exact
+payload fields, record types, required fields, and JSON Schema documentation
+links.
 
-This Stencila assertion is a **Stencila-specific detail and cross-reference
-layer**. It should not replace standard C2PA assertions when the same fact
-can be represented portably. Standard assertions let generic C2PA tools
-understand the broad provenance story, while `org.stencila.provenance`
-records Stencila-specific details such as node IDs, execution digests,
-provenance counts, workspace run IDs, definition snapshot hashes, and
-privacy decisions.
+## Standard C2PA Assertions
 
-Producers should prefer these standard assertions for ecosystem-visible
-facts:
+The Stencila assertion is a **Stencila-specific detail and cross-reference
+layer**. It should not replace standard C2PA assertions when the same fact can
+be represented portably.
+
+Standard assertions let generic C2PA tools understand the broad provenance
+story. The `org.stencila.provenance` assertion records Stencila-specific details
+such as node IDs, execution digests, provenance counts, workspace run IDs,
+definition snapshot hashes, and privacy decisions.
+
+Producers should prefer these standard assertions for ecosystem-visible facts:
 
 - [`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions)
   for public action history such as creation, opening, placement, export, or
@@ -46,269 +154,66 @@ Use this assertion to connect those portable assertions back to Stencila's
 document and execution model. For example:
 
 - If a code chunk reads `data.csv` and produces `figure.png`, emit
-  `c2pa.ingredient.v3` for `data.csv` with `relationship = "inputTo"` when
-  the input is disclosed. Also record Stencila-specific dependency context
-  in `execution.dependencies` and `execution.digests`.
+  `c2pa.ingredient.v3` for `data.csv` with `relationship = "inputTo"` when the
+  input is disclosed. Also record Stencila-specific dependency context in
+  `execution.dependencies` and `execution.digests`.
 - If an article is exported to PDF, describe the public creation or export
   action with `c2pa.actions.v2`. Use `rootNode`, `source`, and `producer` to
   record the root Stencila node type, source revision, codec, and renderer.
-- If an LLM contributes text or code, emit `c2pa.ai-disclosure` when model
-  use is disclosed. Use `aiDisclosure`, `attributions`, and
-  `provenance` to record Stencila author roles and provenance counts.
+- If an LLM contributes text or code, emit `c2pa.ai-disclosure` when model use
+  is disclosed. Use `aiDisclosure`, `attributions`, and `provenance` to record
+  Stencila author roles and provenance counts.
 
 Some overlap is intentional. It becomes a problem only when a fact is stored
-**only** in this custom assertion even though generic C2PA consumers need it.
-In that case, emit the standard assertion and use this payload for the
+**only** in this custom assertion even though generic C2PA consumers need it. In
+that case, emit the standard assertion and use this payload for the
 Stencila-specific identifiers, digests, and policy context.
 
-This reference is generated from the Rust wire schema used for the `org.stencila.provenance` C2PA assertion. It documents the public JSON payload shape, including why each field exists and how records relate to Stencila authorship and provenance concepts.
+> [!tip]
+> A good rule of thumb for producers is: put broadly meaningful facts in
+> standard C2PA assertions, and use the Stencila assertion for the Stencila
+> identifiers and execution context needed to trace the asset back to a
+> document.
 
-## Payload Fields
+## Schema Stability
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| [`schema`](#schema) | `string` | Yes | Schema URL identifying the payload family. |
-| [`version`](#version) | `integer` | Yes | Numeric payload compatibility version. |
-| [`producer`](#producer) | [`ProducerRecord`](producer-record) | Yes | Software that produced the C2PA claim and this Stencila assertion. |
-| [`rootNode`](#root-node) | [`NodeRecord`](node-record) | Yes | Root Stencila document node containing the signed node. |
-| [`executedNode`](#executed-node) | [`NodeRecord`](node-record) | No | Stencila node that was executed to produce `outputNode`. |
-| [`outputNode`](#output-node) | [`NodeRecord`](node-record) | No | Stencila output node represented by the signed asset. |
-| [`asset`](#asset) | [`AssetRecord`](asset-record) | Yes | The signed C2PA asset entity. |
-| [`activities`](#activities) | array<[`ActivityRecord`](activity-record)> | No | Activities that generated, exported, or signed the asset. |
-| [`attributions`](#attributions) | array<[`AttributionRecord`](attribution-record)> | No | Role-bearing attribution projected from Stencila authorship. |
-| [`source`](#source) | [`SourceRecord`](source-record) | No | Source-control facts for the document or project. |
-| [`execution`](#execution) | [`ExecutionRecord`](execution-record) | No | Execution facts for executable outputs. |
-| [`workflow`](#workflow) | [`WorkflowRecord`](workflow-record) | No | Workflow, agent, and definition facts supplied by an explicit provenance context. |
-| [`environment`](#environment) | [`EnvironmentRecord`](environment-record) | No | Environment facts that help a verifier reproduce the output. |
-| [`aiDisclosure`](#ai-disclosure) | [`AiDisclosureRecord`](ai-disclosure-record) | No | Stencila projection of standard C2PA AI disclosure concepts. |
-| [`provenance`](#provenance) | [`ProvenanceRecord`](provenance-record) | No | Compact projection of Stencila `ProvenanceCount` values. |
-| [`reproducibility`](#reproducibility) | [`ReproducibilityRecord`](reproducibility-record) | Yes | Reproducibility status and comparison details known at signing time. |
-| [`privacy`](#privacy) | [`PrivacyRecord`](privacy-record) | Yes | Privacy policy results and redactions applied while building the assertion. |
+The `org.stencila.provenance` label is stable for the v1 payload family.
 
-### `schema`
+The payload declares a versioned schema URL:
 
-Schema URL identifying the payload family.
+```text
+https://stencila.org/stencila-provenance-assertion-v1.schema.json
+```
 
-The URL gives validators a dereferenceable schema artifact and a stable
-human-facing identifier. It is retained even though `version` is also
-present because C2PA assertions are often inspected outside Stencila and
-a URL is easier for generic tooling to display or archive.
+The URL identifies the public v1 contract. Signed manifests can outlive the
+Stencila release that produced them, so fields in the published payload should
+be treated conservatively.
 
-**Type:** `string` | **Required:** Yes
+Compatible v1 changes should be additive: adding optional fields, adding
+optional record members, and preserving unknown fields when deserializing and
+serializing. Most record types include an `extra` forward-compatibility slot so
+newer v1 payloads can pass through older tooling without losing unknown fields.
 
-### `version`
+Breaking changes require a new assertion schema URL, such as a future v2
+schema. Examples include removing fields, changing field meanings, changing
+required field types, or changing identifier semantics in a way that older
+consumers would misinterpret.
 
-Numeric payload compatibility version.
+## Node Identity
 
-This is fixed at `1` for the first public contract. It exists so Stencila
-can later mint refined v1 schema URLs for documentation or optional
-additions without causing every exact-URL verifier to report an otherwise
-compatible payload as unknown.
+`nodeId` and `persistentId` have distinct meanings:
 
-**Type:** `integer` | **Required:** Yes
+- `nodeId` is a stabilized structural identifier for the node within the
+  rendered document.
+- `persistentId` is an author-supplied schema-level identifier when one was set
+  on the source node.
 
-### `producer`
+Consumers should use `persistentId` for author-managed references and `nodeId`
+for structural provenance within a specific rendered document.
 
-Software that produced the C2PA claim and this Stencila assertion.
+## Deferred Fields
 
-This is distinct from `activities.associatedAttributionIds` and `attributions`.
-The producer is the claim generator in the C2PA sense, while attributions
-describe who or what is credited with creating, generating, verifying, or
-accepting the represented content.
-
-**Type:** [`ProducerRecord`](producer-record) | **Required:** Yes
-
-### `rootNode`
-
-Root Stencila document node containing the signed node.
-
-This gives Stencila-aware consumers a bridge back to the document model
-without embedding the full root node JSON. For a root document manifest,
-this is also the node exported to the signed asset.
-
-**Type:** [`NodeRecord`](node-record) | **Required:** Yes
-
-### `executedNode`
-
-Stencila node that was executed to produce `outputNode`.
-
-Per-output manifests use this field when the signed asset came from an
-executable node, such as a `CodeChunk` that generated an image. It is
-omitted for plain document exports and manually signed standalone files.
-
-**Type:** [`NodeRecord`](node-record) | **Required:** No | **Nullable:** Yes
-
-### `outputNode`
-
-Stencila output node represented by the signed asset.
-
-For generated media, this is the node in `executedNode.outputs` whose
-bytes were exported and signed, such as an `ImageObject`. Keeping this
-separate from `asset` matters because the node is Stencila document
-structure, while `asset` is the signed byte rendition.
-
-**Type:** [`NodeRecord`](node-record) | **Required:** No | **Nullable:** Yes
-
-### `asset`
-
-The signed C2PA asset entity.
-
-This record describes the exact bytes that C2PA binds to the manifest
-before signing. Keeping it separate from `outputNode` matters because the
-same Stencila node may be exported to several assets, and an asset can be
-a rendition of a larger document rather than a node itself.
-
-**Type:** [`AssetRecord`](asset-record) | **Required:** Yes
-
-### `activities`
-
-Activities that generated, exported, or signed the asset.
-
-Provenance needs explicit operations, not just a pile of facts. Records
-are ordered from earliest to latest, so a rendered executable document can
-record execution before export.
-
-When an operation is meaningful outside Stencila, producers should also
-record it in
-[`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions).
-This field then provides the Stencila activity type, timing, and local
-relationships needed for reproducibility.
-
-**Type:** array<[`ActivityRecord`](activity-record)> | **Required:** No
-
-### `attributions`
-
-Role-bearing attribution projected from Stencila authorship.
-
-Stencila documents use `Author` and `AuthorRole` to record human,
-organizational, and software contributions. This vector preserves that
-concept in a compact form so v1 can answer both "who authored this?" and
-"what role did this person or system play?" without later adding a
-parallel authorship model.
-
-**Type:** array<[`AttributionRecord`](attribution-record)> | **Required:** No
-
-### `source`
-
-Source-control facts for the document or project.
-
-Source state is useful for reproducibility and review, but is kept in an
-optional record because many exports are not produced from a public or
-even local version-control checkout.
-
-**Type:** [`SourceRecord`](source-record) | **Required:** No | **Nullable:** Yes
-
-### `execution`
-
-Execution facts for executable outputs.
-
-This captures Stencila-specific execution state for code-backed content.
-It remains separate from `activity` because not every provenance activity
-is a code execution, and one workflow activity may include execution plus
-rendering, verification, or signing steps.
-
-**Type:** [`ExecutionRecord`](execution-record) | **Required:** No | **Nullable:** Yes
-
-### `workflow`
-
-Workflow, agent, and definition facts supplied by an explicit provenance context.
-
-Workflow details are optional and may be privacy-sensitive. When present,
-they explain the higher-level orchestration around the activity, such as
-which workspace workflow run, definition snapshot, or artifact contributed.
-
-**Type:** [`WorkflowRecord`](workflow-record) | **Required:** No | **Nullable:** Yes
-
-### `environment`
-
-Environment facts that help a verifier reproduce the output.
-
-These are selected under a privacy policy because host and runtime
-details can reveal private infrastructure. The record focuses on durable,
-reproducibility-relevant facts such as container images, runtimes, and
-lockfile digests.
-
-**Type:** [`EnvironmentRecord`](environment-record) | **Required:** No | **Nullable:** Yes
-
-### `aiDisclosure`
-
-Stencila projection of standard C2PA AI disclosure concepts.
-
-This field is not a replacement for the standard `c2pa.ai-disclosure`
-assertion. It exists so Stencila-specific provenance can cross-reference
-model and human-oversight details in the same payload while producers are
-still encouraged to emit the standard assertion when model use is
-disclosed.
-
-When both are present, `standardAssertion` can identify the corresponding
-[`c2pa.ai-disclosure`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ai_disclosure)
-assertion, while Stencila-specific role and content attribution remains
-in `attributions` and `provenance`.
-
-**Type:** [`AiDisclosureRecord`](ai-disclosure-record) | **Required:** No | **Nullable:** Yes
-
-### `provenance`
-
-Compact projection of Stencila `ProvenanceCount` values.
-
-This is a summary, not a substitute for attributions. It answers "how
-much of the represented content was human written, machine written, or
-reviewed?" using Stencila's stable provenance categories.
-
-**Type:** [`ProvenanceRecord`](provenance-record) | **Required:** No | **Nullable:** Yes
-
-### `reproducibility`
-
-Reproducibility status and comparison details known at signing time.
-
-Reproducibility is included even when no check was run so
-consumers can distinguish "not checked" from "checked and failed" rather
-than treating absence as a hidden result.
-
-**Type:** [`ReproducibilityRecord`](reproducibility-record) | **Required:** Yes
-
-### `privacy`
-
-Privacy policy results and redactions applied while building the assertion.
-
-C2PA provenance is opt-in and can carry sensitive data. This record makes
-the projection policy explicit and avoids over-claiming with bare booleans
-such as "contains no secrets" unless an assessment actually ran.
-
-**Type:** [`PrivacyRecord`](privacy-record) | **Required:** Yes
-
-
-## Record Types
-
-| Record | Description |
-|--------|-------------|
-| [`ProducerRecord`](producer-record) | Producer metadata embedded in the assertion. |
-| [`NodeRecord`](node-record) | Facts about a Stencila node related to the signed asset. |
-| [`AssetRecord`](asset-record) | Facts about the signed asset entity. |
-| [`ActivityRecord`](activity-record) | Activity that generated, exported, or signed the asset. |
-| [`AttributionRecord`](attribution-record) | Role-bearing attribution for an agent. |
-| [`AgentRecord`](agent-record) | Agent participating in provenance. |
-| [`IdentifierRecord`](identifier-record) | Identifier for an agent or other named entity. |
-| [`SourceRecord`](source-record) | Source-control facts for the signed output. |
-| [`ExecutionRecord`](execution-record) | Execution facts for executable document nodes. |
-| [`ExecutionDigestsRecord`](execution-digests-record) | Digest values corresponding to Stencila `CompilationDigest`. |
-| [`KernelRecord`](kernel-record) | Kernel used to execute a Stencila node. |
-| [`DependencyRecord`](dependency-record) | Dependency of an execution. |
-| [`ExecutionMessageRecord`](execution-message-record) | Message emitted during execution. |
-| [`WorkflowRecord`](workflow-record) | Explicit workflow, agent, and definition context. |
-| [`DefinitionRecord`](definition-record) | Definition loaded by a workflow. |
-| [`EnvironmentRecord`](environment-record) | Environment facts selected for publication under the active privacy profile. |
-| [`RuntimeRecord`](runtime-record) | Runtime version relevant to reproduction. |
-| [`FileDigestRecord`](file-digest-record) | Digest of a file relevant to reproduction. |
-| [`AiDisclosureRecord`](ai-disclosure-record) | Stencila projection of C2PA AI disclosure concepts. |
-| [`AiContentProfileRecord`](ai-content-profile-record) | Content profile for AI disclosure. |
-| [`ProvenanceRecord`](provenance-record) | Compact projection of Stencila provenance categories. |
-| [`ProvenanceCategoryRecord`](provenance-category-record) | Per-category count for a Stencila provenance category. |
-| [`ReproducibilityRecord`](reproducibility-record) | Reproducibility status and comparison details known when signing. |
-| [`PrivacyRecord`](privacy-record) | Privacy signals and redactions applied while building the assertion. |
-| [`RedactionRecord`](redaction-record) | Redaction applied to a field while projecting the assertion. |
-| [`DisclosureAssessmentRecord`](disclosure-assessment-record) | Assessment of whether a class of sensitive data is present. |
-
----
-
-This documentation was generated from [`schema.rs`](https://github.com/stencila/stencila/blob/main/rust/content-credentials/src/schema.rs) by [`generate.rs`](https://github.com/stencila/stencila/blob/main/rust/content-credentials/src/bin/generate.rs).
+The v1 schema includes reproducibility and AI disclosure records, but some
+producer behavior is intentionally deferred. Exact reproducibility checks,
+workflow attribution, and some AI disclosure assertions depend on additional
+runtime context and should not be inferred from field absence.
