@@ -23,6 +23,17 @@ use crate::registry::{ToolExecutorFn, ToolOutput};
 
 use super::required_str;
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 /// Maximum response body size: 10 MB.
 const MAX_RESPONSE_BYTES: u64 = 10 * 1024 * 1024;
 
@@ -248,7 +259,7 @@ fn cache_key(url: &str, raw: bool) -> String {
     // Hash of canonical key
     let mut hasher = Sha256::new();
     hasher.update(format!("{url}\0{raw}"));
-    let hash = format!("{:x}", hasher.finalize());
+    let hash = lower_hex(&hasher.finalize());
     let hash_short = &hash[..12];
 
     // Human-readable prefix from URL
@@ -781,7 +792,7 @@ async fn download_image(image_url: &str, media_dir: &Path) -> Option<PathBuf> {
     let final_ext = url_ext.as_deref().unwrap_or(ext);
     let mut hasher = Sha256::new();
     hasher.update(image_url.as_bytes());
-    let hash = format!("{:x}", hasher.finalize());
+    let hash = lower_hex(&hasher.finalize());
     let filename = format!("{}_{}.{}", &hash[..8], &hash[8..16], final_ext);
 
     let path = media_dir.join(&filename);

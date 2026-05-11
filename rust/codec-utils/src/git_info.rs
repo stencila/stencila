@@ -8,6 +8,17 @@ use eyre::{OptionExt, Result, bail};
 use reqwest::Url;
 use sha2::{Digest, Sha256};
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 /// Repository-level git information (not file-specific)
 ///
 /// Unlike `GitInfo`, this only contains repo-level data that can be
@@ -221,7 +232,7 @@ pub fn git_patch_digest(repo_root: &Path, relative_path: &str) -> Option<String>
 
     let mut hasher = Sha256::new();
     hasher.update(&output.stdout);
-    Some(format!("sha256:{:x}", hasher.finalize()))
+    Some(format!("sha256:{}", lower_hex(&hasher.finalize())))
 }
 
 /// Get the path of the closest Git repository to a path
@@ -758,7 +769,7 @@ pub fn slugify_branch_name(branch_name: &str) -> String {
         let mut hasher = Sha256::new();
         hasher.update(branch_name.as_bytes());
         let hash_result = hasher.finalize();
-        let hash_hex = format!("{:x}", hash_result);
+        let hash_hex = lower_hex(&hash_result);
 
         // We want: prefix + "-" + 8-char-hash = 51 chars total
         // So maximum prefix length is 51 - 1 - 8 = 42

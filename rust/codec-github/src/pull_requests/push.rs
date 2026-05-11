@@ -58,6 +58,17 @@ use crate::client::{
     GitHubAuthPolicy, api_url, delete, get_json, patch_json, post_json, post_json_with_status,
 };
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 // Prefer the user's GitHub identity for substantive PR creation and content
 // commits so authorship matches the human who initiated the push, but prefer
 // the repository installation identity for synthetic anchor commits and review
@@ -203,7 +214,7 @@ fn review_item_fingerprint(item: &PullRequestComment, default_path: &str) -> Str
             .unwrap_or_default(),
     );
 
-    format!("{:x}", hasher.finalize())
+    lower_hex(&hasher.finalize())
 }
 
 fn review_item_marker(item: &PullRequestComment, default_path: &str) -> String {

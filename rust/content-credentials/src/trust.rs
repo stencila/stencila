@@ -234,9 +234,20 @@ fn trust_list_meta_path_in(dir: &Path) -> PathBuf {
     dir.join(TRUST_LIST_META_FILENAME)
 }
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 fn sha256_bytes(bytes: &[u8]) -> String {
     let digest = Sha256::digest(bytes);
-    format!("sha256:{digest:x}")
+    format!("sha256:{}", lower_hex(&digest))
 }
 
 #[cfg(test)]

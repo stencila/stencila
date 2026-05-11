@@ -17,6 +17,17 @@ type ProgressCallback = dyn Fn(u64, Option<u64>) + Send + Sync;
 
 const BLOB_API_VERSION: &str = "v1";
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 fn blob_url(workspace_id: &str, kind: &str, hash: &str) -> String {
     format!(
         "{}/workspaces/{workspace_id}/db/{BLOB_API_VERSION}/{kind}/{hash}",
@@ -171,7 +182,7 @@ pub async fn download_blob_with_progress(
 
     // Verify integrity
     use sha2::{Digest, Sha256};
-    let actual = format!("{:x}", Sha256::digest(&buf));
+    let actual = lower_hex(&Sha256::digest(&buf));
     if actual != hash {
         bail!("Blob integrity check failed: expected {hash}, got {actual}");
     }

@@ -10,6 +10,17 @@ use rusqlite::session::{ConflictAction, ConflictType, Session};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 // ---------------------------------------------------------------------------
 // Manifest types
 // ---------------------------------------------------------------------------
@@ -85,7 +96,7 @@ pub fn write_manifest(manifest_path: &Path, manifest: &Manifest) -> Result<()> {
 pub fn sha256_hex(data: &[u8]) -> String {
     let mut hasher = Sha256::new();
     hasher.update(data);
-    format!("{:x}", hasher.finalize())
+    lower_hex(&hasher.finalize())
 }
 
 // ---------------------------------------------------------------------------
@@ -670,7 +681,7 @@ fn table_content_hash(conn: &Connection, table: &str) -> Result<String> {
         hasher.update(b"\n");
     }
 
-    Ok(format!("{:x}", hasher.finalize()))
+    Ok(lower_hex(&hasher.finalize()))
 }
 
 // ---------------------------------------------------------------------------

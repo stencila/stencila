@@ -11,6 +11,17 @@ use sha2::{Digest, Sha256};
 
 use crate::error::{Error, Result};
 
+fn lower_hex(bytes: &[u8]) -> String {
+    const CHARS: &[u8; 16] = b"0123456789abcdef";
+
+    let mut hex = String::with_capacity(bytes.len() * 2);
+    for &byte in bytes {
+        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
+        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
+    }
+    hex
+}
+
 /// Whether Stencila signs assets with an embedded manifest for the given media type.
 ///
 /// In MVP we restrict this to the four image formats the design names as
@@ -69,7 +80,7 @@ pub fn sha256_file(path: &Path) -> Result<String> {
         hasher.update(&buffer[..n]);
     }
     let digest = hasher.finalize();
-    Ok(format!("sha256:{digest:x}"))
+    Ok(format!("sha256:{}", lower_hex(&digest)))
 }
 
 /// Best-effort media type lookup by file extension.
