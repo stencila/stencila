@@ -72,7 +72,9 @@ impl TexKernelInstance {
 
     /// Transpile TeX to MathML
     fn transpile(&self, tex: &str, style: DisplayStyle) -> (Option<String>, Vec<ExecutionMessage>) {
-        match latex_to_mathml(tex, style) {
+        let tex = normalize_delimiter_sizing(tex);
+
+        match latex_to_mathml(&tex, style) {
             Ok(mathml) => {
                 // Some (most?) errors are embedded into the MathML so we attempt to regex them out
                 static REGEX: LazyLock<Regex> =
@@ -104,6 +106,20 @@ impl TexKernelInstance {
             ),
         }
     }
+}
+
+/// Remove LaTeX delimiter sizing commands before converting to MathML.
+///
+/// These commands only affect visual delimiter size in TeX, but `latex2mathml`
+/// does not currently parse commands such as `\big`, `\bigl`, and `\bigr`.
+/// Dropping them preserves the delimiter characters that follow while avoiding
+/// otherwise spurious syntax errors during MathML generation.
+fn normalize_delimiter_sizing(tex: &str) -> String {
+    static REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(r"\\(?:Bigg|bigg|Big|big)[lrm]?([^A-Za-z]|$)").expect("invalid regex")
+    });
+
+    REGEX.replace_all(tex, "$1").into_owned()
 }
 
 #[async_trait]
@@ -174,6 +190,31 @@ mod tests {
             }]
         );
         assert_eq!(outputs, vec![]);
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn delimiter_sizing() -> Result<()> {
+        let mut instance = TexKernelInstance::new();
+
+        assert_eq!(
+            normalize_delimiter_sizing(r"\bigcup_i E_i"),
+            r"\bigcup_i E_i"
+        );
+        assert_eq!(normalize_delimiter_sizing(r"\biggl(x\biggr)"), r"(x)");
+
+        let (outputs, messages) = instance.execute(r"\log\!\big(x\big)").await?;
+        assert_eq!(messages, vec![]);
+        assert!(matches!(outputs.first(), Some(Node::String(mathml)) if mathml.contains("<math")));
+
+        let (outputs, messages) = instance.execute(r"\biggl(x\biggr)").await?;
+        assert_eq!(messages, vec![]);
+        assert!(matches!(outputs.first(), Some(Node::String(mathml)) if mathml.contains("<math")));
+
+        let (outputs, messages) = instance.execute(r"\bigcup_i E_i").await?;
+        assert_eq!(messages, vec![]);
+        assert!(matches!(outputs.first(), Some(Node::String(mathml)) if mathml.contains("⋃")));
 
         Ok(())
     }
