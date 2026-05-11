@@ -70,7 +70,7 @@ serde_json = { version = "1.0.149", features = ["preserve_order"] }
 serde_with = "3.20.0"
 serde_yaml = "0.9.34"
 sha2 = "0.11.0"
-similar = { version = "2.7.0", features = ["serde", "unicode"] }
+similar = { version = "3.1.0", features = ["serde", "unicode"] }
 smart-default = "0.7.1"
 strsim = "0.11.1"
 smol_str = "0.3.6"

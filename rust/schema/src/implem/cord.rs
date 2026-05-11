@@ -808,7 +808,7 @@ impl WriteNode for Cord {
             let diff = TextDiffConfig::default()
                 .algorithm(Algorithm::Patience)
                 .timeout(Duration::from_secs(15))
-                .diff_chars(&value, self);
+                .diff_chars(value.as_str(), self.as_str());
 
             let mut pos = 0usize;
             for op in diff.ops() {

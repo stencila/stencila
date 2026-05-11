@@ -5262,7 +5262,7 @@ dependencies = [
  "pest",
  "pest_derive",
  "serde",
- "similar",
+ "similar 2.7.0",
  "tempfile",
 ]
 
@@ -9667,6 +9667,12 @@ name = "similar"
 version = "2.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbbb5d9659141646ae647b42fe094daf6c6192d1620870b449d9557f748b2daa"
+
+[[package]]
+name = "similar"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "04d93e861ede2e497b47833469b8ec9d5c07fa4c78ce7a00f6eb7dd8168b4b3f"
 dependencies = [
  "bstr",
  "serde",
@@ -10555,7 +10561,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
- "similar",
+ "similar 3.1.0",
  "stencila-format",
  "stencila-node-id",
  "stencila-node-type",
@@ -11007,7 +11013,7 @@ dependencies = [
  "proptest",
  "reqwest 0.13.3",
  "sha2 0.11.0",
- "similar",
+ "similar 3.1.0",
  "tempfile",
  "walkdir",
  "which",
@@ -11288,7 +11294,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
- "similar",
+ "similar 3.1.0",
  "smart-default",
  "stencila-ask",
  "stencila-cli-utils",
@@ -11731,7 +11737,7 @@ dependencies = [
  "reqwest 0.13.3",
  "serde",
  "serde_json",
- "similar",
+ "similar 3.1.0",
  "smart-default",
  "stencila-ask",
  "stencila-cloud",
@@ -12454,7 +12460,7 @@ dependencies = [
  "serde_json",
  "serde_with",
  "serde_yaml",
- "similar",
+ "similar 3.1.0",
  "smart-default",
  "smol_str",
  "stencila-codec",
