@@ -4,8 +4,13 @@ use clap::Parser;
 use eyre::{Result, bail, eyre};
 
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
-use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
-use stencila_document::Document;
+use stencila_cli_utils::{
+    Code, Tabulated, ToStdout,
+    color_print::cstr,
+    message,
+    tabulated::{Attribute, Cell, Color},
+};
+use stencila_document::{Document, EncodeInfo};
 use stencila_format::Format;
 use stencila_node_execute::ExecuteOptions;
 use stencila_spread::{
@@ -493,8 +498,8 @@ impl Cli {
 
             // Export document to output paths
             for output in outputs {
-                let completed = doc
-                    .export(
+                let info = doc
+                    .export_with_info(
                         output,
                         Some(stencila_codecs::EncodeOptions {
                             render: Some(true),
@@ -508,17 +513,95 @@ impl Cli {
                     )
                     .await?;
 
-                if completed {
-                    eprintln!(
-                        "📑 Successfully rendered `{input_display}` to `{}`",
-                        output.display()
-                    )
-                } else {
-                    eprintln!("⏭️  Skipped rendering `{input_display}`")
+                match info {
+                    Some(info) => {
+                        eprintln!(
+                            "📑 Successfully rendered `{input_display}` to `{}`",
+                            output.display()
+                        );
+                        print_signed_assets_table(&info);
+                    }
+                    None => {
+                        eprintln!("⏭️  Skipped rendering `{input_display}`")
+                    }
                 }
             }
         }
 
         Ok(())
+    }
+}
+
+/// Print a compact table of signed assets after a render or export.
+///
+/// Inspects [`EncodeInfo::assets`] for entries marked `signed = true`. When
+/// the codec did not sign anything (because credentials were not requested
+/// or the format was unsupported), the table is suppressed.
+fn print_signed_assets_table(info: &EncodeInfo) {
+    let signed: Vec<_> = info.assets.iter().filter(|asset| asset.signed).collect();
+    if signed.is_empty() {
+        return;
+    }
+
+    eprintln!();
+
+    let mut table = Tabulated::new();
+    table.set_header(["Signed asset", "Role", "Manifest", "Profile", "Sidecar"]);
+
+    for asset in signed {
+        let sidecar = asset
+            .sidecar_path
+            .as_deref()
+            .map(|p| p.display().to_string())
+            .unwrap_or_default();
+        table.add_row([
+            Cell::new(asset.path.display().to_string()).add_attribute(Attribute::Bold),
+            role_cell(asset.role.as_deref()),
+            manifest_kind_cell(asset.manifest_kind.as_deref()),
+            profile_cell(asset.credential_profile.as_deref()),
+            Cell::new(sidecar),
+        ]);
+        for warning in &asset.signing_warnings {
+            table.add_row([
+                Cell::new("Warning").fg(Color::Yellow),
+                Cell::new(""),
+                Cell::new(""),
+                Cell::new(""),
+                Cell::new(warning),
+            ]);
+        }
+    }
+
+    table.to_stdout();
+}
+
+fn role_cell(role: Option<&str>) -> Cell {
+    match role {
+        Some("document") => Cell::new("document").fg(Color::Blue),
+        Some("figure") => Cell::new("figure").fg(Color::Green),
+        Some("computational-output") => Cell::new("computational-output").fg(Color::Cyan),
+        Some(role @ ("math-image" | "table-image")) => Cell::new(role).fg(Color::Magenta),
+        Some("sidecar") => Cell::new("sidecar").fg(Color::DarkGrey),
+        Some(role) => Cell::new(role).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
+    }
+}
+
+fn manifest_kind_cell(kind: Option<&str>) -> Cell {
+    match kind {
+        Some("embedded") => Cell::new("embedded").fg(Color::Green),
+        Some("sidecar") => Cell::new("sidecar").fg(Color::Yellow),
+        Some(kind) => Cell::new(kind).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
+    }
+}
+
+fn profile_cell(profile: Option<&str>) -> Cell {
+    match profile {
+        Some("public") => Cell::new("public").fg(Color::Green),
+        Some("private") => Cell::new("private").fg(Color::Yellow),
+        Some("full") => Cell::new("full").fg(Color::Magenta),
+        Some(profile) => Cell::new(profile).fg(Color::Grey),
+        None => Cell::new("").fg(Color::DarkGrey),
     }
 }

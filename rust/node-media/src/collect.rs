@@ -11,9 +11,10 @@ use pathdiff::diff_paths;
 use regex::Regex;
 use seahash::SeaHasher;
 
+use stencila_codec_info::EncodedAsset;
 use stencila_schema::{
-    AudioObject, Block, Cord, CreativeWorkVariant, ImageObject, Inline, Node, RawBlock,
-    VideoObject, VisitorMut, WalkControl, WalkNode,
+    AudioObject, Block, Cord, CreativeWorkVariant, ImageObject, Inline, Node, NodeId, NodeType,
+    RawBlock, VideoObject, VisitorMut, WalkControl, WalkNode,
 };
 
 /// Collect all media files
@@ -29,6 +30,22 @@ pub fn collect_media<T>(
     to_path: &Path,
     media_dir: &Path,
 ) -> Result<()>
+where
+    T: WalkNode,
+{
+    collect_media_with_paths(node, document_path, to_path, media_dir).map(|_| ())
+}
+
+/// Collect media files and return a record per asset copied or referenced.
+///
+/// Each [`EncodedAsset`] is annotated with the originating node's id/type and
+/// an asset role so dispatchers can attach per-node provenance to the file.
+pub fn collect_media_with_paths<T>(
+    node: &mut T,
+    document_path: Option<&Path>,
+    to_path: &Path,
+    media_dir: &Path,
+) -> Result<Vec<EncodedAsset>>
 where
     T: WalkNode,
 {
@@ -58,10 +75,12 @@ where
         document_dir: document_dir.into(),
         to_dir: to_dir.into(),
         media_dir: media_dir.into(),
+        parent_stack: Vec::new(),
+        assets: Vec::new(),
     };
     collector.walk(node);
 
-    Ok(())
+    Ok(collector.assets)
 }
 
 struct Collector {
@@ -73,14 +92,22 @@ struct Collector {
 
     /// The directory where media files are stored
     media_dir: PathBuf,
+
+    /// Stack of ancestor structs, used to attribute collected assets to the
+    /// closest meaningful originating node.
+    parent_stack: Vec<(NodeType, NodeId)>,
+
+    /// The asset records produced during collection.
+    assets: Vec<EncodedAsset>,
 }
 
 impl Collector {
     /// Collect media from a content URL
     ///
-    /// Returns the relative URL to use for the collected media file,
-    /// or None if the URL doesn't need to be rewritten.
-    fn collect_media(&mut self, content_url: &str, media_type: &str) -> Option<String> {
+    /// Returns the relative URL to use for the collected media file paired
+    /// with the absolute path of the file written, or `None` if the URL
+    /// doesn't need to be rewritten.
+    fn collect_media(&mut self, content_url: &str, media_type: &str) -> Option<(String, PathBuf)> {
         // Skip data URIs and external URLs
         if content_url.starts_with("data:")
             || content_url.starts_with("http://")
@@ -133,7 +160,48 @@ impl Collector {
             .to_string_lossy()
             .to_string();
 
-        Some(relative_url)
+        Some((relative_url, dest_path))
+    }
+
+    /// Record a collected asset with originating-node attribution.
+    fn record_asset(&mut self, path: PathBuf, self_id: Option<&NodeId>, self_type: NodeType) {
+        let (node_type, node_id) = self.originating(self_id, self_type);
+        let role = role_for(node_type);
+        self.assets.push(EncodedAsset {
+            path,
+            node_id: node_id.map(|id| id.to_string()),
+            node_type: Some(node_type.to_string()),
+            role: Some(role.to_string()),
+            ..Default::default()
+        });
+    }
+
+    /// Compute the originating node for an asset (executable preferred,
+    /// then math/table containers, then the media object itself).
+    fn originating(
+        &self,
+        self_id: Option<&NodeId>,
+        self_type: NodeType,
+    ) -> (NodeType, Option<NodeId>) {
+        if let Some((node_type, node_id)) = self
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|(node_type, _)| is_executable(*node_type))
+        {
+            return (*node_type, Some(node_id.clone()));
+        }
+
+        if let Some((node_type, node_id)) = self
+            .parent_stack
+            .iter()
+            .rev()
+            .find(|(node_type, _)| is_media_container(*node_type))
+        {
+            return (*node_type, Some(node_id.clone()));
+        }
+
+        (self_type, self_id.cloned())
     }
 
     /// Hash and copy a file in a single pass to avoid reading twice
@@ -189,8 +257,10 @@ impl Collector {
     /// Collect an image
     fn collect_image(&mut self, image: &mut ImageObject) {
         if !image.is_viz()
-            && let Some(relative_url) = self.collect_media(&image.content_url, "image")
+            && let Some((relative_url, path)) = self.collect_media(&image.content_url, "image")
         {
+            let id = image.node_id();
+            self.record_asset(path, Some(&id), NodeType::ImageObject);
             image.content_url = relative_url;
         }
     }
@@ -204,14 +274,18 @@ impl Collector {
 
     /// Collect an audio file
     fn collect_audio(&mut self, audio: &mut AudioObject) {
-        if let Some(relative_url) = self.collect_media(&audio.content_url, "audio") {
+        if let Some((relative_url, path)) = self.collect_media(&audio.content_url, "audio") {
+            let id = audio.node_id();
+            self.record_asset(path, Some(&id), NodeType::AudioObject);
             audio.content_url = relative_url;
         }
     }
 
     /// Collect a video file
     fn collect_video(&mut self, video: &mut VideoObject) {
-        if let Some(relative_url) = self.collect_media(&video.content_url, "video") {
+        if let Some((relative_url, path)) = self.collect_media(&video.content_url, "video") {
+            let id = video.node_id();
+            self.record_asset(path, Some(&id), NodeType::VideoObject);
             video.content_url = relative_url;
         }
     }
@@ -244,16 +318,18 @@ impl Collector {
             let after_src = &cap[4];
             let self_closing = &cap[5];
 
-            // Determine media type from tag name
-            let media_type = match tag_name {
-                "img" => "image",
-                "video" => "video",
-                "audio" => "audio",
+            // Determine media type from tag name and node type for attribution
+            let (media_type, node_type) = match tag_name {
+                "img" => ("image", NodeType::ImageObject),
+                "video" => ("video", NodeType::VideoObject),
+                "audio" => ("audio", NodeType::AudioObject),
                 _ => continue,
             };
 
             // Attempt to collect the media file
-            if let Some(new_url) = self.collect_media(src_value, media_type) {
+            if let Some((new_url, path)) = self.collect_media(src_value, media_type) {
+                self.record_asset(path, None, node_type);
+
                 // Reconstruct the tag with the new URL
                 let new_tag =
                     format!(r#"<{tag_name}{before_src} src="{new_url}"{after_src}{self_closing}>"#);
@@ -270,7 +346,56 @@ impl Collector {
     }
 }
 
+/// See [`extract::is_executable`]; collected media follow the same attribution
+/// rules so dispatchers can treat extracted and collected assets uniformly.
+fn is_executable(node_type: NodeType) -> bool {
+    matches!(
+        node_type,
+        NodeType::Button
+            | NodeType::CallBlock
+            | NodeType::CodeChunk
+            | NodeType::CodeExpression
+            | NodeType::ForBlock
+            | NodeType::Form
+            | NodeType::IfBlock
+            | NodeType::IfBlockClause
+            | NodeType::IncludeBlock
+            | NodeType::InstructionBlock
+            | NodeType::InstructionInline
+            | NodeType::Parameter
+            | NodeType::PromptBlock
+    )
+}
+
+fn is_media_container(node_type: NodeType) -> bool {
+    matches!(
+        node_type,
+        NodeType::MathBlock | NodeType::MathInline | NodeType::Table | NodeType::Figure
+    )
+}
+
+fn role_for(node_type: NodeType) -> &'static str {
+    if is_executable(node_type) {
+        return "computational-output";
+    }
+    match node_type {
+        NodeType::MathBlock | NodeType::MathInline => "math-image",
+        NodeType::Table => "table-image",
+        NodeType::Figure => "figure",
+        _ => "figure",
+    }
+}
+
 impl VisitorMut for Collector {
+    fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
+        self.parent_stack.push((node_type, node_id));
+        WalkControl::Continue
+    }
+
+    fn exit_struct(&mut self) {
+        self.parent_stack.pop();
+    }
+
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         match node {
             Node::AudioObject(audio) => self.collect_audio(audio),

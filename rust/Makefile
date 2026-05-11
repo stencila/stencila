@@ -146,6 +146,7 @@ install:
 generated:
 	cargo run -p stencila-schema-gen
 	cargo run -p stencila-config --bin generate
+	cargo run -p stencila-content-credentials --bin generate
 	cargo run -p stencila-cli-gen
 	cargo run -p stencila-skills --bin generate-docs
 	cargo run -p stencila-agents --bin generate-docs

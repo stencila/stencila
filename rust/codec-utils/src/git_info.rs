@@ -82,8 +82,7 @@ pub fn git_file_info(path: &Path) -> Result<GitFileInfo> {
         .ok_or_eyre("Path is not valid UTF-8")?
         .to_string();
 
-    // Is git available?
-    if which::which("git").is_err() {
+    if !git_available() {
         return Ok(GitFileInfo {
             origin: None,
             path: Some(relative_path),
@@ -148,6 +147,81 @@ pub fn git_file_info(path: &Path) -> Result<GitFileInfo> {
         path: Some(relative_path),
         commit: Some(commit),
     })
+}
+
+/// Whether the `git` executable is on `PATH`.
+fn git_available() -> bool {
+    which::which("git").is_ok()
+}
+
+/// Get the SHA of `HEAD` for a repository, or `None` if it cannot be resolved
+/// (no git, no commits yet, detached and unreachable, etc.).
+pub fn git_head_sha(repo_root: &Path) -> Option<String> {
+    if !git_available() {
+        return None;
+    }
+
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args(["rev-parse", "HEAD"])
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    let sha = String::from_utf8(output.stdout).ok()?.trim().to_string();
+    (sha.len() == 40).then_some(sha)
+}
+
+/// Get the SHA-256 of the working-tree diff for a tracked file relative to HEAD.
+///
+/// Computes the patch produced by `git diff HEAD --` for `relative_path` and
+/// returns its SHA-256 digest, prefixed with `sha256:`. Returns `None` when
+/// `git` is unavailable, the diff command fails, or the file has no diff.
+///
+/// This is useful for attesting the exact uncommitted changes in a dirty
+/// worktree without leaking the patch contents into a Content Credential.
+///
+/// The digest is computed over the raw bytes of `git diff` output. That output
+/// formatting (mode lines, hash widths, whitespace handling) can vary between
+/// git versions and across platforms, so the digest binds the assertion to
+/// "the patch as my git produced it" rather than to a canonical patch
+/// representation. Pair it with `git_head_sha` so verifiers can re-derive the
+/// same diff against the same base.
+pub fn git_patch_digest(repo_root: &Path, relative_path: &str) -> Option<String> {
+    if !git_available() {
+        return None;
+    }
+
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo_root)
+        .args([
+            "diff",
+            "--no-color",
+            "--no-ext-diff",
+            "--unified=3",
+            "--src-prefix=a/",
+            "--dst-prefix=b/",
+            "HEAD",
+            "--",
+        ])
+        .arg(relative_path)
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+
+    if !output.status.success() || output.stdout.is_empty() {
+        return None;
+    }
+
+    let mut hasher = Sha256::new();
+    hasher.update(&output.stdout);
+    Some(format!("sha256:{:x}", hasher.finalize()))
 }
 
 /// Get the path of the closest Git repository to a path
@@ -292,8 +366,7 @@ pub fn get_current_branch(path: Option<&Path>) -> Option<String> {
         closest_git_repo(&current_dir).ok()?
     };
 
-    // Check if git is available
-    if which::which("git").is_err() {
+    if !git_available() {
         return None;
     }
 
@@ -414,8 +487,7 @@ pub fn get_current_tag(path: Option<&Path>) -> Option<String> {
         closest_git_repo(&current_dir).ok()?
     };
 
-    // Check if git is available
-    if which::which("git").is_err() {
+    if !git_available() {
         return None;
     }
 
@@ -454,8 +526,7 @@ pub fn get_current_commit(path: Option<&Path>) -> Option<String> {
         closest_git_repo(&current_dir).ok()?
     };
 
-    // Check if git is available
-    if which::which("git").is_err() {
+    if !git_available() {
         return None;
     }
 
@@ -490,7 +561,7 @@ pub fn get_current_commit(path: Option<&Path>) -> Option<String> {
 ///
 /// Returns an error if git is not available or the command fails.
 pub fn git_list_refs(repo_root: &Path) -> Result<Vec<String>> {
-    if which::which("git").is_err() {
+    if !git_available() {
         bail!("git is not available");
     }
 
@@ -532,7 +603,7 @@ pub fn git_list_refs(repo_root: &Path) -> Result<Vec<String>> {
 /// * `Some(content)` if the file exists at that ref
 /// * `None` if the file doesn't exist at that ref or the command fails
 pub fn git_show_file_at_ref(repo_root: &Path, ref_name: &str, file_path: &str) -> Option<String> {
-    if which::which("git").is_err() {
+    if !git_available() {
         return None;
     }
 
@@ -945,6 +1016,62 @@ mod tests {
             assert_eq!(commit.len(), 40);
             assert!(commit.chars().all(|c| c.is_ascii_hexdigit()));
         }
+    }
+
+    #[test]
+    fn test_git_patch_digest_clean_and_dirty() {
+        if !git_available() {
+            return;
+        }
+
+        let tmp = tempfile::TempDir::new().expect("tmp");
+        let repo = tmp.path();
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["init", "-q", "-b", "main"])
+            .status()
+            .expect("git init");
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["config", "user.email", "test@example.com"])
+            .status()
+            .expect("config email");
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["config", "user.name", "Test"])
+            .status()
+            .expect("config name");
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["config", "commit.gpgsign", "false"])
+            .status()
+            .expect("config gpgsign");
+        std::fs::write(repo.join("a.txt"), "hello\n").expect("write");
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["add", "a.txt"])
+            .status()
+            .expect("git add");
+        Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(["commit", "-q", "-m", "init"])
+            .status()
+            .expect("git commit");
+
+        assert!(git_patch_digest(repo, "a.txt").is_none());
+
+        std::fs::write(repo.join("a.txt"), "edited\n").expect("edit");
+        let digest = git_patch_digest(repo, "a.txt").expect("digest after edit");
+        assert!(digest.starts_with("sha256:"));
+        // Same edit should produce a deterministic digest
+        let digest2 = git_patch_digest(repo, "a.txt").expect("digest re-read");
+        assert_eq!(digest, digest2);
     }
 
     #[test]

@@ -1,0 +1,1340 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Stencila Provenance Assertion v1",
+  "description": "C2PA provenance assertion payload used by Stencila content credentials.",
+  "type": "object",
+  "properties": {
+    "schema": {
+      "description": "Schema URL identifying the payload family.\n\nThe URL gives validators a dereferenceable schema artifact and a stable\nhuman-facing identifier. It is retained even though `version` is also\npresent because C2PA assertions are often inspected outside Stencila and\na URL is easier for generic tooling to display or archive.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#schema",
+      "type": "string"
+    },
+    "version": {
+      "description": "Numeric payload compatibility version.\n\nThis is fixed at `1` for the first public contract. It exists so Stencila\ncan later mint refined v1 schema URLs for documentation or optional\nadditions without causing every exact-URL verifier to report an otherwise\ncompatible payload as unknown.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#version",
+      "type": "integer",
+      "format": "uint16",
+      "minimum": 0,
+      "maximum": 65535
+    },
+    "producer": {
+      "description": "Software that produced the C2PA claim and this Stencila assertion.\n\nThis is distinct from `activities.associatedAttributionIds` and `attributions`.\nThe producer is the claim generator in the C2PA sense, while attributions\ndescribe who or what is credited with creating, generating, verifying, or\naccepting the represented content.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#producer",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ProducerRecord"
+        }
+      ]
+    },
+    "rootNode": {
+      "description": "Root Stencila document node containing the signed node.\n\nThis gives Stencila-aware consumers a bridge back to the document model\nwithout embedding the full root node JSON. For a root document manifest,\nthis is also the node exported to the signed asset.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#root-node",
+      "allOf": [
+        {
+          "$ref": "#/definitions/NodeRecord"
+        }
+      ]
+    },
+    "executedNode": {
+      "description": "Stencila node that was executed to produce `outputNode`.\n\nPer-output manifests use this field when the signed asset came from an\nexecutable node, such as a `CodeChunk` that generated an image. It is\nomitted for plain document exports and manually signed standalone files.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#executed-node",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NodeRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "outputNode": {
+      "description": "Stencila output node represented by the signed asset.\n\nFor generated media, this is the node in `executedNode.outputs` whose\nbytes were exported and signed, such as an `ImageObject`. Keeping this\nseparate from `asset` matters because the node is Stencila document\nstructure, while `asset` is the signed byte rendition.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#output-node",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/NodeRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "asset": {
+      "description": "The signed C2PA asset entity.\n\nThis record describes the exact bytes that C2PA binds to the manifest\nbefore signing. Keeping it separate from `outputNode` matters because the\nsame Stencila node may be exported to several assets, and an asset can be\na rendition of a larger document rather than a node itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#asset",
+      "allOf": [
+        {
+          "$ref": "#/definitions/AssetRecord"
+        }
+      ]
+    },
+    "activities": {
+      "description": "Activities that generated, exported, or signed the asset.\n\nProvenance needs explicit operations, not just a pile of facts. Records\nare ordered from earliest to latest, so a rendered executable document can\nrecord execution before export.\n\nWhen an operation is meaningful outside Stencila, producers should also\nrecord it in\n[`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions).\nThis field then provides the Stencila activity type, timing, and local\nrelationships needed for reproducibility.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#activities",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/ActivityRecord"
+      }
+    },
+    "attributions": {
+      "description": "Role-bearing attribution projected from Stencila authorship.\n\nStencila documents use `Author` and `AuthorRole` to record human,\norganizational, and software contributions. This vector preserves that\nconcept in a compact form so v1 can answer both \"who authored this?\" and\n\"what role did this person or system play?\" without later adding a\nparallel authorship model.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#attributions",
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/AttributionRecord"
+      }
+    },
+    "source": {
+      "description": "Source-control facts for the document or project.\n\nSource state is useful for reproducibility and review, but is kept in an\noptional record because many exports are not produced from a public or\neven local version-control checkout.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#source",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/SourceRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "execution": {
+      "description": "Execution facts for executable outputs.\n\nThis captures Stencila-specific execution state for code-backed content.\nIt remains separate from `activity` because not every provenance activity\nis a code execution, and one workflow activity may include execution plus\nrendering, verification, or signing steps.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#execution",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ExecutionRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "workflow": {
+      "description": "Workflow, agent, and definition facts supplied by an explicit provenance context.\n\nWorkflow details are optional and may be privacy-sensitive. When present,\nthey explain the higher-level orchestration around the activity, such as\nwhich workspace workflow run, definition snapshot, or artifact contributed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#workflow",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/WorkflowRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "environment": {
+      "description": "Environment facts that help a verifier reproduce the output.\n\nThese are selected under a privacy policy because host and runtime\ndetails can reveal private infrastructure. The record focuses on durable,\nreproducibility-relevant facts such as container images, runtimes, and\nlockfile digests.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#environment",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/EnvironmentRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "aiDisclosure": {
+      "description": "Stencila projection of standard C2PA AI disclosure concepts.\n\nThis field is not a replacement for the standard `c2pa.ai-disclosure`\nassertion. It exists so Stencila-specific provenance can cross-reference\nmodel and human-oversight details in the same payload while producers are\nstill encouraged to emit the standard assertion when model use is\ndisclosed.\n\nWhen both are present, `standardAssertion` can identify the corresponding\n[`c2pa.ai-disclosure`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ai_disclosure)\nassertion, while Stencila-specific role and content attribution remains\nin `attributions` and `provenance`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#ai-disclosure",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/AiDisclosureRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "provenance": {
+      "description": "Compact projection of Stencila `ProvenanceCount` values.\n\nThis is a summary, not a substitute for attributions. It answers \"how\nmuch of the represented content was human written, machine written, or\nreviewed?\" using Stencila's stable provenance categories.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#provenance",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ProvenanceRecord"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "reproducibility": {
+      "description": "Reproducibility status and comparison details known at signing time.\n\nReproducibility is included even when no check was run so\nconsumers can distinguish \"not checked\" from \"checked and failed\" rather\nthan treating absence as a hidden result.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#reproducibility",
+      "allOf": [
+        {
+          "$ref": "#/definitions/ReproducibilityRecord"
+        }
+      ]
+    },
+    "privacy": {
+      "description": "Privacy policy results and redactions applied while building the assertion.\n\nC2PA provenance is opt-in and can carry sensitive data. This record makes\nthe projection policy explicit and avoids over-claiming with bare booleans\nsuch as \"contains no secrets\" unless an assessment actually ran.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#privacy",
+      "allOf": [
+        {
+          "$ref": "#/definitions/PrivacyRecord"
+        }
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "version",
+    "producer",
+    "rootNode",
+    "asset",
+    "reproducibility",
+    "privacy"
+  ],
+  "definitions": {
+    "ProducerRecord": {
+      "description": "Producer metadata embedded in the assertion.\n\nThis describes the Stencila software component acting as C2PA claim\ngenerator. It is intentionally narrower than `AgentRecord`: a producer is\nabout the mechanism that made the manifest, not about authorship credit.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Producer name.\n\nThis is usually `Stencila`. It is required so a generic manifest consumer\ncan display who generated the custom assertion even if it ignores the\nnested Stencila-specific records.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record#name",
+          "type": "string"
+        },
+        "version": {
+          "description": "Producer software version.\n\nVersion is required because signed payloads are immutable. When a schema\ninterpretation or privacy projection bug is discovered later, the\nproducer version is the quickest way to scope affected manifests.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record#version",
+          "type": "string"
+        },
+        "stencilaSchemaVersion": {
+          "description": "Stencila Schema version used while producing the asset.\n\nThis is separate from the assertion payload `version`. It records the\ndocument node vocabulary that supplied values such as `nodeType`,\n`AuthorRoleName`, and `ProvenanceCategory`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record#stencila-schema-version",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "codec": {
+          "description": "Codec used to encode or export the signed asset.\n\nThe codec explains the transformation from Stencila document state to\nbytes. It is optional because some manually signed assets have no Stencila\ncodec involved.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record#codec",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "renderer": {
+          "description": "Renderer or application component that produced the asset bytes.\n\nRendering can be independent of the codec, for example a CLI command,\nweb component, or browser engine. Recording it helps reproduce visual\noutputs without overloading `producer.name`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/producer-record#renderer",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "name",
+        "version"
+      ]
+    },
+    "NodeRecord": {
+      "description": "Facts about a Stencila node related to the signed asset.\n\nThis record anchors C2PA bytes back to Stencila document structure while\nstaying compact enough for manifests. It stores stable node identity and\nselected public metadata rather than embedding private source content.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record",
+      "type": "object",
+      "properties": {
+        "nodeType": {
+          "description": "Stencila Schema node type.\n\nValues such as `CodeChunk`, `Figure`, `Table`, `Article`, or `File` let\nStencila-aware consumers recover the kind of work represented by the\nasset without depending on media type heuristics. Values intentionally\nuse Stencila Schema's `PascalCase` node type convention.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#node-type",
+          "type": "string"
+        },
+        "nodeId": {
+          "description": "Stable Stencila node identifier, when available.\n\nThis is a deterministic structural identifier derived from the node's\ncontent, label, or position in the stabilized document tree (e.g.\n`content-1-content-3`). It is stable across re-renders of the same\nsource document and lets later tooling correlate credentials with the\nsource document tree. It is optional because standalone asset signing\nand imported files may not have a stable Stencila node ID.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#node-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "persistentId": {
+          "description": "Author-supplied persistent identifier from the Stencila Schema `id`\nfield.\n\nThis is the DOM-style identifier the document author wrote, separate\nfrom the structural `nodeId`. When the author has set an `id` (for\nexample `id: \"fig-plot\"` on a Figure), it is recorded here unchanged so\nverifiers can locate the node by its author-given name without needing\nto know Stencila's structural identifier scheme.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#persistent-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nodePath": {
+          "description": "Path to the node within the document tree.\n\nA path is useful when IDs are absent or when reviewers need to locate the\nrepresented node in a specific document snapshot. It is optional because\npaths can reveal document structure and can be unstable across edits.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#node-path",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "labelType": {
+          "description": "Stencila label type for labelled nodes.\n\nLabel type distinguishes figure, table, equation, and other label\nnamespaces without parsing the label string itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#label-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "label": {
+          "description": "Stencila label for the node.\n\nThis repeats the asset label when the signed asset is a direct rendition\nof a labelled node. Keeping it here allows document-level verification\neven when the asset record is used for an unlabelled file rendition.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#label",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "description": "Human-readable node or work title.\n\nTitles improve audit readability but remain optional because many\nexecutable nodes and generated outputs are intentionally untitled.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#title",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "programmingLanguage": {
+          "description": "Programming language for executable nodes.\n\nLanguage belongs on the document node, not only the kernel, because it is\npart of the authored source semantics that affect execution and review.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#programming-language",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contentUrl": {
+          "description": "URL or path for media-like nodes.\n\nThis is useful for output nodes such as `ImageObject`, `AudioObject`,\n`MediaObject`, and `VideoObject`, but is optional because many Stencila\nnodes are not byte-backed media references.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#content-url",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mediaType": {
+          "description": "IANA media type for media-like nodes.\n\nThis is node metadata. The signed bytes remain described by\n`asset.mediaType`, which may differ for alternate renditions.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#media-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "nodeType"
+      ]
+    },
+    "AssetRecord": {
+      "description": "Facts about the signed asset entity.\n\nThe asset record is deliberately byte-oriented: C2PA binds the manifest to\nasset bytes, so this record stores media type, size, dimensions, and a digest\nof the pre-signing content rather than a full Stencila node.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Optional asset identifier used by activity references.\n\nThe digest is the cryptographic identity, but a short ID is useful when\n`activities.generatedAssetIds` or external reports need to refer to this\nasset without repeating a long digest.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assetType": {
+          "description": "Stencila or C2PA-facing asset type.\n\nThe initial vocabulary is `asset`, `image`, `figure`, `table`, `dataset`,\nand `document`; reverse-DNS extension values are allowed. The value is a\nbroad class for UI and policy decisions, not a replacement for\n`mediaType`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#asset-type",
+          "type": "string"
+        },
+        "role": {
+          "description": "Asset role in the Stencila export context.\n\nThe role captures why this asset exists, for example `document-export`,\n`figure`, `table-image`, or `computational-output`. It complements\n`assetType`, which remains the broad media or entity class.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#role",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "mediaType": {
+          "description": "IANA media type for the asset bytes.\n\nMedia type is required because C2PA validators and reproducibility tools\nneed to know how the bytes should be interpreted independently of file\nextension or URL.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#media-type",
+          "type": "string"
+        },
+        "contentDigest": {
+          "description": "Digest of the pre-signing asset bytes.\n\nThe value should use `algorithm:hex` form, for example `sha256:...`.\nKeeping the algorithm in the value avoids baking `sha256` into every\nfield name and leaves room for future digest algorithms.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#content-digest",
+          "type": "string"
+        },
+        "label": {
+          "description": "Stencila label associated with the asset.\n\nLabels such as `fig:example` are how authors and readers often refer to\noutputs in a document. They are optional because not every signed asset is\na labelled Stencila node.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#label",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "title": {
+          "description": "Human-readable title for the asset.\n\nThis is display metadata for reviewers. It is optional and should not be\ntreated as a stable identifier because titles can change independently of\nthe underlying bytes.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#title",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "size": {
+          "description": "Asset byte length before signing.\n\nSize is a cheap consistency check and useful in audit output. It is\noptional because some producers may stream content without retaining a\nlength at projection time.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#size",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "width": {
+          "description": "Width for image or video assets.\n\nDimensions help consumers understand the signed rendition without opening\nthe asset. Width is optional because it only applies to some media types.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#width",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "height": {
+          "description": "Height for image or video assets.\n\nDimensions are recorded as unsigned integers in rendered pixel units\nunless the media type defines a different native unit.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#height",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "assetType",
+        "mediaType",
+        "contentDigest"
+      ]
+    },
+    "ActivityRecord": {
+      "description": "Activity that generated, exported, or signed the asset.\n\nThis is the provenance relation hub. It intentionally uses IDs to refer to\nattributions, Stencila nodes, and byte assets so the assertion can remain\ncompact while still expressing the important \"activity used/generated/was\nassociated with\" relationships.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Optional activity identifier.\n\nIDs make it possible for workflow logs, verification reports, or later\nassertions to refer to this operation. They are optional because manual\nsigning often has no durable external run ID.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "activityType": {
+          "description": "Activity type.\n\nThe initial vocabulary is `sign`, `export`, `execute`, `render`, and\n`run`; reverse-DNS extension values are allowed. This field is required\nso consumers do not have to infer the operation from whichever optional\ndetail records happen to be present.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#activity-type",
+          "type": "string"
+        },
+        "name": {
+          "description": "Human-readable activity name.\n\nA name is useful for workflows and UI summaries, but not stable enough to\nserve as the activity type or identifier.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "startedAt": {
+          "description": "Activity start time in RFC 3339 format.\n\nStart time is optional because some integrations only know when execution\nended or when the C2PA claim was signed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#started-at",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endedAt": {
+          "description": "Activity end time in RFC 3339 format.\n\nEnd time is often the most useful reproducibility timestamp because it is\nwhen generated outputs became available for signing.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#ended-at",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "durationMs": {
+          "description": "Activity duration in milliseconds.\n\nDuration is stored as an integer instead of a formatted string so\nverifiers can compare timings across runs without parsing display units.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#duration-ms",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "associatedAttributionIds": {
+          "description": "Attribution IDs associated with the activity.\n\nThese IDs point at entries in `attributions`. The vector records the PROV\nstyle association without duplicating full attribution records in the\nactivity.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#associated-attribution-ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "usedNodeIds": {
+          "description": "Stencila node IDs used by the activity.\n\nThese IDs point at `rootNode`, `executedNode`, `outputNode`, or other\nStencila nodes known to the producer. They express use relationships\nwithout embedding the full source node content.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#used-node-ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generatedNodeIds": {
+          "description": "Stencila node IDs generated by the activity.\n\nFor executable output manifests, the execution activity usually records\n`outputNode.nodeId` here.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#generated-node-ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "usedAssetIds": {
+          "description": "Asset IDs used by the activity.\n\nThese IDs point at byte assets rather than Stencila nodes. They are\noptional because many activities only operate over document nodes.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#used-asset-ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "generatedAssetIds": {
+          "description": "Asset IDs generated by the activity.\n\nFor export or signing activities, this usually points at `asset.id`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/activity-record#generated-asset-ids",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "activityType"
+      ]
+    },
+    "AttributionRecord": {
+      "description": "Role-bearing attribution for an agent.\n\nThis is the public, compact equivalent of Stencila `AuthorRole`. It records\nthe contributing agent, the role they played, optional Stencila provenance\ncounts, and the scope of the attribution.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record",
+      "type": "object",
+      "properties": {
+        "id": {
+          "description": "Optional attribution identifier.\n\nActivity records refer to associated agents through this ID. It is\noptional so simple assertions can still list attributions without\ninventing local identifiers.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "agent": {
+          "description": "Agent credited or responsible for the role.\n\nThe agent can be a person, organization, software application, model, or\nintentionally anonymous thing. Using a common agent record keeps human and\nmachine authorship in the same Stencila-compatible attribution model.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#agent",
+          "allOf": [
+            {
+              "$ref": "#/definitions/AgentRecord"
+            }
+          ]
+        },
+        "roleName": {
+          "description": "Stencila `AuthorRoleName` or compatible role value.\n\nKnown values include `Writer`, `Verifier`, `Instructor`, `Generator`, and\n`Executor`. The field is optional because flat Stencila `Author` values\nand external metadata can identify an author without a known role.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#role-name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "format": {
+          "description": "Format in which the role was performed.\n\nThis mirrors `AuthorRole.format`, for example Markdown, Python, or HTML.\nIt helps distinguish writing source code from editing rendered output.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#format",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lastModified": {
+          "description": "Most recent modification time by this agent in this role.\n\nThe timestamp should be RFC 3339. It is optional because privacy profiles\nmay strip timestamps and because not all author metadata tracks last\nmodification.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#last-modified",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scope": {
+          "description": "Scope of the attribution.\n\nSuggested values are `document`, `asset`, `activity`, `input`, and\n`output`. The scope prevents a workflow executor from being mistaken for\na bibliographic author of the whole work.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#scope",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "provenanceCategory": {
+          "description": "Stencila provenance category associated with this attribution.\n\nValues come from `ProvenanceCategory`, such as `Hw`, `Mw`, or `MwHeHv`.\nThe category is optional because authorship roles and provenance counts\nare related but not identical concepts.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#provenance-category",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "characterCount": {
+          "description": "Number of characters attributed to this agent and role.\n\nCharacter counts are optional because they only apply to text-like\ncontent and may be redacted for privacy or size reasons.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#character-count",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "characterPercent": {
+          "description": "Percentage of counted content attributed to this agent and role.\n\nThis is a 0-100 percentage, matching Stencila `ProvenanceCount` semantics.\nIt is optional because counts may be available without a computed percent.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/attribution-record#character-percent",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        }
+      },
+      "required": [
+        "agent"
+      ]
+    },
+    "AgentRecord": {
+      "description": "Agent participating in provenance.\n\nThe same record is used for human, organizational, software, and model\nagents. That keeps the schema aligned with Stencila `Author` and `AuthorRole`\nwhile also mapping cleanly to C2PA's broader notion of actors.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record",
+      "type": "object",
+      "properties": {
+        "agentType": {
+          "description": "Agent type.\n\nSuggested values are `person`, `organization`, `softwareApplication`,\n`model`, and `thing`. It is optional so redacted or legacy agents can\nstill be represented by name or identifier alone.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#agent-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Agent name.\n\nNames are display metadata and may be pseudonymous or redacted. Stable\nidentity should be represented in `identifiers` where possible.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "id": {
+          "description": "Stable local or external agent identifier.\n\nThis field is for a primary identifier that other records may reference.\nAdditional identity schemes belong in `identifiers`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "identifiers": {
+          "description": "Structured identifiers for the agent.\n\nThis supports ORCID for people, ROR for organizations, package URLs for\nsoftware, and model identifiers without adding a top-level field for each\nidentity scheme.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#identifiers",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/IdentifierRecord"
+          }
+        },
+        "provider": {
+          "description": "Organization, service, or model provider.\n\nProvider is optional because not all agents are mediated by a provider,\nbut it is useful for AI and remote execution agents where model names are\nnot globally unique.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#provider",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "description": "Software or model version.\n\nVersion is kept on the agent because generator and executor software can\nbe credited as authors independently of the Stencila producer version.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#version",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "model": {
+          "description": "Model name used by an AI agent.\n\nThis remains optional and display-oriented. Durable model identity should\nuse `modelIdentifier` or a typed identifier.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#model",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "modelIdentifier": {
+          "description": "Durable model identifier, URI, or package URL.\n\nKeeping this separate from `model` allows a readable name and a stable\nmachine identifier to coexist.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#model-identifier",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "url": {
+          "description": "Agent URL.\n\nURLs are useful for software and organization records but optional\nbecause they can expose private infrastructure or become stale.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/agent-record#url",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "IdentifierRecord": {
+      "description": "Identifier for an agent or other named entity.\n\nA small typed identifier record is more future-proof than adding separate\noptional fields for every identity scheme that Stencila may later support.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/identifier-record",
+      "type": "object",
+      "properties": {
+        "identifierType": {
+          "description": "Identifier type or scheme.\n\nExamples include `orcid`, `ror`, `url`, `purl`, `doi`, and `modelId`.\nConsumers should treat unknown types as opaque labels.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/identifier-record#identifier-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "value": {
+          "description": "Identifier value.\n\nThe value is a string because identity schemes differ in syntax and some\nuse URIs while others use compact IDs.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/identifier-record#value",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "SourceRecord": {
+      "description": "Source-control facts for the signed output.\n\nSource information helps reviewers and automated systems locate the authored\ndocument state that led to the signed asset. Each field is optional because\nprivacy policy or offline workflows may disclose only a subset.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record",
+      "type": "object",
+      "properties": {
+        "repository": {
+          "description": "Source repository URL or identifier.\n\nThis may be a public URL, an internal repository identifier, or a redacted\nstable label. It is optional because repository names can be sensitive.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#repository",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "description": "Source commit hash or revision identifier.\n\nThe field name is intentionally generic enough for Git and non-Git\nsystems, while the documentation calls out the common commit use case.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#commit",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "path": {
+          "description": "Path to the source document within the repository or project.\n\nPaths are useful for reproducibility but can leak project structure, so\nthey are optional and may be redacted under the privacy policy.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#path",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dirty": {
+          "description": "Whether uncommitted changes were present.\n\nThis boolean is optional rather than defaulting to false because \"not\nassessed\" and \"clean\" are different provenance states.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#dirty",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "patchDigest": {
+          "description": "Digest of an unpublished patch, when disclosed.\n\nThe value should use `algorithm:hex` form. A patch digest lets a signer\nattest that local changes existed without embedding the patch itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#patch-digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "tag": {
+          "description": "Source tag or release identifier.\n\nTags help link the signed asset to a release even when a full commit hash\nis not appropriate for disclosure.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-record#tag",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ExecutionRecord": {
+      "description": "Execution facts for executable document nodes.\n\nThis record mirrors Stencila execution state. It is narrower than `activity`\nand should be present when the represented asset depends on executing code,\na prompt, a query, or another executable document node.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record",
+      "type": "object",
+      "properties": {
+        "status": {
+          "description": "Execution status reported by Stencila.\n\nValues should come from Stencila `ExecutionStatus` when possible, for\nexample `Succeeded`, `Failed`, or `Skipped`. Extension strings are allowed\nfor future statuses.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#status",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "endedAt": {
+          "description": "Execution end time in RFC 3339 format.\n\nThe field is named `endedAt` to match the activity timing vocabulary.\nThe legacy `ended` name is accepted for unpublished pre-v1 payloads.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#ended-at",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "durationMs": {
+          "description": "Execution duration in milliseconds.\n\nMilliseconds give enough precision for user-facing diagnostics without\nencoding a language-specific duration format.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#duration-ms",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "digests": {
+          "description": "Digests representing executable node state at signing time.\n\nThese compactly attest the state that Stencila considered relevant to\ngenerated output, without disclosing the source code or dependency values\nthemselves. The field is named `digests` because it is already nested\nunder `execution`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#digests",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ExecutionDigestsRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "count": {
+          "description": "Kernel execution counter for the node.\n\nThis preserves notebook-style execution context for reviewers. It is\noptional because many kernels or workflows do not expose a counter.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#count",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "int64"
+        },
+        "kernel": {
+          "description": "Kernel used to execute the node.\n\nKernel identity is separate from environment runtime versions because a\nnamed kernel can wrap a language runtime, container, or remote service.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#kernel",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/KernelRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "dependencies": {
+          "description": "Other document nodes or values this execution depended on.\n\nDependencies explain why an output should be rerun when upstream state\nchanges. They can be redacted or summarized independently of aggregate\ndigest values on this execution record.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#dependencies",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DependencyRecord"
+          }
+        },
+        "messages": {
+          "description": "Execution messages emitted while producing the asset.\n\nMessages are kept compact because manifests should not become log files.\nThey are included to preserve warnings or errors that materially affect\ntrust in the output.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-record#messages",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ExecutionMessageRecord"
+          }
+        }
+      }
+    },
+    "ExecutionDigestsRecord": {
+      "description": "Digest values corresponding to Stencila `CompilationDigest`.\n\nStencila distinguishes state, semantic content, and dependency digests so a\nverifier can understand why an output might be stale without seeing the full\nsource. This record preserves that distinction in the public assertion.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record",
+      "type": "object",
+      "properties": {
+        "state": {
+          "description": "Digest of execution state that affects generated output.\n\nThis usually covers code, parameter values, and other state needed to\ndecide whether an executable node should be rerun.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record#state",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "semantic": {
+          "description": "Digest of semantic content that affects generated output.\n\nSemantic digests let Stencila distinguish meaningful source changes from\nformatting or metadata churn.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record#semantic",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dependencies": {
+          "description": "Digest of dependencies that affect generated output.\n\nThis summarizes upstream nodes or values used by the executable node. It\nis separate from `dependencies` because the digest is compact and stable\neven when individual dependencies are redacted.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record#dependencies",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "dependenciesStale": {
+          "description": "Number of stale dependencies known at signing time.\n\nA nonzero value warns verifiers that the output may not reflect current\nupstream state even if the signed asset itself is valid.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record#dependencies-stale",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        },
+        "dependenciesFailed": {
+          "description": "Number of failed dependencies known at signing time.\n\nFailed dependencies are recorded separately from stale dependencies\nbecause they indicate an execution failure path rather than merely an\nout-of-date one.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-digests-record#dependencies-failed",
+          "type": [
+            "integer",
+            "null"
+          ],
+          "format": "uint64",
+          "minimum": 0
+        }
+      }
+    },
+    "KernelRecord": {
+      "description": "Kernel used to execute a Stencila node.\n\nKernels are separated from runtimes because the same language runtime can be\nexposed through different kernels with different execution semantics.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/kernel-record",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Kernel name.\n\nThe name should be stable enough for a human to identify the execution\nbackend, for example `python`, `r`, or a provider-specific kernel name.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/kernel-record#name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "description": "Kernel version.\n\nVersion is optional because some kernels are wrappers around runtimes\nwhose exact version is better captured in `environment.runtimes`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/kernel-record#version",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "language": {
+          "description": "Programming language handled by the kernel.\n\nLanguage helps verifiers select reproduction tooling even when the kernel\nname is provider-specific.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/kernel-record#language",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "DependencyRecord": {
+      "description": "Dependency of an execution.\n\nDependencies represent the specific upstream nodes, values, or artifacts that\nStencila knew the execution used. They complement the aggregate dependency\ndigest on `ExecutionRecord`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/dependency-record",
+      "type": "object",
+      "properties": {
+        "nodeId": {
+          "description": "Depended-on node identifier.\n\nNode IDs let verifiers connect dependency facts back to a Stencila\ndocument tree when that tree is available.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/dependency-record#node-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nodeType": {
+          "description": "Depended-on Stencila node type.\n\nThe node type helps consumers understand whether the dependency was code,\ndata, prose, a parameter, or another output. When it names a Stencila\nSchema node type, use Stencila Schema's `PascalCase` convention.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/dependency-record#node-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relation": {
+          "description": "Dependency relation.\n\nSuggested values are `input`, `output`, `state`, and `parameter`; custom\nvalues should use a reverse-DNS prefix when they are not Stencila terms.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/dependency-record#relation",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "digest": {
+          "description": "Digest of the depended-on node or value.\n\nThe value should use `algorithm:hex` form. It is optional because some\ndependencies are intentionally disclosed only by identity or relation.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/dependency-record#digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ExecutionMessageRecord": {
+      "description": "Message emitted during execution.\n\nMessages provide trust-relevant warnings and errors while avoiding full log\ncapture. They should be filtered under the privacy policy before signing.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-message-record",
+      "type": "object",
+      "properties": {
+        "level": {
+          "description": "Message severity.\n\nValues should align with Stencila `MessageLevel`, for example `Info`,\n`Warning`, or `Error`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-message-record#level",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "errorType": {
+          "description": "Error type or class, for error messages.\n\nThis supports automated triage without requiring consumers to parse the\nhuman-readable message text.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-message-record#error-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "message": {
+          "description": "Human-readable message text.\n\nMessage text is optional and should be redacted when it contains source\ncode, secrets, private paths, or other sensitive details.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/execution-message-record#message",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "WorkflowRecord": {
+      "description": "Explicit workflow, agent, and definition context.\n\nWorkflows describe orchestration around the activity. The fields align with\nthe Stencila workspace database: `runId` identifies `workflow_runs.run_id`,\n`nodeId` identifies `workflow_nodes.node_id` within that run, `artifactId`\nidentifies `workflow_artifacts.artifact_id`, and definition `contentDigest`\nvalues identify `workflow_definition_snapshots.content_hash`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record",
+      "type": "object",
+      "properties": {
+        "runId": {
+          "description": "Workflow run identifier.\n\nA run ID lets Stencila and external audit systems correlate the assertion\nwith `workflow_runs.run_id` without embedding the full workflow log.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#run-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "workflowName": {
+          "description": "Workflow name.\n\nThe name is display metadata and may be redacted or omitted for private\nworkflows.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#workflow-name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "goalDigest": {
+          "description": "Digest of the workflow goal or prompt.\n\nThe digest gives evidence that a particular private goal existed without\ndisclosing the prompt text.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#goal-digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "nodeId": {
+          "description": "Stencila node identifier associated with the workflow.\n\nThis may differ from `rootNode.nodeId`, `executedNode.nodeId`, or\n`outputNode.nodeId` when a workflow operates over a broader scope than\nthe signed asset.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#node-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "threadId": {
+          "description": "Conversation or workflow thread identifier.\n\nThread IDs help relate multi-turn agent work while remaining optional for\nprivacy and for non-conversational workflows.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#thread-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "artifactId": {
+          "description": "Produced artifact identifier.\n\nThis is a workflow-system artifact ID, not necessarily the C2PA asset ID.\nIt is optional because artifacts may be transient or private.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#artifact-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "agentSessionId": {
+          "description": "Agent session identifier.\n\nSession IDs are useful for audit trails but can be sensitive, so they are\noptional and subject to the privacy policy.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#agent-session-id",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "agent": {
+          "description": "Agent responsible for the workflow.\n\nThis records the orchestrating agent, while `attributions` records the\nrole-bearing authorship or responsibility credited to agents.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#agent",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AgentRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "definitions": {
+          "description": "Definitions loaded by the workflow.\n\nDefinitions are recorded by metadata and digest so their content can stay\nprivate while still being linked to `workflow_definition_snapshots`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/workflow-record#definitions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/DefinitionRecord"
+          }
+        }
+      }
+    },
+    "DefinitionRecord": {
+      "description": "Definition loaded by a workflow.\n\nDefinitions represent workflow, agent, skill, policy, or other reusable\nresources that may affect generated outputs. The `definitionType`, `name`, `role`,\nand `contentDigest` fields are sufficient to link a record back to the\nStencila workspace definition tables when `runId` is also disclosed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record",
+      "type": "object",
+      "properties": {
+        "definitionType": {
+          "description": "Definition type.\n\nType distinguishes workspace definition snapshots such as `workflow`,\n`agent`, and `skill` without requiring a separate record for each class.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#definition-type",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "name": {
+          "description": "Definition name.\n\nNames help audit readability but are optional because they can reveal\nprivate project structure.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "role": {
+          "description": "Role this definition played in the workflow run.\n\nRole corresponds to `workflow_run_definitions.role`. It lets consumers\ndisambiguate how a content-addressed definition snapshot contributed to\nthe run, for example as a workflow, agent, skill, or policy.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#role",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sourcePath": {
+          "description": "Source path for the definition.\n\nPaths are useful for reproduction but often private, so this field should\nbe set only when the active privacy policy permits it.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#source-path",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "description": "Definition version.\n\nVersion complements the content digest when definitions are distributed\nas named packages or managed resources.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#version",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contentDigest": {
+          "description": "Digest of definition content.\n\nThe value should use `algorithm:hex` form. It is preferred over raw\ncontent so private definitions can still be attested.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/definition-record#content-digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "EnvironmentRecord": {
+      "description": "Environment facts selected for publication under the active privacy profile.\n\nThe environment record captures reproducibility context without attempting to\nbe a full software bill of materials. It keeps the assertion compact and\nprivacy-aware while still surfacing the facts most likely to affect reruns.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record",
+      "type": "object",
+      "properties": {
+        "containerImage": {
+          "description": "Container image used for execution.\n\nA container image is often the strongest environment identity, but it is\noptional because many local or hosted executions do not use containers or\ncannot disclose image names.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#container-image",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "os": {
+          "description": "Operating system name or identifier.\n\nOS details are useful for reproduction but can reveal infrastructure, so\nthey should be disclosed only under an appropriate privacy policy.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#os",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "architecture": {
+          "description": "CPU architecture.\n\nArchitecture can affect binary packages and numeric results. It is kept\nseparate from OS because cross-platform containers can mix the two.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#architecture",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "runtimes": {
+          "description": "Runtime versions relevant to reproduction.\n\nRuntime records are intentionally lightweight and ordered by the producer\nso a verifier can display the most important runtimes first.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#runtimes",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RuntimeRecord"
+          }
+        },
+        "lockfiles": {
+          "description": "Lockfile digests relevant to reproduction.\n\nDigests identify dependency state without embedding potentially large or\nprivate lockfiles in the manifest.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#lockfiles",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FileDigestRecord"
+          }
+        }
+      }
+    },
+    "RuntimeRecord": {
+      "description": "Runtime version relevant to reproduction.\n\nRuntime records cover language runtimes, package managers, database engines,\nor other executable environments that materially affect outputs.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/runtime-record",
+      "type": "object",
+      "properties": {
+        "name": {
+          "description": "Runtime name.\n\nExamples include `python`, `r`, `node`, `quarto`, or a package manager\nname. It is optional for redacted or partially known environments.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/runtime-record#name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "version": {
+          "description": "Runtime version.\n\nVersion is optional because some runtimes are implicit in a container or\nunavailable from the execution backend.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/runtime-record#version",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "FileDigestRecord": {
+      "description": "Digest of a file relevant to reproduction.\n\nThis record is used for lockfiles and other local files where disclosing the\npath and digest is useful but embedding the full file would be too large or\nprivate.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/file-digest-record",
+      "type": "object",
+      "properties": {
+        "path": {
+          "description": "File path.\n\nPaths are optional because they can reveal private project structure.\nWhen omitted, the digest can still identify the file content.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/file-digest-record#path",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "digest": {
+          "description": "Digest of the file contents.\n\nThe value should use `algorithm:hex` form. The legacy `sha256` field name\nis accepted for unpublished pre-v1 payloads.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/file-digest-record#digest",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "AiDisclosureRecord": {
+      "description": "Stencila projection of C2PA AI disclosure concepts.\n\nThis record keeps Stencila-specific provenance summaries connected to the AI\ntransparency vocabulary used by C2PA. It mirrors the standard field names\nwhere they are stable, but remains a local projection. Producers that\ndisclose AI model use should also emit the standard `c2pa.ai-disclosure`\nassertion when possible.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record",
+      "type": "object",
+      "properties": {
+        "modelType": {
+          "description": "C2PA AI model type.\n\nThis mirrors the standard AI disclosure `modelType` field so Stencila\nconsumers can reason about the model class without parsing another\nassertion.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#model-type",
+          "type": "string"
+        },
+        "modelName": {
+          "description": "Human-readable model name.\n\nThe name is display metadata. Durable identity should use\n`modelIdentifier` where available.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#model-name",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "modelIdentifier": {
+          "description": "Unique model identifier, URI, or package URL.\n\nThis mirrors the standard AI disclosure `modelIdentifier` field and is\npreferred for reproducibility and compliance checks.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#model-identifier",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "contentProfile": {
+          "description": "Content profile for the AI use.\n\nThis mirrors the standard AI disclosure `contentProfile` object for\nstructured content-context and human-oversight signals.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#content-profile",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/AiContentProfileRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "scientificDomain": {
+          "description": "Scientific domains associated with the AI use.\n\nValues should follow the C2PA AI disclosure convention, such as arXiv\ntaxonomy strings, when disclosed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#scientific-domain",
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "standardAssertion": {
+          "description": "Label or URI of the corresponding standard C2PA assertion.\n\nThis optional pointer prevents the Stencila projection from drifting away\nfrom the standard assertion when both are present.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-disclosure-record#standard-assertion",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "modelType"
+      ]
+    },
+    "AiContentProfileRecord": {
+      "description": "Content profile for AI disclosure.\n\nThe record mirrors the standard C2PA AI disclosure `contentProfile` object\nwhile allowing Stencila to preserve unknown future profile fields.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-content-profile-record",
+      "type": "object",
+      "properties": {
+        "humanOversightLevel": {
+          "description": "Human oversight level.\n\nValues should follow C2PA AI disclosure, for example\n`fully_autonomous`, `prompt_guided`, or `human_validated`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/ai-content-profile-record#human-oversight-level",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "ProvenanceRecord": {
+      "description": "Compact projection of Stencila provenance categories.\n\nThe summary is derived from Stencila `ProvenanceCount` values. It uses a\nsingle 0-100 percentage convention to avoid the previous ambiguity between\nfractions and percentages.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record",
+      "type": "object",
+      "properties": {
+        "basis": {
+          "description": "Measurement basis for counts and percentages.\n\nThe default Stencila basis is `characters`. The field exists because\nfuture summaries for images, tables, or multimodal outputs may use bytes,\npixels, cells, tokens, or another unit.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#basis",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "humanPercent": {
+          "description": "Percentage attributed to human-only provenance.\n\nThe value is a 0-100 percentage, not a fraction. It is optional because\nconsumers can always recompute it from categories when complete category\ncounts are disclosed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#human-percent",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "machinePercent": {
+          "description": "Percentage attributed to machine-only provenance.\n\nThe value is a 0-100 percentage. This usually covers Stencila provenance\ncategories where machine generation or editing was present without human\nediting or verification.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#machine-percent",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "aiAssistedPercent": {
+          "description": "Percentage attributed to mixed human and machine provenance.\n\nThis value is a Stencila summary convenience, not a regulatory AI-use\ndeclaration. Use `aiDisclosure` and standard C2PA AI disclosure for model\ntransparency.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#ai-assisted-percent",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        },
+        "source": {
+          "description": "Source of the provenance summary.\n\nThis should usually be `stencila-provenance-counts`. It is optional so\nimported or externally computed summaries can identify their source.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#source",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "sourceVersion": {
+          "description": "Version of the summary source or algorithm.\n\nThis is separate from the assertion payload version because provenance\ncounting algorithms may change without changing the wire schema.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#source-version",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "categories": {
+          "description": "Per-category provenance counts.\n\nCategories preserve the Stencila `ProvenanceCategory` vocabulary so\ndetailed consumers are not limited to coarse human/machine rollups.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-record#categories",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProvenanceCategoryRecord"
+          }
+        }
+      }
+    },
+    "ProvenanceCategoryRecord": {
+      "description": "Per-category count for a Stencila provenance category.\n\nThis mirrors `ProvenanceCount` closely enough that a consumer can map it back\nto Stencila concepts without loading the full generated Stencila Schema.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-category-record",
+      "type": "object",
+      "properties": {
+        "category": {
+          "description": "Stencila provenance category.\n\nValues should come from `ProvenanceCategory`, such as `Hw`, `HwMv`,\n`MwHe`, or `MwMeMv`. The legacy `category` field name is accepted for\nunpublished payloads.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-category-record#category",
+          "type": "string"
+        },
+        "characterCount": {
+          "description": "Number of counted units in the category.\n\nThe unit is defined by `ProvenanceRecord.basis`, usually\ncharacters. This field is required because percentages alone are not\nenough to compare summaries across differently sized works.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-category-record#character-count",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 0
+        },
+        "characterPercent": {
+          "description": "Percentage of counted content in this category.\n\nThe value is a 0-100 percentage, matching Stencila\n`ProvenanceCount.characterPercent`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/provenance-category-record#character-percent",
+          "type": [
+            "number",
+            "null"
+          ],
+          "format": "double"
+        }
+      },
+      "required": [
+        "category",
+        "characterCount"
+      ]
+    },
+    "ReproducibilityRecord": {
+      "description": "Reproducibility status and comparison details known when signing.\n\nThis record reports what Stencila knew at signing time. It is not the same as\nC2PA manifest validation, which verifies signatures and asset binding.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record",
+      "type": "object",
+      "properties": {
+        "status": {
+          "description": "Reproducibility status.\n\nSuggested values are `not-checked`, `reproduced`, `changed`, `failed`,\nand `not-reproducible`. The field is required so absence never masks an\nintentionally skipped reproducibility check.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record#status",
+          "type": "string"
+        },
+        "policy": {
+          "description": "Reproducibility check policy used.\n\nPolicy explains how strict the comparison was, which outputs were\ncompared, and what tolerances applied. It is optional because initial\nsigning often records `not-checked`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record#policy",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checkedBy": {
+          "description": "Reproducibility checker identity.\n\nThis can be a person, service, or software identifier. Rich checker\nattribution should also be represented in `attributions` when relevant.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record#checked-by",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "checkedAt": {
+          "description": "Reproducibility check timestamp in RFC 3339 format.\n\nThe timestamp records when reproducibility was checked, not when the C2PA\nclaim was signed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record#checked-at",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "comparison": {
+          "description": "Structured comparison details.\n\nThis intentionally remains JSON so comparison tools can include\ndomain-specific summaries without forcing every detail into v1.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/reproducibility-record#comparison"
+        }
+      },
+      "required": [
+        "status"
+      ]
+    },
+    "PrivacyRecord": {
+      "description": "Privacy signals and redactions applied while building the assertion.\n\nThis record says what the projection policy did and what it assessed. It uses\nstructured statuses instead of booleans so a manifest can distinguish\n`not-assessed` from `none-detected`.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/privacy-record",
+      "type": "object",
+      "properties": {
+        "redactions": {
+          "description": "Redactions applied while building the assertion.\n\nEach redaction identifies a field path and a reason. The list is empty\nwhen no fields were redacted or when the policy chooses not to disclose\nredaction details.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/privacy-record#redactions",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/RedactionRecord"
+          }
+        },
+        "personalData": {
+          "description": "Personal-data assessment for disclosed fields.\n\nA structured status avoids claiming \"no personal data\" unless a policy or\nscanner actually assessed it.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/privacy-record#personal-data",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DisclosureAssessmentRecord"
+            }
+          ]
+        },
+        "secrets": {
+          "description": "Secret assessment for disclosed fields.\n\nA structured status lets producers distinguish redaction, non-disclosure,\nno scan, and no secret detected.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/privacy-record#secrets",
+          "allOf": [
+            {
+              "$ref": "#/definitions/DisclosureAssessmentRecord"
+            }
+          ]
+        }
+      },
+      "required": [
+        "personalData",
+        "secrets"
+      ]
+    },
+    "RedactionRecord": {
+      "description": "Redaction applied to a field while projecting the assertion.\n\nRedaction records are intentionally compact so privacy-relevant decisions can\nbe audited without exposing the redacted value.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/redaction-record",
+      "type": "object",
+      "properties": {
+        "field": {
+          "description": "Redacted field path.\n\nPaths should use assertion JSON field names, for example\n`workflow.goalDigest` or `execution.dependencies[0].digest`, so\nconsumers can locate the omitted context in the signed payload.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/redaction-record#field",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "reason": {
+          "description": "Reason the field was redacted.\n\nSuggested values include `personal-data`, `secret`, `private-path`,\n`policy`, and `size`. Custom values should be stable strings rather than\nuser-facing prose.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/redaction-record#reason",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "DisclosureAssessmentRecord": {
+      "description": "Assessment of whether a class of sensitive data is present.\n\nThis small record is used instead of a boolean because signed privacy claims\nshould be explicit about whether the data was assessed, redacted, detected,\nnot detected, or intentionally undisclosed.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/disclosure-assessment-record",
+      "type": "object",
+      "properties": {
+        "status": {
+          "description": "Assessment status.\n\nSuggested values are `not-assessed`, `none-detected`, `detected`,\n`redacted`, and `undisclosed`. The field is required so consumers can\navoid interpreting absence as a negative claim.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/disclosure-assessment-record#status",
+          "type": "string"
+        },
+        "policy": {
+          "description": "Policy, scanner, or rule set used for the assessment.\n\nPolicy is optional because not all producers have a named scanner or\npolicy at signing time.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/disclosure-assessment-record#policy",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "assessedAt": {
+          "description": "Assessment timestamp in RFC 3339 format.\n\nThis records when the assessment was made, which can differ from signing\nand reproducibility verification times.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/disclosure-assessment-record#assessed-at",
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "status"
+      ]
+    }
+  },
+  "$id": "https://stencila.org/stencila-provenance-assertion-v1.schema.json"
+}

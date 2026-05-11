@@ -13,6 +13,7 @@ itertools = { workspace = true }
 pathdiff = { workspace = true }
 regex = { workspace = true }
 seahash = { workspace = true }
+stencila-codec-info = { path = "../codec-info" }
 stencila-format = { path = "../format" }
 stencila-images = { path = "../images" }
 stencila-schema = { path = "../schema" }

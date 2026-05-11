@@ -1,4 +1,5 @@
 use std::{
+    collections::BTreeSet,
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -17,17 +18,23 @@ use walkdir::WalkDir;
 use stencila_ask::{Answer, AskLevel, AskOptions, ask_with};
 use stencila_cli_utils::{Code, ToStdout};
 use stencila_codec::stencila_schema::{
-    Article, Block, IncludeBlock, Node, VisitorAsync, WalkControl, WalkNode,
+    Article, Block, IncludeBlock, Node, NodeId, VisitorAsync, WalkControl, WalkNode,
 };
 pub use stencila_codec::{
-    CitationStyle, Codec, CodecDirection, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions,
-    Losses, LossesResponse, Mapping, MappingEntry, Message, MessageLevel, Messages, NodeType,
-    PageSelector, PoshMap, Position8, Position16, Positions, PushDryRunFile, PushDryRunOptions,
-    PushResult, Range8, Range16, StructuringOperation, StructuringOptions,
+    CitationStyle, Codec, CodecDirection, CredentialProfile, CredentialsOptions, DecodeInfo,
+    DecodeOptions, EncodeInfo, EncodeOptions, EncodedAsset, Losses, LossesResponse, Mapping,
+    MappingEntry, Message, MessageLevel, Messages, NodeType, PageSelector, PoshMap, Position8,
+    Position16, Positions, PushDryRunFile, PushDryRunOptions, PushResult, Range8, Range16,
+    StructuringOperation, StructuringOptions,
     eyre::{Context, OptionExt, Result, bail, eyre},
     stencila_format::Format,
+    stencila_schema,
 };
-use stencila_codec_utils::rebase_edits;
+use stencila_codec_utils::{git_file_info, rebase_edits};
+use stencila_content_credentials::{
+    CredentialProducer, CredentialSignerConfig, IngredientRelationship, IngredientSnapshot,
+    ManifestKind, SignAssetRequest, SignedAsset, media as credentials_media,
+};
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
 
@@ -77,6 +84,7 @@ use stencila_codec_zenodo::ZenodoCodec;
 use stencila_remotes::RemoteService;
 
 pub mod cli;
+mod credentials;
 
 /// Get a list of all codecs
 pub fn list() -> Vec<Box<dyn Codec>> {
@@ -550,6 +558,20 @@ pub async fn to_string_with_info(
         ..options.unwrap_or_default()
     });
 
+    // Content Credentials are only produced for path-based outputs, where the
+    // signed bytes can be hashed and a manifest written next to the asset.
+    // Warn the caller rather than silently dropping the request.
+    if options
+        .as_ref()
+        .is_some_and(|options| options.credentials.is_some())
+    {
+        tracing::warn!(
+            "Content Credentials were requested but cannot be applied to a string output; \
+             only path-based exports (`to_path`) can be signed. The string will be returned \
+             unsigned."
+        );
+    }
+
     if let Some(EncodeOptions {
         strip_scopes,
         strip_types,
@@ -627,20 +649,313 @@ pub async fn to_path_with_info(
         ..options.unwrap_or_default()
     });
 
-    if let Some(EncodeOptions {
-        strip_scopes,
-        strip_types,
-        strip_props,
-        ..
-    }) = options.clone()
-        && !(strip_scopes.is_empty() && strip_types.is_empty() && strip_props.is_empty())
-    {
-        let mut node = node.clone();
-        node.strip(&StripTargets::new(strip_scopes, strip_types, strip_props));
-        return codec.to_path(&node, path, options).await;
+    let codec_name = codec.name().to_string();
+
+    // When credentials are requested, stabilize the document tree so that
+    // every recorded `nodeId` is a deterministic structural identifier rather
+    // than the random per-load UID. Both the codec output (`info.assets[i]`)
+    // and the downstream provenance projection then see the same stable IDs,
+    // and re-rendering the same source produces byte-identical assertions.
+    let credentials_requested = options
+        .as_ref()
+        .and_then(|options| options.credentials.as_ref())
+        .is_some();
+    let strip_targets = options.as_ref().and_then(|options| {
+        let scopes = options.strip_scopes.clone();
+        let types = options.strip_types.clone();
+        let props = options.strip_props.clone();
+        (!(scopes.is_empty() && types.is_empty() && props.is_empty()))
+            .then(|| StripTargets::new(scopes, types, props))
+    });
+
+    let owned_node;
+    let node_for_export: &Node = if credentials_requested || strip_targets.is_some() {
+        let mut clone = node.clone();
+        if credentials_requested {
+            stencila_node_stabilize::stabilize(&mut clone);
+        }
+        if let Some(targets) = strip_targets {
+            clone.strip(&targets);
+        }
+        owned_node = clone;
+        &owned_node
+    } else {
+        node
+    };
+
+    let mut info = codec
+        .to_path(node_for_export, path, options.clone())
+        .await?;
+
+    sign_encoded_paths(
+        node_for_export,
+        &codec_name,
+        path,
+        options.as_ref(),
+        &mut info,
+    )
+    .await?;
+
+    Ok(info)
+}
+
+async fn sign_encoded_paths(
+    node: &Node,
+    codec_name: &str,
+    path: &Path,
+    options: Option<&EncodeOptions>,
+    info: &mut EncodeInfo,
+) -> Result<()> {
+    let Some(credentials) = options.and_then(|options| options.credentials.as_ref()) else {
+        return Ok(());
+    };
+
+    let signer = CredentialSignerConfig::resolve(None, None)?;
+    let producer = CredentialProducer::new(signer);
+
+    let source_path = options.and_then(|options| options.from_path.as_deref());
+    let profile_label = credentials.profile.to_string();
+
+    // Source ingredient (relationship: inputTo) — present on every asset so a
+    // verifier can see what the asset was derived from. Computed once.
+    let source_ingredient = source_ingredient_snapshot(source_path);
+
+    // Sign side assets first so the primary's manifest can declare them as
+    // `componentOf` ingredients, with hashes that reflect the *signed* bytes
+    // (which is what a verifier will see).
+    let mut side_targets: Vec<(PathBuf, Option<String>, Option<String>)> = Vec::new();
+    let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
+    seen.insert(path.to_path_buf());
+    for asset in &info.assets {
+        if !seen.insert(asset.path.clone()) {
+            continue;
+        }
+        side_targets.push((
+            asset.path.clone(),
+            asset.node_id.clone(),
+            asset.role.clone(),
+        ));
     }
 
-    codec.to_path(node, path, options).await
+    let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
+    let mut component_ingredients: Vec<IngredientSnapshot> = Vec::new();
+
+    for (component_index, (asset_path, originating_id, asset_role)) in
+        side_targets.into_iter().enumerate()
+    {
+        if !asset_path.is_file() {
+            continue;
+        }
+
+        let media_type = match credentials_media::guess_media_type(&asset_path) {
+            Ok(media_type) => Some(media_type),
+            Err(error) => {
+                tracing::warn!(
+                    "Skipping content credentials for asset with unknown media type: {}",
+                    asset_path.display()
+                );
+                tracing::debug!("{error}");
+                continue;
+            }
+        };
+
+        let owned_subject = originating_id
+            .as_deref()
+            .and_then(|id| id.parse::<NodeId>().ok())
+            .and_then(|id| stencila_node_find::find(node, id));
+        let subject = owned_subject.as_ref().unwrap_or(node);
+
+        let mut provenance = credentials::build_export_snapshot(
+            node,
+            subject,
+            source_path,
+            &asset_path,
+            false,
+            asset_role.as_deref(),
+            Some(codec_name),
+            &profile_label,
+        );
+        if let Some(ingredient) = source_ingredient.clone() {
+            provenance.ingredients.push(ingredient);
+        }
+
+        let signed = producer
+            .sign_exported_asset(SignAssetRequest {
+                input_path: asset_path.clone(),
+                media_type: media_type.clone(),
+                credential_profile: credential_profile(credentials.profile.clone()),
+                provenance: Some(provenance),
+                ..Default::default()
+            })
+            .await?;
+
+        // Prefer the sidecar (if any) so the parent manifest can chain into
+        // the child's `.c2pa` blob; for embedded manifests the asset bytes
+        // themselves carry the JUMBF.
+        let manifest_source = signed
+            .sidecar_path
+            .clone()
+            .unwrap_or_else(|| signed.asset_path.clone());
+
+        // Reflect the signing result on the original asset entry so callers
+        // see which side assets carry credentials and where the manifest
+        // landed.
+        if let Some(asset) = info
+            .assets
+            .iter_mut()
+            .find(|asset| asset.path == asset_path)
+        {
+            apply_signed_asset_metadata(asset, &signed, &profile_label);
+        }
+
+        if let Some(sidecar_path) = signed.sidecar_path
+            && !info.assets.iter().any(|asset| asset.path == sidecar_path)
+            && !new_sidecars.iter().any(|asset| asset.path == sidecar_path)
+        {
+            new_sidecars.push(EncodedAsset::sidecar(sidecar_path));
+        }
+
+        component_ingredients.push(IngredientSnapshot {
+            label: Some(format!("component-{component_index}")),
+            title: asset_path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .map(ToString::to_string),
+            media_type,
+            content_digest: Some(signed.signed_asset_digest),
+            relationship: IngredientRelationship::ComponentOf,
+            manifest_source: Some(manifest_source),
+            ..Default::default()
+        });
+    }
+
+    // Now sign the primary export with both source-as-inputTo and each
+    // signed side asset as componentOf.
+    if path.is_file() {
+        let media_type = match credentials_media::guess_media_type(path) {
+            Ok(media_type) => Some(media_type),
+            Err(error) => {
+                tracing::debug!("{error}");
+                options.and_then(|options| options.format.as_ref().map(Format::media_type))
+            }
+        };
+
+        let mut provenance = credentials::build_export_snapshot(
+            node,
+            node,
+            source_path,
+            path,
+            true,
+            None,
+            Some(codec_name),
+            &profile_label,
+        );
+        if let Some(ingredient) = source_ingredient {
+            provenance.ingredients.push(ingredient);
+        }
+        provenance.ingredients.extend(component_ingredients);
+
+        let signed = producer
+            .sign_exported_asset(SignAssetRequest {
+                input_path: path.to_path_buf(),
+                media_type,
+                credential_profile: credential_profile(credentials.profile.clone()),
+                provenance: Some(provenance),
+                ..Default::default()
+            })
+            .await?;
+
+        // Record the primary export in info.assets with role "document" so
+        // callers can iterate a single list to find every signed output.
+        let primary_asset = EncodedAsset {
+            path: path.to_path_buf(),
+            node_id: node.node_id().map(|id| id.uid_str().to_string()),
+            node_type: Some(node.node_type().to_string()),
+            role: Some("document".to_string()),
+            signed: true,
+            manifest_kind: Some(manifest_kind_label(signed.manifest_kind)),
+            manifest_id: signed.manifest_id.clone(),
+            sidecar_path: signed.sidecar_path.clone(),
+            credential_profile: Some(profile_label.clone()),
+            signing_warnings: signed.warnings.clone(),
+        };
+        if let Some(sidecar_path) = signed.sidecar_path
+            && !info.assets.iter().any(|asset| asset.path == sidecar_path)
+            && !new_sidecars.iter().any(|asset| asset.path == sidecar_path)
+        {
+            new_sidecars.push(EncodedAsset::sidecar(sidecar_path));
+        }
+        info.assets.insert(0, primary_asset);
+    }
+
+    info.assets.extend(new_sidecars);
+
+    Ok(())
+}
+
+fn manifest_kind_label(kind: ManifestKind) -> String {
+    match kind {
+        ManifestKind::Embedded => "embedded".to_string(),
+        ManifestKind::Sidecar => "sidecar".to_string(),
+    }
+}
+
+fn apply_signed_asset_metadata(asset: &mut EncodedAsset, signed: &SignedAsset, profile: &str) {
+    asset.signed = true;
+    asset.manifest_kind = Some(manifest_kind_label(signed.manifest_kind));
+    asset.manifest_id.clone_from(&signed.manifest_id);
+    asset.sidecar_path.clone_from(&signed.sidecar_path);
+    asset.credential_profile = Some(profile.to_string());
+    asset.signing_warnings.clone_from(&signed.warnings);
+}
+
+/// Build an [`IngredientSnapshot`] for the source document the export came
+/// from, when one is known.
+fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<IngredientSnapshot> {
+    let source_path = source_path?;
+    if !source_path.is_file() {
+        return None;
+    }
+
+    let media_type = credentials_media::guess_media_type(source_path).ok();
+    let content_digest = credentials_media::sha256_file(source_path).ok();
+    let title = source_path
+        .file_name()
+        .and_then(|name| name.to_str())
+        .map(ToString::to_string);
+
+    Some(IngredientSnapshot {
+        label: Some("source".to_string()),
+        title,
+        media_type,
+        content_digest,
+        relationship: IngredientRelationship::InputTo,
+        informational_uri: source_informational_uri(source_path),
+        ..Default::default()
+    })
+}
+
+fn source_informational_uri(source_path: &Path) -> Option<String> {
+    let info = git_file_info(source_path).ok()?;
+    let origin = info.origin?;
+    let commit = info.commit?;
+    let path = info.path?;
+
+    if !(origin.starts_with("https://github.com/") && commit.len() == 40) {
+        return None;
+    }
+
+    Some(format!("{origin}/blob/{commit}/{path}"))
+}
+
+fn credential_profile(
+    profile: CredentialProfile,
+) -> stencila_content_credentials::CredentialProfile {
+    match profile {
+        CredentialProfile::Public => stencila_content_credentials::CredentialProfile::Public,
+        CredentialProfile::Private => stencila_content_credentials::CredentialProfile::Private,
+        CredentialProfile::Full => stencila_content_credentials::CredentialProfile::Full,
+    }
 }
 
 /// Convert a document from one format to another

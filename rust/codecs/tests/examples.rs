@@ -380,8 +380,12 @@ async fn examples() -> Result<()> {
 
                 if codec.supports_to_string() && !matches!(config.format, Format::JsonZip) {
                     // Encode to string
-                    let (mut actual, EncodeInfo { losses, mapping }) =
-                        codec.to_string(&original, encode_options).await?;
+                    let (
+                        mut actual,
+                        EncodeInfo {
+                            losses, mapping, ..
+                        },
+                    ) = codec.to_string(&original, encode_options).await?;
 
                     // If DOM HTML redact ids since these will change between test runs
                     if config.format == Format::Dom {

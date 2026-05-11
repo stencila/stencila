@@ -15,7 +15,7 @@ use stencila_codec_dom_trait::{
     html_escape::{encode_double_quoted_attribute, encode_safe},
 };
 use stencila_codec_text_trait::to_text;
-use stencila_node_media::{collect_media, embed_media, extract_media};
+use stencila_node_media::{collect_media_with_paths, embed_media, extract_media_with_paths};
 use stencila_themes::{Theme, ThemeType};
 use stencila_web_dist::{web_base_cdn, web_static_path_dev};
 
@@ -51,12 +51,14 @@ impl Codec for DomCodec {
             .and_then(|opts| opts.extract_media.as_ref())
         {
             let mut copy = node.clone();
-            extract_media(
+            let assets = extract_media_with_paths(
                 &mut copy,
                 options.as_ref().and_then(|opts| opts.to_path.as_deref()),
                 media,
             )?;
-            encode(&copy, options, None).await
+            let (html, mut info) = encode(&copy, options, None).await?;
+            info.assets.extend(assets);
+            Ok((html, info))
         } else if options
             .as_ref()
             .and_then(|opts| opts.embed_media)
@@ -79,16 +81,16 @@ impl Codec for DomCodec {
         path: &Path,
         options: Option<EncodeOptions>,
     ) -> Result<EncodeInfo> {
-        let node = if let Some(media) = options
+        let (node, collected_assets) = if let Some(media) = options
             .as_ref()
             .and_then(|opts| opts.collect_media.as_ref())
         {
             let mut copy = node.clone();
             let from_path = options.as_ref().and_then(|opts| opts.from_path.as_deref());
-            collect_media(&mut copy, from_path, path, media)?;
-            copy
+            let assets = collect_media_with_paths(&mut copy, from_path, path, media)?;
+            (copy, assets)
         } else {
-            node.clone()
+            (node.clone(), Vec::new())
         };
 
         let mut options = options.unwrap_or_default();
@@ -100,7 +102,8 @@ impl Codec for DomCodec {
         }
         options.to_path = Some(path.to_path_buf());
 
-        let (html, info) = self.to_string(&node, Some(options)).await?;
+        let (html, mut info) = self.to_string(&node, Some(options)).await?;
+        info.assets.extend(collected_assets);
 
         if let Some(parent) = path.parent() {
             create_dir_all(parent).await?;

@@ -25,6 +25,7 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, En
         EncodeInfo {
             losses: context.losses,
             mapping: context.mapping,
+            ..Default::default()
         },
     ))
 }
