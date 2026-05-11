@@ -49,15 +49,17 @@ impl Executable for Island {
             // If other_ids is set, register all of them
             if let Some(other_ids) = &self.other_ids {
                 for label_id in other_ids {
-                    executor
-                        .labels
-                        .insert(label_id.clone(), (*label_type, label.clone()));
+                    executor.labels.insert(
+                        label_id.clone(),
+                        LabelTarget::from_schema_label_type(*label_type, label.clone()),
+                    );
                 }
             } else if let Some(id) = &self.id {
                 // Fallback to just the primary id if other_ids is not set
-                executor
-                    .labels
-                    .insert(id.clone(), (*label_type, label.clone()));
+                executor.labels.insert(
+                    id.clone(),
+                    LabelTarget::from_schema_label_type(*label_type, label.clone()),
+                );
             }
         }
 

@@ -7,13 +7,26 @@ impl Executable for MathBlock {
     async fn compile(&mut self, executor: &mut Executor) -> WalkControl {
         let node_id = self.node_id();
 
-        // Update label if necessary
-        executor.equation_count += 1;
-        if self.label_automatically.unwrap_or(true) {
-            let label = executor.equation_count.to_string();
-            if Some(&label) != self.label.as_ref() {
-                executor.patch(&node_id, [set(NodeProperty::Label, label)]);
-            }
+        // Update label if necessary. All math blocks advance the equation
+        // counter, including manually labelled blocks, so subsequent automatic
+        // labels stay in sequence.
+        let label = executor.equation_label();
+        if self.label_automatically.unwrap_or(true) && Some(&label) != self.label.as_ref() {
+            self.label = Some(label.clone());
+            executor.patch(&node_id, [set(NodeProperty::Label, label)]);
+        }
+
+        if let Some(label) = &self.label
+            && let Some(id) = Executor::equation_auto_id(label, &self.id)
+        {
+            self.id = Some(id.clone());
+            executor.patch(&node_id, [set(NodeProperty::Id, id)]);
+        }
+
+        if let (Some(id), Some(label)) = (&self.id, &self.label) {
+            executor
+                .labels
+                .insert(id.clone(), LabelTarget::new("Equation", label.clone()));
         }
 
         // Parse the code to determine if it or the language has changed since last time

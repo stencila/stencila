@@ -14,7 +14,7 @@ pub use stencila_schema::{
 };
 use stencila_schema::{CompilationDigest, CompilationMessage};
 
-pub(crate) use crate::{Executable, Executor};
+pub(crate) use crate::{Executable, Executor, LabelTarget};
 
 /// Is a name a valid variable name?
 pub fn is_valid_variable_name(name: &str) -> bool {

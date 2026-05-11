@@ -11152,6 +11152,7 @@ dependencies = [
  "stencila-codec-biblio",
  "stencila-codec-cbor",
  "stencila-codec-markdown",
+ "stencila-codec-text-trait",
  "stencila-codecs",
  "stencila-images",
  "stencila-kernels",

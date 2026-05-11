@@ -1,6 +1,6 @@
 use stencila_codecs::Format;
 use stencila_linters::LintingOptions;
-use stencila_schema::{CompilationMessage, Inline, LabelType, Link, NodeType, shortcuts::t};
+use stencila_schema::{CompilationMessage, Inline, Link, NodeType, shortcuts::t};
 
 use crate::{CompileOptions, prelude::*};
 
@@ -87,18 +87,13 @@ impl Executable for Link {
         if let Some(target) = self.target.strip_prefix("#")
             && is_generated_or_empty
         {
-            if let Some((label_type, label)) = executor.labels.get(target) {
-                let label_type = match label_type {
-                    LabelType::TableLabel => "Table",
-                    LabelType::FigureLabel => "Figure",
-                    LabelType::AppendixLabel => "Appendix",
-                    LabelType::SupplementLabel => "Supplement",
-                };
-
+            if let Some(target) = executor.labels.get(target) {
                 let content = if self.label_only.unwrap_or_default() {
-                    label.clone()
+                    target.label.clone()
+                } else if let Some(label_type) = target.label_type {
+                    [label_type, " ", &target.label].concat()
                 } else {
-                    [label_type, " ", label].concat()
+                    target.label.clone()
                 };
                 let content = vec![t(content), t(ZERO_WIDTH_SPACE)];
 

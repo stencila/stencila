@@ -59,9 +59,10 @@ impl Executable for CodeChunk {
         // If have id, label type and label then register as a link target
         if let (Some(id), Some(label_type), Some(label)) = (&self.id, &self.label_type, &self.label)
         {
-            executor
-                .labels
-                .insert(id.clone(), (*label_type, label.clone()));
+            executor.labels.insert(
+                id.clone(),
+                LabelTarget::from_schema_label_type(*label_type, label.clone()),
+            );
         }
 
         // Compile overlay if present

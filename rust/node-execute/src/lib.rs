@@ -222,7 +222,7 @@ pub struct Executor {
     supplement_count: u32,
 
     /// Labels that may be the target of internal `Link`s
-    labels: HashMap<String, (LabelType, String)>,
+    labels: HashMap<String, LabelTarget>,
 
     /// References that may be the `target` of citations
     ///
@@ -1138,6 +1138,19 @@ impl Executor {
         }
     }
 
+    /// Generate an auto-id for an equation from its label, or return the
+    /// existing id if it was user-supplied.
+    pub fn equation_auto_id(label: &str, current_id: &Option<String>) -> Option<String> {
+        let prefix = "eqn";
+        let auto = format!("{prefix}-{}", label.to_lowercase());
+
+        match current_id {
+            None => Some(auto),
+            Some(id) if *id == auto => None,
+            Some(_) => None,
+        }
+    }
+
     /// Whether an id looks like it was auto-generated for the given prefix.
     ///
     /// Auto ids match `{prefix}-{optional letters}{digits}{optional letters}`
@@ -1429,16 +1442,45 @@ impl VisitorAsync for Executor {
     }
 }
 
+#[derive(Clone)]
+pub(crate) struct LabelTarget {
+    label_type: Option<&'static str>,
+    label: String,
+}
+
+impl LabelTarget {
+    pub(crate) fn new(label_type: impl Into<Option<&'static str>>, label: String) -> Self {
+        Self {
+            label_type: label_type.into(),
+            label,
+        }
+    }
+
+    pub(crate) fn from_schema_label_type(label_type: LabelType, label: String) -> Self {
+        let label_type = match label_type {
+            LabelType::TableLabel => "Table",
+            LabelType::FigureLabel => "Figure",
+            LabelType::AppendixLabel => "Appendix",
+            LabelType::SupplementLabel => "Supplement",
+        };
+
+        Self::new(label_type, label)
+    }
+}
+
 #[cfg(test)]
 mod labelling_tests {
     use std::path::PathBuf;
     use std::sync::Arc;
 
     use stencila_kernels::Kernels;
-    use stencila_schema::{ExecutionBounds, NodeId, NodeType, VisitorAsync};
+    use stencila_schema::{
+        ExecutionBounds, Heading, Inline, Link, MathBlock, NodeId, NodeType, VisitorAsync,
+        shortcuts::{ci, stg, t},
+    };
     use tokio::sync::RwLock;
 
-    use super::Executor;
+    use super::{Executable, Executor};
 
     fn test_executor() -> Executor {
         let kernels = Kernels::new(ExecutionBounds::Main, &PathBuf::from("."), None);
@@ -1462,6 +1504,197 @@ mod labelling_tests {
         assert_eq!(exec.figure_label(), "1");
         assert_eq!(exec.figure_label(), "2");
         assert_eq!(exec.figure_label(), "3");
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn math_block_registers_equation_link_target() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut math = MathBlock {
+            id: Some("eq:one".into()),
+            code: "x".into(),
+            ..Default::default()
+        };
+
+        math.compile(&mut exec).await;
+
+        let mut link = Link {
+            target: "#eq:one".into(),
+            ..Default::default()
+        };
+
+        link.link(&mut exec).await;
+
+        assert!(
+            matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 1")
+        );
+        assert!(link.compilation_messages.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn math_block_registers_automatic_equation_link_target() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut math = MathBlock {
+            code: "x".into(),
+            ..Default::default()
+        };
+
+        math.compile(&mut exec).await;
+
+        assert_eq!(math.id.as_deref(), Some("eqn-1"));
+
+        let mut link = Link {
+            target: "#eqn-1".into(),
+            ..Default::default()
+        };
+
+        link.link(&mut exec).await;
+
+        assert!(
+            matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 1")
+        );
+        assert!(link.compilation_messages.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn manually_labelled_math_block_advances_equation_count() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut manual = MathBlock {
+            id: Some("eq:manual".into()),
+            code: "x".into(),
+            label: Some("1".into()),
+            label_automatically: Some(false),
+            ..Default::default()
+        };
+        let mut automatic = MathBlock {
+            code: "y".into(),
+            ..Default::default()
+        };
+
+        manual.compile(&mut exec).await;
+        automatic.compile(&mut exec).await;
+
+        assert_eq!(manual.label.as_deref(), Some("1"));
+        assert_eq!(automatic.label.as_deref(), Some("2"));
+        assert_eq!(automatic.id.as_deref(), Some("eqn-2"));
+
+        let mut manual_link = Link {
+            target: "#eq:manual".into(),
+            ..Default::default()
+        };
+        let mut automatic_link = Link {
+            target: "#eqn-2".into(),
+            ..Default::default()
+        };
+
+        manual_link.link(&mut exec).await;
+        automatic_link.link(&mut exec).await;
+
+        assert!(
+            matches!(manual_link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 1")
+        );
+        assert!(
+            matches!(automatic_link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 2")
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn math_block_preserves_existing_eqn_like_id() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut first = MathBlock {
+            id: Some("eq:other".into()),
+            code: "x".into(),
+            label: Some("1".into()),
+            label_automatically: Some(false),
+            ..Default::default()
+        };
+        let mut manual = MathBlock {
+            id: Some("eqn-1".into()),
+            code: "y".into(),
+            label: Some("2".into()),
+            label_automatically: Some(false),
+            ..Default::default()
+        };
+
+        first.compile(&mut exec).await;
+        manual.compile(&mut exec).await;
+
+        assert_eq!(first.id.as_deref(), Some("eq:other"));
+        assert_eq!(manual.id.as_deref(), Some("eqn-1"));
+        assert_eq!(manual.label.as_deref(), Some("2"));
+
+        let mut link = Link {
+            target: "#eqn-1".into(),
+            ..Default::default()
+        };
+
+        link.link(&mut exec).await;
+
+        assert!(
+            matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 2")
+        );
+        assert!(link.compilation_messages.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn heading_registers_section_link_target() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut heading = Heading {
+            id: Some("sec:methods".into()),
+            level: 2,
+            content: vec![t("Methods")],
+            ..Default::default()
+        };
+
+        heading.compile(&mut exec).await;
+
+        let mut link = Link {
+            target: "#sec:methods".into(),
+            ..Default::default()
+        };
+
+        link.link(&mut exec).await;
+
+        assert!(
+            matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Section Methods")
+        );
+        assert!(link.compilation_messages.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn heading_registers_rich_section_link_target() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut heading = Heading {
+            id: Some("sec:rich-methods".into()),
+            level: 2,
+            content: vec![t("Methods "), stg([t("and")]), t(" "), ci("models")],
+            ..Default::default()
+        };
+
+        heading.compile(&mut exec).await;
+
+        let mut link = Link {
+            target: "#sec:rich-methods".into(),
+            ..Default::default()
+        };
+
+        link.link(&mut exec).await;
+
+        assert!(
+            matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Section Methods and models")
+        );
+        assert!(link.compilation_messages.is_none());
+
         Ok(())
     }
 

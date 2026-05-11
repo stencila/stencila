@@ -1,3 +1,4 @@
+use stencila_codec_text_trait::TextCodec;
 use stencila_schema::{Heading, LabelType, NodeType};
 
 use crate::{HeadingInfo, prelude::*};
@@ -39,12 +40,22 @@ impl Executable for Heading {
             }
         }
 
-        // If has id, label type and label may be a link target so register
+        // If has id, register as a link target. Appendix headings have explicit
+        // labels; other headings use their title so that LaTeX section labels
+        // can still resolve without adding public schema label categories.
         if let (Some(id), Some(label_type), Some(label)) = (&self.id, &self.label_type, &self.label)
         {
-            executor
-                .labels
-                .insert(id.clone(), (*label_type, label.clone()));
+            executor.labels.insert(
+                id.clone(),
+                LabelTarget::from_schema_label_type(*label_type, label.clone()),
+            );
+        } else if let Some(id) = &self.id {
+            let title = self.content.to_text().trim().to_string();
+            if !title.is_empty() {
+                executor
+                    .labels
+                    .insert(id.clone(), LabelTarget::new("Section", title));
+            }
         }
 
         // Record this heading if appropriate

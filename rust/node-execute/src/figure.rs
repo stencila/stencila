@@ -38,9 +38,10 @@ impl Executable for Figure {
 
         // If have id and label then register as a link target
         if let (Some(id), Some(label)) = (&self.id, &self.label) {
-            executor
-                .labels
-                .insert(id.clone(), (LabelType::FigureLabel, label.clone()));
+            executor.labels.insert(
+                id.clone(),
+                LabelTarget::from_schema_label_type(LabelType::FigureLabel, label.clone()),
+            );
         }
 
         // Compile overlay if present
