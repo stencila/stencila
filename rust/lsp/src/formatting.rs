@@ -15,6 +15,24 @@ use tokio::sync::RwLock;
 use stencila_codecs::{EncodeOptions, Format, LossesResponse};
 use stencila_document::Document;
 
+#[derive(Debug)]
+struct EditSpan {
+    old_start: usize,
+    old_end: usize,
+    new_start: usize,
+    new_end: usize,
+}
+
+impl EditSpan {
+    fn old_len(&self) -> usize {
+        self.old_end - self.old_start
+    }
+
+    fn new_len(&self) -> usize {
+        self.new_end - self.new_start
+    }
+}
+
 /// Handle to format a document
 #[tracing::instrument(skip(doc))]
 pub(crate) async fn request(
@@ -89,52 +107,79 @@ pub fn compute_text_edits(source: &str, formatted: &str) -> Vec<TextEdit> {
     // Diff using LCS
     let ops = capture_diff_slices(Algorithm::Lcs, &source_lines, &formatted_lines);
 
-    // Translate diff ops into text edits
-    let edits = ops.into_iter().filter_map(|op| match op {
+    // Translate diff ops into replacement spans.
+    let spans = ops.into_iter().filter_map(|op| match op {
         similar::DiffOp::Insert {
             old_index,
             new_index,
             new_len,
-        } => Some(TextEdit::new(
-            Range::new(
-                Position::new(old_index as u32, 0),
-                Position::new(old_index as u32, 0),
-            ),
-            formatted_lines
-                .iter()
-                .skip(new_index)
-                .take(new_len)
-                .join(""),
-        )),
+        } => Some(EditSpan {
+            old_start: old_index,
+            old_end: old_index,
+            new_start: new_index,
+            new_end: new_index + new_len,
+        }),
 
         similar::DiffOp::Replace {
             old_index,
             old_len,
             new_index,
             new_len,
-        } => Some(TextEdit::new(
+        } => Some(EditSpan {
+            old_start: old_index,
+            old_end: old_index + old_len,
+            new_start: new_index,
+            new_end: new_index + new_len,
+        }),
+
+        similar::DiffOp::Delete {
+            old_index,
+            old_len,
+            new_index,
+        } => (old_len > 0).then_some(EditSpan {
+            old_start: old_index,
+            old_end: old_index + old_len,
+            new_start: new_index,
+            new_end: new_index,
+        }),
+
+        similar::DiffOp::Equal { .. } => None,
+    });
+
+    // Coalesce touching spans and small replacement groups. This avoids producing
+    // overlapping or adjacent edits when an insertion is followed by a nearby change.
+    let mut merged: Vec<EditSpan> = Vec::new();
+    for span in spans {
+        if let Some(last) = merged.last_mut() {
+            let old_gap = span.old_start.saturating_sub(last.old_end);
+            let new_gap = span.new_start.saturating_sub(last.new_end);
+            let touches = old_gap == 0 && new_gap == 0;
+            let bridges_single_line =
+                old_gap == 1 && new_gap == 1 && last.old_len() > 0 && last.new_len() > 0;
+
+            if touches || bridges_single_line {
+                last.old_end = span.old_end;
+                last.new_end = span.new_end;
+                continue;
+            }
+        }
+
+        merged.push(span);
+    }
+
+    // Translate replacement spans into text edits
+    let edits = merged.into_iter().map(|span| {
+        TextEdit::new(
             Range::new(
-                Position::new(old_index as u32, 0),
-                Position::new((old_index + old_len) as u32, 0),
+                Position::new(span.old_start as u32, 0),
+                Position::new(span.old_end as u32, 0),
             ),
             formatted_lines
                 .iter()
-                .skip(new_index)
-                .take(new_len)
+                .skip(span.new_start)
+                .take(span.new_end - span.new_start)
                 .join(""),
-        )),
-
-        similar::DiffOp::Delete {
-            old_index, old_len, ..
-        } => (old_len > 0).then_some(TextEdit::new(
-            Range::new(
-                Position::new(old_index as u32, 0),
-                Position::new((old_index + old_len) as u32, 0),
-            ),
-            "".into(),
-        )),
-
-        similar::DiffOp::Equal { .. } => None,
+        )
     });
 
     // Sort edits in reverse order by start line
