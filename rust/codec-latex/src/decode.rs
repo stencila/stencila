@@ -52,7 +52,7 @@ static COMMANDS_RE: LazyLock<Regex> = LazyLock::new(|| {
 
       | (?P<appendix>\\appendix)\s*\n?
 
-      | (?:\\label\{(?P<label_before>[^}]*)\}\s*)?\\section\{(?P<section>[^}]*)\}\s*(?:\\label\{(?P<label_after>[^}]*)\}\s*)?\n?
+      | (?:\\label\{(?P<label_before>[^}]*)\}\s*)?\\(?P<section_command>section|subsection|subsubsection)\{(?P<section>[^}]*)\}\s*(?:\\label\{(?P<label_after>[^}]*)\}\s*)?\n?
 
       | \\begin\{equation\*?\} \s*
           (?P<equation>.*?)
@@ -780,10 +780,18 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
                 .name("label_before")
                 .or(captures.name("label_after"))
                 .map(|cap| cap.as_str().to_string());
+            let level = match captures
+                .name("section_command")
+                .map(|command| command.as_str())
+            {
+                Some("subsection") => 2,
+                Some("subsubsection") => 3,
+                _ => 1,
+            };
 
             blocks.push(Block::Heading(Heading {
                 id,
-                level: 1,
+                level,
                 content: vec![Inline::Text(Text::from(section.as_str()))],
                 ..Default::default()
             }));
@@ -796,9 +804,18 @@ fn process_latex_segment(latex: &str, island_style: &Option<String>) -> Vec<Bloc
             static RE: LazyLock<Regex> =
                 LazyLock::new(|| Regex::new(r"\\label\{([^}]+)\}").expect("invalid regex"));
 
-            let code = RE.replace_all(mat.as_str(), "").trim().to_string();
+            // Preserve top-level display environments that carry their own math
+            // context. Wrapping only their bodies in `\[...\]` makes alignment
+            // markers invalid when round-tripping to formats such as DOCX.
+            let code_source = if captures.name("equation").is_some() {
+                mat.as_str()
+            } else {
+                captures.get(0).map_or(mat.as_str(), |mat| mat.as_str())
+            };
+
+            let code = RE.replace_all(code_source, "").trim().to_string();
             let id = RE
-                .captures_iter(mat.as_str())
+                .captures_iter(code_source)
                 .filter_map(|caps| caps.get(1).map(|m| m.as_str().to_string()))
                 .last();
 

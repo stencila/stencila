@@ -2,7 +2,11 @@ use std::path::PathBuf;
 
 use glob::glob;
 
-use stencila_codec::{Codec, DecodeOptions, EncodeOptions, eyre::Result};
+use stencila_codec::{
+    Codec, DecodeOptions, EncodeOptions,
+    eyre::{Result, eyre},
+    stencila_schema::{Block, Node},
+};
 
 use insta::{assert_json_snapshot, assert_snapshot};
 use stencila_codec_latex::LatexCodec;
@@ -67,6 +71,74 @@ async fn examples() -> Result<()> {
             .await?;
         assert_snapshot!(format!("{name}.fine.tex"), &latex);
     }
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn coarse_align_roundtrip_preserves_environment() -> Result<()> {
+    let source = r#"\begin{align}
+a &= b \\
+c &= d
+\label{eq:test}
+\end{align}
+"#;
+
+    let (node, ..) = LatexCodec.from_str(source, None).await?;
+
+    let Node::Article(article) = &node else {
+        return Err(eyre!("expected article"));
+    };
+    let Some(Block::MathBlock(math)) = article.content.first() else {
+        return Err(eyre!("expected first block to be MathBlock"));
+    };
+
+    assert_eq!(math.id.as_deref(), Some("eq:test"));
+    assert!(math.code.starts_with(r"\begin{align}"));
+    assert!(!math.code.contains(r"\label{eq:test}"));
+
+    let (latex, ..) = LatexCodec.to_string(&node, None).await?;
+
+    assert!(latex.contains(r"\begin{align}"));
+    assert!(!latex.contains("\\[\n\\begin{align}"));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn coarse_subsections_preserve_heading_ids() -> Result<()> {
+    let source = r#"\subsection{LiDAR processing}
+\label{subsec:lidar}
+
+\subsubsection{Model}
+\label{sec:model}
+
+\subsection*{Unnumbered}
+"#;
+
+    let (node, ..) = LatexCodec.from_str(source, None).await?;
+
+    let Node::Article(article) = &node else {
+        return Err(eyre!("expected article"));
+    };
+
+    let headings: Vec<_> = article
+        .content
+        .iter()
+        .filter_map(|block| match block {
+            Block::Heading(heading) => Some((heading.level, heading.id.as_deref())),
+            _ => None,
+        })
+        .collect();
+
+    assert_eq!(
+        headings,
+        vec![(2, Some("subsec:lidar")), (3, Some("sec:model"))]
+    );
+
+    let (latex, ..) = LatexCodec.to_string(&node, None).await?;
+
+    assert!(latex.contains(r"\subsection*{Unnumbered}"));
 
     Ok(())
 }

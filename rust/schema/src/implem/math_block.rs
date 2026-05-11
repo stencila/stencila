@@ -126,18 +126,42 @@ impl LatexCodec for MathBlock {
                 compilation_digest,
                 compilation_messages,
                 mathml
-            ))
-            .str("\\[\n")
+            ));
+
+        if is_latex_display_math_environment(&self.code) {
             // Note: this intentionally does not escape code
-            .property_str(NodeProperty::Code, &self.code)
-            .str(if self.code.ends_with('\n') {
-                "\\]\n"
-            } else {
-                "\n\\]\n"
-            })
-            .exit_node()
-            .newline();
+            context
+                .property_str(NodeProperty::Code, &self.code)
+                .str(if self.code.ends_with('\n') { "" } else { "\n" });
+        } else {
+            context
+                .str("\\[\n")
+                // Note: this intentionally does not escape code
+                .property_str(NodeProperty::Code, &self.code)
+                .str(if self.code.ends_with('\n') {
+                    "\\]\n"
+                } else {
+                    "\n\\]\n"
+                });
+        }
+
+        context.exit_node().newline();
     }
+}
+
+fn is_latex_display_math_environment(code: &str) -> bool {
+    const ENVS: [&str; 6] = [
+        r"\begin{align}",
+        r"\begin{align*}",
+        r"\begin{gather}",
+        r"\begin{gather*}",
+        r"\begin{multline}",
+        r"\begin{multline*}",
+    ];
+
+    let code = code.trim_start();
+
+    ENVS.iter().any(|env| code.starts_with(env))
 }
 
 impl MarkdownCodec for MathBlock {
