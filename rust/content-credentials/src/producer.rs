@@ -950,10 +950,7 @@ fn action_timestamp(assertion: &ProvenanceAssertion) -> Option<String> {
     })
 }
 
-fn action_parameters(
-    assertion: &ProvenanceAssertion,
-    ingredients: &[IngredientSnapshot],
-) -> Value {
+fn action_parameters(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
     let mut parameters = json!({
         "org.stencila.assetType": assertion.asset.asset_type,
         "org.stencila.mediaType": assertion.asset.media_type,

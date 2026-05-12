@@ -18,7 +18,7 @@ use stencila_codecs::{
     CredentialProfile, CredentialsOptions, EncodeOptions, Format, Result, to_path_with_info,
 };
 use stencila_content_credentials::{
-    CredentialVerifier, VerifyAssetRequest, init_dev_cert, media::sidecar_path,
+    CredentialVerifier, VerifyAssetRequest, init_local_signing_identity, media::sidecar_path,
 };
 
 static CONFIG_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
@@ -59,7 +59,7 @@ fn set_isolated_config_dir() -> ConfigGuard {
 #[tokio::test]
 async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let dir = TempDir::new()?;
     let output = dir.path().join("report.md");
@@ -163,7 +163,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
 #[tokio::test]
 async fn credentials_sign_smd_with_stencila_media_type() -> Result<()> {
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let dir = TempDir::new()?;
     let output = dir.path().join("report.smd");
@@ -256,7 +256,7 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
     }
 
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let (dir, source_path) = init_repo_with_article()?;
     let output = dir.path().join("article.md");
@@ -335,7 +335,7 @@ const PNG_DATA_URI: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAA
 #[tokio::test]
 async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() -> Result<()> {
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let dir = TempDir::new()?;
     let source_path = dir.path().join("analysis.smd");
@@ -537,7 +537,7 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
     }
 
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let (dir, source_path) = init_repo_with_article()?;
     fs::write(&source_path, "# Hello\n\nedited body\n")?;
@@ -603,7 +603,7 @@ async fn credentials_public_profile_redacts_dirty_patch_digest() -> Result<()> {
     }
 
     let _config = set_isolated_config_dir();
-    init_dev_cert(true)?;
+    init_local_signing_identity(true)?;
 
     let (dir, source_path) = init_repo_with_article()?;
     fs::write(&source_path, "# Hello\n\nedited body\n")?;

@@ -20,7 +20,7 @@ pub struct Cli {
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
     "<bold><b>Examples</b></bold>
-  <dim># Generate a local development signing identity (untrusted)</dim>
+  <dim># Generate a local signing identity (untrusted)</dim>
   <b>stencila credentials init</b>
 
   <dim># Sign an existing image with a C2PA manifest</dim>

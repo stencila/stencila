@@ -69,7 +69,7 @@ manifest="$out_dir/MANIFEST.txt"
   if [[ -n "${STENCILA_CREDENTIALS_CERT:-}" || -n "${STENCILA_CREDENTIALS_KEY:-}" ]]; then
     echo "Signing identity: external certificate from STENCILA_CREDENTIALS_CERT/KEY"
   else
-    echo "Signing identity: local development certificate from credentials init"
+    echo "Signing identity: local signing identity from credentials init"
   fi
   if [[ -n "${STENCILA_CREDENTIALS_TSA_URL:-}" ]]; then
     echo "Timestamp authority: $STENCILA_CREDENTIALS_TSA_URL"

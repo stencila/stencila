@@ -1134,9 +1134,7 @@ mod tests {
         let policy = ProjectionPolicy::with_roots(CredentialProfile::Public, None, None);
         let snapshot = ProvenanceSnapshot {
             source: Some(SourceSnapshot {
-                repository: Some(
-                    "https://github.com/stencila/stencila?token=abc123".to_string(),
-                ),
+                repository: Some("https://github.com/stencila/stencila?token=abc123".to_string()),
                 ..Default::default()
             }),
             ..Default::default()

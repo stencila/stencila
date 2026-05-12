@@ -34,7 +34,7 @@ pub use report::{
     VerificationReport, VerificationSummary,
 };
 pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion};
-pub use signer::{CredentialSignerConfig, init_dev_cert};
+pub use signer::{CredentialSignerConfig, init_local_signing_identity};
 pub use snapshot::{
     ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
     DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,

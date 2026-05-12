@@ -9,7 +9,8 @@ use std::{
 };
 
 use stencila_content_credentials::{
-    CredentialProducer, Result, SignAssetRequest, init_dev_cert, signer::CredentialSignerConfig,
+    CredentialProducer, Result, SignAssetRequest, init_local_signing_identity,
+    signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
 
@@ -18,7 +19,7 @@ mod common;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn embedded_signing_preserves_asset_permissions() -> Result<()> {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true)?;
+    let _ = init_local_signing_identity(true)?;
 
     let tmp = TempDir::new()?;
     let asset = tmp.path().join("figure.png");
@@ -41,7 +42,7 @@ async fn embedded_signing_preserves_asset_permissions() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sidecar_signing_preserves_output_and_sidecar_permissions() -> Result<()> {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true)?;
+    let _ = init_local_signing_identity(true)?;
 
     let tmp = TempDir::new()?;
     let input = tmp.path().join("input.pdf");

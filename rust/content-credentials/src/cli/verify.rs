@@ -328,6 +328,7 @@ mod tests {
             AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus,
             SignerStatus, VerificationReport, VerificationSummary,
         },
+        signer::LOCAL_SIGNING_IDENTITY_COMMON_NAME,
     };
 
     use super::{failure_summary, has_verification_failure};
@@ -343,7 +344,7 @@ mod tests {
             signature: SignerStatus {
                 valid: true,
                 trusted: false,
-                signer: Some("Local Stencila Dev (untrusted)".to_string()),
+                signer: Some(LOCAL_SIGNING_IDENTITY_COMMON_NAME.to_string()),
             },
             asset_binding: AssetBindingStatus { valid: true },
             provenance: ProvenanceStatus {

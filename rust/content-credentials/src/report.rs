@@ -116,10 +116,7 @@ impl VerificationSummary {
         let media_type =
             (!assertion.asset.media_type.is_empty()).then(|| assertion.asset.media_type.clone());
 
-        let source_repository = assertion
-            .source
-            .as_ref()
-            .and_then(format_source_repository);
+        let source_repository = assertion.source.as_ref().and_then(format_source_repository);
         let source_file = assertion
             .source
             .as_ref()
@@ -389,6 +386,8 @@ fn yes_no(b: bool) -> &'static str {
 
 #[cfg(test)]
 mod tests {
+    use crate::signer::LOCAL_SIGNING_IDENTITY_COMMON_NAME;
+
     use super::*;
 
     fn base_report() -> VerificationReport {
@@ -402,7 +401,7 @@ mod tests {
             signature: SignerStatus {
                 valid: true,
                 trusted: false,
-                signer: Some("CN=Local Stencila Dev (untrusted)".to_string()),
+                signer: Some(format!("CN={LOCAL_SIGNING_IDENTITY_COMMON_NAME}")),
             },
             asset_binding: AssetBindingStatus { valid: true },
             provenance: ProvenanceStatus {
@@ -428,7 +427,7 @@ mod tests {
         assert!(rendered.contains("Claim signature valid:           yes"));
         assert!(rendered.contains("Signer trusted:                  no"));
         assert!(rendered.contains("local trust not configured"));
-        assert!(rendered.contains("Local Stencila Dev (untrusted)"));
+        assert!(rendered.contains(LOCAL_SIGNING_IDENTITY_COMMON_NAME));
         assert!(rendered.contains("Stencila provenance attested:    yes"));
         assert!(rendered.contains("Stencila reproducibility checked: not checked"));
     }
@@ -488,7 +487,10 @@ mod tests {
         // Producer names the signing software only — codec belongs to
         // the `mediaType` field of the same summary.
         let expected_producer = format!("Stencila {}", stencila_version::STENCILA_VERSION);
-        assert_eq!(summary.producer.as_deref(), Some(expected_producer.as_str()));
+        assert_eq!(
+            summary.producer.as_deref(),
+            Some(expected_producer.as_str())
+        );
         assert!(
             !summary
                 .producer

@@ -683,11 +683,8 @@ mod tests {
         let Node::Article(article) = root else {
             panic!("Expected Article");
         };
-        let Block::Paragraph(paragraph) = article
-            .content
-            .into_iter()
-            .next()
-            .expect("paragraph block")
+        let Block::Paragraph(paragraph) =
+            article.content.into_iter().next().expect("paragraph block")
         else {
             panic!("Expected Paragraph");
         };

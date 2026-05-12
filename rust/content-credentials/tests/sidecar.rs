@@ -10,7 +10,7 @@ use c2pa::Builder;
 use serde_json::json;
 use stencila_content_credentials::{
     CredentialProducer, CredentialVerifier, Error, ManifestKind, Result, SignAssetRequest,
-    VerifyAssetRequest, init_dev_cert, signer::CredentialSignerConfig,
+    VerifyAssetRequest, init_local_signing_identity, signer::CredentialSignerConfig,
 };
 use tempfile::{NamedTempFile, TempDir};
 
@@ -20,7 +20,7 @@ mod common;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_and_verify_pdf_sidecar() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset = tmp.path().join("doc.pdf");
@@ -75,7 +75,7 @@ async fn sign_and_verify_pdf_sidecar() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sidecar_output_cannot_equal_asset_output() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset = tmp.path().join("doc.pdf");
@@ -99,7 +99,7 @@ async fn sidecar_output_cannot_equal_asset_output() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sidecar_signing_persists_rewritten_asset() -> Result<()> {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true)?;
+    let _ = init_local_signing_identity(true)?;
 
     let tmp = TempDir::new()?;
     let asset = tmp.path().join("embedded.gif");
@@ -151,7 +151,7 @@ async fn sidecar_signing_persists_rewritten_asset() -> Result<()> {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn embedded_sdk_supported_format_wins_over_stale_sidecar() -> Result<()> {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true)?;
+    let _ = init_local_signing_identity(true)?;
 
     let tmp = TempDir::new()?;
     let asset = tmp.path().join("embedded.gif");

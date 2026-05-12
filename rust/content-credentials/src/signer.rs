@@ -1,4 +1,4 @@
-//! Signing identity configuration and dev-cert generation.
+//! Signing identity configuration and local signing identity generation.
 
 use std::{
     env, fs,
@@ -17,13 +17,14 @@ use stencila_dirs::{DirType, get_app_dir};
 
 use crate::error::{Error, Result};
 
-/// Common name carried by Stencila's dev cert. The literal `(untrusted)`
-/// substring is intentional — it surfaces in the verifier's signer line so
-/// readers can immediately tell this is a local development identity.
-pub const DEV_CERT_COMMON_NAME: &str = "Local Stencila Dev (untrusted)";
+/// Common name carried by Stencila's local signing identity. The literal
+/// `(untrusted)` substring is intentional — it surfaces in the verifier's
+/// signer line so readers can immediately tell this is a local self-signed
+/// identity.
+pub const LOCAL_SIGNING_IDENTITY_COMMON_NAME: &str = "Stencila Local Signing Identity (untrusted)";
 
-const DEV_CERT_FILENAME: &str = "dev-cert.pem";
-const DEV_KEY_FILENAME: &str = "dev-key.pem";
+const LOCAL_SIGNING_CERT_FILENAME: &str = "local-signing-cert.pem";
+const LOCAL_SIGNING_KEY_FILENAME: &str = "local-signing-key.pem";
 
 const ENV_CERT: &str = "STENCILA_CREDENTIALS_CERT";
 const ENV_KEY: &str = "STENCILA_CREDENTIALS_KEY";
@@ -40,10 +41,11 @@ pub struct CredentialSignerConfig {
 
 impl CredentialSignerConfig {
     /// Resolve a signer config from explicit overrides, environment, or the
-    /// default dev-cert location.
+    /// default local signing identity location.
     ///
-    /// Precedence: explicit overrides → environment variables → dev cert in
-    /// the Stencila config directory → [`Error::NoSignerConfigured`].
+    /// Precedence: explicit overrides → environment variables → local signing
+    /// identity in the Stencila config directory → legacy dev cert in the
+    /// config directory → [`Error::NoSignerConfigured`].
     ///
     /// # Errors
     ///
@@ -89,8 +91,8 @@ impl CredentialSignerConfig {
         }
 
         let dir = credentials_dir(false)?;
-        let cert = dir.join(DEV_CERT_FILENAME);
-        let key = dir.join(DEV_KEY_FILENAME);
+        let cert = dir.join(LOCAL_SIGNING_CERT_FILENAME);
+        let key = dir.join(LOCAL_SIGNING_KEY_FILENAME);
         if cert.exists() && key.exists() {
             return Self::from_paths(cert, key, tsa_url);
         }
@@ -130,8 +132,8 @@ impl CredentialSignerConfig {
     }
 }
 
-/// The directory under the user's Stencila config root where dev signing
-/// material is stored.
+/// The directory under the user's Stencila config root where local signing
+/// identity material is stored.
 ///
 /// # Errors
 ///
@@ -147,17 +149,17 @@ pub fn credentials_dir(ensure: bool) -> Result<PathBuf> {
     Ok(dir)
 }
 
-/// Result of running [`init_dev_cert`].
+/// Result of running [`init_local_signing_identity`].
 #[derive(Debug, Clone)]
-pub struct DevCertInit {
+pub struct LocalSigningIdentityInit {
     pub cert_path: PathBuf,
     pub key_path: PathBuf,
     pub created: bool,
     pub common_name: String,
 }
 
-/// Generate (or refresh) the local dev signing identity at
-/// `<config>/credentials/dev-cert.pem` + `dev-key.pem`.
+/// Generate (or refresh) the local signing identity at
+/// `<config>/credentials/local-signing-cert.pem` + `local-signing-key.pem`.
 ///
 /// The certificate's common name carries `(untrusted)` so it surfaces in
 /// verifier output. Pass `force = true` to overwrite an existing pair.
@@ -166,17 +168,17 @@ pub struct DevCertInit {
 ///
 /// Returns an error if the credentials directory cannot be created, certificate
 /// generation fails, or the certificate or key cannot be written.
-pub fn init_dev_cert(force: bool) -> Result<DevCertInit> {
+pub fn init_local_signing_identity(force: bool) -> Result<LocalSigningIdentityInit> {
     let dir = credentials_dir(true)?;
-    let cert_path = dir.join(DEV_CERT_FILENAME);
-    let key_path = dir.join(DEV_KEY_FILENAME);
+    let cert_path = dir.join(LOCAL_SIGNING_CERT_FILENAME);
+    let key_path = dir.join(LOCAL_SIGNING_KEY_FILENAME);
 
     if !force && cert_path.exists() && key_path.exists() {
-        return Ok(DevCertInit {
+        return Ok(LocalSigningIdentityInit {
             cert_path,
             key_path,
             created: false,
-            common_name: DEV_CERT_COMMON_NAME.to_string(),
+            common_name: LOCAL_SIGNING_IDENTITY_COMMON_NAME.to_string(),
         });
     }
 
@@ -184,8 +186,8 @@ pub fn init_dev_cert(force: bool) -> Result<DevCertInit> {
         CertificateParams::new(vec!["stencila.local".to_string(), "localhost".to_string()])?;
 
     let mut dn = DistinguishedName::new();
-    dn.push(DnType::CommonName, DEV_CERT_COMMON_NAME);
-    dn.push(DnType::OrganizationName, "Stencila Local Dev");
+    dn.push(DnType::CommonName, LOCAL_SIGNING_IDENTITY_COMMON_NAME);
+    dn.push(DnType::OrganizationName, "Stencila Local");
     params.distinguished_name = dn;
 
     // C2PA certificate profile requirements for end-entity signing certs.
@@ -209,11 +211,11 @@ pub fn init_dev_cert(force: bool) -> Result<DevCertInit> {
     write_secret(&cert_path, cert.pem().as_bytes())?;
     write_secret(&key_path, key_pair.serialize_pem().as_bytes())?;
 
-    Ok(DevCertInit {
+    Ok(LocalSigningIdentityInit {
         cert_path,
         key_path,
         created: true,
-        common_name: DEV_CERT_COMMON_NAME.to_string(),
+        common_name: LOCAL_SIGNING_IDENTITY_COMMON_NAME.to_string(),
     })
 }
 
@@ -252,10 +254,17 @@ fn write_secret(path: &Path, bytes: &[u8]) -> Result<()> {
 mod tests {
     use super::*;
 
-    /// Ensures generated development certificates visibly advertise their untrusted status.
+    /// Ensures generated local signing identities visibly advertise their untrusted status.
     #[test]
-    fn dev_cert_common_name_marked_untrusted() {
-        assert!(DEV_CERT_COMMON_NAME.contains("untrusted"));
+    fn local_signing_identity_common_name_marked_untrusted() {
+        assert!(LOCAL_SIGNING_IDENTITY_COMMON_NAME.contains("untrusted"));
+    }
+
+    /// Ensures local signing identity files no longer use development naming.
+    #[test]
+    fn local_signing_identity_filenames_are_user_facing() {
+        assert_eq!(LOCAL_SIGNING_CERT_FILENAME, "local-signing-cert.pem");
+        assert_eq!(LOCAL_SIGNING_KEY_FILENAME, "local-signing-key.pem");
     }
 
     /// Ensures explicit signer overrides require both certificate and key paths.

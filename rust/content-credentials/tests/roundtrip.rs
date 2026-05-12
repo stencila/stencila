@@ -7,7 +7,7 @@ use serde_json::Value;
 use stencila_content_credentials::{
     AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error,
     IngredientRelationship, IngredientSnapshot, ManifestKind, ProducerSnapshot, ProvenanceSnapshot,
-    SignAssetRequest, SourceSnapshot, VerifyAssetRequest, init_dev_cert,
+    SignAssetRequest, SourceSnapshot, VerifyAssetRequest, init_local_signing_identity,
     signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
@@ -18,7 +18,7 @@ mod common;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_then_verify_png() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -93,7 +93,7 @@ async fn sign_then_verify_png() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_with_provenance_snapshot() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -184,7 +184,7 @@ async fn sign_with_provenance_snapshot() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_emits_standard_c2pa_assertions() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -296,7 +296,7 @@ async fn sign_emits_standard_c2pa_assertions() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_emits_ingredient_assertions() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -418,8 +418,7 @@ async fn sign_emits_ingredient_assertions() {
         .as_array()
         .expect("ingredients on c2pa.placed");
     assert_eq!(
-        placed_ingredients[0]["url"],
-        "self#jumbf=c2pa.assertions/c2pa.ingredient.v3__1",
+        placed_ingredients[0]["url"], "self#jumbf=c2pa.assertions/c2pa.ingredient.v3__1",
         "placed action must point at the ComponentOf ingredient"
     );
 }
@@ -428,7 +427,7 @@ async fn sign_emits_ingredient_assertions() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_with_public_profile_redacts_private_snapshot_fields() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -505,7 +504,7 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn output_media_type_must_match_input() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -529,7 +528,7 @@ async fn output_media_type_must_match_input() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn embedded_manifest_wins_over_stale_sidecar() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");
@@ -571,7 +570,7 @@ async fn embedded_manifest_wins_over_stale_sidecar() {
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn malformed_embedded_manifest_does_not_fall_back_to_sidecar() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset_path = tmp.path().join("sample.png");

@@ -5,7 +5,8 @@ use std::{fs, path::PathBuf};
 use c2pa::{Builder, Context};
 use serde_json::json;
 use stencila_content_credentials::{
-    CredentialVerifier, VerifyAssetRequest, init_dev_cert, signer::CredentialSignerConfig,
+    CredentialVerifier, VerifyAssetRequest, init_local_signing_identity,
+    signer::CredentialSignerConfig,
 };
 use tempfile::{NamedTempFile, TempDir};
 
@@ -16,7 +17,7 @@ mod common;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn verify_external_c2pa_asset_without_stencila_assertion() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset = tmp.path().join("external.png");
@@ -47,7 +48,7 @@ async fn verify_external_c2pa_asset_without_stencila_assertion() {
     );
     assert!(
         !report.signature.trusted,
-        "local dev signer should remain untrusted"
+        "local signing identity should remain untrusted"
     );
     assert!(
         !report.provenance.assertion_present,

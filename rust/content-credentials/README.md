@@ -13,10 +13,10 @@ Render and export integration through codec `EncodeOptions` is a later slice.
 - Verify embedded and sidecar manifests from Stencila and other producers.
 - Report the four separate status axes from the design: manifest validity,
   signer trust, Stencila provenance attestation, and reproducibility status.
-- Generate local self-signed development credentials that are visibly untrusted
-  outside local testing.
+- Generate local self-signed signing credentials that are visibly untrusted
+  outside local or internal workflows.
 
-Development credentials are useful for interoperability testing, but public
+Local signing credentials are useful for interoperability testing, but public
 verifiers should show them as untrusted because they do not chain to a public
 C2PA trust-list identity.
 
@@ -61,7 +61,7 @@ Expected local verification shape:
 ```text
 Manifest valid:                  yes
 Claim signature valid:           yes
-Signer trusted:                  no   (Local Stencila Dev (untrusted); local trust not configured)
+Signer trusted:                  no   (Stencila Local Signing Identity (untrusted); local trust not configured)
 Stencila provenance attested:    yes
 Stencila reproducibility checked: not checked
 ```

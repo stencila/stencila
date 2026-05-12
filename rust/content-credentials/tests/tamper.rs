@@ -5,8 +5,8 @@ use std::io::Write;
 use std::path::PathBuf;
 
 use stencila_content_credentials::{
-    CredentialProducer, CredentialVerifier, SignAssetRequest, VerifyAssetRequest, init_dev_cert,
-    signer::CredentialSignerConfig,
+    CredentialProducer, CredentialVerifier, SignAssetRequest, VerifyAssetRequest,
+    init_local_signing_identity, signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
 
@@ -16,7 +16,7 @@ mod common;
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn tamper_breaks_binding() {
     let _guard = common::set_isolated_config_dir();
-    let _ = init_dev_cert(true).expect("init dev cert");
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
     let asset = tmp.path().join("tampered.png");

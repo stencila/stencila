@@ -20,7 +20,7 @@ the signer is known, reputable, authorized, or appropriate for your review. For
 that, a verifier checks whether the signer's certificate connects to a trust
 list or trust anchor that the verifier accepts.
 
-For example, a colleague can sign an image with a local Stencila development
+For example, a colleague can sign an image with a local Stencila signing
 identity. The credential can be intact and useful for sharing provenance inside
 your team, but a public verification service may still report the signer as
 untrusted because it has no independent reason to recognize that local identity.
@@ -44,7 +44,7 @@ In practice:
 > reason to ask who signed the asset and which trust policy was used, not proof
 > that the content was fabricated.
 
-## Local Development Signers
+## Local Signers
 
 `stencila credentials init` creates a self-signed local identity:
 

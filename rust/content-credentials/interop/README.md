@@ -27,13 +27,13 @@ Optional manual check:
 
 ## Signing Setup
 
-For local development evidence, initialize a self-signed development identity:
+For local evidence, initialize a self-signed local signing identity:
 
 ```sh
 cargo run --bin stencila -- credentials init
 ```
 
-Development certificates produce valid signatures but are intentionally
+Local signing identities produce valid signatures but are intentionally
 untrusted by public verifiers. For conformance or production evidence, provide
 real signing material instead:
 
@@ -149,7 +149,7 @@ For Stencila-generated fixtures, the expected result is:
 - `c2patool --detailed` reports the standard C2PA assertions without
   conformance errors.
 
-With local development certificates, signer trust is expected to be false or
+With local signing identitys, signer trust is expected to be false or
 unrecognized. That is not an interoperability failure. Public trust-list
 recognition requires suitable C2PA signing material.
 
@@ -188,7 +188,7 @@ This verifies a third-party C2PA asset with Stencila and records matching
 For browser-tool evidence, upload a Stencila-signed embedded asset, such as the
 PNG output from the evidence packet, to <https://contentcredentials.org/verify>.
 
-With the development certificate, expect the issuer to be unrecognized. With
+With the local signing identity, expect the issuer to be unrecognized. With
 conformance signing material, expect the issuer result to reflect the public
 trust-list status of that certificate.
 
@@ -199,7 +199,7 @@ allowed by the relevant data policy.
 
 - Reverse validator evidence is skipped unless a third-party signed asset is
   supplied. A redistributable bundled third-party sample is tracked separately.
-- Local development certificates are intentionally untrusted by public
+- Local signing identities are intentionally untrusted by public
   verifiers.
 - Public trust-list recognition depends on a suitable C2PA signing certificate
   and the verifier's current trust-list configuration.

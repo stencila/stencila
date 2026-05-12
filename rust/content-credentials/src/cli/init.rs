@@ -1,4 +1,4 @@
-//! `stencila credentials init` — create a local dev signing identity.
+//! `stencila credentials init` — create a local signing identity.
 
 use clap::Args;
 use eyre::Result;
@@ -6,9 +6,9 @@ use stencila_cli_utils::message;
 
 use crate::signer;
 
-/// Generate a local self-signed signing identity for development.
+/// Generate a local self-signed signing identity.
 ///
-/// Creates `dev-cert.pem` and `dev-key.pem` under
+/// Creates `local-signing-cert.pem` and `local-signing-key.pem` under
 /// `<config>/credentials/`. The certificate is **not** trusted by
 /// third-party verifiers; use it for local and internal workflows only.
 #[derive(Debug, Args)]
@@ -20,12 +20,12 @@ pub struct Cli {
 
 impl Cli {
     pub fn run(self) -> Result<()> {
-        let result = signer::init_dev_cert(self.force)?;
+        let result = signer::init_local_signing_identity(self.force)?;
 
         if result.created {
-            message!("✅ Created dev signing identity");
+            message!("✅ Created local signing identity");
         } else {
-            message!("ℹ️  Reusing existing dev signing identity (pass --force to regenerate)");
+            message!("ℹ️  Reusing existing local signing identity (pass --force to regenerate)");
         }
 
         message!("");
@@ -34,7 +34,7 @@ impl Cli {
         message!("   CN:   `{}`", result.common_name);
         message!("");
 
-        message!("⚠️ This identity is untrusted outside of local development.");
+        message!("⚠️ This identity is self-signed and not trusted by public verifiers.");
 
         Ok(())
     }
