@@ -6,8 +6,6 @@ R packages.
 
 ::: figure
 
-Stopping distance against speed for the built-in `cars` dataset.
-
 ```r exec
 plot(
   cars$speed,
@@ -20,11 +18,11 @@ plot(
 lines(lowess(cars$speed, cars$dist), col = "#c43d3d", lwd = 2)
 ```
 
+Stopping distance against speed for the built-in `cars` dataset.
+
 :::
 
 ::: figure
-
-Temperature distribution from the built-in `airquality` dataset.
 
 ```r exec
 hist(
@@ -37,5 +35,7 @@ hist(
 )
 rug(airquality$Temp, col = "#333333")
 ```
+
+Temperature distribution from the built-in `airquality` dataset.
 
 :::

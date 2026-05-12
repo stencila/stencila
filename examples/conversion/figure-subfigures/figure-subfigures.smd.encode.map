@@ -55,12 +55,12 @@ start     end        offsets   node_type+property                   authorship
    541    621       (-50, 8)   Figure
    649    655      (108, 34)   CodeChunk.programmingLanguage
    665    829      (16, 174)   CodeChunk.code
-   842    859      (177, 30)   Text.value
-   842    859         (0, 0)   Text
-   842    859         (0, 0)   Paragraph.content
-   842    860         (0, 1)   Paragraph
-   838    861        (-4, 1)   CodeChunk.caption
-   622    870      (-216, 9)   CodeChunk
+   843    860      (178, 31)   Text.value
+   843    860         (0, 0)   Text
+   843    860         (0, 0)   Paragraph.content
+   843    861         (0, 1)   Paragraph
+   839    862        (-4, 1)   CodeChunk.caption
+   622    870      (-217, 8)   CodeChunk
    541    871       (-81, 1)   Figure.content
    871    937      (330, 66)   Text.value
    871    937         (0, 0)   Text
@@ -71,20 +71,20 @@ start     end        offsets   node_type+property                   authorship
    956    961      (431, 18)   Figure.layout
    991    992       (35, 31)   CodeChunk.programmingLanguage
   1002   1049       (11, 57)   CodeChunk.code
-  1062   1124       (60, 75)   Text.value
-  1062   1124         (0, 0)   Text
-  1062   1124         (0, 0)   Paragraph.content
-  1062   1125         (0, 1)   Paragraph
-  1058   1126        (-4, 1)   CodeChunk.caption
-   964   1135       (-94, 9)   CodeChunk
+  1063   1125       (61, 76)   Text.value
+  1063   1125         (0, 0)   Text
+  1063   1125         (0, 0)   Paragraph.content
+  1063   1126         (0, 1)   Paragraph
+  1059   1127        (-4, 1)   CodeChunk.caption
+   964   1135       (-95, 8)   CodeChunk
   1163   1169      (199, 34)   CodeChunk.programmingLanguage
   1179   1490      (16, 321)   CodeChunk.code
-  1503   1543      (324, 53)   Text.value
-  1503   1543         (0, 0)   Text
-  1503   1543         (0, 0)   Paragraph.content
-  1503   1544         (0, 1)   Paragraph
-  1499   1545        (-4, 1)   CodeChunk.caption
-  1136   1554      (-363, 9)   CodeChunk
+  1504   1544      (325, 54)   Text.value
+  1504   1544         (0, 0)   Text
+  1504   1544         (0, 0)   Paragraph.content
+  1504   1545         (0, 1)   Paragraph
+  1500   1546        (-4, 1)   CodeChunk.caption
+  1136   1554      (-364, 8)   CodeChunk
   1591   1606      (455, 52)   IncludeBlock.source
   1575   1607       (-16, 1)   IncludeBlock
   1575   1608         (0, 1)   Figure.content

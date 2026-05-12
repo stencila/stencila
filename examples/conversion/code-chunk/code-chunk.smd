@@ -34,8 +34,8 @@ Code figure with caption:
 ```r exec
 plot(y~x)
 ```
-Y against X.
 
+Y against X.
 
 :::
 
@@ -43,10 +43,10 @@ Code table with caption:
 
 ::: table 1
 
+Some cars.
+
 ```r exec
 head(mtcars)
 ```
-Some cars.
-
 
 :::

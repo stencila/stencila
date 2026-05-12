@@ -597,6 +597,14 @@ impl MarkdownCodec for CodeChunk {
                     .push_prop_str(NodeProperty::Code, &self.code)
                     .push_str("}}\n");
             } else {
+                if let Some(caption) = &self.caption
+                    && matches!(self.label_type, Some(LabelType::TableLabel))
+                {
+                    context.push_prop_fn(NodeProperty::Caption, |context| {
+                        caption.to_markdown(context)
+                    });
+                }
+
                 context.push_indent().push_str(&backticks);
 
                 if let Some(lang) = &self.programming_language {
@@ -652,45 +660,43 @@ impl MarkdownCodec for CodeChunk {
 
                 context.push_indent().push_str(&backticks).newline();
 
-                if let Some(caption) = &self.caption
-                    && matches!(self.label_type, Some(LabelType::TableLabel))
-                {
-                    context.push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context)
-                    });
-                }
-
                 if let Some(overlay) = &self.overlay
                     && matches!(context.format, Format::Smd)
                 {
                     let backticks = context.enclosing_backticks(overlay);
 
-                    context.push_str("\n");
-                    context.push_indent();
-                    context.push_str(&backticks).push_str("svg overlay\n");
-                    context.push_prop_fn(NodeProperty::Overlay, |context| {
-                        context.push_str(overlay);
-                    });
+                    context
+                        .newline()
+                        .push_indent()
+                        .push_str(&backticks)
+                        .push_str("svg overlay\n")
+                        .push_prop_fn(NodeProperty::Overlay, |context| {
+                            context.push_str(overlay);
+                        });
 
                     if !overlay.ends_with('\n') {
                         context.newline();
                     }
 
-                    context.push_indent();
-                    context.push_str(&backticks).newline();
+                    context.push_indent().push_str(&backticks).newline();
                 }
 
                 if let Some(caption) = &self.caption
                     && !matches!(self.label_type, Some(LabelType::TableLabel))
                 {
-                    context.push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context)
-                    });
+                    context
+                        .newline()
+                        .push_prop_fn(NodeProperty::Caption, |context| {
+                            caption.to_markdown(context)
+                        });
                 }
             }
 
             if wrapped {
-                context.newline().push_colons().newline();
+                if !context.content.ends_with("\n\n") {
+                    context.newline();
+                }
+                context.push_colons().newline();
             }
 
             context.exit_node().newline();

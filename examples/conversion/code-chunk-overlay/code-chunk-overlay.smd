@@ -12,8 +12,8 @@ plot(data)
   <text x="500" y="310" fill="red" font-size="24">Peak of interest</text>
 </svg>
 ```
-A code-generated figure with an annotation overlay.
 
+A code-generated figure with an annotation overlay.
 
 :::
 
@@ -24,6 +24,7 @@ Plain SVG code block in caption should not become overlay:
 ```python exec
 plot(other_data)
 ```
+
 ```svg
 <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
   <circle cx="5" cy="5" r="4" />
@@ -31,6 +32,5 @@ plot(other_data)
 ```
 
 A figure whose caption includes an SVG example, not an overlay.
-
 
 :::

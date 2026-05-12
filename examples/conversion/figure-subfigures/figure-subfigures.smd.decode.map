@@ -21,14 +21,14 @@ start     end        offsets   node_type+property                   authorship
    561    589        (-4, 0)   ImageObject
    591    611       (30, 22)   Paragraph
    541    620       (-50, 9)   Figure
-   838    859      (192, 22)   Paragraph
-   622    869     (-216, 10)   CodeChunk
+   839    860      (193, 23)   Paragraph
+   622    869      (-217, 9)   CodeChunk
    871    937      (249, 68)   Paragraph
    525    942      (-346, 5)   Figure
-  1058   1124       (70, 67)   Paragraph
-   964   1134      (-94, 10)   CodeChunk
-  1499   1543      (339, 45)   Paragraph
-  1136   1553     (-363, 10)   CodeChunk
+  1059   1125       (71, 68)   Paragraph
+   964   1134       (-95, 9)   CodeChunk
+  1500   1544      (340, 46)   Paragraph
+  1136   1553      (-364, 9)   CodeChunk
   1575   1606      (439, 53)   IncludeBlock
   1608   1654       (33, 48)   Paragraph
   1555   1663       (-53, 9)   Figure
