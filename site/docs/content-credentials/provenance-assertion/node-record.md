@@ -19,6 +19,7 @@ selected public metadata rather than embedding private source content.
 | [`nodeId`](#node-id) | `string` | No | Stable Stencila node identifier, when available. |
 | [`persistentId`](#persistent-id) | `string` | No | Author-supplied persistent identifier from the Stencila Schema `id` field. |
 | [`nodePath`](#node-path) | `string` | No | Path to the node within the document tree. |
+| [`sourceRange`](#source-range) | [`SourceRangeRecord`](source-range-record) | No | Range of the node in the source document. |
 | [`labelType`](#label-type) | `string` | No | Stencila label type for labelled nodes. |
 | [`label`](#label) | `string` | No | Stencila label for the node. |
 | [`title`](#title) | `string` | No | Human-readable node or work title. |
@@ -72,6 +73,16 @@ represented node in a specific document snapshot. It is optional because
 paths can reveal document structure and can be unstable across edits.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `sourceRange`
+
+Range of the node in the source document.
+
+Positions are 1-based UTF-8 line and column coordinates, with an
+exclusive end position. The range covers the whole serialized node in
+the source document, not only one of its properties.
+
+**Type:** [`SourceRangeRecord`](source-range-record) | **Required:** No | **Nullable:** Yes
 
 ### `labelType`
 

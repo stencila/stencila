@@ -236,6 +236,17 @@
             "null"
           ]
         },
+        "sourceRange": {
+          "description": "Range of the node in the source document.\n\nPositions are 1-based UTF-8 line and column coordinates, with an\nexclusive end position. The range covers the whole serialized node in\nthe source document, not only one of its properties.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#source-range",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SourceRangeRecord"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "labelType": {
           "description": "Stencila label type for labelled nodes.\n\nLabel type distinguishes figure, table, equation, and other label\nnamespaces without parsing the label string itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/node-record#label-type",
           "type": [
@@ -281,6 +292,42 @@
       },
       "required": [
         "nodeType"
+      ]
+    },
+    "SourceRangeRecord": {
+      "description": "Range coordinates in the source document.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-range-record",
+      "type": "object",
+      "properties": {
+        "startLine": {
+          "description": "1-based index of the first line in the source range.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-range-record#start-line",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 1
+        },
+        "startColumn": {
+          "description": "1-based UTF-8 column index of the start of the source range.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-range-record#start-column",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 1
+        },
+        "endLine": {
+          "description": "1-based index of the line containing the exclusive end position.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-range-record#end-line",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 1
+        },
+        "endColumn": {
+          "description": "1-based UTF-8 column index of the exclusive end position.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/source-range-record#end-column",
+          "type": "integer",
+          "format": "uint64",
+          "minimum": 1
+        }
+      },
+      "required": [
+        "startLine",
+        "startColumn",
+        "endLine",
+        "endColumn"
       ]
     },
     "AssetRecord": {

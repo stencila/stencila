@@ -42,7 +42,7 @@ pub use snapshot::{
     FileDigestSnapshot, IdentifierSnapshot, IngredientRelationship, IngredientSnapshot,
     KernelSnapshot, PrivacySnapshot, ProducerSnapshot, ProvenanceCategorySnapshot,
     ProvenanceSnapshot, ProvenanceSummarySnapshot, RedactionSnapshot, ReproducibilitySnapshot,
-    RuntimeSnapshot, SourceSnapshot, WorkflowSnapshot,
+    RuntimeSnapshot, SourceRangeSnapshot, SourceSnapshot, WorkflowSnapshot,
 };
 pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
 pub use verifier::{CredentialVerifier, VerifyAssetRequest};

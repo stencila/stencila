@@ -371,6 +371,13 @@ pub struct NodeRecord {
     /// paths can reveal document structure and can be unstable across edits.
     pub node_path: Option<String>,
 
+    /// Range of the node in the source document.
+    ///
+    /// Positions are 1-based UTF-8 line and column coordinates, with an
+    /// exclusive end position. The range covers the whole serialized node in
+    /// the source document, not only one of its properties.
+    pub source_range: Option<SourceRangeRecord>,
+
     /// Stencila label type for labelled nodes.
     ///
     /// Label type distinguishes figure, table, equation, and other label
@@ -416,6 +423,27 @@ pub struct NodeRecord {
     #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
     #[schemars(skip)]
     pub extra: Map<String, Value>,
+}
+
+/// Range coordinates in the source document.
+#[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
+#[serde(rename_all = "camelCase")]
+pub struct SourceRangeRecord {
+    /// 1-based index of the first line in the source range.
+    #[schemars(range(min = 1))]
+    pub start_line: u64,
+
+    /// 1-based UTF-8 column index of the start of the source range.
+    #[schemars(range(min = 1))]
+    pub start_column: u64,
+
+    /// 1-based index of the line containing the exclusive end position.
+    #[schemars(range(min = 1))]
+    pub end_line: u64,
+
+    /// 1-based UTF-8 column index of the exclusive end position.
+    #[schemars(range(min = 1))]
+    pub end_column: u64,
 }
 
 /// Digest values corresponding to Stencila `CompilationDigest`.

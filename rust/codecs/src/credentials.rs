@@ -7,7 +7,10 @@
 //! originating node (e.g. a `CodeChunk` for a generated figure) so per-asset
 //! credentials carry that node's own execution facts.
 
-use std::{collections::BTreeSet, path::Path};
+use std::{
+    collections::{BTreeMap, BTreeSet},
+    path::Path,
+};
 
 use chrono::{DateTime, Utc};
 use stencila_codec::stencila_schema::{
@@ -19,7 +22,8 @@ use stencila_codec_utils::{closest_git_repo, git_file_info, git_head_sha, git_pa
 use stencila_content_credentials::{
     ActivitySnapshot, AssetSnapshot, DependencySnapshot, DocumentSnapshot, EnvironmentSnapshot,
     ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot, FileDigestSnapshot,
-    KernelSnapshot, ProducerSnapshot, ProvenanceSnapshot, RuntimeSnapshot, SourceSnapshot, media,
+    KernelSnapshot, ProducerSnapshot, ProvenanceSnapshot, RuntimeSnapshot, SourceRangeSnapshot,
+    SourceSnapshot, media,
 };
 
 /// Build a provenance snapshot for an asset emitted by `to_path_with_info`.
@@ -36,13 +40,18 @@ use stencila_content_credentials::{
 pub(crate) fn build_export_snapshot(
     root: &Node,
     subject: &Node,
-    source_path: Option<&Path>,
     asset_path: &Path,
-    primary: bool,
-    asset_role: Option<&str>,
-    codec_name: Option<&str>,
-    profile_label: &str,
+    options: ExportSnapshotOptions,
 ) -> ProvenanceSnapshot {
+    let ExportSnapshotOptions {
+        source_ranges,
+        source_path,
+        primary,
+        asset_role,
+        codec_name,
+        profile_label,
+    } = options;
+
     let mut snapshot = ProvenanceSnapshot::for_asset(AssetSnapshot::default());
 
     snapshot.asset.id = Some("exported-asset".to_string());
@@ -63,10 +72,10 @@ pub(crate) fn build_export_snapshot(
         snapshot.asset.size = Some(metadata.len());
     }
 
-    snapshot.root_node = document_snapshot_for(root, true);
+    snapshot.root_node = document_snapshot_for(root, true, source_ranges);
     if !primary {
-        snapshot.executed_node = Some(document_snapshot_for(subject, false));
-        snapshot.output_node = output_node_snapshot_for(subject, asset_path);
+        snapshot.executed_node = Some(document_snapshot_for(subject, false, source_ranges));
+        snapshot.output_node = output_node_snapshot_for(subject, asset_path, source_ranges);
     }
     snapshot.producer = Some(producer_snapshot_for(codec_name, primary));
     snapshot.source = source_snapshot_for(source_path);
@@ -84,7 +93,21 @@ pub(crate) fn build_export_snapshot(
     snapshot
 }
 
-fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapshot {
+#[derive(Clone, Copy)]
+pub(crate) struct ExportSnapshotOptions<'a> {
+    pub source_ranges: Option<&'a BTreeMap<String, SourceRangeSnapshot>>,
+    pub source_path: Option<&'a Path>,
+    pub primary: bool,
+    pub asset_role: Option<&'a str>,
+    pub codec_name: Option<&'a str>,
+    pub profile_label: &'a str,
+}
+
+fn document_snapshot_for(
+    subject: &Node,
+    root_document: bool,
+    source_ranges: Option<&BTreeMap<String, SourceRangeSnapshot>>,
+) -> DocumentSnapshot {
     let node_type = subject.node_type().to_string();
     // Drop the 3-character node-type nickname (e.g. `img_`) so the assertion
     // exposes the bare stabilized path (e.g. `content-2-outputs-0`). The
@@ -101,7 +124,11 @@ fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapsho
             .map(|id| id.uid_str().to_string())
             .filter(|uid| !uid.is_empty())
     };
+    let full_node_id = subject.node_id().map(|id| id.to_string());
     let persistent_id = persistent_id_of(subject);
+    let source_range = full_node_id
+        .as_ref()
+        .and_then(|id| source_ranges.and_then(|ranges| ranges.get(id).cloned()));
 
     let title = match subject {
         Node::Article(Article { title, .. }) => inlines_to_text(title.as_deref()),
@@ -112,6 +139,7 @@ fn document_snapshot_for(subject: &Node, root_document: bool) -> DocumentSnapsho
         node_type,
         node_id,
         persistent_id,
+        source_range,
         title,
         ..Default::default()
     };
@@ -162,7 +190,11 @@ fn persistent_id_of(node: &Node) -> Option<String> {
     id.map(ToString::to_string)
 }
 
-fn output_node_snapshot_for(subject: &Node, asset_path: &Path) -> Option<DocumentSnapshot> {
+fn output_node_snapshot_for(
+    subject: &Node,
+    asset_path: &Path,
+    source_ranges: Option<&BTreeMap<String, SourceRangeSnapshot>>,
+) -> Option<DocumentSnapshot> {
     let asset_name = asset_path.file_name().and_then(|name| name.to_str());
 
     match subject {
@@ -172,7 +204,7 @@ fn output_node_snapshot_for(subject: &Node, asset_path: &Path) -> Option<Documen
         }) => {
             let candidates = nodes
                 .iter()
-                .filter_map(media_node_snapshot_for)
+                .filter_map(|node| media_node_snapshot_for(node, source_ranges))
                 .collect::<Vec<_>>();
 
             candidates
@@ -195,13 +227,16 @@ fn output_node_snapshot_for(subject: &Node, asset_path: &Path) -> Option<Documen
         }
         Node::CodeExpression(CodeExpression {
             output: Some(node), ..
-        }) => media_node_snapshot_for(node),
+        }) => media_node_snapshot_for(node, source_ranges),
         _ => None,
     }
 }
 
-fn media_node_snapshot_for(node: &Node) -> Option<DocumentSnapshot> {
-    let mut snapshot = document_snapshot_for(node, false);
+fn media_node_snapshot_for(
+    node: &Node,
+    source_ranges: Option<&BTreeMap<String, SourceRangeSnapshot>>,
+) -> Option<DocumentSnapshot> {
+    let mut snapshot = document_snapshot_for(node, false, source_ranges);
 
     let (content_url, media_type, title) = match node {
         Node::AudioObject(object) => (
@@ -653,7 +688,7 @@ mod tests {
     fn document_snapshot_uses_root_title_with_document_identity() {
         let root = article_with_title("Hello world");
 
-        let snapshot = document_snapshot_for(&root, true);
+        let snapshot = document_snapshot_for(&root, true, None);
 
         assert_eq!(snapshot.node_type, "Article");
         // Root nodes do not record a `nodeId` — the path is empty by
@@ -690,7 +725,7 @@ mod tests {
         };
         let subject = Node::from(Block::Paragraph(paragraph));
 
-        let snapshot = document_snapshot_for(&subject, false);
+        let snapshot = document_snapshot_for(&subject, false, None);
 
         assert_eq!(snapshot.node_type, "Paragraph");
         assert_eq!(snapshot.node_id.as_deref(), Some("content-0"));
@@ -700,7 +735,7 @@ mod tests {
     fn document_snapshot_for_non_article_subject_omits_title() {
         let root = Node::String("hi".to_string());
 
-        let snapshot = document_snapshot_for(&root, false);
+        let snapshot = document_snapshot_for(&root, false, None);
 
         assert_eq!(snapshot.node_type, "String");
         assert!(snapshot.title.is_none());
@@ -729,12 +764,15 @@ mod tests {
         let snapshot = build_export_snapshot(
             &root,
             &root,
-            None,
             &asset_path,
-            true,
-            None,
-            Some("markdown"),
-            "public",
+            ExportSnapshotOptions {
+                source_ranges: None,
+                source_path: None,
+                primary: true,
+                asset_role: None,
+                codec_name: Some("markdown"),
+                profile_label: "public",
+            },
         );
 
         assert_eq!(snapshot.asset.role.as_deref(), Some("document-export"));
@@ -765,12 +803,15 @@ mod tests {
         let snapshot = build_export_snapshot(
             &root,
             &root,
-            None,
             &asset_path,
-            false,
-            Some("table-image"),
-            Some("markdown"),
-            "public",
+            ExportSnapshotOptions {
+                source_ranges: None,
+                source_path: None,
+                primary: false,
+                asset_role: Some("table-image"),
+                codec_name: Some("markdown"),
+                profile_label: "public",
+            },
         );
 
         assert_eq!(snapshot.asset.role.as_deref(), Some("table-image"));
@@ -788,20 +829,74 @@ mod tests {
 
     #[test]
     fn document_snapshot_records_persistent_id_when_set() {
-        let mut article = Article::default();
-        article.id = Some("paper-2026".to_string());
+        let article = Article {
+            id: Some("paper-2026".to_string()),
+            ..Default::default()
+        };
         let root = Node::Article(article);
 
-        let snapshot = document_snapshot_for(&root, true);
+        let snapshot = document_snapshot_for(&root, true, None);
 
         assert_eq!(snapshot.persistent_id.as_deref(), Some("paper-2026"));
+    }
+
+    #[test]
+    fn document_snapshot_uses_full_node_id_for_source_range_lookup() {
+        use stencila_codec::stencila_schema::Block;
+
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.id = Some("fig-1".to_string());
+        let mut root = Node::Article(Article {
+            content: vec![Block::CodeChunk(chunk)],
+            ..Default::default()
+        });
+        stencila_node_stabilize::stabilize(&mut root);
+        let Node::Article(article) = root else {
+            panic!("Expected Article");
+        };
+        let Block::CodeChunk(chunk) = article.content.into_iter().next().expect("code chunk")
+        else {
+            panic!("Expected CodeChunk");
+        };
+        let subject = Node::CodeChunk(chunk);
+
+        let mut source_ranges = BTreeMap::new();
+        source_ranges.insert(
+            "fig_fig-1".to_string(),
+            SourceRangeSnapshot {
+                start_line: 7,
+                start_column: 1,
+                end_line: 29,
+                end_column: 1,
+            },
+        );
+        source_ranges.insert(
+            "cdc_fig-1".to_string(),
+            SourceRangeSnapshot {
+                start_line: 12,
+                start_column: 1,
+                end_line: 22,
+                end_column: 1,
+            },
+        );
+
+        let snapshot = document_snapshot_for(&subject, false, Some(&source_ranges));
+
+        assert_eq!(snapshot.node_id.as_deref(), Some("fig-1"));
+        assert_eq!(
+            snapshot
+                .source_range
+                .as_ref()
+                .map(|range| (range.start_line, range.end_line)),
+            Some((12, 22))
+        );
     }
 
     #[test]
     fn document_snapshot_omits_persistent_id_when_unset() {
         let root = article_with_title("Untitled");
 
-        let snapshot = document_snapshot_for(&root, true);
+        let snapshot = document_snapshot_for(&root, true, None);
 
         assert!(snapshot.persistent_id.is_none());
     }
@@ -813,8 +908,9 @@ mod tests {
             "figures/plot.png".to_string(),
         ))]);
 
-        let output_node = output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"))
-            .expect("output node");
+        let output_node =
+            output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"), None)
+                .expect("output node");
 
         assert_eq!(output_node.node_type, "ImageObject");
         assert_eq!(output_node.content_url.as_deref(), Some("figures/plot.png"));
@@ -827,8 +923,9 @@ mod tests {
             "data:image/png;base64,abc123".to_string(),
         ))]);
 
-        let output_node = output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"))
-            .expect("output node");
+        let output_node =
+            output_node_snapshot_for(&Node::CodeChunk(chunk), Path::new("plot.png"), None)
+                .expect("output node");
 
         assert_eq!(output_node.node_type, "ImageObject");
         assert!(output_node.content_url.is_none());

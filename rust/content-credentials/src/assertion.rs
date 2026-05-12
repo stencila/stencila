@@ -14,8 +14,8 @@ use crate::{
         EnvironmentRecord, ExecutionDigestsRecord, ExecutionMessageRecord, ExecutionRecord,
         FileDigestRecord, IdentifierRecord, KernelRecord, NodeRecord, PROVENANCE_SCHEMA,
         PrivacyRecord, ProducerRecord, ProvenanceAssertion, ProvenanceCategoryRecord,
-        ProvenanceRecord, RedactionRecord, ReproducibilityRecord, RuntimeRecord, SourceRecord,
-        WorkflowRecord,
+        ProvenanceRecord, RedactionRecord, ReproducibilityRecord, RuntimeRecord, SourceRangeRecord,
+        SourceRecord, WorkflowRecord,
     },
     snapshot::{
         ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
@@ -23,8 +23,8 @@ use crate::{
         EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
         FileDigestSnapshot, IdentifierSnapshot, KernelSnapshot, PrivacySnapshot, ProducerSnapshot,
         ProvenanceCategorySnapshot, ProvenanceSnapshot, ProvenanceSummarySnapshot,
-        RedactionSnapshot, ReproducibilitySnapshot, RuntimeSnapshot, SourceSnapshot,
-        WorkflowSnapshot,
+        RedactionSnapshot, ReproducibilitySnapshot, RuntimeSnapshot, SourceRangeSnapshot,
+        SourceSnapshot, WorkflowSnapshot,
     },
 };
 
@@ -159,6 +159,7 @@ impl From<DocumentSnapshot> for NodeRecord {
             node_id: snapshot.node_id,
             persistent_id: snapshot.persistent_id,
             node_path: snapshot.node_path,
+            source_range: snapshot.source_range.map(SourceRangeRecord::from),
             label_type: snapshot
                 .label_type
                 .map(|label_type| lower_kebab_value(&label_type)),
@@ -170,6 +171,17 @@ impl From<DocumentSnapshot> for NodeRecord {
             content_url: snapshot.content_url,
             media_type: snapshot.media_type,
             ..Self::default()
+        }
+    }
+}
+
+impl From<SourceRangeSnapshot> for SourceRangeRecord {
+    fn from(snapshot: SourceRangeSnapshot) -> Self {
+        Self {
+            start_line: snapshot.start_line,
+            start_column: snapshot.start_column,
+            end_line: snapshot.end_line,
+            end_column: snapshot.end_column,
         }
     }
 }

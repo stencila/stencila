@@ -1,5 +1,5 @@
 use std::{
-    collections::BTreeSet,
+    collections::{BTreeMap, BTreeSet},
     path::{Path, PathBuf},
     process::{Command, Stdio},
 };
@@ -33,7 +33,7 @@ pub use stencila_codec::{
 use stencila_codec_utils::{git_file_info, rebase_edits};
 use stencila_content_credentials::{
     CredentialProducer, CredentialSignerConfig, IngredientRelationship, IngredientSnapshot,
-    ManifestKind, SignAssetRequest, SignedAsset, media as credentials_media,
+    ManifestKind, SignAssetRequest, SignedAsset, SourceRangeSnapshot, media as credentials_media,
 };
 use stencila_node_strip::{StripNode, StripTargets};
 use stencila_node_structuring::structuring;
@@ -716,9 +716,8 @@ async fn sign_encoded_paths(
     let source_path = options.and_then(|options| options.from_path.as_deref());
     let profile_label = credentials.profile.to_string();
 
-    // Source ingredient (relationship: inputTo) — present on every asset so a
-    // verifier can see what the asset was derived from. Computed once.
     let source_ingredient = source_ingredient_snapshot(source_path);
+    let source_ranges = source_range_map(node, source_path).await;
 
     // Sign side assets first so the primary's manifest can declare them as
     // `componentOf` ingredients, with hashes that reflect the *signed* bytes
@@ -768,12 +767,15 @@ async fn sign_encoded_paths(
         let mut provenance = credentials::build_export_snapshot(
             node,
             subject,
-            source_path,
             &asset_path,
-            false,
-            asset_role.as_deref(),
-            Some(codec_name),
-            &profile_label,
+            credentials::ExportSnapshotOptions {
+                source_ranges: source_ranges.as_ref(),
+                source_path,
+                primary: false,
+                asset_role: asset_role.as_deref(),
+                codec_name: Some(codec_name),
+                profile_label: &profile_label,
+            },
         );
         if let Some(ingredient) = source_ingredient.clone() {
             provenance.ingredients.push(ingredient);
@@ -843,12 +845,15 @@ async fn sign_encoded_paths(
         let mut provenance = credentials::build_export_snapshot(
             node,
             node,
-            source_path,
             path,
-            true,
-            None,
-            Some(codec_name),
-            &profile_label,
+            credentials::ExportSnapshotOptions {
+                source_ranges: source_ranges.as_ref(),
+                source_path,
+                primary: true,
+                asset_role: None,
+                codec_name: Some(codec_name),
+                profile_label: &profile_label,
+            },
         );
         if let Some(ingredient) = source_ingredient {
             provenance.ingredients.push(ingredient);
@@ -933,6 +938,89 @@ fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<IngredientSn
         informational_uri: source_informational_uri(source_path),
         ..Default::default()
     })
+}
+
+/// Build source ranges keyed by full node id.
+///
+/// This mirrors the site `nodemap.json` path: encode the document
+/// back to its source format, then use a [`PoshMap`] to translate whole-node
+/// ranges onto the original source file.
+async fn source_range_map(
+    node: &Node,
+    source_path: Option<&Path>,
+) -> Option<BTreeMap<String, SourceRangeSnapshot>> {
+    let source_path = source_path?;
+    if !source_path.is_file() {
+        return None;
+    }
+
+    let source_format = Format::from_path(source_path);
+    if source_format.is_binary() || source_format.is_lossless() {
+        return None;
+    }
+
+    let original_source = match read_to_string(source_path).await {
+        Ok(source) => source,
+        Err(error) => {
+            tracing::debug!(
+                source = %source_path.display(),
+                "Skipping source ranges for Content Credentials: {error}"
+            );
+            return None;
+        }
+    };
+
+    let (generated_source, encode_info) = match to_string_with_info(
+        node,
+        Some(EncodeOptions {
+            format: Some(source_format),
+            ..Default::default()
+        }),
+    )
+    .await
+    {
+        Ok(result) => result,
+        Err(error) => {
+            tracing::debug!(
+                source = %source_path.display(),
+                "Skipping source ranges for Content Credentials: {error}"
+            );
+            return None;
+        }
+    };
+
+    if encode_info.mapping.entries().is_empty() {
+        return None;
+    }
+
+    let node_ids = encode_info
+        .mapping
+        .entries()
+        .iter()
+        .filter(|entry| entry.property.is_none())
+        .map(|entry| entry.node_id.clone())
+        .collect::<Vec<_>>();
+
+    let poshmap = PoshMap::new(&original_source, &generated_source, encode_info.mapping);
+    let mut ranges = BTreeMap::new();
+
+    for node_id in node_ids {
+        let Some(range) = poshmap.node_id_to_range8(&node_id) else {
+            continue;
+        };
+
+        ranges.insert(
+            node_id.to_string(),
+            SourceRangeSnapshot {
+                start_line: range.start.line.saturating_add(1) as u64,
+                start_column: range.start.column.saturating_add(1) as u64,
+                end_line: range.end.line.saturating_add(1) as u64,
+                end_column: range.end.column.saturating_add(1) as u64,
+            },
+        );
+    }
+
+    (!ranges.is_empty()).then_some(ranges)
 }
 
 fn source_informational_uri(source_path: &Path) -> Option<String> {

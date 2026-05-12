@@ -194,6 +194,12 @@ fn print_summary_table(report: &VerificationReport) {
             Cell::new(file),
         ]);
     }
+    if let Some(range) = &report.summary.source_range {
+        table.add_row([
+            Cell::new("Source range").add_attribute(Attribute::Bold),
+            Cell::new(range),
+        ]);
+    }
     if let Some(count) = report.summary.redaction_count {
         table.add_row([
             Cell::new("Privacy redactions").add_attribute(Attribute::Bold),

@@ -228,6 +228,7 @@ such as "contains no secrets" unless an assessment actually ran.
 |--------|-------------|
 | [`ProducerRecord`](producer-record) | Producer metadata embedded in the assertion. |
 | [`NodeRecord`](node-record) | Facts about a Stencila node related to the signed asset. |
+| [`SourceRangeRecord`](source-range-record) | Range coordinates in the source document. |
 | [`AssetRecord`](asset-record) | Facts about the signed asset entity. |
 | [`ActivityRecord`](activity-record) | Activity that generated, exported, or signed the asset. |
 | [`AttributionRecord`](attribution-record) | Role-bearing attribution for an agent. |

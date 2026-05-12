@@ -5,7 +5,7 @@ use std::fmt::{self, Display};
 use serde::Serialize;
 use serde_json::Value;
 
-use crate::schema::ProvenanceAssertion;
+use crate::schema::{NodeRecord, ProvenanceAssertion, SourceRangeRecord};
 
 /// Top-level structured verification report.
 #[derive(Debug, Clone, Serialize)]
@@ -88,8 +88,16 @@ pub struct VerificationSummary {
     /// Source file path within the repository or workspace.
     ///
     /// This is the path the document was decoded from, not the path of the
-    /// signed asset. Line-number ranges may be added here in future versions.
+    /// signed asset. Node-level source ranges are included in the full
+    /// assertion when the source codec provides mappings.
     pub source_file: Option<String>,
+
+    /// Source line/column range for the node represented by the asset.
+    ///
+    /// Formatted as `startLine:startColumn-endLine:endColumn` using the
+    /// assertion's 1-based UTF-8 coordinates. Prefer the executed node range
+    /// for computational outputs, then output and root node ranges.
+    pub source_range: Option<String>,
 
     /// Count of redactions recorded in the assertion's privacy block.
     pub redaction_count: Option<u32>,
@@ -103,6 +111,7 @@ impl VerificationSummary {
             && self.media_type.is_none()
             && self.source_repository.is_none()
             && self.source_file.is_none()
+            && self.source_range.is_none()
             && self.redaction_count.is_none()
     }
 
@@ -121,6 +130,7 @@ impl VerificationSummary {
             .source
             .as_ref()
             .and_then(|source| source.path.clone());
+        let source_range = source_range_from_assertion(assertion);
 
         let redaction_count = u32::try_from(assertion.privacy.redactions.len()).ok();
 
@@ -130,6 +140,7 @@ impl VerificationSummary {
             media_type,
             source_repository,
             source_file,
+            source_range,
             redaction_count,
         }
     }
@@ -186,6 +197,31 @@ fn format_source_repository(source: &crate::schema::SourceRecord) -> Option<Stri
     };
 
     Some(format!("{head}{suffix}"))
+}
+
+fn source_range_from_assertion(assertion: &ProvenanceAssertion) -> Option<String> {
+    assertion
+        .executed_node
+        .as_ref()
+        .and_then(source_range_for_node)
+        .or_else(|| {
+            assertion
+                .output_node
+                .as_ref()
+                .and_then(source_range_for_node)
+        })
+        .or_else(|| source_range_for_node(&assertion.root_node))
+}
+
+fn source_range_for_node(node: &NodeRecord) -> Option<String> {
+    node.source_range.as_ref().map(format_source_range)
+}
+
+fn format_source_range(range: &SourceRangeRecord) -> String {
+    format!(
+        "{}:{}-{}:{}",
+        range.start_line, range.start_column, range.end_line, range.end_column
+    )
 }
 
 /// C2PA manifest presence and parse state.
@@ -364,6 +400,9 @@ impl Display for VerificationReport {
             if let Some(file) = &self.summary.source_file {
                 writeln!(f, "Source file:                     {file}")?;
             }
+            if let Some(range) = &self.summary.source_range {
+                writeln!(f, "Source range:                    {range}")?;
+            }
             if let Some(count) = self.summary.redaction_count {
                 writeln!(f, "Redactions:                      {count}")?;
             }
@@ -463,7 +502,9 @@ mod tests {
     #[test]
     fn summary_projects_compact_fields_from_assertion() {
         use crate::{
-            schema::{ProvenanceAssertion, RedactionRecord, SourceRecord},
+            schema::{
+                NodeRecord, ProvenanceAssertion, RedactionRecord, SourceRangeRecord, SourceRecord,
+            },
             snapshot::ProvenanceSnapshot,
         };
 
@@ -474,6 +515,16 @@ mod tests {
             commit: Some("abcdef0123456789abcdef0123456789abcdef01".to_string()),
             path: Some("article.smd".to_string()),
             dirty: Some(true),
+            ..Default::default()
+        });
+        assertion.executed_node = Some(NodeRecord {
+            node_type: "CodeChunk".to_string(),
+            source_range: Some(SourceRangeRecord {
+                start_line: 3,
+                start_column: 1,
+                end_line: 6,
+                end_column: 1,
+            }),
             ..Default::default()
         });
         assertion.privacy.redactions.push(RedactionRecord {
@@ -505,6 +556,7 @@ mod tests {
             Some("https://github.com/stencila/example@abcdef0 (dirty)")
         );
         assert_eq!(summary.source_file.as_deref(), Some("article.smd"));
+        assert_eq!(summary.source_range.as_deref(), Some("3:1-6:1"));
         assert_eq!(summary.redaction_count, Some(1));
         // Ensure ProvenanceSnapshot import is exercised so trimming doesn't
         // break the legacy roundtrip in this module.
@@ -517,9 +569,11 @@ mod tests {
         let mut report = base_report();
         report.summary.producer = Some("Stencila 2.15.0".to_string());
         report.summary.asset_kind = Some("image".to_string());
+        report.summary.source_range = Some("3:1-6:1".to_string());
         let value = serde_json::to_value(&report).expect("serialize");
         assert_eq!(value["summary"]["producer"], "Stencila 2.15.0");
         assert_eq!(value["summary"]["assetKind"], "image");
+        assert_eq!(value["summary"]["sourceRange"], "3:1-6:1");
     }
 
     /// Ensures nested report JSON uses the same camelCase convention as the top level.

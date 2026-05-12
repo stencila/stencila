@@ -454,6 +454,14 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         executed_node.programming_language.as_deref(),
         Some("python")
     );
+    let source_range = executed_node
+        .source_range
+        .as_ref()
+        .expect("executed node source range");
+    assert_eq!(source_range.start_line, 3);
+    assert_eq!(source_range.start_column, 1);
+    assert_eq!(source_range.end_line, 6);
+    assert_eq!(source_range.end_column, 1);
     let output_node = figure.output_node.as_ref().expect("output node");
     assert_eq!(output_node.node_type, "ImageObject");
     assert!(

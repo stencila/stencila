@@ -162,6 +162,7 @@ pub struct DocumentSnapshot {
     pub node_id: Option<String>,
     pub persistent_id: Option<String>,
     pub node_path: Option<String>,
+    pub source_range: Option<SourceRangeSnapshot>,
     pub label_type: Option<String>,
     pub label: Option<String>,
     pub title: Option<String>,
@@ -188,6 +189,7 @@ impl Default for DocumentSnapshot {
             node_id: None,
             persistent_id: None,
             node_path: None,
+            source_range: None,
             label_type: None,
             label: None,
             title: None,
@@ -196,6 +198,16 @@ impl Default for DocumentSnapshot {
             media_type: None,
         }
     }
+}
+
+/// Range of a node in the source document.
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct SourceRangeSnapshot {
+    pub start_line: u64,
+    pub start_column: u64,
+    pub end_line: u64,
+    pub end_column: u64,
 }
 
 /// Activity that generated, exported, or signed the asset.

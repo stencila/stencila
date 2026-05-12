@@ -4,6 +4,7 @@ items:
   - "index"
   - "producer-record"
   - "node-record"
+  - "source-range-record"
   - "asset-record"
   - "activity-record"
   - "attribution-record"
