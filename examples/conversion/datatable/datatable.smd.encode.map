@@ -1,0 +1,16 @@
+start     end        offsets   node_type+property                   authorship
+     9     10        (9, 10)   Datatable.label
+    12     28        (3, 18)   Datatable.id
+    30     52       (18, 24)   Text.value
+    30     52         (0, 0)   Text
+    30     52         (0, 0)   Paragraph.content
+    30     53         (0, 1)   Paragraph
+    30     54         (0, 1)   Datatable.caption
+   111    122       (81, 68)   Text.value
+   111    122         (0, 0)   Text
+   111    122         (0, 0)   Paragraph.content
+   111    123         (0, 1)   Paragraph
+   111    124         (0, 1)   Datatable.notes
+     0    128      (-111, 4)   Datatable
+     0    129         (0, 1)   Article.content
+     0    129         (0, 0)   Article

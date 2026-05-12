@@ -49,7 +49,6 @@ impl Codec for MarkdownCodec {
                 HeadingsDecrement,
                 FiguresWithCaptions,
                 TablesWithCaptions,
-                TablesToDatatables,
                 TextToLinks,
             ],
             [],

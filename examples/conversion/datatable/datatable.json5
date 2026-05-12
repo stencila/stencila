@@ -1,0 +1,59 @@
+{
+  type: "Article",
+  content: [
+    {
+      type: "Datatable",
+      id: "tab-example-data",
+      label: "1",
+      labelAutomatically: false,
+      caption: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "A caption for the data" }
+            }
+          ]
+        }
+      ],
+      columns: [
+        {
+          type: "DatatableColumn",
+          name: "A",
+          values: [
+            1,
+            3
+          ],
+          validator: {
+            type: "ArrayValidator",
+            itemsValidator: { type: "IntegerValidator" }
+          }
+        },
+        {
+          type: "DatatableColumn",
+          name: "B",
+          values: [
+            2,
+            4
+          ],
+          validator: {
+            type: "ArrayValidator",
+            itemsValidator: { type: "IntegerValidator" }
+          }
+        }
+      ],
+      notes: [
+        {
+          type: "Paragraph",
+          content: [
+            {
+              type: "Text",
+              value: { string: "Some notes." }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

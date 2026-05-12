@@ -1,9 +1,10 @@
 use indexmap::IndexMap;
-use stencila_codec_info::lost_options;
 
 use crate::{
     ArrayValidator, Block, Datatable, DatatableColumn, Object, Primitive, Table, TableRowType,
-    Validator, implem::utils::caption_to_dom, prelude::*,
+    Validator,
+    implem::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline},
+    prelude::*,
 };
 
 use stencila_codec_text_trait::to_text;
@@ -449,93 +450,157 @@ impl DomCodec for Datatable {
 
 impl MarkdownCodec for Datatable {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
-        context
-            .enter_node(self.node_type(), self.node_id())
-            .merge_losses(lost_options!(self, id));
+        context.enter_node(self.node_type(), self.node_id());
 
-        // Determine number of columns and rows
-        let cols_num = self.columns.len();
-        let rows_num = self
-            .columns
-            .iter()
-            .fold(0usize, |max, column| max.max(column.values.len()));
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
+            if self.label.is_some() || self.caption.is_some() {
+                caption_to_markdown(context, "Table", &self.label, &self.caption);
 
-        // Trim, replace inner newlines with <br> & ensure cell has no carriage
-        // returns or pipes which will break table
-        fn escape_cell(cell: String) -> (String, usize) {
-            let cell = cell
-                .trim()
-                .replace('\n', "<br><br>")
-                .replace('\r', " ")
-                .replace('|', "\\|");
-            let chars = 3.max(cell.chars().count());
-            (cell, chars)
+                if !self.columns.is_empty() {
+                    ensure_markdown_blankline(context);
+                }
+            }
+
+            encode_datatable_to_markdown(self, context);
+
+            if let Some(notes) = &self.notes {
+                ensure_markdown_blankline(context);
+                context.push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context));
+            }
+
+            ensure_markdown_blankline(context);
+            context.exit_node();
+            return;
         }
 
-        // Do a first iteration over cells to generate the Markdown
-        // for each cell (including headers) and determine column widths
-        let mut column_widths: Vec<usize> = Vec::new();
-        let mut cells: Vec<Vec<String>> = vec![vec![String::new(); cols_num]; rows_num + 1];
-        for (col_index, column) in self.columns.iter().enumerate() {
-            // Set column header and initialize column width
-            let (cell, width) = escape_cell(column.name.clone());
-            cells[0][col_index] = cell;
+        let wrapped = matches!(context.format, Format::Smd);
 
-            column_widths.push(width);
+        if wrapped {
+            context.push_colons().push_str(" data");
 
-            // Fill in cells for this column
-            for (row_index, value) in column.values.iter().enumerate() {
-                let mut cell_context = MarkdownEncodeContext::default();
-                value.to_markdown(&mut cell_context);
-
-                let (cell, width) = escape_cell(cell_context.content);
-                cells[row_index + 1][col_index] = cell;
-
-                if let Some(column_width) = column_widths.get_mut(col_index)
-                    && width > *column_width
-                {
-                    *column_width = width
-                }
-
-                context.merge_losses(cell_context.losses);
+            if !self.label_automatically.unwrap_or(true)
+                && let Some(label) = &self.label
+            {
+                context.push_str(" ");
+                context.push_prop_str(NodeProperty::Label, label);
             }
+
+            if let Some(id) = &self.id {
+                context.push_str(" #");
+                context.push_prop_str(NodeProperty::Id, id);
+            }
+
+            context.push_str("\n\n");
         }
 
-        // Iterate over rows and encode each to Markdown
-        for (row_index, row) in cells.iter().enumerate() {
-            for (col_index, cell) in row.iter().enumerate() {
-                if col_index == 0 {
-                    // Add indentation for SMD format
-                    if matches!(context.format, Format::Smd) {
-                        context.push_indent();
-                    }
-                    context.push_str("|");
-                }
+        if let Some(caption) = &self.caption {
+            context.push_prop_fn(NodeProperty::Caption, |context| {
+                caption.to_markdown(context)
+            });
+        }
 
-                context.push_str(&format!(
-                    " {cell:width$} |",
-                    width = column_widths[col_index]
-                ));
+        encode_datatable_to_markdown(self, context);
+
+        if let Some(notes) = &self.notes {
+            context
+                .newline()
+                .push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context));
+        }
+
+        if wrapped {
+            if self.notes.is_none() {
+                context.newline();
             }
-            context.newline();
+            context.push_colons().newline();
+        }
 
-            // Separator after first row
-            if row_index == 0 {
+        context.exit_node().newline();
+    }
+}
+
+fn encode_datatable_to_markdown(datatable: &Datatable, context: &mut MarkdownEncodeContext) {
+    use stencila_codec_markdown_trait::MarkdownCodec;
+
+    // Determine number of columns and rows
+    let cols_num = datatable.columns.len();
+    let rows_num = datatable
+        .columns
+        .iter()
+        .fold(0usize, |max, column| max.max(column.values.len()));
+
+    // Trim, replace inner newlines with <br> & ensure cell has no carriage
+    // returns or pipes which will break table
+    fn escape_cell(cell: String) -> (String, usize) {
+        let cell = cell
+            .trim()
+            .replace('\n', "<br><br>")
+            .replace('\r', " ")
+            .replace('|', "\\|");
+        let chars = 3.max(cell.chars().count());
+        (cell, chars)
+    }
+
+    // Do a first iteration over cells to generate the Markdown
+    // for each cell (including headers) and determine column widths
+    let mut column_widths: Vec<usize> = Vec::new();
+    let mut cells: Vec<Vec<String>> = vec![vec![String::new(); cols_num]; rows_num + 1];
+    for (col_index, column) in datatable.columns.iter().enumerate() {
+        // Set column header and initialize column width
+        let (cell, width) = escape_cell(column.name.clone());
+        cells[0][col_index] = cell;
+
+        column_widths.push(width);
+
+        // Fill in cells for this column
+        for (row_index, value) in column.values.iter().enumerate() {
+            let mut cell_context = MarkdownEncodeContext::default();
+            value.to_markdown(&mut cell_context);
+
+            let (cell, width) = escape_cell(cell_context.content);
+            cells[row_index + 1][col_index] = cell;
+
+            if let Some(column_width) = column_widths.get_mut(col_index)
+                && width > *column_width
+            {
+                *column_width = width
+            }
+
+            context.merge_losses(cell_context.losses);
+        }
+    }
+
+    // Iterate over rows and encode each to Markdown
+    for (row_index, row) in cells.iter().enumerate() {
+        for (col_index, cell) in row.iter().enumerate() {
+            if col_index == 0 {
                 // Add indentation for SMD format
                 if matches!(context.format, Format::Smd) {
                     context.push_indent();
                 }
                 context.push_str("|");
-                for width in &column_widths {
-                    context
-                        .push_str(" ")
-                        .push_str(&"-".repeat(*width))
-                        .push_str(" |");
-                }
-                context.newline();
             }
-        }
 
-        context.exit_node().newline();
+            context.push_str(&format!(
+                " {cell:width$} |",
+                width = column_widths[col_index]
+            ));
+        }
+        context.newline();
+
+        // Separator after first row
+        if row_index == 0 {
+            // Add indentation for SMD format
+            if matches!(context.format, Format::Smd) {
+                context.push_indent();
+            }
+            context.push_str("|");
+            for width in &column_widths {
+                context
+                    .push_str(" ")
+                    .push_str(&"-".repeat(*width))
+                    .push_str(" |");
+            }
+            context.newline();
+        }
     }
 }

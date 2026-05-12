@@ -1,0 +1,15 @@
+start     end        offsets   node_type+property                   authorship
+    30     52       (30, 52)   Paragraph
+    54     60        (24, 8)   TableCell
+    60     67         (6, 7)   TableCell
+    54     67        (-6, 0)   TableRow
+    82     88       (28, 21)   TableCell
+    88     95         (6, 7)   TableCell
+    82     95        (-6, 0)   TableRow
+    96    102        (14, 7)   TableCell
+   102    109         (6, 7)   TableCell
+    96    109        (-6, 0)   TableRow
+    54    109       (-42, 0)   Table
+   111    122       (57, 13)   Paragraph
+     0    127      (-111, 5)   Datatable
+     0    128         (0, 1)   Article

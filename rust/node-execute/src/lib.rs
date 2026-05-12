@@ -1384,6 +1384,7 @@ impl VisitorAsync for Executor {
             Chat(node) => self.visit_executable(node).await,
             CodeBlock(node) => self.visit_executable(node).await,
             CodeChunk(node) => self.visit_executable(node).await,
+            Datatable(node) => self.visit_executable(node).await,
             Figure(node) => self.visit_executable(node).await,
             ForBlock(node) => self.visit_executable(node).await,
             Heading(node) => self.visit_executable(node).await,
@@ -1475,7 +1476,8 @@ mod labelling_tests {
 
     use stencila_kernels::Kernels;
     use stencila_schema::{
-        ExecutionBounds, Heading, Inline, Link, MathBlock, NodeId, NodeType, VisitorAsync,
+        Article, Block, Datatable, ExecutionBounds, Heading, Inline, Link, MathBlock, NodeId,
+        NodeType, VisitorAsync,
         shortcuts::{ci, stg, t},
     };
     use tokio::sync::RwLock;
@@ -1556,6 +1558,23 @@ mod labelling_tests {
             matches!(link.content.first(), Some(Inline::Text(text)) if text.value.to_string() == "Equation 1")
         );
         assert!(link.compilation_messages.is_none());
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn article_compile_labels_datatable_blocks() -> eyre::Result<()> {
+        let mut exec = test_executor();
+        let mut article = Article::new(vec![Block::Datatable(Datatable::new(Vec::new()))]);
+
+        exec.compile(&mut article).await?;
+
+        let Some(Block::Datatable(datatable)) = article.content.first() else {
+            eyre::bail!("expected datatable block");
+        };
+
+        assert_eq!(datatable.label.as_deref(), Some("1"));
+        assert_eq!(datatable.id.as_deref(), Some("tbl-1"));
 
         Ok(())
     }

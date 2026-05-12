@@ -1,0 +1,44 @@
+<stencila-article id=xxx depth=0 ancestors='' root>
+  <section slot=content>
+    <stencila-datatable id=xxx depth=1 ancestors=Article label=1 label-automatically=false>
+      <div slot=id id=tab-example-data>
+      </div>
+      <table slot=columns>
+        <caption>
+          <stencila-paragraph id=xxx depth=2 ancestors=Article.Datatable>
+            <p slot=content>
+              <span class=table-label>Table 1</span>:<stencila-text id=xxx depth=3 ancestors=Article.Datatable.Paragraph>A caption for the data</stencila-text>
+            </p>
+          </stencila-paragraph>
+        </caption>
+        <thead>
+          <tr>
+            <th style=text-align:right>
+              <stencila-datatable-column id=xxx depth=2 ancestors=Article.Datatable name=A validator='{"type":"ArrayValidator","itemsValidator":{"type":"IntegerValidator"}}'>A</stencila-datatable-column>
+            </th>
+            <th style=text-align:right>
+              <stencila-datatable-column id=xxx depth=2 ancestors=Article.Datatable name=B validator='{"type":"ArrayValidator","itemsValidator":{"type":"IntegerValidator"}}'>B</stencila-datatable-column>
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style=text-align:right>1</td>
+            <td style=text-align:right>2</td>
+          </tr>
+          <tr>
+            <td style=text-align:right>3</td>
+            <td style=text-align:right>4</td>
+          </tr>
+        </tbody>
+      </table>
+      <aside slot=notes>
+        <stencila-paragraph id=xxx depth=2 ancestors=Article.Datatable>
+          <p slot=content>
+            <stencila-text id=xxx depth=3 ancestors=Article.Datatable.Paragraph>Some notes.</stencila-text>
+          </p>
+        </stencila-paragraph>
+      </aside>
+    </stencila-datatable>
+  </section>
+</stencila-article>

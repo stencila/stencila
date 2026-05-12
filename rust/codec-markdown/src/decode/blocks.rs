@@ -20,8 +20,8 @@ use stencila_codec::{
     stencila_schema::{
         Admonition, AdmonitionType, AppendixBreak, Author, Block, CallArgument, CallBlock, Chat,
         ChatMessage, ChatMessageGroup, ChatMessageOptions, Claim, CodeBlock, CodeChunk,
-        CodeExpression, ExecutionBounds, ExecutionMode, Figure, FigureOptions, ForBlock, Heading,
-        HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
+        CodeExpression, Datatable, ExecutionBounds, ExecutionMode, Figure, FigureOptions, ForBlock,
+        Heading, HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
         Node, Page, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
         StyledBlock, SuggestionBlock, SuggestionStatus, SuggestionType, Table, TableCell,
@@ -552,6 +552,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
                     table,
                 )),
                 alt((
+                    datatable,
                     for_block,
                     instruction_block,
                     page,
@@ -1355,6 +1356,24 @@ fn table(input: &mut Located<&str>) -> ModalResult<Block> {
         .parse_next(input)
 }
 
+/// Parse a [`Datatable`] with a label and/or caption
+fn datatable(input: &mut Located<&str>) -> ModalResult<Block> {
+    preceded(
+        (alt((Caseless("data"), Caseless("datatable"))), multispace0),
+        table_properties,
+    )
+    .map(|props| {
+        let fields = collect_fence_fields(props);
+        Block::Datatable(Datatable {
+            id: fields.id,
+            label: fields.label.clone(),
+            label_automatically: fields.label.is_some().then_some(false),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
 /// Parse a divider between sections of content.
 ///
 /// The `has_open_block` parameter controls whether `:++`/`:--`/`:~~` are recognized as
@@ -1599,6 +1618,40 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                         None => {
                             table.notes = Some(vec![child]);
                         }
+                    }
+                }
+            }
+        }
+    } else if let Block::Datatable(datatable) = parent {
+        // Put all children before the table into caption, convert the table to a
+        // datatable, and put following children into notes.
+        let mut before = true;
+        for child in children {
+            if let Block::Table(table) = child {
+                let mut converted = Datatable::from(&table);
+                converted.id = datatable.id.clone();
+                converted.label = datatable.label.clone();
+                converted.label_automatically = datatable.label_automatically;
+                converted.caption = datatable.caption.take();
+                converted.notes = datatable.notes.take();
+                *datatable = converted;
+                before = false;
+            } else if before {
+                match &mut datatable.caption {
+                    Some(caption) => {
+                        caption.push(child);
+                    }
+                    None => {
+                        datatable.caption = Some(vec![child]);
+                    }
+                }
+            } else {
+                match &mut datatable.notes {
+                    Some(notes) => {
+                        notes.push(child);
+                    }
+                    None => {
+                        datatable.notes = Some(vec![child]);
                     }
                 }
             }
