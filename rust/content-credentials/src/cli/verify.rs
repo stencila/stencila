@@ -3,7 +3,7 @@
 use std::{env, fs, path::PathBuf};
 
 use clap::{Args, ValueEnum};
-use eyre::Result;
+use eyre::{Result, bail};
 use stencila_cli_utils::{
     AsFormat, Code, Tabulated, ToStdout,
     tabulated::{Attribute, Cell, Color},
@@ -12,7 +12,7 @@ use stencila_cli_utils::{
 use crate::{
     report::{ReproducibilityStatus, VerificationReport},
     trust,
-    verifier::{CredentialVerifier, VerifyAssetRequest},
+    verifier::{self, CredentialVerifier, VerifyAssetRequest},
 };
 
 const ENV_TRUST_ANCHORS: &str = "STENCILA_CREDENTIALS_TRUST_ANCHORS";
@@ -56,6 +56,13 @@ enum Requirement {
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
+        if verifier::is_sidecar_path(&self.asset) {
+            bail!(
+                "Sidecar manifest '{}' cannot be verified directly. Verify the originally signed asset instead",
+                self.asset.display()
+            );
+        }
+
         let trust_anchors = resolve_trust_anchors(self.trust_anchors).await?;
         let verifier = CredentialVerifier::new();
         let request = VerifyAssetRequest {

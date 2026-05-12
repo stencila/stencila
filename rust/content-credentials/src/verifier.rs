@@ -77,6 +77,12 @@ impl CredentialVerifier {
         if !asset_path.exists() {
             return Err(Error::InputNotFound(asset_path));
         }
+        if is_sidecar_path(&asset_path) {
+            return Err(Error::other(format!(
+                "Sidecar manifest '{}' cannot be verified directly. Verify the originally signed asset instead",
+                asset_path.display()
+            )));
+        }
 
         // c2pa Reader is sync; run on a blocking thread.
         let path_for_task = asset_path.clone();
@@ -239,6 +245,12 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
         summary,
         problems,
     }
+}
+
+pub(crate) fn is_sidecar_path(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("c2pa"))
 }
 
 fn read_provenance(
