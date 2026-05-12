@@ -1,4 +1,6 @@
 use stencila_codec_dom_trait::{DomCodec, DomEncodeContext};
+use stencila_codec_info::NodeProperty;
+use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext};
 use stencila_node_id::NodeId;
 use stencila_node_type::NodeType;
 
@@ -125,5 +127,41 @@ pub(super) fn caption_to_dom(
         } else {
             block.to_dom(context);
         }
+    }
+}
+
+/// Encode the label and caption prefix of a `Figure`, `Table` or `CodeChunk` to Markdown.
+pub(super) fn caption_to_markdown(
+    context: &mut MarkdownEncodeContext,
+    kind: &str,
+    label: &Option<String>,
+    caption: &Option<Vec<Block>>,
+) {
+    context.push_str(kind);
+
+    if let Some(label) = label {
+        context.push_str(" ");
+        context.push_prop_str(NodeProperty::Label, label);
+    }
+
+    if let Some(caption) = caption {
+        context.push_str(": ");
+        context.push_prop_fn(NodeProperty::Caption, |context| {
+            caption.to_markdown(context);
+            context.trim_end();
+        });
+    }
+}
+
+/// Ensure Markdown block content is followed by a blank line.
+pub(super) fn ensure_markdown_blankline(context: &mut MarkdownEncodeContext) {
+    if context.content.is_empty() || context.content.ends_with("\n\n") {
+        return;
+    }
+
+    if context.content.ends_with('\n') {
+        context.newline();
+    } else {
+        context.push_str("\n\n");
     }
 }

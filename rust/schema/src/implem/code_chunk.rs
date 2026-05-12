@@ -7,7 +7,7 @@ use crate::{
     prelude::*,
 };
 
-use super::utils::caption_to_dom;
+use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
 
 impl CodeChunk {
     pub fn has_warnings_errors_or_exceptions(&self) -> bool {
@@ -384,17 +384,8 @@ impl MarkdownCodec for CodeChunk {
             && !self.is_hidden.unwrap_or_default()
         {
             if matches!(self.label_type, Some(LabelType::TableLabel)) {
-                context.push_str("Table");
-                if let Some(label) = &self.label {
-                    context.push_str(" ");
-                    context.push_prop_str(NodeProperty::Label, label);
-                }
-                if let Some(caption) = &self.caption {
-                    context.push_str(": ");
-                    context.push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context);
-                    });
-                }
+                caption_to_markdown(context, "Table", &self.label, &self.caption);
+                ensure_markdown_blankline(context);
             }
 
             context.push_prop_fn(NodeProperty::Content, |context| {
@@ -407,19 +398,10 @@ impl MarkdownCodec for CodeChunk {
             });
 
             if matches!(self.label_type, Some(LabelType::FigureLabel)) {
-                context.push_str("Figure");
-                if let Some(label) = &self.label {
-                    context.push_str(" ");
-                    context.push_prop_str(NodeProperty::Label, label);
-                }
-                if let Some(caption) = &self.caption {
-                    context.push_str(": ");
-                    context.push_prop_fn(NodeProperty::Caption, |context| {
-                        caption.to_markdown(context);
-                    });
-                }
+                caption_to_markdown(context, "Figure", &self.label, &self.caption);
             }
 
+            ensure_markdown_blankline(context);
             context.exit_node();
             return;
         }
@@ -727,8 +709,8 @@ mod tests {
     use stencila_codec_markdown_trait::to_markdown_with;
 
     use crate::{
-        ImageObject,
-        shortcuts::{p, t},
+        Article, Block, ImageObject, Table,
+        shortcuts::{p, t, td, th, tr},
     };
 
     use super::*;
@@ -758,5 +740,37 @@ mod tests {
         let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Render);
 
         assert_eq!(markdown, "Table 1: A table.");
+    }
+
+    #[test]
+    fn render_table_caption_separates_output() {
+        let mut chunk = CodeChunk::new("table".into());
+        chunk.label_type = Some(LabelType::TableLabel);
+        chunk.label = Some("1".to_string());
+        chunk.caption = Some(vec![p([t("A table.")])]);
+        chunk.outputs = Some(vec![Node::Table(Table::new(vec![
+            tr([th([t("A")])]),
+            tr([td([t("B")])]),
+        ]))]);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(markdown, "Table 1: A table.\n\n| A   |\n| --- |\n| B   |");
+    }
+
+    #[test]
+    fn render_figure_caption_separates_following_block() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.label = Some("1".to_string());
+        chunk.caption = Some(vec![p([t("A plot.")])]);
+        chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+            "plot.png".to_string(),
+        ))]);
+
+        let article = Article::new(vec![Block::CodeChunk(chunk), p([t("Next.")])]);
+        let markdown = to_markdown_with(&article, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(markdown, "![](plot.png)\n\nFigure 1: A plot.\n\nNext.");
     }
 }

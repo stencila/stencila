@@ -10,7 +10,7 @@ use crate::{
     transforms::blocks_to_inlines,
 };
 
-use super::utils::caption_to_dom;
+use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
 
 /// A subfigure caption with its alphabetic label
 struct SubfigureCaption {
@@ -465,6 +465,21 @@ impl MarkdownCodec for Figure {
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, authors, provenance));
 
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
+            context.push_prop_fn(NodeProperty::Content, |context| {
+                self.content.to_markdown(context)
+            });
+
+            if self.label.is_some() || self.caption.is_some() {
+                ensure_markdown_blankline(context);
+                caption_to_markdown(context, "Figure", &self.label, &self.caption);
+            }
+
+            ensure_markdown_blankline(context);
+            context.exit_node();
+            return;
+        }
+
         if matches!(context.format, Format::Myst) {
             context
                 .myst_directive(
@@ -568,5 +583,31 @@ impl MarkdownCodec for Figure {
 
             context.push_colons().newline().exit_node().newline();
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec_markdown_trait::to_markdown_with;
+
+    use crate::{
+        Article, ImageObject,
+        shortcuts::{p, t},
+    };
+
+    use super::*;
+
+    #[test]
+    fn render_markdown() {
+        let mut figure = Figure::new(vec![Block::ImageObject(ImageObject::new(
+            "plot.png".to_string(),
+        ))]);
+        figure.label = Some("1".to_string());
+        figure.caption = Some(vec![p([t("A plot.")])]);
+
+        let article = Article::new(vec![Block::Figure(figure), p([t("Next.")])]);
+        let markdown = to_markdown_with(&article, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(markdown, "![](plot.png)\n\nFigure 1: A plot.\n\nNext.");
     }
 }

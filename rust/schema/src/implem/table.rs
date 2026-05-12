@@ -2,7 +2,7 @@ use stencila_codec_info::lost_options;
 
 use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
-use super::utils::caption_to_dom;
+use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
 
 impl Table {
     pub fn to_jats_special(&self) -> (String, Losses) {
@@ -162,6 +162,29 @@ impl MarkdownCodec for Table {
         context
             .enter_node(self.node_type(), self.node_id())
             .merge_losses(lost_options!(self, authors, provenance));
+
+        if matches!(context.mode, MarkdownEncodeMode::Render) {
+            if self.label.is_some() || self.caption.is_some() {
+                caption_to_markdown(context, "Table", &self.label, &self.caption);
+
+                if !self.rows.is_empty() {
+                    ensure_markdown_blankline(context);
+                }
+            }
+
+            context.push_prop_fn(NodeProperty::Rows, |context| {
+                encode_rows_to_markdown(&self.rows, context)
+            });
+
+            if let Some(notes) = &self.notes {
+                ensure_markdown_blankline(context);
+                context.push_prop_fn(NodeProperty::Notes, |context| notes.to_markdown(context));
+            }
+
+            ensure_markdown_blankline(context);
+            context.exit_node();
+            return;
+        }
 
         if matches!(context.format, Format::Myst) {
             if self.label.is_some() || self.caption.is_some() {
@@ -392,5 +415,32 @@ fn encode_rows_to_markdown(self_rows: &[TableRow], context: &mut MarkdownEncodeC
             divider_row(context);
             empty_row(context);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec_markdown_trait::to_markdown_with;
+
+    use crate::{
+        Article, Block,
+        shortcuts::{p, t, td, th, tr},
+    };
+
+    use super::*;
+
+    #[test]
+    fn render_markdown() {
+        let mut table = Table::new(vec![tr([th([t("A")])]), tr([td([t("B")])])]);
+        table.label = Some("1".to_string());
+        table.caption = Some(vec![p([t("A table.")])]);
+
+        let article = Article::new(vec![Block::Table(table), p([t("Next.")])]);
+        let markdown = to_markdown_with(&article, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(
+            markdown,
+            "Table 1: A table.\n\n| A   |\n| --- |\n| B   |\n\nNext."
+        );
     }
 }
