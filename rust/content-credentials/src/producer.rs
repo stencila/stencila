@@ -245,20 +245,17 @@ fn read_signed_reader(
     media_type: &str,
 ) -> Result<Reader> {
     let reader = Reader::from_context(Context::new());
-    match sidecar_path {
-        Some(sidecar_path) => {
-            let manifest_bytes = fs::read(sidecar_path)?;
-            let mut asset = File::open(asset_path)?;
-            reader
-                .with_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
-                .map_err(Error::C2pa)
-        }
-        None => {
-            let mut asset = File::open(asset_path)?;
-            reader
-                .with_stream(media_type, &mut asset)
-                .map_err(Error::C2pa)
-        }
+    if let Some(sidecar_path) = sidecar_path {
+        let manifest_bytes = fs::read(sidecar_path)?;
+        let mut asset = File::open(asset_path)?;
+        reader
+            .with_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
+            .map_err(Error::C2pa)
+    } else {
+        let mut asset = File::open(asset_path)?;
+        reader
+            .with_stream(media_type, &mut asset)
+            .map_err(Error::C2pa)
     }
 }
 
