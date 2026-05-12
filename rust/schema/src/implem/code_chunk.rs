@@ -384,11 +384,13 @@ impl MarkdownCodec for CodeChunk {
             && !self.is_hidden.unwrap_or_default()
         {
             if matches!(self.label_type, Some(LabelType::TableLabel)) {
-                context.push_str("Table ");
+                context.push_str("Table");
                 if let Some(label) = &self.label {
+                    context.push_str(" ");
                     context.push_prop_str(NodeProperty::Label, label);
                 }
                 if let Some(caption) = &self.caption {
+                    context.push_str(": ");
                     context.push_prop_fn(NodeProperty::Caption, |context| {
                         caption.to_markdown(context);
                     });
@@ -405,11 +407,13 @@ impl MarkdownCodec for CodeChunk {
             });
 
             if matches!(self.label_type, Some(LabelType::FigureLabel)) {
-                context.push_str("Figure ");
+                context.push_str("Figure");
                 if let Some(label) = &self.label {
+                    context.push_str(" ");
                     context.push_prop_str(NodeProperty::Label, label);
                 }
                 if let Some(caption) = &self.caption {
+                    context.push_str(": ");
                     context.push_prop_fn(NodeProperty::Caption, |context| {
                         caption.to_markdown(context);
                     });
@@ -715,5 +719,44 @@ impl TextCodec for CodeChunk {
         };
 
         [&content, "\n\n"].concat()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec_markdown_trait::to_markdown_with;
+
+    use crate::{
+        ImageObject,
+        shortcuts::{p, t},
+    };
+
+    use super::*;
+
+    #[test]
+    fn render_figure_caption_separates_label() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.label = Some("1".to_string());
+        chunk.caption = Some(vec![p([t("A plot.")])]);
+        chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+            "plot.png".to_string(),
+        ))]);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(markdown, "![](plot.png)\n\nFigure 1: A plot.");
+    }
+
+    #[test]
+    fn render_table_caption_separates_label() {
+        let mut chunk = CodeChunk::new("table".into());
+        chunk.label_type = Some(LabelType::TableLabel);
+        chunk.label = Some("1".to_string());
+        chunk.caption = Some(vec![p([t("A table.")])]);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Render);
+
+        assert_eq!(markdown, "Table 1: A table.");
     }
 }
