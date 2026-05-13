@@ -23,6 +23,9 @@ pub mod verifier;
 
 pub mod media;
 
+#[cfg(feature = "export")]
+pub mod export;
+
 #[cfg(feature = "cli")]
 pub mod cli;
 

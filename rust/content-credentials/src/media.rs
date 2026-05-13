@@ -83,6 +83,13 @@ pub fn sha256_file(path: &Path) -> Result<String> {
     Ok(format!("sha256:{}", lower_hex(&digest)))
 }
 
+/// Compute a `sha256:<hex>` digest of in-memory bytes.
+#[must_use]
+pub fn sha256_bytes(bytes: &[u8]) -> String {
+    let digest = Sha256::digest(bytes);
+    format!("sha256:{}", lower_hex(&digest))
+}
+
 /// Best-effort media type lookup by file extension.
 ///
 /// # Errors
@@ -172,6 +179,7 @@ mod tests {
             digest,
             "sha256:ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad"
         );
+        assert_eq!(sha256_bytes(b"abc"), digest);
     }
 
     /// Ensures sidecar paths replace the asset extension with `.c2pa`.

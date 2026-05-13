@@ -59,6 +59,28 @@ pub enum CredentialProfile {
     Full,
 }
 
+impl CredentialProfile {
+    /// Short label for this profile in CLI and `EncodeInfo` metadata.
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Public => "public",
+            Self::Private => "private",
+            Self::Full => "full",
+        }
+    }
+
+    /// Privacy policy identifier recorded in Stencila provenance assertions.
+    #[must_use]
+    pub const fn policy_name(self) -> &'static str {
+        match self {
+            Self::Public => "org.stencila.credentials.public.v1",
+            Self::Private => "org.stencila.credentials.private.v1",
+            Self::Full => "org.stencila.credentials.full.v1",
+        }
+    }
+}
+
 /// Concrete projection policy resolved for a signing request.
 #[derive(Debug, Clone)]
 pub struct ProjectionPolicy {
@@ -177,12 +199,7 @@ impl ProjectionPolicy {
     }
 
     fn policy_name(&self) -> String {
-        match self.profile {
-            CredentialProfile::Public => "org.stencila.credentials.public.v1",
-            CredentialProfile::Private => "org.stencila.credentials.private.v1",
-            CredentialProfile::Full => "org.stencila.credentials.full.v1",
-        }
-        .to_string()
+        self.profile.policy_name().to_string()
     }
 
     fn project_asset(&self, asset: &mut AssetSnapshot, redactions: &mut Vec<RedactionSnapshot>) {

@@ -170,6 +170,17 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         media_assertion.asset.title.as_deref(),
         Some("Figure 1: Generated result.")
     );
+    assert!(
+        media_assertion.executed_node.is_none(),
+        "plain figure assets should not be represented as executed nodes"
+    );
+    assert_eq!(
+        media_assertion
+            .output_node
+            .as_ref()
+            .map(|node| node.node_type.as_str()),
+        Some("Figure")
+    );
     assert!(media_assertion.asset.content_digest.starts_with("sha256:"));
 
     Ok(())
@@ -349,14 +360,29 @@ const PNG_DATA_URI: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAA
 
 #[tokio::test]
 async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() -> Result<()> {
+    if !git_available() {
+        return Ok(());
+    }
+
     let _config = set_isolated_config_dir();
     init_local_signing_identity(true)?;
 
     let dir = TempDir::new()?;
+    let repo = dir.path();
+    run_git(repo, &["init", "-q", "-b", "main"]);
+    run_git(repo, &["config", "user.email", "test@example.com"]);
+    run_git(repo, &["config", "user.name", "Test"]);
+    run_git(repo, &["config", "commit.gpgsign", "false"]);
+    run_git(
+        repo,
+        &["remote", "add", "origin", "https://github.com/example/repo"],
+    );
     let source_path = dir.path().join("analysis.smd");
     fs::write(&source_path, "# Analysis\n\n```python\nvalue = 1\n```\n")?;
     fs::write(dir.path().join("uv.lock"), "version = 1\n")?;
     fs::write(dir.path().join("data.csv"), "x\n1\n")?;
+    run_git(repo, &["add", "analysis.smd"]);
+    run_git(repo, &["commit", "-q", "-m", "init"]);
 
     let output = dir.path().join("analysis.md");
     let mut chunk = CodeChunk::new("value = 1".into());
@@ -379,6 +405,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         "cached data was used".to_string(),
     )]);
     let node = Node::Article(Article {
+        title: Some(vec![Inline::Text(Text::from("Analysis"))]),
         content: vec![Block::CodeChunk(chunk)],
         ..Default::default()
     });
@@ -528,6 +555,65 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         Some("cached data was used")
     );
 
+    let figure_manifest = verifier.inspect_asset(&figure_asset.path, None).await?;
+    let active = figure_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let ingredients = figure_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("figure ingredients");
+    for ingredient in ingredients {
+        assert!(
+            ingredient["active_manifest"].is_string(),
+            "ingredient should link to its own manifest: {ingredient:#?}"
+        );
+    }
+    let source = ingredients
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "parentOf")
+        .expect("source document ingredient");
+    assert_eq!(source["title"], "Analysis");
+
+    let code = ingredients
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "inputTo")
+        .expect("executed code ingredient");
+    assert_eq!(code["format"], "text/x-python");
+    assert_eq!(code["title"], "Python CodeChunk content-0");
+    assert!(
+        code["informational_URI"]
+            .as_str()
+            .is_some_and(|uri| uri.ends_with("analysis.smd#L3-L5")),
+        "code ingredient URI should point at source lines: {code:#?}"
+    );
+    assert!(
+        code["validation_results"]["activeManifest"].is_object(),
+        "code ingredient should carry real validation results: {code:#?}"
+    );
+
+    let actions = figure_manifest["manifests"][active]["assertions"]
+        .as_array()
+        .expect("assertions")
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.actions.v2")
+        .and_then(|assertion| assertion["data"]["actions"].as_array())
+        .expect("actions");
+    assert_eq!(actions[0]["action"], "c2pa.opened");
+    assert!(
+        actions.iter().any(|action| {
+            action["action"] == "org.stencila.executed"
+                && action["parameters"]["org.stencila.execution"]["status"] == "succeeded"
+                && action["parameters"]["org.stencila.execution"]["durationMs"] == 250
+        }),
+        "expected org.stencila.executed action with execution details: {actions:#?}"
+    );
+    let figure_manifest_json =
+        serde_json::to_string(&figure_manifest).expect("serialize figure manifest");
+    assert!(
+        !figure_manifest_json.contains("ingredient.unknownProvenance"),
+        "parent source ingredient should carry provenance: {figure_manifest_json}"
+    );
+
     // Environment fields hold for both snapshots; assert on the figure's.
     let environment = figure.environment.as_ref().expect("environment");
     assert!(environment.os.is_some());
@@ -614,6 +700,77 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
         source.commit.as_deref().map(str::len),
         Some(40),
         "expected HEAD SHA, got {source:?}"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn credentials_untracked_source_is_dirty_without_commit() -> Result<()> {
+    if !git_available() {
+        return Ok(());
+    }
+
+    let _config = set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let dir = TempDir::new()?;
+    let repo = dir.path();
+    run_git(repo, &["init", "-q", "-b", "main"]);
+    run_git(repo, &["config", "user.email", "test@example.com"]);
+    run_git(repo, &["config", "user.name", "Test"]);
+    run_git(repo, &["config", "commit.gpgsign", "false"]);
+    fs::write(repo.join("README.md"), "repo\n")?;
+    run_git(repo, &["add", "README.md"]);
+    run_git(repo, &["commit", "-q", "-m", "init"]);
+
+    let source_path = repo.join("draft.smd");
+    fs::write(&source_path, "# Draft\n\nbody\n")?;
+
+    let output = dir.path().join("draft.md");
+    let node = Node::Article(Article {
+        content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::from("body"),
+        )]))],
+        ..Default::default()
+    });
+
+    to_path_with_info(
+        &node,
+        &output,
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            from_path: Some(source_path),
+            credentials: Some(CredentialsOptions {
+                profile: CredentialProfile::Private,
+            }),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let verifier = CredentialVerifier::new();
+    let report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path: output,
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            require_repro_exact: false,
+            trust_anchors: None,
+        })
+        .await?;
+    let source = report
+        .provenance
+        .assertion
+        .as_ref()
+        .and_then(|assertion| assertion.source.as_ref())
+        .expect("source snapshot");
+
+    assert_eq!(source.path.as_deref(), Some("draft.smd"));
+    assert_eq!(source.dirty, Some(true));
+    assert!(
+        source.commit.is_none(),
+        "untracked files are not present in HEAD and should not claim a commit"
     );
 
     Ok(())

@@ -608,18 +608,17 @@ fn standard_assertions(
 
 fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
     // The C2PA spec requires the first action to be `c2pa.created` or
-    // `c2pa.opened`. Stencila exports always materialise new bytes (a rendered
-    // file or a freshly generated computational output), so `c2pa.created` is
-    // the appropriate first action. Source-of-derivation linkage is recorded
-    // via `c2pa.ingredient.v3` with `relationship: inputTo` rather than via
-    // `c2pa.opened`/`c2pa.converted`. The c2pa.actions.v2 spec requires that
-    // related ingredients be referenced from the creating action; we satisfy
-    // that by listing input/parent ingredient IDs on c2pa.created.
+    // `c2pa.opened`. When a source document is recorded as `parentOf`, it is
+    // the direct derivation parent and must be referenced by `c2pa.opened`.
+    // Otherwise Stencila exports materialise new bytes directly, so
+    // `c2pa.created` remains the first action.
+    let opened = opened_action(assertion, ingredients);
+    let include_parent_in_created = opened.is_none();
     let mut created = json!({
         "action": "c2pa.created",
         "description": action_description(assertion),
         "softwareAgent": software_agent_value(assertion),
-        "parameters": action_parameters(assertion, ingredients),
+        "parameters": action_parameters(assertion, ingredients, include_parent_in_created),
     });
 
     if let Some(when) = action_timestamp(assertion) {
@@ -630,7 +629,19 @@ fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientS
         created["digitalSourceType"] = json!(uri);
     }
 
-    let mut actions = vec![created];
+    let mut actions = Vec::new();
+    if let Some(opened) = opened {
+        actions.push(opened);
+        if let Some(executed) = executed_action(assertion, ingredients) {
+            actions.push(executed);
+        }
+        actions.push(created);
+    } else {
+        actions.push(created);
+        if let Some(executed) = executed_action(assertion, ingredients) {
+            actions.push(executed);
+        }
+    }
     actions.extend(placed_actions(assertion, ingredients));
 
     json!({
@@ -639,6 +650,89 @@ fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientS
             "actions": actions,
         }
     })
+}
+
+fn opened_action(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+) -> Option<Value> {
+    let mut parents = ingredients
+        .iter()
+        .enumerate()
+        .filter(|(_, ingredient)| ingredient.relationship == IngredientRelationship::ParentOf);
+    let (index, ingredient) = parents.next()?;
+    if parents.next().is_some() {
+        return None;
+    }
+
+    let mut action = json!({
+        "action": "c2pa.opened",
+        "description": ingredient
+            .title
+            .as_deref()
+            .map_or_else(|| "Open parent asset".to_string(), |title| format!("Open {title}")),
+        "softwareAgent": software_agent_value(assertion),
+        "parameters": {
+            "ingredientIds": [ingredient_label(ingredient, index)]
+        }
+    });
+
+    if let Some(when) = action_timestamp(assertion) {
+        action["when"] = json!(when);
+    }
+
+    Some(action)
+}
+
+fn executed_action(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+) -> Option<Value> {
+    let execution = assertion.execution.as_ref()?;
+    let node = assertion.executed_node.as_ref()?;
+
+    let mut parameters = json!({});
+    parameters["org.stencila.nodeType"] = json!(node.node_type);
+    if let Some(node_id) = &node.node_id {
+        parameters["org.stencila.nodeId"] = json!(node_id);
+    }
+    if let Some(persistent_id) = &node.persistent_id {
+        parameters["org.stencila.persistentId"] = json!(persistent_id);
+    }
+    if let Some(language) = &node.programming_language {
+        parameters["org.stencila.programmingLanguage"] = json!(language);
+    }
+
+    if let Ok(value) = serde_json::to_value(execution) {
+        parameters["org.stencila.execution"] = value;
+    }
+
+    let input_ingredient_ids: Vec<String> = ingredients
+        .iter()
+        .enumerate()
+        .filter(|(_, ingredient)| ingredient.relationship == IngredientRelationship::InputTo)
+        .map(|(index, ingredient)| ingredient_label(ingredient, index))
+        .collect();
+    if !input_ingredient_ids.is_empty() {
+        parameters["ingredientIds"] = json!(input_ingredient_ids);
+    }
+
+    let mut action = json!({
+        "action": "org.stencila.executed",
+        "description": format!("Execute {}", node.node_type),
+        "softwareAgent": software_agent_value(assertion),
+        "parameters": parameters,
+    });
+
+    if let Some(when) = execution
+        .ended_at
+        .clone()
+        .or_else(|| action_timestamp(assertion))
+    {
+        action["when"] = json!(when);
+    }
+
+    Some(action)
 }
 
 /// IPTC `DigitalSourceType` URI for the action, when one can be inferred from
@@ -820,6 +914,18 @@ fn attach_ingredient_with_manifest(
     index: usize,
     manifest_source: &Path,
 ) -> Result<()> {
+    if !is_c2pa_sidecar(manifest_source) {
+        match attach_ingredient_from_asset_file(builder, snapshot, index, manifest_source) {
+            Ok(()) => return Ok(()),
+            Err(error) => {
+                tracing::debug!(
+                    "Could not load ingredient manifest from asset file at {}: {error}",
+                    manifest_source.display()
+                );
+            }
+        }
+    }
+
     let format = manifest_stream_format(manifest_source, snapshot.media_type.as_deref())?;
 
     let title = snapshot
@@ -857,6 +963,110 @@ fn attach_ingredient_with_manifest(
     Ok(())
 }
 
+fn attach_ingredient_from_asset_file(
+    builder: &mut Builder,
+    snapshot: &IngredientSnapshot,
+    index: usize,
+    manifest_source: &Path,
+) -> Result<()> {
+    let mut ingredient = build_ingredient_from_asset_file(snapshot, index, manifest_source)?;
+
+    ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
+    if let Some(hash) = &snapshot.content_digest {
+        ingredient.set_hash(hash.clone());
+    }
+    if let Some(uri) = &snapshot.informational_uri {
+        ingredient.set_informational_uri(uri.clone());
+    }
+    if let Some(description) = &snapshot.description {
+        ingredient.set_description(description.clone());
+    }
+
+    builder.add_ingredient(ingredient);
+    Ok(())
+}
+
+fn build_ingredient_from_asset_file(
+    snapshot: &IngredientSnapshot,
+    index: usize,
+    manifest_source: &Path,
+) -> Result<Ingredient> {
+    #[allow(deprecated)]
+    let source_ingredient = Ingredient::from_file(manifest_source)?;
+    let mut validation_results = source_ingredient
+        .validation_results()
+        .map(serde_json::to_value)
+        .transpose()?;
+    let manifest_data = source_ingredient
+        .manifest_data()
+        .map(std::borrow::Cow::into_owned)
+        .or_else(|| fs::read(media::sidecar_path(manifest_source)).ok())
+        .ok_or_else(|| {
+            Error::other(format!(
+                "asset file has no readable C2PA manifest: {}",
+                manifest_source.display()
+            ))
+        })?;
+    if validation_results.is_none() {
+        match validation_results_from_manifest_source(
+            manifest_source,
+            &manifest_data,
+            snapshot.media_type.as_deref(),
+        ) {
+            Ok(results) => validation_results = results,
+            Err(error) => {
+                tracing::debug!(
+                    "Could not validate ingredient manifest source at {}: {error}",
+                    manifest_source.display()
+                );
+            }
+        }
+    }
+    if validation_results.is_none() && snapshot.relationship == IngredientRelationship::InputTo {
+        validation_results = Some(json!({}));
+    }
+
+    let mut seed = serde_json::to_value(&source_ingredient)?;
+    seed["label"] = json!(ingredient_label(snapshot, index));
+    if let Some(title) = &snapshot.title {
+        seed["title"] = json!(title);
+    }
+    if let Some(format) = &snapshot.media_type {
+        seed["format"] = json!(format);
+    }
+    if let Some(validation_results) = validation_results {
+        seed["validation_results"] = validation_results;
+    }
+
+    let mut ingredient = Ingredient::from_json(&seed.to_string())?;
+    ingredient.set_manifest_data(manifest_data)?;
+
+    Ok(ingredient)
+}
+
+fn validation_results_from_manifest_source(
+    manifest_source: &Path,
+    manifest_data: &[u8],
+    media_type: Option<&str>,
+) -> Result<Option<Value>> {
+    let media_type = media_type.map_or_else(
+        || media::guess_media_type(manifest_source),
+        |media_type| Ok(media_type.to_string()),
+    )?;
+    let mut asset = File::open(manifest_source)?;
+    let reader = Reader::from_context(Context::new()).with_manifest_data_and_stream(
+        manifest_data,
+        &media_type,
+        &mut asset,
+    )?;
+
+    reader
+        .validation_results()
+        .map(serde_json::to_value)
+        .transpose()
+        .map_err(Error::from)
+}
+
 /// Format string to pass to the c2pa SDK when reading a child manifest from a
 /// stream. `.c2pa` sidecars are loaded as `application/c2pa`; everything else
 /// is loaded as the asset's own media type so the SDK can find the embedded
@@ -875,6 +1085,12 @@ fn manifest_stream_format(path: &Path, ingredient_media_type: Option<&str>) -> R
     }
 
     media::guess_media_type(path)
+}
+
+fn is_c2pa_sidecar(path: &Path) -> bool {
+    path.extension()
+        .and_then(|extension| extension.to_str())
+        .is_some_and(|extension| extension.eq_ignore_ascii_case("c2pa"))
 }
 
 /// Build a c2pa-rs [`Ingredient`] from a Stencila [`IngredientSnapshot`].
@@ -950,7 +1166,11 @@ fn action_timestamp(assertion: &ProvenanceAssertion) -> Option<String> {
     })
 }
 
-fn action_parameters(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
+fn action_parameters(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    include_parent_ingredients: bool,
+) -> Value {
     let mut parameters = json!({
         "org.stencila.assetType": assertion.asset.asset_type,
         "org.stencila.mediaType": assertion.asset.media_type,
@@ -970,10 +1190,9 @@ fn action_parameters(assertion: &ProvenanceAssertion, ingredients: &[IngredientS
         .iter()
         .enumerate()
         .filter(|(_, ingredient)| {
-            matches!(
-                ingredient.relationship,
-                IngredientRelationship::InputTo | IngredientRelationship::ParentOf,
-            )
+            ingredient.relationship == IngredientRelationship::InputTo
+                || (include_parent_ingredients
+                    && ingredient.relationship == IngredientRelationship::ParentOf)
         })
         .map(|(index, ingredient)| ingredient_label(ingredient, index))
         .collect();
