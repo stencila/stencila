@@ -1,8 +1,5 @@
 use std::{
     env::current_dir,
-    fs::{File, create_dir_all},
-    hash::{Hash, Hasher},
-    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -10,14 +7,15 @@ use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{OptionExt, Result, bail, eyre};
 use itertools::Itertools;
 use pathdiff::diff_paths;
-use seahash::SeaHasher;
 
 use stencila_codec_info::EncodedAsset;
 use stencila_format::Format;
 use stencila_schema::{
-    AudioObject, Block, CreativeWorkVariant, ImageObject, Inline, Node, NodeId, NodeType,
-    VideoObject, VisitorMut, WalkControl, WalkNode,
+    AudioObject, Block, CodeChunk, CreativeWorkVariant, Figure, ImageObject, Inline, Node, NodeId,
+    NodeType, VideoObject, VisitorMut, WalkControl, WalkNode,
 };
+
+use crate::naming::{MediaNamer, hash_bytes};
 
 /// Extract any [`ImageObject`], [`AudioObject`], and [`VideoObject`] with
 /// dataURIs to files and change their content_url to point to the extracted
@@ -65,6 +63,7 @@ where
         document_dir,
         media_dir: media_dir.into(),
         parent_stack: Vec::new(),
+        namer: MediaNamer::new(),
         assets: Vec::new(),
     };
     walker.walk(node);
@@ -84,6 +83,9 @@ struct Extractor {
     /// or the media object itself).
     parent_stack: Vec<(NodeType, NodeId)>,
 
+    /// State used to derive readable media filenames from nearby node ids.
+    namer: MediaNamer,
+
     /// The asset records produced during extraction.
     assets: Vec<EncodedAsset>,
 }
@@ -96,7 +98,11 @@ impl Extractor {
     ///
     /// Returns the absolute path of the created media file and the relative
     /// path to use as the rewritten `content_url`.
-    fn data_uri_to_file(&mut self, data_uri: &str) -> Result<(PathBuf, String)> {
+    fn data_uri_to_file(
+        &mut self,
+        data_uri: &str,
+        desired_stem: Option<&str>,
+    ) -> Result<(PathBuf, String)> {
         // Parse the data URI
         let Some((header, data)) = data_uri.split(',').collect_tuple() else {
             bail!("Invalid data URI format");
@@ -123,23 +129,14 @@ impl Extractor {
         // Decode the Base64 data
         let decoded_data = STANDARD.decode(data.as_bytes())?;
 
-        // Generate a hash of the data URI
-        let mut hash = SeaHasher::new();
-        data_uri.hash(&mut hash);
-        let hash = hash.finish();
-        let media_name = format!("{hash:x}.{extension}");
-
-        // Ensure the media directory exists
-        if !self.media_dir.exists() {
-            create_dir_all(&self.media_dir)?;
-        }
-
-        // Create the full file path
-        let path = self.media_dir.join(&media_name);
-
-        // Write the decoded data to the file
-        let mut file = File::create(&path)?;
-        file.write_all(&decoded_data)?;
+        let hash = hash_bytes(data_uri.as_bytes());
+        let path = self.namer.write_bytes(
+            &self.media_dir,
+            desired_stem,
+            &extension,
+            hash,
+            &decoded_data,
+        )?;
 
         let relative_path = diff_paths(&path, &self.document_dir)
             .unwrap_or_else(|| path.clone())
@@ -193,6 +190,35 @@ impl Extractor {
         (self_type, self_id.cloned())
     }
 
+    fn visit_figure(&mut self, figure: &mut Figure) {
+        self.parent_stack.push((NodeType::Figure, figure.node_id()));
+
+        if let Some(caption) = &mut figure.caption {
+            caption.walk_mut(self);
+        }
+
+        self.namer.push_figure(figure);
+        figure.content.walk_mut(self);
+        self.namer.pop();
+
+        self.parent_stack.pop();
+    }
+
+    fn visit_code_chunk(&mut self, chunk: &mut CodeChunk) {
+        self.parent_stack
+            .push((NodeType::CodeChunk, chunk.node_id()));
+
+        if let Some(caption) = &mut chunk.caption {
+            caption.walk_mut(self);
+        }
+
+        self.namer.push_code_chunk(chunk);
+        chunk.outputs.walk_mut(self);
+        self.namer.pop();
+
+        self.parent_stack.pop();
+    }
+
     fn extract_images(&mut self, images: &mut [ImageObject]) {
         images
             .iter_mut()
@@ -201,7 +227,8 @@ impl Extractor {
 
     fn extract_image(&mut self, image: &mut ImageObject) {
         if image.content_url.starts_with("data:") {
-            match self.data_uri_to_file(&image.content_url) {
+            let desired_stem = self.namer.next_media_stem(image.id.as_deref());
+            match self.data_uri_to_file(&image.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = image.node_id();
                     self.record_asset(path, Some(&id), NodeType::ImageObject);
@@ -214,7 +241,8 @@ impl Extractor {
 
     fn extract_audio(&mut self, audio: &mut AudioObject) {
         if audio.content_url.starts_with("data:") {
-            match self.data_uri_to_file(&audio.content_url) {
+            let desired_stem = self.namer.next_media_stem(audio.id.as_deref());
+            match self.data_uri_to_file(&audio.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = audio.node_id();
                     self.record_asset(path, Some(&id), NodeType::AudioObject);
@@ -227,7 +255,8 @@ impl Extractor {
 
     fn extract_video(&mut self, video: &mut VideoObject) {
         if video.content_url.starts_with("data:") {
-            match self.data_uri_to_file(&video.content_url) {
+            let desired_stem = self.namer.next_media_stem(video.id.as_deref());
+            match self.data_uri_to_file(&video.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = video.node_id();
                     self.record_asset(path, Some(&id), NodeType::VideoObject);
@@ -299,6 +328,14 @@ impl VisitorMut for Extractor {
 
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         match node {
+            Node::CodeChunk(chunk) => {
+                self.visit_code_chunk(chunk);
+                return WalkControl::Break;
+            }
+            Node::Figure(figure) => {
+                self.visit_figure(figure);
+                return WalkControl::Break;
+            }
             Node::AudioObject(audio) => self.extract_audio(audio),
             Node::ImageObject(image) => self.extract_image(image),
             Node::VideoObject(video) => self.extract_video(video),
@@ -325,6 +362,10 @@ impl VisitorMut for Extractor {
     fn visit_work(&mut self, work: &mut CreativeWorkVariant) -> WalkControl {
         match work {
             CreativeWorkVariant::AudioObject(audio) => self.extract_audio(audio),
+            CreativeWorkVariant::Figure(figure) => {
+                self.visit_figure(figure);
+                return WalkControl::Break;
+            }
             CreativeWorkVariant::ImageObject(image) => self.extract_image(image),
             CreativeWorkVariant::VideoObject(video) => self.extract_video(video),
             CreativeWorkVariant::Table(table) => {
@@ -340,6 +381,14 @@ impl VisitorMut for Extractor {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
             Block::AudioObject(audio) => self.extract_audio(audio),
+            Block::CodeChunk(chunk) => {
+                self.visit_code_chunk(chunk);
+                return WalkControl::Break;
+            }
+            Block::Figure(figure) => {
+                self.visit_figure(figure);
+                return WalkControl::Break;
+            }
             Block::ImageObject(image) => self.extract_image(image),
             Block::VideoObject(video) => self.extract_video(video),
             Block::MathBlock(math) => {
@@ -370,5 +419,199 @@ impl VisitorMut for Extractor {
             _ => {}
         }
         WalkControl::Continue
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::read_dir;
+
+    use eyre::{OptionExt, Result, bail};
+    use tempfile::tempdir;
+
+    use stencila_schema::{CodeChunk, Cord, Figure, LabelType};
+
+    use super::*;
+
+    const DATA_URI_1: &str = "data:image/png;base64,AA==";
+    const DATA_URI_2: &str = "data:image/png;base64,AQ==";
+
+    #[test]
+    fn extracts_figure_media_using_figure_id() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut block = Block::Figure(Figure {
+            id: Some("Fig 1".to_string()),
+            content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
+            ..Default::default()
+        });
+
+        let assets = extract_media_with_paths(&mut block, None, media_dir.path())?;
+
+        let Block::Figure(figure) = block else {
+            bail!("expected figure")
+        };
+        let Block::ImageObject(image) = figure.content.first().ok_or_eyre("image")? else {
+            bail!("expected image")
+        };
+
+        assert!(image.content_url.ends_with("fig-1.png"));
+        assert!(media_dir.path().join("fig-1.png").exists());
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].node_type.as_deref(), Some("Figure"));
+        assert_eq!(assets[0].role.as_deref(), Some("figure"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_multiple_code_chunk_outputs_with_collision_suffix() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut chunk = CodeChunk::new(Cord::from("plot()"));
+        chunk.id = Some("fig-1".to_string());
+        chunk.outputs = Some(vec![
+            Node::ImageObject(ImageObject::new(DATA_URI_1.to_string())),
+            Node::ImageObject(ImageObject::new(DATA_URI_2.to_string())),
+        ]);
+        let mut block = Block::CodeChunk(chunk);
+
+        extract_media(&mut block, None, media_dir.path())?;
+
+        let Block::CodeChunk(chunk) = block else {
+            bail!("expected code chunk")
+        };
+        let outputs = chunk.outputs.as_ref().ok_or_eyre("outputs")?;
+        let Node::ImageObject(first) = &outputs[0] else {
+            bail!("expected first image")
+        };
+        let Node::ImageObject(second) = &outputs[1] else {
+            bail!("expected second image")
+        };
+
+        let second_hash = format!("{:x}", hash_bytes(DATA_URI_2.as_bytes()));
+        let second_name = format!("fig-1-{second_hash}.png");
+
+        assert!(first.content_url.ends_with("fig-1.png"));
+        assert!(second.content_url.ends_with(&second_name));
+        assert!(media_dir.path().join("fig-1.png").exists());
+        assert!(media_dir.path().join(second_name).exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_subfigure_code_chunk_output_using_existing_id() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut chunk = CodeChunk::new(Cord::from("plot()"));
+        chunk.id = Some("fig-1a".to_string());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+            DATA_URI_1.to_string(),
+        ))]);
+        let mut block = Block::Figure(Figure {
+            id: Some("fig-1".to_string()),
+            content: vec![Block::CodeChunk(chunk)],
+            ..Default::default()
+        });
+
+        let assets = extract_media_with_paths(&mut block, None, media_dir.path())?;
+
+        let Block::Figure(figure) = block else {
+            bail!("expected figure")
+        };
+        let Block::CodeChunk(chunk) = figure.content.first().ok_or_eyre("chunk")? else {
+            bail!("expected code chunk")
+        };
+        let outputs = chunk.outputs.as_ref().ok_or_eyre("outputs")?;
+        let Node::ImageObject(first) = &outputs[0] else {
+            bail!("expected image")
+        };
+
+        assert!(first.content_url.ends_with("fig-1a.png"));
+        assert!(media_dir.path().join("fig-1a.png").exists());
+        assert_eq!(assets.len(), 1);
+        assert_eq!(assets[0].node_type.as_deref(), Some("CodeChunk"));
+        assert_eq!(assets[0].role.as_deref(), Some("computational-output"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_caption_media_without_consuming_figure_stem() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut block = Block::Figure(Figure {
+            id: Some("fig-1".to_string()),
+            caption: Some(vec![Block::ImageObject(ImageObject::new(
+                DATA_URI_1.to_string(),
+            ))]),
+            content: vec![Block::ImageObject(ImageObject::new(DATA_URI_2.to_string()))],
+            ..Default::default()
+        });
+
+        extract_media(&mut block, None, media_dir.path())?;
+
+        let Block::Figure(figure) = block else {
+            bail!("expected figure")
+        };
+        let Block::ImageObject(caption_image) = figure
+            .caption
+            .as_ref()
+            .and_then(|caption| caption.first())
+            .ok_or_eyre("caption image")?
+        else {
+            bail!("expected caption image")
+        };
+        let Block::ImageObject(content_image) =
+            figure.content.first().ok_or_eyre("content image")?
+        else {
+            bail!("expected content image")
+        };
+
+        assert!(!caption_image.content_url.ends_with("fig-1.png"));
+        assert!(content_image.content_url.ends_with("fig-1.png"));
+        assert!(media_dir.path().join("fig-1.png").exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_identical_media_once_across_readable_stems() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut blocks = vec![
+            Block::Figure(Figure {
+                id: Some("fig-one".to_string()),
+                content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
+                ..Default::default()
+            }),
+            Block::Figure(Figure {
+                id: Some("fig-two".to_string()),
+                content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
+                ..Default::default()
+            }),
+        ];
+
+        extract_media(&mut blocks, None, media_dir.path())?;
+
+        let Block::Figure(first_figure) = &blocks[0] else {
+            bail!("expected first figure")
+        };
+        let Block::Figure(second_figure) = &blocks[1] else {
+            bail!("expected second figure")
+        };
+        let Block::ImageObject(first_image) =
+            first_figure.content.first().ok_or_eyre("first image")?
+        else {
+            bail!("expected first image")
+        };
+        let Block::ImageObject(second_image) =
+            second_figure.content.first().ok_or_eyre("second image")?
+        else {
+            bail!("expected second image")
+        };
+
+        assert_eq!(first_image.content_url, second_image.content_url);
+        assert!(first_image.content_url.ends_with("fig-one.png"));
+        assert_eq!(read_dir(media_dir.path())?.count(), 1);
+
+        Ok(())
     }
 }

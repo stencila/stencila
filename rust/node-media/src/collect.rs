@@ -1,6 +1,6 @@
 use std::{
     env::current_dir,
-    fs::{File, create_dir_all},
+    fs::File,
     hash::{Hash, Hasher},
     path::{Path, PathBuf},
     sync::LazyLock,
@@ -13,9 +13,11 @@ use seahash::SeaHasher;
 
 use stencila_codec_info::EncodedAsset;
 use stencila_schema::{
-    AudioObject, Block, Cord, CreativeWorkVariant, ImageObject, Inline, Node, NodeId, NodeType,
-    RawBlock, VideoObject, VisitorMut, WalkControl, WalkNode,
+    AudioObject, Block, CodeChunk, Cord, CreativeWorkVariant, Figure, ImageObject, Inline, Node,
+    NodeId, NodeType, RawBlock, VideoObject, VisitorMut, WalkControl, WalkNode,
 };
+
+use crate::naming::MediaNamer;
 
 /// Collect all media files
 ///
@@ -76,6 +78,7 @@ where
         to_dir: to_dir.into(),
         media_dir: media_dir.into(),
         parent_stack: Vec::new(),
+        namer: MediaNamer::with_hashed_readable_names(),
         assets: Vec::new(),
     };
     collector.walk(node);
@@ -97,6 +100,9 @@ struct Collector {
     /// closest meaningful originating node.
     parent_stack: Vec<(NodeType, NodeId)>,
 
+    /// State used to derive readable media filenames from nearby node ids.
+    namer: MediaNamer,
+
     /// The asset records produced during collection.
     assets: Vec<EncodedAsset>,
 }
@@ -107,12 +113,14 @@ impl Collector {
     /// Returns the relative URL to use for the collected media file paired
     /// with the absolute path of the file written, or `None` if the URL
     /// doesn't need to be rewritten.
-    fn collect_media(&mut self, content_url: &str, media_type: &str) -> Option<(String, PathBuf)> {
+    fn collect_media(
+        &mut self,
+        content_url: &str,
+        media_type: &str,
+        desired_stem: Option<&str>,
+    ) -> Option<(String, PathBuf)> {
         // Skip data URIs and external URLs
-        if content_url.starts_with("data:")
-            || content_url.starts_with("http://")
-            || content_url.starts_with("https://")
-        {
+        if !should_collect_url(content_url) {
             return None;
         }
 
@@ -143,7 +151,7 @@ impl Collector {
             .to_string();
 
         // Hash and copy the file in a single pass to avoid reading twice
-        let dest_path = match self.hash_and_copy_file(&source_path, &extension) {
+        let dest_path = match self.hash_and_copy_file(&source_path, &extension, desired_stem) {
             Ok(result) => result,
             Err(error) => {
                 tracing::error!(
@@ -208,8 +216,13 @@ impl Collector {
     ///
     /// Returns the hash string and destination path.
     /// Creates the destination file only if it doesn't already exist.
-    fn hash_and_copy_file(&self, source_path: &Path, extension: &str) -> Result<PathBuf> {
-        use std::io::{BufReader, BufWriter, Read, Write};
+    fn hash_and_copy_file(
+        &mut self,
+        source_path: &Path,
+        extension: &str,
+        desired_stem: Option<&str>,
+    ) -> Result<PathBuf> {
+        use std::io::{BufReader, Read};
 
         // Open source file for reading
         let source_file = File::open(source_path)?;
@@ -229,35 +242,19 @@ impl Collector {
         }
 
         let hash = hasher.finish();
-        let hash_str = format!("{hash:x}");
-
-        // Create destination path
-        let media_name = format!("{hash_str}.{extension}");
-        let dest_path = self.media_dir.join(&media_name);
-
-        // Copy the file if it doesn't already exist
-        if !dest_path.exists() {
-            create_dir_all(&self.media_dir)?;
-
-            // Reopen source file for copying
-            let source_file = File::open(source_path)?;
-            let mut reader = BufReader::new(source_file);
-
-            let dest_file = File::create(&dest_path)?;
-            let mut writer = BufWriter::new(dest_file);
-
-            // Copy with buffering
-            std::io::copy(&mut reader, &mut writer)?;
-            writer.flush()?;
-        }
-
-        Ok(dest_path)
+        self.namer
+            .copy_file(source_path, &self.media_dir, desired_stem, extension, hash)
     }
 
     /// Collect an image
     fn collect_image(&mut self, image: &mut ImageObject) {
-        if !image.is_viz()
-            && let Some((relative_url, path)) = self.collect_media(&image.content_url, "image")
+        if image.is_viz() || !should_collect_url(&image.content_url) {
+            return;
+        }
+
+        let desired_stem = self.namer.next_media_stem(image.id.as_deref());
+        if let Some((relative_url, path)) =
+            self.collect_media(&image.content_url, "image", desired_stem.as_deref())
         {
             let id = image.node_id();
             self.record_asset(path, Some(&id), NodeType::ImageObject);
@@ -274,7 +271,14 @@ impl Collector {
 
     /// Collect an audio file
     fn collect_audio(&mut self, audio: &mut AudioObject) {
-        if let Some((relative_url, path)) = self.collect_media(&audio.content_url, "audio") {
+        if !should_collect_url(&audio.content_url) {
+            return;
+        }
+
+        let desired_stem = self.namer.next_media_stem(audio.id.as_deref());
+        if let Some((relative_url, path)) =
+            self.collect_media(&audio.content_url, "audio", desired_stem.as_deref())
+        {
             let id = audio.node_id();
             self.record_asset(path, Some(&id), NodeType::AudioObject);
             audio.content_url = relative_url;
@@ -283,11 +287,47 @@ impl Collector {
 
     /// Collect a video file
     fn collect_video(&mut self, video: &mut VideoObject) {
-        if let Some((relative_url, path)) = self.collect_media(&video.content_url, "video") {
+        if !should_collect_url(&video.content_url) {
+            return;
+        }
+
+        let desired_stem = self.namer.next_media_stem(video.id.as_deref());
+        if let Some((relative_url, path)) =
+            self.collect_media(&video.content_url, "video", desired_stem.as_deref())
+        {
             let id = video.node_id();
             self.record_asset(path, Some(&id), NodeType::VideoObject);
             video.content_url = relative_url;
         }
+    }
+
+    fn collect_figure(&mut self, figure: &mut Figure) {
+        self.parent_stack.push((NodeType::Figure, figure.node_id()));
+
+        if let Some(caption) = &mut figure.caption {
+            caption.walk_mut(self);
+        }
+
+        self.namer.push_figure(figure);
+        figure.content.walk_mut(self);
+        self.namer.pop();
+
+        self.parent_stack.pop();
+    }
+
+    fn collect_code_chunk(&mut self, chunk: &mut CodeChunk) {
+        self.parent_stack
+            .push((NodeType::CodeChunk, chunk.node_id()));
+
+        if let Some(caption) = &mut chunk.caption {
+            caption.walk_mut(self);
+        }
+
+        self.namer.push_code_chunk(chunk);
+        chunk.outputs.walk_mut(self);
+        self.namer.pop();
+
+        self.parent_stack.pop();
     }
 
     /// Collect media from HTML content in RawBlock nodes
@@ -327,7 +367,14 @@ impl Collector {
             };
 
             // Attempt to collect the media file
-            if let Some((new_url, path)) = self.collect_media(src_value, media_type) {
+            if !should_collect_url(src_value) {
+                continue;
+            }
+
+            let desired_stem = self.namer.next_media_stem(None);
+            if let Some((new_url, path)) =
+                self.collect_media(src_value, media_type, desired_stem.as_deref())
+            {
                 self.record_asset(path, None, node_type);
 
                 // Reconstruct the tag with the new URL
@@ -386,6 +433,12 @@ fn role_for(node_type: NodeType) -> &'static str {
     }
 }
 
+fn should_collect_url(content_url: &str) -> bool {
+    !content_url.starts_with("data:")
+        && !content_url.starts_with("http://")
+        && !content_url.starts_with("https://")
+}
+
 impl VisitorMut for Collector {
     fn enter_struct(&mut self, node_type: NodeType, node_id: NodeId) -> WalkControl {
         self.parent_stack.push((node_type, node_id));
@@ -398,6 +451,14 @@ impl VisitorMut for Collector {
 
     fn visit_node(&mut self, node: &mut Node) -> WalkControl {
         match node {
+            Node::CodeChunk(chunk) => {
+                self.collect_code_chunk(chunk);
+                return WalkControl::Break;
+            }
+            Node::Figure(figure) => {
+                self.collect_figure(figure);
+                return WalkControl::Break;
+            }
             Node::AudioObject(audio) => self.collect_audio(audio),
             Node::ImageObject(image) => self.collect_image(image),
             Node::VideoObject(video) => self.collect_video(video),
@@ -424,6 +485,10 @@ impl VisitorMut for Collector {
     fn visit_work(&mut self, work: &mut CreativeWorkVariant) -> WalkControl {
         match work {
             CreativeWorkVariant::AudioObject(audio) => self.collect_audio(audio),
+            CreativeWorkVariant::Figure(figure) => {
+                self.collect_figure(figure);
+                return WalkControl::Break;
+            }
             CreativeWorkVariant::ImageObject(image) => self.collect_image(image),
             CreativeWorkVariant::VideoObject(video) => self.collect_video(video),
             CreativeWorkVariant::Table(table) => {
@@ -439,6 +504,14 @@ impl VisitorMut for Collector {
     fn visit_block(&mut self, block: &mut Block) -> WalkControl {
         match block {
             Block::AudioObject(audio) => self.collect_audio(audio),
+            Block::CodeChunk(chunk) => {
+                self.collect_code_chunk(chunk);
+                return WalkControl::Break;
+            }
+            Block::Figure(figure) => {
+                self.collect_figure(figure);
+                return WalkControl::Break;
+            }
             Block::ImageObject(image) => self.collect_image(image),
             Block::VideoObject(video) => self.collect_video(video),
             Block::MathBlock(math) => {
@@ -470,5 +543,115 @@ impl VisitorMut for Collector {
             _ => {}
         }
         WalkControl::Continue
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use std::fs::{read_dir, write};
+
+    use eyre::{OptionExt, Result, bail};
+    use tempfile::tempdir;
+
+    use stencila_schema::{CodeChunk, Cord, Figure, LabelType};
+
+    use crate::naming::hash_bytes;
+
+    use super::*;
+
+    #[test]
+    fn collects_subfigure_code_chunk_outputs_using_existing_id() -> Result<()> {
+        let dir = tempdir()?;
+        let document_path = dir.path().join("source.md");
+        let output_path = dir.path().join("public").join("index.html");
+        let media_dir = dir.path().join("public").join("media");
+        write(&document_path, "")?;
+        write(dir.path().join("plot-one.png"), [0u8])?;
+        write(dir.path().join("plot-two.png"), [1u8])?;
+
+        let mut chunk = CodeChunk::new(Cord::from("plot()"));
+        chunk.id = Some("fig-1a".to_string());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.outputs = Some(vec![
+            Node::ImageObject(ImageObject::new("plot-one.png".to_string())),
+            Node::ImageObject(ImageObject::new("plot-two.png".to_string())),
+        ]);
+        let mut block = Block::Figure(Figure {
+            id: Some("fig-1".to_string()),
+            content: vec![Block::CodeChunk(chunk)],
+            ..Default::default()
+        });
+
+        let assets =
+            collect_media_with_paths(&mut block, Some(&document_path), &output_path, &media_dir)?;
+
+        let Block::Figure(figure) = block else {
+            bail!("expected figure")
+        };
+        let Block::CodeChunk(chunk) = figure.content.first().ok_or_eyre("chunk")? else {
+            bail!("expected code chunk")
+        };
+        let outputs = chunk.outputs.as_ref().ok_or_eyre("outputs")?;
+        let Node::ImageObject(first) = &outputs[0] else {
+            bail!("expected first image")
+        };
+        let Node::ImageObject(second) = &outputs[1] else {
+            bail!("expected second image")
+        };
+
+        let first_hash = format!("{:x}", hash_bytes(&[0u8]));
+        let second_hash = format!("{:x}", hash_bytes(&[1u8]));
+        let first_name = format!("fig-1a-{first_hash}.png");
+        let second_name = format!("fig-1a-{second_hash}.png");
+
+        assert_eq!(first.content_url, format!("media/{first_name}"));
+        assert_eq!(second.content_url, format!("media/{second_name}"));
+        assert!(media_dir.join(first_name).exists());
+        assert!(media_dir.join(second_name).exists());
+        assert_eq!(assets.len(), 2);
+        assert!(
+            assets
+                .iter()
+                .all(|asset| asset.node_type.as_deref() == Some("CodeChunk"))
+        );
+        assert!(
+            assets
+                .iter()
+                .all(|asset| asset.role.as_deref() == Some("computational-output"))
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn collects_identical_media_once_across_readable_stems() -> Result<()> {
+        let dir = tempdir()?;
+        let document_path = dir.path().join("source.md");
+        let output_path = dir.path().join("public").join("index.html");
+        let media_dir = dir.path().join("public").join("media");
+        write(&document_path, "")?;
+        write(dir.path().join("shared.png"), [0u8])?;
+
+        let mut first = ImageObject::new("shared.png".to_string());
+        first.id = Some("img-one".to_string());
+        let mut second = ImageObject::new("shared.png".to_string());
+        second.id = Some("img-two".to_string());
+        let mut blocks = vec![Block::ImageObject(first), Block::ImageObject(second)];
+
+        collect_media(&mut blocks, Some(&document_path), &output_path, &media_dir)?;
+
+        let Block::ImageObject(first) = &blocks[0] else {
+            bail!("expected first image")
+        };
+        let Block::ImageObject(second) = &blocks[1] else {
+            bail!("expected second image")
+        };
+
+        let hash = format!("{:x}", hash_bytes(&[0u8]));
+        assert_eq!(first.content_url, format!("media/img-one-{hash}.png"));
+        assert_eq!(second.content_url, first.content_url);
+        assert_eq!(read_dir(&media_dir)?.count(), 1);
+
+        Ok(())
     }
 }

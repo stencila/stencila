@@ -1,6 +1,7 @@
 mod collect;
 mod embed;
 mod extract;
+mod naming;
 
 pub use collect::{collect_media, collect_media_with_paths};
 pub use embed::{

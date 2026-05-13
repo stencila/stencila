@@ -19,7 +19,7 @@ use serde::Deserialize;
 use serde_json::json;
 use stencila_node_media::collect_media;
 use tokio::{
-    fs::{copy, create_dir_all, read_dir, read_to_string, write},
+    fs::{copy, create_dir_all, read_dir, read_to_string, remove_dir_all, write},
     sync::mpsc,
 };
 
@@ -276,6 +276,16 @@ where
 
     // Create output directory
     create_dir_all(output_dir).await?;
+
+    // Full renders should not let stale generated media influence readable
+    // filename collision handling. Incremental renders keep the directory so
+    // unchanged pages continue to serve their existing media.
+    if source_files.is_none() {
+        let media_dir = output_dir.join("media");
+        if media_dir.exists() {
+            remove_dir_all(&media_dir).await?;
+        }
+    }
 
     // Render glide attributes (used for all document routes)
     let glide_config = config.site.as_ref().and_then(|site| site.glide.as_ref());
@@ -729,8 +739,8 @@ async fn render_document_route(
     let media_dir = output_dir.join("media");
     create_dir_all(&media_dir).await?;
 
-    // Collect media from source file to shared media directory
-    // (deduplication happens automatically via hash-based filenames)
+    // Collect media from source file to the shared media directory.
+    // The media namer handles readable names, deduplication, and collisions.
     collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Determine if source is an index file (affects how relative links are resolved)
