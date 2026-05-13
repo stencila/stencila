@@ -548,7 +548,7 @@ impl VisitorMut for Collector {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::{read_dir, write};
+    use std::fs::{read, read_dir, write};
 
     use eyre::{OptionExt, Result, bail};
     use tempfile::tempdir;
@@ -650,6 +650,40 @@ mod tests {
         let hash = format!("{:x}", hash_bytes(&[0u8]));
         assert_eq!(first.content_url, format!("media/img-one-{hash}.png"));
         assert_eq!(second.content_url, first.content_url);
+        assert_eq!(read_dir(&media_dir)?.count(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn collects_over_existing_mutated_media_in_place() -> Result<()> {
+        let dir = tempdir()?;
+        let document_path = dir.path().join("source.md");
+        let output_path = dir.path().join("public").join("index.html");
+        let media_dir = dir.path().join("public").join("media");
+        write(&document_path, "")?;
+        write(dir.path().join("plot.png"), [0u8])?;
+
+        let mut first = ImageObject::new("plot.png".to_string());
+        first.id = Some("fig-1".to_string());
+        let mut first = Block::ImageObject(first);
+        collect_media(&mut first, Some(&document_path), &output_path, &media_dir)?;
+
+        let hash = format!("{:x}", hash_bytes(&[0u8]));
+        let media_path = media_dir.join(format!("fig-1-{hash}.png"));
+        write(&media_path, b"previously signed bytes")?;
+
+        let mut second = ImageObject::new("plot.png".to_string());
+        second.id = Some("fig-1".to_string());
+        let mut second = Block::ImageObject(second);
+        collect_media(&mut second, Some(&document_path), &output_path, &media_dir)?;
+
+        let Block::ImageObject(image) = second else {
+            bail!("expected image")
+        };
+
+        assert_eq!(image.content_url, format!("media/fig-1-{hash}.png"));
+        assert_eq!(read(&media_path)?, [0u8]);
         assert_eq!(read_dir(&media_dir)?.count(), 1);
 
         Ok(())

@@ -9,7 +9,7 @@ use futures::StreamExt;
 use reqwest::Client;
 use tempfile::tempdir;
 use tokio::{
-    fs::{File, read_to_string, write},
+    fs::{File, read_to_string, remove_dir_all, write},
     io::AsyncWriteExt,
 };
 use url::Url;
@@ -644,10 +644,12 @@ pub async fn to_path_with_info(
 
     let codec = get(codec, Some(&format), Some(CodecDirection::Encode))?;
 
-    let options = Some(EncodeOptions {
-        format: Some(format),
+    let options = EncodeOptions {
+        format: Some(format.clone()),
         ..options.unwrap_or_default()
-    });
+    };
+    clean_default_media_dir(path, &format, &options).await?;
+    let options = Some(options);
 
     let codec_name = codec.name().to_string();
 
@@ -697,6 +699,59 @@ pub async fn to_path_with_info(
     .await?;
 
     Ok(info)
+}
+
+/// Remove the generated `<output>.media` directory before a path export.
+///
+/// Several codecs extract data-URI media to a default side directory derived
+/// from the output path. Those files are generated artifacts and may be
+/// mutated later in the same export, for example when Content Credentials are
+/// embedded into PNGs. Clearing the default directory prevents stale signed
+/// bytes, deleted outputs, or old collision fallbacks from influencing the next
+/// render. Custom `--extract-media <dir>` directories are left intact because
+/// they may be shared or user-managed rather than owned by this export.
+async fn clean_default_media_dir(
+    path: &Path,
+    format: &Format,
+    options: &EncodeOptions,
+) -> Result<()> {
+    if options.embed_media.unwrap_or_default() || !defaults_to_extracted_media(format) {
+        return Ok(());
+    }
+
+    let default_media_dir = path.with_extension("media");
+    let media_dir = match &options.extract_media {
+        Some(media_dir) if media_dir == &default_media_dir => media_dir,
+        Some(_) => return Ok(()),
+        None => &default_media_dir,
+    };
+
+    if media_dir.exists() {
+        remove_dir_all(media_dir).await?;
+    }
+
+    Ok(())
+}
+
+/// Return whether `to_path` will create `<output>.media` by default.
+///
+/// This mirrors the path-based codecs that auto-enable media extraction when
+/// neither `embed_media` nor `extract_media` is set. Keeping this list explicit
+/// makes the cleanup conservative: only formats whose codecs own a generated
+/// media directory get that directory removed before rendering.
+fn defaults_to_extracted_media(format: &Format) -> bool {
+    matches!(
+        format,
+        Format::Dom
+            | Format::Html
+            | Format::Latex
+            | Format::Llmd
+            | Format::Markdown
+            | Format::Myst
+            | Format::Qmd
+            | Format::Smd
+            | Format::Tex
+    )
 }
 
 async fn sign_encoded_paths(

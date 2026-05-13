@@ -424,7 +424,7 @@ impl VisitorMut for Extractor {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::read_dir;
+    use std::fs::{read, read_dir, write};
 
     use eyre::{OptionExt, Result, bail};
     use tempfile::tempdir;
@@ -610,6 +610,40 @@ mod tests {
 
         assert_eq!(first_image.content_url, second_image.content_url);
         assert!(first_image.content_url.ends_with("fig-one.png"));
+        assert_eq!(read_dir(media_dir.path())?.count(), 1);
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_over_existing_mutated_media_in_place() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut first = Block::Figure(Figure {
+            id: Some("fig-1".to_string()),
+            content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
+            ..Default::default()
+        });
+
+        extract_media(&mut first, None, media_dir.path())?;
+        let media_path = media_dir.path().join("fig-1.png");
+        write(&media_path, b"previously signed bytes")?;
+
+        let mut second = Block::Figure(Figure {
+            id: Some("fig-1".to_string()),
+            content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
+            ..Default::default()
+        });
+        extract_media(&mut second, None, media_dir.path())?;
+
+        let Block::Figure(figure) = second else {
+            bail!("expected figure")
+        };
+        let Block::ImageObject(image) = figure.content.first().ok_or_eyre("image")? else {
+            bail!("expected image")
+        };
+
+        assert!(image.content_url.ends_with("fig-1.png"));
+        assert_eq!(read(&media_path)?, [0u8]);
         assert_eq!(read_dir(media_dir.path())?.count(), 1);
 
         Ok(())

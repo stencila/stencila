@@ -196,7 +196,11 @@ impl MediaNamer {
                     self.remember_path(path.clone(), hash, extension);
                     return Ok(path);
                 }
-                continue;
+
+                let temp_file = bytes_to_temp_file(media_dir, bytes)?;
+                persist_replacing(temp_file, &path)?;
+                self.remember_path(path.clone(), hash, extension);
+                return Ok(path);
             }
 
             let temp_file = bytes_to_temp_file(media_dir, bytes)?;
@@ -247,7 +251,11 @@ impl MediaNamer {
                     self.remember_path(path.clone(), hash, extension);
                     return Ok(path);
                 }
-                continue;
+
+                let temp_file = copy_to_temp_file(source_path, media_dir)?;
+                persist_replacing(temp_file, &path)?;
+                self.remember_path(path.clone(), hash, extension);
+                return Ok(path);
             }
 
             let temp_file = copy_to_temp_file(source_path, media_dir)?;
@@ -446,6 +454,16 @@ fn persist_without_clobbering(temp_file: NamedTempFile, path: &Path) -> Result<b
         Err(error) if error.error.kind() == ErrorKind::AlreadyExists => Ok(false),
         Err(error) => Err(error.error.into()),
     }
+}
+
+/// Atomically replace an existing generated media file.
+fn persist_replacing(temp_file: NamedTempFile, path: &Path) -> Result<()> {
+    let permissions = path.metadata().ok().map(|metadata| metadata.permissions());
+    temp_file.persist(path).map_err(|error| error.error)?;
+    if let Some(permissions) = permissions {
+        std::fs::set_permissions(path, permissions)?;
+    }
+    Ok(())
 }
 
 /// Check whether a file already contains the provided bytes.
