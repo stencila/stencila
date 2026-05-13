@@ -17,11 +17,11 @@ use stencila_dirs::{DirType, get_app_dir};
 
 use crate::error::{Error, Result};
 
-/// Common name carried by Stencila's local signing identity. The literal
-/// `(untrusted)` substring is intentional — it surfaces in the verifier's
-/// signer line so readers can immediately tell this is a local self-signed
-/// identity.
-pub const LOCAL_SIGNING_IDENTITY_COMMON_NAME: &str = "Stencila Local Signing Identity (untrusted)";
+/// Common name carried by Stencila's local signing identity.
+///
+/// Verifiers determine and display trust status separately from the signer
+/// name, so the certificate subject stays short and product-focused.
+pub const LOCAL_SIGNING_IDENTITY_COMMON_NAME: &str = "Stencila CLI";
 
 const LOCAL_SIGNING_CERT_FILENAME: &str = "local-signing-cert.pem";
 const LOCAL_SIGNING_KEY_FILENAME: &str = "local-signing-key.pem";
@@ -161,8 +161,7 @@ pub struct LocalSigningIdentityInit {
 /// Generate (or refresh) the local signing identity at
 /// `<config>/credentials/local-signing-cert.pem` + `local-signing-key.pem`.
 ///
-/// The certificate's common name carries `(untrusted)` so it surfaces in
-/// verifier output. Pass `force = true` to overwrite an existing pair.
+/// Pass `force = true` to overwrite an existing pair.
 ///
 /// # Errors
 ///
@@ -187,7 +186,7 @@ pub fn init_local_signing_identity(force: bool) -> Result<LocalSigningIdentityIn
 
     let mut dn = DistinguishedName::new();
     dn.push(DnType::CommonName, LOCAL_SIGNING_IDENTITY_COMMON_NAME);
-    dn.push(DnType::OrganizationName, "Stencila Local");
+    dn.push(DnType::OrganizationName, "Stencila Labs Ltd");
     params.distinguished_name = dn;
 
     // C2PA certificate profile requirements for end-entity signing certs.
@@ -254,10 +253,10 @@ fn write_secret(path: &Path, bytes: &[u8]) -> Result<()> {
 mod tests {
     use super::*;
 
-    /// Ensures generated local signing identities visibly advertise their untrusted status.
+    /// Ensures generated local signing identities use a concise product name.
     #[test]
-    fn local_signing_identity_common_name_marked_untrusted() {
-        assert!(LOCAL_SIGNING_IDENTITY_COMMON_NAME.contains("untrusted"));
+    fn local_signing_identity_common_name_is_product_focused() {
+        assert_eq!(LOCAL_SIGNING_IDENTITY_COMMON_NAME, "Stencila CLI");
     }
 
     /// Ensures local signing identity files no longer use development naming.
