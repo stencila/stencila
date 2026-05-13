@@ -777,26 +777,39 @@ async fn sign_encoded_paths(
     // Sign side assets first so the primary's manifest can declare them as
     // `componentOf` ingredients, with hashes that reflect the *signed* bytes
     // (which is what a verifier will see).
-    let mut side_targets: Vec<(PathBuf, Option<String>, Option<String>)> = Vec::new();
+    struct SideAssetTarget {
+        path: PathBuf,
+        originating_id: Option<String>,
+        role: Option<String>,
+        title: Option<String>,
+    }
+
+    let mut side_targets = Vec::new();
     let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
     seen.insert(path.to_path_buf());
     for asset in &info.assets {
         if !seen.insert(asset.path.clone()) {
             continue;
         }
-        side_targets.push((
-            asset.path.clone(),
-            asset.node_id.clone(),
-            asset.role.clone(),
-        ));
+        side_targets.push(SideAssetTarget {
+            path: asset.path.clone(),
+            originating_id: asset.node_id.clone(),
+            role: asset.role.clone(),
+            title: asset.title.clone(),
+        });
     }
 
     let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
     let mut component_ingredients: Vec<IngredientSnapshot> = Vec::new();
 
-    for (component_index, (asset_path, originating_id, asset_role)) in
-        side_targets.into_iter().enumerate()
-    {
+    for (component_index, target) in side_targets.into_iter().enumerate() {
+        let SideAssetTarget {
+            path: asset_path,
+            originating_id,
+            role: asset_role,
+            title: asset_title,
+        } = target;
+
         if !asset_path.is_file() {
             continue;
         }
@@ -828,6 +841,7 @@ async fn sign_encoded_paths(
                 source_path,
                 primary: false,
                 asset_role: asset_role.as_deref(),
+                asset_title: asset_title.as_deref(),
                 codec_name: Some(codec_name),
                 profile_label: &profile_label,
             },
@@ -840,6 +854,7 @@ async fn sign_encoded_paths(
             .sign_exported_asset(SignAssetRequest {
                 input_path: asset_path.clone(),
                 media_type: media_type.clone(),
+                title: asset_title.clone(),
                 credential_profile: credential_profile(credentials.profile.clone()),
                 provenance: Some(provenance),
                 ..Default::default()
@@ -874,10 +889,12 @@ async fn sign_encoded_paths(
 
         component_ingredients.push(IngredientSnapshot {
             label: Some(format!("component-{component_index}")),
-            title: asset_path
-                .file_name()
-                .and_then(|name| name.to_str())
-                .map(ToString::to_string),
+            title: asset_title.or_else(|| {
+                asset_path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .map(ToString::to_string)
+            }),
             media_type,
             content_digest: Some(signed.signed_asset_digest),
             relationship: IngredientRelationship::ComponentOf,
@@ -906,6 +923,7 @@ async fn sign_encoded_paths(
                 source_path,
                 primary: true,
                 asset_role: None,
+                asset_title: None,
                 codec_name: Some(codec_name),
                 profile_label: &profile_label,
             },
@@ -932,6 +950,7 @@ async fn sign_encoded_paths(
             node_id: node.node_id().map(|id| id.uid_str().to_string()),
             node_type: Some(node.node_type().to_string()),
             role: Some("document".to_string()),
+            title: None,
             signed: true,
             manifest_kind: Some(manifest_kind_label(signed.manifest_kind)),
             manifest_id: signed.manifest_id.clone(),

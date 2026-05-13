@@ -18,6 +18,7 @@ use eyre::Result;
 use seahash::SeaHasher;
 use tempfile::NamedTempFile;
 
+use stencila_codec_text_trait::TextCodec;
 use stencila_schema::{CodeChunk, Figure, LabelType};
 
 /// Tracks readable media filename state while walking a document tree.
@@ -65,6 +66,9 @@ pub struct MediaNamer {
 struct NamingContext {
     /// Slugified base stem from an author-facing id, if one is available.
     stem: Option<String>,
+
+    /// Human-readable title derived from a surrounding label and caption.
+    title: Option<String>,
 
     /// Whether this context came from a Figure.
     ///
@@ -115,8 +119,14 @@ impl MediaNamer {
     /// figures receive the parent's next alpha suffix as a fallback.
     pub fn push_figure(&mut self, figure: &Figure) {
         let stem = self.figure_stem(figure);
+        let title = labelled_title(
+            Some("Figure"),
+            figure.label.as_deref(),
+            figure.caption.as_deref(),
+        );
         self.contexts.push(NamingContext {
             stem,
+            title,
             is_figure: true,
             next_subfigure: 0,
         });
@@ -128,8 +138,11 @@ impl MediaNamer {
     /// Figure is treated as a subfigure and receives the parent's alpha suffix.
     pub fn push_code_chunk(&mut self, chunk: &CodeChunk) {
         let stem = self.code_chunk_stem(chunk);
+        let kind = chunk.label_type.as_ref().map(label_type_name);
+        let title = labelled_title(kind, chunk.label.as_deref(), chunk.caption.as_deref());
         self.contexts.push(NamingContext {
             stem,
+            title,
             is_figure: false,
             next_subfigure: 0,
         });
@@ -156,6 +169,21 @@ impl MediaNamer {
         self.contexts
             .last()
             .and_then(|context| context.stem.clone())
+    }
+
+    /// Return the title for the next media item.
+    ///
+    /// The media object's own title wins over contextual titles. Anonymous
+    /// generated media inherit the nearest labelled Figure or CodeChunk title.
+    pub fn next_media_title<T: TextCodec>(&self, media_title: Option<&[T]>) -> Option<String> {
+        if let Some(title) = text_from_nodes(media_title) {
+            return Some(title);
+        }
+
+        self.contexts
+            .iter()
+            .rev()
+            .find_map(|context| context.title.clone())
     }
 
     /// Write decoded data URI bytes using the requested readable stem.
@@ -418,6 +446,58 @@ fn alpha_suffix(mut index: usize) -> String {
         index -= 1;
     }
     suffix
+}
+
+/// Return the display name for a schema label type.
+///
+/// Generated media titles should use reader-facing words such as "Figure" or
+/// "Table" rather than schema enum names like `FigureLabel`.
+fn label_type_name(label_type: &LabelType) -> &'static str {
+    match label_type {
+        LabelType::AppendixLabel => "Appendix",
+        LabelType::FigureLabel => "Figure",
+        LabelType::SupplementLabel => "Supplement",
+        LabelType::TableLabel => "Table",
+    }
+}
+
+/// Build a reader-facing media title from an optional label type, label, and caption.
+///
+/// This mirrors how generated figures are presented in documents so Content
+/// Credentials manifests can show useful titles instead of falling back to
+/// asset file names.
+fn labelled_title<T: TextCodec>(
+    kind: Option<&str>,
+    label: Option<&str>,
+    caption: Option<&[T]>,
+) -> Option<String> {
+    let caption = text_from_nodes(caption);
+    let prefix = kind.map(|kind| match label {
+        Some(label) => format!("{kind} {label}"),
+        None => kind.to_string(),
+    });
+
+    match (prefix, caption) {
+        (Some(prefix), Some(caption)) => Some(format!("{prefix}: {caption}")),
+        (Some(prefix), None) if label.is_some() => Some(prefix),
+        (Some(_), None) | (None, None) => None,
+        (None, Some(caption)) => Some(caption),
+    }
+}
+
+/// Convert caption or title nodes into compact plain text.
+///
+/// TextCodec output may contain formatting whitespace from block and inline
+/// nodes. Collapsing it here keeps manifest titles readable and stable.
+fn text_from_nodes<T: TextCodec>(nodes: Option<&[T]>) -> Option<String> {
+    let mut text = String::new();
+
+    for node in nodes? {
+        text.push_str(&node.to_text());
+    }
+
+    let text = text.split_whitespace().collect::<Vec<_>>().join(" ");
+    (!text.is_empty()).then_some(text)
 }
 
 /// Write bytes to a temporary file in the media directory.

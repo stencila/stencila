@@ -11,7 +11,7 @@ use tempfile::TempDir;
 
 use stencila_codecs::stencila_schema::{
     Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionDependency,
-    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, ImageObject, Inline,
+    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, ImageObject, Inline,
     MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
@@ -63,10 +63,17 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
 
     let dir = TempDir::new()?;
     let output = dir.path().join("report.md");
-    let node = Node::Article(Article::new(vec![Block::ImageObject(ImageObject::new(
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
-            .to_string(),
-    ))]));
+    let node = Node::Article(Article::new(vec![Block::Figure(Figure {
+        label: Some("1".to_string()),
+        caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::from("Generated result."),
+        )]))]),
+        content: vec![Block::ImageObject(ImageObject::new(
+            "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+                .to_string(),
+        ))],
+        ..Default::default()
+    })]));
 
     let info = to_path_with_info(
         &node,
@@ -113,6 +120,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .expect("extracted media asset");
     assert!(media_asset.signed);
     assert_eq!(media_asset.manifest_kind.as_deref(), Some("embedded"));
+    assert_eq!(
+        media_asset.title.as_deref(),
+        Some("Figure 1: Generated result.")
+    );
     assert!(
         media_asset
             .manifest_id
@@ -155,6 +166,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .expect("media assertion");
     assert_eq!(media_assertion.asset.id.as_deref(), Some("exported-asset"));
     assert_eq!(media_assertion.asset.role.as_deref(), Some("figure"));
+    assert_eq!(
+        media_assertion.asset.title.as_deref(),
+        Some("Figure 1: Generated result.")
+    );
     assert!(media_assertion.asset.content_digest.starts_with("sha256:"));
 
     Ok(())

@@ -48,6 +48,7 @@ pub(crate) fn build_export_snapshot(
         source_path,
         primary,
         asset_role,
+        asset_title,
         codec_name,
         profile_label,
     } = options;
@@ -64,10 +65,12 @@ pub(crate) fn build_export_snapshot(
         .to_string(),
     );
 
-    snapshot.asset.title = asset_path
-        .file_name()
-        .and_then(|name| name.to_str())
-        .map(ToString::to_string);
+    snapshot.asset.title = asset_title.map(ToString::to_string).or_else(|| {
+        asset_path
+            .file_name()
+            .and_then(|name| name.to_str())
+            .map(ToString::to_string)
+    });
     if let Ok(metadata) = std::fs::metadata(asset_path) {
         snapshot.asset.size = Some(metadata.len());
     }
@@ -99,6 +102,7 @@ pub(crate) struct ExportSnapshotOptions<'a> {
     pub source_path: Option<&'a Path>,
     pub primary: bool,
     pub asset_role: Option<&'a str>,
+    pub asset_title: Option<&'a str>,
     pub codec_name: Option<&'a str>,
     pub profile_label: &'a str,
 }
@@ -770,6 +774,7 @@ mod tests {
                 source_path: None,
                 primary: true,
                 asset_role: None,
+                asset_title: None,
                 codec_name: Some("markdown"),
                 profile_label: "public",
             },
@@ -809,12 +814,17 @@ mod tests {
                 source_path: None,
                 primary: false,
                 asset_role: Some("table-image"),
+                asset_title: Some("Table 1: Example table."),
                 codec_name: Some("markdown"),
                 profile_label: "public",
             },
         );
 
         assert_eq!(snapshot.asset.role.as_deref(), Some("table-image"));
+        assert_eq!(
+            snapshot.asset.title.as_deref(),
+            Some("Table 1: Example table.")
+        );
         assert!(snapshot.executed_node.is_some());
     }
 

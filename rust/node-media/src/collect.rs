@@ -172,7 +172,13 @@ impl Collector {
     }
 
     /// Record a collected asset with originating-node attribution.
-    fn record_asset(&mut self, path: PathBuf, self_id: Option<&NodeId>, self_type: NodeType) {
+    fn record_asset(
+        &mut self,
+        path: PathBuf,
+        self_id: Option<&NodeId>,
+        self_type: NodeType,
+        title: Option<String>,
+    ) {
         let (node_type, node_id) = self.originating(self_id, self_type);
         let role = role_for(node_type);
         self.assets.push(EncodedAsset {
@@ -180,6 +186,7 @@ impl Collector {
             node_id: node_id.map(|id| id.to_string()),
             node_type: Some(node_type.to_string()),
             role: Some(role.to_string()),
+            title,
             ..Default::default()
         });
     }
@@ -253,11 +260,12 @@ impl Collector {
         }
 
         let desired_stem = self.namer.next_media_stem(image.id.as_deref());
+        let title = self.namer.next_media_title(image.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&image.content_url, "image", desired_stem.as_deref())
         {
             let id = image.node_id();
-            self.record_asset(path, Some(&id), NodeType::ImageObject);
+            self.record_asset(path, Some(&id), NodeType::ImageObject, title);
             image.content_url = relative_url;
         }
     }
@@ -276,11 +284,12 @@ impl Collector {
         }
 
         let desired_stem = self.namer.next_media_stem(audio.id.as_deref());
+        let title = self.namer.next_media_title(audio.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&audio.content_url, "audio", desired_stem.as_deref())
         {
             let id = audio.node_id();
-            self.record_asset(path, Some(&id), NodeType::AudioObject);
+            self.record_asset(path, Some(&id), NodeType::AudioObject, title);
             audio.content_url = relative_url;
         }
     }
@@ -292,11 +301,12 @@ impl Collector {
         }
 
         let desired_stem = self.namer.next_media_stem(video.id.as_deref());
+        let title = self.namer.next_media_title(video.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&video.content_url, "video", desired_stem.as_deref())
         {
             let id = video.node_id();
-            self.record_asset(path, Some(&id), NodeType::VideoObject);
+            self.record_asset(path, Some(&id), NodeType::VideoObject, title);
             video.content_url = relative_url;
         }
     }
@@ -375,7 +385,7 @@ impl Collector {
             if let Some((new_url, path)) =
                 self.collect_media(src_value, media_type, desired_stem.as_deref())
             {
-                self.record_asset(path, None, node_type);
+                self.record_asset(path, None, node_type, None);
 
                 // Reconstruct the tag with the new URL
                 let new_tag =
@@ -553,7 +563,7 @@ mod tests {
     use eyre::{OptionExt, Result, bail};
     use tempfile::tempdir;
 
-    use stencila_schema::{CodeChunk, Cord, Figure, LabelType};
+    use stencila_schema::{CodeChunk, Cord, Figure, Inline, LabelType, Paragraph, Text};
 
     use crate::naming::hash_bytes;
 
@@ -572,6 +582,10 @@ mod tests {
         let mut chunk = CodeChunk::new(Cord::from("plot()"));
         chunk.id = Some("fig-1a".to_string());
         chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.label = Some("1a".to_string());
+        chunk.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::from("A plot."),
+        )]))]);
         chunk.outputs = Some(vec![
             Node::ImageObject(ImageObject::new("plot-one.png".to_string())),
             Node::ImageObject(ImageObject::new("plot-two.png".to_string())),
@@ -618,6 +632,11 @@ mod tests {
             assets
                 .iter()
                 .all(|asset| asset.role.as_deref() == Some("computational-output"))
+        );
+        assert!(
+            assets
+                .iter()
+                .all(|asset| asset.title.as_deref() == Some("Figure 1a: A plot."))
         );
 
         Ok(())

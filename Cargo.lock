@@ -12066,6 +12066,7 @@ dependencies = [
  "regex",
  "seahash",
  "stencila-codec-info",
+ "stencila-codec-text-trait",
  "stencila-format",
  "stencila-images",
  "stencila-schema",

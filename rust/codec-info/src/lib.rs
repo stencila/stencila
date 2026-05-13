@@ -99,6 +99,13 @@ pub struct EncodedAsset {
     /// `"document"`, and `"sidecar"`.
     pub role: Option<String>,
 
+    /// Human-readable title for this asset, when known.
+    ///
+    /// For generated media this is usually derived from the nearest labelled
+    /// Figure or CodeChunk caption, so downstream manifest metadata can show a
+    /// useful title instead of falling back to the file name.
+    pub title: Option<String>,
+
     /// Whether Content Credentials were attached to this asset.
     ///
     /// `false` for plain side assets, originating sidecar files, or assets
