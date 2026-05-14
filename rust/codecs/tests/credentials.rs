@@ -11,8 +11,8 @@ use tempfile::TempDir;
 
 use stencila_codecs::stencila_schema::{
     Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionDependency,
-    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, ImageObject, Inline,
-    MessageLevel, Node, Paragraph, Text, TimeUnit,
+    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, Heading, ImageObject,
+    Inline, MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
     CredentialProfile, CredentialsOptions, EncodeInfo, EncodeOptions, Format, Result,
@@ -227,8 +227,13 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
         PNG_DATA_URI.to_string(),
     ))]);
     let node = Node::Article(Article {
-        title: Some(vec![Inline::Text(Text::from("PDF Report"))]),
-        content: vec![Block::CodeChunk(chunk)],
+        content: vec![
+            Block::Heading(Heading::new(
+                1,
+                vec![Inline::Text(Text::from("PDF Report"))],
+            )),
+            Block::CodeChunk(chunk),
+        ],
         ..Default::default()
     });
 
@@ -259,6 +264,33 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     let active = document_manifest["active_manifest"]
         .as_str()
         .expect("active manifest");
+    assert_eq!(
+        document_manifest["manifests"][active]["title"], "PDF Report",
+        "document manifest title should use the article title, not the output file name"
+    );
+    let assertions = document_manifest["manifests"][active]["assertions"]
+        .as_array()
+        .expect("assertions");
+    let metadata = assertions
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.metadata")
+        .expect("metadata assertion");
+    assert!(
+        metadata["data"].get("dc:title").is_none(),
+        "dc:title is not permitted in c2pa.metadata"
+    );
+    assert_eq!(
+        metadata["data"]["xmp:Label"], "report.pdf",
+        "the rendition label should remain the output file name"
+    );
+    let provenance = assertions
+        .iter()
+        .find(|assertion| assertion["label"] == "org.stencila.provenance")
+        .expect("Stencila provenance assertion");
+    assert_eq!(
+        provenance["data"]["rootNode"]["title"], "PDF Report",
+        "provenance should capture a top-level heading as the article title"
+    );
     let document_ingredients = document_manifest["manifests"][active]["ingredients"]
         .as_array()
         .expect("document ingredients");
@@ -274,6 +306,19 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     assert!(
         component["validation_results"]["activeManifest"].is_object(),
         "embedded PDF component should validate through its child manifest: {component:#?}"
+    );
+    let report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path: output,
+            require_trusted_signer: false,
+            require_stencila_assertion: true,
+            require_repro_exact: false,
+            trust_anchors: None,
+        })
+        .await?;
+    assert!(
+        report.manifest.valid,
+        "embedded PDF manifest should validate without metadata errors: {report:?}"
     );
 
     Ok(())

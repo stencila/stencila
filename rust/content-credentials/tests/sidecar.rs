@@ -64,6 +64,10 @@ async fn sign_and_verify_pdf_embedded() {
         .expect("verify");
 
     assert!(report.manifest.present);
+    assert!(
+        report.manifest.valid,
+        "embedded PDF manifest should validate: {report:?}"
+    );
     assert!(!report.manifest.from_sidecar, "verified via embedded PDF");
     assert!(report.asset_binding.valid);
     assert!(report.provenance.attested);
@@ -95,6 +99,10 @@ async fn sign_and_verify_pdf_embedded() {
         .expect("verify signed again");
 
     assert!(report.manifest.present);
+    assert!(
+        report.manifest.valid,
+        "re-signed embedded PDF manifest should validate: {report:?}"
+    );
     assert!(!report.manifest.from_sidecar, "verified via embedded PDF");
     assert!(report.asset_binding.valid);
     assert!(report.provenance.attested);

@@ -138,34 +138,19 @@ impl CredentialProducer {
 
         let source_digest = media::sha256_file(&input_path)?;
         let signer = self.signer.clone();
-        let title = title
-            .or_else(|| {
-                input_path
-                    .file_name()
-                    .and_then(|n| n.to_str().map(std::string::ToString::to_string))
-            })
-            .unwrap_or_else(|| "asset".to_string());
+        let fallback_title = input_path
+            .file_name()
+            .and_then(|n| n.to_str().map(std::string::ToString::to_string));
 
         let policy = ProjectionPolicy::for_profile(credential_profile);
-        let (assertion, ingredients) = {
-            let snapshot = provenance.map_or_else(
-                || {
-                    ProvenanceSnapshot::for_asset(AssetSnapshot::new(
-                        asset_kind_for_media_type(&media_type),
-                        media_type.clone(),
-                        source_digest.clone(),
-                    ))
-                },
-                |mut snapshot| {
-                    snapshot.asset =
-                        normalize_asset_snapshot(snapshot.asset, &media_type, &source_digest);
-                    snapshot
-                },
-            );
-            let mut snapshot = policy.project_snapshot(snapshot);
-            let ingredients = std::mem::take(&mut snapshot.ingredients);
-            (ProvenanceAssertion::from_snapshot(snapshot), ingredients)
-        };
+        let (assertion, ingredients, title) = prepare_signing_claim(
+            provenance,
+            &media_type,
+            &source_digest,
+            title,
+            fallback_title,
+            &policy,
+        );
         policy.validate_assertion_size(&assertion)?;
 
         let media_for_task = media_type.clone();
@@ -220,6 +205,57 @@ impl CredentialProducer {
             warnings,
         })
     }
+}
+
+fn prepare_signing_claim(
+    provenance: Option<ProvenanceSnapshot>,
+    media_type: &str,
+    source_digest: &str,
+    title: Option<String>,
+    fallback_title: Option<String>,
+    policy: &ProjectionPolicy,
+) -> (ProvenanceAssertion, Vec<IngredientSnapshot>, String) {
+    let snapshot = provenance.map_or_else(
+        || {
+            ProvenanceSnapshot::for_asset(AssetSnapshot::new(
+                asset_kind_for_media_type(media_type),
+                media_type,
+                source_digest,
+            ))
+        },
+        |mut snapshot| {
+            snapshot.asset = normalize_asset_snapshot(snapshot.asset, media_type, source_digest);
+            snapshot
+        },
+    );
+    let mut snapshot = policy.project_snapshot(snapshot);
+    let title = title
+        .or_else(|| manifest_title_from_snapshot(&snapshot))
+        .or(fallback_title)
+        .unwrap_or_else(|| "asset".to_string());
+    let ingredients = std::mem::take(&mut snapshot.ingredients);
+
+    (
+        ProvenanceAssertion::from_snapshot(snapshot),
+        ingredients,
+        title,
+    )
+}
+
+fn manifest_title_from_snapshot(snapshot: &ProvenanceSnapshot) -> Option<String> {
+    let asset_title = clean_title(snapshot.asset.title.as_deref());
+    let root_title = clean_title(snapshot.root_node.title.as_deref());
+
+    if snapshot.asset.role.as_deref() == Some("document-export") {
+        root_title.or(asset_title)
+    } else {
+        asset_title.or(root_title)
+    }
+}
+
+fn clean_title(title: Option<&str>) -> Option<String> {
+    let title = title?.trim();
+    (!title.is_empty()).then(|| title.to_string())
 }
 
 fn read_signed_manifest_id(
@@ -853,9 +889,9 @@ fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: 
 
     // The C2PA spec defines a closed allow-list of fields permitted under
     // `c2pa.metadata` (see C2PA spec metadata_annex). Anything outside that
-    // list is rejected with `assertion.metadata.disallowed`. The fields below
-    // are all on the allow-list. Stencila-specific identifiers and details
-    // belong in the `org.stencila.provenance` assertion instead.
+    // list is rejected with `assertion.metadata.disallowed`. Human-facing
+    // document titles are carried by the manifest title and Stencila provenance
+    // assertion instead because `dc:title` is not permitted here.
     let mut data = json!({
         "@context": {
             "xmp": "http://ns.adobe.com/xap/1.0/",
@@ -870,10 +906,6 @@ fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: 
         data["dc:type"] = json!(dcmi_type);
     }
 
-    if let Some(title) = document_title(assertion) {
-        data["dc:title"] = json!(title);
-    }
-
     if let Some(when) = action_timestamp(assertion) {
         data["xmp:CreateDate"] = json!(when);
     }
@@ -883,32 +915,6 @@ fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: 
         "kind": "Json",
         "data": data,
     })
-}
-
-/// Document-level title for `dc:title`, when one is available and distinct
-/// from the asset label already in `xmp:Label`.
-///
-/// `xmp:Label` carries the asset's display label (often the file name), while
-/// `dc:title` is the canonical Dublin Core title for the resource. Populating
-/// both lets generic metadata consumers see the work title without losing the
-/// per-asset label.
-fn document_title(assertion: &ProvenanceAssertion) -> Option<&str> {
-    let title = assertion.root_node.title.as_deref()?.trim();
-    if title.is_empty() {
-        return None;
-    }
-
-    let label = assertion
-        .asset
-        .title
-        .as_deref()
-        .or(assertion.asset.label.as_deref())
-        .map(str::trim);
-    if label == Some(title) {
-        return None;
-    }
-
-    Some(title)
 }
 
 /// Map the asset's broad type to a DCMI Type vocabulary term.

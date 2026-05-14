@@ -9,7 +9,9 @@
 use std::{collections::BTreeMap, path::Path};
 
 use stencila_codec_text_trait::to_text;
-use stencila_schema::{Article, CodeBlock, CodeChunk, CodeExpression, Figure, Inline, Node, Table};
+use stencila_schema::{
+    Article, Block, CodeBlock, CodeChunk, CodeExpression, Figure, Inline, Node, Table,
+};
 
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProfile, DocumentSnapshot, ProducerSnapshot,
@@ -173,10 +175,7 @@ fn document_snapshot_for(
         .as_ref()
         .and_then(|id| source_ranges.and_then(|ranges| ranges.get(id).cloned()));
 
-    let title = match subject {
-        Node::Article(Article { title, .. }) => inlines_to_text(title.as_deref()),
-        _ => None,
-    };
+    let title = node_title_for(subject);
 
     let mut snapshot = DocumentSnapshot {
         node_type,
@@ -208,6 +207,24 @@ fn document_snapshot_for(
     }
 
     snapshot
+}
+
+fn node_title_for(subject: &Node) -> Option<String> {
+    match subject {
+        Node::Article(article) => article_title(article),
+        _ => None,
+    }
+}
+
+fn article_title(article: &Article) -> Option<String> {
+    inlines_to_text(article.title.as_deref()).or_else(|| {
+        article.content.iter().find_map(|block| match block {
+            Block::Heading(heading) if (0..=1).contains(&heading.level) => {
+                inlines_to_text(Some(&heading.content))
+            }
+            _ => None,
+        })
+    })
 }
 
 /// Extract an author-supplied persistent id from supported node kinds.

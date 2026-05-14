@@ -156,6 +156,7 @@ async fn sign_with_provenance_snapshot() {
         .await
         .expect("verify");
 
+    assert!(report.manifest.valid, "manifest valid");
     let assertion = report
         .provenance
         .assertion
@@ -251,9 +252,9 @@ async fn sign_emits_standard_c2pa_assertions() {
     // `dc:type` uses the DCMI Type vocabulary (closed list); `image` maps to
     // `StillImage` so generic Dublin Core tooling can interpret it.
     assert_eq!(metadata["dc:type"], "StillImage");
-    // `dc:title` carries the document-level title from `root_node`, distinct
-    // from the per-asset `xmp:Label`.
-    assert_eq!(metadata["dc:title"], "Article");
+    // `dc:title` is not permitted by the C2PA metadata allow-list; the
+    // document-level title stays in Stencila provenance.
+    assert!(metadata.get("dc:title").is_none());
     // Internal asset ids (used only for activity references) must not leak into
     // `dc:identifier`, which is reserved for genuine external identifiers.
     assert!(
