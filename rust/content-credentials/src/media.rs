@@ -24,26 +24,21 @@ fn lower_hex(bytes: &[u8]) -> String {
 
 /// Whether Stencila signs assets with an embedded manifest for the given media type.
 ///
-/// In MVP we restrict this to the four image formats the design names as
-/// initial targets. Everything else (including `application/pdf`) goes via a
-/// sidecar `.c2pa` file.
+/// PDF uses a crate-local placeholder workflow because the c2pa SDK can read
+/// embedded PDF manifests but does not expose a PDF stream writer.
 #[must_use]
 pub fn embed_supported(media_type: &str) -> bool {
     matches!(
         media_type,
-        "image/png" | "image/jpeg" | "image/webp" | "image/svg+xml"
+        "image/png" | "image/jpeg" | "image/webp" | "image/svg+xml" | "application/pdf"
     )
 }
 
 /// Whether sidecar signing needs a pre-hashed manifest instead of the SDK's
 /// stream writer.
-///
-/// The c2pa SDK can read embedded PDF manifests, but does not yet implement
-/// PDF write or strip support. Pre-hashing keeps sidecar signing working while
-/// still allowing verification to detect embedded PDF manifests when present.
 #[must_use]
-pub fn sidecar_requires_prehashed_manifest(media_type: &str) -> bool {
-    matches!(media_type, "application/pdf")
+pub fn sidecar_requires_prehashed_manifest(_media_type: &str) -> bool {
+    false
 }
 
 /// Whether the c2pa SDK can read an embedded manifest from the given media type.
@@ -151,10 +146,10 @@ mod tests {
         assert!(embed_supported("image/jpeg"));
         assert!(embed_supported("image/webp"));
         assert!(embed_supported("image/svg+xml"));
-        assert!(!embed_supported("application/pdf"));
+        assert!(embed_supported("application/pdf"));
         assert!(!embed_supported("image/gif"));
         assert!(!embed_supported("text/plain"));
-        assert!(sidecar_requires_prehashed_manifest("application/pdf"));
+        assert!(!sidecar_requires_prehashed_manifest("application/pdf"));
         assert!(!sidecar_requires_prehashed_manifest("image/gif"));
     }
 

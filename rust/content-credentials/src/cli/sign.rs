@@ -15,9 +15,9 @@ use crate::{
 /// Sign an asset with a C2PA manifest carrying the
 /// `org.stencila.provenance` assertion.
 ///
-/// For PNG, JPEG, WebP, and SVG the manifest is embedded directly in the
-/// asset. For other formats (including PDF) the manifest is written to a
-/// `.c2pa` sidecar file next to the asset.
+/// For PNG, JPEG, WebP, SVG, and PDF the manifest is embedded directly in the
+/// asset. For other formats the manifest is written to a `.c2pa` sidecar file
+/// next to the asset.
 #[derive(Debug, Args)]
 pub struct Cli {
     /// Path to the asset to sign.

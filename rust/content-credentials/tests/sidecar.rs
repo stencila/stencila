@@ -1,9 +1,9 @@
-//! Sign + verify a non-embeddable format (PDF) via a sidecar `.c2pa`.
+//! Sign + verify embedded PDF manifests and sidecar manifests for non-embeddable formats.
 
 use std::{
     fs::{self, File},
     io::Write,
-    path::{Path, PathBuf},
+    path::Path,
 };
 
 use c2pa::Builder;
@@ -16,9 +16,9 @@ use tempfile::{NamedTempFile, TempDir};
 
 mod common;
 
-/// Exercises the sidecar path by signing and verifying a PDF with a `.c2pa` manifest.
+/// Exercises the embedded path by signing and verifying a PDF.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn sign_and_verify_pdf_sidecar() {
+async fn sign_and_verify_pdf_embedded() {
     let _guard = common::set_isolated_config_dir();
     let _ = init_local_signing_identity(true).expect("init local signing identity");
 
@@ -36,22 +36,20 @@ async fn sign_and_verify_pdf_sidecar() {
         .await
         .expect("sign");
 
-    assert_eq!(signed.manifest_kind, ManifestKind::Sidecar);
+    assert_eq!(signed.manifest_kind, ManifestKind::Embedded);
     assert!(
         signed
             .manifest_id
             .as_deref()
             .is_some_and(|id| id.starts_with("urn:c2pa:")),
-        "manifest id should be read from sidecar after signing: {signed:?}"
+        "manifest id should be read from embedded PDF after signing: {signed:?}"
     );
     assert!(
         signed.warnings.is_empty(),
         "signing should not produce warnings: {:?}",
         signed.warnings
     );
-    let sidecar = signed.sidecar_path.as_ref().expect("sidecar present");
-    assert!(sidecar.exists(), "sidecar file written");
-    assert!(sidecar.to_string_lossy().ends_with("doc.c2pa"));
+    assert!(signed.sidecar_path.is_none());
 
     let verifier = CredentialVerifier::new();
     let report = verifier
@@ -66,7 +64,38 @@ async fn sign_and_verify_pdf_sidecar() {
         .expect("verify");
 
     assert!(report.manifest.present);
-    assert!(report.manifest.from_sidecar, "verified via sidecar");
+    assert!(!report.manifest.from_sidecar, "verified via embedded PDF");
+    assert!(report.asset_binding.valid);
+    assert!(report.provenance.attested);
+
+    let signed_again = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: signed.asset_path.clone(),
+            ..Default::default()
+        })
+        .await
+        .expect("sign again");
+
+    assert_eq!(signed_again.manifest_kind, ManifestKind::Embedded);
+    assert!(signed_again.sidecar_path.is_none());
+    assert_ne!(
+        signed_again.manifest_id, signed.manifest_id,
+        "re-signing should replace the embedded PDF manifest"
+    );
+
+    let report = verifier
+        .verify_asset(VerifyAssetRequest {
+            asset_path: signed_again.asset_path,
+            require_trusted_signer: false,
+            require_stencila_assertion: false,
+            require_repro_exact: false,
+            trust_anchors: None,
+        })
+        .await
+        .expect("verify signed again");
+
+    assert!(report.manifest.present);
+    assert!(!report.manifest.from_sidecar, "verified via embedded PDF");
     assert!(report.asset_binding.valid);
     assert!(report.provenance.attested);
 }
@@ -78,8 +107,8 @@ async fn sidecar_output_cannot_equal_asset_output() {
     let _ = init_local_signing_identity(true).expect("init local signing identity");
 
     let tmp = TempDir::new().expect("tmp");
-    let asset = tmp.path().join("doc.pdf");
-    fs::copy(fixture_path(), &asset).expect("copy fixture");
+    let asset = tmp.path().join("doc.gif");
+    fs::write(&asset, MINIMAL_GIF).expect("write fixture");
 
     let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
     let producer = CredentialProducer::new(signer);
@@ -179,13 +208,6 @@ async fn embedded_sdk_supported_format_wins_over_stale_sidecar() -> Result<()> {
     assert!(report.asset_binding.valid, "asset binding should validate");
 
     Ok(())
-}
-
-fn fixture_path() -> PathBuf {
-    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-        .join("tests")
-        .join("fixtures")
-        .join("sample.pdf")
 }
 
 fn embed_manifest_in_place(asset: &Path) -> Result<()> {

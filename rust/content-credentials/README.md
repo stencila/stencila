@@ -7,9 +7,8 @@ export-time signing through codec `EncodeOptions`.
 
 ## Current Scope
 
-- Sign PNG, JPEG, WebP, and SVG assets with embedded C2PA manifests.
-- Sign formats that cannot be embedded by the SDK, including PDF, with sidecar
-  manifests.
+- Sign PNG, JPEG, WebP, SVG, and PDF assets with embedded C2PA manifests.
+- Sign formats that Stencila does not embed directly with sidecar manifests.
 - Verify embedded and sidecar manifests from Stencila and other producers.
 - Report the four separate status axes from the design: manifest validity,
   signer trust, Stencila provenance attestation, and reproducibility status.
@@ -29,8 +28,7 @@ uses the same file stem as the asset with the extension replaced by `.c2pa`.
 For example:
 
 ```text
-figure.png -> figure.c2pa
-report.pdf -> report.c2pa
+animation.gif -> animation.c2pa
 ```
 
 The SDK documentation describes this as a sidecar file with the same file name

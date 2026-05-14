@@ -23,6 +23,8 @@ pub mod verifier;
 
 pub mod media;
 
+mod pdf;
+
 #[cfg(feature = "export")]
 pub mod export;
 

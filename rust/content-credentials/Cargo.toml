@@ -19,6 +19,7 @@ c2pa = { version = "0.82.1", default-features = false, features = ["rust_native_
 chrono = { workspace = true }
 clap = { workspace = true, optional = true }
 eyre = { workspace = true }
+lopdf = { workspace = true }
 mime_guess = { workspace = true }
 rcgen = { version = "0.14.7", default-features = false, features = ["pem", "ring"] }
 reqwest = { workspace = true }

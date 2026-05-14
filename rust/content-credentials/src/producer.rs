@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use c2pa::{BoxedSigner, Builder, Context, Ingredient, Reader, Relationship};
+use c2pa::{BoxedSigner, Builder, Context, HashRange, Ingredient, Reader, Relationship};
 use serde::Serialize;
 use serde_json::{Value, json};
 use tempfile::NamedTempFile;
@@ -15,7 +15,7 @@ use tempfile::NamedTempFile;
 use crate::{
     assertion::asset_kind_for_media_type,
     error::{Error, Result},
-    media,
+    media, pdf,
     policy::{CredentialProfile, ProjectionPolicy},
     schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::CredentialSignerConfig,
@@ -310,6 +310,18 @@ fn sign_embedded(
     ingredients: &[IngredientSnapshot],
     signer_config: &CredentialSignerConfig,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
+    if media_type == "application/pdf" {
+        return sign_embedded_pdf(
+            input_path,
+            output_path,
+            media_type,
+            title,
+            assertion,
+            ingredients,
+            signer_config,
+        );
+    }
+
     let dest_path = output_path.map_or_else(|| input_path.to_path_buf(), Path::to_path_buf);
 
     let parent = dest_path
@@ -331,6 +343,74 @@ fn sign_embedded(
         builder.sign(signer.as_ref(), media_type, &mut source, file)?;
         file.flush()?;
     }
+    persist_with_permissions(tmp, &dest_path, &permissions)?;
+
+    Ok((dest_path, None))
+}
+
+/// Sign a PDF by embedding a fixed-size C2PA placeholder, hashing the resulting
+/// PDF with that byte range excluded, then patching the signed manifest into
+/// the same range.
+fn sign_embedded_pdf(
+    input_path: &Path,
+    output_path: Option<&Path>,
+    media_type: &str,
+    title: &str,
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    signer_config: &CredentialSignerConfig,
+) -> Result<(PathBuf, Option<PathBuf>)> {
+    let dest_path = output_path.map_or_else(|| input_path.to_path_buf(), Path::to_path_buf);
+
+    let parent = dest_path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .map_or_else(|| PathBuf::from("."), Path::to_path_buf);
+    fs::create_dir_all(&parent)?;
+
+    let signer = signer_config.create_signer()?;
+    let permissions = fs::metadata(input_path)?.permissions();
+    let mut builder = build_builder_with_signer(
+        media_type,
+        title,
+        assertion,
+        ingredients,
+        Some(input_path),
+        signer,
+    )?;
+    builder.set_no_embed(false);
+
+    let placeholder = builder.placeholder(media_type)?;
+    if placeholder.is_empty() {
+        return Err(Error::other("PDF C2PA placeholder was empty"));
+    }
+
+    let (mut pdf_bytes, manifest_range) = pdf::with_manifest_bytes(input_path, &placeholder)?;
+    let mut pdf_stream = Cursor::new(pdf_bytes.as_slice());
+    builder.set_data_hash_exclusions(vec![HashRange::new(
+        manifest_range.start as u64,
+        manifest_range.len() as u64,
+    )])?;
+    builder.update_hash_from_stream(media_type, &mut pdf_stream)?;
+
+    let signed_manifest = builder.sign_embeddable(media_type)?;
+    if signed_manifest.len() != manifest_range.len() {
+        return Err(Error::other(format!(
+            "signed PDF manifest length {} did not match placeholder length {}",
+            signed_manifest.len(),
+            manifest_range.len()
+        )));
+    }
+
+    pdf_bytes[manifest_range].copy_from_slice(&signed_manifest);
+    let mut verify_stream = Cursor::new(pdf_bytes.as_slice());
+    Reader::from_context(Context::new())
+        .with_stream(media_type, &mut verify_stream)
+        .map_err(Error::C2pa)?;
+
+    let mut tmp = NamedTempFile::new_in(&parent)?;
+    tmp.write_all(&pdf_bytes)?;
+    tmp.flush()?;
     persist_with_permissions(tmp, &dest_path, &permissions)?;
 
     Ok((dest_path, None))

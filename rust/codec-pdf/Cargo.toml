@@ -6,7 +6,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-lopdf = "0.39.0"
+lopdf = { workspace = true }
 seahash = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-dom = { path = "../codec-dom" }

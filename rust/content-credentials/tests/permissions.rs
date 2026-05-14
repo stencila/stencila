@@ -45,9 +45,9 @@ async fn sidecar_signing_preserves_output_and_sidecar_permissions() -> Result<()
     let _ = init_local_signing_identity(true)?;
 
     let tmp = TempDir::new()?;
-    let input = tmp.path().join("input.pdf");
-    let output = tmp.path().join("exported.pdf");
-    fs::copy(fixture_path("sample.pdf"), &input)?;
+    let input = tmp.path().join("input.gif");
+    let output = tmp.path().join("exported.gif");
+    fs::write(&input, MINIMAL_GIF)?;
     fs::set_permissions(&input, fs::Permissions::from_mode(0o640))?;
 
     let signer = CredentialSignerConfig::resolve(None, None)?;
@@ -63,12 +63,19 @@ async fn sidecar_signing_preserves_output_and_sidecar_permissions() -> Result<()
     assert_eq!(file_mode(&output)?, 0o640);
     let Some(sidecar_path) = signed.sidecar_path.as_deref() else {
         return Err(stencila_content_credentials::Error::other(
-            "expected sidecar path for PDF",
+            "expected sidecar path for GIF",
         ));
     };
     assert_eq!(file_mode(sidecar_path)?, 0o640);
     Ok(())
 }
+
+const MINIMAL_GIF: &[u8] = b"GIF89a\
+\x01\x00\x01\x00\x80\x00\x00\
+\x00\x00\x00\xff\xff\xff\
+!\xf9\x04\x01\x00\x00\x00\x00\
+,\x00\x00\x00\x00\x01\x00\x01\x00\x00\
+\x02\x02D\x01\x00;";
 
 fn file_mode(path: &Path) -> Result<u32> {
     Ok(fs::metadata(path)?.permissions().mode() & 0o777)

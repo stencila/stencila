@@ -11202,6 +11202,7 @@ dependencies = [
  "clap",
  "eyre",
  "insta",
+ "lopdf",
  "mime_guess",
  "rcgen",
  "reqwest 0.13.3",

@@ -42,6 +42,7 @@ indicatif = "0.18.4"
 insta = { version = "1.47.2", features = ["json", "yaml", "redactions"] }
 itertools = "0.14.0"
 lightningcss = "1.0.0-alpha.71"
+lopdf = "0.39.0"
 lru = "0.18.0"
 mime = "0.3.17"
 mime_guess = "2.0.5"

@@ -43,6 +43,9 @@ pub enum Error {
     #[error("c2pa SDK error: {0}")]
     C2pa(#[from] c2pa::Error),
 
+    #[error("pdf error: {0}")]
+    Pdf(#[from] lopdf::Error),
+
     #[error("certificate generation error: {0}")]
     Rcgen(#[from] rcgen::Error),
 
