@@ -19,7 +19,7 @@ use tokio::fs::write;
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
     IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot, ProvenanceSnapshot,
-    Result, SignAssetRequest, media,
+    Result, SignAssetRequest, media, thumbnails,
 };
 
 use super::source::{
@@ -44,7 +44,14 @@ pub(super) fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<I
         .map(ToString::to_string);
     let thumbnail = media_type
         .as_deref()
-        .and_then(|media_type| image_ingredient_thumbnail(source_path, media_type));
+        .and_then(|media_type| image_ingredient_thumbnail(source_path, media_type))
+        .or_else(|| {
+            Some(thumbnails::ingredient_for_file(
+                source_path,
+                media_type.as_deref(),
+                title.as_deref(),
+            ))
+        });
 
     Some(IngredientSnapshot {
         label: Some("source".to_string()),
@@ -115,7 +122,10 @@ pub(super) async fn source_ingredient_manifest(
             media_type: source_ingredient.and_then(|ingredient| ingredient.media_type.clone()),
             title: source_ingredient.and_then(|ingredient| ingredient.title.clone()),
             credential_profile,
-            provenance: input_ingredient_provenance(source_created_at(source_path)),
+            provenance: Some(input_ingredient_provenance(
+                source_created_at(source_path),
+                None,
+            )),
         })
         .await?;
 
@@ -131,18 +141,24 @@ pub(super) async fn source_ingredient_manifest(
 /// `c2pa.created` action even though the export did not create their source
 /// bytes. Supplying the source creation timestamp keeps that required action as
 /// close as possible to the input's own history.
-fn input_ingredient_provenance(created_at: Option<String>) -> Option<ProvenanceSnapshot> {
-    let created_at = created_at?;
+fn input_ingredient_provenance(
+    created_at: Option<String>,
+    root_node: Option<DocumentSnapshot>,
+) -> ProvenanceSnapshot {
+    let activity = created_at.map(|created_at| ActivitySnapshot {
+        kind: Some("create".to_string()),
+        started_at: Some(created_at.clone()),
+        ended_at: Some(created_at),
+        ..Default::default()
+    });
 
-    Some(ProvenanceSnapshot {
-        activity: Some(ActivitySnapshot {
-            kind: Some("create".to_string()),
-            started_at: Some(created_at.clone()),
-            ended_at: Some(created_at),
-            ..Default::default()
-        }),
-        ..ProvenanceSnapshot::for_asset(AssetSnapshot::default())
-    })
+    let mut provenance = ProvenanceSnapshot::for_asset(AssetSnapshot::default());
+    provenance.activity = activity;
+    if let Some(root_node) = root_node {
+        provenance.root_node = root_node;
+    }
+
+    provenance
 }
 
 fn source_created_at(source_path: &Path) -> Option<String> {
@@ -233,6 +249,10 @@ fn source_ingredient_for_snapshot(
         ingredient.manifest_source = Some(path.to_path_buf());
     }
 
+    if ingredient.thumbnail.is_none() {
+        ingredient.thumbnail = Some(thumbnails::ingredient_for_node(&provenance.root_node));
+    }
+
     ingredient
 }
 
@@ -276,11 +296,12 @@ async fn executed_node_ingredient_manifest(
             media_type: ingredient.media_type.clone(),
             title: ingredient.title.clone(),
             credential_profile,
-            provenance: input_ingredient_provenance(
+            provenance: Some(input_ingredient_provenance(
                 source_path
                     .and_then(source_created_at)
                     .or_else(|| file_created_at(&asset_path)),
-            ),
+                Some(executed_node.clone()),
+            )),
             ..Default::default()
         })
         .await?;
@@ -320,6 +341,7 @@ fn executed_node_ingredient_snapshot(
         informational_uri: source_path
             .and_then(|path| source_informational_uri_with_range(path, source_range)),
         description: Some(executed_node_ingredient_description(executed_node)),
+        thumbnail: Some(thumbnails::ingredient_for_node(executed_node)),
         ..Default::default()
     })
 }
@@ -505,5 +527,35 @@ fn source_code_format(language: Option<&str>) -> SourceCodeFormat {
             media_type: "text/plain",
             extension: "txt",
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{DocumentSnapshot, ProvenanceSnapshot};
+
+    use super::executed_node_ingredient_snapshot;
+
+    #[test]
+    fn executed_node_ingredient_has_static_thumbnail() {
+        let provenance = ProvenanceSnapshot {
+            executed_node: Some(DocumentSnapshot {
+                node_type: "CodeChunk".to_string(),
+                programming_language: Some("python".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let ingredient =
+            executed_node_ingredient_snapshot(&provenance, None).expect("executed-node ingredient");
+        let thumbnail = ingredient.thumbnail.expect("static thumbnail");
+
+        assert_eq!(thumbnail.media_type.as_deref(), Some("image/svg+xml"));
+        assert!(
+            thumbnail
+                .bytes
+                .is_some_and(|bytes| bytes.starts_with(b"<svg"))
+        );
     }
 }

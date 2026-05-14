@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <path d="M20 12h19l9 9v31H20z" fill="none" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M39 12v11h9" fill="none" stroke="#0f766e" stroke-width="3" stroke-linejoin="round"/>
+  <text x="34" y="43" fill="none" stroke="#134e4a" stroke-width="1" font-family="Arial, sans-serif" font-size="11" font-weight="700" text-anchor="middle">QMD</text>
+</svg>

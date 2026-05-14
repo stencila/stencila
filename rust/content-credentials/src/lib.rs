@@ -24,6 +24,7 @@ pub mod verifier;
 pub mod media;
 
 mod pdf;
+mod thumbnails;
 
 #[cfg(feature = "export")]
 pub mod export;

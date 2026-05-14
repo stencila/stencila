@@ -23,6 +23,7 @@ use crate::{
         AssetSnapshot, IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot,
         ProvenanceSnapshot,
     },
+    thumbnails::{self, StaticThumbnail},
 };
 
 /// Maximum image size, in bytes, that is embedded as-is as a `c2pa.thumbnail.claim`.
@@ -702,18 +703,46 @@ fn build_builder_with_context(
         attach_ingredient(&mut builder, ingredient, index)?;
     }
 
-    if let Some(path) = thumbnail_source
-        && let Some(thumbnail_format) = thumbnail_format(media_type)
-        && let Ok(metadata) = fs::metadata(path)
-        && metadata.len() <= MAX_THUMBNAIL_BYTES
-        && let Ok(mut file) = File::open(path)
-    {
-        // Best-effort: failures here are not fatal because the thumbnail is
-        // purely informational metadata.
-        let _ = builder.set_thumbnail(thumbnail_format, &mut file);
-    }
+    apply_claim_thumbnail(&mut builder, media_type, title, assertion, thumbnail_source);
 
     Ok(builder)
+}
+
+fn apply_claim_thumbnail(
+    builder: &mut Builder,
+    media_type: &str,
+    title: &str,
+    assertion: &ProvenanceAssertion,
+    asset_path: Option<&Path>,
+) {
+    if let Some(thumbnail_format) = thumbnail_format(media_type) {
+        if let Some(path) = asset_path
+            && let Ok(metadata) = fs::metadata(path)
+            && metadata.len() <= MAX_THUMBNAIL_BYTES
+            && let Ok(mut file) = File::open(path)
+        {
+            // Best-effort: failures here are not fatal because the thumbnail is
+            // purely informational metadata.
+            let _ = builder.set_thumbnail(thumbnail_format, &mut file);
+        }
+        return;
+    }
+
+    apply_static_claim_thumbnail(
+        builder,
+        thumbnails::claim_for_assertion_with_hints(assertion, Some(title), Some(media_type)),
+    );
+}
+
+fn apply_static_claim_thumbnail(builder: &mut Builder, thumbnail: StaticThumbnail) {
+    if thumbnail.bytes.is_empty() || thumbnail.bytes.len() as u64 > MAX_THUMBNAIL_BYTES {
+        return;
+    }
+
+    let mut bytes = Cursor::new(thumbnail.bytes);
+    // Best-effort metadata: the signed asset and Stencila assertion are still
+    // valid if a viewer-facing thumbnail cannot be attached.
+    let _ = builder.set_thumbnail(thumbnail.media_type, &mut bytes);
 }
 
 fn standard_assertions(

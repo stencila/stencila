@@ -18,7 +18,7 @@ use tempfile::{TempDir, tempdir};
 use crate::{
     CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientRelationship,
     IngredientSnapshot, ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset,
-    SourceRangeSnapshot, media,
+    SourceRangeSnapshot, media, thumbnails,
 };
 
 use self::{
@@ -74,6 +74,7 @@ pub struct ExportSigningRequest<'a> {
 struct SideAssetTarget {
     path: PathBuf,
     originating_id: Option<String>,
+    node_type: Option<String>,
     role: Option<String>,
     title: Option<String>,
 }
@@ -124,6 +125,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         side_targets.push(SideAssetTarget {
             path: asset.path.clone(),
             originating_id: asset.node_id.clone(),
+            node_type: asset.node_type.clone(),
             role: asset.role.clone(),
             title: asset.title.clone(),
         });
@@ -160,6 +162,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         let SideAssetTarget {
             path: asset_path,
             originating_id,
+            node_type: target_node_type,
             role: asset_role,
             title: asset_title,
         } = target;
@@ -251,6 +254,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             media_type,
             signed.signed_asset_digest,
             manifest_source,
+            target_node_type.as_deref(),
         ));
     }
 
@@ -462,6 +466,7 @@ async fn embedded_component_ingredients(
             media_type,
             signed.signed_asset_digest,
             manifest_source,
+            asset.node_type.as_deref(),
         ));
     }
 
@@ -484,10 +489,12 @@ fn signed_component_ingredient(
     media_type: Option<String>,
     content_digest: String,
     manifest_source: PathBuf,
+    node_type: Option<&str>,
 ) -> IngredientSnapshot {
     let thumbnail = media_type
         .as_deref()
-        .and_then(|media_type| image_ingredient_thumbnail(path, media_type));
+        .and_then(|media_type| image_ingredient_thumbnail(path, media_type))
+        .or_else(|| node_type.map(thumbnails::ingredient_for_node_type));
 
     IngredientSnapshot {
         label: Some(format!("component-{component_index}")),

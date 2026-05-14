@@ -292,6 +292,83 @@ async fn sign_emits_standard_c2pa_assertions() {
     );
 }
 
+/// Ensures non-image manifests carry a static node-type claim thumbnail.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn sign_emits_static_article_claim_thumbnail_for_non_image_asset() {
+    let _guard = common::set_isolated_config_dir();
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
+
+    let tmp = TempDir::new().expect("tmp");
+    let asset_path = tmp.path().join("article.smd");
+    fs::write(&asset_path, "# Article\n\nContent\n").expect("write article");
+
+    let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
+    let producer = CredentialProducer::new(signer);
+    let signed = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset_path.clone(),
+            provenance: Some(ProvenanceSnapshot {
+                asset: AssetSnapshot {
+                    role: Some("document-export".to_string()),
+                    title: Some("Article".to_string()),
+                    ..Default::default()
+                },
+                root_node: DocumentSnapshot {
+                    node_type: "Article".to_string(),
+                    title: Some("Article".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .await
+        .expect("sign");
+
+    assert_eq!(signed.manifest_kind, ManifestKind::Sidecar);
+    assert!(
+        signed
+            .sidecar_path
+            .as_ref()
+            .is_some_and(|path| path.is_file()),
+        "non-image asset should have sidecar credentials: {signed:?}"
+    );
+
+    let verifier = CredentialVerifier::new();
+    let manifest_json = verifier
+        .inspect_asset(&asset_path, None)
+        .await
+        .expect("inspect");
+    let active = manifest_json["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let manifest = &manifest_json["manifests"][active];
+    let thumbnail = manifest["thumbnail"].as_object().expect("claim thumbnail");
+    let identifier = thumbnail["identifier"]
+        .as_str()
+        .expect("thumbnail identifier");
+
+    assert!(
+        identifier.contains("c2pa.thumbnail.claim"),
+        "static thumbnail should be embedded as a claim thumbnail: {manifest:?}"
+    );
+
+    let resources_dir = tmp.path().join("article-resources");
+    let extracted = verifier
+        .extract_inspection_resources(&asset_path, &manifest_json, &resources_dir, None)
+        .await
+        .expect("extract resources");
+    let claim_thumbnail = extracted
+        .iter()
+        .find(|resource| resource.identifier.contains("c2pa.thumbnail.claim"))
+        .expect("extracted claim thumbnail");
+    assert_eq!(claim_thumbnail.format.as_deref(), Some("image/svg+xml"));
+    assert!(claim_thumbnail.bytes > 0);
+
+    let bytes = fs::read(resources_dir.join(&claim_thumbnail.path)).expect("read thumbnail");
+    assert!(bytes.starts_with(b"<svg"));
+}
+
 /// Ensures provenance snapshot ingredients are emitted as standard
 /// `c2pa.ingredient.v3` ingredients with their relationship preserved.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
