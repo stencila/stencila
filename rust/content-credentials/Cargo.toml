@@ -11,6 +11,7 @@ export = [
     "dep:stencila-codec-text-trait",
     "dep:stencila-codec-utils",
     "dep:stencila-node-find",
+    "dep:stencila-node-media",
     "dep:stencila-schema",
 ]
 
@@ -34,6 +35,7 @@ stencila-codec-text-trait = { path = "../codec-text-trait", optional = true }
 stencila-codec-utils = { path = "../codec-utils", optional = true }
 stencila-dirs = { path = "../dirs" }
 stencila-node-find = { path = "../node-find", optional = true }
+stencila-node-media = { path = "../node-media", optional = true }
 stencila-schema = { path = "../schema", optional = true }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }

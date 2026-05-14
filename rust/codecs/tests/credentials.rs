@@ -15,10 +15,14 @@ use stencila_codecs::stencila_schema::{
     MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
-    CredentialProfile, CredentialsOptions, EncodeOptions, Format, Result, to_path_with_info,
+    CredentialProfile, CredentialsOptions, EncodeInfo, EncodeOptions, Format, Result,
+    to_path_with_info,
 };
 use stencila_content_credentials::{
-    CredentialVerifier, VerifyAssetRequest, init_local_signing_identity, media::sidecar_path,
+    CredentialProfile as ContentCredentialProfile, CredentialVerifier, VerifyAssetRequest,
+    export::{ExportSigningRequest, sign_encoded_export},
+    init_local_signing_identity,
+    media::sidecar_path,
 };
 
 static CONFIG_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
@@ -138,7 +142,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     let verifier = CredentialVerifier::new();
     let document_report = verifier
         .verify_asset(VerifyAssetRequest {
-            asset_path: output,
+            asset_path: output.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: true,
             require_repro_exact: false,
@@ -147,6 +151,24 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .await?;
     assert!(document_report.manifest.from_sidecar);
     assert!(document_report.provenance.attested);
+
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let document_ingredients = document_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("document ingredients");
+    let component = document_ingredients
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "componentOf")
+        .expect("component ingredient");
+    assert_eq!(component["title"], "Figure 1: Generated result.");
+    assert_eq!(component["format"], "image/png");
+    assert!(
+        component["active_manifest"].is_string(),
+        "component should link to the signed media manifest: {component:#?}"
+    );
 
     let media_report = verifier
         .verify_asset(VerifyAssetRequest {
@@ -182,6 +204,77 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         Some("Figure")
     );
     assert!(media_assertion.asset.content_digest.starts_with("sha256:"));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> Result<()> {
+    let _config = set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let dir = TempDir::new()?;
+    let output = dir.path().join("report.pdf");
+    fs::copy(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../content-credentials/tests/fixtures/sample.pdf"),
+        &output,
+    )?;
+
+    let mut chunk = CodeChunk::new("plot(1)".into());
+    chunk.programming_language = Some("r".to_string());
+    chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
+        PNG_DATA_URI.to_string(),
+    ))]);
+    let node = Node::Article(Article {
+        title: Some(vec![Inline::Text(Text::from("PDF Report"))]),
+        content: vec![Block::CodeChunk(chunk)],
+        ..Default::default()
+    });
+
+    let mut info = EncodeInfo::none();
+    sign_encoded_export(ExportSigningRequest {
+        node: &node,
+        codec_name: "pdf",
+        output_path: &output,
+        source_path: None,
+        source_ranges: None,
+        media_type_hint: Some("application/pdf".to_string()),
+        credential_profile: ContentCredentialProfile::Public,
+        info: &mut info,
+    })
+    .await?;
+
+    let document_asset = info
+        .assets
+        .iter()
+        .find(|asset| asset.role.as_deref() == Some("document"))
+        .expect("document asset");
+    assert!(document_asset.signed);
+    assert_eq!(document_asset.manifest_kind.as_deref(), Some("embedded"));
+    assert!(document_asset.sidecar_path.is_none());
+
+    let verifier = CredentialVerifier::new();
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let document_ingredients = document_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("document ingredients");
+    let component = document_ingredients
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "componentOf")
+        .expect("component ingredient");
+    assert_eq!(component["format"], "image/png");
+    assert!(
+        component["active_manifest"].is_string(),
+        "embedded PDF component should link to a temporary signed media manifest: {component:#?}"
+    );
+    assert!(
+        component["validation_results"]["activeManifest"].is_object(),
+        "embedded PDF component should validate through its child manifest: {component:#?}"
+    );
 
     Ok(())
 }

@@ -11,12 +11,14 @@ use std::{
 };
 
 use stencila_codec_info::{EncodeInfo, EncodedAsset};
+use stencila_node_media::extract_media_with_paths;
 use stencila_schema::{Node, NodeId};
+use tempfile::{TempDir, tempdir};
 
 use crate::{
     CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientRelationship,
-    IngredientSnapshot, ManifestKind, Result, SignAssetRequest, SignedAsset, SourceRangeSnapshot,
-    media,
+    IngredientSnapshot, ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset,
+    SourceRangeSnapshot, media,
 };
 
 use self::{
@@ -257,6 +259,29 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         });
     }
 
+    // Keep the temp dir alive until the primary manifest has linked the
+    // temporary child manifests referenced by `component_ingredients`.
+    let _temporary_component_dir =
+        if component_ingredients.is_empty() && supports_embedded_component_extraction(codec_name) {
+            let (embedded_components, temporary_component_dir) =
+                Box::pin(embedded_component_ingredients(
+                    &producer,
+                    node,
+                    output_path,
+                    source_ranges,
+                    source_path,
+                    source_ingredient.clone(),
+                    source_manifest_path,
+                    codec_name,
+                    credential_profile,
+                ))
+                .await?;
+            component_ingredients.extend(embedded_components);
+            temporary_component_dir
+        } else {
+            None
+        };
+
     {
         let media_type = match media::guess_media_type(output_path) {
             Ok(media_type) => Some(media_type),
@@ -332,6 +357,146 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
     Ok(())
 }
 
+/// Sign embedded data-URI media as temporary component ingredients.
+///
+/// Some exports, notably PDF, embed rendered media directly into the primary
+/// asset and therefore do not report side assets in [`EncodeInfo`]. Extracting
+/// those data URIs into a temporary directory lets the primary manifest still
+/// describe generated figures as `componentOf` ingredients with their own C2PA
+/// manifests, without leaving extra files next to the rendered document.
+#[allow(clippy::too_many_arguments)]
+async fn embedded_component_ingredients(
+    producer: &CredentialProducer,
+    node: &Node,
+    output_path: &Path,
+    source_ranges: Option<&BTreeMap<String, SourceRangeSnapshot>>,
+    source_path: Option<&Path>,
+    source_ingredient: Option<IngredientSnapshot>,
+    source_manifest_path: Option<&Path>,
+    codec_name: &str,
+    credential_profile: CredentialProfile,
+) -> Result<(Vec<IngredientSnapshot>, Option<TempDir>)> {
+    let temp_dir = tempdir()?;
+    let mut node = node.clone();
+    let assets = extract_media_with_paths(&mut node, Some(output_path), temp_dir.path()).map_err(
+        |error| {
+            Error::other(format!(
+                "could not extract embedded component media: {error}"
+            ))
+        },
+    )?;
+    if assets.is_empty() {
+        return Ok((Vec::new(), None));
+    }
+
+    let mut component_ingredients = Vec::new();
+
+    for (component_index, asset) in assets.into_iter().enumerate() {
+        if !asset.path.is_file() {
+            tracing::warn!(
+                asset = %asset.path.display(),
+                "Skipping Content Credentials component ingredient because extracted media is not a file"
+            );
+            continue;
+        }
+
+        let media_type = match media::guess_media_type(&asset.path) {
+            Ok(media_type) => Some(media_type),
+            Err(error) => {
+                tracing::warn!(
+                    "Skipping Content Credentials component ingredient with unknown media type: {}",
+                    asset.path.display()
+                );
+                tracing::debug!("{error}");
+                continue;
+            }
+        };
+
+        let owned_subject = asset
+            .node_id
+            .as_deref()
+            .and_then(|id| id.parse::<NodeId>().ok())
+            .and_then(|id| stencila_node_find::find(&node, id));
+        let subject = owned_subject.as_ref().unwrap_or(&node);
+
+        let mut provenance = build_export_snapshot(
+            &node,
+            subject,
+            &asset.path,
+            ExportSnapshotOptions {
+                source_ranges,
+                source_path,
+                primary: false,
+                asset_role: asset.role.as_deref(),
+                asset_title: asset.title.as_deref(),
+                codec_name: Some(codec_name),
+                profile: credential_profile,
+            },
+        );
+        scrub_embedded_component_content_urls(&mut provenance);
+        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
+            producer,
+            &mut provenance,
+            source_ingredient.clone(),
+            source_path,
+            source_manifest_path,
+            credential_profile,
+        )
+        .await?;
+
+        let signed = producer
+            .sign_exported_asset(SignAssetRequest {
+                input_path: asset.path.clone(),
+                media_type: media_type.clone(),
+                title: asset.title.clone(),
+                credential_profile,
+                provenance: Some(provenance),
+                ..Default::default()
+            })
+            .await?;
+
+        let manifest_source = signed
+            .sidecar_path
+            .clone()
+            .unwrap_or_else(|| signed.asset_path.clone());
+
+        component_ingredients.push(IngredientSnapshot {
+            label: Some(format!("component-{component_index}")),
+            title: asset.title.or_else(|| {
+                asset
+                    .path
+                    .file_name()
+                    .and_then(|name| name.to_str())
+                    .map(ToString::to_string)
+            }),
+            media_type,
+            content_digest: Some(signed.signed_asset_digest),
+            relationship: IngredientRelationship::ComponentOf,
+            manifest_source: Some(manifest_source),
+            ..Default::default()
+        });
+    }
+
+    if component_ingredients.is_empty() {
+        Ok((component_ingredients, None))
+    } else {
+        Ok((component_ingredients, Some(temp_dir)))
+    }
+}
+
+#[must_use]
+fn supports_embedded_component_extraction(codec_name: &str) -> bool {
+    codec_name.eq_ignore_ascii_case("pdf")
+}
+
+fn scrub_embedded_component_content_urls(provenance: &mut ProvenanceSnapshot) {
+    // Extracted media files are temporary implementation details used only so
+    // the parent manifest can link to a concrete signed child manifest.
+    if let Some(output_node) = provenance.output_node.as_mut() {
+        output_node.content_url = None;
+    }
+}
+
 fn manifest_kind_label(kind: ManifestKind) -> &'static str {
     kind.label()
 }
@@ -373,4 +538,41 @@ fn push_sidecar_asset_once(
     }
 
     new_sidecars.push(EncodedAsset::sidecar(sidecar_path.to_path_buf()));
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{DocumentSnapshot, ProvenanceSnapshot};
+
+    use super::{scrub_embedded_component_content_urls, supports_embedded_component_extraction};
+
+    #[test]
+    fn embedded_component_extraction_is_pdf_only() {
+        assert!(supports_embedded_component_extraction("pdf"));
+        assert!(supports_embedded_component_extraction("PDF"));
+        assert!(!supports_embedded_component_extraction("html"));
+        assert!(!supports_embedded_component_extraction("markdown"));
+    }
+
+    #[test]
+    fn embedded_component_snapshots_do_not_publish_temporary_content_urls() {
+        let mut provenance = ProvenanceSnapshot {
+            output_node: Some(DocumentSnapshot {
+                node_type: "ImageObject".to_string(),
+                content_url: Some("../../tmp/stencila-component/image.png".to_string()),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        scrub_embedded_component_content_urls(&mut provenance);
+
+        assert!(
+            provenance
+                .output_node
+                .as_ref()
+                .is_some_and(|node| node.content_url.is_none()),
+            "temporary output contentUrl should be removed"
+        );
+    }
 }

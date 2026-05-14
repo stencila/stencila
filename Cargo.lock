@@ -11217,6 +11217,7 @@ dependencies = [
  "stencila-codec-utils",
  "stencila-dirs",
  "stencila-node-find",
+ "stencila-node-media",
  "stencila-schema",
  "stencila-version",
  "tempfile",
