@@ -80,12 +80,14 @@ pub struct ProvenanceAssertion {
     /// structure, while `asset` is the signed byte rendition.
     pub output_node: Option<NodeRecord>,
 
-    /// The signed C2PA asset entity.
+    /// The source asset entity represented by the signed C2PA manifest.
     ///
-    /// This record describes the exact bytes that C2PA binds to the manifest
-    /// before signing. Keeping it separate from `outputNode` matters because the
-    /// same Stencila node may be exported to several assets, and an asset can be
-    /// a rendition of a larger document rather than a node itself.
+    /// This record describes the asset bytes before Content Credentials are added
+    /// or normalized by the C2PA SDK. The C2PA hard-binding assertions remain the
+    /// authoritative check for the final signed asset bytes. Keeping this record
+    /// separate from `outputNode` matters because the same Stencila node may be
+    /// exported to several assets, and an asset can be a rendition of a larger
+    /// document rather than a node itself.
     pub asset: AssetRecord,
 
     /// Activities that generated, exported, or signed the asset.
@@ -240,11 +242,12 @@ pub struct ProducerRecord {
     pub extra: Map<String, Value>,
 }
 
-/// Facts about the signed asset entity.
+/// Facts about the source asset entity.
 ///
-/// The asset record is deliberately byte-oriented: C2PA binds the manifest to
-/// asset bytes, so this record stores media type, size, dimensions, and a digest
-/// of the pre-signing content rather than a full Stencila node.
+/// The asset record is deliberately byte-oriented, but it is not a duplicate of
+/// C2PA's own hard-binding assertions. It stores media type, size, dimensions,
+/// and a digest of the pre-credential content so Stencila-aware consumers can
+/// identify the source rendition without embedding a full Stencila node.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "camelCase")]
@@ -278,11 +281,13 @@ pub struct AssetRecord {
     /// extension or URL.
     pub media_type: String,
 
-    /// Digest of the pre-signing asset bytes.
+    /// Digest of the pre-credential asset bytes.
     ///
     /// The value should use `algorithm:hex` form, for example `sha256:...`.
     /// Keeping the algorithm in the value avoids baking `sha256` into every
-    /// field name and leaves room for future digest algorithms.
+    /// field name and leaves room for future digest algorithms. This digest is
+    /// distinct from the C2PA hard binding, which validates the final signed asset
+    /// bytes and detects post-signing tampering.
     pub content_digest: String,
 
     /// Stencila label associated with the asset.

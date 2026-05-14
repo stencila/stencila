@@ -6,6 +6,7 @@
 
 use std::{
     env,
+    net::IpAddr,
     path::{Path, PathBuf},
 };
 
@@ -140,7 +141,7 @@ impl ProjectionPolicy {
                 .attributions
                 .iter_mut()
                 .map(|attribution| &mut attribution.agent),
-            self.home_dir.as_deref(),
+            self,
             &mut redactions,
         );
 
@@ -565,12 +566,7 @@ impl ProjectionPolicy {
         }
 
         if let Some(agent) = &mut workflow.agent {
-            project_agent(
-                "workflow.agent",
-                agent,
-                self.home_dir.as_deref(),
-                redactions,
-            );
+            self.project_agent("workflow.agent", agent, redactions);
         }
 
         for (index, definition) in workflow.definitions.iter_mut().enumerate() {
@@ -625,7 +621,9 @@ impl ProjectionPolicy {
         };
 
         if is_probable_url(raw) {
-            if self.profile == CredentialProfile::Public && !(allow_public_url && public_url(raw)) {
+            if self.profile == CredentialProfile::Public
+                && !(allow_public_url && public_web_url(raw))
+            {
                 *value = None;
                 redactions.push(redaction(field, REDACTION_URI_OMITTED));
                 return true;
@@ -734,7 +732,7 @@ impl ProjectionPolicy {
             return false;
         }
 
-        if self.profile == CredentialProfile::Public && self.is_home_path(path) {
+        if self.profile == CredentialProfile::Public && path.is_absolute() {
             *value = None;
             redactions.push(redaction(field, REDACTION_URI_OMITTED));
             return true;
@@ -749,60 +747,49 @@ impl ProjectionPolicy {
         Some(relative.to_string_lossy().replace('\\', "/"))
     }
 
-    fn is_home_path(&self, path: &Path) -> bool {
-        self.home_dir
-            .as_deref()
-            .is_some_and(|home| path.starts_with(home))
+    fn project_agent(
+        &self,
+        prefix: &str,
+        agent: &mut AgentSnapshot,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
+        project_text_option(
+            &format!("{prefix}.name"),
+            &mut agent.name,
+            self.home_dir.as_deref(),
+            redactions,
+        );
+        redact_secret_option(&format!("{prefix}.id"), &mut agent.id, redactions);
+        self.project_uri_or_path_option(&format!("{prefix}.url"), &mut agent.url, true, redactions);
+        redact_secret_option(
+            &format!("{prefix}.provider"),
+            &mut agent.provider,
+            redactions,
+        );
+        redact_secret_option(
+            &format!("{prefix}.modelIdentifier"),
+            &mut agent.model_identifier,
+            redactions,
+        );
+
+        for (index, identifier) in agent.identifiers.iter_mut().enumerate() {
+            redact_secret_option(
+                &format!("{prefix}.identifiers[{index}].value"),
+                &mut identifier.value,
+                redactions,
+            );
+        }
     }
 }
 
 fn project_agents<'a>(
     _prefix: &str,
     agents: impl Iterator<Item = &'a mut AgentSnapshot>,
-    home_dir: Option<&Path>,
+    policy: &ProjectionPolicy,
     redactions: &mut Vec<RedactionSnapshot>,
 ) {
     for (index, agent) in agents.enumerate() {
-        project_agent(
-            &format!("attributions[{index}].agent"),
-            agent,
-            home_dir,
-            redactions,
-        );
-    }
-}
-
-fn project_agent(
-    prefix: &str,
-    agent: &mut AgentSnapshot,
-    home_dir: Option<&Path>,
-    redactions: &mut Vec<RedactionSnapshot>,
-) {
-    project_text_option(
-        &format!("{prefix}.name"),
-        &mut agent.name,
-        home_dir,
-        redactions,
-    );
-    redact_secret_option(&format!("{prefix}.id"), &mut agent.id, redactions);
-    redact_secret_option(&format!("{prefix}.url"), &mut agent.url, redactions);
-    redact_secret_option(
-        &format!("{prefix}.provider"),
-        &mut agent.provider,
-        redactions,
-    );
-    redact_secret_option(
-        &format!("{prefix}.modelIdentifier"),
-        &mut agent.model_identifier,
-        redactions,
-    );
-
-    for (index, identifier) in agent.identifiers.iter_mut().enumerate() {
-        redact_secret_option(
-            &format!("{prefix}.identifiers[{index}].value"),
-            &mut identifier.value,
-            redactions,
-        );
+        policy.project_agent(&format!("attributions[{index}].agent"), agent, redactions);
     }
 }
 
@@ -996,6 +983,64 @@ fn public_url(value: &str) -> bool {
     true
 }
 
+fn public_web_url(value: &str) -> bool {
+    if !public_url(value) {
+        return false;
+    }
+
+    let Ok(url) = url::Url::parse(value) else {
+        return false;
+    };
+
+    url.host_str().is_some_and(|host| !private_url_host(host))
+}
+
+fn private_url_host(host: &str) -> bool {
+    let host = host.trim_end_matches('.').to_ascii_lowercase();
+    let labels = host.rsplit('.').collect::<Vec<_>>();
+    if labels.len() <= 1
+        || labels.first().is_some_and(|label| {
+            matches!(
+                *label,
+                "localhost"
+                    | "local"
+                    | "internal"
+                    | "corp"
+                    | "lan"
+                    | "home"
+                    | "intranet"
+                    | "test"
+                    | "invalid"
+                    | "example"
+            )
+        })
+    {
+        return true;
+    }
+
+    host.parse::<IpAddr>().is_ok_and(private_ip)
+}
+
+fn private_ip(ip: IpAddr) -> bool {
+    match ip {
+        IpAddr::V4(ip) => {
+            ip.is_private()
+                || ip.is_loopback()
+                || ip.is_link_local()
+                || ip.is_unspecified()
+                || ip.is_broadcast()
+                || ip.is_documentation()
+        }
+        IpAddr::V6(ip) => {
+            let first = ip.segments()[0];
+            ip.is_loopback()
+                || ip.is_unspecified()
+                || (first & 0xfe00) == 0xfc00
+                || (first & 0xffc0) == 0xfe80
+        }
+    }
+}
+
 fn is_probable_url(value: &str) -> bool {
     value.contains("://") || value.starts_with("git@")
 }
@@ -1125,6 +1170,37 @@ mod tests {
 
         let projected = policy.project_snapshot(snapshot);
         assert!(projected.source.expect("source").repository.is_none());
+    }
+
+    #[test]
+    fn public_profile_redacts_absolute_paths_and_private_agent_urls() {
+        let policy = ProjectionPolicy::with_roots(
+            CredentialProfile::Public,
+            Some(PathBuf::from("/workspace/project")),
+            None,
+        );
+        let snapshot = ProvenanceSnapshot {
+            executed_node: Some(DocumentSnapshot {
+                node_type: "CodeChunk".to_string(),
+                node_path: Some("/srv/private/project/article.smd#chunk-1".to_string()),
+                content_url: Some("http://localhost:8000/output.png".to_string()),
+                ..Default::default()
+            }),
+            attributions: vec![AttributionSnapshot {
+                agent: AgentSnapshot {
+                    url: Some("http://10.0.0.5/agent/profile".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }],
+            ..Default::default()
+        };
+
+        let projected = policy.project_snapshot(snapshot);
+        let node = projected.executed_node.expect("executed node");
+        assert!(node.node_path.is_none());
+        assert!(node.content_url.is_none());
+        assert!(projected.attributions[0].agent.url.is_none());
     }
 
     #[test]

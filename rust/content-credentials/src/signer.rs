@@ -44,8 +44,7 @@ impl CredentialSignerConfig {
     /// default local signing identity location.
     ///
     /// Precedence: explicit overrides → environment variables → local signing
-    /// identity in the Stencila config directory → legacy dev cert in the
-    /// config directory → [`Error::NoSignerConfigured`].
+    /// identity in the Stencila config directory → [`Error::NoSignerConfigured`].
     ///
     /// # Errors
     ///

@@ -1,5 +1,7 @@
 //! `stencila credentials` subcommand.
 
+use std::{env, fs, path::PathBuf};
+
 use clap::{Parser, Subcommand};
 use eyre::Result;
 use stencila_cli_utils::color_print::cstr;
@@ -9,6 +11,8 @@ mod inspect;
 mod sign;
 mod trust;
 mod verify;
+
+const ENV_TRUST_ANCHORS: &str = "STENCILA_CREDENTIALS_TRUST_ANCHORS";
 
 /// Manage and inspect Stencila C2PA Content Credentials
 #[derive(Debug, Parser)]
@@ -76,4 +80,17 @@ impl Cli {
             Command::Trust(cmd) => cmd.run().await,
         }
     }
+}
+
+async fn resolve_trust_anchors(path: Option<PathBuf>) -> Result<Option<String>> {
+    let path = match path {
+        Some(path) => Some(path),
+        None => env::var_os(ENV_TRUST_ANCHORS).map(PathBuf::from),
+    };
+
+    if let Some(path) = path {
+        return Ok(Some(fs::read_to_string(path)?));
+    }
+
+    Ok(crate::trust::official_trust_anchors_best_effort().await?)
 }

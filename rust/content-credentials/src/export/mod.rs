@@ -333,10 +333,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
 }
 
 fn manifest_kind_label(kind: ManifestKind) -> &'static str {
-    match kind {
-        ManifestKind::Embedded => "embedded",
-        ManifestKind::Sidecar => "sidecar",
-    }
+    kind.label()
 }
 
 /// Copy signing results back onto the original encoded asset record.

@@ -222,7 +222,7 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
     let asset_binding = read_asset_binding(&reader);
 
     let (provenance, provenance_problem) = active
-        .map(|manifest| read_provenance(manifest, signature_valid))
+        .map(|manifest| read_provenance(manifest, signature_valid, asset_binding.valid))
         .unwrap_or_default();
 
     let mut problems = collect_problems(&reader);
@@ -256,21 +256,23 @@ pub(crate) fn is_sidecar_path(path: &Path) -> bool {
 fn read_provenance(
     manifest: &Manifest,
     signature_valid: bool,
+    asset_binding_valid: bool,
 ) -> (ProvenanceStatus, Option<String>) {
     // Try to find the assertion as an opaque JSON value first so we can
     // report unknown-schema cases without losing the payload.
     let raw_value: Option<Value> = manifest.find_assertion::<Value>(PROVENANCE_LABEL).ok();
-    parse_provenance(raw_value, signature_valid)
+    parse_provenance(raw_value, signature_valid, asset_binding_valid)
 }
 
 fn parse_provenance(
     raw_value: Option<Value>,
     signature_valid: bool,
+    asset_binding_valid: bool,
 ) -> (ProvenanceStatus, Option<String>) {
     let assertion_present = raw_value.is_some();
     let mut status = ProvenanceStatus {
         assertion_present,
-        attested: assertion_present && signature_valid,
+        attested: assertion_present && signature_valid && asset_binding_valid,
         schema_url: None,
         schema_known: false,
         assertion: None,
@@ -481,7 +483,7 @@ mod tests {
     /// Ensures missing Stencila provenance assertions produce an unattested status cleanly.
     #[test]
     fn parse_provenance_none() {
-        let (status, problem) = parse_provenance(None, true);
+        let (status, problem) = parse_provenance(None, true, true);
         assert!(!status.assertion_present);
         assert!(!status.attested);
         assert!(status.schema_url.is_none());
@@ -499,7 +501,7 @@ mod tests {
             "producer": { "name": "Stencila", "version": "9.9.9" },
             "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
         });
-        let (status, problem) = parse_provenance(Some(raw.clone()), true);
+        let (status, problem) = parse_provenance(Some(raw.clone()), true, true);
         assert!(status.assertion_present);
         assert!(status.attested);
         assert_eq!(
@@ -519,7 +521,7 @@ mod tests {
             "schema": PROVENANCE_SCHEMA,
             "asset": { "mediaType": 42, "digest": "sha256:abc" },
         });
-        let (status, problem) = parse_provenance(Some(raw), true);
+        let (status, problem) = parse_provenance(Some(raw), true, true);
         assert!(status.assertion_present);
         assert!(status.attested);
         assert!(status.schema_known);
@@ -536,7 +538,21 @@ mod tests {
     fn parse_provenance_requires_valid_signature_for_attestation() {
         let raw = serde_json::to_value(ProvenanceAssertion::new_v1("image/png", "sha256:abc"))
             .expect("serialize");
-        let (status, problem) = parse_provenance(Some(raw), false);
+        let (status, problem) = parse_provenance(Some(raw), false, true);
+
+        assert!(status.assertion_present);
+        assert!(!status.attested);
+        assert!(status.schema_known);
+        assert!(status.assertion.is_some());
+        assert!(problem.is_none());
+    }
+
+    /// Ensures an assertion is not reported as attested unless the asset binding is valid.
+    #[test]
+    fn parse_provenance_requires_valid_asset_binding_for_attestation() {
+        let raw = serde_json::to_value(ProvenanceAssertion::new_v1("image/png", "sha256:abc"))
+            .expect("serialize");
+        let (status, problem) = parse_provenance(Some(raw), true, false);
 
         assert!(status.assertion_present);
         assert!(!status.attested);

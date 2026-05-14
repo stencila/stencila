@@ -13,7 +13,7 @@ use crate::signer;
 /// third-party verifiers; use it for local and internal workflows only.
 #[derive(Debug, Args)]
 pub struct Cli {
-    /// Overwrite an existing dev cert and key.
+    /// Overwrite an existing local signing identity.
     #[arg(long)]
     force: bool,
 }

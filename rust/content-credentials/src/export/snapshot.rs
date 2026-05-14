@@ -24,9 +24,10 @@ use super::{
 /// Build a provenance snapshot for an asset emitted by a codec export.
 ///
 /// Export signing has to bridge two domains: Stencila document structure and the
-/// exact bytes C2PA binds to a manifest. This projection keeps those facts
-/// separate so document exports, executable outputs, and plain media renditions
-/// can all share the same assertion schema without overstating what happened.
+/// source bytes represented by a manifest. The C2PA hard binding validates the
+/// final signed asset bytes; this projection keeps those facts separate so
+/// document exports, executable outputs, and plain media renditions can all share
+/// the same assertion schema without overstating what happened.
 pub(super) fn build_export_snapshot(
     root: &Node,
     subject: &Node,

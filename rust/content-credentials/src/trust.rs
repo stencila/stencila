@@ -8,10 +8,12 @@ use std::{
 
 use chrono::{DateTime, Duration as ChronoDuration, Utc};
 use serde::{Deserialize, Serialize};
-use sha2::{Digest, Sha256};
 use stencila_dirs::{DirType, get_app_dir};
 
-use crate::error::{Error, Result};
+use crate::{
+    error::{Error, Result},
+    media,
+};
 
 /// Official C2PA trust-list PEM URL.
 pub const OFFICIAL_TRUST_LIST_URL: &str = "https://raw.githubusercontent.com/c2pa-org/conformance-public/refs/heads/main/trust-list/C2PA-TRUST-LIST.pem";
@@ -125,7 +127,7 @@ pub async fn refresh_official_trust_list() -> Result<TrustListStatus> {
     let meta = TrustListMeta {
         url: OFFICIAL_TRUST_LIST_URL.to_string(),
         fetched_at: Utc::now(),
-        sha256: sha256_bytes(pem.as_bytes()),
+        sha256: media::sha256_bytes(pem.as_bytes()),
         ttl_seconds: TRUST_LIST_TTL_SECONDS,
     };
     fs::write(&meta_path, serde_json::to_vec_pretty(&meta)?)?;
@@ -167,7 +169,7 @@ fn status_in(dir: &Path, meta_errors_fatal: bool) -> Result<TrustListStatus> {
     let present = path.exists();
 
     let actual_sha256 = if present {
-        Some(sha256_bytes(&fs::read(&path)?))
+        Some(media::sha256_bytes(&fs::read(&path)?))
     } else {
         None
     };
@@ -234,29 +236,13 @@ fn trust_list_meta_path_in(dir: &Path) -> PathBuf {
     dir.join(TRUST_LIST_META_FILENAME)
 }
 
-fn lower_hex(bytes: &[u8]) -> String {
-    const CHARS: &[u8; 16] = b"0123456789abcdef";
-
-    let mut hex = String::with_capacity(bytes.len() * 2);
-    for &byte in bytes {
-        hex.push(char::from(CHARS[usize::from(byte >> 4)]));
-        hex.push(char::from(CHARS[usize::from(byte & 0x0f)]));
-    }
-    hex
-}
-
-fn sha256_bytes(bytes: &[u8]) -> String {
-    let digest = Sha256::digest(bytes);
-    format!("sha256:{}", lower_hex(&digest))
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
 
     #[test]
     fn sha256_bytes_has_prefix() {
-        assert!(sha256_bytes(b"abc").starts_with("sha256:"));
+        assert!(media::sha256_bytes(b"abc").starts_with("sha256:"));
     }
 
     #[test]

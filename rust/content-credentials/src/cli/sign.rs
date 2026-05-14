@@ -77,15 +77,12 @@ impl From<&SignedAsset> for SignReport {
     fn from(signed: &SignedAsset) -> Self {
         Self {
             path: signed.asset_path.clone(),
-            manifest_kind: match signed.manifest_kind {
-                ManifestKind::Embedded => "embedded",
-                ManifestKind::Sidecar => "sidecar",
-            },
+            manifest_kind: signed.manifest_kind.label(),
             manifest_id: signed.manifest_id.clone(),
             sidecar_path: signed.sidecar_path.clone(),
             side_assets: signed.sidecar_path.iter().cloned().collect(),
             warnings: signed.warnings.clone(),
-            profile: profile_label(signed.credential_profile),
+            profile: signed.credential_profile.label(),
             assertion_label: signed.assertion_label,
             assertion_schema: signed.assertion_schema,
             media_type: signed.media_type.clone(),
@@ -144,10 +141,7 @@ fn print_human_summary(signed_asset: &SignedAsset) {
     if let Some(manifest_id) = &signed_asset.manifest_id {
         message!("   Manifest ID: `{}`", manifest_id);
     }
-    message!(
-        "   Profile:  `{}`",
-        profile_label(signed_asset.credential_profile)
-    );
+    message!("   Profile:  `{}`", signed_asset.credential_profile.label());
     message!("   Assertion: `{}`", signed_asset.assertion_label);
     message!("   Schema:    `{}`", signed_asset.assertion_schema);
     message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);
@@ -156,13 +150,5 @@ fn print_human_summary(signed_asset: &SignedAsset) {
     }
     for warning in &signed_asset.warnings {
         message!("   Warning: {}", warning);
-    }
-}
-
-fn profile_label(profile: crate::policy::CredentialProfile) -> &'static str {
-    match profile {
-        crate::policy::CredentialProfile::Public => "public",
-        crate::policy::CredentialProfile::Private => "private",
-        crate::policy::CredentialProfile::Full => "full",
     }
 }

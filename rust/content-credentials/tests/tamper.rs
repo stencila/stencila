@@ -67,6 +67,10 @@ async fn tamper_breaks_binding() {
         report.signature.valid,
         "asset tampering should not be reported as a signature failure: {report:?}"
     );
+    assert!(
+        !report.provenance.attested,
+        "tampered asset bytes should not be reported as attested provenance: {report:?}"
+    );
 }
 
 fn fixture_path() -> PathBuf {

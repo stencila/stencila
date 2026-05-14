@@ -35,6 +35,16 @@ pub enum ManifestKind {
     Sidecar,
 }
 
+impl ManifestKind {
+    #[must_use]
+    pub const fn label(self) -> &'static str {
+        match self {
+            Self::Embedded => "embedded",
+            Self::Sidecar => "sidecar",
+        }
+    }
+}
+
 /// Inputs for signing an exported asset.
 #[derive(Debug, Clone, Default)]
 pub struct SignAssetRequest {
@@ -949,16 +959,7 @@ fn attach_ingredient_with_manifest(
     let mut file = File::open(manifest_source)?;
     let ingredient = builder.add_ingredient_from_stream(seed.to_string(), &format, &mut file)?;
 
-    ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
-    if let Some(hash) = &snapshot.content_digest {
-        ingredient.set_hash(hash.clone());
-    }
-    if let Some(uri) = &snapshot.informational_uri {
-        ingredient.set_informational_uri(uri.clone());
-    }
-    if let Some(description) = &snapshot.description {
-        ingredient.set_description(description.clone());
-    }
+    apply_ingredient_metadata(ingredient, snapshot);
 
     Ok(())
 }
@@ -971,16 +972,7 @@ fn attach_ingredient_from_asset_file(
 ) -> Result<()> {
     let mut ingredient = build_ingredient_from_asset_file(snapshot, index, manifest_source)?;
 
-    ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
-    if let Some(hash) = &snapshot.content_digest {
-        ingredient.set_hash(hash.clone());
-    }
-    if let Some(uri) = &snapshot.informational_uri {
-        ingredient.set_informational_uri(uri.clone());
-    }
-    if let Some(description) = &snapshot.description {
-        ingredient.set_description(description.clone());
-    }
+    apply_ingredient_metadata(&mut ingredient, snapshot);
 
     builder.add_ingredient(ingredient);
     Ok(())
@@ -1115,6 +1107,11 @@ fn build_ingredient(snapshot: &IngredientSnapshot, index: usize) -> Result<Ingre
     });
 
     let mut ingredient = Ingredient::from_json(&seed.to_string())?;
+    apply_ingredient_metadata(&mut ingredient, snapshot);
+    Ok(ingredient)
+}
+
+fn apply_ingredient_metadata(ingredient: &mut Ingredient, snapshot: &IngredientSnapshot) {
     ingredient.set_relationship(snapshot_relationship(snapshot.relationship));
     if let Some(hash) = &snapshot.content_digest {
         ingredient.set_hash(hash.clone());
@@ -1125,7 +1122,6 @@ fn build_ingredient(snapshot: &IngredientSnapshot, index: usize) -> Result<Ingre
     if let Some(description) = &snapshot.description {
         ingredient.set_description(description.clone());
     }
-    Ok(ingredient)
 }
 
 fn snapshot_relationship(relationship: IngredientRelationship) -> Relationship {

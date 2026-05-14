@@ -54,7 +54,7 @@
       ]
     },
     "asset": {
-      "description": "The signed C2PA asset entity.\n\nThis record describes the exact bytes that C2PA binds to the manifest\nbefore signing. Keeping it separate from `outputNode` matters because the\nsame Stencila node may be exported to several assets, and an asset can be\na rendition of a larger document rather than a node itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#asset",
+      "description": "The source asset entity represented by the signed C2PA manifest.\n\nThis record describes the asset bytes before Content Credentials are added\nor normalized by the C2PA SDK. The C2PA hard-binding assertions remain the\nauthoritative check for the final signed asset bytes. Keeping this record\nseparate from `outputNode` matters because the same Stencila node may be\nexported to several assets, and an asset can be a rendition of a larger\ndocument rather than a node itself.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion#asset",
       "allOf": [
         {
           "$ref": "#/definitions/AssetRecord"
@@ -331,7 +331,7 @@
       ]
     },
     "AssetRecord": {
-      "description": "Facts about the signed asset entity.\n\nThe asset record is deliberately byte-oriented: C2PA binds the manifest to\nasset bytes, so this record stores media type, size, dimensions, and a digest\nof the pre-signing content rather than a full Stencila node.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record",
+      "description": "Facts about the source asset entity.\n\nThe asset record is deliberately byte-oriented, but it is not a duplicate of\nC2PA's own hard-binding assertions. It stores media type, size, dimensions,\nand a digest of the pre-credential content so Stencila-aware consumers can\nidentify the source rendition without embedding a full Stencila node.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record",
       "type": "object",
       "properties": {
         "id": {
@@ -357,7 +357,7 @@
           "type": "string"
         },
         "contentDigest": {
-          "description": "Digest of the pre-signing asset bytes.\n\nThe value should use `algorithm:hex` form, for example `sha256:...`.\nKeeping the algorithm in the value avoids baking `sha256` into every\nfield name and leaves room for future digest algorithms.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#content-digest",
+          "description": "Digest of the pre-credential asset bytes.\n\nThe value should use `algorithm:hex` form, for example `sha256:...`.\nKeeping the algorithm in the value avoids baking `sha256` into every\nfield name and leaves room for future digest algorithms. This digest is\ndistinct from the C2PA hard binding, which validates the final signed asset\nbytes and detects post-signing tampering.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#content-digest",
           "type": "string"
         },
         "label": {

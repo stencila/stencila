@@ -17,7 +17,7 @@ This reference is generated from the Rust wire schema used for the `org.stencila
 | [`rootNode`](#root-node) | [`NodeRecord`](node-record) | Yes | Root Stencila document node containing the signed node. |
 | [`executedNode`](#executed-node) | [`NodeRecord`](node-record) | No | Stencila node that was executed to produce `outputNode`. |
 | [`outputNode`](#output-node) | [`NodeRecord`](node-record) | No | Stencila output node represented by the signed asset. |
-| [`asset`](#asset) | [`AssetRecord`](asset-record) | Yes | The signed C2PA asset entity. |
+| [`asset`](#asset) | [`AssetRecord`](asset-record) | Yes | The source asset entity represented by the signed C2PA manifest. |
 | [`activities`](#activities) | array<[`ActivityRecord`](activity-record)> | No | Activities that generated, exported, or signed the asset. |
 | [`attributions`](#attributions) | array<[`AttributionRecord`](attribution-record)> | No | Role-bearing attribution projected from Stencila authorship. |
 | [`source`](#source) | [`SourceRecord`](source-record) | No | Source-control facts for the document or project. |
@@ -95,12 +95,14 @@ structure, while `asset` is the signed byte rendition.
 
 ### `asset`
 
-The signed C2PA asset entity.
+The source asset entity represented by the signed C2PA manifest.
 
-This record describes the exact bytes that C2PA binds to the manifest
-before signing. Keeping it separate from `outputNode` matters because the
-same Stencila node may be exported to several assets, and an asset can be
-a rendition of a larger document rather than a node itself.
+This record describes the asset bytes before Content Credentials are added
+or normalized by the C2PA SDK. The C2PA hard-binding assertions remain the
+authoritative check for the final signed asset bytes. Keeping this record
+separate from `outputNode` matters because the same Stencila node may be
+exported to several assets, and an asset can be a rendition of a larger
+document rather than a node itself.
 
 **Type:** [`AssetRecord`](asset-record) | **Required:** Yes
 
@@ -229,7 +231,7 @@ such as "contains no secrets" unless an assessment actually ran.
 | [`ProducerRecord`](producer-record) | Producer metadata embedded in the assertion. |
 | [`NodeRecord`](node-record) | Facts about a Stencila node related to the signed asset. |
 | [`SourceRangeRecord`](source-range-record) | Range coordinates in the source document. |
-| [`AssetRecord`](asset-record) | Facts about the signed asset entity. |
+| [`AssetRecord`](asset-record) | Facts about the source asset entity. |
 | [`ActivityRecord`](activity-record) | Activity that generated, exported, or signed the asset. |
 | [`AttributionRecord`](attribution-record) | Role-bearing attribution for an agent. |
 | [`AgentRecord`](agent-record) | Agent participating in provenance. |

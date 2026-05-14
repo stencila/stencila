@@ -1,4 +1,4 @@
-//! End-to-end sign → verify on a real PNG using a freshly-generated dev cert.
+//! End-to-end sign → verify on a real PNG using a freshly-generated local signing identity.
 
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -14,7 +14,7 @@ use tempfile::TempDir;
 
 mod common;
 
-/// Exercises the embedded-manifest path by signing and verifying a PNG with a dev certificate.
+/// Exercises the embedded-manifest path by signing and verifying a PNG with a local identity.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn sign_then_verify_png() {
     let _guard = common::set_isolated_config_dir();

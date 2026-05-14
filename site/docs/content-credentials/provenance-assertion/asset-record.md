@@ -1,15 +1,16 @@
 ---
 title: "Asset Record"
-description: "Facts about the signed asset entity."
+description: "Facts about the source asset entity."
 ---
 
 # Asset Record
 
-Facts about the signed asset entity.
+Facts about the source asset entity.
 
-The asset record is deliberately byte-oriented: C2PA binds the manifest to
-asset bytes, so this record stores media type, size, dimensions, and a digest
-of the pre-signing content rather than a full Stencila node.
+The asset record is deliberately byte-oriented, but it is not a duplicate of
+C2PA's own hard-binding assertions. It stores media type, size, dimensions,
+and a digest of the pre-credential content so Stencila-aware consumers can
+identify the source rendition without embedding a full Stencila node.
 
 ## Fields
 
@@ -19,7 +20,7 @@ of the pre-signing content rather than a full Stencila node.
 | [`assetType`](#asset-type) | `string` | Yes | Stencila or C2PA-facing asset type. |
 | [`role`](#role) | `string` | No | Asset role in the Stencila export context. |
 | [`mediaType`](#media-type) | `string` | Yes | IANA media type for the asset bytes. |
-| [`contentDigest`](#content-digest) | `string` | Yes | Digest of the pre-signing asset bytes. |
+| [`contentDigest`](#content-digest) | `string` | Yes | Digest of the pre-credential asset bytes. |
 | [`label`](#label) | `string` | No | Stencila label associated with the asset. |
 | [`title`](#title) | `string` | No | Human-readable title for the asset. |
 | [`size`](#size) | `integer` | No | Asset byte length before signing. |
@@ -69,11 +70,13 @@ extension or URL.
 
 ### `contentDigest`
 
-Digest of the pre-signing asset bytes.
+Digest of the pre-credential asset bytes.
 
 The value should use `algorithm:hex` form, for example `sha256:...`.
 Keeping the algorithm in the value avoids baking `sha256` into every
-field name and leaves room for future digest algorithms.
+field name and leaves room for future digest algorithms. This digest is
+distinct from the C2PA hard binding, which validates the final signed asset
+bytes and detects post-signing tampering.
 
 **Type:** `string` | **Required:** Yes
 

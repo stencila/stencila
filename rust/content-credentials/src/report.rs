@@ -36,8 +36,8 @@ pub struct VerificationReport {
     /// Stencila `org.stencila.provenance` assertion presence and parse state.
     ///
     /// Records whether the assertion exists in the active manifest, whether
-    /// it is covered by a valid claim signature, the declared schema URL,
-    /// and the parsed payload when this build understands the schema.
+    /// it is covered by a valid claim signature and asset binding, the declared
+    /// schema URL, and the parsed payload when this build understands the schema.
     pub provenance: ProvenanceStatus,
 
     /// Reproducibility verification status.
@@ -283,7 +283,8 @@ pub struct ProvenanceStatus {
     /// Stencila assertion is present in the active manifest.
     pub assertion_present: bool,
 
-    /// Stencila assertion is present and covered by a valid claim signature.
+    /// Stencila assertion is present and covered by a valid claim signature
+    /// whose hard binding still matches the asset bytes.
     pub attested: bool,
 
     /// Schema URL declared in the assertion payload, if any.
@@ -370,8 +371,12 @@ impl Display for VerificationReport {
                 Some(url) => format!("yes  (schema unknown: {url})"),
                 None => "yes".to_string(),
             }
-        } else if self.provenance.assertion_present {
+        } else if self.provenance.assertion_present && !self.signature.valid {
             "no   (assertion present, claim signature invalid)".to_string()
+        } else if self.provenance.assertion_present && !self.asset_binding.valid {
+            "no   (assertion present, asset binding invalid)".to_string()
+        } else if self.provenance.assertion_present {
+            "no   (assertion present, not attested)".to_string()
         } else {
             "no   (assertion not present)".to_string()
         };
@@ -495,6 +500,19 @@ mod tests {
         let rendered = report.to_string();
         assert!(rendered.contains(
             "Stencila provenance attested:    no   (assertion present, claim signature invalid)"
+        ));
+    }
+
+    /// Ensures asset-binding failures are not displayed as attested provenance.
+    #[test]
+    fn display_assertion_present_but_asset_binding_invalid() {
+        let mut report = base_report();
+        report.asset_binding.valid = false;
+        report.provenance.attested = false;
+
+        let rendered = report.to_string();
+        assert!(rendered.contains(
+            "Stencila provenance attested:    no   (assertion present, asset binding invalid)"
         ));
     }
 

@@ -2,8 +2,8 @@
 
 This crate wraps the CAI `c2pa` Rust SDK to sign and verify assets with a
 Stencila custom assertion, `org.stencila.provenance`. It currently exposes the
-manual `stencila credentials ...` CLI path and the Rust producer/verifier APIs.
-Render and export integration through codec `EncodeOptions` is a later slice.
+manual `stencila credentials ...` CLI path, Rust producer/verifier APIs, and
+export-time signing through codec `EncodeOptions`.
 
 ## Current Scope
 
@@ -13,6 +13,8 @@ Render and export integration through codec `EncodeOptions` is a later slice.
 - Verify embedded and sidecar manifests from Stencila and other producers.
 - Report the four separate status axes from the design: manifest validity,
   signer trust, Stencila provenance attestation, and reproducibility status.
+- Sign codec exports and extracted side assets when `EncodeOptions.credentials`
+  is set, including source and ingredient provenance where available.
 - Generate local self-signed signing credentials that are visibly untrusted
   outside local or internal workflows.
 

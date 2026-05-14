@@ -1,14 +1,14 @@
 //! `stencila credentials inspect` — print the full C2PA manifest.
 
-use std::{env, fs, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::Args;
 use eyre::Result;
 use stencila_cli_utils::{AsFormat, Code, ToStdout};
 
-use crate::{trust, verifier::CredentialVerifier};
+use crate::verifier::CredentialVerifier;
 
-const ENV_TRUST_ANCHORS: &str = "STENCILA_CREDENTIALS_TRUST_ANCHORS";
+use super::resolve_trust_anchors;
 
 /// Print the full C2PA manifest data attached to an asset.
 #[derive(Debug, Args)]
@@ -35,17 +35,4 @@ impl Cli {
         Code::new_from(self.r#as.into(), &value)?.to_stdout();
         Ok(())
     }
-}
-
-async fn resolve_trust_anchors(path: Option<PathBuf>) -> Result<Option<String>> {
-    let path = match path {
-        Some(path) => Some(path),
-        None => env::var_os(ENV_TRUST_ANCHORS).map(PathBuf::from),
-    };
-
-    if let Some(path) = path {
-        return Ok(Some(fs::read_to_string(path)?));
-    }
-
-    Ok(trust::official_trust_anchors_best_effort().await?)
 }

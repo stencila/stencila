@@ -1,6 +1,6 @@
 //! `stencila credentials verify` — verify a signed asset.
 
-use std::{env, fs, path::PathBuf};
+use std::path::PathBuf;
 
 use clap::{Args, ValueEnum};
 use eyre::{Result, bail};
@@ -11,11 +11,10 @@ use stencila_cli_utils::{
 
 use crate::{
     report::{ReproducibilityStatus, VerificationReport},
-    trust,
     verifier::{self, CredentialVerifier, VerifyAssetRequest},
 };
 
-const ENV_TRUST_ANCHORS: &str = "STENCILA_CREDENTIALS_TRUST_ANCHORS";
+use super::resolve_trust_anchors;
 
 /// Verify the C2PA Content Credentials on an asset.
 #[derive(Debug, Args)]
@@ -92,19 +91,6 @@ impl Cli {
 
         Ok(())
     }
-}
-
-async fn resolve_trust_anchors(path: Option<PathBuf>) -> Result<Option<String>> {
-    let path = match path {
-        Some(path) => Some(path),
-        None => env::var_os(ENV_TRUST_ANCHORS).map(PathBuf::from),
-    };
-
-    if let Some(path) = path {
-        return Ok(Some(fs::read_to_string(path)?));
-    }
-
-    Ok(trust::official_trust_anchors_best_effort().await?)
 }
 
 fn print_report(report: &VerificationReport) {
@@ -244,8 +230,12 @@ fn provenance_details(report: &VerificationReport) -> Cell {
             Some(url) => Cell::new(format!("schema unknown: {url}")).fg(Color::Yellow),
             None => Cell::new(""),
         }
-    } else if report.provenance.assertion_present {
+    } else if report.provenance.assertion_present && !report.signature.valid {
         Cell::new("assertion present, claim signature invalid")
+    } else if report.provenance.assertion_present && !report.asset_binding.valid {
+        Cell::new("assertion present, asset binding invalid")
+    } else if report.provenance.assertion_present {
+        Cell::new("assertion present, not attested")
     } else {
         Cell::new("assertion not present")
     }
