@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use eyre::{OptionExt, Result, bail};
+use eyre::{bail, OptionExt, Result};
 use reqwest::Url;
 use sha2::{Digest, Sha256};
 
@@ -233,6 +233,117 @@ pub fn git_patch_digest(repo_root: &Path, relative_path: &str) -> Option<String>
     let mut hasher = Sha256::new();
     hasher.update(&output.stdout);
     Some(format!("sha256:{}", lower_hex(&hasher.finalize())))
+}
+
+/// Get the author date of the first commit that added a tracked file.
+///
+/// This returns Git's best-effort answer for when a file first appeared in the
+/// repository history, not a filesystem creation time. The timestamp is the
+/// commit author date emitted by `git log --format=%aI`, so it is a strict ISO
+/// 8601 / RFC 3339-style string including its UTC offset.
+///
+/// The lookup follows simple renames with `git log --follow`, asks Git for the
+/// first add commit with `--diff-filter=A --reverse`, and returns the first
+/// non-empty timestamp. As with all `--follow` history, complex rename, copy,
+/// merge, and path-rewrite histories are only handled as well as Git can infer
+/// them.
+///
+/// Returns `None` when:
+///
+/// - `git` is unavailable
+/// - `path` cannot be canonicalized or is outside a Git repository
+/// - `path` is untracked or has no add commit in the reachable history
+/// - the Git command fails or emits no timestamp
+#[must_use]
+pub fn git_file_first_committed_at(path: &Path) -> Option<String> {
+    git_file_author_date(path, GitFileDate::FirstCommitted)
+}
+
+/// Get the author date of the most recent commit that changed a tracked file.
+///
+/// This returns the author date for the latest reachable commit touching `path`,
+/// using `git log -1 --format=%aI -- <path>`. The timestamp is a strict ISO
+/// 8601 / RFC 3339-style string including its UTC offset. It is a Git commit
+/// author date, not a filesystem modification time.
+///
+/// Unlike [`git_file_first_committed_at`], this does not use `--follow`;
+/// callers asking for the current path usually want the most recent change to
+/// that path name. For files with uncommitted changes, the result still refers
+/// to the latest committed version; callers should combine this with dirty state
+/// checks when that distinction matters.
+///
+/// Returns `None` when:
+///
+/// - `git` is unavailable
+/// - `path` cannot be canonicalized or is outside a Git repository
+/// - `path` is untracked or has no commit in the reachable history
+/// - the Git command fails or emits no timestamp
+#[must_use]
+pub fn git_file_last_committed_at(path: &Path) -> Option<String> {
+    git_file_author_date(path, GitFileDate::LastCommitted)
+}
+
+enum GitFileDate {
+    FirstCommitted,
+    LastCommitted,
+}
+
+fn git_file_author_date(path: &Path, date: GitFileDate) -> Option<String> {
+    if !git_available() {
+        return None;
+    }
+
+    let path = path.canonicalize().ok()?;
+    let repo_root = closest_git_repo(&path).ok()?;
+    let relative_path = path.strip_prefix(&repo_root).ok()?.to_str()?;
+
+    let tracked = Command::new("git")
+        .arg("-C")
+        .arg(&repo_root)
+        .args(["ls-files", "--error-unmatch", "--"])
+        .arg(relative_path)
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .ok()?
+        .success();
+    if !tracked {
+        return None;
+    }
+
+    let mut command = Command::new("git");
+    command
+        .arg("-C")
+        .arg(repo_root)
+        .args(["log", "--format=%aI"]);
+
+    match date {
+        GitFileDate::FirstCommitted => {
+            command.args(["--follow", "--diff-filter=A", "--reverse"]);
+        }
+        GitFileDate::LastCommitted => {
+            command.arg("-1");
+        }
+    }
+
+    let output = command
+        .args(["--"])
+        .arg(relative_path)
+        .stderr(Stdio::null())
+        .output()
+        .ok()?;
+
+    if !output.status.success() {
+        return None;
+    }
+
+    String::from_utf8(output.stdout)
+        .ok()?
+        .lines()
+        .find_map(|line| {
+            let timestamp = line.trim();
+            (!timestamp.is_empty()).then(|| timestamp.to_string())
+        })
 }
 
 /// Get the path of the closest Git repository to a path
@@ -793,6 +904,28 @@ pub fn slugify_branch_name(branch_name: &str) -> String {
 mod tests {
     use super::*;
 
+    fn run_git(repo: &Path, args: &[&str]) {
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(args)
+            .status()
+            .expect("run git");
+        assert!(status.success(), "git command failed: {args:?}");
+    }
+
+    fn run_git_with_dates(repo: &Path, args: &[&str], date: &str) {
+        let status = Command::new("git")
+            .arg("-C")
+            .arg(repo)
+            .args(args)
+            .env("GIT_AUTHOR_DATE", date)
+            .env("GIT_COMMITTER_DATE", date)
+            .status()
+            .expect("run git");
+        assert!(status.success(), "git command failed: {args:?}");
+    }
+
     #[test]
     fn test_normalize_git_url() {
         // HTTPS URLs
@@ -1083,6 +1216,61 @@ mod tests {
         // Same edit should produce a deterministic digest
         let digest2 = git_patch_digest(repo, "a.txt").expect("digest re-read");
         assert_eq!(digest, digest2);
+    }
+
+    #[test]
+    fn test_git_file_committed_at_dates() {
+        if !git_available() {
+            return;
+        }
+
+        let tmp = tempfile::TempDir::new().expect("tmp");
+        let repo = tmp.path();
+        run_git(repo, &["init", "-q", "-b", "main"]);
+        run_git(repo, &["config", "user.email", "test@example.com"]);
+        run_git(repo, &["config", "user.name", "Test"]);
+        run_git(repo, &["config", "commit.gpgsign", "false"]);
+
+        let path = repo.join("a.txt");
+        std::fs::write(&path, "hello\n").expect("write");
+        run_git(repo, &["add", "a.txt"]);
+        run_git_with_dates(
+            repo,
+            &["commit", "-q", "-m", "add a"],
+            "2020-01-02T03:04:05+00:00",
+        );
+
+        std::fs::write(&path, "edited\n").expect("edit");
+        run_git(repo, &["add", "a.txt"]);
+        run_git_with_dates(
+            repo,
+            &["commit", "-q", "-m", "edit a"],
+            "2021-02-03T04:05:06+00:00",
+        );
+
+        assert_eq!(
+            git_file_first_committed_at(&path).as_deref(),
+            Some("2020-01-02T03:04:05+00:00")
+        );
+        assert_eq!(
+            git_file_last_committed_at(&path).as_deref(),
+            Some("2021-02-03T04:05:06+00:00")
+        );
+
+        let untracked = repo.join("untracked.txt");
+        std::fs::write(&untracked, "draft\n").expect("write untracked");
+        assert!(git_file_first_committed_at(&untracked).is_none());
+        assert!(git_file_last_committed_at(&untracked).is_none());
+
+        run_git(repo, &["rm", "-q", "a.txt"]);
+        run_git_with_dates(
+            repo,
+            &["commit", "-q", "-m", "remove a"],
+            "2022-03-04T05:06:07+00:00",
+        );
+        std::fs::write(&path, "new untracked\n").expect("recreate untracked");
+        assert!(git_file_first_committed_at(&path).is_none());
+        assert!(git_file_last_committed_at(&path).is_none());
     }
 
     #[test]

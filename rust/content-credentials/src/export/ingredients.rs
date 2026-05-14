@@ -5,14 +5,21 @@
 //! snapshots and creates temporary signed ingredient manifests when the C2PA
 //! graph needs a concrete manifest to link against.
 
-use std::path::{Path, PathBuf};
+use std::{
+    fs,
+    path::{Path, PathBuf},
+    time::SystemTime,
+};
 
+use chrono::{DateTime, Utc};
+use stencila_codec_utils::{git_file_first_committed_at, git_file_last_committed_at};
 use tempfile::{TempDir, tempdir};
 use tokio::fs::write;
 
 use crate::{
-    CredentialProducer, CredentialProfile, DocumentSnapshot, IngredientRelationship,
-    IngredientSnapshot, ProvenanceSnapshot, Result, SignAssetRequest, media,
+    ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
+    IngredientRelationship, IngredientSnapshot, ProvenanceSnapshot, Result, SignAssetRequest,
+    media,
 };
 
 use super::source::{
@@ -22,9 +29,7 @@ use super::source::{
 
 /// Build the source document ingredient snapshot.
 ///
-/// The source file is the authored input to an export, but it may also become
-/// the parent asset for executable side outputs. Capturing it once lets each
-/// signed asset choose the relationship that best describes its provenance.
+/// The source file is the authored input to a document export.
 pub(super) fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<IngredientSnapshot> {
     let source_path = source_path?;
     if !source_path.is_file() {
@@ -86,7 +91,7 @@ pub(super) async fn source_ingredient_manifest(
             media_type: source_ingredient.and_then(|ingredient| ingredient.media_type.clone()),
             title: source_ingredient.and_then(|ingredient| ingredient.title.clone()),
             credential_profile,
-            ..Default::default()
+            provenance: input_ingredient_provenance(source_created_at(source_path)),
         })
         .await?;
 
@@ -96,12 +101,54 @@ pub(super) async fn source_ingredient_manifest(
     }))
 }
 
+/// Build minimal provenance for input ingredient manifests.
+///
+/// Strict C2PA verifiers expect a manifest action, so input ingredients retain a
+/// `c2pa.created` action even though the export did not create their source
+/// bytes. Supplying the source creation timestamp keeps that required action as
+/// close as possible to the input's own history.
+fn input_ingredient_provenance(created_at: Option<String>) -> Option<ProvenanceSnapshot> {
+    let created_at = created_at?;
+
+    Some(ProvenanceSnapshot {
+        activity: Some(ActivitySnapshot {
+            kind: Some("create".to_string()),
+            started_at: Some(created_at.clone()),
+            ended_at: Some(created_at),
+            ..Default::default()
+        }),
+        ..ProvenanceSnapshot::for_asset(AssetSnapshot::default())
+    })
+}
+
+fn source_created_at(source_path: &Path) -> Option<String> {
+    git_source_created_at(source_path).or_else(|| file_created_at(source_path))
+}
+
+fn git_source_created_at(source_path: &Path) -> Option<String> {
+    git_file_first_committed_at(source_path).or_else(|| git_file_last_committed_at(source_path))
+}
+
+fn file_created_at(path: &Path) -> Option<String> {
+    let metadata = fs::metadata(path).ok()?;
+    metadata
+        .created()
+        .or_else(|_| metadata.modified())
+        .ok()
+        .map(system_time_to_rfc3339)
+}
+
+fn system_time_to_rfc3339(time: SystemTime) -> String {
+    DateTime::<Utc>::from(time).to_rfc3339()
+}
+
 /// Add source and executed-code ingredients to an export provenance snapshot.
 ///
-/// Parent source, input source, and executable code snippets have different C2PA
-/// relationships. Centralizing that logic keeps document exports and side-asset
-/// exports consistent before the producer turns snapshots into standard
-/// ingredient assertions.
+/// Source documents and executable code snippets have different provenance
+/// scope. Document exports declare their source document as an `inputTo`
+/// ingredient. Executable side assets instead declare only the exact code range
+/// that generated the output, so figure manifests do not also point at the wider
+/// document.
 pub(super) async fn add_source_and_executed_ingredients(
     producer: &CredentialProducer,
     provenance: &mut ProvenanceSnapshot,
@@ -112,9 +159,11 @@ pub(super) async fn add_source_and_executed_ingredients(
 ) -> Result<Vec<TemporaryIngredientManifest>> {
     let mut temporary_manifests = Vec::new();
 
-    if let Some(ingredient) = source_ingredient.map(|ingredient| {
-        source_ingredient_for_snapshot(ingredient, provenance, source_manifest_path)
-    }) {
+    if provenance.executed_node.is_none()
+        && let Some(ingredient) = source_ingredient.map(|ingredient| {
+            source_ingredient_for_snapshot(ingredient, provenance, source_manifest_path)
+        })
+    {
         provenance.ingredients.push(ingredient);
     }
 
@@ -137,11 +186,10 @@ pub(super) async fn add_source_and_executed_ingredients(
     Ok(temporary_manifests)
 }
 
-/// Adjust a source ingredient for a specific signed asset snapshot.
+/// Adjust a source ingredient for a document export snapshot.
 ///
-/// A document source is a direct input for primary exports, but it is the parent
-/// of assets derived from executed nodes. This function also prefers the document
-/// title for display so ingredient lists are meaningful to reviewers.
+/// This prefers the document title for display so ingredient lists are
+/// meaningful to reviewers.
 fn source_ingredient_for_snapshot(
     mut ingredient: IngredientSnapshot,
     provenance: &ProvenanceSnapshot,
@@ -159,10 +207,6 @@ fn source_ingredient_for_snapshot(
 
     if let Some(path) = source_manifest_path {
         ingredient.manifest_source = Some(path.to_path_buf());
-    }
-
-    if provenance.executed_node.is_some() {
-        ingredient.relationship = IngredientRelationship::ParentOf;
     }
 
     ingredient
@@ -208,6 +252,11 @@ async fn executed_node_ingredient_manifest(
             media_type: ingredient.media_type.clone(),
             title: ingredient.title.clone(),
             credential_profile,
+            provenance: input_ingredient_provenance(
+                source_path
+                    .and_then(source_created_at)
+                    .or_else(|| file_created_at(&asset_path)),
+            ),
             ..Default::default()
         })
         .await?;

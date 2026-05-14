@@ -698,8 +698,8 @@ fn standard_assertions(
 
 fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
     // The C2PA spec requires the first action to be `c2pa.created` or
-    // `c2pa.opened`. When a source document is recorded as `parentOf`, it is
-    // the direct derivation parent and must be referenced by `c2pa.opened`.
+    // `c2pa.opened`. When a caller supplies a single `parentOf` ingredient, it
+    // is a direct derivation parent and must be referenced by `c2pa.opened`.
     // Otherwise Stencila exports materialise new bytes directly, so
     // `c2pa.created` remains the first action.
     let opened = opened_action(assertion, ingredients);

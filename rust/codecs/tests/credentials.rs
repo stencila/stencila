@@ -412,7 +412,7 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
     let verifier = CredentialVerifier::new();
     let report = verifier
         .verify_asset(VerifyAssetRequest {
-            asset_path: output,
+            asset_path: output.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: true,
             require_repro_exact: false,
@@ -442,6 +442,53 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
         source.commit.as_deref().map(str::len),
         Some(40),
         "expected commit SHA, got {source:?}"
+    );
+
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let ingredients = document_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("document ingredients");
+    let source_ingredient = ingredients
+        .iter()
+        .find(|ingredient| ingredient["format"] == "text/smd")
+        .expect("source document ingredient");
+    assert_eq!(source_ingredient["relationship"], "inputTo");
+    let source_manifest_id = source_ingredient["active_manifest"]
+        .as_str()
+        .expect("source ingredient manifest id");
+    let source_manifest_assertions =
+        document_manifest["manifests"][source_manifest_id]["assertions"]
+            .as_array()
+            .expect("source ingredient manifest assertions");
+    let source_actions = source_manifest_assertions
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.actions.v2")
+        .and_then(|assertion| assertion["data"]["actions"].as_array())
+        .expect("source ingredient manifest actions");
+    assert_eq!(source_actions[0]["action"], "c2pa.created");
+    assert!(
+        source_actions[0]["when"]
+            .as_str()
+            .is_some_and(|when| !when.is_empty()),
+        "source input ingredient created action should use source creation timestamp: {source_actions:#?}"
+    );
+
+    let actions = document_manifest["manifests"][active]["assertions"]
+        .as_array()
+        .expect("assertions")
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.actions.v2")
+        .and_then(|assertion| assertion["data"]["actions"].as_array())
+        .expect("actions");
+    assert_eq!(actions[0]["action"], "c2pa.created");
+    assert!(
+        actions
+            .iter()
+            .all(|action| action["action"] != "c2pa.opened"),
+        "document source should be an input, not an opened parent: {actions:#?}"
     );
 
     Ok(())
@@ -655,17 +702,23 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     let ingredients = figure_manifest["manifests"][active]["ingredients"]
         .as_array()
         .expect("figure ingredients");
+    assert_eq!(
+        ingredients.len(),
+        1,
+        "figure manifest should only reference the executed code ingredient"
+    );
     for ingredient in ingredients {
         assert!(
             ingredient["active_manifest"].is_string(),
             "ingredient should link to its own manifest: {ingredient:#?}"
         );
     }
-    let source = ingredients
-        .iter()
-        .find(|ingredient| ingredient["relationship"] == "parentOf")
-        .expect("source document ingredient");
-    assert_eq!(source["title"], "Analysis");
+    assert!(
+        ingredients
+            .iter()
+            .all(|ingredient| ingredient["relationship"] != "parentOf"),
+        "executed figure manifests should not reference the wider source document: {ingredients:#?}"
+    );
 
     let code = ingredients
         .iter()
@@ -683,6 +736,24 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         code["validation_results"]["activeManifest"].is_object(),
         "code ingredient should carry real validation results: {code:#?}"
     );
+    let code_manifest_id = code["active_manifest"]
+        .as_str()
+        .expect("code ingredient manifest id");
+    let code_manifest_assertions = figure_manifest["manifests"][code_manifest_id]["assertions"]
+        .as_array()
+        .expect("code ingredient manifest assertions");
+    let code_actions = code_manifest_assertions
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.actions.v2")
+        .and_then(|assertion| assertion["data"]["actions"].as_array())
+        .expect("code ingredient manifest actions");
+    assert_eq!(code_actions[0]["action"], "c2pa.created");
+    assert!(
+        code_actions[0]["when"]
+            .as_str()
+            .is_some_and(|when| !when.is_empty()),
+        "executed code input ingredient created action should use source creation timestamp: {code_actions:#?}"
+    );
 
     let actions = figure_manifest["manifests"][active]["assertions"]
         .as_array()
@@ -691,7 +762,13 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .find(|assertion| assertion["label"] == "c2pa.actions.v2")
         .and_then(|assertion| assertion["data"]["actions"].as_array())
         .expect("actions");
-    assert_eq!(actions[0]["action"], "c2pa.opened");
+    assert_eq!(actions[0]["action"], "c2pa.created");
+    assert!(
+        actions
+            .iter()
+            .all(|action| action["action"] != "c2pa.opened"),
+        "executed figure manifests should not include an opened action: {actions:#?}"
+    );
     assert!(
         actions.iter().any(|action| {
             action["action"] == "org.stencila.executed"
@@ -704,7 +781,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         serde_json::to_string(&figure_manifest).expect("serialize figure manifest");
     assert!(
         !figure_manifest_json.contains("ingredient.unknownProvenance"),
-        "parent source ingredient should carry provenance: {figure_manifest_json}"
+        "executed code ingredient should carry provenance: {figure_manifest_json}"
     );
 
     // Environment fields hold for both snapshots; assert on the figure's.
