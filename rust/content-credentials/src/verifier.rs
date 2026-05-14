@@ -1,7 +1,9 @@
 //! Verify C2PA-signed assets and produce a Stencila four-status report.
 
 use std::{
-    fs::File,
+    collections::BTreeMap,
+    fs::{self, File},
+    io::Cursor,
     path::{Path, PathBuf},
 };
 
@@ -21,6 +23,7 @@ use c2pa::{
         SIGNING_CREDENTIAL_UNTRUSTED,
     },
 };
+use serde::Serialize;
 use serde_json::Value;
 
 use crate::{
@@ -47,6 +50,24 @@ pub struct VerifyAssetRequest {
     pub require_repro_exact: bool,
     /// Optional PEM bundle of C2PA trust anchors for local signer trust checks.
     pub trust_anchors: Option<String>,
+}
+
+/// Resource extracted from an inspected C2PA manifest store.
+#[derive(Debug, Clone, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub struct ExtractedResource {
+    /// C2PA resource identifier, usually a `self#jumbf=...` URI.
+    pub identifier: String,
+
+    /// MIME type reported by the resource reference, when available.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub format: Option<String>,
+
+    /// Relative output file path written below the requested resources directory.
+    pub path: PathBuf,
+
+    /// Number of bytes written to disk.
+    pub bytes: usize,
 }
 
 /// High-level credential verifier.
@@ -134,6 +155,157 @@ impl CredentialVerifier {
         .await??;
         let value: Value = serde_json::from_str(&json_str)?;
         Ok(value)
+    }
+
+    /// Extract binary resources referenced by an inspected C2PA manifest.
+    ///
+    /// The returned paths are relative to `output_dir`. A `resources.json`
+    /// index is also written into `output_dir` so callers can map files back to
+    /// C2PA resource identifiers.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the asset cannot be opened, the output directory or
+    /// index cannot be written, or the blocking extraction task fails.
+    pub async fn extract_inspection_resources(
+        &self,
+        path: &Path,
+        manifest_json: &Value,
+        output_dir: &Path,
+        trust_anchors: Option<String>,
+    ) -> Result<Vec<ExtractedResource>> {
+        let resources = collect_resource_refs(manifest_json);
+        let path_for_task = path.to_path_buf();
+        let output_dir = output_dir.to_path_buf();
+
+        tokio::task::spawn_blocking(move || {
+            extract_resources_blocking(
+                &path_for_task,
+                &resources,
+                &output_dir,
+                trust_anchors.as_deref(),
+            )
+        })
+        .await?
+    }
+}
+
+fn extract_resources_blocking(
+    path: &Path,
+    resources: &BTreeMap<String, Option<String>>,
+    output_dir: &Path,
+    trust_anchors: Option<&str>,
+) -> Result<Vec<ExtractedResource>> {
+    fs::create_dir_all(output_dir)?;
+
+    let reader = open_reader(path, trust_anchors)?;
+    let mut extracted = Vec::new();
+
+    for (identifier, format) in resources {
+        let mut output = Cursor::new(Vec::new());
+        let bytes = match reader.resource_to_stream(identifier, &mut output) {
+            Ok(bytes) if bytes > 0 => bytes,
+            Ok(_) => continue,
+            Err(error) => {
+                tracing::debug!("Could not extract C2PA resource `{identifier}`: {error}");
+                continue;
+            }
+        };
+
+        let relative_path = resource_file_name(extracted.len(), identifier, format.as_deref());
+        fs::write(output_dir.join(&relative_path), output.into_inner())?;
+        extracted.push(ExtractedResource {
+            identifier: identifier.clone(),
+            format: format.clone(),
+            path: relative_path,
+            bytes,
+        });
+    }
+
+    let index = serde_json::to_vec_pretty(&extracted)?;
+    fs::write(output_dir.join("resources.json"), index)?;
+
+    Ok(extracted)
+}
+
+fn collect_resource_refs(value: &Value) -> BTreeMap<String, Option<String>> {
+    let mut resources = BTreeMap::new();
+    collect_resource_refs_into(value, &mut resources);
+    resources
+}
+
+fn collect_resource_refs_into(value: &Value, resources: &mut BTreeMap<String, Option<String>>) {
+    match value {
+        Value::Object(object) => {
+            if let Some(identifier) = object.get("identifier").and_then(Value::as_str) {
+                let format = object
+                    .get("format")
+                    .and_then(Value::as_str)
+                    .map(ToString::to_string);
+                resources.entry(identifier.to_string()).or_insert(format);
+            }
+
+            for value in object.values() {
+                collect_resource_refs_into(value, resources);
+            }
+        }
+        Value::Array(values) => {
+            for value in values {
+                collect_resource_refs_into(value, resources);
+            }
+        }
+        _ => {}
+    }
+}
+
+fn resource_file_name(index: usize, identifier: &str, format: Option<&str>) -> PathBuf {
+    let base = identifier
+        .rsplit(['/', '='])
+        .next()
+        .filter(|part| !part.is_empty())
+        .unwrap_or("resource");
+    let stem = sanitize_file_stem(base);
+    let extension = resource_extension(format, identifier);
+
+    PathBuf::from(format!("{:04}-{stem}.{extension}", index + 1))
+}
+
+fn sanitize_file_stem(value: &str) -> String {
+    let stem = value
+        .chars()
+        .map(|character| {
+            if character.is_ascii_alphanumeric() || matches!(character, '-' | '_' | '.') {
+                character
+            } else {
+                '_'
+            }
+        })
+        .collect::<String>()
+        .trim_matches(['.', '_', '-'])
+        .to_string();
+
+    if stem.is_empty() {
+        "resource".to_string()
+    } else {
+        stem
+    }
+}
+
+fn resource_extension(format: Option<&str>, identifier: &str) -> &'static str {
+    match format {
+        Some("image/png" | "png") => "png",
+        Some("image/jpeg" | "image/jpg" | "jpeg" | "jpg") => "jpg",
+        Some("image/gif" | "gif") => "gif",
+        Some("image/svg+xml" | "svg") => "svg",
+        Some("image/webp" | "webp") => "webp",
+        Some("application/c2pa") => "c2pa",
+        _ if Path::new(identifier)
+            .extension()
+            .is_some_and(|extension| extension.eq_ignore_ascii_case("c2pa")) =>
+        {
+            "c2pa"
+        }
+        _ => "bin",
     }
 }
 

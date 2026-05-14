@@ -581,4 +581,74 @@ pub struct IngredientSnapshot {
     /// When absent, the ingredient is recorded without a manifest link and
     /// verifiers report `ingredient.unknownProvenance` for it.
     pub manifest_source: Option<PathBuf>,
+
+    /// Thumbnail to embed for this ingredient in the parent manifest.
+    ///
+    /// This is independent from [`manifest_source`](Self::manifest_source):
+    /// `manifest_source` links provenance, while `thumbnail` supplies visual
+    /// bytes for generic C2PA ingredient UIs. For image ingredients this can be
+    /// the ingredient asset itself. Future callers can supply generated icons
+    /// for non-image ingredients such as source code or datasets.
+    pub thumbnail: Option<IngredientThumbnailSnapshot>,
+}
+
+/// Thumbnail bytes or source file for a C2PA ingredient.
+#[skip_serializing_none]
+#[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq, Eq)]
+#[serde(default, rename_all = "camelCase")]
+pub struct IngredientThumbnailSnapshot {
+    /// IANA media type of the thumbnail bytes, for example `image/png`.
+    ///
+    /// Required when [`bytes`](Self::bytes) is used. When omitted for
+    /// [`source_path`](Self::source_path), the signing layer infers it from the
+    /// path extension.
+    pub media_type: Option<String>,
+
+    /// In-memory thumbnail image bytes.
+    ///
+    /// Skipped during serialization so large binary thumbnails do not leak into
+    /// debug snapshots or JSON handoff files.
+    #[serde(skip)]
+    pub bytes: Option<Vec<u8>>,
+
+    /// Path to a thumbnail image file.
+    ///
+    /// Skipped during serialization to avoid leaking local filesystem paths in
+    /// projected snapshots.
+    #[serde(skip)]
+    pub source_path: Option<PathBuf>,
+}
+
+impl IngredientThumbnailSnapshot {
+    /// Use an image file as the thumbnail source.
+    #[must_use]
+    pub fn from_path(path: impl Into<PathBuf>) -> Self {
+        Self {
+            source_path: Some(path.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Use an image file as the thumbnail source with an explicit media type.
+    #[must_use]
+    pub fn from_path_with_media_type(
+        path: impl Into<PathBuf>,
+        media_type: impl Into<String>,
+    ) -> Self {
+        Self {
+            media_type: Some(media_type.into()),
+            source_path: Some(path.into()),
+            ..Default::default()
+        }
+    }
+
+    /// Use in-memory image bytes as the thumbnail source.
+    #[must_use]
+    pub fn from_bytes(media_type: impl Into<String>, bytes: impl Into<Vec<u8>>) -> Self {
+        Self {
+            media_type: Some(media_type.into()),
+            bytes: Some(bytes.into()),
+            ..Default::default()
+        }
+    }
 }

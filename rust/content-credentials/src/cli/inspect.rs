@@ -25,13 +25,29 @@ pub struct Cli {
     /// Can also be supplied with `STENCILA_CREDENTIALS_TRUST_ANCHORS`.
     #[arg(long, value_name = "PEM")]
     trust_anchors: Option<PathBuf>,
+
+    /// Directory to write binary C2PA resources referenced by the manifest.
+    ///
+    /// Use this to extract thumbnail and other resource bytes that inspect
+    /// output represents as `identifier` references.
+    #[arg(long, value_name = "DIR")]
+    resources: Option<PathBuf>,
 }
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
         let trust_anchors = resolve_trust_anchors(self.trust_anchors).await?;
         let verifier = CredentialVerifier::new();
-        let value = verifier.inspect_asset(&self.asset, trust_anchors).await?;
+        let value = verifier
+            .inspect_asset(&self.asset, trust_anchors.clone())
+            .await?;
+
+        if let Some(resources) = self.resources {
+            verifier
+                .extract_inspection_resources(&self.asset, &value, &resources, trust_anchors)
+                .await?;
+        }
+
         Code::new_from(self.r#as.into(), &value)?.to_stdout();
         Ok(())
     }

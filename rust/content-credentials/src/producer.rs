@@ -19,7 +19,10 @@ use crate::{
     policy::{CredentialProfile, ProjectionPolicy},
     schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::CredentialSignerConfig,
-    snapshot::{AssetSnapshot, IngredientRelationship, IngredientSnapshot, ProvenanceSnapshot},
+    snapshot::{
+        AssetSnapshot, IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot,
+        ProvenanceSnapshot,
+    },
 };
 
 /// Maximum image size, in bytes, that is embedded as-is as a `c2pa.thumbnail.claim`.
@@ -967,6 +970,7 @@ fn thumbnail_format(media_type: &str) -> Option<&'static str> {
         "image/png" => Some("image/png"),
         "image/jpeg" | "image/jpg" => Some("image/jpeg"),
         "image/gif" => Some("image/gif"),
+        "image/svg+xml" => Some("image/svg+xml"),
         "image/webp" => Some("image/webp"),
         _ => None,
     }
@@ -1202,6 +1206,62 @@ fn apply_ingredient_metadata(ingredient: &mut Ingredient, snapshot: &IngredientS
     if let Some(description) = &snapshot.description {
         ingredient.set_description(description.clone());
     }
+    apply_ingredient_thumbnail(ingredient, snapshot.thumbnail.as_ref());
+}
+
+fn apply_ingredient_thumbnail(
+    ingredient: &mut Ingredient,
+    thumbnail: Option<&IngredientThumbnailSnapshot>,
+) {
+    let Some(thumbnail) = thumbnail else {
+        return;
+    };
+
+    match read_ingredient_thumbnail(thumbnail) {
+        Ok(Some((format, bytes))) => {
+            // Best-effort metadata: a thumbnail should not make signing fail.
+            let _ = ingredient.set_thumbnail(format, bytes);
+        }
+        Ok(None) => {}
+        Err(error) => {
+            tracing::debug!("Could not read Content Credentials ingredient thumbnail: {error}");
+        }
+    }
+}
+
+fn read_ingredient_thumbnail(
+    thumbnail: &IngredientThumbnailSnapshot,
+) -> Result<Option<(String, Vec<u8>)>> {
+    if let Some(bytes) = &thumbnail.bytes {
+        let Some(format) = thumbnail.media_type.as_deref().and_then(thumbnail_format) else {
+            return Ok(None);
+        };
+
+        if bytes.is_empty() || bytes.len() as u64 > MAX_THUMBNAIL_BYTES {
+            return Ok(None);
+        }
+
+        return Ok(Some((format.to_string(), bytes.clone())));
+    }
+
+    let Some(path) = thumbnail.source_path.as_deref() else {
+        return Ok(None);
+    };
+
+    let media_type = thumbnail
+        .media_type
+        .clone()
+        .map_or_else(|| media::guess_media_type(path), Ok)?;
+    let Some(format) = thumbnail_format(&media_type) else {
+        return Ok(None);
+    };
+
+    let metadata = fs::metadata(path)?;
+    if !metadata.is_file() || metadata.len() == 0 || metadata.len() > MAX_THUMBNAIL_BYTES {
+        return Ok(None);
+    }
+
+    Ok(Some((format.to_string(), fs::read(path)?)))
 }
 
 fn snapshot_relationship(relationship: IngredientRelationship) -> Relationship {

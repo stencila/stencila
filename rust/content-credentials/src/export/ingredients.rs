@@ -18,8 +18,8 @@ use tokio::fs::write;
 
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
-    IngredientRelationship, IngredientSnapshot, ProvenanceSnapshot, Result, SignAssetRequest,
-    media,
+    IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot, ProvenanceSnapshot,
+    Result, SignAssetRequest, media,
 };
 
 use super::source::{
@@ -42,6 +42,9 @@ pub(super) fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<I
         .file_name()
         .and_then(|name| name.to_str())
         .map(ToString::to_string);
+    let thumbnail = media_type
+        .as_deref()
+        .and_then(|media_type| image_ingredient_thumbnail(source_path, media_type));
 
     Some(IngredientSnapshot {
         label: Some("source".to_string()),
@@ -50,8 +53,29 @@ pub(super) fn source_ingredient_snapshot(source_path: Option<&Path>) -> Option<I
         content_digest,
         relationship: IngredientRelationship::InputTo,
         informational_uri: source_informational_uri(source_path),
+        thumbnail,
         ..Default::default()
     })
+}
+
+/// Build an explicit ingredient thumbnail for image assets.
+///
+/// The signing layer embeds this as `c2pa.thumbnail.ingredient.*` in the parent
+/// manifest. Non-image ingredient thumbnails, such as generated source-code or
+/// dataset icons, can use [`IngredientThumbnailSnapshot`] directly.
+pub(super) fn image_ingredient_thumbnail(
+    path: &Path,
+    media_type: &str,
+) -> Option<IngredientThumbnailSnapshot> {
+    is_thumbnail_media_type(media_type)
+        .then(|| IngredientThumbnailSnapshot::from_path_with_media_type(path, media_type))
+}
+
+fn is_thumbnail_media_type(media_type: &str) -> bool {
+    matches!(
+        media_type,
+        "image/png" | "image/jpeg" | "image/jpg" | "image/gif" | "image/svg+xml" | "image/webp"
+    )
 }
 
 /// Temporary signed child manifest used while signing a parent asset.

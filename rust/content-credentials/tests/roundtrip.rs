@@ -1,14 +1,14 @@
 //! End-to-end sign → verify on a real PNG using a freshly-generated local signing identity.
 
-use std::fs;
 use std::path::{Path, PathBuf};
+use std::{fs, io::Cursor};
 
 use serde_json::Value;
 use stencila_content_credentials::{
     AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error,
-    IngredientRelationship, IngredientSnapshot, ManifestKind, ProducerSnapshot, ProvenanceSnapshot,
-    SignAssetRequest, SourceSnapshot, VerifyAssetRequest, init_local_signing_identity,
-    signer::CredentialSignerConfig,
+    IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot, ManifestKind,
+    ProducerSnapshot, ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
+    init_local_signing_identity, signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
 
@@ -420,6 +420,119 @@ async fn sign_emits_ingredient_assertions() {
     assert_eq!(
         placed_ingredients[0]["url"], "self#jumbf=c2pa.assertions/c2pa.ingredient.v3__1",
         "placed action must point at the ComponentOf ingredient"
+    );
+}
+
+/// Ensures linked image ingredients carry an explicit parent-side ingredient
+/// thumbnail, not only a reference to the child manifest's claim thumbnail.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn sign_emits_linked_image_ingredient_thumbnail() {
+    let _guard = common::set_isolated_config_dir();
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
+
+    let tmp = TempDir::new().expect("tmp");
+    let parent_path = tmp.path().join("parent.png");
+    let child_path = tmp.path().join("child.png");
+    fs::copy(fixture_path(), &parent_path).expect("copy parent fixture");
+    fs::copy(fixture_path(), &child_path).expect("copy child fixture");
+
+    let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
+    let producer = CredentialProducer::new(signer);
+    let child = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: child_path.clone(),
+            title: Some("Child".to_string()),
+            ..Default::default()
+        })
+        .await
+        .expect("sign child");
+
+    producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: parent_path.clone(),
+            title: Some("Parent".to_string()),
+            provenance: Some(ProvenanceSnapshot {
+                ingredients: vec![IngredientSnapshot {
+                    title: Some("Child".to_string()),
+                    media_type: Some("image/png".to_string()),
+                    content_digest: Some(child.signed_asset_digest),
+                    relationship: IngredientRelationship::ComponentOf,
+                    manifest_source: Some(child_path.clone()),
+                    thumbnail: Some(IngredientThumbnailSnapshot::from_path_with_media_type(
+                        child_path,
+                        "image/png",
+                    )),
+                    ..Default::default()
+                }],
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .await
+        .expect("sign parent");
+
+    let verifier = CredentialVerifier::new();
+    let manifest_json = verifier
+        .inspect_asset(&parent_path, None)
+        .await
+        .expect("inspect parent");
+    let active = manifest_json["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let ingredients = manifest_json["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("ingredients array");
+    let child = ingredients
+        .iter()
+        .find(|ingredient| ingredient["title"] == "Child")
+        .expect("child ingredient");
+    let thumbnail = child["thumbnail"]
+        .as_object()
+        .expect("ingredient thumbnail");
+    let identifier = thumbnail["identifier"]
+        .as_str()
+        .expect("thumbnail identifier");
+
+    assert!(
+        identifier.contains("c2pa.thumbnail.ingredient"),
+        "linked image ingredient should have a parent-side ingredient thumbnail: {child:?}"
+    );
+    assert!(
+        !identifier.contains("c2pa.thumbnail.claim"),
+        "ingredient thumbnail should not only reference the child claim thumbnail: {child:?}"
+    );
+
+    let mut parent = fs::File::open(&parent_path).expect("open parent");
+    let reader = c2pa::Reader::from_context(c2pa::Context::new())
+        .with_stream("image/png", &mut parent)
+        .expect("read parent manifest");
+    let mut thumbnail_bytes = Cursor::new(Vec::new());
+    reader
+        .resource_to_stream(identifier, &mut thumbnail_bytes)
+        .expect("read ingredient thumbnail resource");
+    assert!(
+        !thumbnail_bytes.into_inner().is_empty(),
+        "ingredient thumbnail resource should not be empty"
+    );
+
+    let resources_dir = tmp.path().join("resources");
+    let extracted = verifier
+        .extract_inspection_resources(&parent_path, &manifest_json, &resources_dir, None)
+        .await
+        .expect("extract resources");
+    let ingredient_thumbnail = extracted
+        .iter()
+        .find(|resource| resource.identifier.contains("c2pa.thumbnail.ingredient"))
+        .expect("extracted ingredient thumbnail");
+    assert_eq!(ingredient_thumbnail.format.as_deref(), Some("image/png"));
+    assert!(ingredient_thumbnail.bytes > 0);
+    assert!(
+        resources_dir.join(&ingredient_thumbnail.path).is_file(),
+        "ingredient thumbnail should be written to resources dir"
+    );
+    assert!(
+        resources_dir.join("resources.json").is_file(),
+        "resource extraction should write an index"
     );
 }
 

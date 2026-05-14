@@ -56,6 +56,20 @@ cargo run --bin stencila -- credentials inspect \
   --as json
 ```
 
+`inspect` prints manifest metadata. To also extract binary resources referenced
+by that metadata, such as claim and ingredient thumbnails, pass a resources
+directory:
+
+```sh
+cargo run --bin stencila -- credentials inspect \
+  /tmp/stencila-c2pa/stencila-signed.png \
+  --resources /tmp/stencila-c2pa/resources \
+  --as yaml
+```
+
+The directory contains the extracted files and a `resources.json` index mapping
+each file back to its C2PA resource identifier.
+
 Expected local verification shape:
 
 ```text

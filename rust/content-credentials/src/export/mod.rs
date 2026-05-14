@@ -23,7 +23,8 @@ use crate::{
 
 use self::{
     ingredients::{
-        add_source_and_executed_ingredients, source_ingredient_manifest, source_ingredient_snapshot,
+        add_source_and_executed_ingredients, image_ingredient_thumbnail,
+        source_ingredient_manifest, source_ingredient_snapshot,
     },
     snapshot::{ExportSnapshotOptions, build_export_snapshot},
 };
@@ -243,20 +244,14 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             &mut new_sidecars,
         );
 
-        component_ingredients.push(IngredientSnapshot {
-            label: Some(format!("component-{component_index}")),
-            title: asset_title.or_else(|| {
-                asset_path
-                    .file_name()
-                    .and_then(|name| name.to_str())
-                    .map(ToString::to_string)
-            }),
+        component_ingredients.push(signed_component_ingredient(
+            component_index,
+            asset_title,
+            &asset_path,
             media_type,
-            content_digest: Some(signed.signed_asset_digest),
-            relationship: IngredientRelationship::ComponentOf,
-            manifest_source: Some(manifest_source),
-            ..Default::default()
-        });
+            signed.signed_asset_digest,
+            manifest_source,
+        ));
     }
 
     // Keep the temp dir alive until the primary manifest has linked the
@@ -460,21 +455,14 @@ async fn embedded_component_ingredients(
             .clone()
             .unwrap_or_else(|| signed.asset_path.clone());
 
-        component_ingredients.push(IngredientSnapshot {
-            label: Some(format!("component-{component_index}")),
-            title: asset.title.or_else(|| {
-                asset
-                    .path
-                    .file_name()
-                    .and_then(|name| name.to_str())
-                    .map(ToString::to_string)
-            }),
+        component_ingredients.push(signed_component_ingredient(
+            component_index,
+            asset.title,
+            &asset.path,
             media_type,
-            content_digest: Some(signed.signed_asset_digest),
-            relationship: IngredientRelationship::ComponentOf,
-            manifest_source: Some(manifest_source),
-            ..Default::default()
-        });
+            signed.signed_asset_digest,
+            manifest_source,
+        ));
     }
 
     if component_ingredients.is_empty() {
@@ -487,6 +475,34 @@ async fn embedded_component_ingredients(
 #[must_use]
 fn supports_embedded_component_extraction(codec_name: &str) -> bool {
     codec_name.eq_ignore_ascii_case("pdf")
+}
+
+fn signed_component_ingredient(
+    component_index: usize,
+    title: Option<String>,
+    path: &Path,
+    media_type: Option<String>,
+    content_digest: String,
+    manifest_source: PathBuf,
+) -> IngredientSnapshot {
+    let thumbnail = media_type
+        .as_deref()
+        .and_then(|media_type| image_ingredient_thumbnail(path, media_type));
+
+    IngredientSnapshot {
+        label: Some(format!("component-{component_index}")),
+        title: title.or_else(|| {
+            path.file_name()
+                .and_then(|name| name.to_str())
+                .map(ToString::to_string)
+        }),
+        media_type,
+        content_digest: Some(content_digest),
+        relationship: IngredientRelationship::ComponentOf,
+        manifest_source: Some(manifest_source),
+        thumbnail,
+        ..Default::default()
+    }
 }
 
 fn scrub_embedded_component_content_urls(provenance: &mut ProvenanceSnapshot) {
