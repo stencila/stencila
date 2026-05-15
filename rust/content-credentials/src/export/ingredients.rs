@@ -14,14 +14,16 @@ use std::{
 
 use chrono::{DateTime, Utc};
 use image::ImageReader;
+use inflector::Inflector;
 use stencila_codec_utils::{git_file_first_committed_at, git_file_last_committed_at};
 use tempfile::{TempDir, tempdir};
 use tokio::fs::write;
 
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
-    IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot, ProvenanceSnapshot,
-    Result, SignAssetRequest, media, thumbnails,
+    EnvironmentSnapshot, IngredientRelationship, IngredientSnapshot,
+    IngredientThumbnailSnapshot, ProjectionPolicy, ProvenanceSnapshot, Result,
+    SignAssetRequest, media, schema::EnvironmentRecord, thumbnails,
 };
 
 use super::source::{
@@ -288,6 +290,22 @@ pub(super) async fn add_source_and_executed_ingredients(
     Ok(temporary_manifests)
 }
 
+/// Add the projected execution-environment ingredient to a provenance snapshot.
+pub(super) async fn add_environment_ingredient(
+    producer: &CredentialProducer,
+    provenance: &mut ProvenanceSnapshot,
+    credential_profile: CredentialProfile,
+) -> Result<Option<TemporaryIngredientManifest>> {
+    let Some((ingredient, manifest)) =
+        environment_ingredient(producer, provenance, credential_profile).await?
+    else {
+        return Ok(None);
+    };
+
+    provenance.ingredients.push(ingredient);
+    Ok(Some(manifest))
+}
+
 /// Adjust a source ingredient for a document export snapshot.
 ///
 /// This prefers the document title for display so ingredient lists are
@@ -316,6 +334,128 @@ fn source_ingredient_for_snapshot(
     }
 
     ingredient
+}
+
+/// Build and sign an execution-environment ingredient.
+///
+/// The environment bytes are projected before they are serialized so the
+/// ingredient follows the same privacy profile as the parent Stencila provenance
+/// assertion.
+async fn environment_ingredient(
+    producer: &CredentialProducer,
+    provenance: &ProvenanceSnapshot,
+    credential_profile: CredentialProfile,
+) -> Result<Option<(IngredientSnapshot, TemporaryIngredientManifest)>> {
+    let Some(environment) = projected_environment(provenance, credential_profile) else {
+        return Ok(None);
+    };
+
+    let description = environment_description(&environment);
+    let record = EnvironmentRecord::from(environment);
+    let bytes = serde_json::to_vec(&record)?;
+    if bytes == b"{}" {
+        return Ok(None);
+    }
+
+    let temp_dir = tempdir()?;
+    let asset_path = temp_dir.path().join("execution-environment.json");
+    write(&asset_path, &bytes).await?;
+
+    let title = "Execution environment".to_string();
+    let signed = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset_path.clone(),
+            media_type: Some("application/json".to_string()),
+            title: Some(title.clone()),
+            credential_profile,
+            provenance: Some(input_ingredient_provenance(
+                file_created_at(&asset_path),
+                Some(DocumentSnapshot {
+                    node_type: "EnvironmentRecord".to_string(),
+                    title: Some(title.clone()),
+                    ..Default::default()
+                }),
+            )),
+            ..Default::default()
+        })
+        .await?;
+
+    let ingredient = IngredientSnapshot {
+        label: Some("execution-environment".to_string()),
+        title: Some(title),
+        media_type: Some("application/json".to_string()),
+        content_digest: Some(media::sha256_bytes(&bytes)),
+        relationship: IngredientRelationship::InputTo,
+        description: Some(description),
+        manifest_source: Some(signed.asset_path.clone()),
+        thumbnail: Some(thumbnails::ingredient_for_node_type("EnvironmentRecord")),
+        ..Default::default()
+    };
+
+    Ok(Some((
+        ingredient,
+        TemporaryIngredientManifest {
+            _temp_dir: temp_dir,
+            asset_path: signed.asset_path,
+        },
+    )))
+}
+
+fn projected_environment(
+    provenance: &ProvenanceSnapshot,
+    credential_profile: CredentialProfile,
+) -> Option<EnvironmentSnapshot> {
+    let mut projected =
+        ProjectionPolicy::for_profile(credential_profile).project_snapshot(ProvenanceSnapshot {
+            environment: provenance.environment.clone(),
+            ..Default::default()
+        });
+    projected.environment.take()
+}
+
+/// Generate a human readable description of the environment snapshot
+fn environment_description(environment: &EnvironmentSnapshot) -> String {
+    let mut parts = Vec::new();
+
+    if let Some(container_image) = environment.container_image.as_deref() {
+        parts.push(format!("container {container_image}"));
+    }
+
+    if let Some(os) = &environment.os {
+        let mut os_arch = os.to_title_case();
+        if let Some(arch) = &environment.architecture {
+            os_arch.push(' ');
+            os_arch.push_str(arch);
+        }
+        parts.push(os_arch)
+    }
+
+    let runtimes: Vec<String> = environment
+        .runtimes
+        .iter()
+        .filter_map(
+            |runtime| match (runtime.name.as_deref(), runtime.version.as_deref()) {
+                (Some(name), Some(version)) => Some(format!("{name} {version}")),
+                (Some(name), None) => Some(name.to_string()),
+                (None, Some(version)) => Some(format!("version {version}")),
+                (None, None) => None,
+            },
+        )
+        .collect();
+    if !runtimes.is_empty() {
+        parts.push(runtimes.join(", "));
+    }
+
+    let lockfiles: Vec<&str> = environment
+        .lockfiles
+        .iter()
+        .filter_map(|lockfile| lockfile.path.as_deref())
+        .collect();
+    if !lockfiles.is_empty() {
+        parts.push(lockfiles.join(", "));
+    }
+
+    parts.join("; ")
 }
 
 /// Sign the executed source snippet as a temporary ingredient asset.
@@ -594,9 +734,12 @@ fn source_code_format(language: Option<&str>) -> SourceCodeFormat {
 
 #[cfg(test)]
 mod tests {
-    use crate::{DocumentSnapshot, ProvenanceSnapshot};
+    use crate::{
+        DocumentSnapshot, EnvironmentSnapshot, FileDigestSnapshot, ProvenanceSnapshot,
+        RuntimeSnapshot,
+    };
 
-    use super::executed_node_ingredient_snapshot;
+    use super::{environment_description, executed_node_ingredient_snapshot};
 
     #[test]
     fn executed_node_ingredient_has_static_thumbnail() {
@@ -618,6 +761,40 @@ mod tests {
             thumbnail
                 .bytes
                 .is_some_and(|bytes| bytes.starts_with(b"<svg"))
+        );
+    }
+
+    #[test]
+    fn environment_description_summarizes_reproducibility_fields() {
+        let description = environment_description(&EnvironmentSnapshot {
+            os: Some("linux".to_string()),
+            architecture: Some("x86_64".to_string()),
+            runtimes: vec![
+                RuntimeSnapshot {
+                    name: Some("stencila".to_string()),
+                    version: Some("2.15.0".to_string()),
+                },
+                RuntimeSnapshot {
+                    name: Some("python".to_string()),
+                    version: Some("3.12.0".to_string()),
+                },
+            ],
+            lockfiles: vec![
+                FileDigestSnapshot {
+                    path: Some("uv.lock".to_string()),
+                    digest: Some("sha256:abc".to_string()),
+                },
+                FileDigestSnapshot {
+                    path: Some("package-lock.json".to_string()),
+                    digest: Some("sha256:def".to_string()),
+                },
+            ],
+            ..Default::default()
+        });
+
+        assert_eq!(
+            description,
+            "Execution environment: OS linux; architecture x86_64; runtimes stencila 2.15.0, python 3.12.0; lockfiles uv.lock, package-lock.json"
         );
     }
 }

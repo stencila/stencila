@@ -18,6 +18,7 @@ export = [
 ]
 
 [dependencies]
+Inflector = { workspace = true }
 c2pa = { version = "0.82.1", default-features = false, features = ["rust_native_crypto", "file_io", "pdf"] }
 chrono = { workspace = true }
 clap = { workspace = true, optional = true }

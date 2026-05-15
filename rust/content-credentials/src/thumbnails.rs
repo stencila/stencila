@@ -138,6 +138,7 @@ fn icon_bytes(
         "AudioObject" => node_icon!("AudioObject.svg"),
         "CodeExpression" => node_icon!("CodeExpression.svg"),
         "Datatable" => node_icon!("Datatable.svg"),
+        "EnvironmentRecord" => node_icon!("EnvironmentRecord.svg"),
         "File" => node_icon!("File.svg"),
         "ImageObject" => node_icon!("ImageObject.svg"),
         "Table" => node_icon!("Table.svg"),
@@ -282,6 +283,15 @@ mod tests {
         let default = icon_bytes("Default", None, None, None, None);
 
         assert_eq!(unknown, default);
+    }
+
+    #[test]
+    fn environment_record_has_dedicated_icon() {
+        let environment = icon_bytes("EnvironmentRecord", None, None, None, None);
+        let default = icon_bytes("Default", None, None, None, None);
+
+        assert_eq!(environment, node_icon!("EnvironmentRecord.svg"));
+        assert_ne!(environment, default);
     }
 
     #[test]

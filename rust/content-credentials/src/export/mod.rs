@@ -23,8 +23,8 @@ use crate::{
 
 use self::{
     ingredients::{
-        add_source_and_executed_ingredients, image_ingredient_thumbnail,
-        source_ingredient_manifest, source_ingredient_snapshot,
+        add_environment_ingredient, add_source_and_executed_ingredients,
+        image_ingredient_thumbnail, source_ingredient_manifest, source_ingredient_snapshot,
     },
     snapshot::{ExportSnapshotOptions, build_export_snapshot},
 };
@@ -370,6 +370,8 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             credential_profile,
         )
         .await?;
+        let _temporary_environment_manifest =
+            add_environment_ingredient(&producer, &mut provenance, credential_profile).await?;
         provenance.ingredients.extend(component_ingredients);
 
         let signed = producer

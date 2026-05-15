@@ -848,7 +848,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     // its own, so the document export's snapshot has no execution facts.
     let document_report = verifier
         .verify_asset(VerifyAssetRequest {
-            asset_path: output,
+            asset_path: output.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: true,
             require_repro_exact: false,
@@ -867,6 +867,79 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         document.execution.is_none(),
         "document snapshot should not aggregate chunk execution: {:?}",
         document.execution
+    );
+
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let document_active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("document active manifest");
+    let document_ingredients = document_manifest["manifests"][document_active]["ingredients"]
+        .as_array()
+        .expect("document ingredients");
+    let document_environment_ingredients: Vec<_> = document_ingredients
+        .iter()
+        .filter(|ingredient| {
+            ingredient["relationship"] == "inputTo"
+                && ingredient["title"] == "Execution environment"
+        })
+        .collect();
+    assert_eq!(
+        document_environment_ingredients.len(),
+        1,
+        "document manifest should carry one execution environment input: {document_ingredients:#?}"
+    );
+    let document_environment = document_environment_ingredients[0];
+    assert_eq!(document_environment["format"], "application/json");
+    let document_environment_description = document_environment["description"]
+        .as_str()
+        .expect("environment ingredient description");
+    assert!(
+        document_environment_description.starts_with("Execution environment:"),
+        "environment ingredient description should be informative: {document_environment:#?}"
+    );
+    assert!(
+        document_environment_description.contains("OS ")
+            && document_environment_description.contains("architecture ")
+            && document_environment_description.contains("runtimes ")
+            && document_environment_description.contains("lockfiles "),
+        "environment ingredient description should summarize reproducibility fields: {document_environment_description}"
+    );
+    assert!(
+        document_environment["validation_results"]["activeManifest"].is_object(),
+        "environment ingredient should carry real validation results: {document_environment:#?}"
+    );
+    let environment_manifest_id = document_environment["active_manifest"]
+        .as_str()
+        .expect("environment ingredient manifest id");
+    let environment_manifest_assertions =
+        document_manifest["manifests"][environment_manifest_id]["assertions"]
+            .as_array()
+            .expect("environment ingredient manifest assertions");
+    let environment_provenance = environment_manifest_assertions
+        .iter()
+        .find(|assertion| assertion["label"] == "org.stencila.provenance")
+        .expect("environment provenance assertion");
+    assert_eq!(
+        environment_provenance["data"]["rootNode"]["nodeType"],
+        "EnvironmentRecord"
+    );
+    let document_actions = document_manifest["manifests"][document_active]["assertions"]
+        .as_array()
+        .expect("document assertions")
+        .iter()
+        .find(|assertion| assertion["label"] == "c2pa.actions.v2")
+        .and_then(|assertion| assertion["data"]["actions"].as_array())
+        .expect("document actions");
+    let document_created = document_actions
+        .iter()
+        .find(|action| action["action"] == "c2pa.created")
+        .expect("document created action");
+    assert_eq!(
+        document_created["parameters"]["ingredients"]
+            .as_array()
+            .map(Vec::len),
+        Some(2),
+        "document created action should reference source and environment inputs: {document_created:#?}"
     );
 
     // Per-asset snapshot for the extracted figure: subject is the CodeChunk,
@@ -962,7 +1035,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     assert_eq!(
         ingredients.len(),
         1,
-        "figure manifest should only reference the executed code ingredient"
+        "figure manifest should reference only the executed code ingredient"
     );
     for ingredient in ingredients {
         assert!(
@@ -979,7 +1052,9 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
 
     let code = ingredients
         .iter()
-        .find(|ingredient| ingredient["relationship"] == "inputTo")
+        .find(|ingredient| {
+            ingredient["relationship"] == "inputTo" && ingredient["format"] == "text/x-python"
+        })
         .expect("executed code ingredient");
     assert_eq!(code["format"], "text/x-python");
     assert_eq!(code["title"], "Python CodeChunk content-0");
@@ -1033,6 +1108,17 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
                 && action["parameters"]["org.stencila.execution"]["durationMs"] == 250
         }),
         "expected org.stencila.executed action with execution details: {actions:#?}"
+    );
+    let executed_action = actions
+        .iter()
+        .find(|action| action["action"] == "org.stencila.executed")
+        .expect("executed action");
+    assert_eq!(
+        executed_action["parameters"]["ingredients"]
+            .as_array()
+            .map(Vec::len),
+        Some(1),
+        "executed action should reference the executed code input: {executed_action:#?}"
     );
     let figure_manifest_json =
         serde_json::to_string(&figure_manifest).expect("serialize figure manifest");
