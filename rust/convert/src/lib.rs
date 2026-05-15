@@ -13,3 +13,6 @@ pub use html_to_png::{ConsoleErrorHandling, html_to_pdf, html_to_png_data_uri, h
 
 mod latex_to_pdf;
 pub use latex_to_pdf::*;
+
+mod pdf_to_png;
+pub use pdf_to_png::{PdfToPngOptions, pdf_to_png_bytes, pdf_to_png_file};

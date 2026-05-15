@@ -369,6 +369,63 @@ async fn sign_emits_static_article_claim_thumbnail_for_non_image_asset() {
     assert!(bytes.starts_with(b"<svg"));
 }
 
+/// Exercises the rendered PDF thumbnail path.
+#[cfg(any(feature = "cli", feature = "export"))]
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+#[ignore = "requires Chrome/Chromium plus PDF.js cache or network access"]
+async fn sign_emits_rendered_pdf_claim_thumbnail() {
+    let _guard = common::set_isolated_config_dir();
+    let _ = init_local_signing_identity(true).expect("init local signing identity");
+
+    let tmp = TempDir::new().expect("tmp");
+    let asset_path = tmp.path().join("sample.pdf");
+    fs::copy(pdf_fixture_path(), &asset_path).expect("copy fixture");
+
+    let signer = CredentialSignerConfig::resolve(None, None).expect("resolve signer");
+    let producer = CredentialProducer::new(signer);
+    let signed = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset_path.clone(),
+            provenance: Some(ProvenanceSnapshot {
+                asset: AssetSnapshot {
+                    role: Some("document-export".to_string()),
+                    title: Some("Article".to_string()),
+                    ..Default::default()
+                },
+                root_node: DocumentSnapshot {
+                    node_type: "Article".to_string(),
+                    title: Some("Article".to_string()),
+                    ..Default::default()
+                },
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+        .await
+        .expect("sign");
+
+    assert_eq!(signed.manifest_kind, ManifestKind::Embedded);
+
+    let verifier = CredentialVerifier::new();
+    let manifest_json = verifier
+        .inspect_asset(&asset_path, None)
+        .await
+        .expect("inspect");
+    let resources_dir = tmp.path().join("pdf-resources");
+    let extracted = verifier
+        .extract_inspection_resources(&asset_path, &manifest_json, &resources_dir, None)
+        .await
+        .expect("extract resources");
+    let claim_thumbnail = extracted
+        .iter()
+        .find(|resource| resource.identifier.contains("c2pa.thumbnail.claim"))
+        .expect("extracted claim thumbnail");
+
+    assert_eq!(claim_thumbnail.format.as_deref(), Some("image/png"));
+    let bytes = fs::read(resources_dir.join(&claim_thumbnail.path)).expect("read thumbnail");
+    assert!(bytes.starts_with(b"\x89PNG\r\n\x1a\n"));
+}
+
 /// Ensures provenance snapshot ingredients are emitted as standard
 /// `c2pa.ingredient.v3` ingredients with their relationship preserved.
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
@@ -823,6 +880,14 @@ fn fixture_path() -> PathBuf {
         .join("tests")
         .join("fixtures")
         .join("sample.png")
+}
+
+#[cfg(any(feature = "cli", feature = "export"))]
+fn pdf_fixture_path() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("tests")
+        .join("fixtures")
+        .join("sample.pdf")
 }
 
 fn active_manifest_assertions(manifest_json: &Value) -> &[Value] {

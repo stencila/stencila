@@ -381,6 +381,34 @@ fn ensure_browser_available() -> Result<()> {
     Ok(())
 }
 
+/// Run a synchronous operation against the shared browser tab.
+pub(crate) fn with_browser_tab<R>(operation: impl FnOnce(&Arc<Tab>) -> Result<R>) -> Result<R> {
+    ensure_browser_available()?;
+
+    let result = {
+        let mut manager = BROWSER_MANAGER
+            .lock()
+            .map_err(|error| eyre!("Failed to acquire browser manager lock: {error}"))?;
+
+        let tab = manager
+            .tab()
+            .ok_or_else(|| eyre!("No tab instance available"))?
+            .clone();
+
+        let result = operation(&tab);
+        manager.cleanup();
+        result
+    };
+
+    if result.is_err()
+        && let Ok(mut manager) = BROWSER_MANAGER.lock()
+    {
+        manager.clear_browser_and_tab();
+    }
+
+    result
+}
+
 /// Check if HTML contains a Stencila node that is a JavaScript based visualization
 fn has_js_viz(html: &str) -> bool {
     html.contains("<stencila-image-object")

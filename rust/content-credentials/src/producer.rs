@@ -30,6 +30,8 @@ use crate::{
 ///
 /// Larger images are skipped so manifests stay compact.
 const MAX_THUMBNAIL_BYTES: u64 = 256 * 1024;
+#[cfg(any(feature = "cli", feature = "export"))]
+const RENDERED_THUMBNAIL_TIMEOUT: std::time::Duration = std::time::Duration::from_secs(5);
 
 /// Whether a manifest is embedded in the asset bytes or written to a sidecar.
 #[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
@@ -728,10 +730,68 @@ fn apply_claim_thumbnail(
         return;
     }
 
+    if let Some(bytes) = rendered_claim_thumbnail(media_type, asset_path) {
+        apply_png_claim_thumbnail(builder, bytes);
+        return;
+    }
+
     apply_static_claim_thumbnail(
         builder,
         thumbnails::claim_for_assertion_with_hints(assertion, Some(title), Some(media_type)),
     );
+}
+
+fn apply_png_claim_thumbnail(builder: &mut Builder, bytes: Vec<u8>) {
+    if bytes.is_empty() || bytes.len() as u64 > MAX_THUMBNAIL_BYTES {
+        return;
+    }
+
+    let mut bytes = Cursor::new(bytes);
+    // Best-effort metadata: the signed asset and Stencila assertion are still
+    // valid if a viewer-facing thumbnail cannot be attached.
+    let _ = builder.set_thumbnail("image/png", &mut bytes);
+}
+
+#[cfg(any(feature = "cli", feature = "export"))]
+fn rendered_claim_thumbnail(media_type: &str, asset_path: Option<&Path>) -> Option<Vec<u8>> {
+    if media_type != "application/pdf" {
+        return None;
+    }
+
+    let path = asset_path?;
+
+    for max_width in [512, 384, 256] {
+        match stencila_convert::pdf_to_png_bytes(
+            path,
+            stencila_convert::PdfToPngOptions {
+                page: 1,
+                max_width,
+                timeout: RENDERED_THUMBNAIL_TIMEOUT,
+            },
+        ) {
+            Ok(bytes) if bytes.len() as u64 <= MAX_THUMBNAIL_BYTES => return Some(bytes),
+            Ok(bytes) => {
+                tracing::debug!(
+                    thumbnail_bytes = bytes.len(),
+                    max_width,
+                    "Rendered PDF claim thumbnail is above the C2PA thumbnail size limit"
+                );
+            }
+            Err(error) => {
+                tracing::debug!(
+                    "Could not render PDF claim thumbnail for Content Credentials: {error}"
+                );
+                return None;
+            }
+        }
+    }
+
+    None
+}
+
+#[cfg(not(any(feature = "cli", feature = "export")))]
+fn rendered_claim_thumbnail(_media_type: &str, _asset_path: Option<&Path>) -> Option<Vec<u8>> {
+    None
 }
 
 fn apply_static_claim_thumbnail(builder: &mut Builder, thumbnail: StaticThumbnail) {

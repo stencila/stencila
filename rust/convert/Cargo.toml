@@ -13,10 +13,15 @@ headless_chrome = { workspace = true}
 itertools = { workspace = true }
 rand = { workspace = true }
 regex = { workspace = true }
+reqwest = { workspace = true, features = ["blocking"] }
+serde_json = { workspace = true }
+sha2 = { workspace = true }
 stencila-codec-utils = { path = "../codec-utils" }
+stencila-dirs = { path = "../dirs" }
 stencila-themes = { path = "../themes" }
 stencila-tools = { path = "../tools" }
 stencila-web-dist = { path = "../web-dist" }
+tempfile = { workspace = true }
 tokio = { workspace = true }
 tracing = { workspace = true }
 
