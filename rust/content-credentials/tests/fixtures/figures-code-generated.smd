@@ -1,0 +1,78 @@
+---
+title: Warm afternoons and ozone accumulation in a city monitoring record
+description: Test fixture with code-generated figures from the built-in R airquality dataset
+---
+
+# Introduction
+
+Ground-level ozone can accumulate on warm, still afternoons when sunlight drives
+photochemical reactions in urban air. This fictional mini-study treats the
+built-in R `airquality` dataset as if it were a short summer monitoring campaign
+from a city station. The aim is to show how reproducible, code-generated figures
+can summarize simple environmental patterns without requiring external data or R
+packages.
+
+# Methods
+
+Daily measurements were filtered to records with complete ozone, temperature,
+wind, and solar radiation values. We used base R plotting functions to inspect
+the relationship between temperature and ozone, and to summarize the distribution
+of measured ozone concentrations across the monitoring period.
+
+# Results
+
+The filtered records suggest that higher ozone readings tended to occur on
+warmer days. The pattern is noisy, but the smoothed trend in Figure 1 rises
+across the observed temperature range. Ozone values were also right-skewed, with
+many moderate readings and a smaller number of high-ozone days.
+
+::: figure
+
+```r exec
+air <- na.omit(airquality[, c("Ozone", "Temp", "Wind", "Solar.R")])
+
+plot(
+  air$Temp,
+  air$Ozone,
+  pch = 19,
+  col = "#4e79a7",
+  xlab = "Temperature (F)",
+  ylab = "Ozone (ppb)"
+)
+lines(lowess(air$Temp, air$Ozone), col = "#e15759", lwd = 2)
+```
+
+Daily ozone concentration against afternoon temperature. Points are
+complete observations from the built-in `airquality` dataset, and the red line
+shows a LOWESS smooth.
+
+:::
+
+::: figure
+
+```r exec
+air <- na.omit(airquality[, c("Ozone", "Temp", "Wind", "Solar.R")])
+
+hist(
+  air$Ozone,
+  breaks = 12,
+  col = "#7aa35a",
+  border = "white",
+  xlab = "Ozone (ppb)",
+  main = ""
+)
+rug(air$Ozone, col = "#333333")
+```
+
+Distribution of daily ozone readings after omitting records with
+missing air-quality measurements.
+
+:::
+
+# Conclusion
+
+These fictional results are consistent with a simple summertime air-quality
+story: warmer days were often associated with higher ozone concentrations, but
+day-to-day variability remained substantial. Because both figures are generated
+from code, the fixture exercises content credential capture for executable plot
+outputs rather than static images.

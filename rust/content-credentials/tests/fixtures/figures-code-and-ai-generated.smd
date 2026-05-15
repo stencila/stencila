@@ -1,0 +1,86 @@
+---
+title: Acute degron-mediated depletion delays mitotic entry and increases apoptosis
+description: Test fixture with a mixed code-generated and AI-generated multi-panel figure
+---
+
+# Introduction
+
+Auxin-inducible degron systems allow rapid depletion of tagged proteins, but the
+timing of downstream cell-cycle outcomes can vary across cellular populations.
+Here we used a live-cell imaging assay to quantify mitotic entry and apoptosis
+after doxycycline-induced perturbation of a tagged target protein. In this fake
+study, perturbation delayed the median time to mitotic entry from 4.6 h in
+control cells to 8.6 h after Dox treatment. At 12 h, perturbed populations showed
+fewer mitotic entries and more apoptotic cells than controls.
+
+# Methods
+
+Cells carrying an endogenous AID degron-tagged target protein were imaged every
+2 h for 12 h after Dox addition. Individual cells were scored for mitotic entry
+or apoptosis using time-lapse morphology. Population outcomes were summarized as
+the percentage of cells entering mitosis or undergoing apoptosis by 12 h.
+
+# Results
+
+Control cells entered mitosis rapidly, with approximately half of the population
+reaching mitotic entry by 4.6 h. Dox-treated cells showed a delayed cumulative
+mitotic-entry curve, reaching the same threshold at 8.6 h. By the 12 h endpoint,
+mitotic entry was reduced from about 88% in controls to about 55% after
+perturbation, while apoptosis increased from about 6% to about 31%.
+
+::: figure [2]
+
+    ::: figure
+
+    ```r exec
+    outcomes <- matrix(
+      c(88, 55, 6, 31),
+      nrow = 2,
+      byrow = TRUE,
+      dimnames = list(
+        c("Mitotic entry", "Apoptosis"),
+        c("Control", "Dox")
+      )
+    )
+
+    barplot(
+      outcomes,
+      beside = TRUE,
+      ylim = c(0, 100),
+      col = c("#4e79a7", "#e15759"),
+      border = "white",
+      ylab = "Cells at 12 h (%)",
+      legend.text = rownames(outcomes),
+      args.legend = list(x = "topright", bty = "n", inset = 0.02),
+      main = ""
+    )
+    ```
+
+    ```svg overlay
+    <svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg">
+      <s:callout x="345" y="70" label="Dox shifts cell fate" to-x="405" to-y="185" curve="quad"/>
+    </svg>
+    ```
+
+    Reproducible R plot with an overlay annotation.
+
+    :::
+
+    ::: figure
+
+    ![](ai-generated.png)
+
+    Static AI-generated image.
+
+    :::
+
+Live-cell analysis of degron-mediated target protein perturbation. Endpoint outcomes at 12 h show reduced mitotic entry and increased apoptosis after perturbation.
+
+:::
+
+# Conclusion
+
+These fictional data suggest that inducible depletion of the target protein slows
+progression into mitosis and shifts a subset of cells toward apoptosis. The assay
+provides a simple population-level readout for separating timing defects from
+terminal cell-fate changes after acute protein perturbation.
