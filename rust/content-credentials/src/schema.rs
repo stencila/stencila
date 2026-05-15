@@ -1181,12 +1181,38 @@ pub struct EnvironmentRecord {
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub runtimes: Vec<RuntimeRecord>,
 
+    /// Environment manifest digests relevant to reproduction.
+    ///
+    /// Manifests identify declared dependency and tool requirements, complementing
+    /// lockfiles that identify resolved dependency state.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub manifests: Vec<FileDigestRecord>,
+
     /// Lockfile digests relevant to reproduction.
     ///
     /// Digests identify dependency state without embedding potentially large or
     /// private lockfiles in the manifest.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub lockfiles: Vec<FileDigestRecord>,
+
+    /// Source repository URL or identifier for the environment context.
+    ///
+    /// This usually matches the source repository, but is stored with the
+    /// environment so the manifest and lockfile paths can be resolved even when
+    /// the signed asset does not disclose a source document.
+    pub repository: Option<String>,
+
+    /// Source commit hash for the environment context.
+    ///
+    /// A full commit hash lets verifiers locate immutable manifest and lockfile
+    /// contents when the repository URL is public.
+    pub commit: Option<String>,
+
+    /// Informational URI for locating the environment context.
+    ///
+    /// This should point to immutable, human-browsable environment context such
+    /// as a repository tree at a full commit hash.
+    pub informational_uri: Option<String>,
 
     /// Forward-compatibility slot for future environment metadata.
     ///

@@ -513,6 +513,14 @@ impl ProjectionPolicy {
             redactions,
         );
 
+        for (index, manifest) in environment.manifests.iter_mut().enumerate() {
+            self.project_file_digest(
+                &format!("environment.manifests[{index}]"),
+                manifest,
+                redactions,
+            );
+        }
+
         for (index, lockfile) in environment.lockfiles.iter_mut().enumerate() {
             self.project_file_digest(
                 &format!("environment.lockfiles[{index}]"),
@@ -525,6 +533,25 @@ impl ProjectionPolicy {
         redact_secret_option(
             "environment.architecture",
             &mut environment.architecture,
+            redactions,
+        );
+
+        if let Some(repository) = &mut environment.repository {
+            let omit_repository = has_secret(repository)
+                || (self.profile == CredentialProfile::Public
+                    && !is_public_hosting_url(repository));
+
+            if omit_repository {
+                environment.repository = None;
+                redactions.push(redaction("environment.repository", REDACTION_URI_OMITTED));
+            }
+        }
+
+        redact_secret_option("environment.commit", &mut environment.commit, redactions);
+        self.project_uri_or_path_option(
+            "environment.informationalUri",
+            &mut environment.informational_uri,
+            true,
             redactions,
         );
 
@@ -1119,10 +1146,16 @@ mod tests {
                 ..Default::default()
             }),
             environment: Some(EnvironmentSnapshot {
+                manifests: vec![FileDigestSnapshot {
+                    path: Some("/home/alice/work/project/pyproject.toml".to_string()),
+                    digest: Some("sha256:manifest".to_string()),
+                }],
                 lockfiles: vec![FileDigestSnapshot {
                     path: Some("/home/alice/work/project/Cargo.lock".to_string()),
                     digest: Some("sha256:lock".to_string()),
                 }],
+                repository: Some("https://internal.example/repo".to_string()),
+                informational_uri: Some("https://internal.example/repo/tree/main".to_string()),
                 ..Default::default()
             }),
             attributions: vec![AttributionSnapshot {
@@ -1142,9 +1175,15 @@ mod tests {
         assert!(source.path.is_none());
         assert!(source.patch_digest.is_none());
 
-        let lockfile = &projected.environment.expect("environment").lockfiles[0];
+        let environment = projected.environment.expect("environment");
+        let manifest = &environment.manifests[0];
+        assert_eq!(manifest.path.as_deref(), Some("pyproject.toml"));
+        assert_eq!(manifest.digest.as_deref(), Some("sha256:manifest"));
+        let lockfile = &environment.lockfiles[0];
         assert_eq!(lockfile.path.as_deref(), Some("Cargo.lock"));
         assert_eq!(lockfile.digest.as_deref(), Some("sha256:lock"));
+        assert!(environment.repository.is_none());
+        assert!(environment.informational_uri.is_none());
 
         let reasons: Vec<_> = projected
             .privacy

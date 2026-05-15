@@ -6,7 +6,7 @@
 
 use std::{collections::BTreeSet, path::Path};
 
-use stencila_codec_utils::closest_git_repo;
+use stencila_codec_utils::{closest_git_repo, git_file_info, git_head_sha};
 
 use crate::{EnvironmentSnapshot, FileDigestSnapshot, RuntimeSnapshot, media};
 
@@ -17,6 +17,8 @@ use crate::{EnvironmentSnapshot, FileDigestSnapshot, RuntimeSnapshot, media};
 /// a deliberately small baseline and lets the privacy projection decide what is
 /// safe to publish.
 pub(super) fn environment_snapshot_for(source_path: Option<&Path>) -> EnvironmentSnapshot {
+    let (repository, commit, informational_uri) = environment_git_info(source_path);
+
     EnvironmentSnapshot {
         os: Some(std::env::consts::OS.to_string()),
         architecture: Some(std::env::consts::ARCH.to_string()),
@@ -24,17 +26,20 @@ pub(super) fn environment_snapshot_for(source_path: Option<&Path>) -> Environmen
             name: Some("stencila".to_string()),
             version: Some(stencila_version::STENCILA_VERSION.to_string()),
         }],
-        lockfiles: lockfile_snapshots(source_path),
+        manifests: file_digest_snapshots(source_path, COMMON_MANIFESTS),
+        lockfiles: file_digest_snapshots(source_path, COMMON_LOCKFILES),
+        repository,
+        commit,
+        informational_uri,
         ..Default::default()
     }
 }
 
-/// Collect digests for common lockfiles near the source document.
+/// Collect digests for common environment files near the source document.
 ///
-/// Lockfiles are a compact way to attest dependency state without embedding full
-/// package manifests. Checking both the source directory and Git root catches the
-/// common cases where documents live below a project-level environment file.
-fn lockfile_snapshots(source_path: Option<&Path>) -> Vec<FileDigestSnapshot> {
+/// Checking both the source directory and Git root catches the common cases
+/// where documents live below project-level environment files.
+fn file_digest_snapshots(source_path: Option<&Path>, names: &[&str]) -> Vec<FileDigestSnapshot> {
     let Some(source_path) = source_path else {
         return Vec::new();
     };
@@ -52,9 +57,9 @@ fn lockfile_snapshots(source_path: Option<&Path>) -> Vec<FileDigestSnapshot> {
     }
 
     let mut seen = BTreeSet::new();
-    let mut lockfiles = Vec::new();
+    let mut files = Vec::new();
     for dir in dirs {
-        for name in COMMON_LOCKFILES {
+        for name in names {
             let path = dir.join(name);
             if !path.is_file() || !seen.insert(path.clone()) {
                 continue;
@@ -64,8 +69,8 @@ fn lockfile_snapshots(source_path: Option<&Path>) -> Vec<FileDigestSnapshot> {
                 continue;
             };
 
-            lockfiles.push(FileDigestSnapshot {
-                path: Some(display_lockfile_path(
+            files.push(FileDigestSnapshot {
+                path: Some(display_environment_file_path(
                     &path,
                     repo_root.as_deref().unwrap_or(source_dir),
                 )),
@@ -74,8 +79,22 @@ fn lockfile_snapshots(source_path: Option<&Path>) -> Vec<FileDigestSnapshot> {
         }
     }
 
-    lockfiles
+    files
 }
+
+const COMMON_MANIFESTS: &[&str] = &[
+    "Cargo.toml",
+    "package.json",
+    "pyproject.toml",
+    "requirements.txt",
+    "requirements.in",
+    "Pipfile",
+    "environment.yml",
+    "environment.yaml",
+    "pixi.toml",
+    "devbox.json",
+    "mise.toml",
+];
 
 const COMMON_LOCKFILES: &[&str] = &[
     "Cargo.lock",
@@ -89,11 +108,36 @@ const COMMON_LOCKFILES: &[&str] = &[
     "renv.lock",
 ];
 
-/// Render a lockfile path relative to the project context.
+/// Capture repository details for the environment context.
+fn environment_git_info(
+    source_path: Option<&Path>,
+) -> (Option<String>, Option<String>, Option<String>) {
+    let Some(source_path) = source_path else {
+        return (None, None, None);
+    };
+
+    let repository = git_file_info(source_path).ok().and_then(|info| info.origin);
+    let commit = closest_git_repo(source_path)
+        .ok()
+        .as_deref()
+        .and_then(git_head_sha);
+    let informational_uri = match (&repository, &commit) {
+        (Some(repository), Some(commit))
+            if repository.starts_with("https://github.com/") && commit.len() == 40 =>
+        {
+            Some(format!("{repository}/tree/{commit}"))
+        }
+        _ => None,
+    };
+
+    (repository, commit, informational_uri)
+}
+
+/// Render an environment file path relative to the project context.
 ///
 /// Absolute host paths are noisy and often private. Relative, slash-normalized
 /// paths are enough for a verifier to locate the file within the signed project.
-fn display_lockfile_path(path: &Path, base_dir: &Path) -> String {
+fn display_environment_file_path(path: &Path, base_dir: &Path) -> String {
     path.strip_prefix(base_dir)
         .unwrap_or(path)
         .to_string_lossy()

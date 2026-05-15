@@ -394,11 +394,19 @@ impl From<EnvironmentSnapshot> for EnvironmentRecord {
                 .into_iter()
                 .map(RuntimeRecord::from)
                 .collect(),
+            manifests: snapshot
+                .manifests
+                .into_iter()
+                .map(FileDigestRecord::from)
+                .collect(),
             lockfiles: snapshot
                 .lockfiles
                 .into_iter()
                 .map(FileDigestRecord::from)
                 .collect(),
+            repository: snapshot.repository,
+            commit: snapshot.commit,
+            informational_uri: snapshot.informational_uri,
             ..Self::default()
         }
     }

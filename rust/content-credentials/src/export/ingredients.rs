@@ -21,9 +21,9 @@ use tokio::fs::write;
 
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
-    EnvironmentSnapshot, IngredientRelationship, IngredientSnapshot,
-    IngredientThumbnailSnapshot, ProjectionPolicy, ProvenanceSnapshot, Result,
-    SignAssetRequest, media, schema::EnvironmentRecord, thumbnails,
+    EnvironmentSnapshot, IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot,
+    ProjectionPolicy, ProvenanceSnapshot, Result, SignAssetRequest, media,
+    schema::EnvironmentRecord, thumbnails,
 };
 
 use super::source::{
@@ -351,6 +351,7 @@ async fn environment_ingredient(
     };
 
     let description = environment_description(&environment);
+    let informational_uri = environment.informational_uri.clone();
     let record = EnvironmentRecord::from(environment);
     let bytes = serde_json::to_vec(&record)?;
     if bytes == b"{}" {
@@ -386,6 +387,7 @@ async fn environment_ingredient(
         media_type: Some("application/json".to_string()),
         content_digest: Some(media::sha256_bytes(&bytes)),
         relationship: IngredientRelationship::InputTo,
+        informational_uri,
         description: Some(description),
         manifest_source: Some(signed.asset_path.clone()),
         thumbnail: Some(thumbnails::ingredient_for_node_type("EnvironmentRecord")),
@@ -446,16 +448,33 @@ fn environment_description(environment: &EnvironmentSnapshot) -> String {
         parts.push(runtimes.join(", "));
     }
 
+    let manifests: Vec<&str> = environment
+        .manifests
+        .iter()
+        .filter_map(|manifest| manifest.path.as_deref())
+        .collect();
+    if !manifests.is_empty() {
+        parts.push(format!("manifests {}", manifests.join(", ")));
+    }
+
     let lockfiles: Vec<&str> = environment
         .lockfiles
         .iter()
         .filter_map(|lockfile| lockfile.path.as_deref())
         .collect();
     if !lockfiles.is_empty() {
-        parts.push(lockfiles.join(", "));
+        parts.push(format!("lockfiles {}", lockfiles.join(", ")));
     }
 
-    parts.join("; ")
+    if let Some(repository) = environment.repository.as_deref() {
+        parts.push(format!("repository {repository}"));
+    }
+
+    if let Some(commit) = environment.commit.as_deref() {
+        parts.push(format!("commit {commit}"));
+    }
+
+    format!("Execution environment: {}", parts.join("; "))
 }
 
 /// Sign the executed source snippet as a temporary ingredient asset.
@@ -779,6 +798,10 @@ mod tests {
                     version: Some("3.12.0".to_string()),
                 },
             ],
+            manifests: vec![FileDigestSnapshot {
+                path: Some("pyproject.toml".to_string()),
+                digest: Some("sha256:123".to_string()),
+            }],
             lockfiles: vec![
                 FileDigestSnapshot {
                     path: Some("uv.lock".to_string()),
@@ -794,7 +817,7 @@ mod tests {
 
         assert_eq!(
             description,
-            "Execution environment: OS linux; architecture x86_64; runtimes stencila 2.15.0, python 3.12.0; lockfiles uv.lock, package-lock.json"
+            "Execution environment: Linux x86_64; stencila 2.15.0, python 3.12.0; manifests pyproject.toml; lockfiles uv.lock, package-lock.json"
         );
     }
 }

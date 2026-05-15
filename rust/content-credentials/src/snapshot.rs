@@ -397,7 +397,12 @@ pub struct EnvironmentSnapshot {
     #[serde(skip_serializing_if = "Vec::is_empty")]
     pub runtimes: Vec<RuntimeSnapshot>,
     #[serde(skip_serializing_if = "Vec::is_empty")]
+    pub manifests: Vec<FileDigestSnapshot>,
+    #[serde(skip_serializing_if = "Vec::is_empty")]
     pub lockfiles: Vec<FileDigestSnapshot>,
+    pub repository: Option<String>,
+    pub commit: Option<String>,
+    pub informational_uri: Option<String>,
 }
 
 #[skip_serializing_none]

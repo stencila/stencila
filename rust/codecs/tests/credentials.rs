@@ -776,9 +776,13 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     );
     let source_path = dir.path().join("analysis.smd");
     fs::write(&source_path, "# Analysis\n\n```python\nvalue = 1\n```\n")?;
+    fs::write(
+        dir.path().join("pyproject.toml"),
+        "[project]\nname = \"analysis\"\n",
+    )?;
     fs::write(dir.path().join("uv.lock"), "version = 1\n")?;
     fs::write(dir.path().join("data.csv"), "x\n1\n")?;
-    run_git(repo, &["add", "analysis.smd"]);
+    run_git(repo, &["add", "analysis.smd", "pyproject.toml", "uv.lock"]);
     run_git(repo, &["commit", "-q", "-m", "init"]);
 
     let output = dir.path().join("analysis.md");
@@ -898,11 +902,17 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         "environment ingredient description should be informative: {document_environment:#?}"
     );
     assert!(
-        document_environment_description.contains("OS ")
-            && document_environment_description.contains("architecture ")
-            && document_environment_description.contains("runtimes ")
+        document_environment_description.contains("Linux ")
+            && document_environment_description.contains("stencila ")
+            && document_environment_description.contains("manifests ")
             && document_environment_description.contains("lockfiles "),
         "environment ingredient description should summarize reproducibility fields: {document_environment_description}"
+    );
+    assert!(
+        document_environment["informational_URI"]
+            .as_str()
+            .is_some_and(|uri| uri.starts_with("https://github.com/example/repo/tree/")),
+        "environment ingredient URI should point at immutable repository context: {document_environment:#?}"
     );
     assert!(
         document_environment["validation_results"]["activeManifest"].is_object(),
@@ -1135,6 +1145,20 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         runtime.name.as_deref() == Some("stencila") && runtime.version.is_some()
     }));
     assert!(
+        environment.manifests.iter().any(|manifest| {
+            manifest
+                .path
+                .as_deref()
+                .is_some_and(|path| path.ends_with("pyproject.toml"))
+                && manifest
+                    .digest
+                    .as_deref()
+                    .is_some_and(|digest| digest.starts_with("sha256:"))
+        }),
+        "manifests: {:?}",
+        environment.manifests
+    );
+    assert!(
         environment.lockfiles.iter().any(|lockfile| {
             lockfile
                 .path
@@ -1147,6 +1171,22 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         }),
         "lockfiles: {:?}",
         environment.lockfiles
+    );
+    assert_eq!(
+        environment.repository.as_deref(),
+        Some("https://github.com/example/repo")
+    );
+    assert!(
+        environment
+            .commit
+            .as_deref()
+            .is_some_and(|commit| commit.len() == 40)
+    );
+    assert!(
+        environment
+            .informational_uri
+            .as_deref()
+            .is_some_and(|uri| uri.starts_with("https://github.com/example/repo/tree/"))
     );
 
     Ok(())
