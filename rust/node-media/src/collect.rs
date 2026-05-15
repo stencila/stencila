@@ -178,6 +178,7 @@ impl Collector {
         self_id: Option<&NodeId>,
         self_type: NodeType,
         title: Option<String>,
+        description: Option<String>,
     ) {
         let (node_type, node_id) = self.originating(self_id, self_type);
         let role = role_for(node_type);
@@ -187,6 +188,7 @@ impl Collector {
             node_type: Some(node_type.to_string()),
             role: Some(role.to_string()),
             title,
+            description,
             ..Default::default()
         });
     }
@@ -261,11 +263,12 @@ impl Collector {
 
         let desired_stem = self.namer.next_media_stem(image.id.as_deref());
         let title = self.namer.next_media_title(image.title.as_deref());
+        let description = self.namer.next_media_description(image.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&image.content_url, "image", desired_stem.as_deref())
         {
             let id = image.node_id();
-            self.record_asset(path, Some(&id), NodeType::ImageObject, title);
+            self.record_asset(path, Some(&id), NodeType::ImageObject, title, description);
             image.content_url = relative_url;
         }
     }
@@ -285,11 +288,12 @@ impl Collector {
 
         let desired_stem = self.namer.next_media_stem(audio.id.as_deref());
         let title = self.namer.next_media_title(audio.title.as_deref());
+        let description = self.namer.next_media_description(audio.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&audio.content_url, "audio", desired_stem.as_deref())
         {
             let id = audio.node_id();
-            self.record_asset(path, Some(&id), NodeType::AudioObject, title);
+            self.record_asset(path, Some(&id), NodeType::AudioObject, title, description);
             audio.content_url = relative_url;
         }
     }
@@ -302,11 +306,12 @@ impl Collector {
 
         let desired_stem = self.namer.next_media_stem(video.id.as_deref());
         let title = self.namer.next_media_title(video.title.as_deref());
+        let description = self.namer.next_media_description(video.title.as_deref());
         if let Some((relative_url, path)) =
             self.collect_media(&video.content_url, "video", desired_stem.as_deref())
         {
             let id = video.node_id();
-            self.record_asset(path, Some(&id), NodeType::VideoObject, title);
+            self.record_asset(path, Some(&id), NodeType::VideoObject, title, description);
             video.content_url = relative_url;
         }
     }
@@ -385,7 +390,7 @@ impl Collector {
             if let Some((new_url, path)) =
                 self.collect_media(src_value, media_type, desired_stem.as_deref())
             {
-                self.record_asset(path, None, node_type, None);
+                self.record_asset(path, None, node_type, None, None);
 
                 // Reconstruct the tag with the new URL
                 let new_tag =
@@ -584,7 +589,7 @@ mod tests {
         chunk.label_type = Some(LabelType::FigureLabel);
         chunk.label = Some("1a".to_string());
         chunk.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-            Text::from("A plot."),
+            Text::from("A plot. Extra detail."),
         )]))]);
         chunk.outputs = Some(vec![
             Node::ImageObject(ImageObject::new("plot-one.png".to_string())),
@@ -637,6 +642,12 @@ mod tests {
             assets
                 .iter()
                 .all(|asset| asset.title.as_deref() == Some("Figure 1a: A plot."))
+        );
+        assert!(
+            assets
+                .iter()
+                .all(|asset| asset.description.as_deref()
+                    == Some("Figure 1a: A plot. Extra detail."))
         );
 
         Ok(())

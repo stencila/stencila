@@ -19,7 +19,11 @@ privacy-aware while still surfacing the facts most likely to affect reruns.
 | [`os`](#os) | `string` | No | Operating system name or identifier. |
 | [`architecture`](#architecture) | `string` | No | CPU architecture. |
 | [`runtimes`](#runtimes) | array<[`RuntimeRecord`](runtime-record)> | No | Runtime versions relevant to reproduction. |
+| [`manifests`](#manifests) | array<[`FileDigestRecord`](file-digest-record)> | No | Environment manifest digests relevant to reproduction. |
 | [`lockfiles`](#lockfiles) | array<[`FileDigestRecord`](file-digest-record)> | No | Lockfile digests relevant to reproduction. |
+| [`repository`](#repository) | `string` | No | Source repository URL or identifier for the environment context. |
+| [`commit`](#commit) | `string` | No | Source commit hash for the environment context. |
+| [`informationalUri`](#informational-uri) | `string` | No | Informational URI for locating the environment context. |
 
 ### `containerImage`
 
@@ -58,6 +62,15 @@ so a verifier can display the most important runtimes first.
 
 **Type:** array<[`RuntimeRecord`](runtime-record)> | **Required:** No
 
+### `manifests`
+
+Environment manifest digests relevant to reproduction.
+
+Manifests identify declared dependency and tool requirements, complementing
+lockfiles that identify resolved dependency state.
+
+**Type:** array<[`FileDigestRecord`](file-digest-record)> | **Required:** No
+
 ### `lockfiles`
 
 Lockfile digests relevant to reproduction.
@@ -66,6 +79,34 @@ Digests identify dependency state without embedding potentially large or
 private lockfiles in the manifest.
 
 **Type:** array<[`FileDigestRecord`](file-digest-record)> | **Required:** No
+
+### `repository`
+
+Source repository URL or identifier for the environment context.
+
+This usually matches the source repository, but is stored with the
+environment so the manifest and lockfile paths can be resolved even when
+the signed asset does not disclose a source document.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `commit`
+
+Source commit hash for the environment context.
+
+A full commit hash lets verifiers locate immutable manifest and lockfile
+contents when the repository URL is public.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `informationalUri`
+
+Informational URI for locating the environment context.
+
+This should point to immutable, human-browsable environment context such
+as a repository tree at a full commit hash.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
 
 
 ---

@@ -42,6 +42,7 @@ pub(super) fn build_export_snapshot(
         primary,
         asset_role,
         asset_title,
+        asset_description,
         codec_name,
         profile,
     } = options;
@@ -64,6 +65,7 @@ pub(super) fn build_export_snapshot(
             .and_then(|name| name.to_str())
             .map(ToString::to_string)
     });
+    snapshot.asset.description = asset_description.map(ToString::to_string);
     if let Ok(metadata) = std::fs::metadata(asset_path) {
         snapshot.asset.size = Some(metadata.len());
     }
@@ -143,6 +145,8 @@ pub(super) struct ExportSnapshotOptions<'a> {
     pub asset_role: Option<&'a str>,
     /// Codec-provided display title for a side asset.
     pub asset_title: Option<&'a str>,
+    /// Codec-provided display description for a side asset.
+    pub asset_description: Option<&'a str>,
     /// Name of the codec that produced the exported bytes.
     pub codec_name: Option<&'a str>,
     /// Privacy profile used to annotate policy decisions in the snapshot.

@@ -106,6 +106,12 @@ pub struct EncodedAsset {
     /// useful title instead of falling back to the file name.
     pub title: Option<String>,
 
+    /// Human-readable description for this asset, when known.
+    ///
+    /// For generated media this is usually the full nearest labelled Figure or
+    /// CodeChunk caption, while `title` may be shortened for display.
+    pub description: Option<String>,
+
     /// Whether Content Credentials were attached to this asset.
     ///
     /// `false` for plain side assets, originating sidecar files, or assets

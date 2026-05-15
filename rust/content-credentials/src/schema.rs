@@ -304,6 +304,12 @@ pub struct AssetRecord {
     /// the underlying bytes.
     pub title: Option<String>,
 
+    /// Human-readable description for the asset.
+    ///
+    /// For generated media this may carry the full caption even when `title` is
+    /// shortened for display in C2PA tooling.
+    pub description: Option<String>,
+
     /// Asset byte length before signing.
     ///
     /// Size is a cheap consistency check and useful in audit output. It is

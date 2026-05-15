@@ -374,6 +374,13 @@
             "null"
           ]
         },
+        "description": {
+          "description": "Human-readable description for the asset.\n\nFor generated media this may carry the full caption even when `title` is\nshortened for display in C2PA tooling.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#description",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "size": {
           "description": "Asset byte length before signing.\n\nSize is a cheap consistency check and useful in audit output. It is\noptional because some producers may stream content without retaining a\nlength at projection time.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/asset-record#size",
           "type": [
@@ -1065,12 +1072,40 @@
             "$ref": "#/definitions/RuntimeRecord"
           }
         },
+        "manifests": {
+          "description": "Environment manifest digests relevant to reproduction.\n\nManifests identify declared dependency and tool requirements, complementing\nlockfiles that identify resolved dependency state.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#manifests",
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FileDigestRecord"
+          }
+        },
         "lockfiles": {
           "description": "Lockfile digests relevant to reproduction.\n\nDigests identify dependency state without embedding potentially large or\nprivate lockfiles in the manifest.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#lockfiles",
           "type": "array",
           "items": {
             "$ref": "#/definitions/FileDigestRecord"
           }
+        },
+        "repository": {
+          "description": "Source repository URL or identifier for the environment context.\n\nThis usually matches the source repository, but is stored with the\nenvironment so the manifest and lockfile paths can be resolved even when\nthe signed asset does not disclose a source document.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#repository",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "commit": {
+          "description": "Source commit hash for the environment context.\n\nA full commit hash lets verifiers locate immutable manifest and lockfile\ncontents when the repository URL is public.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#commit",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "informationalUri": {
+          "description": "Informational URI for locating the environment context.\n\nThis should point to immutable, human-browsable environment context such\nas a repository tree at a full commit hash.\n\nDocumentation: https://stencila.io/docs/content-credentials/provenance-assertion/environment-record#informational-uri",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       }
     },

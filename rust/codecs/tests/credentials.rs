@@ -72,7 +72,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     let node = Node::Article(Article::new(vec![Block::Figure(Figure {
         label: Some("1".to_string()),
         caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-            Text::from("Generated result."),
+            Text::from("Generated result. Additional caption detail."),
         )]))]),
         content: vec![Block::ImageObject(ImageObject::new(
             "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
@@ -130,6 +130,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         media_asset.title.as_deref(),
         Some("Figure 1: Generated result.")
     );
+    assert_eq!(
+        media_asset.description.as_deref(),
+        Some("Figure 1: Generated result. Additional caption detail.")
+    );
     assert!(
         media_asset
             .manifest_id
@@ -166,6 +170,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .find(|ingredient| ingredient["relationship"] == "componentOf")
         .expect("component ingredient");
     assert_eq!(component["title"], "Figure 1: Generated result.");
+    assert_eq!(
+        component["description"],
+        "Figure 1: Generated result. Additional caption detail."
+    );
     assert_eq!(component["format"], "image/png");
     assert!(
         component["active_manifest"].is_string(),
@@ -193,6 +201,10 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     assert_eq!(
         media_assertion.asset.title.as_deref(),
         Some("Figure 1: Generated result.")
+    );
+    assert_eq!(
+        media_assertion.asset.description.as_deref(),
+        Some("Figure 1: Generated result. Additional caption detail.")
     );
     assert!(
         media_assertion.executed_node.is_none(),

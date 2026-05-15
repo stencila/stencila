@@ -70,6 +70,10 @@ struct NamingContext {
     /// Human-readable title derived from a surrounding label and caption.
     title: Option<String>,
 
+    /// Full human-readable description derived from a surrounding label and
+    /// caption.
+    description: Option<String>,
+
     /// Whether this context came from a Figure.
     ///
     /// Only Figure contexts allocate alpha suffixes for child subfigures; a
@@ -119,14 +123,15 @@ impl MediaNamer {
     /// figures receive the parent's next alpha suffix as a fallback.
     pub fn push_figure(&mut self, figure: &Figure) {
         let stem = self.figure_stem(figure);
-        let title = labelled_title(
+        let metadata = labelled_metadata(
             Some("Figure"),
             figure.label.as_deref(),
             figure.caption.as_deref(),
         );
         self.contexts.push(NamingContext {
             stem,
-            title,
+            title: metadata.title,
+            description: metadata.description,
             is_figure: true,
             next_subfigure: 0,
         });
@@ -139,10 +144,11 @@ impl MediaNamer {
     pub fn push_code_chunk(&mut self, chunk: &CodeChunk) {
         let stem = self.code_chunk_stem(chunk);
         let kind = chunk.label_type.as_ref().map(label_type_name);
-        let title = labelled_title(kind, chunk.label.as_deref(), chunk.caption.as_deref());
+        let metadata = labelled_metadata(kind, chunk.label.as_deref(), chunk.caption.as_deref());
         self.contexts.push(NamingContext {
             stem,
-            title,
+            title: metadata.title,
+            description: metadata.description,
             is_figure: false,
             next_subfigure: 0,
         });
@@ -184,6 +190,25 @@ impl MediaNamer {
             .iter()
             .rev()
             .find_map(|context| context.title.clone())
+    }
+
+    /// Return the description for the next media item.
+    ///
+    /// Media with their own title are treated as explicitly described already.
+    /// Anonymous generated media inherit the full nearest labelled Figure or
+    /// CodeChunk caption.
+    pub fn next_media_description<T: TextCodec>(
+        &self,
+        media_title: Option<&[T]>,
+    ) -> Option<String> {
+        if text_from_nodes(media_title).is_some() {
+            return None;
+        }
+
+        self.contexts
+            .iter()
+            .rev()
+            .find_map(|context| context.description.clone())
     }
 
     /// Write decoded data URI bytes using the requested readable stem.
@@ -461,28 +486,48 @@ fn label_type_name(label_type: &LabelType) -> &'static str {
     }
 }
 
-/// Build a reader-facing media title from an optional label type, label, and caption.
+struct LabelledMetadata {
+    title: Option<String>,
+    description: Option<String>,
+}
+
+/// Build reader-facing media metadata from an optional label type, label, and caption.
 ///
 /// This mirrors how generated figures are presented in documents so Content
-/// Credentials manifests can show useful titles instead of falling back to
-/// asset file names.
-fn labelled_title<T: TextCodec>(
+/// Credentials manifests can show useful titles and descriptions instead of
+/// falling back to asset file names.
+fn labelled_metadata<T: TextCodec>(
     kind: Option<&str>,
     label: Option<&str>,
     caption: Option<&[T]>,
-) -> Option<String> {
+) -> LabelledMetadata {
     let caption = text_from_nodes(caption);
     let prefix = kind.map(|kind| match label {
         Some(label) => format!("{kind} {label}"),
         None => kind.to_string(),
     });
 
-    match (prefix, caption) {
+    let description = match (prefix, caption) {
         (Some(prefix), Some(caption)) => Some(format!("{prefix}: {caption}")),
         (Some(prefix), None) if label.is_some() => Some(prefix),
         (Some(_), None) | (None, None) => None,
         (None, Some(caption)) => Some(caption),
+    };
+
+    LabelledMetadata {
+        title: description.as_deref().map(first_sentence),
+        description,
     }
+}
+
+/// Keep inherited media titles compact by using text up to the first full stop.
+fn first_sentence(text: &str) -> String {
+    let text = text.trim();
+    let Some(index) = text.find('.') else {
+        return text.to_string();
+    };
+
+    text[..=index].trim().to_string()
 }
 
 /// Convert caption or title nodes into compact plain text.

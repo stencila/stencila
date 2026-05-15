@@ -77,6 +77,7 @@ struct SideAssetTarget {
     node_type: Option<String>,
     role: Option<String>,
     title: Option<String>,
+    description: Option<String>,
     emitted: bool,
 }
 
@@ -129,6 +130,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             node_type: asset.node_type.clone(),
             role: asset.role.clone(),
             title: asset.title.clone(),
+            description: asset.description.clone(),
             emitted: true,
         });
     }
@@ -145,6 +147,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                     node_type: asset.node_type,
                     role: asset.role,
                     title: asset.title,
+                    description: asset.description,
                     emitted: false,
                 });
             }
@@ -190,6 +193,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             node_type: target_node_type,
             role: asset_role,
             title: asset_title,
+            description: asset_description,
             emitted,
         } = target;
 
@@ -217,6 +221,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             component_ingredients.push(signed_component_ingredient(
                 component_index,
                 asset_title,
+                asset_description,
                 &asset_path,
                 media_type,
                 media::sha256_file(&asset_path)?,
@@ -243,6 +248,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                 primary: false,
                 asset_role: asset_role.as_deref(),
                 asset_title: asset_title.as_deref(),
+                asset_description: asset_description.as_deref(),
                 codec_name: Some(codec_name),
                 profile: credential_profile,
             },
@@ -301,6 +307,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         component_ingredients.push(signed_component_ingredient(
             component_index,
             asset_title,
+            asset_description,
             &asset_path,
             media_type,
             signed.signed_asset_digest,
@@ -357,6 +364,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                 primary: true,
                 asset_role: None,
                 asset_title: None,
+                asset_description: None,
                 codec_name: Some(codec_name),
                 profile: credential_profile,
             },
@@ -390,6 +398,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             node_type: Some(node.node_type().to_string()),
             role: Some("document".to_string()),
             title: None,
+            description: None,
             signed: true,
             manifest_kind: Some(manifest_kind_label(signed.manifest_kind).to_string()),
             manifest_id: signed.manifest_id.clone(),
@@ -488,6 +497,7 @@ async fn embedded_component_ingredients(
                 primary: false,
                 asset_role: asset.role.as_deref(),
                 asset_title: asset.title.as_deref(),
+                asset_description: asset.description.as_deref(),
                 codec_name: Some(codec_name),
                 profile: credential_profile,
             },
@@ -522,6 +532,7 @@ async fn embedded_component_ingredients(
         component_ingredients.push(signed_component_ingredient(
             component_index,
             asset.title,
+            asset.description,
             &asset.path,
             media_type,
             signed.signed_asset_digest,
@@ -546,6 +557,7 @@ fn supports_embedded_component_extraction(codec_name: &str) -> bool {
 fn signed_component_ingredient(
     component_index: usize,
     title: Option<String>,
+    description: Option<String>,
     path: &Path,
     media_type: Option<String>,
     content_digest: String,
@@ -567,6 +579,7 @@ fn signed_component_ingredient(
         media_type,
         content_digest: Some(content_digest),
         relationship: IngredientRelationship::ComponentOf,
+        description,
         manifest_source: Some(manifest_source),
         thumbnail,
         ..Default::default()

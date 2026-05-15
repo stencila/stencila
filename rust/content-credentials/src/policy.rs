@@ -217,6 +217,12 @@ impl ProjectionPolicy {
             self.home_dir.as_deref(),
             redactions,
         );
+        project_text_option(
+            "asset.description",
+            &mut asset.description,
+            self.home_dir.as_deref(),
+            redactions,
+        );
     }
 
     fn project_document(

@@ -144,6 +144,7 @@ impl From<AssetSnapshot> for AssetRecord {
             content_digest: snapshot.content_digest,
             label: snapshot.label,
             title: snapshot.title,
+            description: snapshot.description,
             size: snapshot.size,
             width: snapshot.width,
             height: snapshot.height,

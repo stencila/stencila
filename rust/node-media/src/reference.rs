@@ -84,6 +84,7 @@ impl Referencer {
         self_id: Option<&NodeId>,
         self_type: NodeType,
         title: Option<String>,
+        description: Option<String>,
     ) {
         let (node_type, node_id) = self.originating(self_id, self_type);
         let role = role_for(node_type);
@@ -93,6 +94,7 @@ impl Referencer {
             node_type: Some(node_type.to_string()),
             role: Some(role.to_string()),
             title,
+            description,
             ..Default::default()
         });
     }
@@ -131,7 +133,8 @@ impl Referencer {
         if let Some(path) = self.resolve_media(&image.content_url) {
             let id = image.node_id();
             let title = self.namer.next_media_title(image.title.as_deref());
-            self.record_asset(path, Some(&id), NodeType::ImageObject, title);
+            let description = self.namer.next_media_description(image.title.as_deref());
+            self.record_asset(path, Some(&id), NodeType::ImageObject, title, description);
         }
     }
 
@@ -145,7 +148,8 @@ impl Referencer {
         if let Some(path) = self.resolve_media(&audio.content_url) {
             let id = audio.node_id();
             let title = self.namer.next_media_title(audio.title.as_deref());
-            self.record_asset(path, Some(&id), NodeType::AudioObject, title);
+            let description = self.namer.next_media_description(audio.title.as_deref());
+            self.record_asset(path, Some(&id), NodeType::AudioObject, title, description);
         }
     }
 
@@ -153,7 +157,8 @@ impl Referencer {
         if let Some(path) = self.resolve_media(&video.content_url) {
             let id = video.node_id();
             let title = self.namer.next_media_title(video.title.as_deref());
-            self.record_asset(path, Some(&id), NodeType::VideoObject, title);
+            let description = self.namer.next_media_description(video.title.as_deref());
+            self.record_asset(path, Some(&id), NodeType::VideoObject, title, description);
         }
     }
 
@@ -360,7 +365,7 @@ mod tests {
             id: Some("Fig 1".to_string()),
             label: Some("1".to_string()),
             caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-                Text::from("A figure caption."),
+                Text::from("A figure caption. Extra detail."),
             )]))]),
             content: vec![Block::ImageObject(ImageObject::new("plot.png".to_string()))],
             ..Default::default()
@@ -375,6 +380,10 @@ mod tests {
         assert_eq!(
             assets[0].title.as_deref(),
             Some("Figure 1: A figure caption.")
+        );
+        assert_eq!(
+            assets[0].description.as_deref(),
+            Some("Figure 1: A figure caption. Extra detail.")
         );
 
         let Block::Figure(figure) = block else {

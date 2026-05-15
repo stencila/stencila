@@ -23,6 +23,7 @@ identify the source rendition without embedding a full Stencila node.
 | [`contentDigest`](#content-digest) | `string` | Yes | Digest of the pre-credential asset bytes. |
 | [`label`](#label) | `string` | No | Stencila label associated with the asset. |
 | [`title`](#title) | `string` | No | Human-readable title for the asset. |
+| [`description`](#description) | `string` | No | Human-readable description for the asset. |
 | [`size`](#size) | `integer` | No | Asset byte length before signing. |
 | [`width`](#width) | `integer` | No | Width for image or video assets. |
 | [`height`](#height) | `integer` | No | Height for image or video assets. |
@@ -97,6 +98,15 @@ Human-readable title for the asset.
 This is display metadata for reviewers. It is optional and should not be
 treated as a stable identifier because titles can change independently of
 the underlying bytes.
+
+**Type:** `string` | **Required:** No | **Nullable:** Yes
+
+### `description`
+
+Human-readable description for the asset.
+
+For generated media this may carry the full caption even when `title` is
+shortened for display in C2PA tooling.
 
 **Type:** `string` | **Required:** No | **Nullable:** Yes
 

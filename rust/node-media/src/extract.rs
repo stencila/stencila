@@ -153,6 +153,7 @@ impl Extractor {
         self_id: Option<&NodeId>,
         self_type: NodeType,
         title: Option<String>,
+        description: Option<String>,
     ) {
         let (node_type, node_id) = self.originating(self_id, self_type);
         let role = role_for(node_type);
@@ -162,6 +163,7 @@ impl Extractor {
             node_type: Some(node_type.to_string()),
             role: Some(role.to_string()),
             title,
+            description,
             ..Default::default()
         });
     }
@@ -236,10 +238,11 @@ impl Extractor {
         if image.content_url.starts_with("data:") {
             let desired_stem = self.namer.next_media_stem(image.id.as_deref());
             let title = self.namer.next_media_title(image.title.as_deref());
+            let description = self.namer.next_media_description(image.title.as_deref());
             match self.data_uri_to_file(&image.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = image.node_id();
-                    self.record_asset(path, Some(&id), NodeType::ImageObject, title);
+                    self.record_asset(path, Some(&id), NodeType::ImageObject, title, description);
                     image.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing image to file: {error}"),
@@ -251,10 +254,11 @@ impl Extractor {
         if audio.content_url.starts_with("data:") {
             let desired_stem = self.namer.next_media_stem(audio.id.as_deref());
             let title = self.namer.next_media_title(audio.title.as_deref());
+            let description = self.namer.next_media_description(audio.title.as_deref());
             match self.data_uri_to_file(&audio.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = audio.node_id();
-                    self.record_asset(path, Some(&id), NodeType::AudioObject, title);
+                    self.record_asset(path, Some(&id), NodeType::AudioObject, title, description);
                     audio.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing audio to file: {error}"),
@@ -266,10 +270,11 @@ impl Extractor {
         if video.content_url.starts_with("data:") {
             let desired_stem = self.namer.next_media_stem(video.id.as_deref());
             let title = self.namer.next_media_title(video.title.as_deref());
+            let description = self.namer.next_media_description(video.title.as_deref());
             match self.data_uri_to_file(&video.content_url, desired_stem.as_deref()) {
                 Ok((path, file_path)) => {
                     let id = video.node_id();
-                    self.record_asset(path, Some(&id), NodeType::VideoObject, title);
+                    self.record_asset(path, Some(&id), NodeType::VideoObject, title, description);
                     video.content_url = file_path;
                 }
                 Err(error) => tracing::error!("While writing video to file: {error}"),
@@ -453,7 +458,7 @@ mod tests {
             id: Some("Fig 1".to_string()),
             label: Some("1".to_string()),
             caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-                Text::from("A figure caption."),
+                Text::from("A figure caption. Extra detail."),
             )]))]),
             content: vec![Block::ImageObject(ImageObject::new(DATA_URI_1.to_string()))],
             ..Default::default()
@@ -476,6 +481,10 @@ mod tests {
         assert_eq!(
             assets[0].title.as_deref(),
             Some("Figure 1: A figure caption.")
+        );
+        assert_eq!(
+            assets[0].description.as_deref(),
+            Some("Figure 1: A figure caption. Extra detail.")
         );
 
         Ok(())
@@ -524,7 +533,7 @@ mod tests {
         chunk.label_type = Some(LabelType::FigureLabel);
         chunk.label = Some("1a".to_string());
         chunk.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-            Text::from("A plot."),
+            Text::from("A plot. Extra detail."),
         )]))]);
         chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
             DATA_URI_1.to_string(),
@@ -554,6 +563,10 @@ mod tests {
         assert_eq!(assets[0].node_type.as_deref(), Some("CodeChunk"));
         assert_eq!(assets[0].role.as_deref(), Some("computational-output"));
         assert_eq!(assets[0].title.as_deref(), Some("Figure 1a: A plot."));
+        assert_eq!(
+            assets[0].description.as_deref(),
+            Some("Figure 1a: A plot. Extra detail.")
+        );
 
         Ok(())
     }
