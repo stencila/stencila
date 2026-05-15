@@ -11201,6 +11201,7 @@ dependencies = [
  "chrono",
  "clap",
  "eyre",
+ "image",
  "insta",
  "lopdf",
  "mime_guess",

@@ -11,7 +11,7 @@ use std::{
 };
 
 use stencila_codec_info::{EncodeInfo, EncodedAsset};
-use stencila_node_media::extract_media_with_paths;
+use stencila_node_media::{extract_media_with_paths, reference_media_with_paths};
 use stencila_schema::{Node, NodeId};
 use tempfile::{TempDir, tempdir};
 
@@ -77,6 +77,7 @@ struct SideAssetTarget {
     node_type: Option<String>,
     role: Option<String>,
     title: Option<String>,
+    emitted: bool,
 }
 
 /// Sign every path emitted by a Stencila codec export.
@@ -128,7 +129,29 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             node_type: asset.node_type.clone(),
             role: asset.role.clone(),
             title: asset.title.clone(),
+            emitted: true,
         });
+    }
+
+    match reference_media_with_paths(node, source_path) {
+        Ok(assets) => {
+            for asset in assets {
+                if !seen.insert(asset.path.clone()) {
+                    continue;
+                }
+                side_targets.push(SideAssetTarget {
+                    path: asset.path,
+                    originating_id: asset.node_id,
+                    node_type: asset.node_type,
+                    role: asset.role,
+                    title: asset.title,
+                    emitted: false,
+                });
+            }
+        }
+        Err(error) => {
+            tracing::warn!("Could not discover referenced media for Content Credentials: {error}");
+        }
     }
 
     let source_manifest = if source_ingredient.is_some() {
@@ -157,14 +180,17 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
 
     let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
     let mut component_ingredients: Vec<IngredientSnapshot> = Vec::new();
+    let mut temporary_static_component_dirs: Vec<TempDir> = Vec::new();
+    let mut component_index = 0;
 
-    for (component_index, target) in side_targets.into_iter().enumerate() {
+    for target in side_targets {
         let SideAssetTarget {
             path: asset_path,
             originating_id,
             node_type: target_node_type,
             role: asset_role,
             title: asset_title,
+            emitted,
         } = target;
 
         if !asset_path.is_file() {
@@ -186,6 +212,20 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                 continue;
             }
         };
+
+        if media::has_c2pa_manifest(&asset_path, media_type.as_deref()) {
+            component_ingredients.push(signed_component_ingredient(
+                component_index,
+                asset_title,
+                &asset_path,
+                media_type,
+                media::sha256_file(&asset_path)?,
+                asset_path.clone(),
+                target_node_type.as_deref(),
+            ));
+            component_index += 1;
+            continue;
+        }
 
         let owned_subject = originating_id
             .as_deref()
@@ -217,14 +257,23 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         )
         .await?;
 
+        let static_component_dir = if emitted { None } else { Some(tempdir()?) };
+        let output_path = static_component_dir.as_ref().map(|dir| {
+            dir.path().join(
+                asset_path
+                    .file_name()
+                    .unwrap_or_else(|| std::ffi::OsStr::new("component")),
+            )
+        });
+
         let signed = producer
             .sign_exported_asset(SignAssetRequest {
                 input_path: asset_path.clone(),
+                output_path: output_path.clone(),
                 media_type: media_type.clone(),
                 title: asset_title.clone(),
                 credential_profile,
                 provenance: Some(provenance),
-                ..Default::default()
             })
             .await?;
 
@@ -241,11 +290,13 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             apply_signed_asset_metadata(asset, &signed);
         }
 
-        push_sidecar_asset_once(
-            signed.sidecar_path.as_deref(),
-            &info.assets,
-            &mut new_sidecars,
-        );
+        if emitted {
+            push_sidecar_asset_once(
+                signed.sidecar_path.as_deref(),
+                &info.assets,
+                &mut new_sidecars,
+            );
+        }
 
         component_ingredients.push(signed_component_ingredient(
             component_index,
@@ -256,30 +307,36 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             manifest_source,
             target_node_type.as_deref(),
         ));
+        component_index += 1;
+
+        if let Some(dir) = static_component_dir {
+            temporary_static_component_dirs.push(dir);
+        }
     }
 
-    // Keep the temp dir alive until the primary manifest has linked the
-    // temporary child manifests referenced by `component_ingredients`.
-    let _temporary_component_dir =
-        if component_ingredients.is_empty() && supports_embedded_component_extraction(codec_name) {
-            let (embedded_components, temporary_component_dir) =
-                Box::pin(embedded_component_ingredients(
-                    &producer,
-                    node,
-                    output_path,
-                    source_ranges,
-                    source_path,
-                    source_ingredient.clone(),
-                    source_manifest_path,
-                    codec_name,
-                    credential_profile,
-                ))
-                .await?;
-            component_ingredients.extend(embedded_components);
-            temporary_component_dir
-        } else {
-            None
-        };
+    // Keep temp dirs alive until the primary manifest has linked the temporary
+    // child manifests referenced by `component_ingredients`.
+    let _temporary_static_component_dirs = temporary_static_component_dirs;
+    let _temporary_component_dir = if supports_embedded_component_extraction(codec_name) {
+        let (embedded_components, temporary_component_dir) =
+            Box::pin(embedded_component_ingredients(
+                &producer,
+                node,
+                output_path,
+                source_ranges,
+                source_path,
+                source_ingredient.clone(),
+                source_manifest_path,
+                codec_name,
+                credential_profile,
+                component_index,
+            ))
+            .await?;
+        component_ingredients.extend(embedded_components);
+        temporary_component_dir
+    } else {
+        None
+    };
 
     {
         let media_type = match media::guess_media_type(output_path) {
@@ -374,6 +431,7 @@ async fn embedded_component_ingredients(
     source_manifest_path: Option<&Path>,
     codec_name: &str,
     credential_profile: CredentialProfile,
+    mut component_index: usize,
 ) -> Result<(Vec<IngredientSnapshot>, Option<TempDir>)> {
     let temp_dir = tempdir()?;
     let mut node = node.clone();
@@ -390,7 +448,7 @@ async fn embedded_component_ingredients(
 
     let mut component_ingredients = Vec::new();
 
-    for (component_index, asset) in assets.into_iter().enumerate() {
+    for asset in assets {
         if !asset.path.is_file() {
             tracing::warn!(
                 asset = %asset.path.display(),
@@ -468,6 +526,7 @@ async fn embedded_component_ingredients(
             manifest_source,
             asset.node_type.as_deref(),
         ));
+        component_index += 1;
     }
 
     if component_ingredients.is_empty() {

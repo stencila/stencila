@@ -7,11 +7,13 @@
 
 use std::{
     fs,
+    io::Cursor,
     path::{Path, PathBuf},
     time::SystemTime,
 };
 
 use chrono::{DateTime, Utc};
+use image::ImageReader;
 use stencila_codec_utils::{git_file_first_committed_at, git_file_last_committed_at};
 use tempfile::{TempDir, tempdir};
 use tokio::fs::write;
@@ -26,6 +28,9 @@ use super::source::{
     source_informational_uri, source_informational_uri_with_range, source_range_display_end_line,
     source_range_text,
 };
+
+const MAX_INGREDIENT_THUMBNAIL_BYTES: usize = 256 * 1024;
+const INGREDIENT_THUMBNAIL_WIDTHS: &[u32] = &[320, 192, 128];
 
 /// Build the source document ingredient snapshot.
 ///
@@ -74,15 +79,72 @@ pub(super) fn image_ingredient_thumbnail(
     path: &Path,
     media_type: &str,
 ) -> Option<IngredientThumbnailSnapshot> {
-    is_thumbnail_media_type(media_type)
-        .then(|| IngredientThumbnailSnapshot::from_path_with_media_type(path, media_type))
+    match media_type {
+        "image/png" | "image/jpeg" | "image/jpg" => raster_ingredient_thumbnail(path),
+        "image/svg+xml" | "image/gif" | "image/webp" => Some(
+            IngredientThumbnailSnapshot::from_path_with_media_type(path, media_type),
+        ),
+        _ => None,
+    }
 }
 
-fn is_thumbnail_media_type(media_type: &str) -> bool {
-    matches!(
-        media_type,
-        "image/png" | "image/jpeg" | "image/jpg" | "image/gif" | "image/svg+xml" | "image/webp"
-    )
+/// Build a bounded parent-side ingredient thumbnail for a raster image.
+///
+/// Ingredient thumbnails are embedded into the parent manifest as
+/// `c2pa.thumbnail.ingredient.*` resources. Pointing at the original image file
+/// would either duplicate the full asset in the parent manifest or be dropped
+/// by the signing layer when the file exceeds the C2PA thumbnail size limit.
+/// Instead, raster images are decoded, downscaled, and re-encoded into small
+/// in-memory bytes that can be attached consistently without mutating or
+/// copying the source image.
+fn raster_ingredient_thumbnail(path: &Path) -> Option<IngredientThumbnailSnapshot> {
+    let image = ImageReader::open(path)
+        .ok()?
+        .with_guessed_format()
+        .ok()?
+        .decode()
+        .ok()?;
+
+    for width in INGREDIENT_THUMBNAIL_WIDTHS {
+        let thumbnail = image.thumbnail(*width, *width);
+        if !thumbnail.color().has_alpha()
+            && let Some(bytes) = encode_jpeg_thumbnail(&thumbnail)
+            && bytes.len() <= MAX_INGREDIENT_THUMBNAIL_BYTES
+        {
+            return Some(IngredientThumbnailSnapshot::from_bytes(
+                "image/jpeg".to_string(),
+                bytes,
+            ));
+        }
+
+        if let Some(bytes) = encode_png_thumbnail(&thumbnail)
+            && bytes.len() <= MAX_INGREDIENT_THUMBNAIL_BYTES
+        {
+            return Some(IngredientThumbnailSnapshot::from_bytes(
+                "image/png".to_string(),
+                bytes,
+            ));
+        }
+    }
+
+    None
+}
+
+fn encode_jpeg_thumbnail(image: &image::DynamicImage) -> Option<Vec<u8>> {
+    let rgb = image.to_rgb8();
+    let mut bytes = Vec::new();
+    image::codecs::jpeg::JpegEncoder::new_with_quality(&mut bytes, 82)
+        .encode_image(&rgb)
+        .ok()?;
+    Some(bytes)
+}
+
+fn encode_png_thumbnail(image: &image::DynamicImage) -> Option<Vec<u8>> {
+    let mut bytes = Vec::new();
+    image
+        .write_to(&mut Cursor::new(&mut bytes), image::ImageFormat::Png)
+        .ok()?;
+    Some(bytes)
 }
 
 /// Temporary signed child manifest used while signing a parent asset.

@@ -10,7 +10,8 @@ use c2pa::Builder;
 use serde_json::json;
 use stencila_content_credentials::{
     CredentialProducer, CredentialVerifier, Error, ManifestKind, Result, SignAssetRequest,
-    VerifyAssetRequest, init_local_signing_identity, signer::CredentialSignerConfig,
+    VerifyAssetRequest, init_local_signing_identity, media::has_c2pa_manifest,
+    signer::CredentialSignerConfig,
 };
 use tempfile::{NamedTempFile, TempDir};
 
@@ -179,6 +180,41 @@ async fn sidecar_signing_persists_rewritten_asset() -> Result<()> {
     assert!(
         report.asset_binding.valid,
         "sidecar must bind to the persisted asset bytes: {report:?}"
+    );
+
+    Ok(())
+}
+
+/// Ensures stale sidecars are not considered reusable credentials.
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn has_c2pa_manifest_rejects_invalid_asset_binding() -> Result<()> {
+    let _guard = common::set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let tmp = TempDir::new()?;
+    let asset = tmp.path().join("doc.gif");
+    fs::write(&asset, MINIMAL_GIF)?;
+
+    let signer = CredentialSignerConfig::resolve(None, None)?;
+    let producer = CredentialProducer::new(signer);
+    producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: asset.clone(),
+            media_type: Some("image/gif".to_string()),
+            ..Default::default()
+        })
+        .await?;
+
+    assert!(has_c2pa_manifest(&asset, Some("image/gif")));
+
+    {
+        let mut file = File::options().append(true).open(&asset)?;
+        file.write_all(b"tamper")?;
+    }
+
+    assert!(
+        !has_c2pa_manifest(&asset, Some("image/gif")),
+        "a readable but stale sidecar should not be reused"
     );
 
     Ok(())

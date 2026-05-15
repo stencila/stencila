@@ -1,12 +1,24 @@
 //! Media-type and asset-byte helpers.
 
 use std::{
-    fs::File,
+    fs::{self, File},
     io::{BufReader, Read},
     path::{Path, PathBuf},
 };
 
-use c2pa::Reader;
+use c2pa::{
+    Context, Reader, ValidationState,
+    validation_status::{
+        ASSERTION_BMFFHASH_MALFORMED, ASSERTION_BMFFHASH_MATCH, ASSERTION_BMFFHASH_MISMATCH,
+        ASSERTION_BOXESHASH_MALFORMED, ASSERTION_BOXHASH_MATCH, ASSERTION_BOXHASH_MISMATCH,
+        ASSERTION_BOXHASH_UNKNOWN_BOX, ASSERTION_CLOUD_DATA_HARD_BINDING,
+        ASSERTION_COLLECTIONHASH_INCORRECT_FILE_COUNT, ASSERTION_COLLECTIONHASH_INVALID_URI,
+        ASSERTION_COLLECTIONHASH_MALFORMED, ASSERTION_COLLECTIONHASH_MATCH,
+        ASSERTION_COLLECTIONHASH_MISMATCH, ASSERTION_DATAHASH_MALFORMED, ASSERTION_DATAHASH_MATCH,
+        ASSERTION_DATAHASH_MISMATCH, ASSERTION_DATAHASH_REDACTED, HARD_BINDINGS_MISSING,
+        HARD_BINDINGS_MULTIPLE,
+    },
+};
 use sha2::{Digest, Sha256};
 
 use crate::error::{Error, Result};
@@ -52,6 +64,94 @@ pub fn could_have_embedded(media_type: &str) -> bool {
     Reader::supported_mime_types()
         .iter()
         .any(|supported| supported == media_type)
+}
+
+/// Whether an asset file or its conventional `.c2pa` sidecar has a readable
+/// C2PA manifest.
+#[must_use]
+pub fn has_c2pa_manifest(path: &Path, media_type: Option<&str>) -> bool {
+    let Ok(media_type) = media_type.map_or_else(
+        || guess_media_type(path),
+        |media_type| Ok(media_type.to_string()),
+    ) else {
+        return false;
+    };
+
+    if could_have_embedded(&media_type)
+        && File::open(path).is_ok_and(|mut asset| {
+            Reader::from_context(Context::new())
+                .with_stream(&media_type, &mut asset)
+                .is_ok_and(|reader| reader_has_valid_manifest(&reader))
+        })
+    {
+        return true;
+    }
+
+    let sidecar_path = sidecar_path(path);
+    sidecar_path.exists()
+        && fs::read(sidecar_path).is_ok_and(|manifest_bytes| {
+            File::open(path).is_ok_and(|mut asset| {
+                Reader::from_context(Context::new())
+                    .with_manifest_data_and_stream(&manifest_bytes, &media_type, &mut asset)
+                    .is_ok_and(|reader| reader_has_valid_manifest(&reader))
+            })
+        })
+}
+
+fn reader_has_valid_manifest(reader: &Reader) -> bool {
+    matches!(
+        reader.validation_state(),
+        ValidationState::Valid | ValidationState::Trusted
+    ) && reader_has_valid_asset_binding(reader)
+}
+
+fn reader_has_valid_asset_binding(reader: &Reader) -> bool {
+    reader
+        .validation_results()
+        .and_then(|results| results.active_manifest())
+        .is_some_and(|statuses| {
+            let has_binding_success = statuses
+                .success()
+                .iter()
+                .any(|status| is_asset_binding_success(status.code()));
+            let has_binding_failure = statuses
+                .failure()
+                .iter()
+                .any(|status| is_asset_binding_failure(status.code()));
+
+            has_binding_success && !has_binding_failure
+        })
+}
+
+fn is_asset_binding_success(code: &str) -> bool {
+    matches!(
+        code,
+        ASSERTION_DATAHASH_MATCH
+            | ASSERTION_BMFFHASH_MATCH
+            | ASSERTION_BOXHASH_MATCH
+            | ASSERTION_COLLECTIONHASH_MATCH
+    )
+}
+
+fn is_asset_binding_failure(code: &str) -> bool {
+    matches!(
+        code,
+        ASSERTION_DATAHASH_MISMATCH
+            | ASSERTION_DATAHASH_MALFORMED
+            | ASSERTION_DATAHASH_REDACTED
+            | ASSERTION_BMFFHASH_MISMATCH
+            | ASSERTION_BMFFHASH_MALFORMED
+            | ASSERTION_BOXHASH_MISMATCH
+            | ASSERTION_BOXESHASH_MALFORMED
+            | ASSERTION_BOXHASH_UNKNOWN_BOX
+            | ASSERTION_COLLECTIONHASH_MISMATCH
+            | ASSERTION_COLLECTIONHASH_MALFORMED
+            | ASSERTION_COLLECTIONHASH_INVALID_URI
+            | ASSERTION_COLLECTIONHASH_INCORRECT_FILE_COUNT
+            | HARD_BINDINGS_MISSING
+            | HARD_BINDINGS_MULTIPLE
+            | ASSERTION_CLOUD_DATA_HARD_BINDING
+    )
 }
 
 /// Compute a `sha256:<hex>` digest of a file's contents.

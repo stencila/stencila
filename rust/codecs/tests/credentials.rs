@@ -1,6 +1,7 @@
 #![allow(unsafe_code)]
 
 use std::{
+    collections::BTreeSet,
     env, fs,
     path::PathBuf,
     process::{Command, Stdio},
@@ -19,10 +20,11 @@ use stencila_codecs::{
     to_path_with_info,
 };
 use stencila_content_credentials::{
-    CredentialProfile as ContentCredentialProfile, CredentialVerifier, VerifyAssetRequest,
+    CredentialProducer, CredentialProfile as ContentCredentialProfile, CredentialSignerConfig,
+    CredentialVerifier, SignAssetRequest, VerifyAssetRequest,
     export::{ExportSigningRequest, sign_encoded_export},
     init_local_signing_identity,
-    media::sidecar_path,
+    media::{has_c2pa_manifest, sha256_file, sidecar_path},
 };
 
 static CONFIG_LOCK: OnceLock<Mutex<()>> = OnceLock::new();
@@ -209,12 +211,190 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
 }
 
 #[tokio::test]
+async fn credentials_static_figure_media_is_component_ingredient() -> Result<()> {
+    let _config = set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let dir = TempDir::new()?;
+    let image = dir.path().join("static.png");
+    fs::copy(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../content-credentials/tests/fixtures/sample.png"),
+        &image,
+    )?;
+    let original_digest = sha256_file(&image)?;
+
+    let output = dir.path().join("report.md");
+    let node = Node::Article(Article::new(vec![Block::Figure(Figure {
+        label: Some("1".to_string()),
+        caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::from("Static result."),
+        )]))]),
+        content: vec![Block::ImageObject(ImageObject::new(
+            image.to_string_lossy().to_string(),
+        ))],
+        ..Default::default()
+    })]));
+
+    let info = to_path_with_info(
+        &node,
+        &output,
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            credentials: Some(CredentialsOptions {
+                profile: CredentialProfile::Public,
+            }),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert_eq!(
+        sha256_file(&image)?,
+        original_digest,
+        "static referenced media should not be modified while signing the document"
+    );
+    assert!(
+        !has_c2pa_manifest(&image, Some("image/png")),
+        "static referenced media should not receive C2PA metadata"
+    );
+    assert!(
+        info.assets
+            .iter()
+            .all(|asset| asset.path != image || !asset.signed),
+        "static referenced media should not be reported as a signed export asset"
+    );
+
+    let verifier = CredentialVerifier::new();
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let document_ingredients = document_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("document ingredients");
+    let component = document_ingredients
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "componentOf")
+        .expect("component ingredient");
+    assert_eq!(component["title"], "Figure 1: Static result.");
+    assert_eq!(component["format"], "image/png");
+    assert!(
+        component["active_manifest"].is_string(),
+        "static media component should link to the media manifest: {component:#?}"
+    );
+    assert!(
+        component["thumbnail"]["identifier"]
+            .as_str()
+            .is_some_and(|identifier| identifier.contains("c2pa.thumbnail.ingredient")),
+        "static media component should have a parent-side ingredient thumbnail: {component:#?}"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn credentials_reuses_existing_static_media_manifest() -> Result<()> {
+    let _config = set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let dir = TempDir::new()?;
+    let image = dir.path().join("static.png");
+    fs::copy(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../content-credentials/tests/fixtures/sample.png"),
+        &image,
+    )?;
+
+    let producer = CredentialProducer::new(CredentialSignerConfig::resolve(None, None)?);
+    let signed = producer
+        .sign_exported_asset(SignAssetRequest {
+            input_path: image.clone(),
+            media_type: Some("image/png".to_string()),
+            title: Some("Existing media manifest".to_string()),
+            credential_profile: ContentCredentialProfile::Public,
+            ..Default::default()
+        })
+        .await?;
+    let original_digest = sha256_file(&image)?;
+    let original_manifest_id = signed.manifest_id.clone();
+
+    let output = dir.path().join("report.md");
+    let node = Node::Article(Article::new(vec![Block::Figure(Figure {
+        label: Some("1".to_string()),
+        caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::from("Existing static result."),
+        )]))]),
+        content: vec![Block::ImageObject(ImageObject::new(
+            image.to_string_lossy().to_string(),
+        ))],
+        ..Default::default()
+    })]));
+
+    to_path_with_info(
+        &node,
+        &output,
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            credentials: Some(CredentialsOptions {
+                profile: CredentialProfile::Public,
+            }),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert_eq!(
+        sha256_file(&image)?,
+        original_digest,
+        "existing media manifest should be used without re-signing the media file"
+    );
+
+    let verifier = CredentialVerifier::new();
+    let image_manifest = verifier.inspect_asset(&image, None).await?;
+    assert_eq!(
+        image_manifest["active_manifest"].as_str(),
+        original_manifest_id.as_deref()
+    );
+
+    let document_manifest = verifier.inspect_asset(&output, None).await?;
+    let active = document_manifest["active_manifest"]
+        .as_str()
+        .expect("active manifest");
+    let component = document_manifest["manifests"][active]["ingredients"]
+        .as_array()
+        .expect("document ingredients")
+        .iter()
+        .find(|ingredient| ingredient["relationship"] == "componentOf")
+        .expect("component ingredient");
+    assert_eq!(
+        component["active_manifest"].as_str(),
+        original_manifest_id.as_deref(),
+        "document component should link to the existing media manifest"
+    );
+    assert!(
+        component["thumbnail"]["identifier"]
+            .as_str()
+            .is_some_and(|identifier| identifier.contains("c2pa.thumbnail.ingredient")),
+        "existing static media component should have a parent-side ingredient thumbnail: {component:#?}"
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> Result<()> {
     let _config = set_isolated_config_dir();
     init_local_signing_identity(true)?;
 
     let dir = TempDir::new()?;
     let output = dir.path().join("report.pdf");
+    let static_image = dir.path().join("static.png");
+    fs::copy(
+        PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+            .join("../content-credentials/tests/fixtures/sample.png"),
+        &static_image,
+    )?;
     fs::copy(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../content-credentials/tests/fixtures/sample.pdf"),
@@ -232,6 +412,16 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
                 1,
                 vec![Inline::Text(Text::from("PDF Report"))],
             )),
+            Block::Figure(Figure {
+                label: Some("1".to_string()),
+                caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                    Text::from("Static PDF result."),
+                )]))]),
+                content: vec![Block::ImageObject(ImageObject::new(
+                    static_image.to_string_lossy().to_string(),
+                ))],
+                ..Default::default()
+            }),
             Block::CodeChunk(chunk),
         ],
         ..Default::default()
@@ -294,19 +484,41 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     let document_ingredients = document_manifest["manifests"][active]["ingredients"]
         .as_array()
         .expect("document ingredients");
-    let component = document_ingredients
+    let components = document_ingredients
         .iter()
-        .find(|ingredient| ingredient["relationship"] == "componentOf")
-        .expect("component ingredient");
-    assert_eq!(component["format"], "image/png");
-    assert!(
-        component["active_manifest"].is_string(),
-        "embedded PDF component should link to a temporary signed media manifest: {component:#?}"
+        .filter(|ingredient| ingredient["relationship"] == "componentOf")
+        .collect::<Vec<_>>();
+    assert_eq!(
+        components.len(),
+        2,
+        "expected static and embedded components"
+    );
+    let component_labels = components
+        .iter()
+        .filter_map(|ingredient| ingredient["label"].as_str())
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        component_labels.len(),
+        components.len(),
+        "component ingredient labels should be unique: {components:#?}"
     );
     assert!(
-        component["validation_results"]["activeManifest"].is_object(),
-        "embedded PDF component should validate through its child manifest: {component:#?}"
+        components
+            .iter()
+            .any(|component| component["title"] == "Figure 1: Static PDF result."),
+        "static media should be represented as a component: {components:#?}"
     );
+    for component in components {
+        assert_eq!(component["format"], "image/png");
+        assert!(
+            component["active_manifest"].is_string(),
+            "PDF component should link to a temporary signed media manifest: {component:#?}"
+        );
+        assert!(
+            component["validation_results"]["activeManifest"].is_object(),
+            "PDF component should validate through its child manifest: {component:#?}"
+        );
+    }
     let report = verifier
         .verify_asset(VerifyAssetRequest {
             asset_path: output,
