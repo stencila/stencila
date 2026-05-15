@@ -391,7 +391,6 @@ async fn environment_ingredient(
         description: Some(description),
         manifest_source: Some(signed.asset_path.clone()),
         thumbnail: Some(thumbnails::ingredient_for_node_type("EnvironmentRecord")),
-        ..Default::default()
     };
 
     Ok(Some((
@@ -429,7 +428,7 @@ fn environment_description(environment: &EnvironmentSnapshot) -> String {
             os_arch.push(' ');
             os_arch.push_str(arch);
         }
-        parts.push(os_arch)
+        parts.push(os_arch);
     }
 
     let runtimes: Vec<String> = environment

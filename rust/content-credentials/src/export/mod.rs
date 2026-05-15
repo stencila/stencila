@@ -12,7 +12,7 @@ use std::{
 
 use stencila_codec_info::{EncodeInfo, EncodedAsset};
 use stencila_node_media::{extract_media_with_paths, reference_media_with_paths};
-use stencila_schema::{Node, NodeId};
+use stencila_schema::{Node, NodeId, NodeType, Visitor, WalkControl};
 use tempfile::{TempDir, tempdir};
 
 use crate::{
@@ -378,8 +378,11 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             credential_profile,
         )
         .await?;
-        let _temporary_environment_manifest =
-            add_environment_ingredient(&producer, &mut provenance, credential_profile).await?;
+        let _temporary_environment_manifest = if root_depends_on_execution_environment(node) {
+            add_environment_ingredient(&producer, &mut provenance, credential_profile).await?
+        } else {
+            None
+        };
         provenance.ingredients.extend(component_ingredients);
 
         let signed = producer
@@ -554,6 +557,7 @@ fn supports_embedded_component_extraction(codec_name: &str) -> bool {
     codec_name.eq_ignore_ascii_case("pdf")
 }
 
+#[allow(clippy::too_many_arguments)]
 fn signed_component_ingredient(
     component_index: usize,
     title: Option<String>,
@@ -596,6 +600,37 @@ fn scrub_embedded_component_content_urls(provenance: &mut ProvenanceSnapshot) {
 
 fn manifest_kind_label(kind: ManifestKind) -> &'static str {
     kind.label()
+}
+
+/// Return whether the root document contains executable code.
+///
+/// Environment ingredients describe runtime context for executable code. Static
+/// document exports can still have source and component ingredients, but adding
+/// the renderer environment as an input would overstate what the document bytes
+/// depend on.
+fn root_depends_on_execution_environment(root: &Node) -> bool {
+    struct Finder {
+        found: bool,
+    }
+
+    impl Visitor for Finder {
+        fn enter_struct(&mut self, node_type: NodeType, _node_id: NodeId) -> WalkControl {
+            if self.found {
+                return WalkControl::Break;
+            }
+
+            if matches!(node_type, NodeType::CodeChunk | NodeType::CodeExpression) {
+                self.found = true;
+                WalkControl::Break
+            } else {
+                WalkControl::Continue
+            }
+        }
+    }
+
+    let mut finder = Finder { found: false };
+    finder.walk(root);
+    finder.found
 }
 
 /// Copy signing results back onto the original encoded asset record.

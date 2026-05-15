@@ -165,6 +165,12 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     let document_ingredients = document_manifest["manifests"][active]["ingredients"]
         .as_array()
         .expect("document ingredients");
+    assert!(
+        document_ingredients
+            .iter()
+            .all(|ingredient| ingredient["title"] != "Execution environment"),
+        "static figure document should not include an execution environment ingredient: {document_ingredients:#?}"
+    );
     let component = document_ingredients
         .iter()
         .find(|ingredient| ingredient["relationship"] == "componentOf")
@@ -285,6 +291,12 @@ async fn credentials_static_figure_media_is_component_ingredient() -> Result<()>
     let document_ingredients = document_manifest["manifests"][active]["ingredients"]
         .as_array()
         .expect("document ingredients");
+    assert!(
+        document_ingredients
+            .iter()
+            .all(|ingredient| ingredient["title"] != "Execution environment"),
+        "static referenced media document should not include an execution environment ingredient: {document_ingredients:#?}"
+    );
     let component = document_ingredients
         .iter()
         .find(|ingredient| ingredient["relationship"] == "componentOf")
