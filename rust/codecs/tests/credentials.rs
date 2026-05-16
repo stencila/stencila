@@ -12,8 +12,8 @@ use tempfile::TempDir;
 
 use stencila_codecs::stencila_schema::{
     Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionDependency,
-    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, Heading, ImageObject,
-    Inline, MessageLevel, Node, Paragraph, Text, TimeUnit,
+    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, FigureOptions, Heading,
+    ImageObject, Inline, LabelType, MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
     CredentialProfile, CredentialsOptions, EncodeInfo, EncodeOptions, Format, Result,
@@ -414,11 +414,13 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     let dir = TempDir::new()?;
     let output = dir.path().join("report.pdf");
     let static_image = dir.path().join("static.png");
+    let direct_image = dir.path().join("direct.png");
     fs::copy(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../content-credentials/tests/fixtures/sample.png"),
         &static_image,
     )?;
+    fs::copy(&static_image, &direct_image)?;
     fs::copy(
         PathBuf::from(env!("CARGO_MANIFEST_DIR"))
             .join("../content-credentials/tests/fixtures/sample.pdf"),
@@ -426,7 +428,14 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     )?;
 
     let mut chunk = CodeChunk::new("plot(1)".into());
+    chunk.id = Some("fig-1a".to_string());
+    chunk.label_type = Some(LabelType::FigureLabel);
+    chunk.label = Some("1A".to_string());
+    chunk.label_automatically = Some(false);
     chunk.programming_language = Some("r".to_string());
+    chunk.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::from("Generated PDF result."),
+    )]))]);
     chunk.outputs = Some(vec![Node::ImageObject(ImageObject::new(
         PNG_DATA_URI.to_string(),
     ))]);
@@ -439,14 +448,32 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
             Block::Figure(Figure {
                 label: Some("1".to_string()),
                 caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-                    Text::from("Static PDF result."),
+                    Text::from("Multi-panel PDF result."),
                 )]))]),
-                content: vec![Block::ImageObject(ImageObject::new(
-                    static_image.to_string_lossy().to_string(),
-                ))],
+                content: vec![
+                    Block::CodeChunk(chunk),
+                    Block::Figure(Figure {
+                        id: Some("fig-1b".to_string()),
+                        label: Some("1B".to_string()),
+                        label_automatically: Some(false),
+                        caption: Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                            Text::from("Static PDF result."),
+                        )]))]),
+                        content: vec![Block::ImageObject(ImageObject::new(
+                            static_image.to_string_lossy().to_string(),
+                        ))],
+                        ..Default::default()
+                    }),
+                    Block::ImageObject(ImageObject::new(
+                        direct_image.to_string_lossy().to_string(),
+                    )),
+                ],
+                options: Box::new(FigureOptions {
+                    layout: Some("2".to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
             }),
-            Block::CodeChunk(chunk),
         ],
         ..Default::default()
     });
@@ -514,8 +541,8 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
         .collect::<Vec<_>>();
     assert_eq!(
         components.len(),
-        2,
-        "expected static and embedded components"
+        1,
+        "expected the document manifest to reference the parent figure component"
     );
     let component_labels = components
         .iter()
@@ -529,20 +556,73 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
     assert!(
         components
             .iter()
-            .any(|component| component["title"] == "Figure 1: Static PDF result."),
-        "static media should be represented as a component: {components:#?}"
+            .any(|component| component["title"] == "Figure 1: Multi-panel PDF result."),
+        "parent figure should be represented as the document component: {components:#?}"
     );
-    for component in components {
-        assert_eq!(component["format"], "image/png");
+    for component in &components {
+        assert_eq!(component["format"], "image/svg+xml");
         assert!(
             component["active_manifest"].is_string(),
-            "PDF component should link to a temporary signed media manifest: {component:#?}"
+            "PDF component should link to a temporary signed figure manifest: {component:#?}"
         );
         assert!(
             component["validation_results"]["activeManifest"].is_object(),
-            "PDF component should validate through its child manifest: {component:#?}"
+            "PDF component should validate through its figure manifest: {component:#?}"
         );
     }
+
+    let parent_manifest_id = components[0]["active_manifest"]
+        .as_str()
+        .expect("parent figure manifest id");
+    let parent_ingredients = document_manifest["manifests"][parent_manifest_id]["ingredients"]
+        .as_array()
+        .expect("parent figure ingredients");
+    assert!(
+        parent_ingredients
+            .iter()
+            .all(|ingredient| ingredient["relationship"] != "inputTo"),
+        "parent figure manifest should not add source document inputs: {parent_ingredients:#?}"
+    );
+    let subfigure_components = parent_ingredients
+        .iter()
+        .filter(|ingredient| ingredient["relationship"] == "componentOf")
+        .collect::<Vec<_>>();
+    let subfigure_titles = subfigure_components
+        .iter()
+        .filter_map(|component| component["title"].as_str())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        subfigure_components.len(),
+        3,
+        "expected parent figure manifest to reference both subfigures and direct media: {subfigure_components:#?}"
+    );
+    assert_eq!(
+        subfigure_titles,
+        vec![
+            "Figure 1A: Generated PDF result.",
+            "Figure 1B: Static PDF result.",
+            "Figure 1: Multi-panel PDF result."
+        ],
+        "subfigure components should follow source declaration order"
+    );
+    assert!(
+        subfigure_components
+            .iter()
+            .any(|component| component["title"] == "Figure 1A: Generated PDF result."),
+        "generated subfigure should be a component of the parent figure: {subfigure_components:#?}"
+    );
+    assert!(
+        subfigure_components
+            .iter()
+            .any(|component| component["title"] == "Figure 1B: Static PDF result."),
+        "static subfigure should be a component of the parent figure: {subfigure_components:#?}"
+    );
+    assert!(
+        subfigure_components
+            .iter()
+            .any(|component| component["title"] == "Figure 1: Multi-panel PDF result."),
+        "direct media should be a component of the parent figure: {subfigure_components:#?}"
+    );
     let report = verifier
         .verify_asset(VerifyAssetRequest {
             asset_path: output,

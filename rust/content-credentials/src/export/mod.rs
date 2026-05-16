@@ -16,21 +16,25 @@ use stencila_schema::{Node, NodeId, NodeType, Visitor, WalkControl};
 use tempfile::{TempDir, tempdir};
 
 use crate::{
-    CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientRelationship,
-    IngredientSnapshot, ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset,
-    SourceRangeSnapshot, media, thumbnails,
+    CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientSnapshot,
+    ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset, SourceRangeSnapshot,
+    media,
 };
 
 use self::{
+    components::{ComponentIngredient, signed_component_ingredient},
+    figures::group_figure_component_ingredients,
     ingredients::{
         add_environment_ingredient, add_source_and_executed_ingredients,
-        image_ingredient_thumbnail, source_ingredient_manifest, source_ingredient_snapshot,
+        source_ingredient_manifest, source_ingredient_snapshot,
     },
     snapshot::{ExportSnapshotOptions, build_export_snapshot},
 };
 
+mod components;
 mod environment;
 mod execution;
+mod figures;
 mod ingredients;
 mod snapshot;
 mod source;
@@ -182,7 +186,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         .map(|manifest| manifest.asset_path.as_path());
 
     let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
-    let mut component_ingredients: Vec<IngredientSnapshot> = Vec::new();
+    let mut component_ingredients: Vec<ComponentIngredient> = Vec::new();
     let mut temporary_static_component_dirs: Vec<TempDir> = Vec::new();
     let mut component_index = 0;
 
@@ -220,6 +224,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         if media::has_c2pa_manifest(&asset_path, media_type.as_deref()) {
             component_ingredients.push(signed_component_ingredient(
                 component_index,
+                originating_id,
                 asset_title,
                 asset_description,
                 &asset_path,
@@ -306,6 +311,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
 
         component_ingredients.push(signed_component_ingredient(
             component_index,
+            originating_id,
             asset_title,
             asset_description,
             &asset_path,
@@ -340,6 +346,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             ))
             .await?;
         component_ingredients.extend(embedded_components);
+        component_index = component_ingredients.len();
         temporary_component_dir
     } else {
         None
@@ -372,7 +379,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
             &producer,
             &mut provenance,
-            source_ingredient,
+            source_ingredient.clone(),
             source_path,
             source_manifest_path,
             credential_profile,
@@ -383,7 +390,24 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         } else {
             None
         };
-        provenance.ingredients.extend(component_ingredients);
+        let (component_ingredients, temporary_parent_dirs) =
+            Box::pin(group_figure_component_ingredients(
+                &producer,
+                node,
+                source_ranges,
+                source_path,
+                codec_name,
+                credential_profile,
+                component_ingredients,
+                component_index,
+            ))
+            .await?;
+        let _temporary_parent_dirs = temporary_parent_dirs;
+        provenance.ingredients.extend(
+            component_ingredients
+                .into_iter()
+                .map(|component| component.ingredient),
+        );
 
         let signed = producer
             .sign_exported_asset(SignAssetRequest {
@@ -446,7 +470,7 @@ async fn embedded_component_ingredients(
     codec_name: &str,
     credential_profile: CredentialProfile,
     mut component_index: usize,
-) -> Result<(Vec<IngredientSnapshot>, Option<TempDir>)> {
+) -> Result<(Vec<ComponentIngredient>, Option<TempDir>)> {
     let temp_dir = tempdir()?;
     let mut node = node.clone();
     let assets = extract_media_with_paths(&mut node, Some(output_path), temp_dir.path()).map_err(
@@ -534,6 +558,7 @@ async fn embedded_component_ingredients(
 
         component_ingredients.push(signed_component_ingredient(
             component_index,
+            asset.node_id,
             asset.title,
             asset.description,
             &asset.path,
@@ -555,39 +580,6 @@ async fn embedded_component_ingredients(
 #[must_use]
 fn supports_embedded_component_extraction(codec_name: &str) -> bool {
     codec_name.eq_ignore_ascii_case("pdf")
-}
-
-#[allow(clippy::too_many_arguments)]
-fn signed_component_ingredient(
-    component_index: usize,
-    title: Option<String>,
-    description: Option<String>,
-    path: &Path,
-    media_type: Option<String>,
-    content_digest: String,
-    manifest_source: PathBuf,
-    node_type: Option<&str>,
-) -> IngredientSnapshot {
-    let thumbnail = media_type
-        .as_deref()
-        .and_then(|media_type| image_ingredient_thumbnail(path, media_type))
-        .or_else(|| node_type.map(thumbnails::ingredient_for_node_type));
-
-    IngredientSnapshot {
-        label: Some(format!("component-{component_index}")),
-        title: title.or_else(|| {
-            path.file_name()
-                .and_then(|name| name.to_str())
-                .map(ToString::to_string)
-        }),
-        media_type,
-        content_digest: Some(content_digest),
-        relationship: IngredientRelationship::ComponentOf,
-        description,
-        manifest_source: Some(manifest_source),
-        thumbnail,
-        ..Default::default()
-    }
 }
 
 fn scrub_embedded_component_content_urls(provenance: &mut ProvenanceSnapshot) {
