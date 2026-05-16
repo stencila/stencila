@@ -15,7 +15,8 @@ use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
     CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file, layout::LayoutConfig,
-    site_access::SiteAccessConfig, site_actions::SiteActionsConfig, site_remotes::SiteRemotesSpec,
+    site_access::SiteAccessConfig, site_actions::SiteActionsConfig,
+    site_content_credentials::SiteContentCredentialsSpec, site_remotes::SiteRemotesSpec,
     site_reviews::SiteReviewsSpec, site_uploads::SiteUploadsSpec, validate_placeholders,
 };
 
@@ -748,6 +749,33 @@ pub struct SiteConfig {
     /// ```
     pub formats: Option<Vec<SiteFormat>>,
 
+    /// Content Credentials configuration
+    ///
+    /// Enables C2PA Content Credentials signing for rendered HTML and media.
+    /// The web metadata index is only generated for pages that have signed
+    /// image assets; pages without signed media do not emit an empty index.
+    ///
+    /// Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
+    /// ```toml
+    /// # Enable with the default public profile
+    /// [site]
+    /// content-credentials = true
+    ///
+    /// # Enable with a specific profile
+    /// [site]
+    /// content-credentials = "public"
+    ///
+    /// # Detailed Content Credentials configuration
+    /// [site.content-credentials]
+    /// profile = "public"
+    /// ```
+    #[serde(
+        rename = "content-credentials",
+        alias = "content_credentials",
+        alias = "contentCredentials"
+    )]
+    pub content_credentials: Option<SiteContentCredentialsSpec>,
+
     /// Site reviews configuration
     ///
     /// Enables readers to submit comments and suggestions on site pages.
@@ -864,7 +892,7 @@ pub struct SiteConfig {
     /// enabled = true
     /// exclude = ["/api/**", "/internal/**"]
     /// ```
-    #[serde(alias = "auto-index")]
+    #[serde(rename = "auto-index", alias = "auto_index", alias = "autoIndex")]
     pub auto_index: Option<AutoIndexSpec>,
 
     /// Specimen page configuration
@@ -2173,6 +2201,68 @@ mod tests {
         let search = config.search.as_ref().expect("search should be Some");
         assert!(search.is_enabled());
         assert!(!search.is_fuzzy_enabled());
+    }
+
+    #[test]
+    fn test_content_credentials_spec_toml_boolean() {
+        let toml_str = r#"
+            [site]
+            content-credentials = true
+        "#;
+        let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
+            .expect("Failed to parse TOML")
+            .remove("site")
+            .expect("Missing site key");
+
+        let credentials = config
+            .content_credentials
+            .as_ref()
+            .expect("content credentials should be Some");
+        assert!(credentials.is_enabled());
+    }
+
+    #[test]
+    fn test_content_credentials_spec_toml_profile() {
+        let toml_str = r#"
+            [site]
+            content-credentials = "public"
+        "#;
+        let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
+            .expect("Failed to parse TOML")
+            .remove("site")
+            .expect("Missing site key");
+
+        let credentials = config
+            .content_credentials
+            .as_ref()
+            .expect("content credentials should be Some");
+        assert!(credentials.is_enabled());
+        assert_eq!(
+            credentials.to_config().profile(),
+            crate::SiteContentCredentialsProfile::Public
+        );
+    }
+
+    #[test]
+    fn test_content_credentials_spec_toml_detailed_profile_only() {
+        let toml_str = r#"
+            [site.content-credentials]
+            profile = "public"
+        "#;
+        let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
+            .expect("Failed to parse TOML")
+            .remove("site")
+            .expect("Missing site key");
+
+        let credentials = config
+            .content_credentials
+            .as_ref()
+            .expect("content credentials should be Some");
+        assert!(credentials.is_enabled());
+        assert_eq!(
+            credentials.to_config().profile(),
+            crate::SiteContentCredentialsProfile::Public
+        );
     }
 
     #[test]

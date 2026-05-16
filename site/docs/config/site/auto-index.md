@@ -1,5 +1,5 @@
 ---
-title: Site Auto_index Config
+title: Site Auto Index Config
 description: Auto-index configuration for directories without content files
 ---
 

@@ -44,6 +44,7 @@ mod singleton;
 mod site;
 mod site_access;
 mod site_actions;
+mod site_content_credentials;
 mod site_remotes;
 mod site_reviews;
 mod site_uploads;
@@ -79,6 +80,9 @@ pub use {
     },
     site_access::{AccessLevel, SiteAccessConfig},
     site_actions::{SiteActionsConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition},
+    site_content_credentials::{
+        SiteContentCredentialsConfig, SiteContentCredentialsProfile, SiteContentCredentialsSpec,
+    },
     site_remotes::{SiteRemoteFormat, SiteRemoteSyncDirection, SiteRemotesConfig, SiteRemotesSpec},
     site_reviews::{SiteReviewType, SiteReviewsConfig, SiteReviewsSpec},
     site_uploads::{SiteUploadsConfig, SiteUploadsSpec},

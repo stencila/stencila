@@ -341,6 +341,12 @@ formats = ["md"]  # Generate page.md files, show copy-markdown button
 formats = []      # No additional formats, hide format buttons
 ```
 
+# `content-credentials`
+
+**Type:** [`SiteContentCredentialsConfig`](content-credentials.md) (optional)
+
+Content Credentials configuration
+
 # `reviews`
 
 **Type:** [`SiteReviewsConfig`](reviews.md) (optional)
@@ -365,9 +371,9 @@ Site remotes configuration
 
 Site actions zone configuration
 
-# `auto_index`
+# `auto-index`
 
-**Type:** [`AutoIndexConfig`](auto_index.md) (optional)
+**Type:** [`AutoIndexConfig`](auto-index.md) (optional)
 
 Auto-index configuration for directories without content files
 

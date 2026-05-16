@@ -538,6 +538,17 @@
             "$ref": "#/definitions/SiteFormat"
           }
         },
+        "content-credentials": {
+          "description": "Content Credentials configuration\n\nEnables C2PA Content Credentials signing for rendered HTML and media.\nThe web metadata index is only generated for pages that have signed\nimage assets; pages without signed media do not emit an empty index.\n\nCan be a simple boolean, profile shorthand, or detailed configuration, e.g.\n```toml\n# Enable with the default public profile\n[site]\ncontent-credentials = true\n\n# Enable with a specific profile\n[site]\ncontent-credentials = \"public\"\n\n# Detailed Content Credentials configuration\n[site.content-credentials]\nprofile = \"public\"\n```",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteContentCredentialsSpec"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
         "reviews": {
           "description": "Site reviews configuration\n\nEnables readers to submit comments and suggestions on site pages.\nRequires `workspace.id` to be configured for cloud enforcement of\npublic/anon settings. Position is controlled via `[site.actions]`.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable reviews with defaults\n[site]\nreviews = true\n\n# Detailed reviews configuration\n[site.reviews]\nenabled = true\npublic = true           # Non-team members can submit\nanon = false            # Require GitHub auth\ntypes = [\"comment\", \"suggestion\"]\nmin-selection = 10\nmax-selection = 5000\nshortcuts = false\ninclude = [\"docs/**\"]   # Only show on docs pages\nexclude = [\"api/**\"]    # Hide from API reference\n```",
           "anyOf": [
@@ -582,7 +593,7 @@
             }
           ]
         },
-        "auto_index": {
+        "auto-index": {
           "description": "Auto-index configuration for directories without content files\n\nWhen enabled (default), directories that appear in navigation but lack\ncontent files (main.md, README.md, index.md, etc.) will have index pages\nauto-generated listing their child pages with links.\n\nCan be a simple boolean or a detailed configuration object, e.g.\n```toml\n# Enable auto-index (default)\n[site]\nauto-index = true\n\n# Disable auto-index\n[site]\nauto-index = false\n\n# Enable with exclusions\n[site.auto-index]\nenabled = true\nexclude = [\"/api/**\", \"/internal/**\"]\n```",
           "anyOf": [
             {
@@ -2721,6 +2732,76 @@
           "const": "md"
         }
       ]
+    },
+    "SiteContentCredentialsSpec": {
+      "description": "Content Credentials specification.\nhttps://stencila.io/docs/config/sitecontentcredentialsspec",
+      "anyOf": [
+        {
+          "description": "Simple boolean: content-credentials = true/false",
+          "type": "boolean"
+        },
+        {
+          "description": "Profile shorthand: content-credentials = \"public\"",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SiteContentCredentialsProfile"
+            }
+          ]
+        },
+        {
+          "description": "Detailed config: [site.content-credentials] with options",
+          "allOf": [
+            {
+              "$ref": "#/definitions/SiteContentCredentialsConfig"
+            }
+          ]
+        }
+      ]
+    },
+    "SiteContentCredentialsProfile": {
+      "description": "Content Credentials privacy projection profile.\nhttps://stencila.io/docs/config/sitecontentcredentialsprofile",
+      "oneOf": [
+        {
+          "description": "Public-safe credential metadata.",
+          "type": "string",
+          "const": "public"
+        },
+        {
+          "description": "More local detail for internal sharing.",
+          "type": "string",
+          "const": "private"
+        },
+        {
+          "description": "Full local detail for controlled archives.",
+          "type": "string",
+          "const": "full"
+        }
+      ]
+    },
+    "SiteContentCredentialsConfig": {
+      "description": "Content Credentials configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/sitecontentcredentialsconfig",
+      "type": "object",
+      "properties": {
+        "enabled": {
+          "description": "Whether Content Credentials signing is enabled.\n\nIf omitted in the detailed table form, Content Credentials are enabled.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "profile": {
+          "description": "The privacy/signing projection profile to use.\n\nDefaults to `public`.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/SiteContentCredentialsProfile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
     },
     "SiteReviewsSpec": {
       "description": "Reviews specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/sitereviewsspec",
