@@ -142,6 +142,21 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
     );
     assert_eq!(media_asset.credential_profile.as_deref(), Some("public"));
     assert!(media_asset.signing_warnings.is_empty());
+    let media_c2pa = media_asset.c2pa.as_ref().expect("media C2PA summary");
+    assert!(
+        media_c2pa["actions"]
+            .as_array()
+            .is_some_and(|actions| actions
+                .iter()
+                .any(|action| action["action"] == "c2pa.created")),
+        "media C2PA summary should include a created action: {media_c2pa:#?}"
+    );
+    assert!(
+        media_c2pa["device"]
+            .as_str()
+            .is_some_and(|device| device.contains("Stencila")),
+        "media C2PA summary should include signer common name: {media_c2pa:#?}"
+    );
     let media_path = &media_asset.path;
     assert!(media_path.exists());
 

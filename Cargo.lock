@@ -12610,6 +12610,7 @@ dependencies = [
  "indexmap 2.14.0",
  "md-5",
  "notify",
+ "pathdiff",
  "reqwest 0.13.3",
  "serde",
  "serde_json",

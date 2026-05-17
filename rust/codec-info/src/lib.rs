@@ -139,6 +139,13 @@ pub struct EncodedAsset {
     /// Content Credentials projection profile used when signing this asset.
     pub credential_profile: Option<String>,
 
+    /// User-facing C2PA manifest summary for this signed asset.
+    ///
+    /// This is a compact projection of standard C2PA fields such as actions,
+    /// ingredients, signature issuer/time, and claim generator. It is intended
+    /// for display surfaces, not as a verification substitute.
+    pub c2pa: Option<serde_json::Value>,
+
     /// Non-fatal warnings from the signing layer.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub signing_warnings: Vec<String>,

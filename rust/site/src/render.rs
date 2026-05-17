@@ -17,24 +17,26 @@ use eyre::Result;
 use futures::future::{join_all, try_join_all};
 use serde::Deserialize;
 use serde_json::json;
-use stencila_node_media::collect_media;
 use tokio::{
-    fs::{copy, create_dir_all, read_dir, read_to_string, remove_dir_all, write},
+    fs::{copy, create_dir_all, read_to_string, write},
     sync::mpsc,
 };
 
-use stencila_codec::{EncodeOptions, stencila_schema::Node};
+use stencila_codec::{CredentialProfile, CredentialsOptions, EncodeOptions, stencila_schema::Node};
 use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
 use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
-use stencila_config::{AccessLevel, NavItem, RedirectStatus, SiteConfig, SiteFormat};
+use stencila_config::{
+    AccessLevel, NavItem, RedirectStatus, SiteConfig, SiteContentCredentialsProfile, SiteFormat,
+};
 use stencila_format::Format;
 use stencila_node_stabilize::stabilize;
 
 use crate::{
     RouteEntry, RouteType,
     auto_index::{find_nav_group_children, generate_auto_index_article, get_child_pages_from_nav},
+    content_credentials,
     glide::render_glide,
     layout::render_layout,
     links::{build_routes_set, rewrite_links},
@@ -281,10 +283,7 @@ where
     // filename collision handling. Incremental renders keep the directory so
     // unchanged pages continue to serve their existing media.
     if source_files.is_none() {
-        let media_dir = output_dir.join("media");
-        if media_dir.exists() {
-            remove_dir_all(&media_dir).await?;
-        }
+        content_credentials::clean_generated_media_dirs(output_dir).await?;
     }
 
     // Render glide attributes (used for all document routes)
@@ -300,6 +299,7 @@ where
 
     // Get site configuration (used for all document routes)
     let site_config = config.site.unwrap_or_default();
+    let credentials = site_credentials(&site_config);
 
     // Compute git repo info once (used for edit-source/edit-on components)
     let git_info = git_repo_info(&site_root)?;
@@ -364,6 +364,7 @@ where
     let source_dir = Arc::new(source_dir.to_path_buf());
     let base_url = Arc::new(base_url.to_string());
     let web_base = Arc::new(web_base.map(|s| s.to_string()));
+    let credentials = Arc::new(credentials);
     let glide_attrs = Arc::new(glide_attrs);
     let site_config = Arc::new(site_config);
     let output_dir = Arc::new(output_dir.to_path_buf());
@@ -397,6 +398,7 @@ where
         let source_dir = Arc::clone(&source_dir);
         let base_url = Arc::clone(&base_url);
         let web_base = Arc::clone(&web_base);
+        let credentials = Arc::clone(&credentials);
         let glide_attrs = Arc::clone(&glide_attrs);
         let site_config = Arc::clone(&site_config);
         let output_dir = Arc::clone(&output_dir);
@@ -443,6 +445,7 @@ where
                     node,
                     &base_url,
                     web_base.as_deref(),
+                    credentials.as_ref().clone(),
                     &glide_attrs,
                     &site_config,
                     &source_path,
@@ -528,6 +531,7 @@ where
             &entry.route,
             &base_url,
             web_base.as_deref(),
+            credentials.as_ref().clone(),
             &glide_attrs,
             &site_config,
             &output_dir,
@@ -626,17 +630,7 @@ where
     let copied_files: Vec<PathBuf> = try_join_all(copy_futures).await?;
 
     // Count unique media files
-    let media_dir = output_dir.join("media");
-    let media_files_count = if media_dir.exists() {
-        let mut count = 0;
-        let mut entries = read_dir(&media_dir).await?;
-        while entries.next_entry().await?.is_some() {
-            count += 1;
-        }
-        count
-    } else {
-        0
-    };
+    let media_files_count = content_credentials::count_media_files(&output_dir);
 
     // Generate search index if enabled in config
     // Entries were extracted from each document after stabilization (node IDs assigned)
@@ -714,6 +708,7 @@ async fn render_document_route(
     mut node: Node,
     base_url: &str,
     web_base: Option<&str>,
+    credentials: Option<CredentialsOptions>,
     glide_attrs: &str,
     site_config: &SiteConfig,
     source_file: &Path,
@@ -734,14 +729,6 @@ async fn render_document_route(
 
     // Convert route to HTML file path
     let html_file = route_to_html_path(&route, output_dir);
-
-    // Create media directory at output root for shared deduplication
-    let media_dir = output_dir.join("media");
-    create_dir_all(&media_dir).await?;
-
-    // Collect media from source file to the shared media directory.
-    // The media namer handles readable names, deduplication, and collisions.
-    collect_media(&mut node, Some(source_file), &html_file, &media_dir)?;
 
     // Determine if source is an index file (affects how relative links are resolved)
     let is_index = source_file
@@ -780,17 +767,35 @@ async fn render_document_route(
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");
 
     // Generate standalone html with "site" view (includes node IDs for site review)
-    let (html, ..) = stencila_codec_dom::encode(
-        &node,
-        Some(EncodeOptions {
-            base_url: Some(base_url.to_string()),
-            web_base: web_base.map(|s| s.to_string()),
-            view: Some("site".to_string()),
-            ..Default::default()
-        }),
-        Some(site),
+    let encode_options = EncodeOptions {
+        base_url: Some(base_url.to_string()),
+        web_base: web_base.map(|s| s.to_string()),
+        view: Some("site".to_string()),
+        credentials,
+        format: Some(Format::Html),
+        from_path: Some(source_file.to_path_buf()),
+        to_path: Some(html_file.clone()),
+        ..Default::default()
+    };
+
+    let media_dir = content_credentials::media_dir_for_page(
+        output_dir,
+        &html_file,
+        encode_options.credentials.is_some(),
+    );
+    let mut encode_info = content_credentials::prepare_media(
+        &mut node,
+        source_file,
+        &html_file,
+        &media_dir,
+        &encode_options,
     )
     .await?;
+
+    let (html, mut dom_info) =
+        stencila_codec_dom::encode(&node, Some(encode_options.clone()), Some(site)).await?;
+    dom_info.assets.append(&mut encode_info.assets);
+    let encode_info = dom_info;
 
     // Inject spread-args attribute on root element if this is a spread route.
     // The root element has a boolean `root` attribute (e.g., `<stencila-article root ...>`).
@@ -815,6 +820,7 @@ async fn render_document_route(
     } else {
         html
     };
+    let html = content_credentials::annotate_html(html, &html_file, &encode_info);
 
     // Write to output HTML file
     if let Some(parent) = html_file.parent() {
@@ -888,6 +894,7 @@ async fn render_auto_index_route(
     route: &str,
     base_url: &str,
     web_base: Option<&str>,
+    credentials: Option<CredentialsOptions>,
     glide_attrs: &str,
     site_config: &SiteConfig,
     output_dir: &Path,
@@ -938,21 +945,21 @@ async fn render_auto_index_route(
     // Generate site body
     let site = format!("<body{glide_attrs}>\n{layout_html}\n</body>");
 
-    // Generate standalone html with "site" view
-    let (html, ..) = stencila_codec_dom::encode(
-        &node,
-        Some(EncodeOptions {
-            base_url: Some(base_url.to_string()),
-            web_base: web_base.map(|s| s.to_string()),
-            view: Some("site".to_string()),
-            ..Default::default()
-        }),
-        Some(site),
-    )
-    .await?;
-
     // Convert route to HTML file path
     let html_file = route_to_html_path(&route, output_dir);
+
+    // Generate standalone html with "site" view
+    let encode_options = EncodeOptions {
+        base_url: Some(base_url.to_string()),
+        web_base: web_base.map(|s| s.to_string()),
+        view: Some("site".to_string()),
+        credentials,
+        format: Some(Format::Html),
+        to_path: Some(html_file.clone()),
+        ..Default::default()
+    };
+
+    let (html, ..) = stencila_codec_dom::encode(&node, Some(encode_options), Some(site)).await?;
 
     // Write to output HTML file
     if let Some(parent) = html_file.parent() {
@@ -1034,6 +1041,17 @@ fn extract_search_entries(
         .into_iter()
         .map(|e| e.with_access_level(access_level))
         .collect()
+}
+
+fn site_credentials(site_config: &SiteConfig) -> Option<CredentialsOptions> {
+    let config = site_config.content_credentials.as_ref()?.to_config();
+    config.is_enabled().then(|| CredentialsOptions {
+        profile: match config.profile() {
+            SiteContentCredentialsProfile::Public => CredentialProfile::Public,
+            SiteContentCredentialsProfile::Private => CredentialProfile::Private,
+            SiteContentCredentialsProfile::Full => CredentialProfile::Full,
+        },
+    })
 }
 
 /// Load a user-defined redirect file from a directory if one exists

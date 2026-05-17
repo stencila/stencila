@@ -16,6 +16,7 @@ ignore = { workspace = true }
 indexmap = { workspace = true }
 md-5 = "0.10"
 notify = { workspace = true }
+pathdiff = { workspace = true }
 reqwest = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }

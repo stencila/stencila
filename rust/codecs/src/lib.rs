@@ -696,6 +696,32 @@ pub async fn to_path_with_info(
     Ok(info)
 }
 
+/// Sign an already encoded path using the same export-signing pipeline as
+/// [`to_path_with_info`].
+///
+/// This is used by callers that need to write the final encoded bytes
+/// themselves before attaching Content Credentials.
+pub async fn sign_encoded_path(
+    node: &Node,
+    codec_name: &str,
+    path: &Path,
+    options: Option<&EncodeOptions>,
+    info: &mut EncodeInfo,
+) -> Result<()> {
+    credentials::sign_encoded_export(node, codec_name, path, options, info).await
+}
+
+/// Sign side assets from already gathered encode metadata without signing the
+/// primary encoded path.
+pub async fn sign_encoded_assets(
+    node: &Node,
+    codec_name: &str,
+    options: Option<&EncodeOptions>,
+    info: &mut EncodeInfo,
+) -> Result<()> {
+    credentials::sign_encoded_assets(node, codec_name, options, info).await
+}
+
 /// Remove the generated `<output>.media` directory before a path export.
 ///
 /// Several codecs extract data-URI media to a default side directory derived

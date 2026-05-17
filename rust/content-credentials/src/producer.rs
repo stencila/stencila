@@ -7,7 +7,7 @@ use std::{
     path::{Path, PathBuf},
 };
 
-use c2pa::{BoxedSigner, Builder, Context, HashRange, Ingredient, Reader, Relationship};
+use c2pa::{BoxedSigner, Builder, Context, HashRange, Ingredient, Manifest, Reader, Relationship};
 use serde::Serialize;
 use serde_json::{Value, json};
 use tempfile::NamedTempFile;
@@ -89,6 +89,7 @@ pub struct SignedAsset {
     pub manifest_kind: ManifestKind,
     pub manifest_id: Option<String>,
     pub sidecar_path: Option<PathBuf>,
+    pub c2pa: Option<Value>,
     pub assertion_label: &'static str,
     pub assertion_schema: &'static str,
     pub source_digest: String,
@@ -187,8 +188,8 @@ impl CredentialProducer {
         .await??;
 
         let signed_asset_digest = media::sha256_file(&result.0)?;
-        let (manifest_id, warnings) =
-            read_signed_manifest_id(&result.0, result.1.as_deref(), &media_type_for_result);
+        let (manifest_id, c2pa, warnings) =
+            read_signed_manifest_info(&result.0, result.1.as_deref(), &media_type_for_result);
 
         Ok(SignedAsset {
             asset_path: result.0,
@@ -199,6 +200,7 @@ impl CredentialProducer {
             },
             manifest_id,
             sidecar_path: result.1,
+            c2pa,
             assertion_label: PROVENANCE_LABEL,
             assertion_schema: crate::schema::PROVENANCE_SCHEMA,
             source_digest: source_digest_for_result,
@@ -261,28 +263,34 @@ fn clean_title(title: Option<&str>) -> Option<String> {
     (!title.is_empty()).then(|| title.to_string())
 }
 
-fn read_signed_manifest_id(
+pub(crate) fn read_signed_manifest_info(
     asset_path: &Path,
     sidecar_path: Option<&Path>,
     media_type: &str,
-) -> (Option<String>, Vec<String>) {
+) -> (Option<String>, Option<Value>, Vec<String>) {
     match read_signed_reader(asset_path, sidecar_path, media_type) {
         Ok(reader) => {
-            let manifest_id = reader.active_label().map(ToString::to_string).or_else(|| {
-                reader
-                    .active_manifest()
-                    .map(|manifest| manifest.instance_id().to_string())
-            });
+            let active_manifest = reader.active_manifest();
+            let manifest_id = reader
+                .active_label()
+                .map(ToString::to_string)
+                .or_else(|| active_manifest.map(|manifest| manifest.instance_id().to_string()));
             if manifest_id.is_some() {
-                (manifest_id, Vec::new())
+                (
+                    manifest_id,
+                    active_manifest.map(signed_manifest_summary),
+                    Vec::new(),
+                )
             } else {
                 (
                     None,
+                    active_manifest.map(signed_manifest_summary),
                     vec!["signed asset did not expose an active manifest id".to_string()],
                 )
             }
         }
         Err(error) => (
+            None,
             None,
             vec![format!(
                 "signed asset could not be re-read for manifest id: {error}"
@@ -308,6 +316,90 @@ fn read_signed_reader(
         reader
             .with_stream(media_type, &mut asset)
             .map_err(Error::C2pa)
+    }
+}
+
+fn signed_manifest_summary(manifest: &Manifest) -> Value {
+    let signature = manifest.signature_info();
+    let generator = manifest_generator(manifest);
+
+    json!({
+        "issuer": signature.and_then(|signature| signature.issuer.clone()),
+        "issuedAt": signature.and_then(|signature| signature.time.clone()),
+        "device": signature.and_then(|signature| signature.common_name.clone()),
+        "generator": generator,
+        "actions": manifest_actions(manifest),
+        "ingredients": manifest_ingredients(manifest),
+    })
+}
+
+fn manifest_generator(manifest: &Manifest) -> Option<String> {
+    manifest
+        .claim_generator_info
+        .as_ref()
+        .and_then(|generators| generators.first())
+        .map(|generator| match generator.version.as_deref() {
+            Some(version) if !version.is_empty() => format!("{} {version}", generator.name),
+            _ => generator.name.clone(),
+        })
+        .or_else(|| manifest.claim_generator().map(ToString::to_string))
+}
+
+fn manifest_actions(manifest: &Manifest) -> Vec<Value> {
+    manifest
+        .assertions()
+        .iter()
+        .filter(|assertion| assertion.label() == "c2pa.actions.v2")
+        .filter_map(|assertion| assertion.value().ok())
+        .flat_map(|value| {
+            value
+                .get("actions")
+                .or_else(|| value.pointer("/data/actions"))
+                .and_then(Value::as_array)
+                .into_iter()
+                .flatten()
+                .filter_map(action_summary)
+                .collect::<Vec<_>>()
+        })
+        .collect()
+}
+
+fn action_summary(action: &Value) -> Option<Value> {
+    let action_name = action.get("action").and_then(Value::as_str)?;
+    let mut summary = json!({
+        "action": action_name,
+    });
+
+    if let Some(description) = action.get("description").and_then(Value::as_str) {
+        summary["description"] = json!(description);
+    }
+    if let Some(when) = action.get("when").and_then(Value::as_str) {
+        summary["when"] = json!(when);
+    }
+
+    Some(summary)
+}
+
+fn manifest_ingredients(manifest: &Manifest) -> Vec<Value> {
+    manifest
+        .ingredients()
+        .iter()
+        .map(|ingredient| {
+            json!({
+                "title": ingredient.title(),
+                "relationship": ingredient_relationship_label(ingredient.relationship()),
+                "format": ingredient.format(),
+                "activeManifest": ingredient.active_manifest(),
+            })
+        })
+        .collect()
+}
+
+fn ingredient_relationship_label(relationship: &Relationship) -> &'static str {
+    match relationship {
+        Relationship::ParentOf => "parentOf",
+        Relationship::InputTo => "inputTo",
+        Relationship::ComponentOf => "componentOf",
     }
 }
 

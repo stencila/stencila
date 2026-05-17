@@ -93,12 +93,234 @@ export const imageObjectStyles = css`
   /* Block-level image styling.
    * Vertical spacing is owned by the host element in the light DOM (images.css).
    * The shadow DOM only handles rendering-level properties. */
+  .image-container {
+    position: relative;
+  }
+
   .image-container img {
     display: block;
     width: var(--image-block-width, auto);
     max-width: var(--image-block-max-width, 100%);
     height: auto;
     margin: 0 auto;
+  }
+
+  .content-credentials {
+    position: absolute;
+    inset-block-start: 0.5rem;
+    inset-inline-end: 0.5rem;
+    z-index: 2;
+    width: 1.75rem;
+    height: 1.75rem;
+  }
+
+  .content-credentials-pin {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    border: 1px solid rgba(17, 24, 39, 0.18);
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.92);
+    box-sizing: border-box;
+    color: rgb(17, 24, 39);
+    box-shadow: none;
+    cursor: pointer;
+    padding: 0.25rem;
+  }
+
+  .content-credentials-pin svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .content-credentials-pin:hover {
+    background: white;
+    box-shadow: 0 1px 4px rgba(17, 24, 39, 0.28);
+  }
+
+  .content-credentials-pin:focus-visible {
+    background: white;
+    outline: 2px solid rgba(14, 165, 233, 0.55);
+    outline-offset: 2px;
+  }
+
+  .content-credentials-card {
+    position: absolute;
+    inset-block-start: 0;
+    inset-inline-end: 100%;
+    width: min(22rem, calc(100vw - 4rem));
+    border: 1px solid rgba(17, 24, 39, 0.14);
+    border-radius: 8px;
+    background: white;
+    color: rgb(17, 24, 39);
+    box-shadow: 0 12px 32px rgba(17, 24, 39, 0.2);
+    box-sizing: border-box;
+    font-family: Inter, system-ui, sans-serif;
+    font-size: 0.8125rem;
+    line-height: 1.35;
+    padding: 0.75rem;
+    text-align: left;
+  }
+
+  .content-credentials-title {
+    font-weight: 650;
+    margin-block-end: 0.35rem;
+  }
+
+  .content-credentials-note {
+    color: rgb(75, 85, 99);
+    font-size: 0.75rem;
+    margin-block-end: 0.6rem;
+  }
+
+  .content-credentials-details {
+    display: grid;
+    gap: 0.2rem;
+    margin: 0 0 0.6rem;
+  }
+
+  .content-credentials-details div {
+    display: grid;
+    grid-template-columns: 4.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+  }
+
+  .content-credentials-details dt {
+    color: rgb(107, 114, 128);
+    font-weight: 500;
+  }
+
+  .content-credentials-details dd {
+    margin: 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .content-credentials-section {
+    border-block-start: 1px solid rgba(17, 24, 39, 0.1);
+    margin-block-start: 0.6rem;
+    padding-block-start: 0.6rem;
+  }
+
+  .content-credentials-section-title {
+    color: rgb(75, 85, 99);
+    font-size: 0.72rem;
+    font-weight: 650;
+    letter-spacing: 0;
+    margin-block-end: 0.35rem;
+    text-transform: uppercase;
+  }
+
+  .content-credentials-list {
+    display: grid;
+    gap: 0.35rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .content-credentials-list li {
+    display: grid;
+    align-items: start;
+    grid-template-columns: 1rem minmax(0, 1fr);
+    gap: 0.45rem;
+  }
+
+  .content-credentials-list-icon {
+    color: rgb(107, 114, 128);
+    display: inline-flex;
+    width: 1rem;
+    height: 1rem;
+    margin-block-start: 0.05rem;
+  }
+
+  .content-credentials-list-icon svg {
+    display: block;
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .content-credentials-list-content {
+    display: flex;
+    align-items: baseline;
+    flex-wrap: wrap;
+    gap: 0.25rem 0.45rem;
+    min-width: 0;
+  }
+
+  .content-credentials-list-main {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .content-credentials-list-meta {
+    color: rgb(107, 114, 128);
+    font-size: 0.75rem;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+
+  .content-credentials-badge {
+    border: 1px solid rgba(17, 24, 39, 0.14);
+    border-radius: 4px;
+    color: rgb(75, 85, 99);
+    flex: 0 0 auto;
+    font-size: 0.6875rem;
+    font-weight: 650;
+    line-height: 1.35;
+    padding: 0 0.25rem;
+  }
+
+  .content-credentials-card a {
+    color: rgb(3, 105, 161);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .content-credentials-card a:hover {
+    text-decoration: underline;
+  }
+
+  .content-credentials-verify-row {
+    border-block-start: 1px solid rgba(17, 24, 39, 0.1);
+    margin-block-start: 0.7rem;
+    padding-block-start: 0.7rem;
+  }
+
+  .content-credentials-verify {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 1.8rem;
+    border: 1px solid rgba(3, 105, 161, 0.28);
+    border-radius: 6px;
+    background: rgb(240, 249, 255);
+    box-sizing: border-box;
+    color: rgb(3, 105, 161);
+    font-size: 0.75rem;
+    font-weight: 650;
+    padding: 0.3rem 0.55rem;
+    text-decoration: none;
+  }
+
+  .content-credentials-verify:hover {
+    background: rgb(224, 242, 254);
+    text-decoration: none;
+  }
+
+  .content-credentials-verify-icon {
+    display: inline-flex;
+    width: 0.875rem;
+    height: 0.875rem;
+  }
+
+  .content-credentials-verify-icon svg {
+    display: block;
+    width: 0.875rem;
+    height: 0.875rem;
   }
 
   /* Error display */

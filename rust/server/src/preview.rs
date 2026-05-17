@@ -111,6 +111,7 @@ pub async fn render_site(
 ///
 /// Runs until the `shutdown_rx` fires or `Ctrl+C` is received.
 /// Sends [`PreviewEvent`]s on `event_tx` for each re-render cycle.
+#[allow(clippy::too_many_arguments)]
 pub async fn watch_and_rerender(
     workspace_root: &Path,
     site_root: &Path,
@@ -195,13 +196,7 @@ pub async fn watch_and_rerender(
                 let site_root = site_root.to_path_buf();
                 let output = output.to_path_buf();
                 let handle = tokio::spawn(async move {
-                    render_site(
-                        &site_root,
-                        &output,
-                        port,
-                        changed_paths.as_deref(),
-                        None,
-                    )
+                    render_site(&site_root, &output, port, changed_paths.as_deref(), None)
                     .await
                 });
                 let notify_paths: Vec<String> = event.paths.iter()

@@ -4,6 +4,11 @@ import { customElement, state } from 'lit/decorators'
 
 import { withTwind } from '../twind'
 
+import {
+  type ContentCredentialAsset,
+  readContentCredentialAsset,
+  renderContentCredentialPin,
+} from './content-credentials'
 import { ExecutionMessage } from './execution-message'
 import {
   compileCytoscape,
@@ -76,6 +81,12 @@ export class ImageObject extends MediaObject {
    */
   @state()
   private vegaLite?: { finalize: () => void }
+
+  @state()
+  private contentCredentialAsset?: ContentCredentialAsset
+
+  @state()
+  private contentCredentialCardOpen = false
 
   override needsCompiling(): boolean {
     // @ts-expect-error re media type
@@ -238,8 +249,12 @@ export class ImageObject extends MediaObject {
 
     if (properties.has('contentUrl') || properties.has('mediaType')) {
       if (!this.contentUrl) {
+        this.contentCredentialAsset = undefined
+        this.contentCredentialCardOpen = false
         return
       }
+
+      this.updateContentCredentialAsset()
 
       switch (this.mediaType) {
         case ImageObject.MEDIA_TYPES.cytoscape:
@@ -271,6 +286,28 @@ export class ImageObject extends MediaObject {
       container,
       isStaticView
     ) as ImageObject['cytoscape']
+  }
+
+  private updateContentCredentialAsset() {
+    if (!this.contentUrl || this.needsCompiling()) {
+      this.contentCredentialAsset = undefined
+      this.contentCredentialCardOpen = false
+      return
+    }
+
+    this.contentCredentialAsset = readContentCredentialAsset(this, this.contentUrl)
+  }
+
+  private toggleContentCredentialCard = () => {
+    this.contentCredentialCardOpen = !this.contentCredentialCardOpen
+  }
+
+  private openContentCredentialCard = () => {
+    this.contentCredentialCardOpen = true
+  }
+
+  private closeContentCredentialCard = () => {
+    this.contentCredentialCardOpen = false
   }
 
   private async compileECharts() {
@@ -435,6 +472,13 @@ export class ImageObject extends MediaObject {
           ${this.mediaSrc ?
             html`<img src=${this.mediaSrc} />` :
             html`<slot></slot>`}
+          ${renderContentCredentialPin(
+            this.contentCredentialAsset,
+            this.contentCredentialCardOpen,
+            this.openContentCredentialCard,
+            this.closeContentCredentialCard,
+            this.toggleContentCredentialCard
+          )}
         </div>
         <div>
           <slot name="caption"></slot>

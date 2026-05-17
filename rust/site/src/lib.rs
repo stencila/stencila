@@ -7,6 +7,7 @@ use stencila_codec_utils::{get_current_branch, slugify_branch_name};
 
 mod access;
 mod auto_index;
+mod content_credentials;
 mod glide;
 mod layout;
 mod links;

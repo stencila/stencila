@@ -18,7 +18,7 @@ use tempfile::{TempDir, tempdir};
 use crate::{
     CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientSnapshot,
     ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset, SourceRangeSnapshot,
-    media,
+    media, producer,
 };
 
 use self::{
@@ -70,6 +70,32 @@ pub struct ExportSigningRequest<'a> {
     pub info: &'a mut EncodeInfo,
 }
 
+/// Inputs for signing filesystem assets emitted by a codec export without
+/// signing the primary output document.
+///
+/// Site rendering uses this to sign media before DOM encoding, so the final
+/// HTML can carry advisory Content Credentials attributes for those media
+/// objects without requiring a page-level manifest.
+pub struct AssetSigningRequest<'a> {
+    /// Stabilized document node used for the export.
+    pub node: &'a Node,
+
+    /// Name of the codec that will produce the export.
+    pub codec_name: &'a str,
+
+    /// Original source document path, when the export came from a path decode.
+    pub source_path: Option<&'a Path>,
+
+    /// Source ranges keyed by full node id.
+    pub source_ranges: Option<&'a BTreeMap<String, SourceRangeSnapshot>>,
+
+    /// Privacy projection profile used by the signer.
+    pub credential_profile: CredentialProfile,
+
+    /// Encoding metadata to update with signing results.
+    pub info: &'a mut EncodeInfo,
+}
+
 /// Side asset selected from codec encode metadata for signing.
 ///
 /// The signing loop snapshots these fields before mutating `EncodeInfo` so that
@@ -83,6 +109,73 @@ struct SideAssetTarget {
     title: Option<String>,
     description: Option<String>,
     emitted: bool,
+}
+
+struct SignedSideAssets {
+    component_ingredients: Vec<ComponentIngredient>,
+    new_sidecars: Vec<EncodedAsset>,
+    temporary_static_component_dirs: Vec<TempDir>,
+    component_index: usize,
+}
+
+/// Sign only the filesystem assets represented in [`EncodeInfo`].
+///
+/// This mutates matching asset rows with manifest metadata and appends generated
+/// `.c2pa` sidecar rows. It intentionally does not sign the primary output.
+///
+/// # Errors
+///
+/// Returns an error if signing credentials cannot be resolved or an emitted
+/// asset cannot be signed.
+#[allow(clippy::too_many_lines)]
+pub async fn sign_encoded_assets(request: AssetSigningRequest<'_>) -> Result<()> {
+    let AssetSigningRequest {
+        node,
+        codec_name,
+        source_path,
+        source_ranges,
+        credential_profile,
+        info,
+    } = request;
+
+    let signer_config = CredentialSignerConfig::resolve(None, None)?;
+    let producer = CredentialProducer::new(signer_config);
+    let source_ingredient = source_ingredient_snapshot(source_path);
+    let source_manifest = source_manifest(
+        &producer,
+        source_path,
+        source_ingredient.as_ref(),
+        credential_profile,
+    )
+    .await;
+    let source_manifest_path = source_manifest
+        .as_ref()
+        .map(|manifest| manifest.asset_path.as_path());
+
+    let signed = Box::pin(sign_side_assets(
+        &producer,
+        node,
+        codec_name,
+        source_path,
+        source_ranges,
+        source_ingredient,
+        source_manifest_path,
+        credential_profile,
+        info,
+        false,
+        BTreeSet::new(),
+        0,
+    ))
+    .await?;
+
+    info.assets.extend(signed.new_sidecars);
+
+    tracing::debug!(
+        profile = credential_profile.label(),
+        "Signed codec side assets with Content Credentials"
+    );
+
+    Ok(())
 }
 
 /// Sign every path emitted by a Stencila codec export.
@@ -120,216 +213,42 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
     }
 
     let source_ingredient = source_ingredient_snapshot(source_path);
-
-    let mut side_targets = Vec::new();
     let mut seen: BTreeSet<PathBuf> = BTreeSet::new();
     seen.insert(output_path.to_path_buf());
-    for asset in &info.assets {
-        if !seen.insert(asset.path.clone()) {
-            continue;
-        }
-        side_targets.push(SideAssetTarget {
-            path: asset.path.clone(),
-            originating_id: asset.node_id.clone(),
-            node_type: asset.node_type.clone(),
-            role: asset.role.clone(),
-            title: asset.title.clone(),
-            description: asset.description.clone(),
-            emitted: true,
-        });
-    }
 
-    match reference_media_with_paths(node, source_path) {
-        Ok(assets) => {
-            for asset in assets {
-                if !seen.insert(asset.path.clone()) {
-                    continue;
-                }
-                side_targets.push(SideAssetTarget {
-                    path: asset.path,
-                    originating_id: asset.node_id,
-                    node_type: asset.node_type,
-                    role: asset.role,
-                    title: asset.title,
-                    description: asset.description,
-                    emitted: false,
-                });
-            }
-        }
-        Err(error) => {
-            tracing::warn!("Could not discover referenced media for Content Credentials: {error}");
-        }
-    }
-
-    let source_manifest = if source_ingredient.is_some() {
-        match source_ingredient_manifest(
-            &producer,
-            source_path,
-            source_ingredient.as_ref(),
-            credential_profile,
-        )
-        .await
-        {
-            Ok(manifest) => manifest,
-            Err(error) => {
-                tracing::warn!(
-                    "Could not create a source manifest for Content Credentials ingredient: {error}"
-                );
-                None
-            }
-        }
-    } else {
-        None
-    };
+    let source_manifest = source_manifest(
+        &producer,
+        source_path,
+        source_ingredient.as_ref(),
+        credential_profile,
+    )
+    .await;
     let source_manifest_path = source_manifest
         .as_ref()
         .map(|manifest| manifest.asset_path.as_path());
 
-    let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
-    let mut component_ingredients: Vec<ComponentIngredient> = Vec::new();
-    let mut temporary_static_component_dirs: Vec<TempDir> = Vec::new();
-    let mut component_index = 0;
-
-    for target in side_targets {
-        let SideAssetTarget {
-            path: asset_path,
-            originating_id,
-            node_type: target_node_type,
-            role: asset_role,
-            title: asset_title,
-            description: asset_description,
-            emitted,
-        } = target;
-
-        if !asset_path.is_file() {
-            tracing::warn!(
-                asset = %asset_path.display(),
-                "Skipping Content Credentials for emitted asset because it is not a file"
-            );
-            continue;
-        }
-
-        let media_type = match media::guess_media_type(&asset_path) {
-            Ok(media_type) => Some(media_type),
-            Err(error) => {
-                tracing::warn!(
-                    "Skipping content credentials for asset with unknown media type: {}",
-                    asset_path.display()
-                );
-                tracing::debug!("{error}");
-                continue;
-            }
-        };
-
-        if media::has_c2pa_manifest(&asset_path, media_type.as_deref()) {
-            component_ingredients.push(signed_component_ingredient(
-                component_index,
-                originating_id,
-                asset_title,
-                asset_description,
-                &asset_path,
-                media_type,
-                media::sha256_file(&asset_path)?,
-                asset_path.clone(),
-                target_node_type.as_deref(),
-            ));
-            component_index += 1;
-            continue;
-        }
-
-        let owned_subject = originating_id
-            .as_deref()
-            .and_then(|id| id.parse::<NodeId>().ok())
-            .and_then(|id| stencila_node_find::find(node, id));
-        let subject = owned_subject.as_ref().unwrap_or(node);
-
-        let mut provenance = build_export_snapshot(
-            node,
-            subject,
-            &asset_path,
-            ExportSnapshotOptions {
-                source_ranges,
-                source_path,
-                primary: false,
-                asset_role: asset_role.as_deref(),
-                asset_title: asset_title.as_deref(),
-                asset_description: asset_description.as_deref(),
-                codec_name: Some(codec_name),
-                profile: credential_profile,
-            },
-        );
-        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
-            &producer,
-            &mut provenance,
-            source_ingredient.clone(),
-            source_path,
-            source_manifest_path,
-            credential_profile,
-        )
-        .await?;
-
-        let static_component_dir = if emitted { None } else { Some(tempdir()?) };
-        let output_path = static_component_dir.as_ref().map(|dir| {
-            dir.path().join(
-                asset_path
-                    .file_name()
-                    .unwrap_or_else(|| std::ffi::OsStr::new("component")),
-            )
-        });
-
-        let signed = producer
-            .sign_exported_asset(SignAssetRequest {
-                input_path: asset_path.clone(),
-                output_path: output_path.clone(),
-                media_type: media_type.clone(),
-                title: asset_title.clone(),
-                credential_profile,
-                provenance: Some(provenance),
-            })
-            .await?;
-
-        let manifest_source = signed
-            .sidecar_path
-            .clone()
-            .unwrap_or_else(|| signed.asset_path.clone());
-
-        if let Some(asset) = info
-            .assets
-            .iter_mut()
-            .find(|asset| asset.path == asset_path)
-        {
-            apply_signed_asset_metadata(asset, &signed);
-        }
-
-        if emitted {
-            push_sidecar_asset_once(
-                signed.sidecar_path.as_deref(),
-                &info.assets,
-                &mut new_sidecars,
-            );
-        }
-
-        component_ingredients.push(signed_component_ingredient(
-            component_index,
-            originating_id,
-            asset_title,
-            asset_description,
-            &asset_path,
-            media_type,
-            signed.signed_asset_digest,
-            manifest_source,
-            target_node_type.as_deref(),
-        ));
-        component_index += 1;
-
-        if let Some(dir) = static_component_dir {
-            temporary_static_component_dirs.push(dir);
-        }
-    }
+    let signed = Box::pin(sign_side_assets(
+        &producer,
+        node,
+        codec_name,
+        source_path,
+        source_ranges,
+        source_ingredient.clone(),
+        source_manifest_path,
+        credential_profile,
+        info,
+        true,
+        seen,
+        0,
+    ))
+    .await?;
+    let mut new_sidecars = signed.new_sidecars;
+    let mut component_ingredients = signed.component_ingredients;
+    let mut component_index = signed.component_index;
 
     // Keep temp dirs alive until the primary manifest has linked the temporary
     // child manifests referenced by `component_ingredients`.
-    let _temporary_static_component_dirs = temporary_static_component_dirs;
+    let _temporary_static_component_dirs = signed.temporary_static_component_dirs;
     let _temporary_component_dir = if supports_embedded_component_extraction(codec_name) {
         let (embedded_components, temporary_component_dir) =
             Box::pin(embedded_component_ingredients(
@@ -431,6 +350,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
             manifest_id: signed.manifest_id.clone(),
             sidecar_path: signed.sidecar_path.clone(),
             credential_profile: Some(signed.credential_profile.label().to_string()),
+            c2pa: signed.c2pa.clone(),
             signing_warnings: signed.warnings.clone(),
         };
         push_sidecar_asset_once(
@@ -449,6 +369,279 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
     );
 
     Ok(())
+}
+
+#[allow(clippy::too_many_arguments, clippy::too_many_lines)]
+async fn sign_side_assets(
+    producer: &CredentialProducer,
+    node: &Node,
+    codec_name: &str,
+    source_path: Option<&Path>,
+    source_ranges: Option<&BTreeMap<String, SourceRangeSnapshot>>,
+    source_ingredient: Option<IngredientSnapshot>,
+    source_manifest_path: Option<&Path>,
+    credential_profile: CredentialProfile,
+    info: &mut EncodeInfo,
+    include_referenced_media: bool,
+    mut seen: BTreeSet<PathBuf>,
+    mut component_index: usize,
+) -> Result<SignedSideAssets> {
+    let mut side_targets = Vec::new();
+    for asset in &info.assets {
+        if !seen.insert(asset.path.clone()) {
+            continue;
+        }
+        side_targets.push(SideAssetTarget {
+            path: asset.path.clone(),
+            originating_id: asset.node_id.clone(),
+            node_type: asset.node_type.clone(),
+            role: asset.role.clone(),
+            title: asset.title.clone(),
+            description: asset.description.clone(),
+            emitted: true,
+        });
+    }
+
+    if include_referenced_media {
+        match reference_media_with_paths(node, source_path) {
+            Ok(assets) => {
+                for asset in assets {
+                    if !seen.insert(asset.path.clone()) {
+                        continue;
+                    }
+                    side_targets.push(SideAssetTarget {
+                        path: asset.path,
+                        originating_id: asset.node_id,
+                        node_type: asset.node_type,
+                        role: asset.role,
+                        title: asset.title,
+                        description: asset.description,
+                        emitted: false,
+                    });
+                }
+            }
+            Err(error) => {
+                tracing::warn!(
+                    "Could not discover referenced media for Content Credentials: {error}"
+                );
+            }
+        }
+    }
+
+    let mut new_sidecars: Vec<EncodedAsset> = Vec::new();
+    let mut component_ingredients: Vec<ComponentIngredient> = Vec::new();
+    let mut temporary_static_component_dirs: Vec<TempDir> = Vec::new();
+
+    for target in side_targets {
+        let SideAssetTarget {
+            path: asset_path,
+            originating_id,
+            node_type: target_node_type,
+            role: asset_role,
+            title: asset_title,
+            description: asset_description,
+            emitted,
+        } = target;
+
+        if !asset_path.is_file() {
+            tracing::warn!(
+                asset = %asset_path.display(),
+                "Skipping Content Credentials for emitted asset because it is not a file"
+            );
+            continue;
+        }
+
+        let media_type = match media::guess_media_type(&asset_path) {
+            Ok(media_type) => Some(media_type),
+            Err(error) => {
+                tracing::warn!(
+                    "Skipping content credentials for asset with unknown media type: {}",
+                    asset_path.display()
+                );
+                tracing::debug!("{error}");
+                continue;
+            }
+        };
+
+        if media::has_c2pa_manifest(&asset_path, media_type.as_deref()) {
+            let media_type_value = media_type.as_deref().unwrap_or("application/octet-stream");
+            let sidecar = media::sidecar_path(&asset_path);
+            let (manifest_id, c2pa, signing_warnings, sidecar_path) =
+                if media::could_have_embedded(media_type_value) {
+                    let (manifest_id, c2pa, warnings) =
+                        producer::read_signed_manifest_info(&asset_path, None, media_type_value);
+                    if manifest_id.is_some() || !sidecar.exists() {
+                        (manifest_id, c2pa, warnings, None)
+                    } else {
+                        let (manifest_id, c2pa, warnings) = producer::read_signed_manifest_info(
+                            &asset_path,
+                            Some(&sidecar),
+                            media_type_value,
+                        );
+                        (manifest_id, c2pa, warnings, Some(sidecar.as_path()))
+                    }
+                } else {
+                    let sidecar_path = sidecar.exists().then_some(sidecar.as_path());
+                    let (manifest_id, c2pa, warnings) = producer::read_signed_manifest_info(
+                        &asset_path,
+                        sidecar_path,
+                        media_type_value,
+                    );
+                    (manifest_id, c2pa, warnings, sidecar_path)
+                };
+
+            if let Some(asset) = info
+                .assets
+                .iter_mut()
+                .find(|asset| asset.path == asset_path)
+            {
+                asset.signed = true;
+                asset.manifest_kind = Some(
+                    if sidecar_path.is_some() {
+                        "sidecar"
+                    } else {
+                        "embedded"
+                    }
+                    .to_string(),
+                );
+                asset.manifest_id.clone_from(&manifest_id);
+                asset.sidecar_path = sidecar_path.map(Path::to_path_buf);
+                asset.credential_profile = Some(credential_profile.label().to_string());
+                asset.c2pa.clone_from(&c2pa);
+                asset.signing_warnings.clone_from(&signing_warnings);
+            }
+            component_ingredients.push(signed_component_ingredient(
+                component_index,
+                originating_id,
+                asset_title,
+                asset_description,
+                &asset_path,
+                media_type,
+                media::sha256_file(&asset_path)?,
+                asset_path.clone(),
+                target_node_type.as_deref(),
+            ));
+            component_index += 1;
+            continue;
+        }
+
+        let owned_subject = originating_id
+            .as_deref()
+            .and_then(|id| id.parse::<NodeId>().ok())
+            .and_then(|id| stencila_node_find::find(node, id));
+        let subject = owned_subject.as_ref().unwrap_or(node);
+
+        let mut provenance = build_export_snapshot(
+            node,
+            subject,
+            &asset_path,
+            ExportSnapshotOptions {
+                source_ranges,
+                source_path,
+                primary: false,
+                asset_role: asset_role.as_deref(),
+                asset_title: asset_title.as_deref(),
+                asset_description: asset_description.as_deref(),
+                codec_name: Some(codec_name),
+                profile: credential_profile,
+            },
+        );
+        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
+            producer,
+            &mut provenance,
+            source_ingredient.clone(),
+            source_path,
+            source_manifest_path,
+            credential_profile,
+        )
+        .await?;
+
+        let static_component_dir = if emitted { None } else { Some(tempdir()?) };
+        let output_path = static_component_dir.as_ref().map(|dir| {
+            dir.path().join(
+                asset_path
+                    .file_name()
+                    .unwrap_or_else(|| std::ffi::OsStr::new("component")),
+            )
+        });
+
+        let signed = producer
+            .sign_exported_asset(SignAssetRequest {
+                input_path: asset_path.clone(),
+                output_path: output_path.clone(),
+                media_type: media_type.clone(),
+                title: asset_title.clone(),
+                credential_profile,
+                provenance: Some(provenance),
+            })
+            .await?;
+
+        let manifest_source = signed
+            .sidecar_path
+            .clone()
+            .unwrap_or_else(|| signed.asset_path.clone());
+
+        if let Some(asset) = info
+            .assets
+            .iter_mut()
+            .find(|asset| asset.path == asset_path)
+        {
+            apply_signed_asset_metadata(asset, &signed);
+        }
+
+        if emitted {
+            push_sidecar_asset_once(
+                signed.sidecar_path.as_deref(),
+                &info.assets,
+                &mut new_sidecars,
+            );
+        }
+
+        component_ingredients.push(signed_component_ingredient(
+            component_index,
+            originating_id,
+            asset_title,
+            asset_description,
+            &asset_path,
+            media_type,
+            signed.signed_asset_digest,
+            manifest_source,
+            target_node_type.as_deref(),
+        ));
+        component_index += 1;
+
+        if let Some(dir) = static_component_dir {
+            temporary_static_component_dirs.push(dir);
+        }
+    }
+
+    Ok(SignedSideAssets {
+        component_ingredients,
+        new_sidecars,
+        temporary_static_component_dirs,
+        component_index,
+    })
+}
+
+async fn source_manifest(
+    producer: &CredentialProducer,
+    source_path: Option<&Path>,
+    source_ingredient: Option<&IngredientSnapshot>,
+    credential_profile: CredentialProfile,
+) -> Option<ingredients::TemporaryIngredientManifest> {
+    source_ingredient?;
+
+    match source_ingredient_manifest(producer, source_path, source_ingredient, credential_profile)
+        .await
+    {
+        Ok(manifest) => manifest,
+        Err(error) => {
+            tracing::warn!(
+                "Could not create a source manifest for Content Credentials ingredient: {error}"
+            );
+            None
+        }
+    }
 }
 
 /// Sign embedded data-URI media as temporary component ingredients.
@@ -636,6 +829,7 @@ fn apply_signed_asset_metadata(asset: &mut EncodedAsset, signed: &SignedAsset) {
     asset.manifest_id.clone_from(&signed.manifest_id);
     asset.sidecar_path.clone_from(&signed.sidecar_path);
     asset.credential_profile = Some(signed.credential_profile.label().to_string());
+    asset.c2pa.clone_from(&signed.c2pa);
     asset.signing_warnings.clone_from(&signed.warnings);
 }
 

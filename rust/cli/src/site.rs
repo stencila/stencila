@@ -718,6 +718,9 @@ pub static RENDER_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Render from a specific source</dim>
   <b>stencila site render</> <g>./dist</> <c>--source</> <g>./content</>
+
+  <dim># Render with Content Credentials enabled in stencila.toml</dim>
+  <b>stencila site render</> <g>./dist</>
 "
 );
 
@@ -872,6 +875,9 @@ pub static PREVIEW_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Preview without file watching</dim>
   <b>stencila site preview</> <c>--no-watch</>
+
+  <dim># Preview with Content Credentials enabled in stencila.toml</dim>
+  <b>stencila site preview</>
 "
 );
 
@@ -937,7 +943,6 @@ impl Preview {
             }
         };
         let server_port = started.port;
-
         // Initial render (render() outputs uncompressed HTML with flat structure)
         message!("📁 Rendering site to temporary directory...");
         if let Err(error) =

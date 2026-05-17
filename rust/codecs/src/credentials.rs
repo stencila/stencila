@@ -15,7 +15,10 @@ use stencila_codec::{
 };
 use stencila_content_credentials::{
     CredentialProfile, SourceRangeSnapshot,
-    export::{ExportSigningRequest, sign_encoded_export as sign_export},
+    export::{
+        AssetSigningRequest, ExportSigningRequest, sign_encoded_assets as sign_assets,
+        sign_encoded_export as sign_export,
+    },
 };
 
 /// Sign paths emitted by a codec export, when credentials were requested.
@@ -42,6 +45,33 @@ pub(crate) async fn sign_encoded_export(
         source_path,
         source_ranges: source_ranges.as_ref(),
         media_type_hint,
+        credential_profile: credential_profile(credentials.profile.clone()),
+        info,
+    })
+    .await?;
+
+    Ok(())
+}
+
+/// Sign paths emitted by a codec export without signing the primary output.
+pub(crate) async fn sign_encoded_assets(
+    node: &Node,
+    codec_name: &str,
+    options: Option<&EncodeOptions>,
+    info: &mut EncodeInfo,
+) -> Result<()> {
+    let Some(credentials) = options.and_then(|options| options.credentials.as_ref()) else {
+        return Ok(());
+    };
+
+    let source_path = options.and_then(|options| options.from_path.as_deref());
+    let source_ranges = source_range_map(node, source_path).await;
+
+    sign_assets(AssetSigningRequest {
+        node,
+        codec_name,
+        source_path,
+        source_ranges: source_ranges.as_ref(),
         credential_profile: credential_profile(credentials.profile.clone()),
         info,
     })

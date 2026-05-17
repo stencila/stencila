@@ -2,6 +2,11 @@ import { LitElement, PropertyValues, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
 import { unsafeSVG } from 'lit/directives/unsafe-svg'
 
+import {
+  type ContentCredentialAsset,
+  readContentCredentialAsset,
+  renderContentCredentialPin,
+} from './content-credentials'
 import { compileCytoscape } from './image-object-cytoscape'
 import { compileECharts } from './image-object-echarts'
 import { compileLeaflet } from './image-object-leaflet'
@@ -58,6 +63,12 @@ export class ImageObjectStatic extends LitElement {
   @state()
   private error?: string
 
+  @state()
+  private contentCredentialAsset?: ContentCredentialAsset
+
+  @state()
+  private contentCredentialCardOpen = false
+
   /**
    * Instance references for cleanup
    */
@@ -84,10 +95,13 @@ export class ImageObjectStatic extends LitElement {
 
     if (properties.has('contentUrl') || properties.has('mediaType')) {
       if (!this.contentUrl) {
+        this.contentCredentialAsset = undefined
+        this.contentCredentialCardOpen = false
         return
       }
 
       this.error = undefined
+      this.updateContentCredentialAsset()
 
       switch (this.mediaType) {
         case MEDIA_TYPES.cytoscape:
@@ -117,6 +131,28 @@ export class ImageObjectStatic extends LitElement {
       container,
       true // isStaticView
     )) as ImageObjectStatic['cytoscapeInstance']
+  }
+
+  private updateContentCredentialAsset() {
+    if (!this.contentUrl || Object.values(MEDIA_TYPES).includes(this.mediaType as never)) {
+      this.contentCredentialAsset = undefined
+      this.contentCredentialCardOpen = false
+      return
+    }
+
+    this.contentCredentialAsset = readContentCredentialAsset(this, this.contentUrl)
+  }
+
+  private toggleContentCredentialCard = () => {
+    this.contentCredentialCardOpen = !this.contentCredentialCardOpen
+  }
+
+  private openContentCredentialCard = () => {
+    this.contentCredentialCardOpen = true
+  }
+
+  private closeContentCredentialCard = () => {
+    this.contentCredentialCardOpen = false
   }
 
   private async compileECharts() {
@@ -233,6 +269,13 @@ export class ImageObjectStatic extends LitElement {
             ${this.contentUrl
               ? html`<img src=${this.contentUrl} />`
               : html`<slot></slot>`}
+            ${renderContentCredentialPin(
+              this.contentCredentialAsset,
+              this.contentCredentialCardOpen,
+              this.openContentCredentialCard,
+              this.closeContentCredentialCard,
+              this.toggleContentCredentialCard
+            )}
             <slot name="caption"></slot>
           </div>
         `
