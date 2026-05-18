@@ -58,11 +58,15 @@ specific document node, produced by a particular execution, and associated with:
 - privacy decisions and redactions made before signing
 
 The amount of detail depends on the selected [profile](profiles).
+The signing identity depends on the selected [signing backend](signing), such
+as a local self-signed identity or Stencila Cloud signing.
 
 Stencila uses standard C2PA assertions where they apply, including actions,
 ingredients, and AI disclosure. It also adds a Stencila-specific provenance
 assertion for document and execution details that generic C2PA assertions do not
-model directly.
+model directly. Stencila also records `claim_generator_info` so verifiers can
+distinguish locally generated and signed manifests from manifests generated or
+signed by Stencila Cloud.
 
 ## Reading Order
 
@@ -70,6 +74,8 @@ Start with the everyday workflow:
 
 - [Usage](usage) explains how to sign, verify, and inspect assets.
 - [Profiles](profiles) explains how to choose how much provenance to disclose.
+- [Signing](signing) explains local signing, Cloud signing, and how manifests
+  identify where provenance was generated.
 - [Sidecars](sidecars) explains why some assets need a separate `.c2pa` file.
 - [Trust](trust) explains the difference between an intact signature and a
   signer your verifier recognizes.
@@ -94,6 +100,9 @@ These words appear throughout the Content Credentials pages:
   AI disclosure, or Stencila provenance.
 - **Signer**: the person, organization, device, or software identity that signs
   the manifest.
+- **Claim generator**: the software or service that generated the C2PA claim.
+  Stencila records extra fields to distinguish client-generated, Cloud-signed
+  manifests from Cloud-generated, Cloud-signed manifests.
 - **Verifier**: the tool that checks whether the manifest is intact, still
   matches the asset, and is signed by a recognized signer.
 
@@ -142,6 +151,11 @@ definition snapshot hashes, and privacy decisions.
 
 Producers should prefer these standard assertions for ecosystem-visible facts:
 
+- `claim_generator_info` for the software or service that generated the C2PA
+  claim. Stencila writes `org.stencila.generated_by` and
+  `org.stencila.signed_by` extension keys here so generic C2PA tooling can
+  still display the claim generator while Stencila-aware tooling can
+  distinguish local and Cloud workflows.
 - [`c2pa.actions.v2`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions)
   for public action history such as creation, opening, placement, export, or
   transformation.

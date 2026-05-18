@@ -11198,6 +11198,7 @@ name = "stencila-content-credentials"
 version = "2.15.0"
 dependencies = [
  "Inflector",
+ "base64 0.22.1",
  "c2pa",
  "chrono",
  "clap",
@@ -11222,6 +11223,7 @@ dependencies = [
  "stencila-node-find",
  "stencila-node-media",
  "stencila-schema",
+ "stencila-secrets",
  "stencila-version",
  "tempfile",
  "thiserror 2.0.18",

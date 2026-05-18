@@ -10,11 +10,12 @@ use std::{collections::BTreeMap, path::Path};
 use tokio::fs::read_to_string;
 
 use stencila_codec::{
-    CredentialProfile as CodecCredentialProfile, EncodeInfo, EncodeOptions, PoshMap, eyre::Result,
-    stencila_format::Format, stencila_schema::Node,
+    CredentialProfile as CodecCredentialProfile, CredentialSigningMode as CodecSigningMode,
+    EncodeInfo, EncodeOptions, PoshMap, eyre::Result, stencila_format::Format,
+    stencila_schema::Node,
 };
 use stencila_content_credentials::{
-    CredentialProfile, SourceRangeSnapshot,
+    CredentialProfile, CredentialSigningConfig, SourceRangeSnapshot,
     export::{
         AssetSigningRequest, ExportSigningRequest, sign_encoded_assets as sign_assets,
         sign_encoded_export as sign_export,
@@ -46,6 +47,7 @@ pub(crate) async fn sign_encoded_export(
         source_ranges: source_ranges.as_ref(),
         media_type_hint,
         credential_profile: credential_profile(credentials.profile.clone()),
+        signing_config: Some(signing_config(credentials.signing_mode.clone())?),
         info,
     })
     .await?;
@@ -73,6 +75,7 @@ pub(crate) async fn sign_encoded_assets(
         source_path,
         source_ranges: source_ranges.as_ref(),
         credential_profile: credential_profile(credentials.profile.clone()),
+        signing_config: Some(signing_config(credentials.signing_mode.clone())?),
         info,
     })
     .await?;
@@ -161,6 +164,14 @@ async fn source_range_map(
     }
 
     (!ranges.is_empty()).then_some(ranges)
+}
+
+fn signing_config(mode: CodecSigningMode) -> Result<CredentialSigningConfig> {
+    match mode {
+        CodecSigningMode::Auto => Ok(CredentialSigningConfig::resolve_auto()?),
+        CodecSigningMode::Local => Ok(CredentialSigningConfig::resolve_local()?),
+        CodecSigningMode::Cloud => Ok(CredentialSigningConfig::resolve_cloud()?),
+    }
 }
 
 fn credential_profile(profile: CodecCredentialProfile) -> CredentialProfile {

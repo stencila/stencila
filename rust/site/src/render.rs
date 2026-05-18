@@ -22,13 +22,17 @@ use tokio::{
     sync::mpsc,
 };
 
-use stencila_codec::{CredentialProfile, CredentialsOptions, EncodeOptions, stencila_schema::Node};
+use stencila_codec::{
+    CredentialProfile, CredentialSigningMode, CredentialsOptions, EncodeOptions,
+    stencila_schema::Node,
+};
 use stencila_codec_info::Shifter;
 use stencila_codec_markdown::to_markdown;
 use stencila_codec_utils::git_repo_info;
 use stencila_codecs::to_string_with_info;
 use stencila_config::{
-    AccessLevel, NavItem, RedirectStatus, SiteConfig, SiteContentCredentialsProfile, SiteFormat,
+    AccessLevel, Config, ContentCredentialsProfile, ContentCredentialsSigner, NavItem,
+    RedirectStatus, SiteConfig, SiteFormat,
 };
 use stencila_format::Format;
 use stencila_node_stabilize::stabilize;
@@ -297,9 +301,10 @@ where
         .and_then(|w| w.id.as_deref())
         .map(String::from);
 
+    let credentials = site_credentials(&config);
+
     // Get site configuration (used for all document routes)
     let site_config = config.site.unwrap_or_default();
-    let credentials = site_credentials(&site_config);
 
     // Compute git repo info once (used for edit-source/edit-on components)
     let git_info = git_repo_info(&site_root)?;
@@ -1043,13 +1048,34 @@ fn extract_search_entries(
         .collect()
 }
 
-fn site_credentials(site_config: &SiteConfig) -> Option<CredentialsOptions> {
-    let config = site_config.content_credentials.as_ref()?.to_config();
+fn site_credentials(config: &Config) -> Option<CredentialsOptions> {
+    let root_config = config
+        .content_credentials
+        .as_ref()
+        .map(|spec| spec.to_config());
+    let site_config = config
+        .site
+        .as_ref()
+        .and_then(|site| site.content_credentials.as_ref())
+        .map(|spec| spec.to_config());
+
+    let config = match (root_config, site_config) {
+        (Some(root), Some(site)) => root.merge_override(&site),
+        (Some(root), None) => root,
+        (None, Some(site)) => site,
+        (None, None) => return None,
+    };
+
     config.is_enabled().then(|| CredentialsOptions {
         profile: match config.profile() {
-            SiteContentCredentialsProfile::Public => CredentialProfile::Public,
-            SiteContentCredentialsProfile::Private => CredentialProfile::Private,
-            SiteContentCredentialsProfile::Full => CredentialProfile::Full,
+            ContentCredentialsProfile::Public => CredentialProfile::Public,
+            ContentCredentialsProfile::Private => CredentialProfile::Private,
+            ContentCredentialsProfile::Full => CredentialProfile::Full,
+        },
+        signing_mode: match config.signer() {
+            ContentCredentialsSigner::Auto => CredentialSigningMode::Auto,
+            ContentCredentialsSigner::Cloud => CredentialSigningMode::Cloud,
+            ContentCredentialsSigner::Local => CredentialSigningMode::Local,
         },
     })
 }

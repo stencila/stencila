@@ -40,6 +40,17 @@ pub enum Error {
     )]
     NoSignerConfigured,
 
+    #[error(
+        "Stencila Cloud signing requires authentication; run `stencila cloud signin` or set STENCILA_API_TOKEN"
+    )]
+    CloudSigningUnauthenticated,
+
+    #[error("{0}")]
+    CloudSigningFailed(String),
+
+    #[error("base64 decode error: {0}")]
+    Base64(#[from] base64::DecodeError),
+
     #[error("c2pa SDK error: {0}")]
     C2pa(#[from] c2pa::Error),
 

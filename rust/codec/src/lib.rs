@@ -457,12 +457,33 @@ pub enum CredentialProfile {
     Full,
 }
 
+/// Content Credentials signing backend.
+#[derive(
+    Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize, ValueEnum, Display, EnumString,
+)]
+#[serde(rename_all = "kebab-case")]
+#[strum(serialize_all = "kebab-case")]
+pub enum CredentialSigningMode {
+    /// Use Cloud signing when available, otherwise fall back to local signing.
+    Auto,
+
+    /// Use Stencila Cloud's signing service.
+    Cloud,
+
+    /// Use a local self-signed signing identity.
+    #[default]
+    Local,
+}
+
 /// Content Credentials options for encoding.
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 pub struct CredentialsOptions {
     /// The privacy/signing projection profile to use.
     pub profile: CredentialProfile,
+
+    /// The signing backend to use.
+    pub signing_mode: CredentialSigningMode,
 }
 
 /// Encoding options

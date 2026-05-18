@@ -12,7 +12,8 @@ use tempfile::TempDir;
 use crate::config_update_remote_watch;
 
 use super::{
-    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, find_config_file,
+    CONFIG_FILENAME, CONFIG_LOCAL_FILENAME, Config, ContentCredentialsProfile,
+    ContentCredentialsSigner, find_config_file,
     remotes::{RemoteTarget, RemoteValue},
     site::RedirectStatus,
     utils::{ConfigTarget, collect_paths, normalize_path, set_value, unset_value},
@@ -126,6 +127,26 @@ id = "ws1234567890"
     );
 
     Ok(())
+}
+
+#[test]
+fn test_config_root_content_credentials_toml_detailed() {
+    let toml_str = r#"
+        [content-credentials]
+        enabled = true
+        profile = "private"
+        signer = "cloud"
+    "#;
+    let config: Config = toml::from_str(toml_str).expect("Failed to parse TOML");
+    let credentials = config
+        .content_credentials
+        .as_ref()
+        .expect("content credentials should be Some")
+        .to_config();
+
+    assert!(credentials.is_enabled());
+    assert_eq!(credentials.profile(), ContentCredentialsProfile::Private);
+    assert_eq!(credentials.signer(), ContentCredentialsSigner::Cloud);
 }
 
 #[test]

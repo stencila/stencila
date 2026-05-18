@@ -16,7 +16,7 @@ use stencila_schema::{Node, NodeId, NodeType, Visitor, WalkControl};
 use tempfile::{TempDir, tempdir};
 
 use crate::{
-    CredentialProducer, CredentialProfile, CredentialSignerConfig, Error, IngredientSnapshot,
+    CredentialProducer, CredentialProfile, CredentialSigningConfig, Error, IngredientSnapshot,
     ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset, SourceRangeSnapshot,
     media, producer,
 };
@@ -66,6 +66,12 @@ pub struct ExportSigningRequest<'a> {
     /// Privacy projection profile used by the signer.
     pub credential_profile: CredentialProfile,
 
+    /// Signing backend configuration.
+    ///
+    /// When absent, the default local signing identity is used. CLI and Cloud
+    /// callers can pass an explicit backend to avoid hidden fallback behavior.
+    pub signing_config: Option<CredentialSigningConfig>,
+
     /// Encoding metadata to update with signing results.
     pub info: &'a mut EncodeInfo,
 }
@@ -91,6 +97,11 @@ pub struct AssetSigningRequest<'a> {
 
     /// Privacy projection profile used by the signer.
     pub credential_profile: CredentialProfile,
+
+    /// Signing backend configuration.
+    ///
+    /// When absent, the default local signing identity is used.
+    pub signing_config: Option<CredentialSigningConfig>,
 
     /// Encoding metadata to update with signing results.
     pub info: &'a mut EncodeInfo,
@@ -135,11 +146,11 @@ pub async fn sign_encoded_assets(request: AssetSigningRequest<'_>) -> Result<()>
         source_path,
         source_ranges,
         credential_profile,
+        signing_config,
         info,
     } = request;
 
-    let signer_config = CredentialSignerConfig::resolve(None, None)?;
-    let producer = CredentialProducer::new(signer_config);
+    let producer = producer_for_config(signing_config)?;
     let source_ingredient = source_ingredient_snapshot(source_path);
     let source_manifest = source_manifest(
         &producer,
@@ -201,11 +212,11 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         source_ranges,
         media_type_hint,
         credential_profile,
+        signing_config,
         info,
     } = request;
 
-    let signer_config = CredentialSignerConfig::resolve(None, None)?;
-    let producer = CredentialProducer::new(signer_config);
+    let producer = producer_for_config(signing_config)?;
     let profile_label = credential_profile.label();
 
     if !output_path.is_file() {
@@ -295,17 +306,22 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                 profile: credential_profile,
             },
         );
-        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
+        let _temporary_ingredient_manifests = Box::pin(add_source_and_executed_ingredients(
             &producer,
             &mut provenance,
             source_ingredient.clone(),
             source_path,
             source_manifest_path,
             credential_profile,
-        )
+        ))
         .await?;
         let _temporary_environment_manifest = if root_depends_on_execution_environment(node) {
-            add_environment_ingredient(&producer, &mut provenance, credential_profile).await?
+            Box::pin(add_environment_ingredient(
+                &producer,
+                &mut provenance,
+                credential_profile,
+            ))
+            .await?
         } else {
             None
         };
@@ -369,6 +385,17 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
     );
 
     Ok(())
+}
+
+fn producer_for_config(
+    signing_config: Option<CredentialSigningConfig>,
+) -> Result<CredentialProducer> {
+    let signing_config = match signing_config {
+        Some(config) => config,
+        None => CredentialSigningConfig::resolve_local()?,
+    };
+
+    Ok(CredentialProducer::new(signing_config))
 }
 
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
@@ -546,14 +573,14 @@ async fn sign_side_assets(
                 profile: credential_profile,
             },
         );
-        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
+        let _temporary_ingredient_manifests = Box::pin(add_source_and_executed_ingredients(
             producer,
             &mut provenance,
             source_ingredient.clone(),
             source_path,
             source_manifest_path,
             credential_profile,
-        )
+        ))
         .await?;
 
         let static_component_dir = if emitted { None } else { Some(tempdir()?) };
@@ -723,14 +750,14 @@ async fn embedded_component_ingredients(
             },
         );
         scrub_embedded_component_content_urls(&mut provenance);
-        let _temporary_ingredient_manifests = add_source_and_executed_ingredients(
+        let _temporary_ingredient_manifests = Box::pin(add_source_and_executed_ingredients(
             producer,
             &mut provenance,
             source_ingredient.clone(),
             source_path,
             source_manifest_path,
             credential_profile,
-        )
+        ))
         .await?;
 
         let signed = producer

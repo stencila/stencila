@@ -286,6 +286,18 @@ async fn sign_emits_standard_c2pa_assertions() {
         .as_str()
         .expect("active manifest");
     let manifest = &manifest_json["manifests"][active];
+    let claim_generator = &manifest["claim_generator_info"][0];
+    assert_eq!(claim_generator["name"], "Stencila CLI");
+    assert_eq!(
+        claim_generator["org.stencila.generated_by"],
+        serde_json::json!("client")
+    );
+    assert_eq!(
+        claim_generator["org.stencila.signed_by"],
+        serde_json::json!("local")
+    );
+    assert!(claim_generator.get("org.stencila.attestation").is_none());
+    assert!(claim_generator.get("rendered_by").is_none());
     assert!(
         manifest["thumbnail"].is_object(),
         "image asset should carry a c2pa thumbnail: {manifest:?}"

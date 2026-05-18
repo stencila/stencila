@@ -46,6 +46,17 @@
         }
       ]
     },
+    "content-credentials": {
+      "description": "Content Credentials configuration.\nhttps://stencila.io/docs/config/content-credentials",
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ContentCredentialsSpec"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
     "agents": {
       "description": "Agent configuration.\nhttps://stencila.io/docs/config/agents",
       "anyOf": [
@@ -539,10 +550,10 @@
           }
         },
         "content-credentials": {
-          "description": "Content Credentials configuration\n\nEnables C2PA Content Credentials signing for rendered HTML and media.\nThe web metadata index is only generated for pages that have signed\nimage assets; pages without signed media do not emit an empty index.\n\nCan be a simple boolean, profile shorthand, or detailed configuration, e.g.\n```toml\n# Enable with the default public profile\n[site]\ncontent-credentials = true\n\n# Enable with a specific profile\n[site]\ncontent-credentials = \"public\"\n\n# Detailed Content Credentials configuration\n[site.content-credentials]\nprofile = \"public\"\n```",
+          "description": "Site Content Credentials configuration\n\nOverrides workspace-level C2PA Content Credentials defaults for rendered\nHTML and media.\nThe web metadata index is only generated for pages that have signed\nimage assets; pages without signed media do not emit an empty index.\n\nCan be a simple boolean, profile shorthand, or detailed configuration, e.g.\n```toml\n# Enable using workspace defaults\n[site]\ncontent-credentials = true\n\n# Enable and override the profile\n[site]\ncontent-credentials = \"public\"\n\n# Detailed site Content Credentials configuration\n[site.content-credentials]\nenabled = true\nprofile = \"public\"\nsigner = \"cloud\"\n```",
           "anyOf": [
             {
-              "$ref": "#/definitions/SiteContentCredentialsSpec"
+              "$ref": "#/definitions/ContentCredentialsSpec"
             },
             {
               "type": "null"
@@ -2733,8 +2744,8 @@
         }
       ]
     },
-    "SiteContentCredentialsSpec": {
-      "description": "Content Credentials specification.\nhttps://stencila.io/docs/config/sitecontentcredentialsspec",
+    "ContentCredentialsSpec": {
+      "description": "Content Credentials specification.\nhttps://stencila.io/docs/config/contentcredentialsspec",
       "anyOf": [
         {
           "description": "Simple boolean: content-credentials = true/false",
@@ -2744,22 +2755,22 @@
           "description": "Profile shorthand: content-credentials = \"public\"",
           "allOf": [
             {
-              "$ref": "#/definitions/SiteContentCredentialsProfile"
+              "$ref": "#/definitions/ContentCredentialsProfile"
             }
           ]
         },
         {
-          "description": "Detailed config: [site.content-credentials] with options",
+          "description": "Detailed config: [content-credentials] with options",
           "allOf": [
             {
-              "$ref": "#/definitions/SiteContentCredentialsConfig"
+              "$ref": "#/definitions/ContentCredentialsConfig"
             }
           ]
         }
       ]
     },
-    "SiteContentCredentialsProfile": {
-      "description": "Content Credentials privacy projection profile.\nhttps://stencila.io/docs/config/sitecontentcredentialsprofile",
+    "ContentCredentialsProfile": {
+      "description": "Content Credentials privacy projection profile.\nhttps://stencila.io/docs/config/contentcredentialsprofile",
       "oneOf": [
         {
           "description": "Public-safe credential metadata.",
@@ -2778,8 +2789,8 @@
         }
       ]
     },
-    "SiteContentCredentialsConfig": {
-      "description": "Content Credentials configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/sitecontentcredentialsconfig",
+    "ContentCredentialsConfig": {
+      "description": "Content Credentials configuration (detailed form), e.g.\nhttps://stencila.io/docs/config/contentcredentialsconfig",
       "type": "object",
       "properties": {
         "enabled": {
@@ -2793,7 +2804,18 @@
           "description": "The privacy/signing projection profile to use.\n\nDefaults to `public`.",
           "anyOf": [
             {
-              "$ref": "#/definitions/SiteContentCredentialsProfile"
+              "$ref": "#/definitions/ContentCredentialsProfile"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "signer": {
+          "description": "The signing backend to use.\n\nDefaults to `local`.",
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ContentCredentialsSigner"
             },
             {
               "type": "null"
@@ -2802,6 +2824,26 @@
         }
       },
       "additionalProperties": false
+    },
+    "ContentCredentialsSigner": {
+      "description": "Content Credentials signing backend.\nhttps://stencila.io/docs/config/contentcredentialssigner",
+      "oneOf": [
+        {
+          "description": "Use Cloud signing when available, otherwise fall back to local signing.",
+          "type": "string",
+          "const": "auto"
+        },
+        {
+          "description": "Use Stencila Cloud's signing service.",
+          "type": "string",
+          "const": "cloud"
+        },
+        {
+          "description": "Use the local self-signed signing identity.",
+          "type": "string",
+          "const": "local"
+        }
+      ]
     },
     "SiteReviewsSpec": {
       "description": "Reviews specification - handles both boolean and detailed forms\nhttps://stencila.io/docs/config/sitereviewsspec",

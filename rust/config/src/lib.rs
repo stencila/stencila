@@ -34,6 +34,7 @@ static DOMAIN_REGEX: LazyLock<Regex> =
 
 mod agents;
 pub mod cli;
+mod content_credentials;
 mod init;
 mod layout;
 mod mcp;
@@ -44,7 +45,6 @@ mod singleton;
 mod site;
 mod site_access;
 mod site_actions;
-mod site_content_credentials;
 mod site_remotes;
 mod site_reviews;
 mod site_uploads;
@@ -56,6 +56,11 @@ use crate::workspace::WorkspaceConfig;
 
 pub use {
     agents::{AgentsConfig, CommitAttribution},
+    content_credentials::{
+        ContentCredentialsConfig, ContentCredentialsProfile, ContentCredentialsSigner,
+        ContentCredentialsSpec, SiteContentCredentialsConfig, SiteContentCredentialsProfile,
+        SiteContentCredentialsSigner, SiteContentCredentialsSpec,
+    },
     layout::{
         ColorModeStyle, ComponentConfig, ComponentSpec, ContentPadding, ContentWidth,
         CopyMarkdownStyle, CustomSocialLink, EditOnService, EditSourceStyle, LayoutConfig,
@@ -80,9 +85,6 @@ pub use {
     },
     site_access::{AccessLevel, SiteAccessConfig},
     site_actions::{SiteActionsConfig, SiteActionsDirection, SiteActionsMode, SiteActionsPosition},
-    site_content_credentials::{
-        SiteContentCredentialsConfig, SiteContentCredentialsProfile, SiteContentCredentialsSpec,
-    },
     site_remotes::{SiteRemoteFormat, SiteRemoteSyncDirection, SiteRemotesConfig, SiteRemotesSpec},
     site_reviews::{SiteReviewType, SiteReviewsConfig, SiteReviewsSpec},
     site_uploads::{SiteUploadsConfig, SiteUploadsSpec},
@@ -195,6 +197,33 @@ pub struct Config {
 
     /// Site configuration.
     pub site: Option<SiteConfig>,
+
+    /// Content Credentials configuration.
+    ///
+    /// Defines workspace-level defaults for signing rendered outputs and
+    /// generated assets. Commands and site-specific configuration can override
+    /// these values.
+    ///
+    /// Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
+    /// ```toml
+    /// # Enable with the default public profile and local signer
+    /// content-credentials = true
+    ///
+    /// # Enable with a specific profile
+    /// content-credentials = "public"
+    ///
+    /// # Detailed Content Credentials configuration
+    /// [content-credentials]
+    /// enabled = true
+    /// profile = "public"
+    /// signer = "cloud"
+    /// ```
+    #[serde(
+        rename = "content-credentials",
+        alias = "content_credentials",
+        alias = "contentCredentials"
+    )]
+    pub content_credentials: Option<ContentCredentialsSpec>,
 
     /// Agent configuration.
     ///

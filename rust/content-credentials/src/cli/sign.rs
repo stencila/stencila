@@ -66,6 +66,7 @@ struct SignReport {
     side_assets: Vec<PathBuf>,
     warnings: Vec<String>,
     profile: &'static str,
+    signing_mode: &'static str,
     assertion_label: &'static str,
     assertion_schema: &'static str,
     media_type: String,
@@ -83,6 +84,7 @@ impl From<&SignedAsset> for SignReport {
             side_assets: signed.sidecar_path.iter().cloned().collect(),
             warnings: signed.warnings.clone(),
             profile: signed.credential_profile.label(),
+            signing_mode: signed.signing_mode.label(),
             assertion_label: signed.assertion_label,
             assertion_schema: signed.assertion_schema,
             media_type: signed.media_type.clone(),
@@ -142,6 +144,7 @@ fn print_human_summary(signed_asset: &SignedAsset) {
         message!("   Manifest ID: `{}`", manifest_id);
     }
     message!("   Profile:  `{}`", signed_asset.credential_profile.label());
+    message!("   Signer:   `{}`", signed_asset.signing_mode.label());
     message!("   Assertion: `{}`", signed_asset.assertion_label);
     message!("   Schema:    `{}`", signed_asset.assertion_schema);
     message!("   Signed digest: `{}`", signed_asset.signed_asset_digest);

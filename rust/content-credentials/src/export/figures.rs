@@ -100,7 +100,7 @@ pub(super) async fn group_figure_component_ingredients(
             .map(|(_order, component)| component)
             .collect();
 
-        let (component, temp_dir) = parent_figure_component_ingredient(
+        let (component, temp_dir) = Box::pin(parent_figure_component_ingredient(
             producer,
             node,
             source_ranges,
@@ -110,7 +110,7 @@ pub(super) async fn group_figure_component_ingredients(
             component_index,
             group.parent,
             children,
-        )
+        ))
         .await?;
         component_index += 1;
         direct.push(component);

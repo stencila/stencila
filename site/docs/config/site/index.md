@@ -343,9 +343,9 @@ formats = []      # No additional formats, hide format buttons
 
 # `content-credentials`
 
-**Type:** [`SiteContentCredentialsConfig`](content-credentials.md) (optional)
+**Type:** [`ContentCredentialsConfig`](content-credentials.md) (optional)
 
-Content Credentials configuration
+Site Content Credentials configuration
 
 # `reviews`
 

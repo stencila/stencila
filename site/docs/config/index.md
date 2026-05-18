@@ -136,4 +136,5 @@ stencila init --yes
 | [`[remotes]`](remotes) | Remote synchronization configuration. |
 | [`[outputs]`](outputs) | Outputs configuration. |
 | [`[site]`](site) | Configuration for a site |
+| [`[content-credentials]`](content-credentials) | Content Credentials configuration. |
 | [`[agents]`](agents) | Agent configuration. |

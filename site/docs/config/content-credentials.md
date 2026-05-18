@@ -1,27 +1,24 @@
 ---
-title: Site Content Credentials Config
-description: Site Content Credentials configuration
+title: Content Credentials Config
+description: Content Credentials configuration.
 ---
 
-Site Content Credentials configuration
+Content Credentials configuration.
 
-Overrides workspace-level C2PA Content Credentials defaults for rendered
-HTML and media.
-The web metadata index is only generated for pages that have signed
-image assets; pages without signed media do not emit an empty index.
+Defines workspace-level defaults for signing rendered outputs and
+generated assets. Commands and site-specific configuration can override
+these values.
 
 Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
 ```toml
-# Enable using workspace defaults
-[site]
+# Enable with the default public profile and local signer
 content-credentials = true
 
-# Enable and override the profile
-[site]
+# Enable with a specific profile
 content-credentials = "public"
 
-# Detailed site Content Credentials configuration
-[site.content-credentials]
+# Detailed Content Credentials configuration
+[content-credentials]
 enabled = true
 profile = "public"
 signer = "cloud"
@@ -68,4 +65,4 @@ Defaults to `local`.
 
 ***
 
-This documentation was generated from [`site.rs`](https://github.com/stencila/stencila/blob/main/rust/config/src/site.rs) by [`generate.rs`](https://github.com/stencila/stencila/blob/main/rust/config/src/bin/generate.rs).
+This documentation was generated from [`lib.rs`](https://github.com/stencila/stencila/blob/main/rust/config/src/lib.rs) by [`generate.rs`](https://github.com/stencila/stencila/blob/main/rust/config/src/bin/generate.rs).

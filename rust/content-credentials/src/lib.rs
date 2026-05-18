@@ -11,6 +11,7 @@
 #![warn(clippy::pedantic)]
 
 pub mod assertion;
+pub mod cloud;
 pub mod error;
 pub mod policy;
 pub mod producer;
@@ -34,13 +35,18 @@ pub mod cli;
 
 pub use error::{Error, Result};
 pub use policy::{CredentialProfile, ProjectionPolicy};
-pub use producer::{CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset};
+pub use producer::{
+    CredentialClaimGeneratorInfo, CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset,
+};
 pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
     VerificationReport, VerificationSummary,
 };
 pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion};
-pub use signer::{CredentialSignerConfig, init_local_signing_identity};
+pub use signer::{
+    CredentialCloudSigningConfig, CredentialSignerConfig, CredentialSignerMaterial,
+    CredentialSigningConfig, CredentialSigningMode, init_local_signing_identity,
+};
 pub use snapshot::{
     ActivitySnapshot, AgentSnapshot, AiDisclosureSnapshot, AssetSnapshot, AttributionSnapshot,
     DefinitionSnapshot, DependencySnapshot, DisclosureAssessmentSnapshot, DocumentSnapshot,

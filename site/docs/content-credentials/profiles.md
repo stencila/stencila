@@ -12,6 +12,14 @@ profiles still produce normal C2PA manifests and signatures.
 > full credentials can all be signed and verified; they differ in how much local
 > context they disclose.
 
+Profiles are independent of the [signing backend](signing). For example, a
+public-profile credential can be signed locally or by Stencila Cloud:
+
+```sh
+stencila render article.smd --to pdf --credentials=public --credentials-signer local
+stencila render article.smd --to pdf --credentials=public --credentials-signer cloud
+```
+
 ## Choosing a Profile
 
 Use this as a starting point:
@@ -36,6 +44,10 @@ identifiers, and high-detail workflow state.
 stencila render article.smd --to pdf --credentials
 stencila render article.smd --to pdf --credentials=public
 ```
+
+When signing rendered output, the default signer is `local`. Use
+`--credentials-signer cloud` or workspace configuration when you want Stencila
+Cloud signing.
 
 Use `public` for journal submission figures, preprints, repository deposits,
 conference slides, and anything that may be checked by people outside your

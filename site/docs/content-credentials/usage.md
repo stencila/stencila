@@ -24,6 +24,26 @@ stencila credentials trust status
 > If you are reading or reviewing someone else's file, start with `verify`.
 > Then use `inspect` when you need to see the manifest details.
 
+Rendered outputs can also be signed directly:
+
+```sh
+stencila render article.smd article.pdf --credentials
+stencila render article.smd article.pdf --credentials=private
+stencila render article.smd article.pdf --credentials --credentials-signer cloud
+```
+
+`--credentials` selects the provenance [profile](profiles). `--credentials-signer`
+selects the [signing backend](signing).
+
+You can also set workspace defaults in `stencila.toml`:
+
+```toml
+[content-credentials]
+enabled = true
+profile = "public"
+signer = "local"
+```
+
 ## Common Workflows
 
 For a first local test:
@@ -47,6 +67,21 @@ For a publication or repository workflow that requires Stencila provenance:
 stencila credentials verify figure.png --require stencila-assertion
 ```
 
+For a render that should use Stencila Cloud signing:
+
+```sh
+stencila cloud signin
+stencila render article.smd article.pdf --credentials --credentials-signer cloud
+```
+
+Or opt in for a workspace:
+
+```toml
+[content-credentials]
+enabled = true
+signer = "cloud"
+```
+
 ## Initialize a Local Signer
 
 Use `init` to create a local signing identity:
@@ -64,7 +99,8 @@ evidence, but public verifiers should usually show it as untrusted.
 > credential can still be intact and useful inside a team, but other verifiers
 > may not recognize the signer.
 
-For production signing, pass certificate material explicitly:
+For production signing of an existing asset with local certificate material,
+pass the certificate and key explicitly:
 
 ```sh
 stencila credentials sign figure.png \
@@ -81,14 +117,17 @@ Sign an existing asset in place:
 stencila credentials sign figure.png
 ```
 
+This standalone signing command uses the local signing backend. To sign rendered
+outputs with Stencila Cloud, use `stencila render --credentials-signer cloud`.
+
 Write the signed result to another path:
 
 ```sh
 stencila credentials sign figure.png --output signed-figure.png
 ```
 
-PNG, JPEG, WebP, and SVG receive embedded manifests. Formats that cannot be
-embedded by the C2PA SDK, including PDF, receive a `.c2pa` sidecar next to the
+PNG, JPEG, WebP, SVG, and PDF receive embedded manifests. Formats that cannot
+be embedded by Stencila or the C2PA SDK receive a `.c2pa` sidecar next to the
 asset.
 
 > [!warning]
@@ -103,7 +142,8 @@ stencila credentials sign figure.png --as json
 ```
 
 Structured sign output includes the signed path, manifest kind, manifest ID
-when available, sidecar path, profile, digests, and non-fatal warnings.
+when available, sidecar path, profile, signing mode, digests, and non-fatal
+warnings.
 
 ## Verify an Asset
 
@@ -156,6 +196,10 @@ stencila credentials inspect figure.png
 
 The default format is YAML for readability. Use `--as json` when comparing with
 other tooling or collecting evidence.
+
+For Stencila-created manifests, inspect output includes `claim_generator_info`.
+That section identifies whether the provenance was generated locally, signed
+locally, signed by Stencila Cloud, or generated and signed by Stencila Cloud.
 
 > [!warning]
 > Full manifests can contain local paths, source details, environment

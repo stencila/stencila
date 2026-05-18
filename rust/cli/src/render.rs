@@ -537,6 +537,7 @@ impl Cli {
 /// Inspects [`EncodeInfo::assets`] for entries marked `signed = true`. When
 /// the codec did not sign anything (because credentials were not requested
 /// or the format was unsupported), the table is suppressed.
+#[allow(clippy::print_stderr)]
 fn print_signed_assets_table(info: &EncodeInfo) {
     let signed: Vec<_> = info.assets.iter().filter(|asset| asset.signed).collect();
     if signed.is_empty() {

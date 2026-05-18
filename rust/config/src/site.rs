@@ -14,10 +14,10 @@ use strum::Display;
 use toml_edit::{DocumentMut, InlineTable, Item, Table, value};
 
 use crate::{
-    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, find_config_file, layout::LayoutConfig,
-    site_access::SiteAccessConfig, site_actions::SiteActionsConfig,
-    site_content_credentials::SiteContentCredentialsSpec, site_remotes::SiteRemotesSpec,
-    site_reviews::SiteReviewsSpec, site_uploads::SiteUploadsSpec, validate_placeholders,
+    CONFIG_FILENAME, DOMAIN_REGEX, SpreadMode, content_credentials::SiteContentCredentialsSpec,
+    find_config_file, layout::LayoutConfig, site_access::SiteAccessConfig,
+    site_actions::SiteActionsConfig, site_remotes::SiteRemotesSpec, site_reviews::SiteReviewsSpec,
+    site_uploads::SiteUploadsSpec, validate_placeholders,
 };
 
 /// Additional formats to generate alongside HTML during site rendering
@@ -749,25 +749,28 @@ pub struct SiteConfig {
     /// ```
     pub formats: Option<Vec<SiteFormat>>,
 
-    /// Content Credentials configuration
+    /// Site Content Credentials configuration
     ///
-    /// Enables C2PA Content Credentials signing for rendered HTML and media.
+    /// Overrides workspace-level C2PA Content Credentials defaults for rendered
+    /// HTML and media.
     /// The web metadata index is only generated for pages that have signed
     /// image assets; pages without signed media do not emit an empty index.
     ///
     /// Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
     /// ```toml
-    /// # Enable with the default public profile
+    /// # Enable using workspace defaults
     /// [site]
     /// content-credentials = true
     ///
-    /// # Enable with a specific profile
+    /// # Enable and override the profile
     /// [site]
     /// content-credentials = "public"
     ///
-    /// # Detailed Content Credentials configuration
+    /// # Detailed site Content Credentials configuration
     /// [site.content-credentials]
+    /// enabled = true
     /// profile = "public"
+    /// signer = "cloud"
     /// ```
     #[serde(
         rename = "content-credentials",

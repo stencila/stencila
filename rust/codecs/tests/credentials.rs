@@ -16,8 +16,8 @@ use stencila_codecs::stencila_schema::{
     ImageObject, Inline, LabelType, MessageLevel, Node, Paragraph, Text, TimeUnit,
 };
 use stencila_codecs::{
-    CredentialProfile, CredentialsOptions, EncodeInfo, EncodeOptions, Format, Result,
-    to_path_with_info,
+    CredentialProfile, CredentialSigningMode, CredentialsOptions, EncodeInfo, EncodeOptions,
+    Format, Result, to_path_with_info,
 };
 use stencila_content_credentials::{
     CredentialProducer, CredentialProfile as ContentCredentialProfile, CredentialSignerConfig,
@@ -88,6 +88,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
             format: Some(Format::Markdown),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -276,6 +277,7 @@ async fn credentials_static_figure_media_is_component_ingredient() -> Result<()>
             format: Some(Format::Markdown),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -377,6 +379,7 @@ async fn credentials_reuses_existing_static_media_manifest() -> Result<()> {
             format: Some(Format::Markdown),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -502,6 +505,7 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
         source_ranges: None,
         media_type_hint: Some("application/pdf".to_string()),
         credential_profile: ContentCredentialProfile::Public,
+        signing_config: None,
         info: &mut info,
     })
     .await?;
@@ -673,6 +677,7 @@ async fn credentials_sign_smd_with_stencila_media_type() -> Result<()> {
             format: Some(Format::Smd),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -771,6 +776,7 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
             from_path: Some(source_path.clone()),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -942,6 +948,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
             from_path: Some(source_path.clone()),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -1339,6 +1346,7 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
             from_path: Some(source_path.clone()),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -1415,6 +1423,7 @@ async fn credentials_untracked_source_is_dirty_without_commit() -> Result<()> {
             from_path: Some(source_path),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),
@@ -1476,6 +1485,7 @@ async fn credentials_public_profile_redacts_dirty_patch_digest() -> Result<()> {
             from_path: Some(source_path.clone()),
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
             }),
             ..Default::default()
         }),

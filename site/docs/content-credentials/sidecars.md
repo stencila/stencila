@@ -13,8 +13,8 @@ For those assets, Stencila writes a detached `.c2pa` sidecar next to the asset.
 
 ## When Sidecars Are Used
 
-PNG, JPEG, WebP, and SVG receive embedded manifests by default. For PDF and
-other formats that cannot be embedded by the C2PA SDK, Stencila writes a
+PNG, JPEG, WebP, SVG, and PDF receive embedded manifests by default. For other
+formats that cannot be embedded by Stencila or the C2PA SDK, Stencila writes a
 sidecar.
 
 Browser-based verification tools often work best with embedded manifests because
@@ -28,31 +28,31 @@ Sidecars use the same file stem as the signed asset with a `.c2pa` extension:
 
 ```text
 asset.ext -> asset.c2pa
-report.pdf -> report.c2pa
+dataset.csv -> dataset.c2pa
 ```
 
 > [!tip]
-> When you see `report.pdf` and `report.c2pa` together, treat them as one
-> signed package. The PDF is what people read; the sidecar is where the Content
-> Credential lives.
+> When you see `dataset.csv` and `dataset.c2pa` together, treat them as one
+> signed package. The asset is what people use; the sidecar is where the
+> Content Credential lives.
 
 ## Copying Assets
 
-Keep the asset and sidecar together. If a signed PDF is copied without its
-`.c2pa` file, verifiers will not find the manifest.
+Keep the asset and sidecar together. If a sidecar-backed asset is copied
+without its `.c2pa` file, verifiers will not find the manifest.
 
 When sending sidecar-backed assets to another person or system, copy both files:
 
 ```text
-report.pdf
-report.c2pa
+dataset.csv
+dataset.c2pa
 ```
 
 If you rename the asset, rename the sidecar stem to match:
 
 ```text
-report-v2.pdf
-report-v2.c2pa
+dataset-v2.csv
+dataset-v2.c2pa
 ```
 
 > [!warning]

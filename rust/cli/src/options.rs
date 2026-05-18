@@ -5,7 +5,11 @@ use std::{
 
 use clap::Args;
 
-use stencila_codecs::{CredentialProfile, PageSelector, StructuringOptions};
+use stencila_cli_utils::message;
+use stencila_codecs::{CredentialProfile, CredentialSigningMode, PageSelector, StructuringOptions};
+use stencila_config::{
+    ContentCredentialsConfig, ContentCredentialsProfile, ContentCredentialsSigner,
+};
 use stencila_format::Format;
 use stencila_node_strip::StripScope;
 
@@ -269,6 +273,16 @@ pub struct EncodeOptions {
     )]
     credentials_profile: Option<CredentialProfile>,
 
+    /// Signing backend to use for C2PA Content Credentials
+    ///
+    /// Defaults to workspace Content Credentials config, or `local` when not
+    /// configured. `auto` will use Cloud signing when available and local
+    /// signing when a local identity exists. `local` uses the local self-signed
+    /// identity created by `stencila credentials init`. `cloud` is the trusted
+    /// distributed signing path and requires Stencila Cloud support.
+    #[arg(long = "credentials-signer", help_heading = "Encoding Options")]
+    credentials_signer: Option<CredentialSigningMode>,
+
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
@@ -432,11 +446,12 @@ impl EncodeOptions {
 
         let reproducible = self.reproducible.then_some(true);
 
-        let credentials = self
-            .credentials
-            .clone()
-            .or_else(|| self.credentials_profile.clone())
-            .map(|profile| stencila_codecs::CredentialsOptions { profile });
+        let credentials = credentials_options(
+            self.credentials
+                .clone()
+                .or_else(|| self.credentials_profile.clone()),
+            self.credentials_signer.clone(),
+        );
 
         let highlight = self
             .highlight
@@ -503,5 +518,66 @@ impl EncodeOptions {
             losses: self.output_losses.clone(),
             ..Default::default()
         }
+    }
+}
+
+fn credentials_options(
+    profile: Option<CredentialProfile>,
+    signing_mode: Option<CredentialSigningMode>,
+) -> Option<stencila_codecs::CredentialsOptions> {
+    let config = match stencila_config::get() {
+        Ok(config) => config.content_credentials.map(|spec| spec.to_config()),
+        Err(error) => {
+            tracing::warn!("Could not load Stencila config for Content Credentials: {error}");
+            message!(
+                "Warning: could not load Stencila config; Content Credentials defaults were not applied: {}",
+                error
+            );
+            None
+        }
+    };
+
+    let cli_requested = profile.is_some();
+    let config_enabled = config
+        .as_ref()
+        .is_some_and(ContentCredentialsConfig::is_enabled);
+
+    if !cli_requested && !config_enabled {
+        return None;
+    }
+
+    let profile = profile.unwrap_or_else(|| {
+        config.as_ref().map_or(CredentialProfile::Public, |config| {
+            credential_profile(config.profile())
+        })
+    });
+
+    let signing_mode = signing_mode.unwrap_or_else(|| {
+        config
+            .as_ref()
+            .map_or(CredentialSigningMode::Local, |config| {
+                credential_signing_mode(config.signer())
+            })
+    });
+
+    Some(stencila_codecs::CredentialsOptions {
+        profile,
+        signing_mode,
+    })
+}
+
+fn credential_profile(profile: ContentCredentialsProfile) -> CredentialProfile {
+    match profile {
+        ContentCredentialsProfile::Public => CredentialProfile::Public,
+        ContentCredentialsProfile::Private => CredentialProfile::Private,
+        ContentCredentialsProfile::Full => CredentialProfile::Full,
+    }
+}
+
+fn credential_signing_mode(signer: ContentCredentialsSigner) -> CredentialSigningMode {
+    match signer {
+        ContentCredentialsSigner::Auto => CredentialSigningMode::Auto,
+        ContentCredentialsSigner::Cloud => CredentialSigningMode::Cloud,
+        ContentCredentialsSigner::Local => CredentialSigningMode::Local,
     }
 }

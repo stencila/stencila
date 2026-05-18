@@ -19,6 +19,7 @@ export = [
 
 [dependencies]
 Inflector = { workspace = true }
+base64 = { workspace = true }
 c2pa = { version = "0.82.1", default-features = false, features = ["rust_native_crypto", "file_io", "pdf"] }
 chrono = { workspace = true }
 clap = { workspace = true, optional = true }
@@ -42,6 +43,7 @@ stencila-dirs = { path = "../dirs" }
 stencila-node-find = { path = "../node-find", optional = true }
 stencila-node-media = { path = "../node-media", optional = true }
 stencila-schema = { path = "../schema", optional = true }
+stencila-secrets = { path = "../secrets" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }
 thiserror = { workspace = true }

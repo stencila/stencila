@@ -272,13 +272,13 @@ pub(super) async fn add_source_and_executed_ingredients(
     }
 
     if let Some(mut ingredient) = executed_node_ingredient_snapshot(provenance, source_path) {
-        if let Some(manifest) = executed_node_ingredient_manifest(
+        if let Some(manifest) = Box::pin(executed_node_ingredient_manifest(
             producer,
             provenance,
             source_path,
             &ingredient,
             credential_profile,
-        )
+        ))
         .await?
         {
             ingredient.manifest_source = Some(manifest.asset_path.clone());
@@ -296,8 +296,12 @@ pub(super) async fn add_environment_ingredient(
     provenance: &mut ProvenanceSnapshot,
     credential_profile: CredentialProfile,
 ) -> Result<Option<TemporaryIngredientManifest>> {
-    let Some((ingredient, manifest)) =
-        environment_ingredient(producer, provenance, credential_profile).await?
+    let Some((ingredient, manifest)) = Box::pin(environment_ingredient(
+        producer,
+        provenance,
+        credential_profile,
+    ))
+    .await?
     else {
         return Ok(None);
     };
