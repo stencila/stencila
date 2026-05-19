@@ -20,8 +20,14 @@ use crate::error::{Error, Result};
 /// Common name carried by Stencila's local signing identity.
 ///
 /// Verifiers determine and display trust status separately from the signer
-/// name, so the certificate subject stays short and product-focused.
-pub const LOCAL_SIGNING_IDENTITY_COMMON_NAME: &str = "Stencila CLI";
+/// name, so the certificate subject describes the generated signing identity.
+pub const LOCAL_SIGNING_IDENTITY_COMMON_NAME: &str = "Stencila local signing identity";
+
+/// Organization name carried by Stencila's local signing identity.
+///
+// Use an explicitly local subject organization because C2PA tooling surfaces it
+// as the signature issuer.
+const LOCAL_SIGNING_IDENTITY_ORG_NAME: &str = "Local self-signed identity";
 
 const LOCAL_SIGNING_CERT_FILENAME: &str = "local-signing-cert.pem";
 const LOCAL_SIGNING_KEY_FILENAME: &str = "local-signing-key.pem";
@@ -462,7 +468,7 @@ pub fn init_local_signing_identity(force: bool) -> Result<LocalSigningIdentityIn
 
     let mut dn = DistinguishedName::new();
     dn.push(DnType::CommonName, LOCAL_SIGNING_IDENTITY_COMMON_NAME);
-    dn.push(DnType::OrganizationName, "Stencila Labs Ltd");
+    dn.push(DnType::OrganizationName, LOCAL_SIGNING_IDENTITY_ORG_NAME);
     params.distinguished_name = dn;
 
     // C2PA certificate profile requirements for end-entity signing certs.
@@ -529,10 +535,13 @@ fn write_secret(path: &Path, bytes: &[u8]) -> Result<()> {
 mod tests {
     use super::*;
 
-    /// Ensures generated local signing identities use a concise product name.
+    /// Ensures generated local signing identities describe the signer, not the generator.
     #[test]
-    fn local_signing_identity_common_name_is_product_focused() {
-        assert_eq!(LOCAL_SIGNING_IDENTITY_COMMON_NAME, "Stencila CLI");
+    fn local_signing_identity_common_name_describes_identity() {
+        assert_eq!(
+            LOCAL_SIGNING_IDENTITY_COMMON_NAME,
+            "Stencila local signing identity"
+        );
     }
 
     /// Ensures local signing identity files no longer use development naming.

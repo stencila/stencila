@@ -75,7 +75,7 @@ Expected local verification shape:
 ```text
 Manifest valid:                  yes
 Claim signature valid:           yes
-Signer trusted:                  no   (Stencila CLI; local trust not configured)
+Signer trusted:                  no   (Stencila local signing identity; local trust not configured)
 Stencila provenance attested:    yes
 Stencila reproducibility checked: not checked
 ```

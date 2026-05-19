@@ -298,6 +298,18 @@ async fn sign_emits_standard_c2pa_assertions() {
     );
     assert!(claim_generator.get("org.stencila.attestation").is_none());
     assert!(claim_generator.get("rendered_by").is_none());
+
+    let signature_info = manifest["signature_info"]
+        .as_object()
+        .expect("signature info");
+    assert_eq!(
+        signature_info["common_name"],
+        "Stencila local signing identity"
+    );
+    assert_eq!(
+        signature_info["issuer"], "Local self-signed identity",
+        "local self-signed certificates must not claim a Stencila Labs issuer"
+    );
     assert!(
         manifest["thumbnail"].is_object(),
         "image asset should carry a c2pa thumbnail: {manifest:?}"
