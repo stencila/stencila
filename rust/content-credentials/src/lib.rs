@@ -36,7 +36,9 @@ pub mod cli;
 pub use error::{Error, Result};
 pub use policy::{CredentialProfile, ProjectionPolicy};
 pub use producer::{
-    CredentialClaimGeneratorInfo, CredentialProducer, ManifestKind, SignAssetRequest, SignedAsset,
+    CredentialClaimGeneratorInfo, CredentialProducer, ManifestKind, PreparedSignAssetRequest,
+    PreparedSignedAsset, SignAssetRequest, SignedAsset, SoftBindingAssertion,
+    SoftBindingRegistration,
 };
 pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,

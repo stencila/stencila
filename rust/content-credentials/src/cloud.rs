@@ -13,6 +13,7 @@ use stencila_version::STENCILA_USER_AGENT;
 
 use crate::{
     error::{Error, Result},
+    producer::{SoftBindingAssertion, SoftBindingRegistration},
     schema::ProvenanceAssertion,
     signer::CredentialCloudSigningConfig,
     snapshot::IngredientSnapshot,
@@ -25,6 +26,7 @@ pub(crate) struct CloudSignRequest<'a> {
     pub title: &'a str,
     pub assertion: &'a ProvenanceAssertion,
     pub ingredients: &'a [IngredientSnapshot],
+    pub soft_bindings: &'a [SoftBindingAssertion],
     pub embed: bool,
 }
 
@@ -32,6 +34,8 @@ pub(crate) struct CloudSignRequest<'a> {
 pub(crate) struct CloudSignedAsset {
     pub asset: Vec<u8>,
     pub sidecar: Option<Vec<u8>>,
+    pub soft_binding_registrations: Vec<SoftBindingRegistration>,
+    pub warnings: Vec<String>,
 }
 
 /// Client for the Stencila C2PA Cloud service.
@@ -78,6 +82,7 @@ impl CloudSigningClient {
             title: request.title,
             assertion: request.assertion,
             ingredients: request.ingredients,
+            soft_bindings: request.soft_bindings,
             manifest: if request.embed {
                 CloudManifestMode::Embedded
             } else {
@@ -120,6 +125,8 @@ impl CloudSigningClient {
                 .sidecar
                 .map(|sidecar| STANDARD.decode(sidecar))
                 .transpose()?,
+            soft_binding_registrations: response.bindings,
+            warnings: response.warnings,
         })
     }
 
@@ -135,6 +142,8 @@ struct CloudSignPayload<'a> {
     title: &'a str,
     assertion: &'a ProvenanceAssertion,
     ingredients: &'a [IngredientSnapshot],
+    #[serde(skip_serializing_if = "<[_]>::is_empty")]
+    soft_bindings: &'a [SoftBindingAssertion],
     manifest: CloudManifestMode,
     register_soft_binding: bool,
 }
@@ -151,6 +160,10 @@ enum CloudManifestMode {
 struct CloudSignResponse {
     asset: String,
     sidecar: Option<String>,
+    #[serde(default)]
+    bindings: Vec<SoftBindingRegistration>,
+    #[serde(default)]
+    warnings: Vec<String>,
 }
 
 #[cfg(test)]
@@ -164,6 +177,28 @@ mod tests {
         )?;
 
         assert_eq!(client.endpoint(), "https://c2pa.example.test/v1/sign");
+        Ok(())
+    }
+
+    #[test]
+    fn sign_response_preserves_service_metadata() -> Result<()> {
+        let response: CloudSignResponse = serde_json::from_value(serde_json::json!({
+            "asset": "",
+            "sidecar": null,
+            "bindings": [{
+                "alg": "io.iscc.v0",
+                "bindingValue": "ISCC:test",
+                "similarityScore": 100
+            }],
+            "warnings": ["soft bindings are not supported for application/pdf"]
+        }))?;
+
+        assert_eq!(response.bindings.len(), 1);
+        assert_eq!(response.bindings[0].binding_value, "ISCC:test");
+        assert_eq!(
+            response.warnings,
+            vec!["soft bindings are not supported for application/pdf".to_string()]
+        );
         Ok(())
     }
 }

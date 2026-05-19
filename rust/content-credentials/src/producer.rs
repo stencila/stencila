@@ -8,13 +8,13 @@ use std::{
 };
 
 use c2pa::{BoxedSigner, Builder, Context, HashRange, Ingredient, Manifest, Reader, Relationship};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
 use tempfile::NamedTempFile;
 
 use crate::{
     assertion::asset_kind_for_media_type,
-    cloud::{CloudSignRequest, CloudSigningClient},
+    cloud::{CloudSignRequest, CloudSignedAsset, CloudSigningClient},
     error::{Error, Result},
     media, pdf,
     policy::{CredentialProfile, ProjectionPolicy},
@@ -137,6 +137,43 @@ pub struct SignAssetRequest {
     pub credential_profile: CredentialProfile,
 }
 
+/// A soft binding value to include in the signed C2PA manifest.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SoftBindingAssertion {
+    pub alg: String,
+    pub value: String,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub name: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub alg_params: Option<String>,
+    #[serde(default)]
+    pub watermark: bool,
+}
+
+/// A soft binding registered by the Stencila Cloud signing service.
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct SoftBindingRegistration {
+    pub alg: String,
+    pub binding_value: String,
+    pub similarity_score: u8,
+}
+
+/// Inputs for signing an asset using an already prepared Stencila provenance assertion.
+#[derive(Debug, Clone)]
+pub struct PreparedSignAssetRequest {
+    pub input_path: PathBuf,
+    pub media_type: String,
+    pub output_path: Option<PathBuf>,
+    pub title: String,
+    pub assertion: ProvenanceAssertion,
+    pub ingredients: Vec<IngredientSnapshot>,
+    pub embed: bool,
+    pub soft_bindings: Vec<SoftBindingAssertion>,
+    pub credential_profile: CredentialProfile,
+}
+
 /// Result of a successful signing operation.
 #[derive(Debug, Clone)]
 pub struct SignedAsset {
@@ -152,6 +189,18 @@ pub struct SignedAsset {
     pub signed_asset_digest: String,
     pub media_type: String,
     pub credential_profile: CredentialProfile,
+    pub soft_binding_registrations: Vec<SoftBindingRegistration>,
+    pub warnings: Vec<String>,
+}
+
+/// Result of a prepared signing operation.
+#[derive(Debug, Clone)]
+pub struct PreparedSignedAsset {
+    pub asset_path: PathBuf,
+    pub sidecar_path: Option<PathBuf>,
+    pub manifest_id: Option<String>,
+    pub c2pa: Option<Value>,
+    pub soft_binding_registrations: Vec<SoftBindingRegistration>,
     pub warnings: Vec<String>,
 }
 
@@ -260,18 +309,21 @@ impl CredentialProducer {
 
         let (result, signing_mode) = match signing {
             CredentialSigningConfig::Local(signer) => (
-                sign_local(
-                    signer,
-                    claim_generator.clone(),
-                    input_path.clone(),
-                    output_path.clone(),
-                    media_for_task.clone(),
-                    title.clone(),
-                    assertion.clone(),
-                    ingredients.clone(),
-                    embed,
-                )
-                .await?,
+                SignOutput::from_paths(
+                    sign_local(
+                        signer,
+                        claim_generator.clone(),
+                        input_path.clone(),
+                        output_path.clone(),
+                        media_for_task.clone(),
+                        title.clone(),
+                        assertion.clone(),
+                        ingredients.clone(),
+                        embed,
+                        Vec::new(),
+                    )
+                    .await?,
+                ),
                 CredentialSigningMode::Local,
             ),
             CredentialSigningConfig::Cloud(config) => (
@@ -284,6 +336,7 @@ impl CredentialProducer {
                     &assertion,
                     &ingredients,
                     embed,
+                    &[],
                 )
                 .await?,
                 CredentialSigningMode::Cloud,
@@ -298,6 +351,7 @@ impl CredentialProducer {
                     &assertion,
                     &ingredients,
                     embed,
+                    &[],
                 )
                 .await
                 {
@@ -310,18 +364,21 @@ impl CredentialProducer {
                             "Cloud Content Credentials signing failed; falling back to local signing: {error}"
                         );
                         (
-                            sign_local(
-                                signer,
-                                claim_generator.clone(),
-                                input_path.clone(),
-                                output_path.clone(),
-                                media_for_task.clone(),
-                                title.clone(),
-                                assertion.clone(),
-                                ingredients.clone(),
-                                embed,
-                            )
-                            .await?,
+                            SignOutput::from_paths(
+                                sign_local(
+                                    signer,
+                                    claim_generator.clone(),
+                                    input_path.clone(),
+                                    output_path.clone(),
+                                    media_for_task.clone(),
+                                    title.clone(),
+                                    assertion.clone(),
+                                    ingredients.clone(),
+                                    embed,
+                                    Vec::new(),
+                                )
+                                .await?,
+                            ),
                             CredentialSigningMode::Local,
                         )
                     }
@@ -329,12 +386,17 @@ impl CredentialProducer {
             }
         };
 
-        let signed_asset_digest = media::sha256_file(&result.0)?;
-        let (manifest_id, c2pa, warnings) =
-            read_signed_manifest_info(&result.0, result.1.as_deref(), &media_type_for_result);
+        let signed_asset_digest = media::sha256_file(&result.asset_path)?;
+        let (manifest_id, c2pa, manifest_warnings) = read_signed_manifest_info(
+            &result.asset_path,
+            result.sidecar_path.as_deref(),
+            &media_type_for_result,
+        );
+        let mut warnings = result.warnings;
+        warnings.extend(manifest_warnings);
 
         Ok(SignedAsset {
-            asset_path: result.0,
+            asset_path: result.asset_path,
             manifest_kind: if embed {
                 ManifestKind::Embedded
             } else {
@@ -342,7 +404,7 @@ impl CredentialProducer {
             },
             signing_mode,
             manifest_id,
-            sidecar_path: result.1,
+            sidecar_path: result.sidecar_path,
             c2pa,
             assertion_label: PROVENANCE_LABEL,
             assertion_schema: crate::schema::PROVENANCE_SCHEMA,
@@ -350,8 +412,163 @@ impl CredentialProducer {
             signed_asset_digest,
             media_type: media_type_for_result,
             credential_profile,
+            soft_binding_registrations: result.soft_binding_registrations,
             warnings,
         })
+    }
+
+    /// Sign an asset using a prepared Stencila provenance assertion.
+    ///
+    /// This is intended for Stencila Cloud's signing service. The client has
+    /// already projected the provenance payload, so the service should sign the
+    /// supplied assertion verbatim instead of rebuilding it from local context.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the input cannot be signed or the signed manifest
+    /// cannot be written.
+    #[allow(clippy::too_many_lines)]
+    pub async fn sign_prepared_asset(
+        &self,
+        request: PreparedSignAssetRequest,
+    ) -> Result<PreparedSignedAsset> {
+        let PreparedSignAssetRequest {
+            input_path,
+            media_type,
+            output_path,
+            title,
+            assertion,
+            ingredients,
+            embed,
+            soft_bindings,
+            credential_profile,
+        } = request;
+
+        if !input_path.exists() {
+            return Err(Error::InputNotFound(input_path));
+        }
+        ProjectionPolicy::for_profile(credential_profile).validate_assertion_size(&assertion)?;
+
+        if let Some(output_path) = output_path.as_deref() {
+            if !embed && media::sidecar_path(output_path) == output_path {
+                return Err(Error::OutputSidecarConflict(output_path.to_path_buf()));
+            }
+            validate_output_media_type(&input_path, &media_type, output_path)?;
+        }
+
+        if let CredentialSigningConfig::Cloud(config) = &self.signing {
+            config.require_authenticated()?;
+        }
+
+        let signing = self.signing.clone();
+        let claim_generator = self.claim_generator.clone();
+
+        let result = match signing {
+            CredentialSigningConfig::Local(signer) => SignOutput::from_paths(
+                sign_local(
+                    signer,
+                    claim_generator,
+                    input_path.clone(),
+                    output_path,
+                    media_type.clone(),
+                    title,
+                    assertion,
+                    ingredients,
+                    embed,
+                    soft_bindings,
+                )
+                .await?,
+            ),
+            CredentialSigningConfig::Cloud(config) => {
+                sign_cloud(
+                    config,
+                    &input_path,
+                    output_path.as_deref(),
+                    &media_type,
+                    &title,
+                    &assertion,
+                    &ingredients,
+                    embed,
+                    &soft_bindings,
+                )
+                .await?
+            }
+            CredentialSigningConfig::Auto { cloud, local } => {
+                match sign_cloud(
+                    cloud,
+                    &input_path,
+                    output_path.as_deref(),
+                    &media_type,
+                    &title,
+                    &assertion,
+                    &ingredients,
+                    embed,
+                    &soft_bindings,
+                )
+                .await
+                {
+                    Ok(result) => result,
+                    Err(error) => {
+                        let Some(signer) = local else {
+                            return Err(error);
+                        };
+                        tracing::warn!(
+                            "Cloud Content Credentials signing failed; falling back to local signing: {error}"
+                        );
+                        SignOutput::from_paths(
+                            sign_local(
+                                signer,
+                                claim_generator,
+                                input_path.clone(),
+                                output_path,
+                                media_type.clone(),
+                                title,
+                                assertion,
+                                ingredients,
+                                embed,
+                                soft_bindings,
+                            )
+                            .await?,
+                        )
+                    }
+                }
+            }
+        };
+
+        let (manifest_id, c2pa, manifest_warnings) = read_signed_manifest_info(
+            &result.asset_path,
+            result.sidecar_path.as_deref(),
+            &media_type,
+        );
+        let mut warnings = result.warnings;
+        warnings.extend(manifest_warnings);
+
+        Ok(PreparedSignedAsset {
+            asset_path: result.asset_path,
+            sidecar_path: result.sidecar_path,
+            manifest_id,
+            c2pa,
+            soft_binding_registrations: result.soft_binding_registrations,
+            warnings,
+        })
+    }
+}
+
+struct SignOutput {
+    asset_path: PathBuf,
+    sidecar_path: Option<PathBuf>,
+    soft_binding_registrations: Vec<SoftBindingRegistration>,
+    warnings: Vec<String>,
+}
+
+impl SignOutput {
+    fn from_paths(paths: (PathBuf, Option<PathBuf>)) -> Self {
+        Self {
+            asset_path: paths.0,
+            sidecar_path: paths.1,
+            soft_binding_registrations: Vec::new(),
+            warnings: Vec::new(),
+        }
     }
 }
 
@@ -366,6 +583,7 @@ async fn sign_local(
     assertion: ProvenanceAssertion,
     ingredients: Vec<IngredientSnapshot>,
     embed: bool,
+    soft_bindings: Vec<SoftBindingAssertion>,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
     // c2pa's signer is sync; run on a blocking thread.
     tokio::task::spawn_blocking(move || {
@@ -377,6 +595,7 @@ async fn sign_local(
                 &title,
                 &assertion,
                 &ingredients,
+                &soft_bindings,
                 &signer,
                 &claim_generator,
             )
@@ -388,6 +607,7 @@ async fn sign_local(
                 &title,
                 &assertion,
                 &ingredients,
+                &soft_bindings,
                 &signer,
                 &claim_generator,
             )
@@ -406,15 +626,22 @@ async fn sign_cloud(
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
     embed: bool,
-) -> Result<(PathBuf, Option<PathBuf>)> {
+    soft_bindings: &[SoftBindingAssertion],
+) -> Result<SignOutput> {
     let client = CloudSigningClient::new(config)?;
-    let signed = client
+    let CloudSignedAsset {
+        asset,
+        sidecar,
+        soft_binding_registrations,
+        warnings,
+    } = client
         .sign(CloudSignRequest {
             input_path,
             media_type,
             title,
             assertion,
             ingredients,
+            soft_bindings,
             embed,
         })
         .await?;
@@ -429,11 +656,16 @@ async fn sign_cloud(
     let permissions = fs::metadata(input_path)?.permissions();
     if embed {
         let mut tmp_asset = NamedTempFile::new_in(&parent)?;
-        tmp_asset.write_all(&signed.asset)?;
+        tmp_asset.write_all(&asset)?;
         tmp_asset.flush()?;
         persist_with_permissions(tmp_asset, &asset_dest, &permissions)?;
 
-        return Ok((asset_dest, None));
+        return Ok(SignOutput {
+            asset_path: asset_dest,
+            sidecar_path: None,
+            soft_binding_registrations,
+            warnings,
+        });
     }
 
     let sidecar_dest = media::sidecar_path(&asset_dest);
@@ -441,14 +673,14 @@ async fn sign_cloud(
         return Err(Error::OutputSidecarConflict(asset_dest));
     }
 
-    let sidecar = signed.sidecar.ok_or_else(|| {
+    let sidecar = sidecar.ok_or_else(|| {
         Error::CloudSigningFailed(
             "Cloud signing response did not include sidecar bytes".to_string(),
         )
     })?;
 
     let mut tmp_asset = NamedTempFile::new_in(&parent)?;
-    tmp_asset.write_all(&signed.asset)?;
+    tmp_asset.write_all(&asset)?;
     tmp_asset.flush()?;
 
     let mut tmp_sidecar = NamedTempFile::new_in(&parent)?;
@@ -458,7 +690,12 @@ async fn sign_cloud(
     persist_with_permissions(tmp_asset, &asset_dest, &permissions)?;
     persist_with_permissions(tmp_sidecar, &sidecar_dest, &permissions)?;
 
-    Ok((asset_dest, Some(sidecar_dest)))
+    Ok(SignOutput {
+        asset_path: asset_dest,
+        sidecar_path: Some(sidecar_dest),
+        soft_binding_registrations,
+        warnings,
+    })
 }
 
 fn prepare_signing_claim(
@@ -692,6 +929,7 @@ fn sign_embedded(
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
@@ -703,6 +941,7 @@ fn sign_embedded(
             title,
             assertion,
             ingredients,
+            soft_bindings,
             signer_config,
             claim_generator,
         );
@@ -721,6 +960,7 @@ fn sign_embedded(
         title,
         assertion,
         ingredients,
+        soft_bindings,
         Some(input_path),
         claim_generator,
     )?;
@@ -752,6 +992,7 @@ fn sign_embedded_pdf(
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
@@ -770,6 +1011,7 @@ fn sign_embedded_pdf(
         title,
         assertion,
         ingredients,
+        soft_bindings,
         Some(input_path),
         signer,
         claim_generator,
@@ -821,6 +1063,7 @@ fn sign_sidecar(
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<(PathBuf, Option<PathBuf>)> {
@@ -841,6 +1084,7 @@ fn sign_sidecar(
         title,
         assertion,
         ingredients,
+        soft_bindings,
         Some(input_path),
         claim_generator,
     )?;
@@ -858,6 +1102,7 @@ fn sign_sidecar(
             title,
             assertion,
             ingredients,
+            soft_bindings,
             permissions: &permissions,
             claim_generator,
         };
@@ -873,6 +1118,7 @@ fn sign_sidecar(
             title,
             assertion,
             ingredients,
+            soft_bindings,
             permissions: &permissions,
             claim_generator,
         };
@@ -910,6 +1156,7 @@ struct PrehashedSidecarRequest<'a> {
     title: &'a str,
     assertion: &'a ProvenanceAssertion,
     ingredients: &'a [IngredientSnapshot],
+    soft_bindings: &'a [SoftBindingAssertion],
     permissions: &'a Permissions,
     claim_generator: &'a CredentialClaimGeneratorInfo,
 }
@@ -929,6 +1176,7 @@ fn sign_prehashed_sidecar(
         request.title,
         request.assertion,
         request.ingredients,
+        request.soft_bindings,
         Some(request.input_path),
         signer,
         request.claim_generator,
@@ -971,6 +1219,7 @@ fn sign_unsupported_sidecar(
         request.title,
         request.assertion,
         request.ingredients,
+        request.soft_bindings,
         Some(request.input_path),
         signer,
         request.claim_generator,
@@ -1018,6 +1267,7 @@ fn build_builder(
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<Builder> {
@@ -1027,16 +1277,19 @@ fn build_builder(
         title,
         assertion,
         ingredients,
+        soft_bindings,
         thumbnail_source,
         claim_generator,
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build_builder_with_signer(
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
     signer: BoxedSigner,
     claim_generator: &CredentialClaimGeneratorInfo,
@@ -1047,22 +1300,31 @@ fn build_builder_with_signer(
         title,
         assertion,
         ingredients,
+        soft_bindings,
         thumbnail_source,
         claim_generator,
     )
 }
 
+#[allow(clippy::too_many_arguments)]
 fn build_builder_with_context(
     context: Context,
     media_type: &str,
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Result<Builder> {
-    let definition =
-        manifest_definition(media_type, title, assertion, ingredients, claim_generator);
+    let definition = manifest_definition(
+        media_type,
+        title,
+        assertion,
+        ingredients,
+        soft_bindings,
+        claim_generator,
+    );
 
     let mut builder = Builder::from_context(context).with_definition(definition.to_string())?;
     builder.add_assertion(PROVENANCE_LABEL, assertion)?;
@@ -1081,13 +1343,14 @@ fn manifest_definition(
     title: &str,
     assertion: &ProvenanceAssertion,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
     claim_generator: &CredentialClaimGeneratorInfo,
 ) -> Value {
     json!({
         "claim_generator_info": [claim_generator.to_manifest_value()],
         "title": title,
         "format": media_type,
-        "assertions": standard_assertions(assertion, media_type, title, ingredients)
+        "assertions": standard_assertions(assertion, media_type, title, ingredients, soft_bindings)
     })
 }
 
@@ -1191,12 +1454,15 @@ fn standard_assertions(
     media_type: &str,
     title: &str,
     ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
 ) -> Vec<Value> {
     let mut assertions = vec![
-        actions_assertion(assertion, ingredients),
+        actions_assertion(assertion, ingredients, soft_bindings),
         metadata_assertion(assertion, media_type, title),
         asset_type_assertion(assertion),
     ];
+
+    assertions.extend(soft_bindings.iter().map(soft_binding_assertion));
 
     if let Some(ai_disclosure) = ai_disclosure_assertion(assertion) {
         assertions.push(ai_disclosure);
@@ -1205,7 +1471,11 @@ fn standard_assertions(
     assertions
 }
 
-fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientSnapshot]) -> Value {
+fn actions_assertion(
+    assertion: &ProvenanceAssertion,
+    ingredients: &[IngredientSnapshot],
+    soft_bindings: &[SoftBindingAssertion],
+) -> Value {
     // The C2PA spec requires the first action to be `c2pa.created` or
     // `c2pa.opened`. When a caller supplies a single `parentOf` ingredient, it
     // is a direct derivation parent and must be referenced by `c2pa.opened`.
@@ -1242,12 +1512,52 @@ fn actions_assertion(assertion: &ProvenanceAssertion, ingredients: &[IngredientS
         }
     }
     actions.extend(placed_actions(assertion, ingredients));
+    actions.extend(
+        soft_bindings
+            .iter()
+            .filter(|binding| binding.watermark)
+            .map(|binding| {
+                let mut action = json!({
+                    "action": "c2pa.watermarked.bound",
+                    "softwareAgent": software_agent_value(assertion),
+                    "parameters": {
+                        "alg": binding.alg,
+                    },
+                });
+                if let Some(when) = action_timestamp(assertion) {
+                    action["when"] = json!(when);
+                }
+                action
+            }),
+    );
 
     json!({
         "label": "c2pa.actions.v2",
         "data": {
             "actions": actions,
         }
+    })
+}
+
+fn soft_binding_assertion(binding: &SoftBindingAssertion) -> Value {
+    let mut data = json!({
+        "alg": binding.alg,
+        "blocks": [{
+            "scope": {},
+            "value": binding.value,
+        }],
+    });
+
+    if let Some(name) = binding.name.as_deref() {
+        data["name"] = json!(name);
+    }
+    if let Some(params) = binding.alg_params.as_deref() {
+        data["alg-params"] = json!(params);
+    }
+
+    json!({
+        "label": "c2pa.soft-binding",
+        "data": data,
     })
 }
 
@@ -1982,6 +2292,44 @@ mod tests {
         );
     }
 
+    #[tokio::test]
+    async fn prepared_signing_validates_assertion_size() -> Result<()> {
+        let input = NamedTempFile::new()?;
+        let mut assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot::for_asset(
+            AssetSnapshot::new("image", "image/png", "sha256:test"),
+        ));
+        assertion.extra.insert(
+            "large".to_string(),
+            Value::String("x".repeat(crate::policy::ASSERTION_HARD_SIZE_LIMIT)),
+        );
+        let producer = CredentialProducer::from_pem(b"cert".to_vec(), b"key".to_vec(), None);
+
+        let result = producer
+            .sign_prepared_asset(PreparedSignAssetRequest {
+                input_path: input.path().to_path_buf(),
+                media_type: "image/png".to_string(),
+                output_path: None,
+                title: "Test asset".to_string(),
+                assertion,
+                ingredients: Vec::new(),
+                embed: true,
+                soft_bindings: Vec::new(),
+                credential_profile: CredentialProfile::Public,
+            })
+            .await;
+
+        let Err(error) = result else {
+            return Err(Error::other(
+                "prepared signing accepted an oversized assertion",
+            ));
+        };
+        assert!(
+            error.to_string().contains("embedded hard cap"),
+            "unexpected error: {error}"
+        );
+        Ok(())
+    }
+
     fn test_manifest_definition(claim_generator: &CredentialClaimGeneratorInfo) -> Value {
         let policy = ProjectionPolicy::for_profile(CredentialProfile::Full);
         let (assertion, ingredients, title) = prepare_signing_claim(
@@ -1998,6 +2346,7 @@ mod tests {
             &title,
             &assertion,
             &ingredients,
+            &[],
             claim_generator,
         )
     }
