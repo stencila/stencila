@@ -237,9 +237,6 @@ pub struct CredentialCloudSigningConfig {
 
     /// Whether the Cloud service should also store the manifest and register a
     /// soft binding for the signed asset.
-    ///
-    /// This stays false until callers expose a separate CLI/config option for
-    /// the sign + store + bind workflow.
     pub register_soft_binding: bool,
 }
 

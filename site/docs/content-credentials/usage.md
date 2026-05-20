@@ -30,10 +30,13 @@ Rendered outputs can also be signed directly:
 stencila render article.smd article.pdf --credentials
 stencila render article.smd article.pdf --credentials=private
 stencila render article.smd article.pdf --credentials --credentials-signer cloud
+stencila render article.smd article.pdf --credentials --credentials-soft-binding
+stencila render article.smd article.pdf --credentials --credentials-no-soft-binding
 ```
 
 `--credentials` selects the provenance [profile](profiles). `--credentials-signer`
-selects the [signing backend](signing).
+selects the [signing backend](signing). Soft binding registration is enabled by
+default; use `--credentials-no-soft-binding` to skip it.
 
 You can also set workspace defaults in `stencila.toml`:
 
@@ -42,6 +45,7 @@ You can also set workspace defaults in `stencila.toml`:
 enabled = true
 profile = "public"
 signer = "auto"
+soft-binding = true
 ```
 
 ## Common Workflows

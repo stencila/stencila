@@ -476,7 +476,7 @@ pub enum CredentialSigningMode {
 }
 
 /// Content Credentials options for encoding.
-#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(default, rename_all = "kebab-case")]
 pub struct CredentialsOptions {
     /// The privacy/signing projection profile to use.
@@ -484,6 +484,10 @@ pub struct CredentialsOptions {
 
     /// The signing backend to use.
     pub signing_mode: CredentialSigningMode,
+
+    /// Register Stencila Cloud soft bindings for signed assets.
+    #[default = true]
+    pub soft_binding: bool,
 }
 
 /// Encoding options

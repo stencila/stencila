@@ -15,7 +15,7 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_content_credentials::{
-    CredentialProfile, CredentialSigningConfig, SourceRangeSnapshot,
+    CredentialCloudSigningConfig, CredentialProfile, CredentialSigningConfig, SourceRangeSnapshot,
     export::{
         AssetSigningRequest, ExportSigningRequest, sign_encoded_assets as sign_assets,
         sign_encoded_export as sign_export,
@@ -47,7 +47,11 @@ pub(crate) async fn sign_encoded_export(
         source_ranges: source_ranges.as_ref(),
         media_type_hint,
         credential_profile: credential_profile(credentials.profile.clone()),
-        signing_config: Some(signing_config(credentials.signing_mode.clone())?),
+        signing_config: Some(signing_config(
+            credentials.signing_mode.clone(),
+            credentials.soft_binding,
+        )?),
+        soft_binding: credentials.soft_binding,
         info,
     })
     .await?;
@@ -75,7 +79,11 @@ pub(crate) async fn sign_encoded_assets(
         source_path,
         source_ranges: source_ranges.as_ref(),
         credential_profile: credential_profile(credentials.profile.clone()),
-        signing_config: Some(signing_config(credentials.signing_mode.clone())?),
+        signing_config: Some(signing_config(
+            credentials.signing_mode.clone(),
+            credentials.soft_binding,
+        )?),
+        soft_binding: credentials.soft_binding,
         info,
     })
     .await?;
@@ -166,7 +174,23 @@ async fn source_range_map(
     (!ranges.is_empty()).then_some(ranges)
 }
 
-fn signing_config(mode: CodecSigningMode) -> Result<CredentialSigningConfig> {
+fn signing_config(mode: CodecSigningMode, soft_binding: bool) -> Result<CredentialSigningConfig> {
+    if soft_binding {
+        return match mode {
+            CodecSigningMode::Auto => {
+                let cloud =
+                    CredentialCloudSigningConfig::resolve().with_register_soft_binding(true);
+                Ok(CredentialSigningConfig::resolve_auto_with_cloud_config(
+                    cloud,
+                )?)
+            }
+            CodecSigningMode::Cloud => Ok(CredentialSigningConfig::Cloud(
+                CredentialCloudSigningConfig::resolve().with_register_soft_binding(true),
+            )),
+            CodecSigningMode::Local => Ok(CredentialSigningConfig::resolve_local()?),
+        };
+    }
+
     match mode {
         CodecSigningMode::Auto => Ok(CredentialSigningConfig::resolve_auto()?),
         CodecSigningMode::Local => Ok(CredentialSigningConfig::resolve_local()?),
@@ -179,5 +203,35 @@ fn credential_profile(profile: CodecCredentialProfile) -> CredentialProfile {
         CodecCredentialProfile::Public => CredentialProfile::Public,
         CodecCredentialProfile::Private => CredentialProfile::Private,
         CodecCredentialProfile::Full => CredentialProfile::Full,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use stencila_codec::eyre::eyre;
+
+    use super::*;
+
+    #[test]
+    fn soft_binding_cloud_uses_cloud_registration() -> Result<()> {
+        let config = signing_config(CodecSigningMode::Cloud, true)?;
+        let CredentialSigningConfig::Cloud(cloud) = config else {
+            return Err(eyre!("soft binding should configure Cloud signing"));
+        };
+
+        assert!(cloud.register_soft_binding);
+        Ok(())
+    }
+
+    #[test]
+    fn soft_binding_allows_local_signing_with_warning_later() -> Result<()> {
+        let config = signing_config(CodecSigningMode::Local, true)?;
+        if !matches!(config, CredentialSigningConfig::Local(_)) {
+            return Err(eyre!(
+                "soft binding with local signer should keep local signing"
+            ));
+        };
+
+        Ok(())
     }
 }

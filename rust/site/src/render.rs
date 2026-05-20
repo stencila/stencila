@@ -1077,6 +1077,7 @@ fn site_credentials(config: &Config) -> Option<CredentialsOptions> {
             ContentCredentialsSigner::Cloud => CredentialSigningMode::Cloud,
             ContentCredentialsSigner::Local => CredentialSigningMode::Local,
         },
+        soft_binding: config.soft_binding(),
     })
 }
 

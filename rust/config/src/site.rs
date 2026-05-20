@@ -771,6 +771,7 @@ pub struct SiteConfig {
     /// enabled = true
     /// profile = "public"
     /// signer = "cloud"
+    /// soft-binding = true
     /// ```
     #[serde(
         rename = "content-credentials",
@@ -2251,6 +2252,7 @@ mod tests {
         let toml_str = r#"
             [site.content-credentials]
             profile = "public"
+            soft-binding = true
         "#;
         let config: SiteConfig = toml::from_str::<HashMap<String, SiteConfig>>(toml_str)
             .expect("Failed to parse TOML")
@@ -2266,6 +2268,7 @@ mod tests {
             credentials.to_config().profile(),
             crate::SiteContentCredentialsProfile::Public
         );
+        assert!(credentials.to_config().soft_binding());
     }
 
     #[test]

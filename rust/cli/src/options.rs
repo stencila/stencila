@@ -283,6 +283,26 @@ pub struct EncodeOptions {
     #[arg(long = "credentials-signer", help_heading = "Encoding Options")]
     credentials_signer: Option<CredentialSigningMode>,
 
+    /// Register Stencila Cloud soft bindings for signed assets
+    ///
+    /// This is enabled by default. This explicit opt-in is useful when config
+    /// disables soft bindings, or to enable Content Credentials using the
+    /// configured or default profile.
+    #[arg(
+        long = "credentials-soft-binding",
+        conflicts_with = "credentials_no_soft_binding",
+        help_heading = "Encoding Options"
+    )]
+    credentials_soft_binding: bool,
+
+    /// Do not register Stencila Cloud soft bindings for signed assets
+    #[arg(
+        long = "credentials-no-soft-binding",
+        conflicts_with = "credentials_soft_binding",
+        help_heading = "Encoding Options"
+    )]
+    credentials_no_soft_binding: bool,
+
     /// Highlight the rendered outputs of executable nodes
     ///
     /// Only supported by some formats (e.g. DOCX and ODT).
@@ -451,6 +471,9 @@ impl EncodeOptions {
                 .clone()
                 .or_else(|| self.credentials_profile.clone()),
             self.credentials_signer.clone(),
+            self.credentials_soft_binding
+                .then_some(true)
+                .or(self.credentials_no_soft_binding.then_some(false)),
         );
 
         let highlight = self
@@ -524,6 +547,7 @@ impl EncodeOptions {
 fn credentials_options(
     profile: Option<CredentialProfile>,
     signing_mode: Option<CredentialSigningMode>,
+    soft_binding: Option<bool>,
 ) -> Option<stencila_codecs::CredentialsOptions> {
     let config = match stencila_config::get() {
         Ok(config) => config.content_credentials.map(|spec| spec.to_config()),
@@ -537,7 +561,7 @@ fn credentials_options(
         }
     };
 
-    let cli_requested = profile.is_some();
+    let cli_requested = profile.is_some() || soft_binding == Some(true);
     let config_enabled = config
         .as_ref()
         .is_some_and(ContentCredentialsConfig::is_enabled);
@@ -560,9 +584,16 @@ fn credentials_options(
             })
     });
 
+    let soft_binding = soft_binding.unwrap_or_else(|| {
+        config
+            .as_ref()
+            .is_none_or(ContentCredentialsConfig::soft_binding)
+    });
+
     Some(stencila_codecs::CredentialsOptions {
         profile,
         signing_mode,
+        soft_binding,
     })
 }
 

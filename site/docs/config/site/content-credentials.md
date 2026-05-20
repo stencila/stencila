@@ -25,6 +25,7 @@ content-credentials = "public"
 enabled = true
 profile = "public"
 signer = "cloud"
+soft-binding = true
 ```
 
 **Type:** `ContentCredentialsConfig`
@@ -64,6 +65,15 @@ Defaults to `auto`.
 | `auto` | Use Cloud signing when available, otherwise fall back to local signing. |
 | `cloud` | Use Stencila Cloud's signing service. |
 | `local` | Use the local self-signed signing identity. |
+
+# `soft-binding`
+
+**Type:** `boolean` (optional)
+
+Whether Stencila Cloud should store the manifest and register a soft
+binding for each signed asset.
+
+Defaults to `true`. Local signing ignores this and emits a warning.
 
 
 ***

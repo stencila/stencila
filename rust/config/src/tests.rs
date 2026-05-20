@@ -136,6 +136,7 @@ fn test_config_root_content_credentials_toml_detailed() {
         enabled = true
         profile = "private"
         signer = "cloud"
+        soft-binding = true
     "#;
     let config: Config = toml::from_str(toml_str).expect("Failed to parse TOML");
     let credentials = config
@@ -147,6 +148,7 @@ fn test_config_root_content_credentials_toml_detailed() {
     assert!(credentials.is_enabled());
     assert_eq!(credentials.profile(), ContentCredentialsProfile::Private);
     assert_eq!(credentials.signer(), ContentCredentialsSigner::Cloud);
+    assert!(credentials.soft_binding());
 }
 
 #[test]

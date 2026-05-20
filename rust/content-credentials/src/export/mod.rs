@@ -16,9 +16,9 @@ use stencila_schema::{Node, NodeId, NodeType, Visitor, WalkControl};
 use tempfile::{TempDir, tempdir};
 
 use crate::{
-    CredentialProducer, CredentialProfile, CredentialSigningConfig, Error, IngredientSnapshot,
-    ManifestKind, ProvenanceSnapshot, Result, SignAssetRequest, SignedAsset, SourceRangeSnapshot,
-    media, producer,
+    CredentialCloudSigningConfig, CredentialProducer, CredentialProfile, CredentialSigningConfig,
+    CredentialSigningMode, Error, IngredientSnapshot, ManifestKind, ProvenanceSnapshot, Result,
+    SignAssetRequest, SignedAsset, SourceRangeSnapshot, media, producer,
 };
 
 use self::{
@@ -72,6 +72,9 @@ pub struct ExportSigningRequest<'a> {
     /// callers can pass an explicit backend to avoid hidden fallback behavior.
     pub signing_config: Option<CredentialSigningConfig>,
 
+    /// Whether Cloud soft binding registration was requested.
+    pub soft_binding: bool,
+
     /// Encoding metadata to update with signing results.
     pub info: &'a mut EncodeInfo,
 }
@@ -102,6 +105,9 @@ pub struct AssetSigningRequest<'a> {
     ///
     /// When absent, the automatic signing backend is used.
     pub signing_config: Option<CredentialSigningConfig>,
+
+    /// Whether Cloud soft binding registration was requested.
+    pub soft_binding: bool,
 
     /// Encoding metadata to update with signing results.
     pub info: &'a mut EncodeInfo,
@@ -147,10 +153,11 @@ pub async fn sign_encoded_assets(request: AssetSigningRequest<'_>) -> Result<()>
         source_ranges,
         credential_profile,
         signing_config,
+        soft_binding,
         info,
     } = request;
 
-    let producer = producer_for_config(signing_config)?;
+    let producer = producer_for_config(signing_config, soft_binding)?;
     let source_ingredient = source_ingredient_snapshot(source_path);
     let source_manifest = source_manifest(
         &producer,
@@ -174,6 +181,7 @@ pub async fn sign_encoded_assets(request: AssetSigningRequest<'_>) -> Result<()>
         credential_profile,
         info,
         false,
+        soft_binding,
         BTreeSet::new(),
         0,
     ))
@@ -213,10 +221,11 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         media_type_hint,
         credential_profile,
         signing_config,
+        soft_binding,
         info,
     } = request;
 
-    let producer = producer_for_config(signing_config)?;
+    let producer = producer_for_config(signing_config, soft_binding)?;
     let profile_label = credential_profile.label();
 
     if !output_path.is_file() {
@@ -249,6 +258,7 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
         credential_profile,
         info,
         true,
+        soft_binding,
         seen,
         0,
     ))
@@ -344,15 +354,18 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
                 .map(|component| component.ingredient),
         );
 
-        let signed = producer
-            .sign_exported_asset(SignAssetRequest {
-                input_path: output_path.to_path_buf(),
-                media_type,
-                credential_profile,
-                provenance: Some(provenance),
-                ..Default::default()
-            })
-            .await?;
+        let signed = add_soft_binding_warning(
+            producer
+                .sign_exported_asset(SignAssetRequest {
+                    input_path: output_path.to_path_buf(),
+                    media_type,
+                    credential_profile,
+                    provenance: Some(provenance),
+                    ..Default::default()
+                })
+                .await?,
+            soft_binding,
+        );
 
         let primary_asset = EncodedAsset {
             path: output_path.to_path_buf(),
@@ -389,13 +402,34 @@ pub async fn sign_encoded_export(request: ExportSigningRequest<'_>) -> Result<()
 
 fn producer_for_config(
     signing_config: Option<CredentialSigningConfig>,
+    soft_binding: bool,
 ) -> Result<CredentialProducer> {
     let signing_config = match signing_config {
         Some(config) => config,
-        None => CredentialSigningConfig::resolve_auto()?,
+        None => CredentialSigningConfig::resolve_auto_with_cloud_config(
+            CredentialCloudSigningConfig::resolve(),
+        )?,
     };
 
+    let signing_config = with_soft_binding(signing_config, soft_binding);
+
     Ok(CredentialProducer::new(signing_config))
+}
+
+fn with_soft_binding(
+    signing_config: CredentialSigningConfig,
+    soft_binding: bool,
+) -> CredentialSigningConfig {
+    match signing_config {
+        CredentialSigningConfig::Local(local) => CredentialSigningConfig::Local(local),
+        CredentialSigningConfig::Cloud(cloud) => {
+            CredentialSigningConfig::Cloud(cloud.with_register_soft_binding(soft_binding))
+        }
+        CredentialSigningConfig::Auto { cloud, local } => CredentialSigningConfig::Auto {
+            cloud: cloud.with_register_soft_binding(soft_binding),
+            local,
+        },
+    }
 }
 
 #[allow(clippy::too_many_arguments, clippy::too_many_lines)]
@@ -410,6 +444,7 @@ async fn sign_side_assets(
     credential_profile: CredentialProfile,
     info: &mut EncodeInfo,
     include_referenced_media: bool,
+    soft_binding: bool,
     mut seen: BTreeSet<PathBuf>,
     mut component_index: usize,
 ) -> Result<SignedSideAssets> {
@@ -592,16 +627,19 @@ async fn sign_side_assets(
             )
         });
 
-        let signed = producer
-            .sign_exported_asset(SignAssetRequest {
-                input_path: asset_path.clone(),
-                output_path: output_path.clone(),
-                media_type: media_type.clone(),
-                title: asset_title.clone(),
-                credential_profile,
-                provenance: Some(provenance),
-            })
-            .await?;
+        let signed = add_soft_binding_warning(
+            producer
+                .sign_exported_asset(SignAssetRequest {
+                    input_path: asset_path.clone(),
+                    output_path: output_path.clone(),
+                    media_type: media_type.clone(),
+                    title: asset_title.clone(),
+                    credential_profile,
+                    provenance: Some(provenance),
+                })
+                .await?,
+            soft_binding,
+        );
 
         let manifest_source = signed
             .sidecar_path
@@ -814,6 +852,16 @@ fn manifest_kind_label(kind: ManifestKind) -> &'static str {
     kind.label()
 }
 
+fn add_soft_binding_warning(mut signed: SignedAsset, soft_binding: bool) -> SignedAsset {
+    if soft_binding && signed.signing_mode == CredentialSigningMode::Local {
+        let warning = "Soft binding registration requires Stencila Cloud signing; skipped because the asset was signed locally.";
+        tracing::warn!("{warning}");
+        signed.warnings.push(warning.to_string());
+    }
+
+    signed
+}
+
 /// Return whether the root document contains executable code.
 ///
 /// Environment ingredients describe runtime context for executable code. Static
@@ -887,9 +935,15 @@ fn push_sidecar_asset_once(
 
 #[cfg(test)]
 mod tests {
-    use crate::{DocumentSnapshot, ProvenanceSnapshot};
+    use crate::{
+        CredentialCloudSigningConfig, CredentialSigningConfig, DocumentSnapshot, Error,
+        ProvenanceSnapshot, Result,
+    };
 
-    use super::{scrub_embedded_component_content_urls, supports_embedded_component_extraction};
+    use super::{
+        scrub_embedded_component_content_urls, supports_embedded_component_extraction,
+        with_soft_binding,
+    };
 
     #[test]
     fn embedded_component_extraction_is_pdf_only() {
@@ -919,5 +973,63 @@ mod tests {
                 .is_some_and(|node| node.content_url.is_none()),
             "temporary output contentUrl should be removed"
         );
+    }
+
+    #[test]
+    fn request_soft_binding_updates_cloud_signing_config() -> Result<()> {
+        let config = CredentialSigningConfig::Cloud(
+            CredentialCloudSigningConfig::resolve().with_register_soft_binding(false),
+        );
+
+        let CredentialSigningConfig::Cloud(cloud) = with_soft_binding(config, true) else {
+            return Err(Error::other("Cloud signing config should remain Cloud"));
+        };
+
+        if !cloud.register_soft_binding {
+            return Err(Error::other(
+                "soft binding request should enable Cloud registration",
+            ));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn request_soft_binding_updates_auto_cloud_signing_config() -> Result<()> {
+        let config = CredentialSigningConfig::Auto {
+            cloud: CredentialCloudSigningConfig::resolve().with_register_soft_binding(false),
+            local: None,
+        };
+
+        let CredentialSigningConfig::Auto { cloud, .. } = with_soft_binding(config, true) else {
+            return Err(Error::other("Auto signing config should remain Auto"));
+        };
+
+        if !cloud.register_soft_binding {
+            return Err(Error::other(
+                "soft binding request should enable Auto Cloud registration",
+            ));
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn disabling_soft_binding_updates_cloud_signing_config() -> Result<()> {
+        let config = CredentialSigningConfig::Cloud(
+            CredentialCloudSigningConfig::resolve().with_register_soft_binding(true),
+        );
+
+        let CredentialSigningConfig::Cloud(cloud) = with_soft_binding(config, false) else {
+            return Err(Error::other("Cloud signing config should remain Cloud"));
+        };
+
+        if cloud.register_soft_binding {
+            return Err(Error::other(
+                "soft binding request should disable Cloud registration",
+            ));
+        }
+
+        Ok(())
     }
 }

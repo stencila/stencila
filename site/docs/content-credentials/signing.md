@@ -27,6 +27,8 @@ should be an error.
 stencila render article.smd article.pdf --credentials
 stencila render article.smd article.pdf --credentials --credentials-signer cloud
 stencila render article.smd article.pdf --credentials --credentials-signer local
+stencila render article.smd article.pdf --credentials --credentials-soft-binding
+stencila render article.smd article.pdf --credentials --credentials-no-soft-binding
 ```
 
 The standalone asset command, `stencila credentials sign`, currently signs with
@@ -84,6 +86,7 @@ of `stencila.toml`:
 enabled = true
 profile = "public"
 signer = "cloud"
+soft-binding = true
 ```
 
 For sites, you can also enable or override Content Credentials under `site`:
@@ -99,6 +102,7 @@ Use the detailed site form to override the root profile or signer:
 [site.content-credentials]
 profile = "public"
 signer = "cloud"
+soft-binding = true
 ```
 
 During site rendering, Stencila signs extracted media assets and annotates the
@@ -125,7 +129,8 @@ client.
 ## Soft Bindings
 
 Stencila Cloud is implementing the C2PA Soft Binding Resolution API at
-`https://c2pa.stencila.cloud/v1`. The current CLI and site options sign through
-Cloud but do not yet expose a combined sign, store, and soft-bind workflow. That
-will be a separate option because it changes where manifests are registered,
-not just who signs them.
+`https://c2pa.stencila.cloud/v1`. Soft binding registration is enabled by
+default. Use `--credentials-no-soft-binding`, or `soft-binding = false` in
+`[content-credentials]`, to skip the combined sign, store, and soft-bind
+workflow. When signing falls back to a local identity, Stencila signs the asset
+locally and reports that soft binding registration was skipped.

@@ -89,6 +89,7 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -245,6 +246,45 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
 }
 
 #[tokio::test]
+async fn local_signing_warns_when_soft_binding_requested() -> Result<()> {
+    let _config = set_isolated_config_dir();
+    init_local_signing_identity(true)?;
+
+    let dir = TempDir::new()?;
+    let output = dir.path().join("report.md");
+    let node = Node::Article(Article::new(vec![Block::Paragraph(Paragraph::new(vec![
+        Inline::Text(Text::from("Signed locally.")),
+    ]))]));
+
+    let info = to_path_with_info(
+        &node,
+        &output,
+        Some(EncodeOptions {
+            format: Some(Format::Markdown),
+            credentials: Some(CredentialsOptions {
+                profile: CredentialProfile::Public,
+                signing_mode: CredentialSigningMode::Local,
+                soft_binding: true,
+            }),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let document_asset = info
+        .assets
+        .iter()
+        .find(|asset| asset.role.as_deref() == Some("document"))
+        .ok_or_else(|| stencila_codecs::eyre!("document asset should be recorded"))?;
+
+    assert!(document_asset.signing_warnings.iter().any(|warning| {
+        warning.contains("Soft binding registration requires Stencila Cloud signing")
+    }));
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn credentials_static_figure_media_is_component_ingredient() -> Result<()> {
     let _config = set_isolated_config_dir();
     init_local_signing_identity(true)?;
@@ -278,6 +318,7 @@ async fn credentials_static_figure_media_is_component_ingredient() -> Result<()>
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -380,6 +421,7 @@ async fn credentials_reuses_existing_static_media_manifest() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -506,6 +548,7 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
         media_type_hint: Some("application/pdf".to_string()),
         credential_profile: ContentCredentialProfile::Public,
         signing_config: None,
+        soft_binding: false,
         info: &mut info,
     })
     .await?;
@@ -678,6 +721,7 @@ async fn credentials_sign_smd_with_stencila_media_type() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -777,6 +821,7 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -949,6 +994,7 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -1347,6 +1393,7 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -1424,6 +1471,7 @@ async fn credentials_untracked_source_is_dirty_without_commit() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Private,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),
@@ -1486,6 +1534,7 @@ async fn credentials_public_profile_redacts_dirty_patch_digest() -> Result<()> {
             credentials: Some(CredentialsOptions {
                 profile: CredentialProfile::Public,
                 signing_mode: CredentialSigningMode::Local,
+                soft_binding: false,
             }),
             ..Default::default()
         }),

@@ -217,6 +217,7 @@ pub struct Config {
     /// enabled = true
     /// profile = "public"
     /// signer = "auto"
+    /// soft-binding = true
     /// ```
     #[serde(
         rename = "content-credentials",

@@ -43,6 +43,7 @@ pub enum ContentCredentialsSigner {
 /// enabled = true
 /// profile = "public"
 /// signer = "auto"
+/// soft-binding = true
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
@@ -62,6 +63,12 @@ pub struct ContentCredentialsConfig {
     ///
     /// Defaults to `auto`.
     pub signer: Option<ContentCredentialsSigner>,
+
+    /// Whether Stencila Cloud should store the manifest and register a soft
+    /// binding for each signed asset.
+    ///
+    /// Defaults to `true`. Local signing ignores this and emits a warning.
+    pub soft_binding: Option<bool>,
 }
 
 impl ContentCredentialsConfig {
@@ -80,6 +87,11 @@ impl ContentCredentialsConfig {
         self.signer.unwrap_or_default()
     }
 
+    /// Whether to register soft bindings through Stencila Cloud.
+    pub fn soft_binding(&self) -> bool {
+        self.soft_binding.unwrap_or(true)
+    }
+
     /// Merge an override config into this config.
     ///
     /// Fields that are absent in `override_config` keep the value from `self`.
@@ -89,6 +101,7 @@ impl ContentCredentialsConfig {
             enabled: override_config.enabled.or(self.enabled),
             profile: override_config.profile.or(self.profile),
             signer: override_config.signer.or(self.signer),
+            soft_binding: override_config.soft_binding.or(self.soft_binding),
         }
     }
 }
@@ -164,6 +177,7 @@ mod tests {
             ContentCredentialsProfile::Public
         );
         assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
+        assert!(spec.to_config().soft_binding());
         Ok(())
     }
 
@@ -183,6 +197,7 @@ mod tests {
             ContentCredentialsProfile::Private
         );
         assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
+        assert!(spec.to_config().soft_binding());
         Ok(())
     }
 
@@ -193,6 +208,7 @@ mod tests {
         assert!(spec.is_enabled());
         assert_eq!(spec.to_config().profile(), ContentCredentialsProfile::Full);
         assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
+        assert!(spec.to_config().soft_binding());
         Ok(())
     }
 
@@ -208,12 +224,13 @@ mod tests {
 
     #[test]
     fn test_content_credentials_spec_detailed_cloud_signer() -> Result<(), serde_json::Error> {
-        let json = r#"{"profile": "public", "signer": "cloud"}"#;
+        let json = r#"{"profile": "public", "signer": "cloud", "soft-binding": true}"#;
         let spec: ContentCredentialsSpec = serde_json::from_str(json)?;
         let config = spec.to_config();
         assert!(config.is_enabled());
         assert_eq!(config.profile(), ContentCredentialsProfile::Public);
         assert_eq!(config.signer(), ContentCredentialsSigner::Cloud);
+        assert!(config.soft_binding());
         Ok(())
     }
 
@@ -232,11 +249,13 @@ mod tests {
             enabled: Some(true),
             profile: Some(ContentCredentialsProfile::Private),
             signer: Some(ContentCredentialsSigner::Cloud),
+            soft_binding: Some(true),
         };
         let site = ContentCredentialsConfig {
             enabled: None,
             profile: Some(ContentCredentialsProfile::Public),
             signer: None,
+            soft_binding: None,
         };
 
         let merged = root.merge_override(&site);
@@ -244,5 +263,6 @@ mod tests {
         assert!(merged.is_enabled());
         assert_eq!(merged.profile(), ContentCredentialsProfile::Public);
         assert_eq!(merged.signer(), ContentCredentialsSigner::Cloud);
+        assert!(merged.soft_binding());
     }
 }
