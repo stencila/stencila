@@ -57,7 +57,7 @@ Defaults to `public`.
 
 The signing backend to use.
 
-Defaults to `local`.
+Defaults to `auto`.
 
 | Value | Description |
 |-------|-------------|

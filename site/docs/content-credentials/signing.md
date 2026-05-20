@@ -14,14 +14,14 @@ Use this as a starting point:
 
 | Signer | Best for | What it means |
 |--------|----------|---------------|
-| `local` | Default render and site workflows | Sign with the self-signed identity created by `stencila credentials init` |
+| `auto` | Default render and site workflows | Use Stencila Cloud signing when a Cloud token is available, otherwise use the local signing identity |
 | `cloud` | Public or organizational releases | Send the asset and generated provenance to Stencila Cloud for signing |
-| `auto` | Explicit convenience mode | Use Stencila Cloud signing when a Cloud token is available, otherwise use the local signing identity |
+| `local` | Local testing and private workflows | Sign with the self-signed identity created by `stencila credentials init` |
 
-The default signer is `local`. This preserves local signing behavior unless you
-explicitly choose Cloud signing with a CLI flag or workspace configuration.
-`auto` is available when you want Stencila to try Cloud signing when a Cloud
-token is available and fall back to local signing when possible.
+The default signer is `auto`. It uses Stencila Cloud signing when a Cloud token
+is available and falls back to local signing when possible. Use `local` when you
+need to avoid Cloud signing, or `cloud` when unauthenticated local fallback
+should be an error.
 
 ```sh
 stencila render article.smd article.pdf --credentials

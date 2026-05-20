@@ -41,7 +41,7 @@ You can also set workspace defaults in `stencila.toml`:
 [content-credentials]
 enabled = true
 profile = "public"
-signer = "local"
+signer = "auto"
 ```
 
 ## Common Workflows
@@ -67,14 +67,14 @@ For a publication or repository workflow that requires Stencila provenance:
 stencila credentials verify figure.png --require stencila-assertion
 ```
 
-For a render that should use Stencila Cloud signing:
+For a render that should use Stencila Cloud signing when available:
 
 ```sh
 stencila cloud signin
-stencila render article.smd article.pdf --credentials --credentials-signer cloud
+stencila render article.smd article.pdf --credentials
 ```
 
-Or opt in for a workspace:
+Or require Cloud signing for a workspace:
 
 ```toml
 [content-credentials]
@@ -117,8 +117,9 @@ Sign an existing asset in place:
 stencila credentials sign figure.png
 ```
 
-This standalone signing command uses the local signing backend. To sign rendered
-outputs with Stencila Cloud, use `stencila render --credentials-signer cloud`.
+This standalone signing command uses the local signing backend. Rendered
+outputs use automatic signing by default; use `stencila render
+--credentials-signer cloud` when local fallback should be an error.
 
 Write the signed result to another path:
 

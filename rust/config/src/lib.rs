@@ -206,7 +206,7 @@ pub struct Config {
     ///
     /// Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
     /// ```toml
-    /// # Enable with the default public profile and local signer
+    /// # Enable with the default public profile and automatic signer
     /// content-credentials = true
     ///
     /// # Enable with a specific profile
@@ -216,7 +216,7 @@ pub struct Config {
     /// [content-credentials]
     /// enabled = true
     /// profile = "public"
-    /// signer = "cloud"
+    /// signer = "auto"
     /// ```
     #[serde(
         rename = "content-credentials",

@@ -275,7 +275,7 @@ pub struct EncodeOptions {
 
     /// Signing backend to use for C2PA Content Credentials
     ///
-    /// Defaults to workspace Content Credentials config, or `local` when not
+    /// Defaults to workspace Content Credentials config, or `auto` when not
     /// configured. `auto` will use Cloud signing when available and local
     /// signing when a local identity exists. `local` uses the local self-signed
     /// identity created by `stencila credentials init`. `cloud` is the trusted
@@ -555,7 +555,7 @@ fn credentials_options(
     let signing_mode = signing_mode.unwrap_or_else(|| {
         config
             .as_ref()
-            .map_or(CredentialSigningMode::Local, |config| {
+            .map_or(CredentialSigningMode::Auto, |config| {
                 credential_signing_mode(config.signer())
             })
     });

@@ -11,7 +11,7 @@ these values.
 
 Can be a simple boolean, profile shorthand, or detailed configuration, e.g.
 ```toml
-# Enable with the default public profile and local signer
+# Enable with the default public profile and automatic signer
 content-credentials = true
 
 # Enable with a specific profile
@@ -21,7 +21,7 @@ content-credentials = "public"
 [content-credentials]
 enabled = true
 profile = "public"
-signer = "cloud"
+signer = "auto"
 ```
 
 **Type:** `ContentCredentialsConfig`
@@ -54,7 +54,7 @@ Defaults to `public`.
 
 The signing backend to use.
 
-Defaults to `local`.
+Defaults to `auto`.
 
 | Value | Description |
 |-------|-------------|

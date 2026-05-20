@@ -45,9 +45,9 @@ stencila render article.smd --to pdf --credentials
 stencila render article.smd --to pdf --credentials=public
 ```
 
-When signing rendered output, the default signer is `local`. Use
-`--credentials-signer cloud` or workspace configuration when you want Stencila
-Cloud signing.
+When signing rendered output, the default signer is `auto`: Stencila uses Cloud
+signing when a Cloud token is available and falls back to local signing when
+possible. Use `--credentials-signer local` when you need to avoid Cloud signing.
 
 Use `public` for journal submission figures, preprints, repository deposits,
 conference slides, and anything that may be checked by people outside your

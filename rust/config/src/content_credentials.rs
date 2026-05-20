@@ -27,13 +27,13 @@ pub enum ContentCredentialsProfile {
 #[strum(serialize_all = "kebab-case")]
 pub enum ContentCredentialsSigner {
     /// Use Cloud signing when available, otherwise fall back to local signing.
+    #[default]
     Auto,
 
     /// Use Stencila Cloud's signing service.
     Cloud,
 
     /// Use the local self-signed signing identity.
-    #[default]
     Local,
 }
 
@@ -42,7 +42,7 @@ pub enum ContentCredentialsSigner {
 /// [content-credentials]
 /// enabled = true
 /// profile = "public"
-/// signer = "local"
+/// signer = "auto"
 /// ```
 #[skip_serializing_none]
 #[derive(Debug, Clone, Default, Deserialize, Serialize, PartialEq, Eq, JsonSchema)]
@@ -60,7 +60,7 @@ pub struct ContentCredentialsConfig {
 
     /// The signing backend to use.
     ///
-    /// Defaults to `local`.
+    /// Defaults to `auto`.
     pub signer: Option<ContentCredentialsSigner>,
 }
 
@@ -163,7 +163,7 @@ mod tests {
             spec.to_config().profile(),
             ContentCredentialsProfile::Public
         );
-        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Local);
+        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
         Ok(())
     }
 
@@ -182,7 +182,7 @@ mod tests {
             spec.to_config().profile(),
             ContentCredentialsProfile::Private
         );
-        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Local);
+        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
         Ok(())
     }
 
@@ -192,7 +192,7 @@ mod tests {
         let spec: ContentCredentialsSpec = serde_json::from_str(json)?;
         assert!(spec.is_enabled());
         assert_eq!(spec.to_config().profile(), ContentCredentialsProfile::Full);
-        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Local);
+        assert_eq!(spec.to_config().signer(), ContentCredentialsSigner::Auto);
         Ok(())
     }
 

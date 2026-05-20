@@ -2812,7 +2812,7 @@
           ]
         },
         "signer": {
-          "description": "The signing backend to use.\n\nDefaults to `local`.",
+          "description": "The signing backend to use.\n\nDefaults to `auto`.",
           "anyOf": [
             {
               "$ref": "#/definitions/ContentCredentialsSigner"

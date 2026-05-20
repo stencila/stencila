@@ -68,7 +68,7 @@ pub struct ExportSigningRequest<'a> {
 
     /// Signing backend configuration.
     ///
-    /// When absent, the default local signing identity is used. CLI and Cloud
+    /// When absent, the automatic signing backend is used. CLI and Cloud
     /// callers can pass an explicit backend to avoid hidden fallback behavior.
     pub signing_config: Option<CredentialSigningConfig>,
 
@@ -100,7 +100,7 @@ pub struct AssetSigningRequest<'a> {
 
     /// Signing backend configuration.
     ///
-    /// When absent, the default local signing identity is used.
+    /// When absent, the automatic signing backend is used.
     pub signing_config: Option<CredentialSigningConfig>,
 
     /// Encoding metadata to update with signing results.
@@ -392,7 +392,7 @@ fn producer_for_config(
 ) -> Result<CredentialProducer> {
     let signing_config = match signing_config {
         Some(config) => config,
-        None => CredentialSigningConfig::resolve_local()?,
+        None => CredentialSigningConfig::resolve_auto()?,
     };
 
     Ok(CredentialProducer::new(signing_config))

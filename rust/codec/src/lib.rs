@@ -465,13 +465,13 @@ pub enum CredentialProfile {
 #[strum(serialize_all = "kebab-case")]
 pub enum CredentialSigningMode {
     /// Use Cloud signing when available, otherwise fall back to local signing.
+    #[default]
     Auto,
 
     /// Use Stencila Cloud's signing service.
     Cloud,
 
     /// Use a local self-signed signing identity.
-    #[default]
     Local,
 }
 
