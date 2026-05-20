@@ -1,0 +1,125 @@
+# The Python Kernel
+
+The Python kernel is an instance of the [Stencila Micro-Kernel](/rust/kernel-micro) enabling dynamic execution of Python code included in fenced code blocks inside of Stencila Documents.
+
+The Python kernel requires the system to have Python already installed and it runs using the first virtual environment which Stencila can find searching up the filesystem tree for `.venv` directories. When using the VSCode plugin, this often means the working directory that is set in the file explorer within VSCode.
+
+Stencila kernels are run in one common environment for all of the code blocks in that language. In the case of Python using the VScode plugin, that means that the kernel once started stays running during the editing session while the Language Server Protocol Server is running.
+
+Stencila is more than just a kernel runtime for codeblocks, it is able to capture and log metadata around the Python runtime, which packages were installed, other variable set in the environment etc. This extensive metadata and how it is created transparently and saved in the Stencila sidecar json file, makes a Stencila Document. Learn more in [Stencila Documents]() and [Stencila Schema]().
+
+## Python fenced blocks
+
+Python blocks use fence notation with 3 backtick characters the word `python`
+
+A backtick is the following character:
+
+````markdown raw
+`
+````
+
+it is **not** a single quote character (')
+
+A python fence looks like, with the `exec` keyword, this code block will be executed in Python with any results to stdout returned into the document in its place:
+
+````markdown raw
+```python exec
+# Your python code goes here
+```
+````
+
+The following block will **not** be executed in the kernel, it will be shown in the document as codeblock formatted text:
+
+````markdown raw
+```python 
+# Python code here will be printed in the document, but not run
+```
+````
+
+Since this documentation is itself a Stencila document, here is an example:
+
+Embeded in this Stencila document is a code block that looks like:
+
+````markdown raw
+```python exec
+import random
+random.randint(1,6)
+```
+````
+
+When it is run, the code prints out a random number between 1 and 6 here:
+
+```python exec
+import random
+random.randint(1,6)
+```
+
+Each time this document / code block is run a different number 1-6 will be shown randomly.
+
+We also have shared environment and state between code chunks:
+
+````markdown raw
+```python exec
+import random
+roll = random.randint(1,6)
+```
+````
+
+We can access the variables and state of one code block from another subsequent codeblock. Not that order matters, you must declare/set a variable before you use it.
+
+````markdown raw
+```python exec
+# the variable `roll` from the above chunk is available to us in other chunks. 
+print(roll)
+```
+````
+
+## Python environment
+
+Execution takes place in the kernel, in its closest `.venv` virtual environment from the current working directory, or no virtual environment if one cannot be found.
+
+*Not yet implemented* You can also directly specify the path to your prefered Python executable with...FILL IN INSTRUCTIONS 
+
+The kernel uses forking to manage concurrent execution of code blocks by duplicating the Python environment for each task.
+
+### Variables
+
+Variables defined in one code block persist across other code blocks and their execution contexts.
+
+## Plots, graphics and structured outputs
+
+### Plots
+
+Matplot lib plots are captured and brought back to the kernel to be included in the document itself. This works by capturing the output of the `show()` method. Other tools that plot using HTML (like Plotly) do not work as embeds in Stencila documents at this time.
+
+```python exec
+import matplotlib.pyplot as plt
+
+# Data for plotting
+x = [1, 2]
+y = [3, 4]
+
+# Create a simple line plot
+plt.plot(x, y)
+
+# Display the plot
+plt.show()
+```
+
+### Structured outputs
+
+DataFrames (`pandas`) and tables are able to be brought back into documents and styled as tables within the doucment. 
+
+```python exec
+import pandas as pd
+
+df = pd.DataFrame({
+    'Quantity': [1, 2, 3],
+    'Fruit': ['Apple', 'Banana', 'Cherry']
+})
+df
+```
+
+## Debugging and logging
+
+*tbd* 
