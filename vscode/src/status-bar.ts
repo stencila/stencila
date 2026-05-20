@@ -1,6 +1,6 @@
 import * as vscode from 'vscode'
 
-import { PROVIDER_ID, stencilaApiTokenEnvVar } from './authentication'
+import { PROVIDER_ID, stencilaApiKeyEnvVar } from './authentication'
 import { event } from './events'
 
 /**
@@ -191,7 +191,7 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
         }
       )
 
-      if (!stencilaApiTokenEnvVar) {
+      if (!stencilaApiKeyEnvVar) {
         // Add sign in/out commands based on whether there is a session or not
         const session = await vscode.authentication.getSession(
           PROVIDER_ID,
@@ -210,10 +210,9 @@ export function registerStatusBar(context: vscode.ExtensionContext) {
                   command: 'stencila.cloud.signin',
                 },
                 {
-                  label: '$(key) Sign In with Access Token',
-                  description:
-                    'Sign in to Stencila Cloud using an access token',
-                  command: 'stencila.cloud.signin-token',
+                  label: '$(key) Sign In with API Key',
+                  description: 'Sign in to Stencila Cloud using an API key',
+                  command: 'stencila.cloud.signin-key',
                 },
               ]
             : [

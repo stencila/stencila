@@ -46,7 +46,7 @@ docker:
 	cp ../target/debug/stencila cli/
 	npm run package
 	docker build . --tag stencila-vsix-test
-	echo "Run using something like: docker run -it --rm --publish 8080:3000 -eSTENCILA_API_TOKEN=... stencila-vsix-test"
+	echo "Run using something like: docker run -it --rm --publish 8080:3000 -eSTENCILA_API_KEY=... stencila-vsix-test"
 
 # Build the extension including installing the CLI
 build: install walkthroughs

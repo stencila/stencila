@@ -8,7 +8,7 @@ use eyre::{Result, eyre};
 use reqwest::Client;
 use serde::Deserialize;
 
-use crate::{api_token, base_url, check_response, process_response};
+use crate::{api_key, base_url, check_response, process_response};
 
 /// Result of an upload attempt
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -119,8 +119,8 @@ pub async fn upload_output(
     file: &Path,
     content_type: &str,
 ) -> Result<UploadResult> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
+    let token =
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
 
     let content = tokio::fs::read(file).await?;
 
@@ -180,8 +180,8 @@ pub async fn list_output_files(
     ref_type: Option<&str>,
     ref_name: Option<&str>,
 ) -> Result<Vec<OutputFile>> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
+    let token =
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
 
     let mut url = format!("{}/workspaces/{}/outputs/files", base_url(), workspace_id);
 
@@ -216,8 +216,8 @@ pub async fn list_output_files(
 /// List of refs that have output files, with file counts and sizes
 #[tracing::instrument]
 pub async fn list_output_refs(workspace_id: &str) -> Result<Vec<OutputRef>> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
+    let token =
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
 
     let url = format!("{}/workspaces/{}/outputs/refs", base_url(), workspace_id);
 
@@ -239,8 +239,8 @@ pub async fn list_output_refs(workspace_id: &str) -> Result<Vec<OutputRef>> {
 /// Outputs settings including enabled status and usage statistics
 #[tracing::instrument]
 pub async fn get_outputs_settings(workspace_id: &str) -> Result<OutputsSettings> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
+    let token =
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila cloud signin` first."))?;
 
     let url = format!("{}/workspaces/{}/outputs", base_url(), workspace_id);
 

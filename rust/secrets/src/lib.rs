@@ -67,6 +67,7 @@ pub const GOOGLE_AI_API_KEY: &str = "GOOGLE_AI_API_KEY";
 pub const GOOGLE_API_KEY: &str = "GOOGLE_API_KEY";
 pub const MISTRAL_API_KEY: &str = "MISTRAL_API_KEY";
 pub const OPENAI_API_KEY: &str = "OPENAI_API_KEY";
+pub const STENCILA_API_KEY: &str = "STENCILA_API_KEY";
 pub const STENCILA_API_TOKEN: &str = "STENCILA_API_TOKEN";
 pub const STENCILA_OAUTH_ANTHROPIC: &str = "STENCILA_OAUTH_ANTHROPIC";
 pub const STENCILA_OAUTH_COPILOT: &str = "STENCILA_OAUTH_COPILOT";
@@ -132,8 +133,8 @@ static SECRETS: LazyLock<Vec<Secret>> = LazyLock::new(|| {
         ),
         Secret::new(
             SecretCategory::AiApiKey,
-            STENCILA_API_TOKEN,
-            "Stencila API Token",
+            STENCILA_API_KEY,
+            "Stencila API Key",
             "Used for Stencila Cloud's model router and other services",
         ),
         Secret::new(
@@ -305,7 +306,10 @@ pub fn env_or_get(name: &str) -> Result<String> {
 pub fn delete(name: &str) -> Result<()> {
     tracing::trace!("Deleting secret `{name}`");
 
-    if !cfg!(test) && !SECRETS.iter().any(|secret| secret.name == name) {
+    if !cfg!(test)
+        && !SECRETS.iter().any(|secret| secret.name == name)
+        && name != STENCILA_API_TOKEN
+    {
         bail!("Only secrets used by Stencila can be deleted by Stencila")
     }
 

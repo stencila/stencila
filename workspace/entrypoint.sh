@@ -15,8 +15,10 @@ cleanup() {
         rm -f /tmp/stencila-status
     fi
 
-    # Only call the API if STENCILA_SESSION_ID and STENCILA_API_TOKEN are set
-    if [[ -n "${STENCILA_SESSION_ID:-}" && -n "${STENCILA_API_TOKEN:-}" ]]; then
+    local stencila_api_key="${STENCILA_API_KEY:-${STENCILA_API_TOKEN:-}}"
+
+    # Only call the API if STENCILA_SESSION_ID and a Stencila API key are set
+    if [[ -n "${STENCILA_SESSION_ID:-}" && -n "$stencila_api_key" ]]; then
         local api_url="${STENCILA_API_URL:-https://api.stencila.cloud}"
         local url="${api_url}/v1/sessions/${STENCILA_SESSION_ID}/finished?status=${status}"
         local max_attempts=3
@@ -27,7 +29,7 @@ cleanup() {
 
         while [[ $attempt -le $max_attempts ]]; do
             if curl -f -s -o /dev/null -X POST "$url" \
-                -H "Authorization: Bearer ${STENCILA_API_TOKEN}" \
+                -H "Authorization: Bearer ${stencila_api_key}" \
                 --connect-timeout 10 \
                 --max-time 30; then
                 success=true

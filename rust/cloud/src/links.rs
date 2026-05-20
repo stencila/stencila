@@ -96,7 +96,7 @@ pub fn link_json_url(public_id: &str) -> String {
 /// Write a JSON snapshot to a workspace and create a link.
 ///
 /// The body may be either a bare Stencila JSON node or a [`SnapshotEnvelope`].
-/// This uses the configured Stencila API token as a bearer token.
+/// This uses the configured Stencila API key as a bearer token.
 #[tracing::instrument(skip(snapshot))]
 pub async fn write_snapshot<T>(workspace_id: &str, snapshot: &T) -> Result<LinkSnapshotResponse>
 where
@@ -123,7 +123,7 @@ where
 /// Write a raw JSON snapshot body to a workspace and create a link.
 ///
 /// Use `encoding` when `body` is already gzip-compressed JSON. This uses the
-/// configured Stencila API token as a bearer token.
+/// configured Stencila API key as a bearer token.
 #[tracing::instrument(skip(body))]
 pub async fn write_snapshot_bytes(
     workspace_id: &str,
@@ -159,7 +159,7 @@ pub async fn write_snapshot_bytes_with_client(
 /// Write a pre-hashed JSON snapshot to a workspace.
 ///
 /// The API verifies that `sha256` matches the canonicalized snapshot hash. This
-/// uses the configured Stencila API token as a bearer token.
+/// uses the configured Stencila API key as a bearer token.
 #[tracing::instrument(skip(snapshot))]
 pub async fn write_prehashed_snapshot<T>(
     workspace_id: &str,
@@ -191,7 +191,7 @@ where
 /// Write a raw pre-hashed JSON snapshot body to a workspace.
 ///
 /// Use `encoding` when `body` is already gzip-compressed JSON. This uses the
-/// configured Stencila API token as a bearer token.
+/// configured Stencila API key as a bearer token.
 #[tracing::instrument(skip(body))]
 pub async fn write_prehashed_snapshot_bytes(
     workspace_id: &str,
@@ -230,7 +230,7 @@ pub async fn write_prehashed_snapshot_bytes_with_client(
 ///
 /// Returns `Ok(Some(metadata))` for `204 No Content`, `Ok(None)` for `404 Not
 /// Found`, and an error for other statuses. This uses the configured Stencila
-/// API token as a bearer token.
+/// API key as a bearer token.
 #[tracing::instrument]
 pub async fn check_snapshot(
     workspace_id: &str,
@@ -258,7 +258,7 @@ pub async fn check_snapshot_with_client(
 
 /// Read a JSON snapshot from a canonical link public ID.
 ///
-/// This uses the configured Stencila API token as a bearer token.
+/// This uses the configured Stencila API key as a bearer token.
 #[tracing::instrument]
 pub async fn read_snapshot(public_id: &str) -> Result<SnapshotEnvelope> {
     let client = client().await?;

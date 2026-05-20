@@ -9,9 +9,9 @@
  * However, this caused issues for some users on MacOS because they constantly
  * had to approve access to the keyring.
  *
- * Furthermore, when the user signs out from VSCode the STENCILA_API_TOKEN
- * is deleted on Stencila Cloud. If this token was passed down to the keyring
- * it should be deleted too, but then we might be deleting another token
+ * Furthermore, when the user signs out from VSCode the STENCILA_API_KEY
+ * is deleted on Stencila Cloud. If this key was passed down to the keyring
+ * it should be deleted too, but then we might be deleting another key
  * that the user explicitly set for the CLI to use.
  *
  * For these reasons we have isolated the two sets of secrets. Users can set
@@ -21,11 +21,15 @@
 
 import * as vscode from 'vscode'
 
-import { stencilaApiTokenEnvVar } from './authentication'
+import {
+  LEGACY_STENCILA_API_TOKEN,
+  STENCILA_API_KEY,
+  stencilaApiKeyEnvVar,
+} from './authentication'
 import { event } from './events'
 
 const SECRET_NAMES = [
-  'STENCILA_API_TOKEN',
+  STENCILA_API_KEY,
   'ANTHROPIC_API_KEY',
   'GOOGLE_AI_API_KEY',
   'OPENAI_API_KEY',
@@ -38,34 +42,42 @@ export async function collectSecrets(
   const secrets: Record<string, string> = {}
 
   // If the user has a Stencila Cloud auth session then
-  // use it's token as the STENCILA_API_TOKEN
-  if (stencilaApiTokenEnvVar) {
-    secrets['STENCILA_API_TOKEN'] = stencilaApiTokenEnvVar
+  // use its key as the STENCILA_API_KEY
+  if (stencilaApiKeyEnvVar) {
+    secrets[STENCILA_API_KEY] = stencilaApiKeyEnvVar
   } else {
     // Try to get stored sessions directly without triggering authentication
     // This avoids recursion during extension activation
     try {
       const storedSessions = await context.secrets.get('sessions')
       if (storedSessions) {
-        const sessions = JSON.parse(storedSessions) as Array<{accessToken: string}>
+        const sessions = JSON.parse(storedSessions) as Array<{
+          accessToken: string;
+        }>
         if (sessions.length > 0 && sessions[0].accessToken) {
-          secrets['STENCILA_API_TOKEN'] = sessions[0].accessToken
+          secrets[STENCILA_API_KEY] = sessions[0].accessToken
         }
       }
     } catch (_error) {
       // Silently ignore errors when reading stored sessions
-      // The token will be missing but extension can still activate
+      // The key will be missing but extension can still activate
     }
   }
 
   // Collect other secrets
-  // Note: if the STENCILA_API_TOKEN has been explicitly set then it will
-  // override the token value in the auth session. This is intentional.
+  // Note: if the STENCILA_API_KEY has been explicitly set then it will
+  // override the key value in the auth session. This is intentional.
   for (const name of SECRET_NAMES) {
     const value = await context.secrets.get(name)
     if (value) {
       secrets[name] = value
     }
+  }
+  const legacyStencilaApiToken = await context.secrets.get(
+    LEGACY_STENCILA_API_TOKEN
+  )
+  if (legacyStencilaApiToken && !secrets[STENCILA_API_KEY]) {
+    secrets[STENCILA_API_KEY] = legacyStencilaApiToken
   }
 
   return secrets

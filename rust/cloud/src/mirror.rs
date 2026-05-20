@@ -4,7 +4,7 @@ use reqwest::Client;
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
 use serde_json::{Map, Value};
 
-use crate::{api_token, base_url, client};
+use crate::{api_key, base_url, client};
 
 const LOCAL_MIRROR_URL: &str = "STENCILA_MIRROR_URL";
 
@@ -56,7 +56,7 @@ struct JsonRpcError {
 ///
 /// Set `STENCILA_MIRROR_URL` to call a locally running mirror directly. When
 /// unset, this calls the Stencila Cloud API at `/v1/mirror/rpc` using the
-/// configured Stencila API token.
+/// configured Stencila API key.
 pub async fn call<Params, Output, RemoteError>(
     method: &str,
     params: Params,
@@ -76,7 +76,7 @@ where
     let endpoint = endpoint();
     let response = if env::var(LOCAL_MIRROR_URL).is_ok() {
         let mut request_builder = Client::new().post(endpoint).json(&request);
-        if let Some(token) = api_token() {
+        if let Some(token) = api_key() {
             request_builder = request_builder.header("Authorization", format!("Bearer {token}"));
         }
         request_builder.send().await

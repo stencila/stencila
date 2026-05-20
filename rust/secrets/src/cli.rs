@@ -26,7 +26,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila secrets</>
 
   <dim># Set a secret interactively (prompts for value)</dim>
-  <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
+  <b>stencila secrets set</> <g>STENCILA_API_KEY</>
 
   <dim># Set a secret from stdin (pipe the value)</dim>
   <y>echo \"sk-abc123...\"</> <b>|</> <b>stencila secrets set</> <g>OPENAI_API_KEY</>
@@ -35,8 +35,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
 
   <dim># Use the add/remove aliases instead</dim>
-  <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
-  <b>stencila secrets remove</> <g>STENCILA_API_TOKEN</>
+  <b>stencila secrets add</> <g>STENCILA_API_KEY</>
+  <b>stencila secrets remove</> <g>STENCILA_API_KEY</>
 
 <bold><b>Security</b></bold>
   Secrets are stored securely using your system's keyring.
@@ -60,7 +60,7 @@ struct List;
 /// Set a secret used by Stencila
 ///
 /// You will be prompted for the secret. Alternatively, you can echo the
-/// password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
+/// password into this command i.e. `echo <KEY> | stencila secrets set STENCILA_API_KEY`
 #[derive(Debug, Args)]
 #[command(alias = "add", after_long_help = SET_AFTER_LONG_HELP)]
 struct Set {
@@ -77,13 +77,13 @@ pub static SET_AFTER_LONG_HELP: &str = cstr!(
   <dim># Set a secret from stdin</dim>
   <y>echo \"sk-abc123...\"</> <b>|</> <b>stencila secrets set</> <g>OPENAI_API_KEY</>
 
-  <dim># Set API tokens for different services</dim>
+  <dim># Set API keys for different services</dim>
   <b>stencila secrets set</> <g>ANTHROPIC_API_KEY</>
   <b>stencila secrets set</> <g>GOOGLE_AI_API_KEY</>
-  <b>stencila secrets set</> <g>STENCILA_API_TOKEN</>
+  <b>stencila secrets set</> <g>STENCILA_API_KEY</>
 
   <dim># Use the add alias instead</dim>
-  <b>stencila secrets add</> <g>STENCILA_API_TOKEN</>
+  <b>stencila secrets add</> <g>STENCILA_API_KEY</>
 
 <bold><b>Security</b></bold>
   When setting secrets interactively, your input will be
@@ -106,7 +106,7 @@ pub static DELETE_AFTER_LONG_HELP: &str = cstr!(
   <dim># Delete a specific secret</dim>
   <b>stencila secrets delete</> <g>OPENAI_API_KEY</>
 
-  <dim># Delete API tokens</dim>
+  <dim># Delete API keys</dim>
   <b>stencila secrets delete</> <g>ANTHROPIC_API_KEY</>
   <b>stencila secrets delete</> <g>GOOGLE_AI_API_KEY</>
 

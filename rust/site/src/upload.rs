@@ -22,7 +22,7 @@ use tokio::{
 use walkdir::WalkDir;
 
 use stencila_cloud::sites::{get_etags, reconcile_prefix};
-use stencila_cloud::{api_token, base_url, check_response};
+use stencila_cloud::{api_key, base_url, check_response};
 use stencila_codec_utils::{get_current_branch, git_repo_info, slugify_branch_name};
 
 /// Result of an upload operation
@@ -191,8 +191,8 @@ pub async fn upload(
     // Now that prep work is done, signal we're starting actual uploads
     send_progress!(UploadProgress::Starting { total });
 
-    // Get API token once for all uploads
-    let token = api_token().ok_or_else(|| eyre!("No API token. Run `stencila signin` first."))?;
+    // Get API key once for all uploads
+    let token = api_key().ok_or_else(|| eyre!("No API key. Run `stencila signin` first."))?;
 
     // Create a single HTTP client for connection reuse
     let client = Client::new();

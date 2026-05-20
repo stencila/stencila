@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::skip_serializing_none;
 use url::Url;
 
-use crate::{api_token, base_url, check_response, process_response};
+use crate::{api_key, base_url, check_response, process_response};
 
 /// Helper to get the site URL
 ///
@@ -79,8 +79,8 @@ pub struct DomainStatusResponse {
 /// and timestamps.
 #[tracing::instrument]
 pub async fn get_site(workspace_id: &str) -> Result<SiteDetails> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Fetching site details for {workspace_id}");
     let client = Client::new();
@@ -146,8 +146,8 @@ pub async fn last_modified(url: &Url) -> Result<u64> {
 /// for all files stored in the bucket for this branch.
 #[tracing::instrument]
 pub async fn get_etags(workspace_id: &str, branch_slug: &str) -> Result<HashMap<String, String>> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Getting all ETags for branch {branch_slug}");
 
@@ -205,8 +205,8 @@ pub async fn reconcile_prefix(
     prefix: &str,
     current_files: Vec<String>,
 ) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!(
         "Reconciling prefix {prefix} with {} files",
@@ -259,8 +259,8 @@ pub async fn update_site_access(
     password: Option<Option<&str>>,
     access_restrict_main: Option<bool>,
 ) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Updating access settings for site {workspace_id}");
 
@@ -321,8 +321,8 @@ pub async fn update_site_reviews(
     allow_public: Option<bool>,
     allow_anonymous: Option<bool>,
 ) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Updating reviews settings for site {workspace_id}");
 
@@ -365,8 +365,8 @@ pub async fn update_site_reviews(
 /// * `domain` - The custom domain to set (e.g., "example.com")
 #[tracing::instrument]
 pub async fn set_site_domain(workspace_id: &str, domain: &str) -> Result<DomainSetResponse> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Setting domain for site {workspace_id}");
 
@@ -398,8 +398,8 @@ pub async fn set_site_domain(workspace_id: &str, domain: &str) -> Result<DomainS
 /// * `workspace_id` - The site identifier
 #[tracing::instrument]
 pub async fn get_site_domain_status(workspace_id: &str) -> Result<DomainStatusResponse> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Getting domain status for site {workspace_id}");
 
@@ -426,8 +426,8 @@ pub async fn get_site_domain_status(workspace_id: &str) -> Result<DomainStatusRe
 /// * `workspace_id` - The site identifier
 #[tracing::instrument]
 pub async fn delete_site_domain(workspace_id: &str) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Deleting domain for site {workspace_id}");
 
@@ -471,8 +471,8 @@ pub struct BranchInfo {
 /// * `workspace_id` - The site identifier
 #[tracing::instrument]
 pub async fn list_site_branches(workspace_id: &str) -> Result<Vec<BranchInfo>> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Listing branches for site {workspace_id}");
 
@@ -503,8 +503,8 @@ pub async fn list_site_branches(workspace_id: &str) -> Result<Vec<BranchInfo>> {
 /// * `branch_slug` - The branch name to delete
 #[tracing::instrument]
 pub async fn delete_site_branch(workspace_id: &str, branch_slug: &str) -> Result<()> {
-    let token = api_token()
-        .ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or keychain entry found. Please set your API token."))?;
+    let token = api_key()
+        .ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or keychain entry found. Please set your API key."))?;
 
     tracing::debug!("Deleting branch {branch_slug} for site {workspace_id}");
 

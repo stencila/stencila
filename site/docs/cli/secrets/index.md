@@ -18,7 +18,7 @@ stencila secrets [COMMAND]
 stencila secrets
 
 # Set a secret interactively (prompts for value)
-stencila secrets set STENCILA_API_TOKEN
+stencila secrets set STENCILA_API_KEY
 
 # Set a secret from stdin (pipe the value)
 echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
@@ -27,8 +27,8 @@ echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
 stencila secrets delete ANTHROPIC_API_KEY
 
 # Use the add/remove aliases instead
-stencila secrets add STENCILA_API_TOKEN
-stencila secrets remove STENCILA_API_TOKEN
+stencila secrets add STENCILA_API_KEY
+stencila secrets remove STENCILA_API_KEY
 
 Security
 Secrets are stored securely using your system's keyring.

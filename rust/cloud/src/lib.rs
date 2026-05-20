@@ -1,7 +1,7 @@
 use std::{env, sync::OnceLock};
 
 use cached::proc_macro::cached;
-use eyre::{Result, bail, eyre};
+use eyre::{Context, Result, bail, eyre};
 use reqwest::{
     Client,
     header::{AUTHORIZATION, HeaderMap, HeaderValue},
@@ -56,74 +56,125 @@ pub fn base_url() -> String {
     env::var("STENCILA_API_URL").unwrap_or_else(|_| BASE_URL.to_string())
 }
 
-/// The name of the env var or secret for the Stencila API token
-const API_TOKEN_NAME: &str = "STENCILA_API_TOKEN";
+/// The name of the env var or secret for the Stencila API key.
+const API_KEY_NAME: &str = "STENCILA_API_KEY";
 
-/// The API token value.
+/// The previous name of the env var or secret for the Stencila API key.
+const LEGACY_API_TOKEN_NAME: &str = "STENCILA_API_TOKEN";
+
+/// The API key value.
 ///
 /// Stored to on first successful get to avoid repeated access
 /// to secrets (which is relatively slow). Note that this means
-/// that if the token is changed in the secrets store that the
+/// that if the key is changed in the secrets store that the
 /// process will need to be restarted for changes to take effect.
-static API_TOKEN: OnceLock<String> = OnceLock::new();
+static API_KEY: OnceLock<String> = OnceLock::new();
 
-/// Get the API token for the Stencila Cloud API
+/// Get the API key for the Stencila Cloud API
 ///
 /// This function is cached (with short TTL) to avoid repeated attempts to get
-/// the secret if not set. Otherwise ,this function would be called for each
+/// the secret if not set. Otherwise, this function would be called for each
 /// model in the list of models to calculate the `availability` method.
-#[cached(time = 15, name = "API_TOKEN_GET")]
+#[cached(time = 15, name = "API_KEY_GET")]
 #[tracing::instrument]
-pub fn api_token() -> Option<String> {
-    API_TOKEN.get().cloned().or_else(|| {
-        stencila_secrets::env_or_get(API_TOKEN_NAME)
-            .ok()
-            .inspect(|token| {
-                // If we successfully retrieved the token, store it for future use
-                API_TOKEN.set(token.clone()).ok();
-            })
+pub fn api_key() -> Option<String> {
+    API_KEY.get().cloned().or_else(|| {
+        get_api_key_value().ok().inspect(|key| {
+            // If we successfully retrieved the key, store it for future use
+            API_KEY.set(key.clone()).ok();
+        })
     })
+}
+
+/// Get the API key for the Stencila Cloud API.
+///
+/// Retained for callers that have not yet been migrated to [`api_key`].
+pub fn api_token() -> Option<String> {
+    api_key()
+}
+
+fn get_api_key_value() -> Result<String> {
+    if let Ok(key) = env::var(API_KEY_NAME) {
+        return Ok(key);
+    }
+    if let Ok(key) = env::var(LEGACY_API_TOKEN_NAME) {
+        return Ok(key);
+    }
+
+    stencila_secrets::get(API_KEY_NAME)
+        .or_else(|_| stencila_secrets::get(LEGACY_API_TOKEN_NAME))
+        .wrap_err_with(|| {
+            format!(
+                "Secret {API_KEY_NAME} is not available as an environment variable or on the keyring"
+            )
+        })
 }
 
 /// Sign in to Stencila Cloud
 ///
-/// Sets the API token on the keyring;
-pub fn signin(token: &str) -> Result<Status> {
-    stencila_secrets::set(API_TOKEN_NAME, token)?;
-    API_TOKEN.set(token.into()).map_err(|error| eyre!(error))?;
+/// Sets the API key on the keyring.
+pub fn signin(key: &str) -> Result<Status> {
+    stencila_secrets::set(API_KEY_NAME, key)?;
+    API_KEY.set(key.into()).ok();
 
     Ok(status())
 }
 
 /// Sign out from Stencila Cloud
 ///
-/// Removes the API token from the keyring. Returns the status BEFORE removal so
+/// Removes the API key from the keyring. Returns the status BEFORE removal so
 /// the user can be provided with appropriate messaging.
 pub fn signout() -> Result<Status> {
     let status = status();
-    if matches!(status.token_source, Some(TokenSource::Keyring)) {
-        stencila_secrets::delete(API_TOKEN_NAME)?
+    if matches!(status.key_source, Some(KeySource::Keyring))
+        && let Some(key_name) = status.key_name
+    {
+        stencila_secrets::delete(key_name)?
     }
     Ok(status)
 }
 
 /// Get the Stencila Cloud authentication status
 pub fn status() -> Status {
-    let token = env::var(API_TOKEN_NAME).ok().map(stencila_secrets::redact);
-    if token.is_some() {
+    let key = env::var(API_KEY_NAME).ok().map(stencila_secrets::redact);
+    if key.is_some() {
         return Status {
-            token,
-            token_source: Some(TokenSource::EnvVar),
+            key,
+            key_source: Some(KeySource::EnvVar),
+            key_name: Some(API_KEY_NAME),
         };
     }
 
-    let token = stencila_secrets::get(API_TOKEN_NAME)
+    let key = env::var(LEGACY_API_TOKEN_NAME)
         .ok()
         .map(stencila_secrets::redact);
-    if token.is_some() {
+    if key.is_some() {
         return Status {
-            token,
-            token_source: Some(TokenSource::Keyring),
+            key,
+            key_source: Some(KeySource::EnvVar),
+            key_name: Some(LEGACY_API_TOKEN_NAME),
+        };
+    }
+
+    let key = stencila_secrets::get(API_KEY_NAME)
+        .ok()
+        .map(stencila_secrets::redact);
+    if key.is_some() {
+        return Status {
+            key,
+            key_source: Some(KeySource::Keyring),
+            key_name: Some(API_KEY_NAME),
+        };
+    }
+
+    let key = stencila_secrets::get(LEGACY_API_TOKEN_NAME)
+        .ok()
+        .map(stencila_secrets::redact);
+    if key.is_some() {
+        return Status {
+            key,
+            key_source: Some(KeySource::Keyring),
+            key_name: Some(LEGACY_API_TOKEN_NAME),
         };
     }
 
@@ -132,23 +183,26 @@ pub fn status() -> Status {
 
 #[derive(Default)]
 pub struct Status {
-    /// The current Stencila Cloud API token (partially redacted)
-    pub token: Option<String>,
+    /// The current Stencila Cloud API key (partially redacted)
+    pub key: Option<String>,
 
-    /// The source of the API token
-    pub token_source: Option<TokenSource>,
+    /// The source of the API key
+    pub key_source: Option<KeySource>,
+
+    /// The name of the env var or secret containing the API key
+    pub key_name: Option<&'static str>,
 }
 
-/// The source of the current API token
+/// The source of the current API key
 #[derive(Display)]
-pub enum TokenSource {
+pub enum KeySource {
     #[strum(serialize = "keyring")]
     Keyring,
     #[strum(serialize = "environment variable")]
     EnvVar,
 }
 
-/// A request to swap a one-time code for an API token
+/// A request to swap a one-time code for an API key
 #[derive(Serialize)]
 pub struct OtcRequest {
     pub otc: String,
@@ -157,7 +211,8 @@ pub struct OtcRequest {
 /// A response to an [`OtcRequest`]
 #[derive(Deserialize)]
 pub struct OtcResponse {
-    pub token: String,
+    #[serde(alias = "token")]
+    pub key: String,
 
     #[serde(rename = "userId")]
     pub user_id: Option<String>,
@@ -246,13 +301,13 @@ pub async fn process_response<T: DeserializeOwned>(response: reqwest::Response) 
     })
 }
 
-/// Build an authenticated client for the Stencila Cloud API with an explicit token.
-pub fn client_with_api_token(token: &str) -> Result<Client> {
+/// Build an authenticated client for the Stencila Cloud API with an explicit API key.
+pub fn client_with_api_key(key: &str) -> Result<Client> {
     let client = Client::builder()
         .user_agent(STENCILA_USER_AGENT)
         .default_headers(HeaderMap::from_iter([(
             AUTHORIZATION,
-            HeaderValue::from_str(&format!("Bearer {token}"))?,
+            HeaderValue::from_str(&format!("Bearer {key}"))?,
         )]))
         .build()?;
 
@@ -261,11 +316,11 @@ pub fn client_with_api_token(token: &str) -> Result<Client> {
 
 /// Build an authenticated client for the Stencila Cloud API
 pub async fn client() -> Result<Client> {
-    let Some(token) = api_token() else {
+    let Some(key) = api_key() else {
         bail!("Please *stencila signin* first and try again.")
     };
 
-    client_with_api_token(&token)
+    client_with_api_key(&key)
 }
 
 /// Build an unauthenticated client for the Stencila Cloud API

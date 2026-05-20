@@ -71,7 +71,7 @@ impl Model for StencilaModel {
     }
 
     fn availability(&self) -> ModelAvailability {
-        stencila_cloud::api_token()
+        stencila_cloud::api_key()
             .as_ref()
             .map(|_| ModelAvailability::Available)
             .unwrap_or(ModelAvailability::RequiresKey)
@@ -98,7 +98,7 @@ impl Model for StencilaModel {
     }
 
     async fn perform_task(&self, task: &ModelTask) -> Result<ModelOutput> {
-        let token = stencila_cloud::api_token().ok_or_else(|| eyre!("No STENCILA_API_TOKEN environment variable or key chain entry found. Get one at https://stencila.cloud/."))?;
+        let token = stencila_cloud::api_key().ok_or_else(|| eyre!("No STENCILA_API_KEY environment variable or key chain entry found. Get one at https://stencila.cloud/account/api-keys."))?;
 
         if task.dry_run {
             return Ok(ModelOutput::empty(self));
@@ -186,7 +186,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_router() -> Result<()> {
-        if stencila_cloud::api_token().is_none() {
+        if stencila_cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -203,7 +203,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_anthropic() -> Result<()> {
-        if stencila_cloud::api_token().is_none() {
+        if stencila_cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -220,7 +220,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_google() -> Result<()> {
-        if stencila_cloud::api_token().is_none() {
+        if stencila_cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -237,7 +237,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_mistral() -> Result<()> {
-        if stencila_cloud::api_token().is_none() {
+        if stencila_cloud::api_key().is_none() {
             return Ok(());
         }
 
@@ -254,7 +254,7 @@ mod tests {
 
     #[tokio::test]
     async fn perform_task_openai() -> Result<()> {
-        if stencila_cloud::api_token().is_none() {
+        if stencila_cloud::api_key().is_none() {
             return Ok(());
         }
 

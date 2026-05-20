@@ -232,7 +232,7 @@ pub struct CredentialCloudSigningConfig {
     /// signing extension and the C2PA Soft Binding Resolution API routes.
     pub base_url: String,
 
-    /// Optional bearer token for authenticated Cloud signing.
+    /// Optional bearer API key for authenticated Cloud signing.
     pub token: Option<String>,
 
     /// Whether the Cloud service should also store the manifest and register a
@@ -248,7 +248,8 @@ impl CredentialCloudSigningConfig {
     #[must_use]
     pub fn resolve() -> Self {
         let base_url = env::var(ENV_CLOUD_URL).unwrap_or_else(|_| DEFAULT_CLOUD_URL.to_string());
-        let token = stencila_secrets::env_or_get(stencila_secrets::STENCILA_API_TOKEN)
+        let token = stencila_secrets::env_or_get(stencila_secrets::STENCILA_API_KEY)
+            .or_else(|_| stencila_secrets::env_or_get(stencila_secrets::STENCILA_API_TOKEN))
             .ok()
             .filter(|token| !token.trim().is_empty());
 
@@ -266,7 +267,7 @@ impl CredentialCloudSigningConfig {
         self
     }
 
-    /// Use a bearer token for Cloud signing.
+    /// Use a bearer API key for Cloud signing.
     #[must_use]
     pub fn with_token(mut self, token: impl Into<String>) -> Self {
         self.token = Some(token.into());
@@ -386,7 +387,7 @@ impl CredentialSigningConfig {
     ///
     /// # Errors
     ///
-    /// Returns an error if no Stencila Cloud API token is available.
+    /// Returns an error if no Stencila Cloud API key is available.
     pub fn resolve_cloud() -> Result<Self> {
         let cloud = CredentialCloudSigningConfig::resolve();
         cloud.require_authenticated()?;

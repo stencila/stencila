@@ -8,11 +8,22 @@ export const PROVIDER_ID = 'stencila'
 // http://localhost:5173 and http://localhost:8787/v1
 const CLOUD_URL = 'https://stencila.cloud'
 const API_URL = 'https://api.stencila.cloud/v1'
+export const STENCILA_API_KEY = 'STENCILA_API_KEY'
+export const LEGACY_STENCILA_API_TOKEN = 'STENCILA_API_TOKEN'
 
-// The presence of the `STENCILA_API_TOKEN` env var is used to
+// The presence of the `STENCILA_API_KEY` env var is used to
 // determine whether or not to register authentication provider
 // and let the user know if they try to use other signin/signout commands
-export const stencilaApiTokenEnvVar = process.env.STENCILA_API_TOKEN
+const stencilaApiKeyEnvVarValue = process.env[STENCILA_API_KEY]
+const legacyStencilaApiTokenEnvVarValue =
+  process.env[LEGACY_STENCILA_API_TOKEN]
+export const stencilaApiKeyEnvVarName = stencilaApiKeyEnvVarValue
+  ? STENCILA_API_KEY
+  : legacyStencilaApiTokenEnvVarValue
+    ? LEGACY_STENCILA_API_TOKEN
+    : undefined
+export const stencilaApiKeyEnvVar =
+  stencilaApiKeyEnvVarValue ?? legacyStencilaApiTokenEnvVarValue
 
 /**
  * Register the Stencila Cloud authentication provider
@@ -20,7 +31,7 @@ export const stencilaApiTokenEnvVar = process.env.STENCILA_API_TOKEN
 export function registerAuthenticationProvider(
   context: vscode.ExtensionContext
 ) {
-  if (!stencilaApiTokenEnvVar) {
+  if (!stencilaApiKeyEnvVar) {
     context.subscriptions.push(
       vscode.authentication.registerAuthenticationProvider(
         PROVIDER_ID,
@@ -33,9 +44,9 @@ export function registerAuthenticationProvider(
 
   context.subscriptions.push(
     vscode.commands.registerCommand('stencila.cloud.signin', async () => {
-      if (stencilaApiTokenEnvVar) {
+      if (stencilaApiKeyEnvVar) {
         return await vscode.window.showInformationMessage(
-          `Already signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable`
+          `Already signed in to Stencila Cloud using ${stencilaApiKeyEnvVarName} environment variable`
         )
       }
 
@@ -66,16 +77,16 @@ export function registerAuthenticationProvider(
   )
 
   context.subscriptions.push(
-    vscode.commands.registerCommand('stencila.cloud.signin-token', async () => {
-      if (stencilaApiTokenEnvVar) {
+    vscode.commands.registerCommand('stencila.cloud.signin-key', async () => {
+      if (stencilaApiKeyEnvVar) {
         return await vscode.window.showInformationMessage(
-          `Already signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable`
+          `Already signed in to Stencila Cloud using ${stencilaApiKeyEnvVarName} environment variable`
         )
       }
 
-      // Ask user to input the token value
+      // Ask user to input the API key value
       const secretValue = await vscode.window.showInputBox({
-        prompt: `Enter an Access Token from your Stencila Cloud account`,
+        prompt: `Enter an API Key from ${CLOUD_URL}/account/api-keys`,
         password: true,
       })
 
@@ -84,20 +95,26 @@ export function registerAuthenticationProvider(
       }
 
       // Store the secret
-      await context.secrets.store('STENCILA_API_TOKEN', secretValue)
+      await context.secrets.store(STENCILA_API_KEY, secretValue)
       vscode.window.showInformationMessage(
-        `STENCILA_API_TOKEN set. Restart Stencila Language Server for change to take effect.`
+        `${STENCILA_API_KEY} set. Restart Stencila Language Server for change to take effect.`
       )
 
-      event('cloud_token_set')
+      event('cloud_api_key_set')
+    })
+  )
+
+  context.subscriptions.push(
+    vscode.commands.registerCommand('stencila.cloud.signin-token', async () => {
+      await vscode.commands.executeCommand('stencila.cloud.signin-key')
     })
   )
 
   context.subscriptions.push(
     vscode.commands.registerCommand('stencila.cloud.signout', async () => {
-      if (stencilaApiTokenEnvVar) {
+      if (stencilaApiKeyEnvVar) {
         return vscode.window.showInformationMessage(
-          `Signed in to Stencila Cloud using STENCILA_API_TOKEN environment variable. Remove it to sign out.`
+          `Signed in to Stencila Cloud using ${stencilaApiKeyEnvVarName} environment variable. Remove it to sign out.`
         )
       }
 
@@ -191,40 +208,41 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       throw new Error('No one-time code received by callback')
     }
 
-    // Swap the code for the API token
-    const tokenResponse = await fetch(`${API_URL}/access-tokens/otc`, {
+    // Swap the code for the API key
+    const keyResponse = await fetch(`${API_URL}/api-keys/otc`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ otc }),
     })
-    if (!tokenResponse.ok) {
+    if (!keyResponse.ok) {
       let message
       try {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const error: any = await tokenResponse.json()
+        const error: any = await keyResponse.json()
         message = error?.message ?? error?.error ?? JSON.stringify(error)
       } catch {
-        message = `HTTP error status: ${tokenResponse.status}`
+        message = `HTTP error status: ${keyResponse.status}`
       }
       throw new Error(message)
     }
 
     // Check if the required properties exist in the response
-    const { token, userId } = (await tokenResponse.json()) as {
-      token: string;
+    const { key, token, userId } = (await keyResponse.json()) as {
+      key?: string;
+      token?: string;
       userId: string;
     }
-    if (!token || !userId) {
-      throw new Error('Invalid response: missing token or userId')
+    const apiKey = key ?? token
+    if (!apiKey || !userId) {
+      throw new Error('Invalid response: missing API key or userId')
     }
 
-    // Get the user from the user_id. This also checks that the
-    // access_token is valid
+    // Get the user from the user_id. This also checks that the API key is valid.
     const userResponse = await fetch(`${API_URL}/users/me`, {
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${apiKey}`,
         'Content-Type': 'application/json',
       },
     })
@@ -257,7 +275,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
     // Create, store, emit and return session
     const session: vscode.AuthenticationSession = {
       id: userId,
-      accessToken: token,
+      accessToken: apiKey,
       account: {
         id: userId,
         label: userLabel,
@@ -273,7 +291,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       changed: [],
     })
 
-    // Note: LSP will pick up the new token on next restart or when collectSecrets is called
+    // Note: LSP will pick up the new API key on next restart or when collectSecrets is called
     // We don't automatically restart here to avoid restart loops during activation
 
     return session
@@ -289,16 +307,19 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       return
     }
 
-    const token = session?.accessToken
-    if (token) {
-      // Delete the access token on Stencila Cloud
-      const response = await fetch(`${API_URL}/access-tokens/token/${token}`, {
-        method: 'DELETE',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      })
+    const apiKey = session?.accessToken
+    if (apiKey) {
+      // Delete the API key on Stencila Cloud
+      const response = await fetch(
+        `${API_URL}/api-keys/key/${encodeURIComponent(apiKey)}`,
+        {
+          method: 'DELETE',
+          headers: {
+            Authorization: `Bearer ${apiKey}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      )
       if (!response.ok) {
         let message
         try {
@@ -308,9 +329,9 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
         } catch {
           message = `HTTP error status: ${response.status}`
         }
-        // Do not throw here so that token is removed and signout completed
+        // Do not throw here so that the key is removed locally and signout completed
         vscode.window.showWarningMessage(
-          `While deleting access token: ${message}`
+          `While deleting API key: ${message}`
         )
       }
     }
@@ -330,7 +351,7 @@ export class StencilaCloudProvider implements vscode.AuthenticationProvider {
       changed: [],
     })
 
-    // Note: LSP will pick up the token removal on next restart or when collectSecrets is called
+    // Note: LSP will pick up the key removal on next restart or when collectSecrets is called
     // We don't automatically restart here to avoid restart loops during activation
   }
 }

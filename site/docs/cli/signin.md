@@ -29,4 +29,4 @@ stencila login
 
 | Name           | Description                                                                            |
 | -------------- | -------------------------------------------------------------------------------------- |
-| `-m, --manual` | Signin by manually entering a Stencila access token. Possible values: `true`, `false`. |
+| `-m, --manual` | Signin by manually entering a Stencila API key. Possible values: `true`, `false`. |

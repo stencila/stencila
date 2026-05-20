@@ -50,7 +50,7 @@ pub async fn callback(
     };
 
     let Ok(response) = Client::new()
-        .post(format!("{}/access-tokens/otc", stencila_cloud::base_url()))
+        .post(format!("{}/api-keys/otc", stencila_cloud::base_url()))
         .header("Content-Type", "application/json")
         .json(&stencila_cloud::OtcRequest { otc })
         .send()
@@ -71,20 +71,20 @@ pub async fn callback(
             }
         };
 
-    if response.token.is_empty() {
+    if response.key.is_empty() {
         return (
             StatusCode::UNAUTHORIZED,
-            "Invalid one-time code response: missing token",
+            "Invalid one-time code response: missing API key",
         )
             .into_response();
     }
 
-    if let Err(error) = stencila_cloud::signin(&response.token) {
-        tracing::error!("Unable to sign in using token: {error}");
+    if let Err(error) = stencila_cloud::signin(&response.key) {
+        tracing::error!("Unable to sign in using API key: {error}");
 
         return (
             StatusCode::INTERNAL_SERVER_ERROR,
-            "Unable to sign in using token",
+            "Unable to sign in using API key",
         )
             .into_response();
     }

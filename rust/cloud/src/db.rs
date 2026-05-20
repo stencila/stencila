@@ -9,7 +9,7 @@ use eyre::{Result, bail, eyre};
 use reqwest::Client;
 use serde::Deserialize;
 
-use crate::{api_token, base_url, check_response};
+use crate::{api_key, base_url, check_response};
 use stencila_version::STENCILA_USER_AGENT;
 
 /// Progress callback for blob downloads: `(bytes_received, total_bytes)`.
@@ -72,7 +72,7 @@ pub async fn upload_blob_with_progress(
     use futures::stream;
 
     let token =
-        api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
     let url = blob_url(workspace_id, kind, hash);
     let total_len = data.len();
@@ -148,7 +148,7 @@ pub async fn download_blob_with_progress(
     on_progress: Option<Arc<ProgressCallback>>,
 ) -> Result<Vec<u8>> {
     let token =
-        api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
     let url = blob_url(workspace_id, kind, hash);
 
@@ -210,7 +210,7 @@ const BLOB_LIST_MAX_PAGES: u64 = 1000;
 #[tracing::instrument]
 pub async fn list_blobs(workspace_id: &str, kind: &str) -> Result<Vec<String>> {
     let token =
-        api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
     let base_url = blob_list_url(workspace_id, kind);
     let client = Client::builder().user_agent(STENCILA_USER_AGENT).build()?;
@@ -255,7 +255,7 @@ pub async fn list_blobs(workspace_id: &str, kind: &str) -> Result<Vec<String>> {
 #[tracing::instrument]
 pub async fn delete_blob(workspace_id: &str, kind: &str, hash: &str) -> Result<()> {
     let token =
-        api_token().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
+        api_key().ok_or_else(|| eyre!("Not authenticated. Run `stencila signin` first."))?;
 
     let url = blob_url(workspace_id, kind, hash);
 

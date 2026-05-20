@@ -5,7 +5,7 @@ description: Set a secret used by Stencila
 
 Set a secret used by Stencila
 
-You will be prompted for the secret. Alternatively, you can echo the password into this command i.e. `echo <TOKEN> | stencila secrets set STENCILA_API_TOKEN`
+You will be prompted for the secret. Alternatively, you can echo the password into this command i.e. `echo <KEY> | stencila secrets set STENCILA_API_KEY`
 
 # Usage
 
@@ -22,13 +22,13 @@ stencila secrets set OPENAI_API_KEY
 # Set a secret from stdin
 echo "sk-abc123..." | stencila secrets set OPENAI_API_KEY
 
-# Set API tokens for different services
+# Set API keys for different services
 stencila secrets set ANTHROPIC_API_KEY
 stencila secrets set GOOGLE_AI_API_KEY
-stencila secrets set STENCILA_API_TOKEN
+stencila secrets set STENCILA_API_KEY
 
 # Use the add alias instead
-stencila secrets add STENCILA_API_TOKEN
+stencila secrets add STENCILA_API_KEY
 
 Security
 When setting secrets interactively, your input will be

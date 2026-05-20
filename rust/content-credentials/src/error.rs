@@ -41,7 +41,7 @@ pub enum Error {
     NoSignerConfigured,
 
     #[error(
-        "Stencila Cloud signing requires authentication; run `stencila cloud signin` or set STENCILA_API_TOKEN"
+        "Stencila Cloud signing requires authentication; run `stencila cloud signin` or set STENCILA_API_KEY"
     )]
     CloudSigningUnauthenticated,
 

@@ -17,7 +17,7 @@ stencila secrets delete <NAME>
 # Delete a specific secret
 stencila secrets delete OPENAI_API_KEY
 
-# Delete API tokens
+# Delete API keys
 stencila secrets delete ANTHROPIC_API_KEY
 stencila secrets delete GOOGLE_AI_API_KEY
 

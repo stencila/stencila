@@ -58,14 +58,14 @@ POST https://c2pa.stencila.cloud/v1/sign
 This `/v1/sign` route is a Stencila extension hosted beside the C2PA Soft
 Binding Resolution API. It is not part of the official C2PA API.
 
-Cloud signing requires a Stencila Cloud API token, normally provided by signing
+Cloud signing requires a Stencila Cloud API key, normally provided by signing
 in to Stencila Cloud:
 
 ```sh
 stencila cloud signin
 ```
 
-You can also provide `STENCILA_API_TOKEN` through the environment or Stencila
+You can also provide `STENCILA_API_KEY` through the environment or Stencila
 secrets. `STENCILA_C2PA_URL` can override the C2PA service base URL for testing
 or deployment-specific routing.
 

@@ -9,7 +9,7 @@ use stencila_cli_utils::{
     color_print::{cformat, cstr},
     message,
 };
-use stencila_cloud::TokenSource;
+use stencila_cloud::KeySource;
 use stencila_server::{ServeOptions, ServerStarted, get_server_token};
 
 /// Manage Stencila Cloud account
@@ -81,11 +81,11 @@ impl Status {
     async fn run(self) -> Result<()> {
         let status = stencila_cloud::status();
 
-        match (status.token, status.token_source) {
-            (Some(redacted_token), Some(source)) => {
+        match (status.key, status.key_source) {
+            (Some(redacted_key), Some(source)) => {
                 message!(
-                    "✅ Signed in to Stencila Cloud\n Access token: {} (set via {})\n",
-                    redacted_token,
+                    "✅ Signed in to Stencila Cloud\n API key: {} (set via {})\n",
+                    redacted_key,
                     source
                 );
                 message("💡 To sign out, run *stencila signout*");
@@ -107,7 +107,7 @@ impl Status {
 #[derive(Debug, Args)]
 #[command(alias = "login", after_long_help = SIGNIN_AFTER_LONG_HELP)]
 pub struct Signin {
-    /// Signin by manually entering a Stencila access token
+    /// Signin by manually entering a Stencila API key
     #[arg(long, short)]
     manual: bool,
 }
@@ -129,21 +129,21 @@ pub static SIGNIN_AFTER_LONG_HELP: &str = cstr!(
 impl Signin {
     pub async fn run(self) -> Result<()> {
         if self.manual {
-            let token = ask_for_password(cstr!(
-                "Enter an access token from <b>https://stencila.cloud/access-tokens</>"
+            let key = ask_for_password(cstr!(
+                "Enter an API key from <b>https://stencila.cloud/account/api-keys</>"
             ))
             .await?;
-            stencila_cloud::signin(&token)?;
+            stencila_cloud::signin(&key)?;
 
             return Ok(());
         }
 
-        // Get (or generate) an access token so it can be included in the URL
+        // Get (or generate) a server token so it can be included in the URL
         let server_token = get_server_token();
 
         let (started_tx, started_rx) = oneshot::channel::<ServerStarted>();
 
-        // Serve with access token
+        // Serve with server token
         let options = ServeOptions {
             server_token: Some(server_token.clone()),
             no_startup_message: true,
@@ -203,16 +203,17 @@ pub static SIGNOUT_AFTER_LONG_HELP: &str = cstr!(
 impl Signout {
     pub async fn run(self) -> Result<()> {
         let status_before = stencila_cloud::signout()?;
+        let key_name = status_before.key_name.unwrap_or("STENCILA_API_KEY");
 
-        match (status_before.token, status_before.token_source) {
-            (Some(_), Some(TokenSource::Keyring)) => {
-                message("✅ Signed out from Stencila Cloud\n Access token removed from keyring")
+        match (status_before.key, status_before.key_source) {
+            (Some(_), Some(KeySource::Keyring)) => {
+                message("✅ Signed out from Stencila Cloud\n API key removed from keyring")
             }
-            (Some(_), Some(TokenSource::EnvVar)) => {
-                message("⚠️ Cannot sign out: token is set via environment variable.\n");
-                message(
-                    "💡 To sign out, remove the `STENCILA_API_TOKEN` environment variable from your shell profile or system environment.",
-                )
+            (Some(_), Some(KeySource::EnvVar)) => {
+                message("⚠️ Cannot sign out: API key is set via environment variable.\n");
+                message(&format!(
+                    "💡 To sign out, remove the `{key_name}` environment variable from your shell profile or system environment."
+                ))
             }
             (None, None) => {
                 message!("ℹ️ Already signed out from Stencila Cloud");
