@@ -3,6 +3,9 @@
   "description": "Union type for all types that are descended from `Thing`",
   "anyOf": [
     {
+      "$ref": "Action.schema.json"
+    },
+    {
       "$ref": "Agent.schema.json"
     },
     {
@@ -30,6 +33,12 @@
       "$ref": "ContactPoint.schema.json"
     },
     {
+      "$ref": "ConvertAction.schema.json"
+    },
+    {
+      "$ref": "CreateAction.schema.json"
+    },
+    {
       "$ref": "CreativeWork.schema.json"
     },
     {
@@ -42,6 +51,9 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "ExecuteAction.schema.json"
+    },
+    {
       "$ref": "Figure.schema.json"
     },
     {
@@ -49,6 +61,9 @@
     },
     {
       "$ref": "Grant.schema.json"
+    },
+    {
+      "$ref": "Graph.schema.json"
     },
     {
       "$ref": "ImageObject.schema.json"

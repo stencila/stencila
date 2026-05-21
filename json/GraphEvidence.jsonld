@@ -1,0 +1,126 @@
+{
+  "@id": "https://stencila.org/GraphEvidence",
+  "name": "GraphEvidence",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:GraphEvidence",
+      "@type": "rdfs:Class",
+      "rdfs:label": "GraphEvidence",
+      "rdfs:comment": "Evidence for a graph edge.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:kind",
+      "@type": "rdfs:Property",
+      "rdfs:label": "kind",
+      "rdfs:comment": "The kind of evidence.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphEvidenceKind"
+      }
+    },
+    {
+      "@id": "stencila:confidence",
+      "@type": "rdfs:Property",
+      "rdfs:label": "confidence",
+      "rdfs:comment": "The confidence in the evidence.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphEvidence"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphEvidenceConfidence"
+      }
+    },
+    {
+      "@id": "stencila:source",
+      "@type": "rdfs:Property",
+      "rdfs:label": "source",
+      "rdfs:comment": "The source of the evidence.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Bibliography"
+        },
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:recordedAt",
+      "@type": "rdfs:Property",
+      "rdfs:label": "recordedAt",
+      "rdfs:comment": "When this evidence was recorded.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphEvidence"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Timestamp"
+      }
+    },
+    {
+      "@id": "stencila:details",
+      "@type": "rdfs:Property",
+      "rdfs:label": "details",
+      "rdfs:comment": "Additional structured details about the evidence for machine consumers.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphEvidence"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:Object"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A human-readable description of the evidence.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

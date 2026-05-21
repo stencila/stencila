@@ -1,0 +1,19 @@
+title: GraphEvidenceConfidence
+'@id': stencila:GraphEvidenceConfidence
+extends: Enumeration
+category: flow
+description: The confidence level for graph evidence.
+default: Medium
+anyOf:
+  - const: Low
+    '@id': stencila:Low
+    description: Plausible but weakly supported or not independently verified.
+  - const: Medium
+    '@id': stencila:Medium
+    description: Supported by one reliable signal, but not enough to treat as definitive.
+  - const: High
+    '@id': stencila:High
+    description: Supported by multiple corroborating signals or a deterministic local check.
+  - const: Certain
+    '@id': stencila:Certain
+    description: Directly observed, deterministically proven, or cryptographically attested with no known contrary evidence.

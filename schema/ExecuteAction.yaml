@@ -1,0 +1,20 @@
+title: ExecuteAction
+'@id': stencila:ExecuteAction
+nick: exa
+extends: Action
+category: flow
+description: An action that executes code, a prompt, a workflow, or another executable node.
+$comment: |
+  This is a Stencila extension of schema.org [`Action`](./action.md).
+
+  It represents computational execution as a first-class provenance activity.
+  Inputs such as source code, parameters, and execution environments should be
+  connected to the action with dependency edges. Outputs should be connected
+  from the action using `Generated` edges.
+analogues:
+  - name: PROV Activity
+    url: https://www.w3.org/TR/prov-o/#Activity
+    notes: Approximate provenance analogue for an execution activity.
+  - name: C2PA org.stencila.executed action
+    url: https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions
+    notes: Stencila-specific C2PA action projection for executable document nodes.

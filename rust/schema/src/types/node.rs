@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::action::Action;
 use super::admonition::Admonition;
 use super::agent::Agent;
 use super::annotation::Annotation;
@@ -37,7 +38,9 @@ use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
+use super::convert_action::ConvertAction;
 use super::cord::Cord;
+use super::create_action::CreateAction;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::datatable_column::DatatableColumn;
@@ -55,6 +58,7 @@ use super::emphasis::Emphasis;
 use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
 use super::excerpt::Excerpt;
+use super::execute_action::ExecuteAction;
 use super::execution_dependant::ExecutionDependant;
 use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
@@ -65,6 +69,10 @@ use super::for_block::ForBlock;
 use super::form::Form;
 use super::function::Function;
 use super::grant::Grant;
+use super::graph::Graph;
+use super::graph_edge::GraphEdge;
+use super::graph_evidence::GraphEvidence;
+use super::graph_node::GraphNode;
 use super::heading::Heading;
 use super::icon::Icon;
 use super::if_block::IfBlock;
@@ -167,6 +175,8 @@ pub enum Node {
 
     Array(Array),
 
+    Action(Action),
+
     Admonition(Admonition),
 
     Agent(Agent),
@@ -233,6 +243,10 @@ pub enum Node {
 
     ContactPoint(ContactPoint),
 
+    ConvertAction(ConvertAction),
+
+    CreateAction(CreateAction),
+
     CreativeWork(CreativeWork),
 
     Datatable(Datatable),
@@ -267,6 +281,8 @@ pub enum Node {
 
     Excerpt(Excerpt),
 
+    ExecuteAction(ExecuteAction),
+
     ExecutionDependant(ExecutionDependant),
 
     ExecutionDependency(ExecutionDependency),
@@ -286,6 +302,14 @@ pub enum Node {
     Function(Function),
 
     Grant(Grant),
+
+    Graph(Graph),
+
+    GraphEdge(GraphEdge),
+
+    GraphEvidence(GraphEvidence),
+
+    GraphNode(GraphNode),
 
     Heading(Heading),
 

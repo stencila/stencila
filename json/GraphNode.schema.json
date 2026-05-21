@@ -1,0 +1,50 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphNode.schema.json",
+  "@id": "stencila:GraphNode",
+  "title": "GraphNode",
+  "nick": "gnd",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "A node in a graph.",
+  "$comment": "This is a graph node type used in Stencila Schema for representing provenance,\nreactivity and other graphs.\n\nThe wrapper gives every graph node a required graph-local `id` for edge\nendpoints and a required `nodeType` so graph consumers can interpret the\nrepresented Stencila node even when `node` is external, omitted, or redacted.\n\nThe optional `node` property embeds the represented Stencila node when the\ngraph needs to carry more than typed endpoint metadata.\n",
+  "required": [
+    "type",
+    "id",
+    "nodeType"
+  ],
+  "core": [
+    "id",
+    "nodeType",
+    "node"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The durable graph-local id used by graph edges to reference this graph node.",
+      "type": "string"
+    },
+    "nodeType": {
+      "@id": "stencila:nodeType",
+      "description": "The Stencila node type represented by this graph node, matching `node.type` when `node` is present.",
+      "aliases": [
+        "node-type",
+        "node_type"
+      ],
+      "type": "string"
+    },
+    "node": {
+      "@id": "stencila:node",
+      "description": "The embedded Stencila node represented by this graph node.",
+      "$ref": "Node.schema.json"
+    }
+  }
+}

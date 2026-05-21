@@ -1,0 +1,27 @@
+title: ActionStatusType
+'@id': schema:ActionStatusType
+extends: Enumeration
+category: flow
+description: The status of an action.
+$comment: |
+  This is an implementation of schema.org
+  [`ActionStatusType`](https://schema.org/ActionStatusType).
+
+  It records whether an action is potential, active, completed, or failed. In
+  provenance graphs it allows imported, observed, and Stencila-native actions to
+  carry an explicit lifecycle state without relying on action-specific status
+  fields.
+default: CompletedActionStatus
+anyOf:
+  - const: PotentialActionStatus
+    '@id': schema:PotentialActionStatus
+    description: The action is proposed or possible but has not started.
+  - const: ActiveActionStatus
+    '@id': schema:ActiveActionStatus
+    description: The action is currently in progress.
+  - const: CompletedActionStatus
+    '@id': schema:CompletedActionStatus
+    description: The action has completed successfully.
+  - const: FailedActionStatus
+    '@id': schema:FailedActionStatus
+    description: The action failed.

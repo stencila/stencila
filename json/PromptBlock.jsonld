@@ -320,6 +320,9 @@
           "@id": "stencila:Citation"
         },
         {
+          "@id": "stencila:GraphEdge"
+        },
+        {
           "@id": "stencila:Link"
         },
         {

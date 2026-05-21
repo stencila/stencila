@@ -1,0 +1,111 @@
+{
+  "@id": "https://stencila.org/GraphEdge",
+  "name": "GraphEdge",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:GraphEdge",
+      "@type": "rdfs:Class",
+      "rdfs:label": "GraphEdge",
+      "rdfs:comment": "A directed edge in a graph.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:source",
+      "@type": "rdfs:Property",
+      "rdfs:label": "source",
+      "rdfs:comment": "The id of the upstream dependency graph node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Bibliography"
+        },
+        {
+          "@id": "stencila:CodeLocation"
+        },
+        {
+          "@id": "stencila:Excerpt"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:IncludeBlock"
+        },
+        {
+          "@id": "stencila:QuoteBlock"
+        },
+        {
+          "@id": "stencila:QuoteInline"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The id of the downstream dependant graph node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:kind",
+      "@type": "rdfs:Property",
+      "rdfs:label": "kind",
+      "rdfs:comment": "The kind of dependency relationship represented by this edge.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphEdgeKind"
+      }
+    },
+    {
+      "@id": "stencila:evidence",
+      "@type": "rdfs:Property",
+      "rdfs:label": "evidence",
+      "rdfs:comment": "Evidence supporting the edge.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphEdge"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:GraphEvidence"
+      }
+    }
+  ]
+}

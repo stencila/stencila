@@ -1,0 +1,58 @@
+title: GraphEdgeKind
+'@id': stencila:GraphEdgeKind
+extends: Enumeration
+category: flow
+description: The kind of directed relationship represented by a graph edge.
+$comment: |
+  This enumeration is used by `GraphEdge` for describing the relation between
+  nodes in a `Graph`. Edge direction is always from upstream dependency, source,
+  or component to downstream dependant, result, or containing node.
+
+  Variant names should be read in graph direction as "upstream <kind>
+  downstream". Some names use passive phrasing (`UsedBy`, `ReadBy`,
+  `TranscludedBy`) and others use established relation phrases (`PartOf`,
+  `Generated`, `Parameterizes`), but their direction is always defined by
+  `GraphEdge.source` to `GraphEdge.target`.
+
+  Variant descriptions document related W3C PROV-O predicates where applicable.
+  These mappings are guidance only: Stencila graph edges keep a consistent
+  dependency direction, while several PROV-O predicates use the opposite RDF
+  subject/object direction or apply only approximately. The PROV-O namespace is
+  `http://www.w3.org/ns/prov#`.
+anyOf:
+  - const: UsedBy
+    '@id': stencila:UsedBy
+    description: The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.
+  - const: ReadBy
+    '@id': stencila:ReadBy
+    description: The upstream node is read by the downstream node. Related to `prov:used` with inverse direction.
+  - const: Generated
+    '@id': stencila:Generated
+    description: The upstream node generated the downstream node. Related to `prov:generated` and to `prov:wasGeneratedBy` with inverse direction.
+  - const: CalledBy
+    '@id': stencila:CalledBy
+    description: The upstream node is called by the downstream node. Approximately related to `prov:used` with inverse direction, or `prov:wasInformedBy` for activity dependencies.
+  - const: DerivedInto
+    '@id': stencila:DerivedInto
+    description: The upstream node is derived into the downstream node. Related to `prov:wasDerivedFrom` with inverse direction.
+  - const: ConvertedInto
+    '@id': stencila:ConvertedInto
+    description: The upstream node is converted into the downstream node, usually changing representation or media format. Related to `prov:wasDerivedFrom` with inverse direction.
+  - const: Parameterizes
+    '@id': stencila:Parameterizes
+    description: The upstream node parameterizes the downstream node. Approximately related to `prov:used` with inverse direction.
+  - const: PartOf
+    '@id': stencila:PartOf
+    description: The upstream node is part of the downstream node. Related to `schema:isPartOf` and inverse `schema:hasPart`.
+  - const: TranscludedBy
+    '@id': stencila:TranscludedBy
+    description: The upstream node is transcluded by the downstream node. Stencila extension with no exact core PROV-O equivalent; may be derivation-like or inclusion-like depending on context.
+  - const: ImportedBy
+    '@id': stencila:ImportedBy
+    description: The upstream node is imported by the downstream node. Approximately related to `prov:hadPrimarySource` or `prov:wasDerivedFrom` with inverse direction.
+  - const: CitedBy
+    '@id': stencila:CitedBy
+    description: The upstream node is cited by the downstream node. Stencila document relation with no exact core PROV-O equivalent; quotation-specific cases may relate to `prov:wasQuotedFrom` with inverse direction.
+  - const: ReferencedBy
+    '@id': stencila:ReferencedBy
+    description: The upstream node is referenced by the downstream node. Stencila document relation with no exact core PROV-O equivalent.

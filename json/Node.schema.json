@@ -24,6 +24,9 @@
       "$ref": "Array.schema.json"
     },
     {
+      "$ref": "Action.schema.json"
+    },
+    {
       "$ref": "Admonition.schema.json"
     },
     {
@@ -123,6 +126,12 @@
       "$ref": "ContactPoint.schema.json"
     },
     {
+      "$ref": "ConvertAction.schema.json"
+    },
+    {
+      "$ref": "CreateAction.schema.json"
+    },
+    {
       "$ref": "CreativeWork.schema.json"
     },
     {
@@ -174,6 +183,9 @@
       "$ref": "Excerpt.schema.json"
     },
     {
+      "$ref": "ExecuteAction.schema.json"
+    },
+    {
       "$ref": "ExecutionDependant.schema.json"
     },
     {
@@ -202,6 +214,18 @@
     },
     {
       "$ref": "Grant.schema.json"
+    },
+    {
+      "$ref": "Graph.schema.json"
+    },
+    {
+      "$ref": "GraphEdge.schema.json"
+    },
+    {
+      "$ref": "GraphEvidence.schema.json"
+    },
+    {
+      "$ref": "GraphNode.schema.json"
     },
     {
       "$ref": "Heading.schema.json"

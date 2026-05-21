@@ -1,0 +1,97 @@
+title: Action
+'@id': schema:Action
+nick: act
+extends: Thing
+category: flow
+description: An action performed by an agent.
+$comment: |
+  This is an implementation of schema.org
+  [`Action`](https://schema.org/Action).
+
+  In Stencila Schema it provides a neutral activity/event node for provenance
+  graphs. Actions can be connected to input and output resources using
+  `GraphEdge` relationships, while retaining schema.org metadata such as the
+  agent, object, result, instrument, status, and timing.
+
+  The schema.org `object` and `result` properties are exposed as the plural
+  Stencila properties `objects` and `results` because an action can consume or
+  produce several resources or literal values. The singular schema.org property
+  names are retained as aliases.
+
+  More specific action types such as [`CreateAction`](./create-action.md),
+  [`ExecuteAction`](./execute-action.md), and
+  [`ConvertAction`](./convert-action.md) should be used when the activity kind
+  is known.
+analogues:
+  - id: schema:Action
+    notes: Direct schema.org source type, used as the common base for provenance activities.
+core:
+  - actionStatus
+  - agent
+  - objects
+  - results
+  - startTime
+  - endTime
+properties:
+  actionStatus:
+    '@id': schema:actionStatus
+    description: The current status of the action.
+    $ref: ActionStatusType
+  agent:
+    '@id': schema:agent
+    description: The direct performer or driver of the action.
+    $ref: ActionAgent
+  participants:
+    '@id': schema:participant
+    aliases:
+      - participant
+    description: Other agents that participated in the action.
+    type: array
+    items:
+      $ref: ActionAgent
+  provider:
+    '@id': schema:provider
+    description: The service provider, service operator, or performer responsible for the action.
+    $ref: ActionAgent
+  objects:
+    '@id': schema:object
+    aliases:
+      - object
+    description: The objects or input values upon which the action is carried out.
+    type: array
+    items:
+      $ref: Node
+    serde:
+      deserializeWith: none
+  results:
+    '@id': schema:result
+    aliases:
+      - result
+    description: The objects or values produced by the action.
+    type: array
+    items:
+      $ref: Node
+    serde:
+      deserializeWith: none
+  instrument:
+    '@id': schema:instrument
+    description: The object, software, or other instrument that helped perform the action.
+    anyOf:
+      - $ref: ThingVariant
+      - type: string
+  startTime:
+    '@id': schema:startTime
+    description: When the action started.
+    $ref: DateTime
+    strip: [timestamps]
+  endTime:
+    '@id': schema:endTime
+    description: When the action ended.
+    $ref: DateTime
+    strip: [timestamps]
+  error:
+    '@id': schema:error
+    description: An error produced by the action.
+    anyOf:
+      - $ref: ThingVariant
+      - type: string

@@ -15,6 +15,7 @@ pub enum NodeType {
     Number,
     String,
     Array,
+    Action,
     Admonition,
     Agent,
     Annotation,
@@ -48,6 +49,8 @@ pub enum NodeType {
     CompilationMessage,
     ConstantValidator,
     ContactPoint,
+    ConvertAction,
+    CreateAction,
     CreativeWork,
     Datatable,
     DatatableColumn,
@@ -65,6 +68,7 @@ pub enum NodeType {
     EnumValidator,
     Enumeration,
     Excerpt,
+    ExecuteAction,
     ExecutionDependant,
     ExecutionDependency,
     ExecutionMessage,
@@ -75,6 +79,10 @@ pub enum NodeType {
     Form,
     Function,
     Grant,
+    Graph,
+    GraphEdge,
+    GraphEvidence,
+    GraphNode,
     Heading,
     Icon,
     IfBlock,
@@ -162,7 +170,7 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject|Workflow)
+        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|Graph|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject|Workflow)
     }
 
     /// Is the node type a block content type?
@@ -191,6 +199,7 @@ impl TryFrom<&NodeId> for NodeType {
     fn try_from(value: &NodeId) -> Result<Self, Self::Error> {
         use NodeType::*;
         Ok(match value.nick() {
+            "act" => Action,
             "adm" => Admonition,
             "agt" => Agent,
             "ann" => Annotation,
@@ -226,7 +235,9 @@ impl TryFrom<&NodeId> for NodeType {
             "cme" => CompilationMessage,
             "cov" => ConstantValidator,
             "con" => ContactPoint,
+            "cva" => ConvertAction,
             "cor" => Cord,
+            "cta" => CreateAction,
             "cre" => CreativeWork,
             "dtb" => Datatable,
             "dtc" => DatatableColumn,
@@ -244,6 +255,7 @@ impl TryFrom<&NodeId> for NodeType {
             "env" => EnumValidator,
             "enu" => Enumeration,
             "exc" => Excerpt,
+            "exa" => ExecuteAction,
             "exd" => ExecutionDependant,
             "exy" => ExecutionDependency,
             "eme" => ExecutionMessage,
@@ -254,6 +266,10 @@ impl TryFrom<&NodeId> for NodeType {
             "frm" => Form,
             "fun" => Function,
             "gra" => Grant,
+            "gph" => Graph,
+            "ged" => GraphEdge,
+            "gev" => GraphEvidence,
+            "gnd" => GraphNode,
             "hea" => Heading,
             "ico" => Icon,
             "ifb" => IfBlock,

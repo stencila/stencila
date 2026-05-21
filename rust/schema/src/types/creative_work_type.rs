@@ -37,6 +37,8 @@ pub enum CreativeWorkType {
 
     File,
 
+    Graph,
+
     ImageObject,
 
     Legislation,

@@ -46,6 +46,8 @@ anyOf:
     "@id": stencila:FigureCreativeWorkType
   - const: File
     "@id": stencila:FileCreativeWorkType
+  - const: Graph
+    "@id": stencila:GraphCreativeWorkType
   - const: ImageObject
     "@id": stencila:ImageObjectCreativeWorkType
   - const: Legislation

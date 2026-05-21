@@ -191,6 +191,10 @@
       "const": "File"
     },
     {
+      "@id": "stencila:GraphCreativeWorkType",
+      "const": "Graph"
+    },
+    {
       "@id": "stencila:ImageObjectCreativeWorkType",
       "const": "ImageObject"
     },

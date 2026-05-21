@@ -1,0 +1,194 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphEdgeKind.schema.json",
+  "@id": "stencila:GraphEdgeKind",
+  "title": "GraphEdgeKind",
+  "extends": [
+    "Enumeration"
+  ],
+  "category": "flow",
+  "description": "The kind of directed relationship represented by a graph edge.",
+  "$comment": "This enumeration is used by `GraphEdge` for describing the relation between\nnodes in a `Graph`. Edge direction is always from upstream dependency, source,\nor component to downstream dependant, result, or containing node.\n\nVariant names should be read in graph direction as \"upstream <kind>\ndownstream\". Some names use passive phrasing (`UsedBy`, `ReadBy`,\n`TranscludedBy`) and others use established relation phrases (`PartOf`,\n`Generated`, `Parameterizes`), but their direction is always defined by\n`GraphEdge.source` to `GraphEdge.target`.\n\nVariant descriptions document related W3C PROV-O predicates where applicable.\nThese mappings are guidance only: Stencila graph edges keep a consistent\ndependency direction, while several PROV-O predicates use the opposite RDF\nsubject/object direction or apply only approximately. The PROV-O namespace is\n`http://www.w3.org/ns/prov#`.\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "anyOf": [
+    {
+      "@id": "stencila:UsedBy",
+      "description": "The upstream node is used by the downstream node. Related to `prov:used` with inverse direction.",
+      "const": "UsedBy"
+    },
+    {
+      "@id": "stencila:ReadBy",
+      "description": "The upstream node is read by the downstream node. Related to `prov:used` with inverse direction.",
+      "const": "ReadBy"
+    },
+    {
+      "@id": "stencila:Generated",
+      "description": "The upstream node generated the downstream node. Related to `prov:generated` and to `prov:wasGeneratedBy` with inverse direction.",
+      "const": "Generated"
+    },
+    {
+      "@id": "stencila:CalledBy",
+      "description": "The upstream node is called by the downstream node. Approximately related to `prov:used` with inverse direction, or `prov:wasInformedBy` for activity dependencies.",
+      "const": "CalledBy"
+    },
+    {
+      "@id": "stencila:DerivedInto",
+      "description": "The upstream node is derived into the downstream node. Related to `prov:wasDerivedFrom` with inverse direction.",
+      "const": "DerivedInto"
+    },
+    {
+      "@id": "stencila:ConvertedInto",
+      "description": "The upstream node is converted into the downstream node, usually changing representation or media format. Related to `prov:wasDerivedFrom` with inverse direction.",
+      "const": "ConvertedInto"
+    },
+    {
+      "@id": "stencila:Parameterizes",
+      "description": "The upstream node parameterizes the downstream node. Approximately related to `prov:used` with inverse direction.",
+      "const": "Parameterizes"
+    },
+    {
+      "@id": "stencila:PartOf",
+      "description": "The upstream node is part of the downstream node. Related to `schema:isPartOf` and inverse `schema:hasPart`.",
+      "const": "PartOf"
+    },
+    {
+      "@id": "stencila:TranscludedBy",
+      "description": "The upstream node is transcluded by the downstream node. Stencila extension with no exact core PROV-O equivalent; may be derivation-like or inclusion-like depending on context.",
+      "const": "TranscludedBy"
+    },
+    {
+      "@id": "stencila:ImportedBy",
+      "description": "The upstream node is imported by the downstream node. Approximately related to `prov:hadPrimarySource` or `prov:wasDerivedFrom` with inverse direction.",
+      "const": "ImportedBy"
+    },
+    {
+      "@id": "stencila:CitedBy",
+      "description": "The upstream node is cited by the downstream node. Stencila document relation with no exact core PROV-O equivalent; quotation-specific cases may relate to `prov:wasQuotedFrom` with inverse direction.",
+      "const": "CitedBy"
+    },
+    {
+      "@id": "stencila:ReferencedBy",
+      "description": "The upstream node is referenced by the downstream node. Stencila document relation with no exact core PROV-O equivalent.",
+      "const": "ReferencedBy"
+    }
+  ]
+}

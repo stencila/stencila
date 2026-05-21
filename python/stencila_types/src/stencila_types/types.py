@@ -51,6 +51,17 @@ class _Base:
         return repr_str
 
 
+class ActionStatusType(StrEnum):
+    """
+    The status of an action.
+    """
+
+    PotentialActionStatus = "PotentialActionStatus"
+    ActiveActionStatus = "ActiveActionStatus"
+    CompletedActionStatus = "CompletedActionStatus"
+    FailedActionStatus = "FailedActionStatus"
+
+
 class AdmonitionType(StrEnum):
     """
     A category of admonition.
@@ -229,6 +240,7 @@ class CreativeWorkType(StrEnum):
     Drawing = "Drawing"
     Figure = "Figure"
     File = "File"
+    Graph = "Graph"
     ImageObject = "ImageObject"
     Legislation = "Legislation"
     Manuscript = "Manuscript"
@@ -347,6 +359,49 @@ class FormDeriveAction(StrEnum):
     Update = "Update"
     Delete = "Delete"
     UpdateOrDelete = "UpdateOrDelete"
+
+
+class GraphEdgeKind(StrEnum):
+    """
+    The kind of directed relationship represented by a graph edge.
+    """
+
+    UsedBy = "UsedBy"
+    ReadBy = "ReadBy"
+    Generated = "Generated"
+    CalledBy = "CalledBy"
+    DerivedInto = "DerivedInto"
+    ConvertedInto = "ConvertedInto"
+    Parameterizes = "Parameterizes"
+    PartOf = "PartOf"
+    TranscludedBy = "TranscludedBy"
+    ImportedBy = "ImportedBy"
+    CitedBy = "CitedBy"
+    ReferencedBy = "ReferencedBy"
+
+
+class GraphEvidenceConfidence(StrEnum):
+    """
+    The confidence level for graph evidence.
+    """
+
+    Low = "Low"
+    Medium = "Medium"
+    High = "High"
+    Certain = "Certain"
+
+
+class GraphEvidenceKind(StrEnum):
+    """
+    The kind of evidence supporting a graph edge.
+    """
+
+    StaticAnalysis = "StaticAnalysis"
+    RuntimeObservation = "RuntimeObservation"
+    UserAssertion = "UserAssertion"
+    Imported = "Imported"
+    ContentCredential = "ContentCredential"
+    ExecutionMetadata = "ExecutionMetadata"
 
 
 class HorizontalAlignment(StrEnum):
@@ -798,6 +853,45 @@ class Styled(Entity):
 
     class_list: str | None = None
     """A space separated list of class names associated with the node."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Action(Thing):
+    """
+    An action performed by an agent.
+    """
+
+    type: Literal["Action"] = "Action"
+
+    action_status: ActionStatusType | None = None
+    """The current status of the action."""
+
+    agent: ActionAgent | None = None
+    """The direct performer or driver of the action."""
+
+    participants: list[ActionAgent] | None = None
+    """Other agents that participated in the action."""
+
+    provider: ActionAgent | None = None
+    """The service provider, service operator, or performer responsible for the action."""
+
+    objects: list[Node] | None = None
+    """The objects or input values upon which the action is carried out."""
+
+    results: list[Node] | None = None
+    """The objects or values produced by the action."""
+
+    instrument: ThingVariant | str | None = None
+    """The object, software, or other instrument that helped perform the action."""
+
+    start_time: DateTime | None = None
+    """When the action started."""
+
+    end_time: DateTime | None = None
+    """When the action ended."""
+
+    error: ThingVariant | str | None = None
+    """An error produced by the action."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -1794,6 +1888,24 @@ class ConstantValidator(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class ConvertAction(Action):
+    """
+    An action that converts a resource from one representation or format to another.
+    """
+
+    type: Literal["ConvertAction"] = "ConvertAction"
+
+
+@dataclass(kw_only=True, repr=False)
+class CreateAction(Action):
+    """
+    An action that creates a result.
+    """
+
+    type: Literal["CreateAction"] = "CreateAction"
+
+
+@dataclass(kw_only=True, repr=False)
 class Datatable(CreativeWork):
     """
     A table of data.
@@ -2043,6 +2155,15 @@ class Excerpt(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class ExecuteAction(Action):
+    """
+    An action that executes code, a prompt, a workflow, or another executable node.
+    """
+
+    type: Literal["ExecuteAction"] = "ExecuteAction"
+
+
+@dataclass(kw_only=True, repr=False)
 class ExecutionDependant(Entity):
     """
     A downstream execution dependant of a node.
@@ -2250,6 +2371,90 @@ class Function(Entity):
 
     returns: Validator | None = None
     """The return type of the function."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Graph(CreativeWork):
+    """
+    A directed graph relating Stencila nodes, used for provenance, reactivity, and similar relationship graphs.
+    """
+
+    type: Literal["Graph"] = "Graph"
+
+    subject: str
+    """An absolute URI identifying the resource or scoped document node that the graph was generated for."""
+
+    nodes: list[GraphNode]
+    """The nodes in the graph."""
+
+    edges: list[GraphEdge]
+    """The directed edges in the graph."""
+
+
+@dataclass(kw_only=True, repr=False)
+class GraphEdge(Entity):
+    """
+    A directed edge in a graph.
+    """
+
+    type: Literal["GraphEdge"] = "GraphEdge"
+
+    source: str
+    """The id of the upstream dependency graph node."""
+
+    target: str
+    """The id of the downstream dependant graph node."""
+
+    kind: GraphEdgeKind
+    """The kind of dependency relationship represented by this edge."""
+
+    evidence: list[GraphEvidence] | None = None
+    """Evidence supporting the edge."""
+
+
+@dataclass(kw_only=True, repr=False)
+class GraphEvidence(Entity):
+    """
+    Evidence for a graph edge.
+    """
+
+    type: Literal["GraphEvidence"] = "GraphEvidence"
+
+    kind: GraphEvidenceKind
+    """The kind of evidence."""
+
+    confidence: GraphEvidenceConfidence | None = None
+    """The confidence in the evidence."""
+
+    source: ThingVariant | str | None = None
+    """The source of the evidence."""
+
+    recorded_at: Timestamp | None = None
+    """When this evidence was recorded."""
+
+    details: Object | None = None
+    """Additional structured details about the evidence for machine consumers."""
+
+    description: str | None = None
+    """A human-readable description of the evidence."""
+
+
+@dataclass(kw_only=True, repr=False)
+class GraphNode(Entity):
+    """
+    A node in a graph.
+    """
+
+    type: Literal["GraphNode"] = "GraphNode"
+
+    id: str
+    """The durable graph-local id used by graph edges to reference this graph node."""
+
+    node_type: str
+    """The Stencila node type represented by this graph node, matching `node.type` when `node` is present."""
+
+    node: Node | None = None
+    """The embedded Stencila node represented by this graph node."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3628,6 +3833,17 @@ class Workflow(CreativeWork):
     default_fidelity: str | None = None
     """Default context fidelity mode for LLM sessions."""
 
+ActionAgent = Union[
+    Person,
+    Organization,
+    SoftwareApplication,
+    Agent,
+]
+"""
+A human, organization, software application, or Stencila AI agent that performs, provides, or participates in an action.
+"""
+
+
 Author = Union[
     Person,
     Organization,
@@ -3706,6 +3922,7 @@ CreativeWorkVariant = Union[
     Datatable,
     Figure,
     File,
+    Graph,
     ImageObject,
     MediaObject,
     Periodical,
@@ -3806,6 +4023,7 @@ Node = Union[
     float,
     str,
     Array,
+    Action,
     Admonition,
     Agent,
     Annotation,
@@ -3839,6 +4057,8 @@ Node = Union[
     CompilationMessage,
     ConstantValidator,
     ContactPoint,
+    ConvertAction,
+    CreateAction,
     CreativeWork,
     Datatable,
     DatatableColumn,
@@ -3856,6 +4076,7 @@ Node = Union[
     EnumValidator,
     Enumeration,
     Excerpt,
+    ExecuteAction,
     ExecutionDependant,
     ExecutionDependency,
     ExecutionMessage,
@@ -3866,6 +4087,10 @@ Node = Union[
     Form,
     Function,
     Grant,
+    Graph,
+    GraphEdge,
+    GraphEvidence,
+    GraphNode,
     Heading,
     Icon,
     IfBlock,
@@ -3951,6 +4176,7 @@ Union type for all types in this schema, including primitives and entities
 
 
 ThingVariant = Union[
+    Action,
     Agent,
     Article,
     AudioObject,
@@ -3960,13 +4186,17 @@ ThingVariant = Union[
     Collection,
     Comment,
     ContactPoint,
+    ConvertAction,
+    CreateAction,
     CreativeWork,
     Datatable,
     DefinedTerm,
     Enumeration,
+    ExecuteAction,
     Figure,
     File,
     Grant,
+    Graph,
     ImageObject,
     ListItem,
     MediaObject,
@@ -4019,6 +4249,7 @@ TYPES = [
     CreativeWork,
     Executable,
     Styled,
+    Action,
     CodeExecutable,
     CodeStatic,
     ContactPoint,
@@ -4065,6 +4296,8 @@ TYPES = [
     CompilationDigest,
     CompilationMessage,
     ConstantValidator,
+    ConvertAction,
+    CreateAction,
     Datatable,
     DatatableColumn,
     DatatableColumnHint,
@@ -4081,6 +4314,7 @@ TYPES = [
     EnumValidator,
     Enumeration,
     Excerpt,
+    ExecuteAction,
     ExecutionDependant,
     ExecutionDependency,
     ExecutionMessage,
@@ -4090,6 +4324,10 @@ TYPES = [
     ForBlock,
     Form,
     Function,
+    Graph,
+    GraphEdge,
+    GraphEvidence,
+    GraphNode,
     Heading,
     Icon,
     IfBlock,
@@ -4164,6 +4402,7 @@ TYPES = [
 
 
 UNIONS = [
+    ActionAgent,
     Author,
     AuthorRoleAuthor,
     Block,
@@ -4187,6 +4426,7 @@ ANON_UNIONS = [
     PostalAddress | str,
     PropertyValue | str,
     SoftwareSourceCode | SoftwareApplication | str,
+    ThingVariant | str,
     UnsignedInteger | str,
     int | str,
     str | float,

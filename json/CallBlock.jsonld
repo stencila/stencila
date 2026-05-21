@@ -265,6 +265,12 @@
           "@id": "stencila:Excerpt"
         },
         {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        },
+        {
           "@id": "stencila:IncludeBlock"
         },
         {

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphEdge.schema.json",
+  "@id": "stencila:GraphEdge",
+  "title": "GraphEdge",
+  "nick": "ged",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "A directed edge in a graph.",
+  "$comment": "This is a graph edge type used in Stencila for representing provenance,\nreactivity and other graphs.\n\nEdge direction is always from `source` upstream dependency to `target`\ndownstream dependant.\nBoth endpoints reference `GraphNode.id` values.\n",
+  "required": [
+    "type",
+    "source",
+    "target",
+    "kind"
+  ],
+  "core": [
+    "id",
+    "source",
+    "target",
+    "kind"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "source": {
+      "@id": "stencila:source",
+      "description": "The id of the upstream dependency graph node.",
+      "type": "string"
+    },
+    "target": {
+      "@id": "stencila:target",
+      "description": "The id of the downstream dependant graph node.",
+      "type": "string"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "description": "The kind of dependency relationship represented by this edge.",
+      "$ref": "GraphEdgeKind.schema.json"
+    },
+    "evidence": {
+      "@id": "stencila:evidence",
+      "description": "Evidence supporting the edge.",
+      "type": "array",
+      "items": {
+        "$ref": "GraphEvidence.schema.json"
+      }
+    }
+  }
+}

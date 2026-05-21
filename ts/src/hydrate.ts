@@ -35,6 +35,8 @@ export function hydrate(value: types.Node): types.Node {
   switch (value.type) {
     // Generated code, do not exit
     // TYPE-CASES:START
+    case "Action":
+      return Object.setPrototypeOf(value, types.Action.prototype);
     case "Admonition":
       return Object.setPrototypeOf(value, types.Admonition.prototype);
     case "Agent":
@@ -105,6 +107,10 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":
       return Object.setPrototypeOf(value, types.ContactPoint.prototype);
+    case "ConvertAction":
+      return Object.setPrototypeOf(value, types.ConvertAction.prototype);
+    case "CreateAction":
+      return Object.setPrototypeOf(value, types.CreateAction.prototype);
     case "CreativeWork":
       return Object.setPrototypeOf(value, types.CreativeWork.prototype);
     case "Datatable":
@@ -143,6 +149,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Excerpt.prototype);
     case "Executable":
       return Object.setPrototypeOf(value, types.Executable.prototype);
+    case "ExecuteAction":
+      return Object.setPrototypeOf(value, types.ExecuteAction.prototype);
     case "ExecutionDependant":
       return Object.setPrototypeOf(value, types.ExecutionDependant.prototype);
     case "ExecutionDependency":
@@ -163,6 +171,14 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Function.prototype);
     case "Grant":
       return Object.setPrototypeOf(value, types.Grant.prototype);
+    case "Graph":
+      return Object.setPrototypeOf(value, types.Graph.prototype);
+    case "GraphEdge":
+      return Object.setPrototypeOf(value, types.GraphEdge.prototype);
+    case "GraphEvidence":
+      return Object.setPrototypeOf(value, types.GraphEvidence.prototype);
+    case "GraphNode":
+      return Object.setPrototypeOf(value, types.GraphNode.prototype);
     case "Heading":
       return Object.setPrototypeOf(value, types.Heading.prototype);
     case "Icon":

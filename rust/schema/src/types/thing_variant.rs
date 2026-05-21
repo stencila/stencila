@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::action::Action;
 use super::agent::Agent;
 use super::article::Article;
 use super::audio_object::AudioObject;
@@ -11,13 +12,17 @@ use super::claim::Claim;
 use super::collection::Collection;
 use super::comment::Comment;
 use super::contact_point::ContactPoint;
+use super::convert_action::ConvertAction;
+use super::create_action::CreateAction;
 use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
+use super::execute_action::ExecuteAction;
 use super::figure::Figure;
 use super::file::File;
 use super::grant::Grant;
+use super::graph::Graph;
 use super::image_object::ImageObject;
 use super::list_item::ListItem;
 use super::media_object::MediaObject;
@@ -44,6 +49,8 @@ use super::workflow::Workflow;
 #[serde(untagged)]
 pub enum ThingVariant {
     #[default]
+    Action(Action),
+
     Agent(Agent),
 
     Article(Article),
@@ -62,6 +69,10 @@ pub enum ThingVariant {
 
     ContactPoint(ContactPoint),
 
+    ConvertAction(ConvertAction),
+
+    CreateAction(CreateAction),
+
     CreativeWork(CreativeWork),
 
     Datatable(Datatable),
@@ -70,11 +81,15 @@ pub enum ThingVariant {
 
     Enumeration(Enumeration),
 
+    ExecuteAction(ExecuteAction),
+
     Figure(Figure),
 
     File(File),
 
     Grant(Grant),
+
+    Graph(Graph),
 
     ImageObject(ImageObject),
 

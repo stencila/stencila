@@ -1,0 +1,88 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphEvidence.schema.json",
+  "@id": "stencila:GraphEvidence",
+  "title": "GraphEvidence",
+  "nick": "gev",
+  "extends": [
+    "Entity"
+  ],
+  "category": "flow",
+  "description": "Evidence for a graph edge.",
+  "$comment": "This is an evidence type used in Stencila for graph edges.\n\nIt records why an edge exists, how confident the assertion is, and optional\nstructured details about the observation, assertion, or imported metadata.\nThe `details` property is for machine consumers that need source-specific\nstructured data. The `description` property is for concise human-readable\nexplanation and display.\n",
+  "required": [
+    "type",
+    "kind"
+  ],
+  "core": [
+    "id",
+    "confidence"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "description": "The kind of evidence.",
+      "$ref": "GraphEvidenceKind.schema.json"
+    },
+    "confidence": {
+      "@id": "stencila:confidence",
+      "description": "The confidence in the evidence.",
+      "$ref": "GraphEvidenceConfidence.schema.json"
+    },
+    "source": {
+      "@id": "stencila:source",
+      "description": "The source of the evidence.",
+      "anyOf": [
+        {
+          "$ref": "ThingVariant.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "recordedAt": {
+      "@id": "stencila:recordedAt",
+      "description": "When this evidence was recorded.",
+      "aliases": [
+        "recorded-at",
+        "recorded_at"
+      ],
+      "strip": [
+        "timestamps"
+      ],
+      "$ref": "Timestamp.schema.json"
+    },
+    "details": {
+      "@id": "stencila:details",
+      "description": "Additional structured details about the evidence for machine consumers.",
+      "$ref": "Object.schema.json"
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A human-readable description of the evidence.",
+      "type": "string"
+    }
+  }
+}

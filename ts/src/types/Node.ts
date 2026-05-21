@@ -2,6 +2,7 @@
 
 import { hydrate } from "../hydrate.js";
 
+import { type Action } from "./Action.js";
 import { type Admonition } from "./Admonition.js";
 import { type Agent } from "./Agent.js";
 import { type Annotation } from "./Annotation.js";
@@ -36,7 +37,9 @@ import { type CompilationDigest } from "./CompilationDigest.js";
 import { type CompilationMessage } from "./CompilationMessage.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
+import { type ConvertAction } from "./ConvertAction.js";
 import { type Cord } from "./Cord.js";
+import { type CreateAction } from "./CreateAction.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DatatableColumn } from "./DatatableColumn.js";
@@ -54,6 +57,7 @@ import { type Emphasis } from "./Emphasis.js";
 import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type Excerpt } from "./Excerpt.js";
+import { type ExecuteAction } from "./ExecuteAction.js";
 import { type ExecutionDependant } from "./ExecutionDependant.js";
 import { type ExecutionDependency } from "./ExecutionDependency.js";
 import { type ExecutionMessage } from "./ExecutionMessage.js";
@@ -64,6 +68,10 @@ import { type ForBlock } from "./ForBlock.js";
 import { type Form } from "./Form.js";
 import { type Function } from "./Function.js";
 import { type Grant } from "./Grant.js";
+import { type Graph } from "./Graph.js";
+import { type GraphEdge } from "./GraphEdge.js";
+import { type GraphEvidence } from "./GraphEvidence.js";
+import { type GraphNode } from "./GraphNode.js";
 import { type Heading } from "./Heading.js";
 import { type Icon } from "./Icon.js";
 import { type IfBlock } from "./IfBlock.js";
@@ -155,6 +163,7 @@ export type Node =
   number |
   string |
   Array |
+  Action |
   Admonition |
   Agent |
   Annotation |
@@ -188,6 +197,8 @@ export type Node =
   CompilationMessage |
   ConstantValidator |
   ContactPoint |
+  ConvertAction |
+  CreateAction |
   CreativeWork |
   Datatable |
   DatatableColumn |
@@ -205,6 +216,7 @@ export type Node =
   EnumValidator |
   Enumeration |
   Excerpt |
+  ExecuteAction |
   ExecutionDependant |
   ExecutionDependency |
   ExecutionMessage |
@@ -215,6 +227,10 @@ export type Node =
   Form |
   Function |
   Grant |
+  Graph |
+  GraphEdge |
+  GraphEvidence |
+  GraphNode |
   Heading |
   Icon |
   IfBlock |
@@ -302,6 +318,7 @@ export function node(other: Node): Node {
     return other as Node;
   }
   switch(other.type) {
+    case "Action":
     case "Admonition":
     case "Agent":
     case "Annotation":
@@ -335,6 +352,8 @@ export function node(other: Node): Node {
     case "CompilationMessage":
     case "ConstantValidator":
     case "ContactPoint":
+    case "ConvertAction":
+    case "CreateAction":
     case "CreativeWork":
     case "Datatable":
     case "DatatableColumn":
@@ -352,6 +371,7 @@ export function node(other: Node): Node {
     case "EnumValidator":
     case "Enumeration":
     case "Excerpt":
+    case "ExecuteAction":
     case "ExecutionDependant":
     case "ExecutionDependency":
     case "ExecutionMessage":
@@ -362,6 +382,10 @@ export function node(other: Node): Node {
     case "Form":
     case "Function":
     case "Grant":
+    case "Graph":
+    case "GraphEdge":
+    case "GraphEvidence":
+    case "GraphNode":
     case "Heading":
     case "Icon":
     case "IfBlock":

@@ -1,0 +1,46 @@
+title: GraphEvidence
+'@id': stencila:GraphEvidence
+nick: gev
+extends: Entity
+category: flow
+description: Evidence for a graph edge.
+$comment: |
+  This is an evidence type used in Stencila for graph edges.
+
+  It records why an edge exists, how confident the assertion is, and optional
+  structured details about the observation, assertion, or imported metadata.
+  The `details` property is for machine consumers that need source-specific
+  structured data. The `description` property is for concise human-readable
+  explanation and display.
+required:
+  - kind
+core:
+  - confidence
+properties:
+  kind:
+    '@id': stencila:kind
+    description: The kind of evidence.
+    $ref: GraphEvidenceKind
+  confidence:
+    '@id': stencila:confidence
+    description: The confidence in the evidence.
+    $ref: GraphEvidenceConfidence
+  source:
+    '@id': stencila:source
+    description: The source of the evidence.
+    anyOf:
+      - $ref: ThingVariant
+      - type: string
+  recordedAt:
+    '@id': stencila:recordedAt
+    description: When this evidence was recorded.
+    $ref: Timestamp
+    strip: [timestamps]
+  details:
+    '@id': stencila:details
+    description: Additional structured details about the evidence for machine consumers.
+    $ref: Object
+  description:
+    '@id': schema:description
+    description: A human-readable description of the evidence.
+    type: string

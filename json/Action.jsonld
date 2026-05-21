@@ -1,0 +1,276 @@
+{
+  "@id": "https://stencila.org/Action",
+  "name": "Action",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "schema:Action",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Action",
+      "rdfs:comment": "An action performed by an agent.",
+      "rdfs:subClassOf": {
+        "@id": "schema:Thing"
+      }
+    },
+    {
+      "@id": "schema:alternateName",
+      "@type": "rdfs:Property",
+      "rdfs:label": "alternateNames",
+      "rdfs:comment": "Alternate names (aliases) for the item.",
+      "schema:domainIncludes": {
+        "@id": "schema:Thing"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:description",
+      "@type": "rdfs:Property",
+      "rdfs:label": "description",
+      "rdfs:comment": "A description of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:identifier",
+      "@type": "rdfs:Property",
+      "rdfs:label": "identifiers",
+      "rdfs:comment": "Any kind of identifier for any kind of Thing.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:PropertyValue"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
+    },
+    {
+      "@id": "schema:image",
+      "@type": "rdfs:Property",
+      "rdfs:label": "images",
+      "rdfs:comment": "Images of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Math"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:ImageObject"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:url",
+      "@type": "rdfs:Property",
+      "rdfs:label": "url",
+      "rdfs:comment": "The URL of the item.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Reference"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:actionStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "actionStatus",
+      "rdfs:comment": "The current status of the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:ActionStatusType"
+      }
+    },
+    {
+      "@id": "schema:agent",
+      "@type": "rdfs:Property",
+      "rdfs:label": "agent",
+      "rdfs:comment": "The direct performer or driver of the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ActionAgent"
+      }
+    },
+    {
+      "@id": "schema:participant",
+      "@type": "rdfs:Property",
+      "rdfs:label": "participants",
+      "rdfs:comment": "Other agents that participated in the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ActionAgent"
+      }
+    },
+    {
+      "@id": "schema:provider",
+      "@type": "rdfs:Property",
+      "rdfs:label": "provider",
+      "rdfs:comment": "The service provider, service operator, or performer responsible for the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ActionAgent"
+      }
+    },
+    {
+      "@id": "schema:object",
+      "@type": "rdfs:Property",
+      "rdfs:label": "objects",
+      "rdfs:comment": "The objects or input values upon which the action is carried out.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      }
+    },
+    {
+      "@id": "schema:result",
+      "@type": "rdfs:Property",
+      "rdfs:label": "results",
+      "rdfs:comment": "The objects or values produced by the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      }
+    },
+    {
+      "@id": "schema:instrument",
+      "@type": "rdfs:Property",
+      "rdfs:label": "instrument",
+      "rdfs:comment": "The object, software, or other instrument that helped perform the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:startTime",
+      "@type": "rdfs:Property",
+      "rdfs:label": "startTime",
+      "rdfs:comment": "When the action started.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:DateTime"
+      }
+    },
+    {
+      "@id": "schema:endTime",
+      "@type": "rdfs:Property",
+      "rdfs:label": "endTime",
+      "rdfs:comment": "When the action ended.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:DateTime"
+      }
+    },
+    {
+      "@id": "schema:error",
+      "@type": "rdfs:Property",
+      "rdfs:label": "error",
+      "rdfs:comment": "An error produced by the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

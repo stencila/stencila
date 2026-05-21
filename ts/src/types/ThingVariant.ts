@@ -1,4 +1,5 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
+import { type Action } from "./Action.js";
 import { type Agent } from "./Agent.js";
 import { type Article } from "./Article.js";
 import { type AudioObject } from "./AudioObject.js";
@@ -8,13 +9,17 @@ import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type ContactPoint } from "./ContactPoint.js";
+import { type ConvertAction } from "./ConvertAction.js";
+import { type CreateAction } from "./CreateAction.js";
 import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type ExecuteAction } from "./ExecuteAction.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
 import { type Grant } from "./Grant.js";
+import { type Graph } from "./Graph.js";
 import { type ImageObject } from "./ImageObject.js";
 import { type ListItem } from "./ListItem.js";
 import { type MediaObject } from "./MediaObject.js";
@@ -40,6 +45,7 @@ import { type Workflow } from "./Workflow.js";
  * Union type for all types that are descended from `Thing`
  */
 export type ThingVariant =
+  Action |
   Agent |
   Article |
   AudioObject |
@@ -49,13 +55,17 @@ export type ThingVariant =
   Collection |
   Comment |
   ContactPoint |
+  ConvertAction |
+  CreateAction |
   CreativeWork |
   Datatable |
   DefinedTerm |
   Enumeration |
+  ExecuteAction |
   Figure |
   File |
   Grant |
+  Graph |
   ImageObject |
   ListItem |
   MediaObject |

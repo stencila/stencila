@@ -18,6 +18,7 @@ export type CreativeWorkType =
   'Drawing' |
   'Figure' |
   'File' |
+  'Graph' |
   'ImageObject' |
   'Legislation' |
   'Manuscript' |

@@ -1,0 +1,31 @@
+title: GraphEvidenceKind
+'@id': stencila:GraphEvidenceKind
+extends: Enumeration
+category: flow
+description: The kind of evidence supporting a graph edge.
+$comment: |
+  This enumeration classifies how a graph edge was learned or justified.
+  `StaticAnalysis` is derived without running the document, such as parsing
+  imports or references. `RuntimeObservation` is captured while code, tools, or
+  workflows run, such as an observed file read. `ExecutionMetadata` is imported
+  from persisted Stencila execution state, such as dependencies or digests,
+  rather than freshly observed during the current run.
+anyOf:
+  - const: StaticAnalysis
+    '@id': stencila:StaticAnalysis
+    description: Evidence from static analysis.
+  - const: RuntimeObservation
+    '@id': stencila:RuntimeObservation
+    description: Evidence from observing runtime behavior.
+  - const: UserAssertion
+    '@id': stencila:UserAssertion
+    description: Evidence asserted by a user.
+  - const: Imported
+    '@id': stencila:Imported
+    description: Evidence imported from another source.
+  - const: ContentCredential
+    '@id': stencila:ContentCredential
+    description: Evidence from a content credential.
+  - const: ExecutionMetadata
+    '@id': stencila:ExecutionMetadata
+    description: Evidence from execution metadata.

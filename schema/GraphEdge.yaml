@@ -1,0 +1,40 @@
+title: GraphEdge
+'@id': stencila:GraphEdge
+nick: ged
+extends: Entity
+category: flow
+description: A directed edge in a graph.
+$comment: |
+  This is a graph edge type used in Stencila for representing provenance,
+  reactivity and other graphs.
+
+  Edge direction is always from `source` upstream dependency to `target`
+  downstream dependant.
+  Both endpoints reference `GraphNode.id` values.
+required:
+  - source
+  - target
+  - kind
+core:
+  - source
+  - target
+  - kind
+properties:
+  source:
+    '@id': stencila:source
+    description: The id of the upstream dependency graph node.
+    type: string
+  target:
+    '@id': stencila:target
+    description: The id of the downstream dependant graph node.
+    type: string
+  kind:
+    '@id': stencila:kind
+    description: The kind of dependency relationship represented by this edge.
+    $ref: GraphEdgeKind
+  evidence:
+    '@id': stencila:evidence
+    description: Evidence supporting the edge.
+    type: array
+    items:
+      $ref: GraphEvidence

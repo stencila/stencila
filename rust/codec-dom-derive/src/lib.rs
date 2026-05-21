@@ -103,9 +103,27 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
         }
 
         if field_name == "id" {
-            attrs.extend(quote! {
-                context.push_id(&self.id);
-            });
+            let id_is_optional = matches!(
+                &field_attr.ty,
+                Type::Path(type_path)
+                    if type_path
+                        .path
+                        .segments
+                        .last()
+                        .is_some_and(|segment| segment.ident == "Option")
+            );
+
+            let tokens = if id_is_optional {
+                quote! {
+                    context.push_id(&self.id);
+                }
+            } else {
+                quote! {
+                    context.push_attr("_id", &self.id);
+                }
+            };
+
+            attrs.extend(tokens);
         } else if field_name == "options" {
             options.extend(quote! {
                 self.#field_name.to_dom(context);

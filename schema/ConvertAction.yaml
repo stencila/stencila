@@ -1,0 +1,22 @@
+title: ConvertAction
+'@id': stencila:ConvertAction
+nick: cva
+extends: Action
+category: flow
+description: An action that converts a resource from one representation or format to another.
+$comment: |
+  This is a Stencila extension of schema.org [`Action`](./action.md).
+
+  It represents format, encoding, packaging, or document-model conversion. In
+  Stencila, rendering an executable document can be represented as an
+  [`ExecuteAction`](./execute-action.md) followed by a `ConvertAction`, rather
+  than as a separate render-specific action.
+analogues:
+  - id: schema:Action
+    notes: Base schema.org action type extended for conversion-specific provenance.
+  - name: C2PA c2pa.converted action
+    url: https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions
+    notes: Close C2PA action projection when the file format or representation changed.
+  - name: PROV wasDerivedFrom
+    url: https://www.w3.org/TR/prov-o/#wasDerivedFrom
+    notes: Approximate provenance analogue for conversion-derived results.

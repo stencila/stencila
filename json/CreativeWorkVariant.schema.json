@@ -34,6 +34,9 @@
       "$ref": "File.schema.json"
     },
     {
+      "$ref": "Graph.schema.json"
+    },
+    {
       "$ref": "ImageObject.schema.json"
     },
     {

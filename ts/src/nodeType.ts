@@ -8,6 +8,7 @@ export type NodeType =
   | "Number"
   | "String"
   | "Array"
+  | "Action"
   | "Admonition"
   | "Agent"
   | "Annotation"
@@ -41,6 +42,8 @@ export type NodeType =
   | "CompilationMessage"
   | "ConstantValidator"
   | "ContactPoint"
+  | "ConvertAction"
+  | "CreateAction"
   | "CreativeWork"
   | "Datatable"
   | "DatatableColumn"
@@ -58,6 +61,7 @@ export type NodeType =
   | "EnumValidator"
   | "Enumeration"
   | "Excerpt"
+  | "ExecuteAction"
   | "ExecutionDependant"
   | "ExecutionDependency"
   | "ExecutionMessage"
@@ -68,6 +72,10 @@ export type NodeType =
   | "Form"
   | "Function"
   | "Grant"
+  | "Graph"
+  | "GraphEdge"
+  | "GraphEvidence"
+  | "GraphNode"
   | "Heading"
   | "Icon"
   | "IfBlock"
@@ -155,6 +163,7 @@ export const NodeTypeList = [
   "Number",
   "String",
   "Array",
+  "Action",
   "Admonition",
   "Agent",
   "Annotation",
@@ -188,6 +197,8 @@ export const NodeTypeList = [
   "CompilationMessage",
   "ConstantValidator",
   "ContactPoint",
+  "ConvertAction",
+  "CreateAction",
   "CreativeWork",
   "Datatable",
   "DatatableColumn",
@@ -205,6 +216,7 @@ export const NodeTypeList = [
   "EnumValidator",
   "Enumeration",
   "Excerpt",
+  "ExecuteAction",
   "ExecutionDependant",
   "ExecutionDependency",
   "ExecutionMessage",
@@ -215,6 +227,10 @@ export const NodeTypeList = [
   "Form",
   "Function",
   "Grant",
+  "Graph",
+  "GraphEdge",
+  "GraphEvidence",
+  "GraphNode",
   "Heading",
   "Icon",
   "IfBlock",

@@ -1,0 +1,256 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/CreateAction.schema.json",
+  "@id": "schema:CreateAction",
+  "title": "CreateAction",
+  "nick": "cta",
+  "extends": [
+    "Action"
+  ],
+  "category": "flow",
+  "description": "An action that creates a result.",
+  "$comment": "This is an implementation of schema.org\n[`CreateAction`](https://schema.org/CreateAction).\n\nIn Stencila provenance graphs it represents creation of new document content,\ngenerated outputs, or byte assets. It maps naturally to C2PA `c2pa.created`\nwhen projecting a graph to standard C2PA actions.\n",
+  "analogues": [
+    {
+      "id": "schema:CreateAction",
+      "notes": "Direct schema.org source type."
+    },
+    {
+      "name": "C2PA c2pa.created action",
+      "url": "https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_actions",
+      "notes": "Approximate C2PA action projection when a manifest records newly created content."
+    }
+  ],
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id",
+    "actionStatus",
+    "agent",
+    "objects",
+    "results",
+    "startTime",
+    "endTime"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    },
+    "actionStatus": {
+      "@id": "schema:actionStatus",
+      "description": "The current status of the action.",
+      "aliases": [
+        "action-status",
+        "action_status"
+      ],
+      "$ref": "ActionStatusType.schema.json"
+    },
+    "agent": {
+      "@id": "schema:agent",
+      "description": "The direct performer or driver of the action.",
+      "$ref": "ActionAgent.schema.json"
+    },
+    "participants": {
+      "@id": "schema:participant",
+      "description": "Other agents that participated in the action.",
+      "aliases": [
+        "participant"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ActionAgent.schema.json"
+      }
+    },
+    "provider": {
+      "@id": "schema:provider",
+      "description": "The service provider, service operator, or performer responsible for the action.",
+      "$ref": "ActionAgent.schema.json"
+    },
+    "objects": {
+      "@id": "schema:object",
+      "description": "The objects or input values upon which the action is carried out.",
+      "aliases": [
+        "object"
+      ],
+      "serde": {
+        "deserializeWith": "none"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
+      }
+    },
+    "results": {
+      "@id": "schema:result",
+      "description": "The objects or values produced by the action.",
+      "aliases": [
+        "result"
+      ],
+      "serde": {
+        "deserializeWith": "none"
+      },
+      "type": "array",
+      "items": {
+        "$ref": "Node.schema.json"
+      }
+    },
+    "instrument": {
+      "@id": "schema:instrument",
+      "description": "The object, software, or other instrument that helped perform the action.",
+      "anyOf": [
+        {
+          "$ref": "ThingVariant.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    },
+    "startTime": {
+      "@id": "schema:startTime",
+      "description": "When the action started.",
+      "aliases": [
+        "start-time",
+        "start_time"
+      ],
+      "strip": [
+        "timestamps"
+      ],
+      "$ref": "DateTime.schema.json"
+    },
+    "endTime": {
+      "@id": "schema:endTime",
+      "description": "When the action ended.",
+      "aliases": [
+        "end-time",
+        "end_time"
+      ],
+      "strip": [
+        "timestamps"
+      ],
+      "$ref": "DateTime.schema.json"
+    },
+    "error": {
+      "@id": "schema:error",
+      "description": "An error produced by the action.",
+      "anyOf": [
+        {
+          "$ref": "ThingVariant.schema.json"
+        },
+        {
+          "type": "string"
+        }
+      ]
+    }
+  }
+}

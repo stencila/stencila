@@ -1,0 +1,25 @@
+title: ActionAgent
+'@id': stencila:ActionAgent
+category: flow
+description: A human, organization, software application, or Stencila AI agent that performs, provides, or participates in an action.
+$comment: |
+  This is a union type used by [`Action`](./action.md) properties that identify
+  agents. It follows schema.org's `Person` and `Organization` range for
+  `Action.agent`, while adding `SoftwareApplication` for software tools and
+  Stencila `Agent` for reusable AI agent definitions. This distinction allows
+  provenance to separate an application such as Stencila CLI or Python from a
+  configured AI agent that may have instructions, model preferences, and tool
+  permissions.
+analogues:
+  - id: schema:agent
+    notes: Close analogue for the expected range of schema.org `Action.agent`, extended with Stencila software and AI agent types.
+default: Person
+anyOf:
+  - $ref: Person
+    description: A human actor.
+  - $ref: Organization
+    description: An organization responsible for the action.
+  - $ref: SoftwareApplication
+    description: A software tool or application that performed or assisted the action.
+  - $ref: Agent
+    description: A Stencila AI agent definition that performed or directed the action.

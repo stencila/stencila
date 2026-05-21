@@ -34,9 +34,14 @@
       "@type": "rdfs:Property",
       "rdfs:label": "description",
       "rdfs:comment": "A description of the item.",
-      "schema:domainIncludes": {
-        "@id": "schema:Thing"
-      },
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

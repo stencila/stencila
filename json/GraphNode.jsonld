@@ -1,0 +1,47 @@
+{
+  "@id": "https://stencila.org/GraphNode",
+  "name": "GraphNode",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:GraphNode",
+      "@type": "rdfs:Class",
+      "rdfs:label": "GraphNode",
+      "rdfs:comment": "A node in a graph.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "stencila:nodeType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "nodeType",
+      "rdfs:comment": "The Stencila node type represented by this graph node, matching `node.type` when `node` is present.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:GraphNode"
+        },
+        {
+          "@id": "stencila:Variable"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:node",
+      "@type": "rdfs:Property",
+      "rdfs:label": "node",
+      "rdfs:comment": "The embedded Stencila node represented by this graph node.",
+      "schema:domainIncludes": {
+        "@id": "stencila:GraphNode"
+      }
+    }
+  ]
+}

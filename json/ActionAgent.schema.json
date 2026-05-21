@@ -1,0 +1,34 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ActionAgent.schema.json",
+  "@id": "stencila:ActionAgent",
+  "title": "ActionAgent",
+  "category": "flow",
+  "description": "A human, organization, software application, or Stencila AI agent that performs, provides, or participates in an action.",
+  "$comment": "This is a union type used by [`Action`](./action.md) properties that identify\nagents. It follows schema.org's `Person` and `Organization` range for\n`Action.agent`, while adding `SoftwareApplication` for software tools and\nStencila `Agent` for reusable AI agent definitions. This distinction allows\nprovenance to separate an application such as Stencila CLI or Python from a\nconfigured AI agent that may have instructions, model preferences, and tool\npermissions.\n",
+  "analogues": [
+    {
+      "id": "schema:agent",
+      "notes": "Close analogue for the expected range of schema.org `Action.agent`, extended with Stencila software and AI agent types."
+    }
+  ],
+  "anyOf": [
+    {
+      "description": "A human actor.",
+      "$ref": "Person.schema.json"
+    },
+    {
+      "description": "An organization responsible for the action.",
+      "$ref": "Organization.schema.json"
+    },
+    {
+      "description": "A software tool or application that performed or assisted the action.",
+      "$ref": "SoftwareApplication.schema.json"
+    },
+    {
+      "description": "A Stencila AI agent definition that performed or directed the action.",
+      "$ref": "Agent.schema.json"
+    }
+  ],
+  "default": "Person"
+}

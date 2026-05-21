@@ -1,0 +1,53 @@
+title: Graph
+'@id': stencila:Graph
+nick: gph
+extends: CreativeWork
+category: flow
+description: A directed graph relating Stencila nodes, used for provenance, reactivity, and similar relationship graphs.
+$comment: |
+  This is a graph type used in Stencila for representing provenance, reactivity
+  and other graphs.
+
+  The `subject` identifies the real resource or scoped document node that the
+  graph was generated for. It should be an absolute URI with an optional fragment
+  for a scoped node, following the form `scheme://resource` or
+  `scheme://resource#fragment`, such as `file://report.md` or
+  `file://report.md#fig1`.
+
+  Graph nodes use durable graph-local `id` values and edges are directed
+  relationships. Edge direction is always from upstream dependency, source, or
+  component to downstream dependant, result, or containing node. The `edges`
+  property is required for shape stability, but may be an empty array for a
+  single-node graph or a graph whose relationships have not yet been collected.
+
+  The graph inherits creative-work metadata such as `dateCreated`,
+  `dateModified`, `version`, `authors`, `contributors`, and `references`.
+  Extending `CreativeWork` is intentional: provenance graphs may themselves be
+  authored, versioned, cited, funded, or published as reusable research objects,
+  even when many graphs only use a small subset of that metadata.
+required:
+  - subject
+  - nodes
+  - edges
+core:
+  - subject
+  - nodes
+  - edges
+properties:
+  subject:
+    '@id': stencila:subject
+    description: An absolute URI identifying the resource or scoped document node that the graph was generated for.
+    type: string
+    format: uri
+  nodes:
+    '@id': stencila:nodes
+    description: The nodes in the graph.
+    type: array
+    items:
+      $ref: GraphNode
+  edges:
+    '@id': stencila:edges
+    description: The directed edges in the graph.
+    type: array
+    items:
+      $ref: GraphEdge
