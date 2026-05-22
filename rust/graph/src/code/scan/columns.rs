@@ -28,6 +28,7 @@ pub(in crate::code) fn collect_column_facts(
             CodeLanguage::Python => python_columns(source, &dataframe),
             CodeLanguage::R => r_columns(source, &dataframe),
             CodeLanguage::Julia => julia_columns(source, &dataframe),
+            CodeLanguage::Matlab => matlab_columns(source, &dataframe),
             CodeLanguage::JavaScript
             | CodeLanguage::TypeScript
             | CodeLanguage::Rust
@@ -118,6 +119,36 @@ fn julia_columns(source: &str, dataframe: &str) -> BTreeSet<String> {
         .map(|(index, _)| &source[index + bracket_marker.len()..])
     {
         let Some(end) = segment.find(']') else {
+            continue;
+        };
+        collect_string_literals(&segment[..end], &mut columns);
+    }
+    columns
+}
+
+/// Extract simple MATLAB table column literals.
+///
+/// MATLAB tables commonly use `T.column` and `T(:, "column")` access. This is
+/// intentionally the same narrow static strategy as the Python, R, and Julia
+/// scanners: only literal or identifier columns tied to known table variables
+/// are represented.
+fn matlab_columns(source: &str, dataframe: &str) -> BTreeSet<String> {
+    let mut columns = BTreeSet::new();
+    let dot_marker = format!("{dataframe}.");
+    for segment in source
+        .match_indices(&dot_marker)
+        .map(|(index, _)| &source[index + dot_marker.len()..])
+    {
+        if let Some(column) = first_identifier(segment) {
+            columns.insert(column.to_string());
+        }
+    }
+    let bracket_marker = format!("{dataframe}(");
+    for segment in source
+        .match_indices(&bracket_marker)
+        .map(|(index, _)| &source[index + bracket_marker.len()..])
+    {
+        let Some(end) = segment.find(')') else {
             continue;
         };
         collect_string_literals(&segment[..end], &mut columns);

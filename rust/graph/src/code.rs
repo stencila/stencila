@@ -1,6 +1,6 @@
 //! Static extraction of computation-oriented facts from source code.
 //!
-//! This module analyzes Python, R, Julia, JavaScript, TypeScript, Rust,
+//! This module analyzes Python, R, Julia, MATLAB, JavaScript, TypeScript, Rust,
 //! Snakemake, and Nextflow source using embedded ast-grep rules plus small language-specific
 //! normalizers. It turns imports,
 //! assignments, symbol uses, calls, static file paths, dataframe columns, and
@@ -103,6 +103,34 @@ CSV.write("results/output.csv", df)
         assert!(facts.imports.contains("DataFrames"));
         assert!(!facts.imports.contains("df"));
         assert!(facts.assignments.contains("df"));
+        assert!(facts.assignments.contains("total"));
+        assert!(facts.declarations.contains("summarize"));
+        assert!(facts.calls.contains("sum"));
+        assert!(facts.reads.contains("data/input.csv"));
+        assert!(facts.writes.contains("results/output.csv"));
+        assert!(facts.columns.iter().any(|column| column.column == "count"));
+    }
+
+    #[test]
+    fn extracts_matlab_facts() {
+        let facts = analyze_source(
+            CodeLanguage::Matlab,
+            r#"
+import stats.*
+
+tbl = readtable("data/input.csv");
+total = sum(tbl.count);
+
+function result = summarize(values)
+    result = sum(values);
+end
+
+writetable(tbl, "results/output.csv");
+"#,
+        );
+
+        assert!(facts.imports.contains("stats"));
+        assert!(facts.assignments.contains("tbl"));
         assert!(facts.assignments.contains("total"));
         assert!(facts.declarations.contains("summarize"));
         assert!(facts.calls.contains("sum"));

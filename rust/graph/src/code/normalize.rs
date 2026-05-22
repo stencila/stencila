@@ -63,6 +63,12 @@ pub(super) fn normalize_match(
         (CodeLanguage::Julia, "julia-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::Julia, "julia-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::Julia, "julia-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Matlab, "matlab-import") => normalize_matlab_import(matched, facts),
+        (CodeLanguage::Matlab, "matlab-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Matlab, "matlab-function") => normalize_matlab_function(matched, facts),
+        (CodeLanguage::Matlab, "matlab-read") => normalize_io_match(matched, facts, true),
+        (CodeLanguage::Matlab, "matlab-write") => normalize_io_match(matched, facts, false),
+        (CodeLanguage::Matlab, "matlab-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Snakemake, "snakemake-rule") => {
             if let Some(node) = matched.field("name") {
                 let name = node.text().into_owned();
@@ -142,6 +148,54 @@ fn normalize_julia_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut
     {
         facts.imports.insert(package.clone());
         record_imported_symbol(facts, package, env_range_start(matched, "PKG"));
+    }
+}
+
+/// Normalize a MATLAB import statement.
+///
+/// MATLAB `import package.member` statements identify a package root
+/// statically. Imported terminal names are tracked when they are concrete so
+/// follow-on symbol use filtering does not treat them as cross-unit variables.
+fn normalize_matlab_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    let Some(module) = env_text(matched, "MODULE").or_else(|| {
+        matched
+            .text()
+            .trim()
+            .strip_prefix("import")
+            .map(str::trim)
+            .map(str::to_string)
+    }) else {
+        return;
+    };
+
+    if let Some(package) = package_name(&module) {
+        facts.imports.insert(package.clone());
+        record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
+    }
+
+    if let Some(symbol) = matlab_imported_symbol(&module) {
+        record_imported_symbol(facts, symbol, env_range_start(matched, "MODULE"));
+    }
+}
+
+/// Normalize a MATLAB function definition.
+fn normalize_matlab_function(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(node) = matched.field("name") {
+        let name = node.text();
+        if let Some(name) = identifier_target(name.trim()) {
+            facts.declarations.insert(name.to_string());
+            record_definition(facts, &name, node.range().start);
+        }
+    }
+}
+
+/// Extract a concrete local symbol imported by a MATLAB import statement.
+fn matlab_imported_symbol(module: &str) -> Option<String> {
+    let symbol = module.rsplit('.').next()?.trim();
+    if symbol == "*" {
+        None
+    } else {
+        first_identifier_owned(symbol)
     }
 }
 
@@ -277,7 +331,7 @@ pub(super) fn collect_identifier_uses(
         }
         let name = node.text();
         let name = name.trim();
-        if is_ignored_identifier(language, name) || is_definition_identifier(&node) {
+        if is_ignored_identifier(language, name) || is_definition_identifier(language, &node) {
             continue;
         }
         record_use(facts, name, node.range().start);
@@ -297,10 +351,22 @@ fn env_range_start(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str) -> Opti
 /// Definition identifiers should not be counted as uses of themselves. The
 /// checks are deliberately limited to grammar shapes this module already
 /// handles, which keeps the fallback conservative for unsupported constructs.
-fn is_definition_identifier(node: &ast_grep_core::Node<StrDoc<CodeLanguage>>) -> bool {
+fn is_definition_identifier(
+    language: CodeLanguage,
+    node: &ast_grep_core::Node<StrDoc<CodeLanguage>>,
+) -> bool {
     let Some(parent) = node.parent() else {
         return false;
     };
+
+    if language == CodeLanguage::Matlab
+        && parent.kind().as_ref() == "function_call"
+        && parent
+            .field("name")
+            .is_some_and(|name| name.range().contains(&node.range().start))
+    {
+        return true;
+    }
 
     match parent.kind().as_ref() {
         "assignment" | "augmented_assignment" => parent

@@ -61,6 +61,25 @@ const JULIA_RULES: &str = concat!(
     include_str!("../../rules/julia/call.yml"),
 );
 
+/// Embedded ast-grep rules for MATLAB source.
+///
+/// MATLAB rules cover package imports, assignments, function declarations,
+/// common table/file reads and writes, and calls that can be represented as
+/// graph facts without evaluating MATLAB code.
+const MATLAB_RULES: &str = concat!(
+    include_str!("../../rules/matlab/import.yml"),
+    "\n---\n",
+    include_str!("../../rules/matlab/assignment.yml"),
+    "\n---\n",
+    include_str!("../../rules/matlab/function.yml"),
+    "\n---\n",
+    include_str!("../../rules/matlab/read.yml"),
+    "\n---\n",
+    include_str!("../../rules/matlab/write.yml"),
+    "\n---\n",
+    include_str!("../../rules/matlab/call.yml"),
+);
+
 /// Embedded ast-grep rules for Snakemake source.
 ///
 /// Snakemake still receives a small text fallback later in this module because
@@ -187,6 +206,13 @@ pub enum CodeLanguage {
     #[serde(alias = "julia", alias = "jl", alias = "Julia", alias = "JULIA")]
     Julia,
 
+    /// MATLAB source.
+    ///
+    /// MATLAB is analyzed through tree-sitter-matlab and focuses on imports,
+    /// assignments, function declarations, calls, and static file IO.
+    #[serde(alias = "matlab", alias = "m", alias = "Matlab", alias = "MATLAB")]
+    Matlab,
+
     /// Snakemake workflow source.
     ///
     /// Snakemake is treated as a workflow language rather than a general Python
@@ -231,6 +257,7 @@ impl CodeLanguage {
             Some("py") | Some("pyw") => Some(Self::Python),
             Some("r") | Some("R") => Some(Self::R),
             Some("jl") => Some(Self::Julia),
+            Some("m") => Some(Self::Matlab),
             Some("smk") => Some(Self::Snakemake),
             Some("nf") => Some(Self::Nextflow),
             _ => None,
@@ -250,6 +277,7 @@ impl CodeLanguage {
             "python" | "py" => Some(Self::Python),
             "r" => Some(Self::R),
             "julia" | "jl" => Some(Self::Julia),
+            "matlab" | "m" => Some(Self::Matlab),
             "snakemake" | "smk" | "snakefile" => Some(Self::Snakemake),
             "nextflow" | "nf" => Some(Self::Nextflow),
             _ => None,
@@ -268,6 +296,7 @@ impl CodeLanguage {
             Self::Python => "Python",
             Self::R => "R",
             Self::Julia => "Julia",
+            Self::Matlab => "MATLAB",
             Self::Snakemake => "Snakemake",
             Self::Nextflow => "Nextflow",
         }
@@ -285,6 +314,7 @@ impl CodeLanguage {
             Self::Python => "python",
             Self::R => "r",
             Self::Julia => "julia",
+            Self::Matlab => "matlab",
             Self::Snakemake => "snakemake",
             Self::Nextflow => "nextflow",
         }
@@ -307,6 +337,7 @@ impl CodeLanguage {
             Self::Python => PYTHON_RULES,
             Self::R => R_RULES,
             Self::Julia => JULIA_RULES,
+            Self::Matlab => MATLAB_RULES,
             Self::Snakemake => SNAKEMAKE_RULES,
             Self::Nextflow => "",
         }
@@ -332,9 +363,14 @@ impl Language for CodeLanguage {
     /// Return the private metavariable sigil used after preprocessing.
     ///
     /// A non-ASCII character avoids colliding with ordinary source text in the
-    /// supported languages.
+    /// supported languages. MATLAB identifiers must start with an ASCII letter,
+    /// so it uses a valid identifier prefix for ast-grep pattern parsing.
     fn expando_char(&self) -> char {
-        'µ'
+        if matches!(self, Self::Matlab) {
+            'Q'
+        } else {
+            'µ'
+        }
     }
 
     /// Map a tree-sitter node kind to its numeric id.
@@ -385,6 +421,7 @@ impl LanguageExt for CodeLanguage {
             Self::Python => tree_sitter_python::LANGUAGE.into(),
             Self::R => tree_sitter_r::LANGUAGE.into(),
             Self::Julia => tree_sitter_julia::LANGUAGE.into(),
+            Self::Matlab => tree_sitter_matlab::LANGUAGE.into(),
             Self::Snakemake => tree_sitter_snakemake::LANGUAGE.into(),
             Self::Nextflow => unreachable!("Nextflow uses the text extractor, not ast-grep"),
         }

@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "1.1.0",
+  "name": "GraphFixture",
+  "version": "0.1.0",
+  "id": "af92112b-8b66-44d1-b4b1-848f54affa3e",
+  "dependencies": [
+    {
+      "name": "StatsTools",
+      "compatibleVersions": ">=1.0.0 <2.0.0",
+      "id": "e6c4123e-0068-42be-aef2-00d49d1509f5"
+    }
+  ]
+}

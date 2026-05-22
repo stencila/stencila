@@ -361,6 +361,10 @@ pub(super) fn is_ignored_identifier(language: CodeLanguage, name: &str) -> bool 
                 | "using"
                 | "write"
         ),
+        CodeLanguage::Matlab => matches!(
+            name,
+            "NaN" | "Inf" | "false" | "true" | "function" | "import" | "end" | "pi"
+        ),
     }
 }
 

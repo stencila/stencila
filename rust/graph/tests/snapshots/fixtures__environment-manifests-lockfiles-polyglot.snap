@@ -13,6 +13,13 @@ nodes:
       name: environment-manifests-lockfiles-polyglot
       path: "."
   - type: GraphNode
+    id: "dir:resources"
+    node:
+      type: Directory
+      id: "dir:resources"
+      name: resources
+      path: resources
+  - type: GraphNode
     id: "environment:julia:Project.toml"
     node:
       type: SoftwareApplication
@@ -24,6 +31,15 @@ nodes:
         - "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
         - "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
         - "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
+  - type: GraphNode
+    id: "environment:matlab:resources/mpackage.json"
+    node:
+      type: SoftwareApplication
+      id: "environment:matlab:resources/mpackage.json"
+      name: MATLAB environment declared by resources/mpackage.json
+      path: resources/mpackage.json
+      softwareRequirements:
+        - "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
   - type: GraphNode
     id: "environment:node:package.json"
     node:
@@ -229,6 +245,24 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "file:resources/mpackage.json"
+    node:
+      type: File
+      id: "file:resources/mpackage.json"
+      name: mpackage.json
+      path: resources/mpackage.json
+      size: 289
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:b5b3e99e21260a83b38960b606e9af4971c548a63d17c3ad9cd68daa87418e61"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
     id: "file:uv.lock"
     node:
       type: File
@@ -261,6 +295,17 @@ nodes:
         d3-dsv: ^3.0.1
       devDependencies:
         typescript: ~5.4.0
+  - type: GraphNode
+    id: "node:resources/mpackage.json"
+    node:
+      schemaVersion: 1.1.0
+      name: GraphFixture
+      version: 0.1.0
+      id: af92112b-8b66-44d1-b4b1-848f54affa3e
+      dependencies:
+        - name: StatsTools
+          compatibleVersions: ">=1.0.0 <2.0.0"
+          id: e6c4123e-0068-42be-aef2-00d49d1509f5
   - type: GraphNode
     id: "package:pkg%3Acargo/csv"
     node:
@@ -361,6 +406,17 @@ nodes:
           propertyId: purl
           value: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
   - type: GraphNode
+    id: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+      name: StatsTools
+      programmingLanguage: MATLAB
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
+  - type: GraphNode
     id: "package:pkg%3Anpm/d3-dsv"
     node:
       type: SoftwareSourceCode
@@ -417,6 +473,13 @@ nodes:
           propertyId: purl
           value: "pkg:pypi/requests"
 edges:
+  - type: GraphEdge
+    source: "dir:resources"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "file:Cargo.lock"
     target: "dir:."
@@ -561,6 +624,29 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:resources/mpackage.json"
+    target: "dir:resources"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:resources/mpackage.json"
+    target: "environment:matlab:resources/mpackage.json"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:resources/mpackage.json"
+    target: "node:resources/mpackage.json"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
   - type: GraphEdge
     source: "file:uv.lock"
     target: "dir:."
@@ -796,6 +882,31 @@ edges:
           name: Test
           purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
           raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
+  - type: GraphEdge
+    source: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+    target: "environment:matlab:resources/mpackage.json"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: matlab
+          manifest: resources/mpackage.json
+          group: dependencies
+          name: StatsTools
+          purl: "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
+          raw: "{\"name\":\"StatsTools\",\"compatibleVersions\":\">=1.0.0 <2.0.0\",\"id\":\"e6c4123e-0068-42be-aef2-00d49d1509f5\"}"
+          specifier: ">=1.0.0 <2.0.0"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: matlab
+          manifest: resources/mpackage.json
+          group: dependencies
+          name: StatsTools
+          purl: "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
+          raw: "{\"name\":\"StatsTools\",\"compatibleVersions\":\">=1.0.0 <2.0.0\",\"id\":\"e6c4123e-0068-42be-aef2-00d49d1509f5\"}"
+          specifier: ">=1.0.0 <2.0.0"
   - type: GraphEdge
     source: "package:pkg%3Anpm/d3-dsv"
     target: "environment:node:package.json"

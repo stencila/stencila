@@ -1,0 +1,20 @@
+id: matlab-write
+language: Matlab
+message: MATLAB file write
+severity: info
+rule:
+  any:
+    - kind: function_call
+      pattern: writetable($VALUE, $PATH)
+    - kind: function_call
+      pattern: writematrix($VALUE, $PATH)
+    - kind: function_call
+      pattern: writecell($VALUE, $PATH)
+    - kind: function_call
+      pattern: save($PATH, $$$ARGS)
+    - kind: function_call
+      pattern: imwrite($VALUE, $PATH)
+    - kind: function_call
+      pattern: csvwrite($PATH, $VALUE)
+    - kind: function_call
+      pattern: xlswrite($PATH, $VALUE)

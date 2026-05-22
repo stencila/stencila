@@ -14,6 +14,14 @@ nodes:
       path: analysis.js
       programmingLanguage: JavaScript
   - type: GraphNode
+    id: "code:analysis.m"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.m"
+      name: analysis.m
+      path: analysis.m
+      programmingLanguage: MATLAB
+  - type: GraphNode
     id: "code:qc.ts"
     node:
       type: SoftwareSourceCode
@@ -86,6 +94,20 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "file:analysis.m"
+    node:
+      type: File
+      id: "file:analysis.m"
+      name: analysis.m
+      path: analysis.m
+      size: 134
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
     id: "file:data/raw/samples.tsv"
     node:
       type: File
@@ -121,6 +143,20 @@ nodes:
       name: js-summary.tsv
       path: results/js-summary.tsv
       size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/matlab-summary.tsv"
+    node:
+      type: File
+      id: "file:results/matlab-summary.tsv"
+      name: matlab-summary.tsv
+      path: results/matlab-summary.tsv
+      size: 8
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -198,6 +234,34 @@ nodes:
       name: writeFileSync
       parameters: []
   - type: GraphNode
+    id: "function:analysis.m:matlab:height"
+    node:
+      type: Function
+      id: "function:analysis.m:matlab:height"
+      name: height
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.m:matlab:readtable"
+    node:
+      type: Function
+      id: "function:analysis.m:matlab:readtable"
+      name: readtable
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.m:matlab:table"
+    node:
+      type: Function
+      id: "function:analysis.m:matlab:table"
+      name: table
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.m:matlab:writetable"
+    node:
+      type: Function
+      id: "function:analysis.m:matlab:writetable"
+      name: writetable
+      parameters: []
+  - type: GraphNode
     id: "function:qc.ts:typescript:parse"
     node:
       type: Function
@@ -262,6 +326,14 @@ nodes:
           name: value
           values: []
   - type: GraphNode
+    id: "node:results/matlab-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: count
+          values: []
+  - type: GraphNode
     id: "node:results/rust-summary.tsv#dtb_"
     node:
       type: Datatable
@@ -308,12 +380,32 @@ nodes:
       id: "package:serde"
       name: serde
   - type: GraphNode
+    id: "package:stats"
+    node:
+      type: SoftwareApplication
+      id: "package:stats"
+      name: stats
+  - type: GraphNode
     id: "symbol:analysis.js:javascript:input"
     node:
       type: Variable
       id: "symbol:analysis.js:javascript:input"
       name: input
       programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "symbol:analysis.m:matlab:count"
+    node:
+      type: Variable
+      id: "symbol:analysis.m:matlab:count"
+      name: count
+      programmingLanguage: MATLAB
+  - type: GraphNode
+    id: "symbol:analysis.m:matlab:tbl"
+    node:
+      type: Variable
+      id: "symbol:analysis.m:matlab:tbl"
+      name: tbl
+      programmingLanguage: MATLAB
   - type: GraphNode
     id: "symbol:qc.ts:typescript:table"
     node:
@@ -395,6 +487,34 @@ edges:
   - type: GraphEdge
     source: "code:analysis.js"
     target: "symbol:analysis.js:javascript:input"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.m"
+    target: "file:analysis.m"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.m"
+    target: "file:results/matlab-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.m"
+    target: "symbol:analysis.m:matlab:count"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.m"
+    target: "symbol:analysis.m:matlab:tbl"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -498,6 +618,20 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
+    source: "file:analysis.m"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "code:analysis.m"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "file:data/raw/samples.tsv"
     target: "code:src/bin/report.rs"
     kind: ReadBy
@@ -511,6 +645,15 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "file:results/matlab-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
     target: "file:results/rust-summary.tsv"
@@ -546,6 +689,22 @@ edges:
   - type: GraphEdge
     source: "file:results/js-summary.tsv"
     target: "node:results/js-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/matlab-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/matlab-summary.tsv"
+    target: "node:results/matlab-summary.tsv#dtb_"
     kind: ConvertedInto
     evidence:
       - type: GraphEvidence
@@ -620,6 +779,34 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:analysis.m:matlab:height"
+    target: "code:analysis.m"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.m:matlab:readtable"
+    target: "code:analysis.m"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.m:matlab:table"
+    target: "code:analysis.m"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.m:matlab:writetable"
+    target: "code:analysis.m"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:qc.ts:typescript:parse"
     target: "code:qc.ts"
     kind: CalledBy
@@ -678,6 +865,13 @@ edges:
   - type: GraphEdge
     source: "package:serde"
     target: "code:src/bin/report.rs"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:stats"
+    target: "code:analysis.m"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence

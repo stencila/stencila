@@ -1,0 +1,46 @@
+id: matlab-read
+language: Matlab
+message: MATLAB file read
+severity: info
+rule:
+  any:
+    - kind: assignment
+      pattern: $TARGET = readtable($PATH)
+    - kind: function_call
+      pattern: readtable($PATH)
+    - kind: assignment
+      pattern: $TARGET = readmatrix($PATH)
+    - kind: function_call
+      pattern: readmatrix($PATH)
+    - kind: assignment
+      pattern: $TARGET = readcell($PATH)
+    - kind: function_call
+      pattern: readcell($PATH)
+    - kind: assignment
+      pattern: $TARGET = load($PATH)
+    - kind: function_call
+      pattern: load($PATH)
+    - kind: assignment
+      pattern: $TARGET = fileread($PATH)
+    - kind: function_call
+      pattern: fileread($PATH)
+    - kind: assignment
+      pattern: $TARGET = fopen($PATH)
+    - kind: function_call
+      pattern: fopen($PATH)
+    - kind: assignment
+      pattern: $TARGET = fopen($PATH, $MODE)
+    - kind: function_call
+      pattern: fopen($PATH, $MODE)
+    - kind: assignment
+      pattern: $TARGET = imread($PATH)
+    - kind: function_call
+      pattern: imread($PATH)
+    - kind: assignment
+      pattern: $TARGET = csvread($PATH)
+    - kind: function_call
+      pattern: csvread($PATH)
+    - kind: assignment
+      pattern: $TARGET = xlsread($PATH)
+    - kind: function_call
+      pattern: xlsread($PATH)

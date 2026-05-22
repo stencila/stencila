@@ -19,6 +19,7 @@
 //! nodes using one shared graph shape.
 
 mod julia;
+mod matlab;
 mod node;
 mod python;
 mod r;
@@ -95,6 +96,7 @@ enum Ecosystem {
     Rust,
     R,
     Julia,
+    Matlab,
 }
 
 impl Ecosystem {
@@ -110,6 +112,7 @@ impl Ecosystem {
             Self::Rust => "rust",
             Self::R => "r",
             Self::Julia => "julia",
+            Self::Matlab => "matlab",
         }
     }
 
@@ -125,6 +128,7 @@ impl Ecosystem {
             Self::Rust => "Rust",
             Self::R => "R",
             Self::Julia => "Julia",
+            Self::Matlab => "MATLAB",
         }
     }
 
@@ -140,6 +144,7 @@ impl Ecosystem {
             Self::Rust => "cargo",
             Self::R => "cran",
             Self::Julia => "julia",
+            Self::Matlab => "matlab",
         }
     }
 
@@ -156,6 +161,7 @@ impl Ecosystem {
             Self::Rust => "Rust",
             Self::R => "R",
             Self::Julia => "Julia",
+            Self::Matlab => "MATLAB",
         }
     }
 }
@@ -336,6 +342,7 @@ fn parse_manifest(path: &Path, rel: &WorkspaceRelPath) -> Result<Option<Environm
         "Cargo.toml" => rust::parse_cargo_toml(path, rel)?,
         "DESCRIPTION" => r::parse_description(path, rel)?,
         "Project.toml" | "JuliaProject.toml" => julia::parse_project_toml(path, rel)?,
+        "mpackage.json" => matlab::parse_mpackage_json(path, rel)?,
         _ => return Ok(None),
     };
 
@@ -444,6 +451,7 @@ fn is_manifest_name(name: &str) -> bool {
             | "DESCRIPTION"
             | "Project.toml"
             | "JuliaProject.toml"
+            | "mpackage.json"
     )
 }
 
