@@ -19,9 +19,64 @@ pub(in crate::code) fn collect_named_io_text_facts(
 ) {
     let markers: &[NamedIoMarker] = match language {
         CodeLanguage::Python => &[
+            // Tabular dataframe readers and writers.
             NamedIoMarker::read("read_csv", "filepath_or_buffer"),
+            NamedIoMarker::read("read_table", "filepath_or_buffer"),
+            NamedIoMarker::read("read_excel", "io"),
+            NamedIoMarker::read("read_json", "path_or_buf"),
+            NamedIoMarker::read("read_html", "io"),
+            NamedIoMarker::read("read_parquet", "path"),
+            NamedIoMarker::read("read_feather", "path"),
+            NamedIoMarker::read("read_pickle", "filepath_or_buffer"),
+            NamedIoMarker::read("read_hdf", "path_or_buf"),
+            NamedIoMarker::read("read_orc", "path"),
+            NamedIoMarker::read("read_sas", "filepath_or_buffer"),
+            NamedIoMarker::read("read_stata", "filepath_or_buffer"),
+            NamedIoMarker::read("read_fwf", "filepath_or_buffer"),
+            NamedIoMarker::read("read_xml", "path_or_buffer"),
+            NamedIoMarker::read("read_spss", "path"),
+            NamedIoMarker::read("read_file", "filename"),
             NamedIoMarker::write("to_csv", "path_or_buf"),
+            NamedIoMarker::write("to_excel", "excel_writer"),
+            NamedIoMarker::write("to_json", "path_or_buf"),
+            NamedIoMarker::write("to_html", "buf"),
+            NamedIoMarker::write("to_parquet", "path"),
+            NamedIoMarker::write("to_feather", "path"),
+            NamedIoMarker::write("to_pickle", "path"),
+            NamedIoMarker::write("to_hdf", "path_or_buf"),
+            NamedIoMarker::write("to_orc", "path"),
+            NamedIoMarker::write("to_stata", "path"),
+            NamedIoMarker::write("to_xml", "path_or_buffer"),
+            NamedIoMarker::write("to_latex", "buf"),
+            NamedIoMarker::write("to_markdown", "buf"),
+            NamedIoMarker::write("to_file", "filename"),
+            // Array, matrix, labeled-array, and chunked-store APIs.
+            NamedIoMarker::read("load", "file"),
+            NamedIoMarker::read("loadtxt", "fname"),
+            NamedIoMarker::read("genfromtxt", "fname"),
+            NamedIoMarker::read("fromfile", "file"),
+            NamedIoMarker::read("loadmat", "file_name"),
+            NamedIoMarker::read("open_dataset", "filename_or_obj"),
+            NamedIoMarker::read("open_dataarray", "filename_or_obj"),
+            NamedIoMarker::read("open_mfdataset", "paths"),
+            NamedIoMarker::read("open_zarr", "store"),
+            NamedIoMarker::write("save", "file"),
+            NamedIoMarker::write("savez", "file"),
+            NamedIoMarker::write("savez_compressed", "file"),
+            NamedIoMarker::write("savetxt", "fname"),
+            NamedIoMarker::write("savemat", "file_name"),
+            NamedIoMarker::write("torch.save", "f"),
+            NamedIoMarker::write("save_file", "filename"),
+            NamedIoMarker::write("to_netcdf", "path"),
+            NamedIoMarker::write("to_zarr", "store"),
+            // Images, plots, media, and URL helpers.
             NamedIoMarker::write("savefig", "fname"),
+            NamedIoMarker::write("imwrite", "uri"),
+            NamedIoMarker::write("imsave", "fname"),
+            NamedIoMarker::read("requests.get", "url"),
+            NamedIoMarker::read("urlopen", "url"),
+            NamedIoMarker::read("urlretrieve", "url"),
+            NamedIoMarker::write("urlretrieve", "filename"),
         ],
         CodeLanguage::R => &[
             NamedIoMarker::read("read.csv", "file"),
@@ -37,6 +92,18 @@ pub(in crate::code) fn collect_named_io_text_facts(
 
     for marker in markers {
         collect_named_marker(source, marker, facts);
+    }
+
+    let positional_markers: &[PositionalIoMarker] = match language {
+        CodeLanguage::Python => &[
+            PositionalIoMarker::write("torch.save", 1),
+            PositionalIoMarker::write("save_file", 1),
+        ],
+        _ => return,
+    };
+
+    for marker in positional_markers {
+        collect_positional_marker(source, marker, facts);
     }
 }
 
@@ -70,6 +137,28 @@ impl NamedIoMarker {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+struct PositionalIoMarker {
+    /// Direction implied by the API and positional argument.
+    direction: IoDirection,
+
+    /// Function spelling to search for in source text.
+    function: &'static str,
+
+    /// Zero-based argument index that carries the path expression.
+    argument_index: usize,
+}
+
+impl PositionalIoMarker {
+    fn write(function: &'static str, argument_index: usize) -> Self {
+        Self {
+            direction: IoDirection::Write,
+            function,
+            argument_index,
+        }
+    }
+}
+
 fn collect_named_marker(source: &str, marker: &NamedIoMarker, facts: &mut CodeFacts) {
     let call_marker = format!("{}(", marker.function);
     for call_index in call_indices(source, &call_marker) {
@@ -82,6 +171,40 @@ fn collect_named_marker(source: &str, marker: &NamedIoMarker, facts: &mut CodeFa
         let Some(value) = named_argument_value(arguments, marker.argument) else {
             continue;
         };
+        let Some(path) = path_from_argument_value(value) else {
+            continue;
+        };
+
+        facts.io.insert(IoFact {
+            direction: marker.direction,
+            path,
+            operation_offset: Some(call_index),
+            target: None,
+            target_offset: None,
+            value: None,
+            value_offset: None,
+            function: function_name(marker.function),
+            mode: None,
+        });
+    }
+}
+
+fn collect_positional_marker(source: &str, marker: &PositionalIoMarker, facts: &mut CodeFacts) {
+    let call_marker = format!("{}(", marker.function);
+    for call_index in call_indices(source, &call_marker) {
+        let Some(call_source) = source.get(call_index..) else {
+            continue;
+        };
+        let Some(arguments) = call_arguments(call_source) else {
+            continue;
+        };
+        let segments = top_level_segments(arguments);
+        let Some(value) = segments.get(marker.argument_index) else {
+            continue;
+        };
+        if top_level_assignment(value).is_some() {
+            continue;
+        }
         let Some(path) = path_from_argument_value(value) else {
             continue;
         };
@@ -235,7 +358,7 @@ fn call_arguments(source: &str) -> Option<&str> {
 /// comparing the left-hand side with the marker argument name.
 fn named_argument_value<'a>(arguments: &'a str, argument: &str) -> Option<&'a str> {
     for segment in top_level_segments(arguments) {
-        let Some((name, value)) = segment.split_once('=') else {
+        let Some((name, value)) = top_level_assignment(segment) else {
             continue;
         };
         if name.trim() == argument {
@@ -289,6 +412,44 @@ fn top_level_segments(source: &str) -> Vec<&str> {
     }
 
     segments
+}
+
+/// Split a named argument at a top-level assignment operator.
+///
+/// This deliberately ignores `=` inside strings and nested expressions so
+/// positional paths such as `"outputs/model=v1.pt"` are not mistaken for named
+/// arguments.
+fn top_level_assignment(source: &str) -> Option<(&str, &str)> {
+    let mut depth = 0usize;
+    let mut quote = None;
+    let mut escaped = false;
+
+    for (index, char) in source.char_indices() {
+        if let Some(delimiter) = quote {
+            if escaped {
+                escaped = false;
+            } else if char == '\\' {
+                escaped = true;
+            } else if char == delimiter {
+                quote = None;
+            }
+            continue;
+        }
+
+        match char {
+            '\'' | '"' | '`' => quote = Some(char),
+            '(' | '[' | '{' => depth += 1,
+            ')' | ']' | '}' => depth = depth.saturating_sub(1),
+            '=' if depth == 0 => {
+                let name = source.get(..index)?;
+                let value = source.get(index + char.len_utf8()..)?;
+                return Some((name, value));
+            }
+            _ => {}
+        }
+    }
+
+    None
 }
 
 /// Normalize a named argument value into an I/O path expression.

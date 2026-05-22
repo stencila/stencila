@@ -475,8 +475,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
+    target: "file:results/counts/gene-counts.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/counts.py"
     target: "file:workflow/scripts/counts.py"
     kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/download.py"
+    target: "file:data/raw/S1.fastq"
+    kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

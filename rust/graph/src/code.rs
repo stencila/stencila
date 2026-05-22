@@ -85,6 +85,94 @@ plt.savefig("plot.png")
     }
 
     #[test]
+    fn extracts_scientific_python_io_facts() {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+import imageio.v3 as iio
+from pathlib import Path
+import gzip
+import numpy as np
+import pandas as pd
+import requests
+import torch
+import xarray as xr
+from shutil import copyfile, copytree, move
+from urllib.request import urlretrieve
+
+table = pd.read_parquet("data/table.parquet")
+fixed = pd.read_fwf("data/fixed-width.txt")
+xml = pd.read_xml(path_or_buffer="data/table.xml")
+spss = pd.read_spss(path="data/table.sav")
+workbook = pd.read_excel(io="https://example.org/workbook.xlsx")
+array = np.load("data/array.npy")
+matrix = np.loadtxt(fname="data/matrix.tsv")
+cube = xr.open_dataset(filename_or_obj="https://example.org/cube.nc")
+image = iio.imread("images/source.tif")
+response = requests.get("https://example.org/api.json")
+text = Path("data/config.txt").read_text()
+with gzip.open("data/archive.csv.gz", "rt") as handle:
+    compressed = handle.read()
+urlretrieve("https://example.org/raw.csv", "downloads/raw.csv")
+copyfile("downloads/raw.csv", "copies/raw.csv")
+copytree("templates/project", "build/project")
+move("staging/report.csv", "reports/report.csv")
+
+table.to_parquet("outputs/table.parquet")
+table.to_excel(excel_writer="outputs/table.xlsx")
+table.to_xml("outputs/table.xml")
+table.to_latex(buf="outputs/table.tex")
+table.to_markdown("outputs/table.md")
+np.save("outputs/array.npy", array)
+torch.save(image, "outputs/model.pt")
+torch.save(image, "outputs/model=v1.pt")
+cube.to_netcdf(path="outputs/cube.nc")
+iio.imwrite("outputs/image.tif", image)
+image.save("outputs/pillow.png")
+Path("outputs/config.txt").write_text(text)
+"#,
+        );
+
+        assert_io(&facts, IoDirection::Read, "data/table.parquet");
+        assert_io(&facts, IoDirection::Read, "data/fixed-width.txt");
+        assert_io(&facts, IoDirection::Read, "data/table.xml");
+        assert_io(&facts, IoDirection::Read, "data/table.sav");
+        assert_io(
+            &facts,
+            IoDirection::Read,
+            "https://example.org/workbook.xlsx",
+        );
+        assert_io(&facts, IoDirection::Read, "data/array.npy");
+        assert_io(&facts, IoDirection::Read, "data/matrix.tsv");
+        assert_io(&facts, IoDirection::Read, "https://example.org/cube.nc");
+        assert_io(&facts, IoDirection::Read, "images/source.tif");
+        assert_io(&facts, IoDirection::Read, "https://example.org/api.json");
+        assert_io(&facts, IoDirection::Read, "data/config.txt");
+        assert_io(&facts, IoDirection::Read, "data/archive.csv.gz");
+        assert_io(&facts, IoDirection::Read, "https://example.org/raw.csv");
+        assert_io(&facts, IoDirection::Read, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Read, "templates/project");
+        assert_io(&facts, IoDirection::Read, "staging/report.csv");
+        assert_io(&facts, IoDirection::Write, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Write, "copies/raw.csv");
+        assert_io(&facts, IoDirection::Write, "build/project");
+        assert_io(&facts, IoDirection::Write, "reports/report.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/table.parquet");
+        assert_io(&facts, IoDirection::Write, "outputs/table.xlsx");
+        assert_io(&facts, IoDirection::Write, "outputs/table.xml");
+        assert_io(&facts, IoDirection::Write, "outputs/table.tex");
+        assert_io(&facts, IoDirection::Write, "outputs/table.md");
+        assert_io(&facts, IoDirection::Write, "outputs/array.npy");
+        assert_io(&facts, IoDirection::Write, "outputs/model.pt");
+        assert_io(&facts, IoDirection::Write, "outputs/model=v1.pt");
+        assert_io(&facts, IoDirection::Write, "outputs/cube.nc");
+        assert_io(&facts, IoDirection::Write, "outputs/image.tif");
+        assert_io(&facts, IoDirection::Write, "outputs/pillow.png");
+        assert_io(&facts, IoDirection::Write, "outputs/config.txt");
+        assert_no_io(&facts, "image");
+    }
+
+    #[test]
     fn extracts_r_facts() {
         let facts = analyze_source(
             CodeLanguage::R,

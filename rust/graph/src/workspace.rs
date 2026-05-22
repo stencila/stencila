@@ -168,11 +168,19 @@ pub async fn graph_from_path(
                 {
                     let resolver = |literal: &str| {
                         workspace_reference_id(
-                            &entry.rel,
+                            &root_rel,
                             literal,
                             &entry_kinds,
                             WorkspaceReferenceTarget::FileOrSymbolicLink,
                         )
+                        .or_else(|| {
+                            workspace_reference_id(
+                                &entry.rel,
+                                literal,
+                                &entry_kinds,
+                                WorkspaceReferenceTarget::FileOrSymbolicLink,
+                            )
+                        })
                     };
                     code::add_workspace_code(&mut builder, &entry.rel, &code, language, resolver);
                 }

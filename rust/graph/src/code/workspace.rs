@@ -18,10 +18,10 @@ use super::{
 /// to the filesystem `File` node. The code node carries computational facts,
 /// while the file node preserves inventory and filesystem provenance.
 ///
-/// Static resource literals are resolved relative to the current file whenever
-/// they name another workspace file or symbolic link. Unresolved literals remain
-/// scoped synthetic resources so code facts are still visible for files outside
-/// the workspace inventory.
+/// Static resource literals are resolved by the caller whenever they name
+/// another workspace file or symbolic link. Unresolved literals remain scoped
+/// synthetic resources so code facts are still visible for files outside the
+/// workspace inventory.
 pub(crate) fn add_workspace_code(
     builder: &mut GraphBuilder,
     rel: &WorkspaceRelPath,
