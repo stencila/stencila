@@ -38,6 +38,7 @@ use super::compilation_digest::CompilationDigest;
 use super::compilation_message::CompilationMessage;
 use super::constant_validator::ConstantValidator;
 use super::contact_point::ContactPoint;
+use super::container_image::ContainerImage;
 use super::convert_action::ConvertAction;
 use super::cord::Cord;
 use super::create_action::CreateAction;
@@ -59,8 +60,6 @@ use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
 use super::excerpt::Excerpt;
 use super::execute_action::ExecuteAction;
-use super::execution_dependant::ExecutionDependant;
-use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
 use super::execution_tag::ExecutionTag;
 use super::figure::Figure;
@@ -136,6 +135,7 @@ use super::suggestion_block::SuggestionBlock;
 use super::suggestion_inline::SuggestionInline;
 use super::superscript::Superscript;
 use super::supplement::Supplement;
+use super::symbolic_link::SymbolicLink;
 use super::table::Table;
 use super::table_cell::TableCell;
 use super::table_row::TableRow;
@@ -243,6 +243,8 @@ pub enum Node {
 
     ContactPoint(ContactPoint),
 
+    ContainerImage(ContainerImage),
+
     ConvertAction(ConvertAction),
 
     CreateAction(CreateAction),
@@ -282,10 +284,6 @@ pub enum Node {
     Excerpt(Excerpt),
 
     ExecuteAction(ExecuteAction),
-
-    ExecutionDependant(ExecutionDependant),
-
-    ExecutionDependency(ExecutionDependency),
 
     ExecutionMessage(ExecutionMessage),
 
@@ -426,6 +424,8 @@ pub enum Node {
     Superscript(Superscript),
 
     Supplement(Supplement),
+
+    SymbolicLink(SymbolicLink),
 
     Table(Table),
 

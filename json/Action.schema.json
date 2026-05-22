@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "An action performed by an agent.",
-  "$comment": "This is an implementation of schema.org\n[`Action`](https://schema.org/Action).\n\nIn Stencila Schema it provides a neutral activity/event node for provenance\ngraphs. Actions can be connected to input and output resources using\n`GraphEdge` relationships, while retaining schema.org metadata such as the\nagent, object, result, instrument, status, and timing.\n\nThe schema.org `object` and `result` properties are exposed as the plural\nStencila properties `objects` and `results` because an action can consume or\nproduce several resources or literal values. The singular schema.org property\nnames are retained as aliases.\n\nMore specific action types such as [`CreateAction`](./create-action.md),\n[`ExecuteAction`](./execute-action.md), and\n[`ConvertAction`](./convert-action.md) should be used when the activity kind\nis known.\n",
+  "$comment": "This is an implementation of schema.org\n[`Action`](https://schema.org/Action).\n\nIn Stencila Schema it provides a neutral activity/event record for\nprovenance. Actions may be used as standalone nodes in document models or\nattached to `GraphEdge.actions` when a concrete activity explains a\nresource-flow relationship. Actions retain schema.org metadata such as the\nagent, object, result, instrument, status, and timing.\n\nThe schema.org `object` and `result` properties are exposed as the plural\nStencila properties `objects` and `results` because an action can consume or\nproduce several resources or literal values. The singular schema.org property\nnames are retained as aliases.\n\nMore specific action types such as [`CreateAction`](./create-action.md),\n[`ExecuteAction`](./execute-action.md), and\n[`ConvertAction`](./convert-action.md) should be used when the activity kind\nis known.\n",
   "analogues": [
     {
       "id": "schema:Action",
@@ -210,6 +210,38 @@
           "type": "string"
         }
       ]
+    },
+    "environment": {
+      "@id": "stencila:environment",
+      "description": "Environment variables or settings that affected the action.",
+      "$comment": "This follows the Workflow Run RO-Crate pattern of representing execution\nenvironment settings as `PropertyValue` values attached to an action.\nUse this for settings that are part of the runtime environment rather\nthan ordinary command-line or document parameters.\n",
+      "type": "array",
+      "items": {
+        "$ref": "PropertyValue.schema.json"
+      }
+    },
+    "containerImages": {
+      "@id": "stencila:containerImages",
+      "description": "Container images used by the action.",
+      "$comment": "This follows the Workflow Run RO-Crate `containerImage` property. A string\nvalue may be used when only an image URI or locator is known; a\n`ContainerImage` value should be used when registry, tag, or digest\nmetadata is available.\n",
+      "aliases": [
+        "containerImage",
+        "container-image",
+        "container_image",
+        "container-images",
+        "container_images"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "ContainerImage.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
     },
     "startTime": {
       "@id": "schema:startTime",

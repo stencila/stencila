@@ -1,0 +1,42 @@
+title: ContainerImage
+'@id': stencila:ContainerImage
+nick: cim
+extends: Thing
+category: works
+description: A container image used by a computational action.
+$comment: |
+  This type records lightweight identity for container images used during
+  computation. It follows the Workflow Run RO-Crate pattern for container
+  images, where an action can point to an image with registry, name, tag, and
+  digest metadata.
+
+  Key properties include `name`, `additionalType`, `registry`, `tag`, and
+  `sha256`.
+analogues:
+  - name: Workflow Run RO-Crate ContainerImage
+    url: https://www.researchobject.org/workflow-run-crate/profiles/process_run_crate/
+    notes: Prior-art type for recording container images used by workflow or process run actions.
+required:
+  - name
+core:
+  - additionalType
+  - registry
+  - tag
+  - sha256
+properties:
+  additionalType:
+    '@id': schema:additionalType
+    description: The specific image type, such as DockerImage or SIFImage.
+    type: string
+  registry:
+    '@id': stencila:registry
+    description: The registry or service that hosts the image.
+    type: string
+  tag:
+    '@id': stencila:tag
+    description: The image tag.
+    type: string
+  sha256:
+    '@id': stencila:sha256
+    description: The SHA-256 checksum of the image.
+    type: string

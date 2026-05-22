@@ -10,12 +10,12 @@ pub enum GraphEvidenceConfidence {
     Low,
 
     /// Supported by one reliable signal, but not enough to treat as definitive.
-    #[default]
     Medium,
 
     /// Supported by multiple corroborating signals or a deterministic local check.
     High,
 
     /// Directly observed, deterministically proven, or cryptographically attested with no known contrary evidence.
+    #[default]
     Certain,
 }

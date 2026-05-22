@@ -50,7 +50,7 @@
       "type": "string"
     },
     "target": {
-      "@id": "stencila:target",
+      "@id": "schema:target",
       "description": "The id of the downstream dependant graph node.",
       "type": "string"
     },
@@ -65,6 +65,18 @@
       "type": "array",
       "items": {
         "$ref": "GraphEvidence.schema.json"
+      }
+    },
+    "actions": {
+      "@id": "stencila:actions",
+      "description": "Concrete activities associated with the edge.",
+      "$comment": "Use this for real operations that produced or transformed the target from\nthe source, such as a recorded code execution or an explicit conversion.\nDo not use it for static analysis relationships, inferred links, or\nobserved filesystem state; those belong in `evidence` and resource\nmetadata such as `dateCreated` and `dateModified`.\n",
+      "aliases": [
+        "action"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "GraphAction.schema.json"
       }
     }
   }

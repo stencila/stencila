@@ -12,6 +12,7 @@ use super::claim::Claim;
 use super::collection::Collection;
 use super::comment::Comment;
 use super::contact_point::ContactPoint;
+use super::container_image::ContainerImage;
 use super::convert_action::ConvertAction;
 use super::create_action::CreateAction;
 use super::creative_work::CreativeWork;
@@ -68,6 +69,8 @@ pub enum ThingVariant {
     Comment(Comment),
 
     ContactPoint(ContactPoint),
+
+    ContainerImage(ContainerImage),
 
     ConvertAction(ConvertAction),
 

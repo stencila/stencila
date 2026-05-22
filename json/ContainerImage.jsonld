@@ -1,6 +1,6 @@
 {
-  "@id": "https://stencila.org/ExecutionDependantRelation",
-  "name": "ExecutionDependantRelation",
+  "@id": "https://stencila.org/ContainerImage",
+  "name": "ContainerImage",
   "license": "https://creativecommons.org/publicdomain/zero/1.0/",
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
@@ -9,12 +9,12 @@
   },
   "@graph": [
     {
-      "@id": "stencila:ExecutionDependantRelation",
+      "@id": "stencila:ContainerImage",
       "@type": "rdfs:Class",
-      "rdfs:label": "ExecutionDependantRelation",
-      "rdfs:comment": "A downstream execution relation between nodes.",
+      "rdfs:label": "ContainerImage",
+      "rdfs:comment": "A container image used by a computational action.",
       "rdfs:subClassOf": {
-        "@id": "schema:Enumeration"
+        "@id": "schema:Thing"
       }
     },
     {
@@ -128,6 +128,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -154,6 +157,54 @@
           "@id": "stencila:Reference"
         }
       ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:additionalType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "additionalType",
+      "rdfs:comment": "The specific image type, such as DockerImage or SIFImage.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ContainerImage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:registry",
+      "@type": "rdfs:Property",
+      "rdfs:label": "registry",
+      "rdfs:comment": "The registry or service that hosts the image.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ContainerImage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:tag",
+      "@type": "rdfs:Property",
+      "rdfs:label": "tag",
+      "rdfs:comment": "The image tag.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ContainerImage"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:sha256",
+      "@type": "rdfs:Property",
+      "rdfs:label": "sha256",
+      "rdfs:comment": "The SHA-256 checksum of the image.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ContainerImage"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }

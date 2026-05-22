@@ -1,7 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
-import { FileOrDirectory } from "./FileOrDirectory.js";
+import { FileOrSymbolicLinkOrDirectory } from "./FileOrSymbolicLinkOrDirectory.js";
 
 /**
  * A directory on a file system.
@@ -21,23 +21,22 @@ export class Directory extends Entity {
   path: string;
 
   /**
-   * The files and other directories within this directory.
+   * The files, symbolic links, and other directories within this directory.
    */
-  parts: FileOrDirectory[];
+  parts?: FileOrSymbolicLinkOrDirectory[];
 
-  constructor(name: string, path: string, parts: FileOrDirectory[], options?: Partial<Directory>) {
+  constructor(name: string, path: string, options?: Partial<Directory>) {
     super();
     this.type = "Directory";
     if (options) Object.assign(this, options);
     this.name = name;
     this.path = path;
-    this.parts = parts;
   }
 }
 
 /**
 * Create a new `Directory`
 */
-export function directory(name: string, path: string, parts: FileOrDirectory[], options?: Partial<Directory>): Directory {
-  return new Directory(name, path, parts, options);
+export function directory(name: string, path: string, options?: Partial<Directory>): Directory {
+  return new Directory(name, path, options);
 }

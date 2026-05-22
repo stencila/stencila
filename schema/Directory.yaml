@@ -17,6 +17,7 @@ $comment: |
 required:
   - name
   - path
+core:
   - parts
 properties:
   name:
@@ -31,11 +32,12 @@ properties:
     '@id': schema:hasParts
     aliases:
       - hasParts
-    description: The files and other directories within this directory.
+    description: The files, symbolic links, and other directories within this directory.
     type: array
     items:
       anyOf:
         - $ref: File
+        - $ref: SymbolicLink
         - $ref: Directory
     dom:
       elem: div

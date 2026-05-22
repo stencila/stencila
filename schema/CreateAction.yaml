@@ -8,9 +8,9 @@ $comment: |
   This is an implementation of schema.org
   [`CreateAction`](https://schema.org/CreateAction).
 
-  In Stencila provenance graphs it represents creation of new document content,
+  In Stencila provenance it represents creation of new document content,
   generated outputs, or byte assets. It maps naturally to C2PA `c2pa.created`
-  when projecting a graph to standard C2PA actions.
+  when projecting provenance to standard C2PA actions.
 analogues:
   - id: schema:CreateAction
     notes: Direct schema.org source type.

@@ -13,8 +13,6 @@ use super::creative_work_variant::CreativeWorkVariant;
 use super::creative_work_variant_or_string::CreativeWorkVariantOrString;
 use super::date_time::DateTime;
 use super::duration::Duration;
-use super::execution_dependant::ExecutionDependant;
-use super::execution_dependency::ExecutionDependency;
 use super::execution_message::ExecutionMessage;
 use super::execution_mode::ExecutionMode;
 use super::execution_required::ExecutionRequired;
@@ -358,20 +356,6 @@ pub struct ArticleOptions {
     #[strip(execution)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub execution_digest: Option<CompilationDigest>,
-
-    /// The upstream dependencies of this node.
-    #[serde(alias = "execution-dependencies", alias = "execution_dependencies", alias = "executionDependency", alias = "execution-dependency", alias = "execution_dependency")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_dependencies: Option<Vec<ExecutionDependency>>,
-
-    /// The downstream dependants of this node.
-    #[serde(alias = "execution-dependants", alias = "execution_dependants", alias = "executionDependant", alias = "execution-dependant", alias = "execution_dependant")]
-    #[serde(default, deserialize_with = "option_one_or_many")]
-    #[strip(execution)]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub execution_dependants: Option<Vec<ExecutionDependant>>,
 
     /// Tags in the code which affect its execution.
     #[serde(alias = "execution-tags", alias = "execution_tags", alias = "executionTag", alias = "execution-tag", alias = "execution_tag")]

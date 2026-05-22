@@ -30,9 +30,17 @@ properties:
     description: |
       Requirements for application, including shared libraries that
       are not included in the application distribution.
+    $comment: |
+      Schema.org and Workflow Run RO-Crate use `softwareRequirements` to link a
+      software application to required software. Stencila accepts structured
+      software nodes or a string requirement when only a package specifier,
+      package URL, or unresolved requirement is available.
     type: array
     items:
-      $ref: SoftwareApplication
+      anyOf:
+        - $ref: SoftwareApplication
+        - $ref: SoftwareSourceCode
+        - type: string
   softwareVersion:
     '@id': schema:softwareVersion
     description: Version of the software.

@@ -224,8 +224,6 @@ macro_rules! lost_exec_options {
             compilation_digest,
             compilation_messages,
             execution_digest,
-            execution_dependencies,
-            execution_dependants,
             execution_tags,
             execution_count,
             execution_required,

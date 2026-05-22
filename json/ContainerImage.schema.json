@@ -1,19 +1,32 @@
 {
   "$schema": "https://stencila.org/meta.schema.json",
-  "$id": "https://stencila.org/ExecutionDependantRelation.schema.json",
-  "@id": "stencila:ExecutionDependantRelation",
-  "title": "ExecutionDependantRelation",
+  "$id": "https://stencila.org/ContainerImage.schema.json",
+  "@id": "stencila:ContainerImage",
+  "title": "ContainerImage",
+  "nick": "cim",
   "extends": [
-    "Enumeration"
+    "Thing"
   ],
-  "category": "flow",
-  "description": "A downstream execution relation between nodes.",
-  "$comment": "This is an enumeration used in Stencila Schema describing how one node is a\ndownstream dependant of another.\n\nIt exists to classify dependency-graph edges with semantics that are\nmeaningful for execution planning and invalidation, rather than treating all\ndownstream links as equivalent.\n\nSee\n[`ExecutionDependant.dependantRelation`](./execution-dependant.md#dependantrelation)\nfor the property that uses this enumeration.\n",
+  "category": "works",
+  "description": "A container image used by a computational action.",
+  "$comment": "This type records lightweight identity for container images used during\ncomputation. It follows the Workflow Run RO-Crate pattern for container\nimages, where an action can point to an image with registry, name, tag, and\ndigest metadata.\n\nKey properties include `name`, `additionalType`, `registry`, `tag`, and\n`sha256`.\n",
+  "analogues": [
+    {
+      "name": "Workflow Run RO-Crate ContainerImage",
+      "url": "https://www.researchobject.org/workflow-run-crate/profiles/process_run_crate/",
+      "notes": "Prior-art type for recording container images used by workflow or process run actions."
+    }
+  ],
   "required": [
-    "type"
+    "type",
+    "name"
   ],
   "core": [
-    "id"
+    "id",
+    "additionalType",
+    "registry",
+    "tag",
+    "sha256"
   ],
   "properties": {
     "type": {
@@ -127,29 +140,34 @@
       ],
       "type": "string",
       "format": "uri"
+    },
+    "additionalType": {
+      "@id": "schema:additionalType",
+      "description": "The specific image type, such as DockerImage or SIFImage.",
+      "aliases": [
+        "additional-type",
+        "additional_type"
+      ],
+      "type": "string"
+    },
+    "registry": {
+      "@id": "stencila:registry",
+      "description": "The registry or service that hosts the image.",
+      "type": "string"
+    },
+    "tag": {
+      "@id": "stencila:tag",
+      "description": "The image tag.",
+      "type": "string"
+    },
+    "sha256": {
+      "@id": "stencila:sha256",
+      "description": "The SHA-256 checksum of the image.",
+      "aliases": [
+        "sha-256",
+        "sha_256"
+      ],
+      "type": "string"
     }
-  },
-  "anyOf": [
-    {
-      "@id": "stencila:Assigns",
-      "description": "The node assigns its dependant (usually a variable)",
-      "const": "Assigns"
-    },
-    {
-      "@id": "stencila:Alters",
-      "description": "The node alters its dependant (usually a variable)",
-      "const": "Alters"
-    },
-    {
-      "@id": "stencila:Declares",
-      "description": "The node declares its dependant (e.g. a database table)",
-      "const": "Declares"
-    },
-    {
-      "@id": "stencila:Writes",
-      "description": "The node writes its dependant (usually a file)",
-      "const": "Writes"
-    }
-  ],
-  "default": "Assigns"
+  }
 }

@@ -12,11 +12,11 @@
   "required": [
     "type",
     "name",
-    "path",
-    "parts"
+    "path"
   ],
   "core": [
-    "id"
+    "id",
+    "parts"
   ],
   "properties": {
     "type": {
@@ -52,7 +52,7 @@
     },
     "parts": {
       "@id": "schema:hasParts",
-      "description": "The files and other directories within this directory.",
+      "description": "The files, symbolic links, and other directories within this directory.",
       "aliases": [
         "hasParts",
         "part"
@@ -65,6 +65,9 @@
         "anyOf": [
           {
             "$ref": "File.schema.json"
+          },
+          {
+            "$ref": "SymbolicLink.schema.json"
           },
           {
             "$ref": "Directory.schema.json"

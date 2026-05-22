@@ -126,6 +126,9 @@
       "$ref": "ContactPoint.schema.json"
     },
     {
+      "$ref": "ContainerImage.schema.json"
+    },
+    {
       "$ref": "ConvertAction.schema.json"
     },
     {
@@ -184,12 +187,6 @@
     },
     {
       "$ref": "ExecuteAction.schema.json"
-    },
-    {
-      "$ref": "ExecutionDependant.schema.json"
-    },
-    {
-      "$ref": "ExecutionDependency.schema.json"
     },
     {
       "$ref": "ExecutionMessage.schema.json"
@@ -400,6 +397,9 @@
     },
     {
       "$ref": "Supplement.schema.json"
+    },
+    {
+      "$ref": "SymbolicLink.schema.json"
     },
     {
       "$ref": "Table.schema.json"

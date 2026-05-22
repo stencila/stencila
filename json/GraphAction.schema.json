@@ -1,0 +1,28 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/GraphAction.schema.json",
+  "@id": "stencila:GraphAction",
+  "title": "GraphAction",
+  "category": "flow",
+  "description": "An action associated with a graph edge.",
+  "$comment": "This is a union type used by `GraphEdge.actions` for concrete activities that\nexplain how a resource-flow relationship came about.\n\nUse graph edge actions only for performed, recorded, imported, or attested\noperations. Static analysis, inferred relationships, and direct observations\nof existing state should be recorded as `GraphEvidence` rather than as graph\nactions.\n",
+  "anyOf": [
+    {
+      "description": "A generic concrete activity.",
+      "$ref": "Action.schema.json"
+    },
+    {
+      "description": "A concrete activity that created the edge target.",
+      "$ref": "CreateAction.schema.json"
+    },
+    {
+      "description": "A concrete conversion activity from source to target.",
+      "$ref": "ConvertAction.schema.json"
+    },
+    {
+      "description": "A concrete execution activity that generated the target.",
+      "$ref": "ExecuteAction.schema.json"
+    }
+  ],
+  "default": "Action"
+}

@@ -174,8 +174,6 @@ impl PatchNode for InstructionBlock {
             (CompilationDigest, self.options.compilation_digest),
             (CompilationMessages, self.options.compilation_messages),
             (ExecutionDigest, self.options.execution_digest),
-            (ExecutionDependencies, self.options.execution_dependencies),
-            (ExecutionDependants, self.options.execution_dependants),
             (ExecutionTags, self.options.execution_tags),
             (ExecutionCount, self.options.execution_count),
             (ExecutionRequired, self.options.execution_required),
@@ -421,8 +419,6 @@ impl PatchNode for InstructionBlock {
             (CompilationDigest, self.options.compilation_digest),
             (CompilationMessages, self.options.compilation_messages),
             (ExecutionDigest, self.options.execution_digest),
-            (ExecutionDependencies, self.options.execution_dependencies),
-            (ExecutionDependants, self.options.execution_dependants),
             (ExecutionTags, self.options.execution_tags),
             (ExecutionCount, self.options.execution_count),
             (ExecutionRequired, self.options.execution_required),
@@ -443,10 +439,6 @@ impl DomCodec for InstructionBlockOptions {
             .to_dom_attr("compilation-messages", context);
         self.execution_digest
             .to_dom_attr("execution-digest", context);
-        self.execution_dependencies
-            .to_dom_attr("execution-dependencies", context);
-        self.execution_dependants
-            .to_dom_attr("execution-dependants", context);
         self.execution_tags.to_dom_attr("execution-tags", context);
         self.execution_count.to_dom_attr("execution-count", context);
         self.execution_required

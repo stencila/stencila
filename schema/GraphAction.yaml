@@ -1,0 +1,22 @@
+title: GraphAction
+'@id': stencila:GraphAction
+category: flow
+description: An action associated with a graph edge.
+$comment: |
+  This is a union type used by `GraphEdge.actions` for concrete activities that
+  explain how a resource-flow relationship came about.
+
+  Use graph edge actions only for performed, recorded, imported, or attested
+  operations. Static analysis, inferred relationships, and direct observations
+  of existing state should be recorded as `GraphEvidence` rather than as graph
+  actions.
+default: Action
+anyOf:
+  - $ref: Action
+    description: A generic concrete activity.
+  - $ref: CreateAction
+    description: A concrete activity that created the edge target.
+  - $ref: ConvertAction
+    description: A concrete conversion activity from source to target.
+  - $ref: ExecuteAction
+    description: A concrete execution activity that generated the target.

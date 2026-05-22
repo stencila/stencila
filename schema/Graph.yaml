@@ -15,10 +15,13 @@ $comment: |
   `file://report.md#fig1`.
 
   Graph nodes use durable graph-local `id` values and edges are directed
-  relationships. Edge direction is always from upstream dependency, source, or
-  component to downstream dependant, result, or containing node. The `edges`
-  property is required for shape stability, but may be an empty array for a
-  single-node graph or a graph whose relationships have not yet been collected.
+  resource-flow relationships. Edge direction is always from upstream
+  dependency, source, or component to downstream dependant, result, or
+  containing node. Concrete operations that caused an edge may be attached to
+  the edge as `actions`; static analysis, inference, and direct observations are
+  recorded as edge evidence. The `edges` property is required for shape
+  stability, but may be an empty array for a single-node graph or a graph whose
+  relationships have not yet been collected.
 
   The graph inherits creative-work metadata such as `dateCreated`,
   `dateModified`, `version`, `authors`, `contributors`, and `references`.

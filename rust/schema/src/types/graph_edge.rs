@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::graph_action::GraphAction;
 use super::graph_edge_kind::GraphEdgeKind;
 use super::graph_evidence::GraphEvidence;
 use super::string::String;
@@ -51,6 +52,11 @@ pub struct GraphEdgeOptions {
     /// Evidence supporting the edge.
     #[serde(default, deserialize_with = "option_one_or_many")]
     pub evidence: Option<Vec<GraphEvidence>>,
+
+    /// Concrete activities associated with the edge.
+    #[serde(alias = "action")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub actions: Option<Vec<GraphAction>>,
 }
 
 impl GraphEdge {

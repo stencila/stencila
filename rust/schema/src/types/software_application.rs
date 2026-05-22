@@ -18,6 +18,7 @@ use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
 use super::reference::Reference;
+use super::software_application_or_software_source_code_or_string::SoftwareApplicationOrSoftwareSourceCodeOrString;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -278,7 +279,7 @@ pub struct SoftwareApplicationOptions {
     /// Requirements for application, including shared libraries that are not included in the application distribution.
     #[serde(alias = "software-requirements", alias = "software_requirements", alias = "softwareRequirement", alias = "software-requirement", alias = "software_requirement")]
     #[serde(default, deserialize_with = "option_one_or_many")]
-    pub software_requirements: Option<Vec<SoftwareApplication>>,
+    pub software_requirements: Option<Vec<SoftwareApplicationOrSoftwareSourceCodeOrString>>,
 
     /// Version of the software.
     #[serde(alias = "software-version", alias = "software_version")]

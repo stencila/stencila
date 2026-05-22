@@ -128,6 +128,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -235,6 +238,35 @@
       "schema:rangeIncludes": {
         "@id": "schema:Text"
       }
+    },
+    {
+      "@id": "stencila:environment",
+      "@type": "rdfs:Property",
+      "rdfs:label": "environment",
+      "rdfs:comment": "Environment variables or settings that affected the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:PropertyValue"
+      }
+    },
+    {
+      "@id": "stencila:containerImages",
+      "@type": "rdfs:Property",
+      "rdfs:label": "containerImages",
+      "rdfs:comment": "Container images used by the action.",
+      "schema:domainIncludes": {
+        "@id": "schema:Action"
+      },
+      "schema:rangeIncludes": [
+        {
+          "@id": "stencila:ContainerImage"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:startTime",

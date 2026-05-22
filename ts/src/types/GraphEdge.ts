@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { Entity } from "./Entity.js";
+import { GraphAction } from "./GraphAction.js";
 import { GraphEdgeKind } from "./GraphEdgeKind.js";
 import { GraphEvidence } from "./GraphEvidence.js";
 
@@ -30,6 +31,11 @@ export class GraphEdge extends Entity {
    * Evidence supporting the edge.
    */
   evidence?: GraphEvidence[];
+
+  /**
+   * Concrete activities associated with the edge.
+   */
+  actions?: GraphAction[];
 
   constructor(source: string, target: string, kind: GraphEdgeKind, options?: Partial<GraphEdge>) {
     super();

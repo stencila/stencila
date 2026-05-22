@@ -8,9 +8,10 @@ $comment: |
   This is an implementation of schema.org
   [`Action`](https://schema.org/Action).
 
-  In Stencila Schema it provides a neutral activity/event node for provenance
-  graphs. Actions can be connected to input and output resources using
-  `GraphEdge` relationships, while retaining schema.org metadata such as the
+  In Stencila Schema it provides a neutral activity/event record for
+  provenance. Actions may be used as standalone nodes in document models or
+  attached to `GraphEdge.actions` when a concrete activity explains a
+  resource-flow relationship. Actions retain schema.org metadata such as the
   agent, object, result, instrument, status, and timing.
 
   The schema.org `object` and `result` properties are exposed as the plural
@@ -79,6 +80,36 @@ properties:
     anyOf:
       - $ref: ThingVariant
       - type: string
+  environment:
+    '@id': stencila:environment
+    description: Environment variables or settings that affected the action.
+    $comment: |
+      This follows the Workflow Run RO-Crate pattern of representing execution
+      environment settings as `PropertyValue` values attached to an action.
+      Use this for settings that are part of the runtime environment rather
+      than ordinary command-line or document parameters.
+    type: array
+    items:
+      $ref: PropertyValue
+  containerImages:
+    '@id': stencila:containerImages
+    aliases:
+      - containerImage
+      - container-image
+      - container_image
+      - container-images
+      - container_images
+    description: Container images used by the action.
+    $comment: |
+      This follows the Workflow Run RO-Crate `containerImage` property. A string
+      value may be used when only an image URI or locator is known; a
+      `ContainerImage` value should be used when registry, tag, or digest
+      metadata is available.
+    type: array
+    items:
+      anyOf:
+        - $ref: ContainerImage
+        - type: string
   startTime:
     '@id': schema:startTime
     description: When the action started.

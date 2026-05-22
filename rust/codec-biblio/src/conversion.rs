@@ -689,6 +689,7 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
         | CreativeWorkType::Figure
         | CreativeWorkType::Agent
         | CreativeWorkType::File
+        | CreativeWorkType::Graph
         | CreativeWorkType::MediaObject
         | CreativeWorkType::Prompt
         | CreativeWorkType::PublicationIssue

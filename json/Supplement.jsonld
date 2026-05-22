@@ -171,6 +171,9 @@
         },
         {
           "@id": "stencila:Supplement"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         }
       ],
       "schema:rangeIncludes": {

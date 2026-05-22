@@ -37,6 +37,7 @@ import { type CompilationDigest } from "./CompilationDigest.js";
 import { type CompilationMessage } from "./CompilationMessage.js";
 import { type ConstantValidator } from "./ConstantValidator.js";
 import { type ContactPoint } from "./ContactPoint.js";
+import { type ContainerImage } from "./ContainerImage.js";
 import { type ConvertAction } from "./ConvertAction.js";
 import { type Cord } from "./Cord.js";
 import { type CreateAction } from "./CreateAction.js";
@@ -58,8 +59,6 @@ import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
 import { type Excerpt } from "./Excerpt.js";
 import { type ExecuteAction } from "./ExecuteAction.js";
-import { type ExecutionDependant } from "./ExecutionDependant.js";
-import { type ExecutionDependency } from "./ExecutionDependency.js";
 import { type ExecutionMessage } from "./ExecutionMessage.js";
 import { type ExecutionTag } from "./ExecutionTag.js";
 import { type Figure } from "./Figure.js";
@@ -132,6 +131,7 @@ import { type SuggestionBlock } from "./SuggestionBlock.js";
 import { type SuggestionInline } from "./SuggestionInline.js";
 import { type Superscript } from "./Superscript.js";
 import { type Supplement } from "./Supplement.js";
+import { type SymbolicLink } from "./SymbolicLink.js";
 import { type Table } from "./Table.js";
 import { type TableCell } from "./TableCell.js";
 import { type TableRow } from "./TableRow.js";
@@ -197,6 +197,7 @@ export type Node =
   CompilationMessage |
   ConstantValidator |
   ContactPoint |
+  ContainerImage |
   ConvertAction |
   CreateAction |
   CreativeWork |
@@ -217,8 +218,6 @@ export type Node =
   Enumeration |
   Excerpt |
   ExecuteAction |
-  ExecutionDependant |
-  ExecutionDependency |
   ExecutionMessage |
   ExecutionTag |
   Figure |
@@ -289,6 +288,7 @@ export type Node =
   SuggestionInline |
   Superscript |
   Supplement |
+  SymbolicLink |
   Table |
   TableCell |
   TableRow |
@@ -352,6 +352,7 @@ export function node(other: Node): Node {
     case "CompilationMessage":
     case "ConstantValidator":
     case "ContactPoint":
+    case "ContainerImage":
     case "ConvertAction":
     case "CreateAction":
     case "CreativeWork":
@@ -372,8 +373,6 @@ export function node(other: Node): Node {
     case "Enumeration":
     case "Excerpt":
     case "ExecuteAction":
-    case "ExecutionDependant":
-    case "ExecutionDependency":
     case "ExecutionMessage":
     case "ExecutionTag":
     case "Figure":
@@ -444,6 +443,7 @@ export function node(other: Node): Node {
     case "SuggestionInline":
     case "Superscript":
     case "Supplement":
+    case "SymbolicLink":
     case "Table":
     case "TableCell":
     case "TableRow":

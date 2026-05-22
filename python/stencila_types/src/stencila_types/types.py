@@ -276,30 +276,6 @@ class ExecutionBounds(StrEnum):
     Box = "Box"
 
 
-class ExecutionDependantRelation(StrEnum):
-    """
-    A downstream execution relation between nodes.
-    """
-
-    Assigns = "Assigns"
-    Alters = "Alters"
-    Declares = "Declares"
-    Writes = "Writes"
-
-
-class ExecutionDependencyRelation(StrEnum):
-    """
-    An upstream execution relation between nodes.
-    """
-
-    Calls = "Calls"
-    Derives = "Derives"
-    Imports = "Imports"
-    Includes = "Includes"
-    Reads = "Reads"
-    Uses = "Uses"
-
-
 class ExecutionMode(StrEnum):
     """
     The circumstances under which a node should be executed.
@@ -373,6 +349,7 @@ class GraphEdgeKind(StrEnum):
     DerivedInto = "DerivedInto"
     ConvertedInto = "ConvertedInto"
     Parameterizes = "Parameterizes"
+    DependsOn = "DependsOn"
     PartOf = "PartOf"
     TranscludedBy = "TranscludedBy"
     ImportedBy = "ImportedBy"
@@ -396,12 +373,16 @@ class GraphEvidenceKind(StrEnum):
     The kind of evidence supporting a graph edge.
     """
 
+    Declared = "Declared"
+    Resolved = "Resolved"
+    Observed = "Observed"
+    Computed = "Computed"
+    Recorded = "Recorded"
     StaticAnalysis = "StaticAnalysis"
-    RuntimeObservation = "RuntimeObservation"
-    UserAssertion = "UserAssertion"
     Imported = "Imported"
-    ContentCredential = "ContentCredential"
-    ExecutionMetadata = "ExecutionMetadata"
+    UserAssertion = "UserAssertion"
+    Attested = "Attested"
+    Inferred = "Inferred"
 
 
 class HorizontalAlignment(StrEnum):
@@ -791,12 +772,6 @@ class Executable(Entity):
     execution_digest: CompilationDigest | None = None
     """The `compilationDigest` of the node when it was last executed."""
 
-    execution_dependencies: list[ExecutionDependency] | None = None
-    """The upstream dependencies of this node."""
-
-    execution_dependants: list[ExecutionDependant] | None = None
-    """The downstream dependants of this node."""
-
     execution_tags: list[ExecutionTag] | None = None
     """Tags in the code which affect its execution."""
 
@@ -883,6 +858,12 @@ class Action(Thing):
 
     instrument: ThingVariant | str | None = None
     """The object, software, or other instrument that helped perform the action."""
+
+    environment: list[PropertyValue] | None = None
+    """Environment variables or settings that affected the action."""
+
+    container_images: list[ContainerImage | str] | None = None
+    """Container images used by the action."""
 
     start_time: DateTime | None = None
     """When the action started."""
@@ -1888,6 +1869,27 @@ class ConstantValidator(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
+class ContainerImage(Thing):
+    """
+    A container image used by a computational action.
+    """
+
+    type: Literal["ContainerImage"] = "ContainerImage"
+
+    additional_type: str | None = None
+    """The specific image type, such as DockerImage or SIFImage."""
+
+    registry: str | None = None
+    """The registry or service that hosts the image."""
+
+    tag: str | None = None
+    """The image tag."""
+
+    sha_256: str | None = None
+    """The SHA-256 checksum of the image."""
+
+
+@dataclass(kw_only=True, repr=False)
 class ConvertAction(Action):
     """
     An action that converts a resource from one representation or format to another.
@@ -2066,8 +2068,8 @@ class Directory(Entity):
     path: str
     """The path (absolute or relative) of the file on the file system."""
 
-    parts: list[File | Directory]
-    """The files and other directories within this directory."""
+    parts: list[File | SymbolicLink | Directory] | None = None
+    """The files, symbolic links, and other directories within this directory."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2161,48 +2163,6 @@ class ExecuteAction(Action):
     """
 
     type: Literal["ExecuteAction"] = "ExecuteAction"
-
-
-@dataclass(kw_only=True, repr=False)
-class ExecutionDependant(Entity):
-    """
-    A downstream execution dependant of a node.
-    """
-
-    type: Literal["ExecutionDependant"] = "ExecutionDependant"
-
-    dependant_relation: ExecutionDependantRelation
-    """The relation to the dependant."""
-
-    dependant_type: str
-    """The type of node that is the dependant."""
-
-    dependant_id: str
-    """The id of node that is the dependant."""
-
-    code_location: CodeLocation | None = None
-    """The location that the dependant is defined."""
-
-
-@dataclass(kw_only=True, repr=False)
-class ExecutionDependency(Entity):
-    """
-    An upstream execution dependency of a node.
-    """
-
-    type: Literal["ExecutionDependency"] = "ExecutionDependency"
-
-    dependency_relation: ExecutionDependencyRelation
-    """The relation to the dependency."""
-
-    dependency_type: str
-    """The type of node that is the dependency."""
-
-    dependency_id: str
-    """The id of node that is the dependency."""
-
-    code_location: CodeLocation | None = None
-    """The location that the dependency is defined."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2411,6 +2371,9 @@ class GraphEdge(Entity):
     evidence: list[GraphEvidence] | None = None
     """Evidence supporting the edge."""
 
+    actions: list[GraphAction] | None = None
+    """Concrete activities associated with the edge."""
+
 
 @dataclass(kw_only=True, repr=False)
 class GraphEvidence(Entity):
@@ -2450,10 +2413,7 @@ class GraphNode(Entity):
     id: str
     """The durable graph-local id used by graph edges to reference this graph node."""
 
-    node_type: str
-    """The Stencila node type represented by this graph node, matching `node.type` when `node` is present."""
-
-    node: Node | None = None
+    node: Node
     """The embedded Stencila node represented by this graph node."""
 
 
@@ -3350,7 +3310,7 @@ class SoftwareApplication(CreativeWork):
 
     type: Literal["SoftwareApplication"] = "SoftwareApplication"
 
-    software_requirements: list[SoftwareApplication] | None = None
+    software_requirements: list[SoftwareApplication | SoftwareSourceCode | str] | None = None
     """Requirements for application, including shared libraries that are not included in the application distribution."""
 
     software_version: str | None = None
@@ -3520,6 +3480,24 @@ class Supplement(Entity):
 
     work: CreativeWorkVariant | None = None
     """The `CreativeWork` that constitutes the supplement."""
+
+
+@dataclass(kw_only=True, repr=False)
+class SymbolicLink(Entity):
+    """
+    A symbolic link on a file system.
+    """
+
+    type: Literal["SymbolicLink"] = "SymbolicLink"
+
+    name: str
+    """The name of the symbolic link."""
+
+    path: str
+    """The path (absolute or relative) of the symbolic link on the file system."""
+
+    target: str
+    """The raw target path stored by the symbolic link."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3942,6 +3920,17 @@ Union type for all types that are descended from `CreativeWork`
 """
 
 
+GraphAction = Union[
+    Action,
+    CreateAction,
+    ConvertAction,
+    ExecuteAction,
+]
+"""
+An action associated with a graph edge.
+"""
+
+
 Hint = Union[
     ArrayHint,
     DatatableHint,
@@ -4057,6 +4046,7 @@ Node = Union[
     CompilationMessage,
     ConstantValidator,
     ContactPoint,
+    ContainerImage,
     ConvertAction,
     CreateAction,
     CreativeWork,
@@ -4077,8 +4067,6 @@ Node = Union[
     Enumeration,
     Excerpt,
     ExecuteAction,
-    ExecutionDependant,
-    ExecutionDependency,
     ExecutionMessage,
     ExecutionTag,
     Figure,
@@ -4149,6 +4137,7 @@ Node = Union[
     SuggestionInline,
     Superscript,
     Supplement,
+    SymbolicLink,
     Table,
     TableCell,
     TableRow,
@@ -4186,6 +4175,7 @@ ThingVariant = Union[
     Collection,
     Comment,
     ContactPoint,
+    ContainerImage,
     ConvertAction,
     CreateAction,
     CreativeWork,
@@ -4296,6 +4286,7 @@ TYPES = [
     CompilationDigest,
     CompilationMessage,
     ConstantValidator,
+    ContainerImage,
     ConvertAction,
     CreateAction,
     Datatable,
@@ -4315,8 +4306,6 @@ TYPES = [
     Enumeration,
     Excerpt,
     ExecuteAction,
-    ExecutionDependant,
-    ExecutionDependency,
     ExecutionMessage,
     ExecutionTag,
     Figure,
@@ -4381,6 +4370,7 @@ TYPES = [
     SuggestionInline,
     Superscript,
     Supplement,
+    SymbolicLink,
     Table,
     TableCell,
     TableRow,
@@ -4407,6 +4397,7 @@ UNIONS = [
     AuthorRoleAuthor,
     Block,
     CreativeWorkVariant,
+    GraphAction,
     Hint,
     Inline,
     MessagePart,
@@ -4419,12 +4410,14 @@ UNIONS = [
 
 ANON_UNIONS = [
     Citation | Text,
+    ContainerImage | str,
     CreativeWorkVariant | str,
-    File | Directory,
+    File | SymbolicLink | Directory,
     Grant | MonetaryGrant,
     Person | Organization,
     PostalAddress | str,
     PropertyValue | str,
+    SoftwareApplication | SoftwareSourceCode | str,
     SoftwareSourceCode | SoftwareApplication | str,
     ThingVariant | str,
     UnsignedInteger | str,

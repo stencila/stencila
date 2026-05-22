@@ -1,0 +1,59 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/SymbolicLink.schema.json",
+  "@id": "stencila:SymbolicLink",
+  "title": "SymbolicLink",
+  "extends": [
+    "Entity"
+  ],
+  "category": "works",
+  "description": "A symbolic link on a file system.",
+  "$comment": "This is a lightweight representation of a symbolic link as a directory entry,\ndistinct from the file or directory that the link may point to.\n\nKeeping symbolic links explicit prevents graph and workspace tooling from\nsilently dereferencing paths and reading content outside the workspace under a\nlocal-looking path. The `path` property identifies the link entry itself, while\n`target` preserves the target spelling stored by the filesystem. That\ntarget may be relative, absolute, missing, or outside the workspace; callers\nthat need to resolve it should do so deliberately and record any relationship\nseparately.\n",
+  "required": [
+    "type",
+    "name",
+    "path",
+    "target"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the symbolic link.",
+      "type": "string"
+    },
+    "path": {
+      "@id": "stencila:path",
+      "description": "The path (absolute or relative) of the symbolic link on the file system.",
+      "type": "string"
+    },
+    "target": {
+      "@id": "schema:target",
+      "description": "The raw target path stored by the symbolic link.",
+      "type": "string"
+    }
+  }
+}

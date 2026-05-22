@@ -72,6 +72,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {

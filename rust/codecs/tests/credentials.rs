@@ -11,9 +11,9 @@ use std::{
 use tempfile::TempDir;
 
 use stencila_codecs::stencila_schema::{
-    Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionDependency,
-    ExecutionDependencyRelation, ExecutionMessage, ExecutionStatus, Figure, FigureOptions, Heading,
-    ImageObject, Inline, LabelType, MessageLevel, Node, Paragraph, Text, TimeUnit,
+    Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionMessage, ExecutionStatus,
+    Figure, FigureOptions, Heading, ImageObject, Inline, LabelType, MessageLevel, Node, Paragraph,
+    Text, TimeUnit,
 };
 use stencila_codecs::{
     CredentialProfile, CredentialSigningMode, CredentialsOptions, EncodeInfo, EncodeOptions,
@@ -966,11 +966,6 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     chunk.options.execution_count = Some(3);
     chunk.options.execution_duration = Some(Duration::new(250, TimeUnit::Millisecond));
     chunk.options.execution_instance = Some("python-main".to_string());
-    chunk.options.execution_dependencies = Some(vec![ExecutionDependency::new(
-        ExecutionDependencyRelation::Reads,
-        "File".to_string(),
-        "data.csv".to_string(),
-    )]);
     chunk.options.execution_messages = Some(vec![ExecutionMessage::new(
         MessageLevel::Warning,
         "cached data was used".to_string(),
@@ -1195,11 +1190,6 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
             .as_ref()
             .and_then(|kernel| kernel.language.as_deref()),
         Some("python")
-    );
-    assert_eq!(execution.dependencies.len(), 1);
-    assert_eq!(
-        execution.dependencies[0].node_id.as_deref(),
-        Some("data.csv")
     );
     assert_eq!(execution.messages.len(), 1);
     assert_eq!(

@@ -1,0 +1,132 @@
+{
+  "@id": "https://stencila.org/SymbolicLink",
+  "name": "SymbolicLink",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:SymbolicLink",
+      "@type": "rdfs:Class",
+      "rdfs:label": "SymbolicLink",
+      "rdfs:comment": "A symbolic link on a file system.",
+      "rdfs:subClassOf": {
+        "@id": "stencila:Entity"
+      }
+    },
+    {
+      "@id": "schema:name",
+      "@type": "rdfs:Property",
+      "rdfs:label": "name",
+      "rdfs:comment": "The name of the symbolic link.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Thing"
+        },
+        {
+          "@id": "stencila:Agent"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:DatatableColumn"
+        },
+        {
+          "@id": "stencila:DatatableColumnHint"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:ExecutionTag"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:Function"
+        },
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:Skill"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
+          "@id": "stencila:TableCell"
+        },
+        {
+          "@id": "stencila:Variable"
+        },
+        {
+          "@id": "stencila:Workflow"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:path",
+      "@type": "rdfs:Property",
+      "rdfs:label": "path",
+      "rdfs:comment": "The path (absolute or relative) of the symbolic link on the file system.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:CreativeWork"
+        },
+        {
+          "@id": "stencila:Directory"
+        },
+        {
+          "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "schema:target",
+      "@type": "rdfs:Property",
+      "rdfs:label": "target",
+      "rdfs:comment": "The raw target path stored by the symbolic link.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:Citation"
+        },
+        {
+          "@id": "stencila:GraphEdge"
+        },
+        {
+          "@id": "stencila:Link"
+        },
+        {
+          "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:Supplement"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    }
+  ]
+}

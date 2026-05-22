@@ -9,25 +9,16 @@ $comment: |
   reactivity and other graphs.
 
   The wrapper gives every graph node a required graph-local `id` for edge
-  endpoints and a required `nodeType` so graph consumers can interpret the
-  represented Stencila node even when `node` is external, omitted, or redacted.
-
-  The optional `node` property embeds the represented Stencila node when the
-  graph needs to carry more than typed endpoint metadata.
+  endpoints and embeds the represented Stencila resource or document node.
 required:
   - id
-  - nodeType
+  - node
 core:
-  - nodeType
   - node
 properties:
   id:
     '@id': schema:id
     description: The durable graph-local id used by graph edges to reference this graph node.
-    type: string
-  nodeType:
-    '@id': stencila:nodeType
-    description: The Stencila node type represented by this graph node, matching `node.type` when `node` is present.
     type: string
   node:
     '@id': stencila:node

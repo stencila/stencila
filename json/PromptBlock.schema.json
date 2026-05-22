@@ -133,48 +133,6 @@
       },
       "$ref": "CompilationDigest.schema.json"
     },
-    "executionDependencies": {
-      "@id": "stencila:executionDependencies",
-      "description": "The upstream dependencies of this node.",
-      "aliases": [
-        "execution-dependencies",
-        "execution_dependencies",
-        "executionDependency",
-        "execution-dependency",
-        "execution_dependency"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "dom": {
-        "elem": "span"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependency.schema.json"
-      }
-    },
-    "executionDependants": {
-      "@id": "stencila:executionDependants",
-      "description": "The downstream dependants of this node.",
-      "aliases": [
-        "execution-dependants",
-        "execution_dependants",
-        "executionDependant",
-        "execution-dependant",
-        "execution_dependant"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "dom": {
-        "elem": "span"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependant.schema.json"
-      }
-    },
     "executionTags": {
       "@id": "stencila:executionTags",
       "description": "Tags in the code which affect its execution.",

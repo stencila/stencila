@@ -128,6 +128,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -674,6 +677,9 @@
         },
         {
           "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         }
       ],
       "schema:rangeIncludes": {
@@ -727,9 +733,17 @@
           "@id": "schema:SoftwareSourceCode"
         }
       ],
-      "schema:rangeIncludes": {
-        "@id": "schema:SoftwareApplication"
-      }
+      "schema:rangeIncludes": [
+        {
+          "@id": "schema:SoftwareApplication"
+        },
+        {
+          "@id": "schema:SoftwareSourceCode"
+        },
+        {
+          "@id": "schema:Text"
+        }
+      ]
     },
     {
       "@id": "schema:softwareVersion",

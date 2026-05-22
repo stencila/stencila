@@ -3,11 +3,15 @@
  * The kind of evidence supporting a graph edge.
  */
 export type GraphEvidenceKind =
+  'Declared' |
+  'Resolved' |
+  'Observed' |
+  'Computed' |
+  'Recorded' |
   'StaticAnalysis' |
-  'RuntimeObservation' |
-  'UserAssertion' |
   'Imported' |
-  'ContentCredential' |
-  'ExecutionMetadata';
+  'UserAssertion' |
+  'Attested' |
+  'Inferred';
 
 

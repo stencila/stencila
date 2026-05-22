@@ -4,9 +4,11 @@ use crate::prelude::*;
 
 use super::action_agent::ActionAgent;
 use super::action_status_type::ActionStatusType;
+use super::container_image_or_string::ContainerImageOrString;
 use super::date_time::DateTime;
 use super::image_object::ImageObject;
 use super::node::Node;
+use super::property_value::PropertyValue;
 use super::property_value_or_string::PropertyValueOrString;
 use super::string::String;
 use super::thing_variant_or_string::ThingVariantOrString;
@@ -112,6 +114,15 @@ pub struct ExecuteActionOptions {
 
     /// The object, software, or other instrument that helped perform the action.
     pub instrument: Option<ThingVariantOrString>,
+
+    /// Environment variables or settings that affected the action.
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub environment: Option<Vec<PropertyValue>>,
+
+    /// Container images used by the action.
+    #[serde(alias = "containerImage", alias = "container-image", alias = "container_image", alias = "container-images", alias = "container_images")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    pub container_images: Option<Vec<ContainerImageOrString>>,
 
     /// An error produced by the action.
     pub error: Option<ThingVariantOrString>,

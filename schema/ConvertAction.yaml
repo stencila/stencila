@@ -10,7 +10,9 @@ $comment: |
   It represents format, encoding, packaging, or document-model conversion. In
   Stencila, rendering an executable document can be represented as an
   [`ExecuteAction`](./execute-action.md) followed by a `ConvertAction`, rather
-  than as a separate render-specific action.
+  than as a separate render-specific action. In graphs, conversion actions are
+  usually attached to the resource-flow edge that links the source to the
+  converted result.
 analogues:
   - id: schema:Action
     notes: Base schema.org action type extended for conversion-specific provenance.

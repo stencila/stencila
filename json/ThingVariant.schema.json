@@ -33,6 +33,9 @@
       "$ref": "ContactPoint.schema.json"
     },
     {
+      "$ref": "ContainerImage.schema.json"
+    },
+    {
       "$ref": "ConvertAction.schema.json"
     },
     {

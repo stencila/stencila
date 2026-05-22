@@ -239,8 +239,6 @@ export class PromptBlock extends Executable {
           ended=${this.executionEnded}
           duration=${this.executionDuration}
         >
-          <slot name="execution-dependencies"></slot>
-          <slot name="execution-dependants"></slot>
         </stencila-ui-node-execution-details>
 
         <stencila-ui-node-execution-messages type="PromptBlock">

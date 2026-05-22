@@ -2,8 +2,10 @@
 
 import { ActionAgent } from "./ActionAgent.js";
 import { ActionStatusType } from "./ActionStatusType.js";
+import { ContainerImageOrString } from "./ContainerImageOrString.js";
 import { DateTime } from "./DateTime.js";
 import { Node } from "./Node.js";
+import { PropertyValue } from "./PropertyValue.js";
 import { Thing } from "./Thing.js";
 import { ThingVariantOrString } from "./ThingVariantOrString.js";
 
@@ -48,6 +50,16 @@ export class Action extends Thing {
    * The object, software, or other instrument that helped perform the action.
    */
   instrument?: ThingVariantOrString;
+
+  /**
+   * Environment variables or settings that affected the action.
+   */
+  environment?: PropertyValue[];
+
+  /**
+   * Container images used by the action.
+   */
+  containerImages?: ContainerImageOrString[];
 
   /**
    * When the action started.

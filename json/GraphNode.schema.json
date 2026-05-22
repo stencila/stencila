@@ -9,15 +9,14 @@
   ],
   "category": "flow",
   "description": "A node in a graph.",
-  "$comment": "This is a graph node type used in Stencila Schema for representing provenance,\nreactivity and other graphs.\n\nThe wrapper gives every graph node a required graph-local `id` for edge\nendpoints and a required `nodeType` so graph consumers can interpret the\nrepresented Stencila node even when `node` is external, omitted, or redacted.\n\nThe optional `node` property embeds the represented Stencila node when the\ngraph needs to carry more than typed endpoint metadata.\n",
+  "$comment": "This is a graph node type used in Stencila Schema for representing provenance,\nreactivity and other graphs.\n\nThe wrapper gives every graph node a required graph-local `id` for edge\nendpoints and embeds the represented Stencila resource or document node.\n",
   "required": [
     "type",
     "id",
-    "nodeType"
+    "node"
   ],
   "core": [
     "id",
-    "nodeType",
     "node"
   ],
   "properties": {
@@ -30,15 +29,6 @@
     "id": {
       "@id": "schema:id",
       "description": "The durable graph-local id used by graph edges to reference this graph node.",
-      "type": "string"
-    },
-    "nodeType": {
-      "@id": "stencila:nodeType",
-      "description": "The Stencila node type represented by this graph node, matching `node.type` when `node` is present.",
-      "aliases": [
-        "node-type",
-        "node_type"
-      ],
       "type": "string"
     },
     "node": {

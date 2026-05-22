@@ -8,9 +8,8 @@ $comment: |
   This is a Stencila extension of schema.org [`Action`](./action.md).
 
   It represents computational execution as a first-class provenance activity.
-  Inputs such as source code, parameters, and execution environments should be
-  connected to the action with dependency edges. Outputs should be connected
-  from the action using `Generated` edges.
+  In graphs, execution actions are usually attached to `Generated` edges from
+  executable nodes to their recorded outputs.
 analogues:
   - name: PROV Activity
     url: https://www.w3.org/TR/prov-o/#Activity

@@ -10,6 +10,7 @@ export type GraphEdgeKind =
   'DerivedInto' |
   'ConvertedInto' |
   'Parameterizes' |
+  'DependsOn' |
   'PartOf' |
   'TranscludedBy' |
   'ImportedBy' |

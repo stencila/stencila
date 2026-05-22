@@ -16,27 +16,22 @@ export class GraphNode extends Entity {
   declare id: string;
 
   /**
-   * The Stencila node type represented by this graph node, matching `node.type` when `node` is present.
-   */
-  nodeType: string;
-
-  /**
    * The embedded Stencila node represented by this graph node.
    */
-  node?: Node;
+  node: Node;
 
-  constructor(id: string, nodeType: string, options?: Partial<GraphNode>) {
+  constructor(id: string, node: Node, options?: Partial<GraphNode>) {
     super();
     this.type = "GraphNode";
     if (options) Object.assign(this, options);
     this.id = id;
-    this.nodeType = nodeType;
+    this.node = node;
   }
 }
 
 /**
 * Create a new `GraphNode`
 */
-export function graphNode(id: string, nodeType: string, options?: Partial<GraphNode>): GraphNode {
-  return new GraphNode(id, nodeType, options);
+export function graphNode(id: string, node: Node, options?: Partial<GraphNode>): GraphNode {
+  return new GraphNode(id, node, options);
 }

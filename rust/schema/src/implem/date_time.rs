@@ -1,6 +1,6 @@
-use std::{str::FromStr, sync::LazyLock};
+use std::{str::FromStr, sync::LazyLock, time::SystemTime};
 
-use chrono::Utc;
+use chrono::{DateTime as ChronoDateTime, Utc};
 use eyre::{Report, Result};
 use inflector::Inflector;
 use interim::{Dialect, parse_date_string};
@@ -25,6 +25,18 @@ impl DateTime {
             ),
             Losses::none(),
         )
+    }
+}
+
+impl From<ChronoDateTime<Utc>> for DateTime {
+    fn from(date_time: ChronoDateTime<Utc>) -> Self {
+        Self::new(date_time.to_rfc3339())
+    }
+}
+
+impl From<SystemTime> for DateTime {
+    fn from(time: SystemTime) -> Self {
+        ChronoDateTime::<Utc>::from(time).into()
     }
 }
 

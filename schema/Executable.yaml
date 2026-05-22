@@ -8,14 +8,14 @@ $comment: |
   This is an abstract base type used in Stencila Schema for nodes that can be compiled
   or executed.
 
-  It adds execution state, dependency tracking, digests, messages, and timing
-  information to the core document node model. This makes executable behavior a
-  first-class capability that can be shared by code, prompts, chats,
-  instructions, forms, and other interactive document nodes.
+  It adds execution state, digests, messages, and timing information to the core
+  document node model. This makes executable behavior a first-class capability
+  that can be shared by code, prompts, chats, instructions, forms, and other
+  interactive document nodes.
 
   Key properties include `executionMode`, `compilationDigest`,
-  `executionDependencies`, `executionRequired`, `executionStatus`,
-  `executionMessages`, and related execution timestamps and durations.
+  `executionRequired`, `executionStatus`, `executionMessages`, and related
+  execution timestamps and durations.
 analogues:
   - name: notebook executable cell model
     url: https://nbformat.readthedocs.io/
@@ -56,24 +56,6 @@ properties:
     $ref: CompilationDigest
     dom:
       skip: true
-  executionDependencies:
-    '@id': stencila:executionDependencies
-    description: The upstream dependencies of this node.
-    strip: [execution]
-    type: array
-    items:
-      $ref: ExecutionDependency
-    dom:
-      elem: span
-  executionDependants:
-    '@id': stencila:executionDependants
-    description: The downstream dependants of this node.
-    strip: [execution]
-    type: array
-    items:
-      $ref: ExecutionDependant
-    dom:
-      elem: span
   executionTags:
     '@id': stencila:executionTags
     description: Tags in the code which affect its execution.

@@ -128,6 +128,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -674,6 +677,9 @@
         },
         {
           "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         }
       ],
       "schema:rangeIncludes": {

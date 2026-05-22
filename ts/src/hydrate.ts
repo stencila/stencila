@@ -107,6 +107,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.ConstantValidator.prototype);
     case "ContactPoint":
       return Object.setPrototypeOf(value, types.ContactPoint.prototype);
+    case "ContainerImage":
+      return Object.setPrototypeOf(value, types.ContainerImage.prototype);
     case "ConvertAction":
       return Object.setPrototypeOf(value, types.ConvertAction.prototype);
     case "CreateAction":
@@ -151,10 +153,6 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Executable.prototype);
     case "ExecuteAction":
       return Object.setPrototypeOf(value, types.ExecuteAction.prototype);
-    case "ExecutionDependant":
-      return Object.setPrototypeOf(value, types.ExecutionDependant.prototype);
-    case "ExecutionDependency":
-      return Object.setPrototypeOf(value, types.ExecutionDependency.prototype);
     case "ExecutionMessage":
       return Object.setPrototypeOf(value, types.ExecutionMessage.prototype);
     case "ExecutionTag":
@@ -307,6 +305,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.Superscript.prototype);
     case "Supplement":
       return Object.setPrototypeOf(value, types.Supplement.prototype);
+    case "SymbolicLink":
+      return Object.setPrototypeOf(value, types.SymbolicLink.prototype);
     case "Table":
       return Object.setPrototypeOf(value, types.Table.prototype);
     case "TableCell":

@@ -42,6 +42,7 @@ export type NodeType =
   | "CompilationMessage"
   | "ConstantValidator"
   | "ContactPoint"
+  | "ContainerImage"
   | "ConvertAction"
   | "CreateAction"
   | "CreativeWork"
@@ -62,8 +63,6 @@ export type NodeType =
   | "Enumeration"
   | "Excerpt"
   | "ExecuteAction"
-  | "ExecutionDependant"
-  | "ExecutionDependency"
   | "ExecutionMessage"
   | "ExecutionTag"
   | "Figure"
@@ -134,6 +133,7 @@ export type NodeType =
   | "SuggestionInline"
   | "Superscript"
   | "Supplement"
+  | "SymbolicLink"
   | "Table"
   | "TableCell"
   | "TableRow"
@@ -197,6 +197,7 @@ export const NodeTypeList = [
   "CompilationMessage",
   "ConstantValidator",
   "ContactPoint",
+  "ContainerImage",
   "ConvertAction",
   "CreateAction",
   "CreativeWork",
@@ -217,8 +218,6 @@ export const NodeTypeList = [
   "Enumeration",
   "Excerpt",
   "ExecuteAction",
-  "ExecutionDependant",
-  "ExecutionDependency",
   "ExecutionMessage",
   "ExecutionTag",
   "Figure",
@@ -289,6 +288,7 @@ export const NodeTypeList = [
   "SuggestionInline",
   "Superscript",
   "Supplement",
+  "SymbolicLink",
   "Table",
   "TableCell",
   "TableRow",

@@ -5,27 +5,38 @@ category: flow
 description: The kind of evidence supporting a graph edge.
 $comment: |
   This enumeration classifies how a graph edge was learned or justified.
-  `StaticAnalysis` is derived without running the document, such as parsing
-  imports or references. `RuntimeObservation` is captured while code, tools, or
-  workflows run, such as an observed file read. `ExecutionMetadata` is imported
-  from persisted Stencila execution state, such as dependencies or digests,
-  rather than freshly observed during the current run.
+  Variants describe the evidence source or acquisition method, not the graph
+  relationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and
+  allows a single edge to carry several signals, for example an authored
+  declaration that was also resolved to a concrete local file.
 anyOf:
+  - const: Declared
+    '@id': stencila:Declared
+    description: Evidence from an explicit authored or schema field declaration, such as a link target, citation target, include source, or media URL.
+  - const: Resolved
+    '@id': stencila:Resolved
+    description: Evidence from deterministically resolving a declared locator to a concrete graph node.
+  - const: Observed
+    '@id': stencila:Observed
+    description: Evidence from directly observing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
+  - const: Computed
+    '@id': stencila:Computed
+    description: Evidence from a deterministic Stencila operation, such as walking document structure, decoding a file, or materializing recorded execution outputs.
+  - const: Recorded
+    '@id': stencila:Recorded
+    description: Evidence from persisted Stencila metadata already recorded on a node, such as execution dependencies, execution digests, or execution status.
   - const: StaticAnalysis
     '@id': stencila:StaticAnalysis
-    description: Evidence from static analysis.
-  - const: RuntimeObservation
-    '@id': stencila:RuntimeObservation
-    description: Evidence from observing runtime behavior.
-  - const: UserAssertion
-    '@id': stencila:UserAssertion
-    description: Evidence asserted by a user.
+    description: Evidence from analyzing code, configuration, or environment files without executing them.
   - const: Imported
     '@id': stencila:Imported
-    description: Evidence imported from another source.
-  - const: ContentCredential
-    '@id': stencila:ContentCredential
-    description: Evidence from a content credential.
-  - const: ExecutionMetadata
-    '@id': stencila:ExecutionMetadata
-    description: Evidence from execution metadata.
+    description: Evidence imported from an external metadata source, service, graph, or document format.
+  - const: UserAssertion
+    '@id': stencila:UserAssertion
+    description: Evidence explicitly asserted by a user.
+  - const: Attested
+    '@id': stencila:Attested
+    description: Evidence from a signed, cryptographic, or otherwise verifiable attestation such as a content credential.
+  - const: Inferred
+    '@id': stencila:Inferred
+    description: Evidence from a heuristic or probabilistic inference that has not been directly resolved, observed, or attested.

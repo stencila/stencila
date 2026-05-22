@@ -18,23 +18,6 @@
       }
     },
     {
-      "@id": "stencila:nodeType",
-      "@type": "rdfs:Property",
-      "rdfs:label": "nodeType",
-      "rdfs:comment": "The Stencila node type represented by this graph node, matching `node.type` when `node` is present.",
-      "schema:domainIncludes": [
-        {
-          "@id": "stencila:GraphNode"
-        },
-        {
-          "@id": "stencila:Variable"
-        }
-      ],
-      "schema:rangeIncludes": {
-        "@id": "schema:Text"
-      }
-    },
-    {
       "@id": "stencila:node",
       "@type": "rdfs:Property",
       "rdfs:label": "node",

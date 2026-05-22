@@ -4,8 +4,6 @@ import { CompilationDigest } from "./CompilationDigest.js";
 import { CompilationMessage } from "./CompilationMessage.js";
 import { Duration } from "./Duration.js";
 import { Entity } from "./Entity.js";
-import { ExecutionDependant } from "./ExecutionDependant.js";
-import { ExecutionDependency } from "./ExecutionDependency.js";
 import { ExecutionMessage } from "./ExecutionMessage.js";
 import { ExecutionMode } from "./ExecutionMode.js";
 import { ExecutionRequired } from "./ExecutionRequired.js";
@@ -40,16 +38,6 @@ export class Executable extends Entity {
    * The `compilationDigest` of the node when it was last executed.
    */
   executionDigest?: CompilationDigest;
-
-  /**
-   * The upstream dependencies of this node.
-   */
-  executionDependencies?: ExecutionDependency[];
-
-  /**
-   * The downstream dependants of this node.
-   */
-  executionDependants?: ExecutionDependant[];
 
   /**
    * Tags in the code which affect its execution.

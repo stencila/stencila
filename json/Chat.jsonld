@@ -128,6 +128,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -674,6 +677,9 @@
         },
         {
           "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         }
       ],
       "schema:rangeIncludes": {
@@ -814,30 +820,6 @@
       },
       "schema:rangeIncludes": {
         "@id": "stencila:CompilationDigest"
-      }
-    },
-    {
-      "@id": "stencila:executionDependencies",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependencies",
-      "rdfs:comment": "The upstream dependencies of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependency"
-      }
-    },
-    {
-      "@id": "stencila:executionDependants",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependants",
-      "rdfs:comment": "The downstream dependants of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependant"
       }
     },
     {

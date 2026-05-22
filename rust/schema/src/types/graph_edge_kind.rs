@@ -28,6 +28,9 @@ pub enum GraphEdgeKind {
     /// The upstream node parameterizes the downstream node. Approximately related to `prov:used` with inverse direction.
     Parameterizes,
 
+    /// The source node depends on the target node. Used for direct code-unit reactivity dependencies where consumers need the dependent-to-dependency direction.
+    DependsOn,
+
     /// The upstream node is part of the downstream node. Related to `schema:isPartOf` and inverse `schema:hasPart`.
     PartOf,
 

@@ -679,6 +679,7 @@
     "softwareRequirements": {
       "@id": "schema:softwareRequirements",
       "description": "Requirements for application, including shared libraries that are not included in the application distribution.",
+      "$comment": "Schema.org and Workflow Run RO-Crate use `softwareRequirements` to link a\nsoftware application to required software. Stencila accepts structured\nsoftware nodes or a string requirement when only a package specifier,\npackage URL, or unresolved requirement is available.\n",
       "aliases": [
         "software-requirements",
         "software_requirements",
@@ -688,7 +689,17 @@
       ],
       "type": "array",
       "items": {
-        "$ref": "SoftwareApplication.schema.json"
+        "anyOf": [
+          {
+            "$ref": "SoftwareApplication.schema.json"
+          },
+          {
+            "$ref": "SoftwareSourceCode.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
       }
     },
     "softwareVersion": {

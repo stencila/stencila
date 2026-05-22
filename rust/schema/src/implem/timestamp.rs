@@ -1,7 +1,7 @@
 use eyre::{OptionExt, Report};
 use inflector::Inflector;
 
-use crate::{Duration, TimeUnit, Timestamp, prelude::*};
+use crate::{DateTime, Duration, TimeUnit, Timestamp, prelude::*};
 
 impl Timestamp {
     /// Get the current timestamp
@@ -53,6 +53,23 @@ impl Timestamp {
             },
             Tense::Past,
         )
+    }
+
+    /// Convert this timestamp to a date-time.
+    pub fn to_date_time(&self) -> Result<DateTime> {
+        let date_time: chrono::DateTime<chrono::Utc> = self.try_into()?;
+        Ok(date_time.into())
+    }
+
+    /// Convert this timestamp to a date-time before it by a duration.
+    pub fn to_date_time_before(&self, duration: &Duration) -> Result<DateTime> {
+        let date_time: chrono::DateTime<chrono::Utc> = self.try_into()?;
+        let duration: chrono::Duration = duration.try_into()?;
+        let date_time = date_time
+            .checked_sub_signed(duration)
+            .ok_or_eyre("Unable to subtract duration from timestamp")?;
+
+        Ok(date_time.into())
     }
 
     /// Encode a timestamp as a DOM HTML attribute

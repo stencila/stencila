@@ -25,7 +25,7 @@ properties:
     description: The id of the upstream dependency graph node.
     type: string
   target:
-    '@id': stencila:target
+    '@id': schema:target
     description: The id of the downstream dependant graph node.
     type: string
   kind:
@@ -38,3 +38,15 @@ properties:
     type: array
     items:
       $ref: GraphEvidence
+  actions:
+    '@id': stencila:actions
+    description: Concrete activities associated with the edge.
+    $comment: |
+      Use this for real operations that produced or transformed the target from
+      the source, such as a recorded code execution or an explicit conversion.
+      Do not use it for static analysis relationships, inferred links, or
+      observed filesystem state; those belong in `evidence` and resource
+      metadata such as `dateCreated` and `dateModified`.
+    type: array
+    items:
+      $ref: GraphAction

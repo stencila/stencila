@@ -9,7 +9,7 @@ use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, async_trait,
     eyre::{Result, bail},
     stencila_format::Format,
-    stencila_schema::{Directory, File, FileOrDirectory, Node},
+    stencila_schema::{Directory, File, FileOrSymbolicLinkOrDirectory as FileOrDirectory, Node},
 };
 
 /// A codec for "decoding" a directory to a Stencila `Directory` node
@@ -89,9 +89,14 @@ impl Codec for DirectoryCodec {
         // Fold the tail of directories into its parents
         fn dirs_fold(dirs: &mut Vec<(usize, Directory)>) {
             let (.., mut last) = dirs.pop().expect("dirs should not be empty");
-            last.parts.sort_by(dir_sort);
+            if let Some(parts) = &mut last.parts {
+                parts.sort_by(dir_sort);
+            }
             let (.., parent) = dirs.last_mut().expect("dirs should not be empty");
-            parent.parts.push(FileOrDirectory::Directory(last))
+            parent
+                .parts
+                .get_or_insert_default()
+                .push(FileOrDirectory::Directory(last))
         }
 
         for entry in Walk::new(&root).flatten() {
@@ -146,7 +151,7 @@ impl Codec for DirectoryCodec {
                 }
 
                 if let Some((.., parent)) = dirs.last_mut() {
-                    parent.parts.push(file);
+                    parent.parts.get_or_insert_default().push(file);
                 }
             }
         }
@@ -160,7 +165,9 @@ impl Codec for DirectoryCodec {
         }
 
         let mut root = dirs.swap_remove(0).1;
-        root.parts.sort_by(dir_sort);
+        if let Some(parts) = &mut root.parts {
+            parts.sort_by(dir_sort);
+        }
 
         let node = Node::Directory(root);
 

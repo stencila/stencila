@@ -9,6 +9,7 @@ import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type ContactPoint } from "./ContactPoint.js";
+import { type ContainerImage } from "./ContainerImage.js";
 import { type ConvertAction } from "./ConvertAction.js";
 import { type CreateAction } from "./CreateAction.js";
 import { type CreativeWork } from "./CreativeWork.js";
@@ -55,6 +56,7 @@ export type ThingVariant =
   Collection |
   Comment |
   ContactPoint |
+  ContainerImage |
   ConvertAction |
   CreateAction |
   CreativeWork |

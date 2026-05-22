@@ -19,12 +19,8 @@ pub struct GraphNode {
     /// The durable graph-local id used by graph edges to reference this graph node.
     pub id: String,
 
-    /// The Stencila node type represented by this graph node, matching `node.type` when `node` is present.
-    #[serde(alias = "node-type", alias = "node_type")]
-    pub node_type: String,
-
     /// The embedded Stencila node represented by this graph node.
-    pub node: Option<Box<Node>>,
+    pub node: Box<Node>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]
@@ -42,10 +38,10 @@ impl GraphNode {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(id: String, node_type: String) -> Self {
+    pub fn new(id: String, node: Box<Node>) -> Self {
         Self {
             id,
-            node_type,
+            node,
             ..Default::default()
         }
     }

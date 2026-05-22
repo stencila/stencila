@@ -1,6 +1,7 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
 import { CreativeWork } from "./CreativeWork.js";
+import { SoftwareApplicationOrSoftwareSourceCodeOrString } from "./SoftwareApplicationOrSoftwareSourceCodeOrString.js";
 
 /**
  * A software application.
@@ -17,7 +18,7 @@ export class SoftwareApplication extends CreativeWork {
   /**
    * Requirements for application, including shared libraries that are not included in the application distribution.
    */
-  softwareRequirements?: SoftwareApplication[];
+  softwareRequirements?: SoftwareApplicationOrSoftwareSourceCodeOrString[];
 
   /**
    * Version of the software.

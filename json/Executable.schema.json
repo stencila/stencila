@@ -9,7 +9,7 @@
   "category": "flow",
   "abstract": true,
   "description": "An abstract base type for executable nodes.",
-  "$comment": "This is an abstract base type used in Stencila Schema for nodes that can be compiled\nor executed.\n\nIt adds execution state, dependency tracking, digests, messages, and timing\ninformation to the core document node model. This makes executable behavior a\nfirst-class capability that can be shared by code, prompts, chats,\ninstructions, forms, and other interactive document nodes.\n\nKey properties include `executionMode`, `compilationDigest`,\n`executionDependencies`, `executionRequired`, `executionStatus`,\n`executionMessages`, and related execution timestamps and durations.\n",
+  "$comment": "This is an abstract base type used in Stencila Schema for nodes that can be compiled\nor executed.\n\nIt adds execution state, digests, messages, and timing information to the core\ndocument node model. This makes executable behavior a first-class capability\nthat can be shared by code, prompts, chats, instructions, forms, and other\ninteractive document nodes.\n\nKey properties include `executionMode`, `compilationDigest`,\n`executionRequired`, `executionStatus`, `executionMessages`, and related\nexecution timestamps and durations.\n",
   "analogues": [
     {
       "name": "notebook executable cell model",
@@ -119,48 +119,6 @@
         "skip": true
       },
       "$ref": "CompilationDigest.schema.json"
-    },
-    "executionDependencies": {
-      "@id": "stencila:executionDependencies",
-      "description": "The upstream dependencies of this node.",
-      "aliases": [
-        "execution-dependencies",
-        "execution_dependencies",
-        "executionDependency",
-        "execution-dependency",
-        "execution_dependency"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "dom": {
-        "elem": "span"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependency.schema.json"
-      }
-    },
-    "executionDependants": {
-      "@id": "stencila:executionDependants",
-      "description": "The downstream dependants of this node.",
-      "aliases": [
-        "execution-dependants",
-        "execution_dependants",
-        "executionDependant",
-        "execution-dependant",
-        "execution_dependant"
-      ],
-      "strip": [
-        "execution"
-      ],
-      "dom": {
-        "elem": "span"
-      },
-      "type": "array",
-      "items": {
-        "$ref": "ExecutionDependant.schema.json"
-      }
     },
     "executionTags": {
       "@id": "stencila:executionTags",

@@ -2,7 +2,7 @@
 
 use crate::prelude::*;
 
-use super::file_or_directory::FileOrDirectory;
+use super::file_or_symbolic_link_or_directory::FileOrSymbolicLinkOrDirectory;
 use super::string::String;
 
 /// A directory on a file system.
@@ -28,11 +28,11 @@ pub struct Directory {
     /// The path (absolute or relative) of the file on the file system.
     pub path: String,
 
-    /// The files and other directories within this directory.
+    /// The files, symbolic links, and other directories within this directory.
     #[serde(alias = "hasParts", alias = "part")]
-    #[serde(deserialize_with = "one_or_many")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
     #[dom(elem = "div")]
-    pub parts: Vec<FileOrDirectory>,
+    pub parts: Option<Vec<FileOrSymbolicLinkOrDirectory>>,
 
     /// A unique identifier for a node within a document
     #[serde(skip)]
@@ -50,11 +50,10 @@ impl Directory {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(name: String, path: String, parts: Vec<FileOrDirectory>) -> Self {
+    pub fn new(name: String, path: String) -> Self {
         Self {
             name,
             path,
-            parts,
             ..Default::default()
         }
     }

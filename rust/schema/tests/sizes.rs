@@ -85,8 +85,6 @@ fn sizes() {
         Enumeration,
         EnumValidator,
         Excerpt,
-        ExecutionDependant,
-        ExecutionDependency,
         ExecutionMessage,
         ExecutionTag,
         Figure,

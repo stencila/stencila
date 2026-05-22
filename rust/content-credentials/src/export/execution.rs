@@ -1,18 +1,13 @@
 //! Project Stencila execution metadata into provenance snapshots.
 //!
 //! Executable Stencila nodes carry execution status, duration, digests,
-//! dependencies, kernel identity, and messages. This module normalizes those
-//! node-specific fields into the Content Credentials snapshot model.
+//! kernel identity, and messages. This module normalizes those node-specific
+//! fields into the Content Credentials snapshot model.
 
 use chrono::{DateTime, Utc};
-use stencila_schema::{
-    CompilationDigest, Duration, ExecutionDependency, ExecutionMessage, Node, Timestamp,
-};
+use stencila_schema::{CompilationDigest, Duration, ExecutionMessage, Node, Timestamp};
 
-use crate::{
-    DependencySnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot,
-    KernelSnapshot,
-};
+use crate::{ExecutionDigestSnapshot, ExecutionMessageSnapshot, ExecutionSnapshot, KernelSnapshot};
 
 /// Borrowed view over the execution fields common to executable nodes.
 ///
@@ -27,7 +22,6 @@ struct ExecutableView<'a> {
     execution_count: Option<i64>,
     execution_instance: Option<&'a str>,
     language: Option<&'a str>,
-    dependencies: &'a [ExecutionDependency],
     messages: &'a [ExecutionMessage],
 }
 
@@ -50,11 +44,6 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
             execution_count: article.options.execution_count,
             execution_instance: article.options.execution_instance.as_deref(),
             language: None,
-            dependencies: article
-                .options
-                .execution_dependencies
-                .as_deref()
-                .unwrap_or(&[]),
             messages: article.options.execution_messages.as_deref().unwrap_or(&[]),
         }),
         Node::CodeChunk(chunk) => Some(ExecutableView {
@@ -69,11 +58,6 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
             execution_count: chunk.options.execution_count,
             execution_instance: chunk.options.execution_instance.as_deref(),
             language: chunk.programming_language.as_deref(),
-            dependencies: chunk
-                .options
-                .execution_dependencies
-                .as_deref()
-                .unwrap_or(&[]),
             messages: chunk.options.execution_messages.as_deref().unwrap_or(&[]),
         }),
         Node::CodeExpression(expression) => Some(ExecutableView {
@@ -88,11 +72,6 @@ fn executable_view(node: &Node) -> Option<ExecutableView<'_>> {
             execution_count: expression.options.execution_count,
             execution_instance: expression.options.execution_instance.as_deref(),
             language: expression.programming_language.as_deref(),
-            dependencies: expression
-                .options
-                .execution_dependencies
-                .as_deref()
-                .unwrap_or(&[]),
             messages: expression
                 .options
                 .execution_messages
@@ -119,7 +98,6 @@ pub(super) fn execution_snapshot_for(subject: &Node) -> Option<ExecutionSnapshot
         || view.execution_count.is_some()
         || view.execution_instance.is_some()
         || view.language.is_some()
-        || !view.dependencies.is_empty()
         || !view.messages.is_empty();
 
     if !has_execution {
@@ -149,7 +127,6 @@ pub(super) fn execution_snapshot_for(subject: &Node) -> Option<ExecutionSnapshot
         });
     }
 
-    snapshot.dependencies = view.dependencies.iter().map(dependency_snapshot).collect();
     snapshot.messages = view
         .messages
         .iter()
@@ -171,20 +148,6 @@ fn execution_digest_snapshot(digest: &CompilationDigest) -> ExecutionDigestSnaps
         dependencies_digest: digest.dependencies_digest.map(value_to_digest),
         dependencies_stale: digest.dependencies_stale,
         dependencies_failed: digest.dependencies_failed,
-    }
-}
-
-/// Project an execution dependency into the credential dependency record.
-///
-/// Dependencies explain why an output may become stale when upstream state
-/// changes. The projection currently preserves identity and relation while
-/// leaving digest empty because the schema dependency value does not carry one.
-fn dependency_snapshot(dependency: &ExecutionDependency) -> DependencySnapshot {
-    DependencySnapshot {
-        node_id: Some(dependency.dependency_id.clone()),
-        node_type: Some(dependency.dependency_type.clone()),
-        relation: Some(dependency.dependency_relation.to_string()),
-        digest: None,
     }
 }
 

@@ -120,30 +120,6 @@
       }
     },
     {
-      "@id": "stencila:executionDependencies",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependencies",
-      "rdfs:comment": "The upstream dependencies of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependency"
-      }
-    },
-    {
-      "@id": "stencila:executionDependants",
-      "@type": "rdfs:Property",
-      "rdfs:label": "executionDependants",
-      "rdfs:comment": "The downstream dependants of this node.",
-      "schema:domainIncludes": {
-        "@id": "stencila:Executable"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ExecutionDependant"
-      }
-    },
-    {
       "@id": "stencila:executionTags",
       "@type": "rdfs:Property",
       "rdfs:label": "executionTags",

@@ -84,12 +84,6 @@
           "@id": "stencila:CompilationMessage"
         },
         {
-          "@id": "stencila:ExecutionDependant"
-        },
-        {
-          "@id": "stencila:ExecutionDependency"
-        },
-        {
           "@id": "stencila:ExecutionMessage"
         }
       ],

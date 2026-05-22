@@ -60,6 +60,9 @@
           "@id": "stencila:Skill"
         },
         {
+          "@id": "stencila:SymbolicLink"
+        },
+        {
           "@id": "stencila:TableCell"
         },
         {
@@ -87,6 +90,9 @@
         },
         {
           "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         }
       ],
       "schema:rangeIncludes": {
@@ -97,7 +103,7 @@
       "@id": "schema:hasParts",
       "@type": "rdfs:Property",
       "rdfs:label": "parts",
-      "rdfs:comment": "The files and other directories within this directory.",
+      "rdfs:comment": "The files, symbolic links, and other directories within this directory.",
       "schema:domainIncludes": [
         {
           "@id": "schema:CreativeWork"
@@ -109,6 +115,9 @@
       "schema:rangeIncludes": [
         {
           "@id": "stencila:File"
+        },
+        {
+          "@id": "stencila:SymbolicLink"
         },
         {
           "@id": "stencila:Directory"
