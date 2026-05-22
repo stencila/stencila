@@ -1,3 +1,12 @@
+/**
+ * Graph projection tests.
+ *
+ * These tests document the behavior expected from focused graph presets:
+ * automatic preset selection, structural context, citation collapsing,
+ * confidence filtering, vocabulary classification, and edge aggregation.
+ * Keeping those examples close to projection code makes future preset changes
+ * explicit instead of accidental.
+ */
 import { describe, expect, it } from 'vitest'
 
 import { defaultProjectionOptions, projectGraph } from './project'
@@ -98,6 +107,13 @@ describe('projectGraph', () => {
   })
 })
 
+/**
+ * Build a mixed graph fixture.
+ *
+ * The fixture combines data-flow, citation, low-confidence, and structural
+ * relationships so projection tests can verify that each preset selects only
+ * the relevant subset while sharing the same source graph.
+ */
 function graph(): Graph {
   return {
     type: 'Graph',
@@ -165,6 +181,13 @@ function graph(): Graph {
   } as Graph
 }
 
+/**
+ * Build a graph with only structural relationships.
+ *
+ * Auto projection should still produce a useful view when no focused
+ * relationship family exists. This fixture ensures that fallback path remains
+ * covered without mixing in primary edges.
+ */
 function structureOnlyGraph(): Graph {
   return {
     type: 'Graph',
@@ -192,6 +215,13 @@ function structureOnlyGraph(): Graph {
   } as Graph
 }
 
+/**
+ * Build a graph covering specialized node namespaces.
+ *
+ * Node classification uses graph ID namespaces before schema type fallbacks.
+ * This fixture keeps those namespace mappings visible and protects the visual
+ * vocabulary used by the renderer.
+ */
 function vocabularyGraph(): Graph {
   return {
     type: 'Graph',
@@ -242,6 +272,13 @@ function vocabularyGraph(): Graph {
   } as Graph
 }
 
+/**
+ * Build a graph with duplicate visible relationships.
+ *
+ * The projection layer aggregates duplicate rendered edges while preserving
+ * counts and confidence summaries. This fixture makes that aggregation behavior
+ * deterministic and easy to assert.
+ */
 function duplicateEdgeGraph(): Graph {
   return {
     type: 'Graph',

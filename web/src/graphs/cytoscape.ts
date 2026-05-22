@@ -1,3 +1,12 @@
+/**
+ * Cytoscape graph rendering adapters.
+ *
+ * This module converts the graph view model into Cytoscape configuration rather
+ * than letting the web component assemble rendering details inline. Keeping this
+ * adapter separate makes the view component responsible for interaction state
+ * only, while graph styling, element metadata, and layout mapping remain easy to
+ * test and reuse.
+ */
 import type {
   CytoscapeOptions,
   ElementDefinition,
@@ -8,6 +17,14 @@ import type { CytoscapeTheme } from '../utilities/cytoscapeTheme'
 
 import type { GraphLayout, GraphView } from './types'
 
+/**
+ * Build Cytoscape options for a graph view.
+ *
+ * Cytoscape expects its data, stylesheet, layout, and interaction limits in one
+ * object. This function keeps those choices centralized so graph views use the
+ * same zoom behavior, theme tokens, element data fields, and preset layouts no
+ * matter where the Cytoscape instance is created.
+ */
 export function toCytoscapeOptions(
   view: GraphView,
   container: HTMLElement,
@@ -25,6 +42,14 @@ export function toCytoscapeOptions(
   }
 }
 
+/**
+ * Convert a graph view to Cytoscape elements.
+ *
+ * The projected view model carries Stencila-specific metadata, while Cytoscape
+ * renders nodes and edges using flat element definitions. This conversion keeps
+ * stable IDs and summary fields on each element so styles, labels, selection,
+ * and later inspection features can all work from the same canonical data.
+ */
 export function toElements(view: GraphView): ElementDefinition[] {
   return [
     ...view.nodes.map((node) => ({
@@ -60,6 +85,14 @@ export function toElements(view: GraphView): ElementDefinition[] {
   ]
 }
 
+/**
+ * Build the Cytoscape stylesheet.
+ *
+ * Styles live here because node and edge classes are produced by this adapter,
+ * not by the Lit view. The class palette distinguishes graph concepts at a
+ * glance, while theme-derived base colors keep embedded and full-page graphs
+ * aligned with the active document theme.
+ */
 function stylesheet(theme: CytoscapeTheme): CytoscapeOptions['style'] {
   return [
     {
@@ -234,6 +267,13 @@ function stylesheet(theme: CytoscapeTheme): CytoscapeOptions['style'] {
   ] as CytoscapeOptions['style']
 }
 
+/**
+ * Map a graph layout name to Cytoscape layout options.
+ *
+ * The UI exposes a small stable vocabulary rather than raw Cytoscape settings.
+ * Translating that vocabulary here lets the controls stay compact while still
+ * tuning each layout for readable document graphs with labels included.
+ */
 function layoutOptions(layout: GraphLayout): LayoutOptions {
   switch (layout) {
     case 'breadthfirst':

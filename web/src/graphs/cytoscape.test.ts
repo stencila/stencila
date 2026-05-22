@@ -1,3 +1,10 @@
+/**
+ * Cytoscape adapter tests.
+ *
+ * These tests pin the boundary between the projected graph view model and the
+ * Cytoscape element format. That boundary matters because rendering styles and
+ * future graph interactions depend on stable element data fields and classes.
+ */
 import { describe, expect, it } from 'vitest'
 
 import { toElements } from './cytoscape'

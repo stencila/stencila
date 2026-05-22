@@ -1,13 +1,22 @@
+/**
+ * Graph projection utilities.
+ *
+ * Stencila graphs can include many node and edge kinds, including structural
+ * containment edges that are useful in some views and noisy in others. This
+ * module turns the complete schema graph into a smaller view model that matches
+ * a reader's intent, so rendering code can stay focused on drawing the graph
+ * instead of deciding which relationships matter.
+ */
 import type {
   Graph,
   GraphEdge,
   GraphNode,
   GraphProjectionOptions,
-  ResolvedGraphProjectionOptions,
   GraphView,
   GraphViewEdge,
   GraphViewNode,
   GraphViewPreset,
+  ResolvedGraphProjectionOptions,
   ResolvedGraphViewPreset,
 } from './types'
 
@@ -32,6 +41,14 @@ interface ProjectedEdge {
   target: string
 }
 
+/**
+ * Return default projection options for a preset.
+ *
+ * Defaults encode the expected browsing experience for each preset, allowing
+ * callers to override only the controls that are visible in the UI. The auto
+ * preset intentionally leaves structural edge inclusion unresolved because the
+ * final preset is chosen from the graph's actual relationships.
+ */
 export function defaultProjectionOptions(
   preset: GraphViewPreset = 'auto'
 ): GraphProjectionOptions {
@@ -48,6 +65,14 @@ export function defaultProjectionOptions(
   return options
 }
 
+/**
+ * Resolve projection options after the preset is known.
+ *
+ * Auto projection can only choose structure defaults once it has selected a
+ * concrete preset. This normalization step gives the rest of the projection
+ * pipeline simple booleans, avoiding repeated fallback logic in edge filters and
+ * structural ancestor expansion.
+ */
 function resolveProjectionOptions(
   preset: ResolvedGraphViewPreset,
   options: GraphProjectionOptions
@@ -65,6 +90,14 @@ function resolveProjectionOptions(
   }
 }
 
+/**
+ * Project a schema graph into the browser graph view model.
+ *
+ * The raw graph is optimized as a complete interchange format, not as a direct
+ * visualization model. Projection filters relationships by preset, optionally
+ * folds citations into their document context, aggregates duplicate edges, and
+ * sorts output so rendering is deterministic and easier to test.
+ */
 export function projectGraph(
   graph: Graph,
   options: GraphProjectionOptions
@@ -132,6 +165,14 @@ export function projectGraph(
   }
 }
 
+/**
+ * Choose the best concrete preset for an auto projection.
+ *
+ * Auto mode should open on the first meaningful relationship family found in a
+ * graph instead of always showing the full structure. The preset order reflects
+ * the most common authoring questions first, then falls back to full when the
+ * graph has only structural or otherwise unclassified relationships.
+ */
 function resolvePreset(
   graph: Graph,
   options: GraphProjectionOptions
@@ -151,6 +192,13 @@ function resolvePreset(
   )
 }
 
+/**
+ * Decide whether an edge belongs to a preset's primary relationships.
+ *
+ * Structural edges are handled separately because they are context rather than
+ * the main subject of most projections. Low-confidence filtering happens before
+ * preset matching so all relationship families honor the same UI control.
+ */
 function includePrimaryEdge(
   edge: GraphEdge,
   preset: ResolvedGraphViewPreset,
@@ -167,6 +215,14 @@ function includePrimaryEdge(
   return edgeKindInPreset(edge.kind, preset)
 }
 
+/**
+ * Add structural context to a projected graph.
+ *
+ * Full graphs should include every containment edge, but focused projections
+ * only need ancestors of already-visible nodes. This preserves enough document
+ * context to understand where data flow, citations, or dependencies occur
+ * without overwhelming the view with unrelated document structure.
+ */
 function addStructureEdges(
   graph: Graph,
   nodesById: Map<string, GraphNode>,
@@ -225,6 +281,14 @@ function addStructureEdges(
   }
 }
 
+/**
+ * Add or aggregate an edge in the view model.
+ *
+ * Multiple raw graph edges can represent the same visible relationship. Keeping
+ * them under one rendered edge reduces clutter while preserving counts,
+ * evidence totals, action totals, and confidence summaries for labels and future
+ * inspection UI.
+ */
 function addViewEdge(
   edges: Map<string, GraphViewEdge>,
   projected: ProjectedEdge
@@ -255,10 +319,24 @@ function addViewEdge(
   })
 }
 
+/**
+ * Build a stable visible-edge key.
+ *
+ * The key must survive graph sorting and include encoded endpoint IDs because
+ * Stencila graph IDs commonly contain colons, hashes, and paths. Stable keys
+ * make aggregation deterministic and keep Cytoscape element IDs predictable.
+ */
 function edgeKey(source: string, target: string, kind: string): string {
   return `edge:${kind}:${encodeURIComponent(source)}:${encodeURIComponent(target)}`
 }
 
+/**
+ * Refresh aggregate edge summary fields.
+ *
+ * Summary fields are duplicated on the view edge because Cytoscape element data
+ * is intentionally flat. Updating them whenever a raw edge is merged keeps the
+ * rendered edge accurate without forcing render code to inspect nested arrays.
+ */
 function updateEdgeSummary(edge: GraphViewEdge) {
   edge.count = edge.edges.length
   edge.evidenceCount = edge.edges.reduce(
@@ -272,14 +350,35 @@ function updateEdgeSummary(edge: GraphViewEdge) {
   edge.lowConfidence = edge.edges.some(hasLowConfidence)
 }
 
+/**
+ * Build an internal key for structural edges.
+ *
+ * Structure lookup is always keyed by exact source and target, so a separator
+ * that cannot appear through normal string joining avoids ambiguity while
+ * keeping the map cheaper than repeated graph edge scans.
+ */
 function structureEdgeKey(source: string, target: string): string {
   return `${source}\u0000${target}`
 }
 
+/**
+ * Check whether an edge carries low-confidence evidence.
+ *
+ * Confidence is attached to evidence records rather than directly to the edge.
+ * Centralizing the check ensures projection filters and aggregate summaries use
+ * the same interpretation of low-confidence relationships.
+ */
 function hasLowConfidence(edge: GraphEdge): boolean {
   return edge.evidence?.some((evidence) => evidence.confidence === 'Low') ?? false
 }
 
+/**
+ * Build a child-to-parent map from structural edges.
+ *
+ * Several projection steps need to climb document containment. A map makes that
+ * traversal direct and keeps citation collapsing and structural ancestor
+ * expansion independent of the raw edge ordering.
+ */
 function parentMap(graph: Graph): Map<string, string> {
   const parents = new Map<string, string>()
   graph.edges
@@ -288,6 +387,14 @@ function parentMap(graph: Graph): Map<string, string> {
   return parents
 }
 
+/**
+ * Collapse a citation node to its nearest non-citation parent.
+ *
+ * Citation projections are usually read as "this reference is cited by this
+ * document region" rather than by an intermediate citation marker node. Climbing
+ * through citation nodes keeps the graph meaningful while preserving the raw
+ * edge under the aggregated view edge.
+ */
 function collapseCitationTarget(
   target: string,
   nodesById: Map<string, GraphNode>,
@@ -312,6 +419,13 @@ function collapseCitationTarget(
   return current
 }
 
+/**
+ * Convert a schema graph node to a view node.
+ *
+ * Rendering needs a compact label and coarse visual category, while downstream
+ * interactions may still need the original graph node. Keeping both on the view
+ * node avoids recomputing vocabulary decisions in the renderer.
+ */
 function viewNode(node: GraphNode | undefined): GraphViewNode | undefined {
   if (!node) {
     return undefined
