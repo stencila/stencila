@@ -32,7 +32,7 @@ mod workspace;
 pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
 pub(crate) use document::DocumentCodeIndex;
-pub use facts::{CodeFacts, ColumnFact, WorkflowRuleFacts};
+pub use facts::{CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, WorkflowRuleFacts};
 pub use language::CodeLanguage;
 pub(crate) use workspace::add_workspace_code;
 
@@ -48,7 +48,12 @@ mod tests {
 import pandas as pd
 import matplotlib.pyplot as plt
 df = pd.read_csv("data.csv")
+named = pd.read_csv(filepath_or_buffer="named.csv", sep=",")
+# pd.read_csv(filepath_or_buffer="comment.csv")
+text = 'pd.read_csv(filepath_or_buffer="string.csv")'
+my_read_csv(filepath_or_buffer="helper.csv")
 plot = df[["A", "D"]]
+df.to_csv(path_or_buf="named-out.csv", index=False)
 plt.savefig("plot.png")
 "#,
         );
@@ -60,8 +65,13 @@ plt.savefig("plot.png")
                 .contains(&PackageFact::new("pypi", "matplotlib"))
         );
         assert!(facts.assignments.contains("df"));
-        assert!(facts.reads.contains("data.csv"));
-        assert!(facts.writes.contains("plot.png"));
+        assert_io(&facts, IoDirection::Read, "data.csv");
+        assert_io(&facts, IoDirection::Read, "named.csv");
+        assert_no_io(&facts, "comment.csv");
+        assert_no_io(&facts, "string.csv");
+        assert_no_io(&facts, "helper.csv");
+        assert_io(&facts, IoDirection::Write, "named-out.csv");
+        assert_io(&facts, IoDirection::Write, "plot.png");
         assert!(facts.columns.iter().any(|column| column.column == "A"));
         assert!(facts.columns.iter().any(|column| column.column == "D"));
     }
@@ -73,15 +83,25 @@ plt.savefig("plot.png")
             r#"
 library(readr)
 df <- read.csv("input.csv")
+named <- read.csv(file = "named.csv", sep = ",")
+# read.csv(file = "comment-r.csv")
+text <- 'read.csv(file = "string-r.csv")'
+my_read.csv(file = "helper-r.csv")
 df$A
+write.csv(df, file = "named-output.csv", row.names = FALSE)
 write.csv(df, "output.csv")
 "#,
         );
 
         assert!(facts.imports.contains(&PackageFact::new("cran", "readr")));
         assert!(facts.assignments.contains("df"));
-        assert!(facts.reads.contains("input.csv"));
-        assert!(facts.writes.contains("output.csv"));
+        assert_io(&facts, IoDirection::Read, "input.csv");
+        assert_io(&facts, IoDirection::Read, "named.csv");
+        assert_no_io(&facts, "comment-r.csv");
+        assert_no_io(&facts, "string-r.csv");
+        assert_no_io(&facts, "helper-r.csv");
+        assert_io(&facts, IoDirection::Write, "named-output.csv");
+        assert_io(&facts, IoDirection::Write, "output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "A"));
     }
 
@@ -115,8 +135,8 @@ CSV.write("results/output.csv", df)
         assert!(facts.assignments.contains("total"));
         assert!(facts.declarations.contains("summarize"));
         assert!(facts.calls.contains("sum"));
-        assert!(facts.reads.contains("data/input.csv"));
-        assert!(facts.writes.contains("results/output.csv"));
+        assert_io(&facts, IoDirection::Read, "data/input.csv");
+        assert_io(&facts, IoDirection::Write, "results/output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
@@ -143,8 +163,8 @@ writetable(tbl, "results/output.csv");
         assert!(facts.assignments.contains("total"));
         assert!(facts.declarations.contains("summarize"));
         assert!(facts.calls.contains("sum"));
-        assert!(facts.reads.contains("data/input.csv"));
-        assert!(facts.writes.contains("results/output.csv"));
+        assert_io(&facts, IoDirection::Read, "data/input.csv");
+        assert_io(&facts, IoDirection::Write, "results/output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
@@ -161,8 +181,8 @@ rule plot:
         );
 
         assert!(facts.workflow_rules.contains("plot"));
-        assert!(facts.reads.contains("data.csv"));
-        assert!(facts.writes.contains("plot.png"));
+        assert_io(&facts, IoDirection::Read, "data.csv");
+        assert_io(&facts, IoDirection::Write, "plot.png");
         assert!(facts.script_links.contains("scripts/plot.py"));
     }
 
@@ -189,8 +209,8 @@ function summarize() {
         );
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("summarize"));
-        assert!(facts.reads.contains("data/input.txt"));
-        assert!(facts.writes.contains("results/output.txt"));
+        assert_io(&facts, IoDirection::Read, "data/input.txt");
+        assert_io(&facts, IoDirection::Write, "results/output.txt");
     }
 
     #[test]
@@ -208,8 +228,8 @@ const summarize = () => data
         assert!(facts.imports.contains(&PackageFact::new("node", "fs")));
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("summarize"));
-        assert!(facts.reads.contains("data/input.txt"));
-        assert!(facts.writes.contains("results/output.txt"));
+        assert_io(&facts, IoDirection::Read, "data/input.txt");
+        assert_io(&facts, IoDirection::Write, "results/output.txt");
     }
 
     #[test]
@@ -229,8 +249,8 @@ fn main() {
         assert!(facts.imports.contains(&PackageFact::new("cargo", "serde")));
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("main"));
-        assert!(facts.reads.contains("data/input.txt"));
-        assert!(facts.writes.contains("results/output.txt"));
+        assert_io(&facts, IoDirection::Read, "data/input.txt");
+        assert_io(&facts, IoDirection::Write, "results/output.txt");
     }
 
     #[test]
@@ -244,6 +264,7 @@ process align {
   output:
   path "results/aligned.bam"
   path "results/${sample}.bai"
+  path "results/$sample.idx"
   script:
   """
   bwa mem ref.fa $reads > results/aligned.bam
@@ -254,16 +275,17 @@ process align {
 
         assert!(facts.workflow_rules.contains("align"));
         assert!(facts.declarations.contains("align"));
-        assert!(facts.reads.contains("data/input.fq"));
-        assert!(facts.writes.contains("results/aligned.bam"));
-        assert!(!facts.writes.contains("results/${sample}.bai"));
+        assert_io(&facts, IoDirection::Read, "data/input.fq");
+        assert_io(&facts, IoDirection::Write, "results/aligned.bam");
+        assert_template_io(&facts, IoDirection::Write, "results/${sample}.bai");
+        assert_template_io(&facts, IoDirection::Write, "results/$sample.idx");
         assert!(facts.calls.contains("script"));
         let rule = facts
             .workflow_rule_facts
             .get("align")
             .expect("align rule facts should be grouped");
-        assert!(rule.reads.contains("data/input.fq"));
-        assert!(rule.writes.contains("results/aligned.bam"));
+        assert_rule_io(rule, IoDirection::Read, "data/input.fq");
+        assert_rule_io(rule, IoDirection::Write, "results/aligned.bam");
     }
 
     #[test]
@@ -272,10 +294,53 @@ process align {
             CodeLanguage::Python,
             "path = f\"data/{name}.csv\"\npd.read_csv(path)\n",
         );
-        assert!(dynamic.reads.is_empty());
+        assert!(dynamic.io.iter().any(|fact| {
+            fact.direction == IoDirection::Read
+                && matches!(fact.path, IoPath::Unknown(ref path) if path == "path")
+        }));
+
+        let template = analyze_source(CodeLanguage::Python, "pd.read_csv(f\"data/{name}.csv\")\n");
+        assert_template_io(&template, IoDirection::Read, "data/{name}.csv");
 
         let syntax = analyze_source(CodeLanguage::Python, "if (");
         assert!(syntax.syntax_error);
-        assert!(syntax.reads.is_empty());
+        assert!(syntax.io.is_empty());
+    }
+
+    fn assert_no_io(facts: &CodeFacts, path: &str) {
+        assert!(
+            facts.io.iter().all(|fact| fact.path.value() != path),
+            "unexpected I/O fact for {path}"
+        );
+    }
+
+    fn assert_io(facts: &CodeFacts, direction: IoDirection, path: &str) {
+        assert!(
+            facts.io.iter().any(|fact| {
+                fact.direction == direction
+                    && matches!(fact.path, IoPath::Static(ref value) if value == path)
+            }),
+            "missing {direction:?} I/O fact for {path}"
+        );
+    }
+
+    fn assert_template_io(facts: &CodeFacts, direction: IoDirection, path: &str) {
+        assert!(
+            facts.io.iter().any(|fact| {
+                fact.direction == direction
+                    && matches!(fact.path, IoPath::Template(ref value) if value == path)
+            }),
+            "missing template {direction:?} I/O fact for {path}"
+        );
+    }
+
+    fn assert_rule_io(rule: &WorkflowRuleFacts, direction: IoDirection, path: &str) {
+        assert!(
+            rule.io.iter().any(|fact| {
+                fact.direction == direction
+                    && matches!(fact.path, IoPath::Static(ref value) if value == path)
+            }),
+            "missing rule {direction:?} I/O fact for {path}"
+        );
     }
 }

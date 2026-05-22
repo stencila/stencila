@@ -3,6 +3,7 @@ use std::{collections::BTreeSet, path::Path};
 use crate::package::PackageFact;
 use crate::reference::has_non_local_uri_scheme;
 
+use super::facts::IoPath;
 use super::language::CodeLanguage;
 
 /// Return the first static string literal in a source fragment.
@@ -56,6 +57,53 @@ pub(super) fn collect_string_literals(source: &str, values: &mut BTreeSet<String
     }
 }
 
+/// Collect path expressions from a small source segment.
+///
+/// Static quoted strings are retained as concrete paths. Interpolated strings
+/// are retained as templates so graph projection can surface dynamic I/O without
+/// resolving it to a workspace file.
+pub(super) fn collect_path_expressions(source: &str, values: &mut BTreeSet<IoPath>) {
+    let bytes = source.as_bytes();
+    let mut index = 0;
+    while index < bytes.len() {
+        if matches!(bytes[index], b'\'' | b'"' | b'`') {
+            let quote = bytes[index];
+            let start = index + 1;
+            let Some(relative_end) = bytes[start..].iter().position(|byte| *byte == quote) else {
+                break;
+            };
+            let end = start + relative_end;
+            if let Ok(value) = std::str::from_utf8(&bytes[start..end])
+                && !value.trim().is_empty()
+            {
+                let prefix = source[..index]
+                    .chars()
+                    .rev()
+                    .take_while(|char| char.is_ascii_alphabetic())
+                    .collect::<String>();
+                let prefixed_template = prefix.chars().any(|char| matches!(char, 'f' | 'F'));
+                let path = if quote == b'`'
+                    || prefixed_template
+                    || value.contains(['{', '}'])
+                    || value.contains('$')
+                    || value.contains("${")
+                    || value.contains("$(")
+                {
+                    IoPath::Template(value.to_string())
+                } else if is_static_literal(value) {
+                    IoPath::Static(value.to_string())
+                } else {
+                    IoPath::Unknown(value.to_string())
+                };
+                values.insert(path);
+            }
+            index = end + 1;
+        } else {
+            index += 1;
+        }
+    }
+}
+
 /// Convert a captured source snippet into a static string literal.
 ///
 /// Captures often include prefixes, quotes, or surrounding syntax. This helper
@@ -90,6 +138,65 @@ pub(super) fn clean_string_literal(raw: &str) -> Option<String> {
 
     let literal = &value[delimiter_len..value.len() - delimiter_len];
     is_static_literal(literal).then(|| literal.to_string())
+}
+
+/// Convert a captured source fragment into a path expression.
+pub(super) fn path_expression(raw: &str) -> IoPath {
+    if let Some(path) = clean_string_literal(raw) {
+        return IoPath::Static(path);
+    }
+
+    if let Some(path) = template_string_literal(raw) {
+        return IoPath::Template(path);
+    }
+
+    let raw = raw.trim();
+    if looks_like_path_template_expression(raw) {
+        IoPath::Template(raw.to_string())
+    } else {
+        IoPath::Unknown(raw.to_string())
+    }
+}
+
+/// Extract a template string literal from a source fragment.
+fn template_string_literal(raw: &str) -> Option<String> {
+    let mut value = raw.trim();
+    let quote_index = value.find(['\'', '"', '`'])?;
+    let prefix = &value[..quote_index];
+    value = &value[quote_index..];
+    let quote = value.chars().next()?;
+    if !matches!(quote, '\'' | '"' | '`') {
+        return None;
+    }
+
+    let quote_len = quote.len_utf8();
+    if value.len() < quote_len * 2 {
+        return None;
+    }
+
+    let end_delimiter = &value[value.len() - quote_len..];
+    if !end_delimiter.chars().all(|char| char == quote) {
+        return None;
+    }
+
+    let literal = &value[quote_len..value.len() - quote_len];
+    let is_template = quote == '`'
+        || prefix.chars().any(|char| matches!(char, 'f' | 'F'))
+        || literal.contains(['{', '}'])
+        || literal.contains("${")
+        || literal.contains("$(");
+    (is_template && !literal.trim().is_empty()).then(|| literal.to_string())
+}
+
+/// Recognize path-building expressions with a partially static shape.
+fn looks_like_path_template_expression(raw: &str) -> bool {
+    raw.contains("os.path.join(")
+        || raw.contains("pathlib.Path(")
+        || raw.contains("Path(")
+        || raw.contains("file.path(")
+        || raw.contains("joinpath(")
+        || raw.contains("path.join(")
+        || raw.contains('/')
 }
 
 /// Check whether a literal is safe to represent as a concrete graph resource.

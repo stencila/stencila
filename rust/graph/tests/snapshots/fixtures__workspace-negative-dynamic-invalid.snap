@@ -6,6 +6,20 @@ type: Graph
 subject: "fixture:workspace-negative-dynamic-invalid"
 nodes:
   - type: GraphNode
+    id: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "data/{sample}.csv"
+  - type: GraphNode
+    id: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "results/{sample}.csv"
+  - type: GraphNode
     id: "code:analysis.jl"
     node:
       type: SoftwareSourceCode
@@ -277,6 +291,18 @@ nodes:
       programmingLanguage: R
 edges:
   - type: GraphEdge
+    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "data/{sample}.csv"
+        description: template I/O path detected by static analysis.
+  - type: GraphEdge
     source: "code:analysis.jl"
     target: "file:analysis.jl"
     kind: PartOf
@@ -297,6 +323,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:dynamic.py"
+    target: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "results/{sample}.csv"
+        description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "code:dynamic.py"
     target: "file:dynamic.py"

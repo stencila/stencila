@@ -1,12 +1,16 @@
 use ast_grep_core::{matcher::NodeMatch, tree_sitter::StrDoc};
 
 use super::{
-    facts::{CodeFacts, record_definition, record_imported_symbol, record_use},
+    facts::{
+        CodeFacts, IoDirection, IoFact, IoMode, IoPath, record_definition, record_imported_symbol,
+        record_use,
+    },
     language::CodeLanguage,
     util::{
         clean_string_literal, contains_identifier, first_identifier_owned, function_name,
         identifier_target, is_ignored_identifier, is_python_stdlib, is_r_base_package,
-        javascript_package_name, package_name, rust_imported_symbol, rust_package_name,
+        javascript_package_name, package_name, path_expression, rust_imported_symbol,
+        rust_package_name,
     },
 };
 use crate::package::PackageFact;
@@ -293,39 +297,84 @@ fn normalize_call(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str, facts: &
     facts.calls.insert(name);
 }
 
-/// Normalize a static read or write match.
+/// Normalize a read or write match.
 ///
-/// IO rules capture string literals and sometimes a target assignment. This
-/// helper classifies `open`-style modes, records the resource direction, and
-/// links assigned variables back to read paths when a dataframe-like source is
-/// statically visible.
+/// IO rules capture path expressions and sometimes assignment targets or write
+/// values. This helper classifies `open`-style modes, records structured I/O
+/// facts, and links assigned variables back to static read paths when visible.
 fn normalize_io_match(
     matched: &NodeMatch<StrDoc<CodeLanguage>>,
     facts: &mut CodeFacts,
     default_read: bool,
 ) {
-    let Some(path) = env_text(matched, "PATH").and_then(|path| clean_string_literal(&path)) else {
+    let Some(path_raw) = env_text(matched, "PATH") else {
         return;
     };
-
-    let is_write = env_text(matched, "MODE")
-        .and_then(|mode| clean_string_literal(&mode))
-        .is_some_and(|mode| mode.contains(['w', 'a', 'x', '+']));
-
-    if default_read && !is_write {
-        facts.reads.insert(path.clone());
-    } else {
-        facts.writes.insert(path.clone());
+    let path = path_expression(&path_raw);
+    if matches!(path, IoPath::Unknown(ref value) if value.is_empty()) {
+        return;
     }
 
-    if let Some(target_node) = matched.get_env().get_match("TARGET") {
-        let target_text = target_node.text();
-        if let Some(target) = identifier_target(target_text.trim()) {
-            facts.assignments.insert(target.to_string());
-            record_definition(facts, &target, target_node.range().start);
+    let mode = env_text(matched, "MODE")
+        .and_then(|mode| clean_string_literal(&mode))
+        .map(|mode| io_mode(&mode));
+    let direction = match (default_read, mode) {
+        (_, Some(IoMode::ReadWrite)) => IoDirection::ReadWrite,
+        (true, Some(IoMode::Write | IoMode::Append)) => IoDirection::Write,
+        (true, _) => IoDirection::Read,
+        (false, _) => IoDirection::Write,
+    };
+
+    let target = env_text(matched, "TARGET").and_then(|target| identifier_target(target.trim()));
+    let value = env_text(matched, "VALUE")
+        .or_else(|| env_text(matched, "OBJ"))
+        .and_then(|value| identifier_target(value.trim()));
+    let function = io_function_name(matched);
+
+    facts.io.insert(IoFact {
+        direction,
+        path: path.clone(),
+        target: target.clone(),
+        value,
+        function,
+        mode,
+    });
+
+    if let Some(target_node) = matched.get_env().get_match("TARGET")
+        && let Some(target) = target
+    {
+        facts.assignments.insert(target.to_string());
+        record_definition(facts, &target, target_node.range().start);
+        if direction.reads()
+            && let IoPath::Static(path) = path
+        {
             facts.variable_sources.insert(target.to_string(), path);
         }
     }
+}
+
+/// Classify a file mode string.
+fn io_mode(mode: &str) -> IoMode {
+    if mode.contains('+') {
+        IoMode::ReadWrite
+    } else if mode.contains('a') {
+        IoMode::Append
+    } else if mode.contains(['w', 'x']) {
+        IoMode::Write
+    } else {
+        IoMode::Read
+    }
+}
+
+/// Best-effort extraction of the called I/O function or method.
+fn io_function_name(matched: &NodeMatch<StrDoc<CodeLanguage>>) -> Option<String> {
+    let text = matched.text();
+    let before_call = text.split_once('(')?.0.trim();
+    let name = before_call
+        .rsplit(['.', ':', ' '])
+        .find(|part| !part.is_empty())?
+        .trim();
+    function_name(name)
 }
 
 /// Collect identifier uses from the parsed syntax tree.

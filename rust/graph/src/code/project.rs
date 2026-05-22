@@ -1,7 +1,8 @@
 use std::collections::BTreeSet;
 
 use stencila_schema::{
-    CreativeWork, DatatableColumn, File, Function, GraphEdgeKind, GraphEvidence, Node, Variable,
+    CreativeWork, DatatableColumn, File, Function, GraphEdgeKind, GraphEvidence,
+    GraphEvidenceConfidence, Node, Object, Primitive, Variable,
 };
 
 use crate::{
@@ -12,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    facts::{CodeFacts, ColumnFact},
+    facts::{CodeFacts, ColumnFact, IoFact, IoPath},
     language::CodeLanguage,
     util::{is_static_literal, path_name},
 };
@@ -150,31 +151,33 @@ pub(super) fn add_code_facts_to_graph(
         );
     }
 
-    let read_ids = add_resource_nodes(builder, scope, &facts.reads, &mut resolver);
-    for resource_id in &read_ids {
+    let read_resources = add_io_resource_nodes(builder, scope, &facts.io, true, &mut resolver);
+    for resource in &read_resources {
         builder.add_edge_with_evidence(
-            resource_id,
+            &resource.id,
             unit_id,
             GraphEdgeKind::ReadBy,
-            vec![evidence::static_analysis()],
+            vec![io_path_evidence(&resource.path)],
         );
     }
 
-    let write_ids = add_resource_nodes(builder, scope, &facts.writes, &mut resolver);
-    for resource_id in &write_ids {
+    let write_resources = add_io_resource_nodes(builder, scope, &facts.io, false, &mut resolver);
+    for resource in &write_resources {
         builder.add_edge_with_evidence(
             unit_id,
-            resource_id,
+            &resource.id,
             GraphEdgeKind::Generated,
-            vec![evidence::static_analysis()],
+            vec![io_path_evidence(&resource.path)],
         );
     }
+    let static_read_ids = static_resource_ids(&read_resources);
+    let static_write_ids = static_resource_ids(&write_resources);
 
     if facts.workflow_rule_facts.is_empty() {
         add_derived_edges(
             builder,
-            &read_ids,
-            &write_ids,
+            &static_read_ids,
+            &static_write_ids,
             evidence::coarse_static_analysis,
         );
     }
@@ -191,7 +194,7 @@ pub(super) fn add_code_facts_to_graph(
             GraphEdgeKind::UsedBy,
             vec![evidence::static_analysis()],
         );
-        for output_id in &write_ids {
+        for output_id in &static_write_ids {
             builder.add_edge_with_evidence(
                 &column_id,
                 output_id,
@@ -210,29 +213,31 @@ pub(super) fn add_code_facts_to_graph(
             vec![evidence::static_analysis()],
         );
         let rule_facts = facts.workflow_rule_facts.get(rule);
-        let rule_read_ids = rule_facts
-            .map(|facts| add_resource_nodes(builder, scope, &facts.reads, &mut resolver))
-            .unwrap_or_else(|| read_ids.clone());
-        let rule_write_ids = rule_facts
-            .map(|facts| add_resource_nodes(builder, scope, &facts.writes, &mut resolver))
-            .unwrap_or_else(|| write_ids.clone());
+        let rule_read_resources = rule_facts
+            .map(|facts| add_io_resource_nodes(builder, scope, &facts.io, true, &mut resolver))
+            .unwrap_or_else(|| read_resources.clone());
+        let rule_write_resources = rule_facts
+            .map(|facts| add_io_resource_nodes(builder, scope, &facts.io, false, &mut resolver))
+            .unwrap_or_else(|| write_resources.clone());
 
-        for input_id in &rule_read_ids {
+        for input in &rule_read_resources {
             builder.add_edge_with_evidence(
-                input_id,
+                &input.id,
                 &rule_id,
                 GraphEdgeKind::ReadBy,
-                vec![evidence::static_analysis()],
+                vec![io_path_evidence(&input.path)],
             );
         }
-        for output_id in &rule_write_ids {
+        for output in &rule_write_resources {
             builder.add_edge_with_evidence(
                 &rule_id,
-                output_id,
+                &output.id,
                 GraphEdgeKind::Generated,
-                vec![evidence::static_analysis()],
+                vec![io_path_evidence(&output.path)],
             );
         }
+        let rule_read_ids = static_resource_ids(&rule_read_resources);
+        let rule_write_ids = static_resource_ids(&rule_write_resources);
         add_derived_edges(
             builder,
             &rule_read_ids,
@@ -410,20 +415,88 @@ fn add_resource_node(
     Some(id)
 }
 
-/// Add or resolve all static resource literals in deterministic order.
-fn add_resource_nodes(
+/// Add or reuse a resource node for an I/O path expression.
+fn add_io_resource_node(
     builder: &mut GraphBuilder,
     scope: &str,
-    literals: &BTreeSet<String>,
+    path: &IoPath,
     resolver: &mut Option<&mut ResourceResolver<'_>>,
-) -> Vec<String> {
+) -> Option<String> {
+    match path {
+        IoPath::Static(literal) => add_resource_node(builder, scope, literal, resolver),
+        IoPath::Template(expression) | IoPath::Unknown(expression) => {
+            let synthetic = format!("{}:{}", path.kind(), expression);
+            let id = LocalGraphId::code_file_resource(scope, &synthetic);
+            let mut node = File::new(path_name(expression), expression.to_string());
+            node.id = Some(id.clone());
+            builder.add_schema_node(id.clone(), Node::File(node));
+            Some(id)
+        }
+    }
+}
+
+/// Resource endpoint created from an I/O fact.
+#[derive(Debug, Clone)]
+struct IoResourceNode {
+    id: String,
+    path: IoPath,
+}
+
+/// Add all I/O resources in a given read/write direction.
+fn add_io_resource_nodes(
+    builder: &mut GraphBuilder,
+    scope: &str,
+    facts: &BTreeSet<IoFact>,
+    reads: bool,
+    resolver: &mut Option<&mut ResourceResolver<'_>>,
+) -> Vec<IoResourceNode> {
     let mut ids = Vec::new();
-    for literal in literals {
-        if let Some(id) = add_resource_node(builder, scope, literal, resolver) {
-            ids.push(id);
+    for fact in facts {
+        let matches_direction = if reads {
+            fact.direction.reads()
+        } else {
+            fact.direction.writes()
+        };
+        if !matches_direction {
+            continue;
+        }
+
+        if let Some(id) = add_io_resource_node(builder, scope, &fact.path, resolver) {
+            ids.push(IoResourceNode {
+                id,
+                path: fact.path.clone(),
+            });
         }
     }
     ids
+}
+
+/// Keep only concrete resource ids for derivation edges.
+fn static_resource_ids(resources: &[IoResourceNode]) -> Vec<String> {
+    resources
+        .iter()
+        .filter(|resource| resource.path.is_static())
+        .map(|resource| resource.id.clone())
+        .collect()
+}
+
+/// Evidence for an I/O path relationship.
+fn io_path_evidence(path: &IoPath) -> GraphEvidence {
+    if path.is_static() {
+        return evidence::static_analysis();
+    }
+
+    let mut evidence = evidence::static_analysis();
+    evidence.confidence = Some(GraphEvidenceConfidence::Low);
+    evidence.options.description = Some(format!(
+        "{} I/O path detected by static analysis.",
+        path.kind()
+    ));
+    evidence.options.details = Some(Object::from([
+        ("pathKind", Primitive::String(path.kind().to_string())),
+        ("expression", Primitive::String(path.value().to_string())),
+    ]));
+    evidence
 }
 
 /// Add input-to-output lineage edges using the supplied evidence constructor.

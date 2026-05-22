@@ -3,6 +3,18 @@ language: Python
 rule:
   any:
     - pattern: $OBJ.to_csv($PATH)
+    - pattern: $OBJ.to_csv($PATH, $$$ARGS)
+    - pattern: $OBJ.to_csv(path_or_buf=$PATH)
+    - pattern: $OBJ.to_csv(path_or_buf=$PATH, $$$ARGS)
     - pattern: to_csv($PATH)
+    - pattern: to_csv($PATH, $$$ARGS)
+    - pattern: to_csv(path_or_buf=$PATH)
+    - pattern: to_csv(path_or_buf=$PATH, $$$ARGS)
     - pattern: $OBJ.savefig($PATH)
+    - pattern: $OBJ.savefig($PATH, $$$ARGS)
+    - pattern: $OBJ.savefig(fname=$PATH)
+    - pattern: $OBJ.savefig(fname=$PATH, $$$ARGS)
     - pattern: savefig($PATH)
+    - pattern: savefig($PATH, $$$ARGS)
+    - pattern: savefig(fname=$PATH)
+    - pattern: savefig(fname=$PATH, $$$ARGS)

@@ -8,8 +8,8 @@ use super::{
     language::CodeLanguage,
     normalize::{collect_identifier_uses, normalize_match},
     scan::{
-        collect_column_facts, collect_javascript_text_imports, collect_nextflow_text_facts,
-        collect_snakemake_text_facts,
+        collect_column_facts, collect_javascript_text_imports, collect_named_io_text_facts,
+        collect_nextflow_text_facts, collect_snakemake_text_facts,
     },
     util::is_ignored_identifier,
 };
@@ -41,6 +41,7 @@ pub fn analyze_source(language: CodeLanguage, source: &str) -> CodeFacts {
     }
 
     collect_rule_facts(language, &grep, &mut facts);
+    collect_named_io_text_facts(language, source, &mut facts);
     collect_identifier_uses(language, &grep, &mut facts);
     collect_column_facts(language, source, &mut facts);
     finish_facts(language, facts)

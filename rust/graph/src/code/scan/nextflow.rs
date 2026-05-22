@@ -1,8 +1,6 @@
-use std::collections::BTreeSet;
-
 use super::super::{
     facts::{CodeFacts, WorkflowResourceKind},
-    util::{collect_string_literals, is_identifier_like},
+    util::{collect_path_expressions, is_identifier_like},
 };
 
 /// Collect Nextflow facts from source text.
@@ -154,18 +152,15 @@ fn nextflow_block(line: &str) -> Option<(NextflowBlock, &str)> {
 
 /// Extend Nextflow whole-file and process-level resource facts.
 ///
-/// Nextflow paths often interpolate channel values, so this helper applies an
-/// extra `$` guard on top of the shared static-literal filter before accepting a
-/// quoted path as a concrete resource.
+/// Nextflow paths often interpolate channel values, so dynamic strings are kept
+/// as template path expressions instead of being resolved to concrete resources.
 fn extend_nextflow_literals(
     facts: &mut CodeFacts,
     process: &str,
     source: &str,
     kind: WorkflowResourceKind,
 ) {
-    let mut literals = BTreeSet::<String>::new();
-    collect_string_literals(source, &mut literals);
-    literals.retain(|literal| !literal.contains('$'));
-
-    facts.extend_workflow_resources(Some(process), kind, literals);
+    let mut paths = Default::default();
+    collect_path_expressions(source, &mut paths);
+    facts.extend_workflow_resources(Some(process), kind, paths);
 }

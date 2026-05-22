@@ -647,7 +647,21 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
     target: "code:analysis.m"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "code:qc.ts"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -668,6 +682,15 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
+    target: "file:results/js-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        description: Coarse static lineage from read/write literals in one code unit.
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
     target: "file:results/matlab-summary.tsv"
     kind: DerivedInto
     evidence:
@@ -678,6 +701,15 @@ edges:
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
     target: "file:results/rust-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        description: Coarse static lineage from read/write literals in one code unit.
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "file:results/ts-qc.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence

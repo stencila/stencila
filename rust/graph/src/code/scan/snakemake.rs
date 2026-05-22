@@ -1,8 +1,6 @@
-use std::collections::BTreeSet;
-
 use super::super::{
     facts::{CodeFacts, WorkflowResourceKind},
-    util::collect_string_literals,
+    util::collect_path_expressions,
 };
 
 /// Collect Snakemake facts from source text as a grammar fallback.
@@ -46,11 +44,11 @@ pub(in crate::code) fn collect_snakemake_text_facts(source: &str, facts: &mut Co
         ] {
             if line.starts_with(directive) {
                 let text = collect_directive_text(&lines, index, directive);
-                let mut literals = BTreeSet::new();
-                collect_string_literals(&text, &mut literals);
+                let mut paths = Default::default();
+                collect_path_expressions(&text, &mut paths);
                 match target {
                     SnakemakeDirective::Resource(kind) => {
-                        facts.extend_workflow_resources(current_rule.as_deref(), kind, literals);
+                        facts.extend_workflow_resources(current_rule.as_deref(), kind, paths);
                     }
                     SnakemakeDirective::Shell => {
                         facts.record_workflow_call(current_rule.as_deref(), "shell");

@@ -3,6 +3,18 @@ language: R
 rule:
   any:
     - pattern: write.csv($VALUE, $PATH)
+    - pattern: write.csv($VALUE, $PATH, $$$ARGS)
+    - pattern: write.csv($VALUE, file = $PATH)
+    - pattern: write.csv($VALUE, file = $PATH, $$$ARGS)
     - pattern: write_csv($VALUE, $PATH)
+    - pattern: write_csv($VALUE, $PATH, $$$ARGS)
+    - pattern: write_csv($VALUE, file = $PATH)
+    - pattern: write_csv($VALUE, file = $PATH, $$$ARGS)
     - pattern: saveRDS($VALUE, $PATH)
+    - pattern: saveRDS($VALUE, $PATH, $$$ARGS)
+    - pattern: saveRDS($VALUE, file = $PATH)
+    - pattern: saveRDS($VALUE, file = $PATH, $$$ARGS)
     - pattern: ggsave($PATH)
+    - pattern: ggsave($PATH, $$$ARGS)
+    - pattern: ggsave(filename = $PATH)
+    - pattern: ggsave(filename = $PATH, $$$ARGS)
