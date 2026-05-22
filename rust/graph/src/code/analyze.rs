@@ -65,7 +65,7 @@ fn finish_facts(language: CodeLanguage, mut facts: CodeFacts) -> CodeFacts {
         .iter()
         .filter(|name| {
             !is_ignored_identifier(language, name)
-                && !facts.imports.contains(*name)
+                && !facts.imports.iter().any(|package| package.name == **name)
                 && should_retain_use(name, &local_definitions, &facts)
         })
         .cloned()

@@ -1,5 +1,6 @@
 use std::{collections::BTreeSet, path::Path};
 
+use crate::package::PackageFact;
 use crate::reference::has_non_local_uri_scheme;
 
 use super::language::CodeLanguage;
@@ -128,9 +129,13 @@ pub(super) fn package_name(raw: &str) -> Option<String> {
 /// Relative imports are intentionally ignored because they name source files,
 /// not installable packages. Bare and scoped package names are reduced to their
 /// package root so `@scope/pkg/subpath` is represented as `@scope/pkg`.
-pub(super) fn javascript_package_name(raw: &str) -> Option<String> {
+pub(super) fn javascript_package_name(raw: &str) -> Option<PackageFact> {
     let clean = clean_string_literal(raw).unwrap_or_else(|| raw.trim().to_string());
-    let clean = clean.strip_prefix("node:").unwrap_or(&clean);
+    if let Some(module) = clean.strip_prefix("node:") {
+        return is_javascript_package_root(module).then(|| PackageFact::new("node", module));
+    }
+
+    let clean = clean.as_str();
     if clean.starts_with(['.', '/', '#'])
         || clean.starts_with("//")
         || has_non_local_uri_scheme(clean)
@@ -147,7 +152,16 @@ pub(super) fn javascript_package_name(raw: &str) -> Option<String> {
         first.to_string()
     };
 
-    is_javascript_package_root(&root).then_some(root)
+    if !is_javascript_package_root(&root) {
+        return None;
+    }
+
+    let ecosystem = if is_node_builtin(&root) {
+        "node"
+    } else {
+        "npm"
+    };
+    Some(PackageFact::new(ecosystem, root))
 }
 
 /// Validate a JavaScript package root.
@@ -161,6 +175,297 @@ fn is_javascript_package_root(value: &str) -> bool {
     value
         .chars()
         .all(|char| char.is_ascii_alphanumeric() || matches!(char, '@' | '/' | '-' | '_' | '.'))
+}
+
+fn is_node_builtin(value: &str) -> bool {
+    matches!(
+        value,
+        "assert"
+            | "async_hooks"
+            | "buffer"
+            | "child_process"
+            | "cluster"
+            | "console"
+            | "crypto"
+            | "dgram"
+            | "diagnostics_channel"
+            | "dns"
+            | "domain"
+            | "events"
+            | "fs"
+            | "http"
+            | "http2"
+            | "https"
+            | "inspector"
+            | "module"
+            | "net"
+            | "os"
+            | "path"
+            | "perf_hooks"
+            | "process"
+            | "punycode"
+            | "querystring"
+            | "readline"
+            | "repl"
+            | "sea"
+            | "stream"
+            | "string_decoder"
+            | "test"
+            | "timers"
+            | "tls"
+            | "trace_events"
+            | "tty"
+            | "url"
+            | "util"
+            | "v8"
+            | "vm"
+            | "wasi"
+            | "worker_threads"
+            | "zlib"
+    )
+}
+
+/// Identify Python standard-library modules.
+///
+/// Python imports become package facts only when they name an external
+/// distribution. Standard-library modules ship with the interpreter, so
+/// recording them as PyPI packages would create misleading joins with
+/// manifest-declared dependencies — most acutely for names like `pathlib`
+/// that also exist as deprecated PyPI projects.
+pub(super) fn is_python_stdlib(value: &str) -> bool {
+    matches!(
+        value,
+        "__future__"
+            | "_thread"
+            | "abc"
+            | "argparse"
+            | "array"
+            | "ast"
+            | "asynchat"
+            | "asyncio"
+            | "asyncore"
+            | "atexit"
+            | "audioop"
+            | "base64"
+            | "bdb"
+            | "binascii"
+            | "bisect"
+            | "builtins"
+            | "bz2"
+            | "calendar"
+            | "cgi"
+            | "cgitb"
+            | "chunk"
+            | "cmath"
+            | "cmd"
+            | "code"
+            | "codecs"
+            | "codeop"
+            | "collections"
+            | "colorsys"
+            | "compileall"
+            | "concurrent"
+            | "configparser"
+            | "contextlib"
+            | "contextvars"
+            | "copy"
+            | "copyreg"
+            | "crypt"
+            | "csv"
+            | "ctypes"
+            | "curses"
+            | "dataclasses"
+            | "datetime"
+            | "dbm"
+            | "decimal"
+            | "difflib"
+            | "dis"
+            | "distutils"
+            | "doctest"
+            | "email"
+            | "encodings"
+            | "ensurepip"
+            | "enum"
+            | "errno"
+            | "faulthandler"
+            | "fcntl"
+            | "filecmp"
+            | "fileinput"
+            | "fnmatch"
+            | "fractions"
+            | "ftplib"
+            | "functools"
+            | "gc"
+            | "getopt"
+            | "getpass"
+            | "gettext"
+            | "glob"
+            | "graphlib"
+            | "grp"
+            | "gzip"
+            | "hashlib"
+            | "heapq"
+            | "hmac"
+            | "html"
+            | "http"
+            | "imaplib"
+            | "imghdr"
+            | "imp"
+            | "importlib"
+            | "inspect"
+            | "io"
+            | "ipaddress"
+            | "itertools"
+            | "json"
+            | "keyword"
+            | "lib2to3"
+            | "linecache"
+            | "locale"
+            | "logging"
+            | "lzma"
+            | "mailbox"
+            | "mailcap"
+            | "marshal"
+            | "math"
+            | "mimetypes"
+            | "mmap"
+            | "modulefinder"
+            | "msilib"
+            | "msvcrt"
+            | "multiprocessing"
+            | "netrc"
+            | "nis"
+            | "nntplib"
+            | "ntpath"
+            | "numbers"
+            | "operator"
+            | "optparse"
+            | "os"
+            | "ossaudiodev"
+            | "pathlib"
+            | "pdb"
+            | "pickle"
+            | "pickletools"
+            | "pipes"
+            | "pkgutil"
+            | "platform"
+            | "plistlib"
+            | "poplib"
+            | "posix"
+            | "posixpath"
+            | "pprint"
+            | "profile"
+            | "pstats"
+            | "pty"
+            | "pwd"
+            | "py_compile"
+            | "pyclbr"
+            | "pydoc"
+            | "queue"
+            | "quopri"
+            | "random"
+            | "re"
+            | "readline"
+            | "reprlib"
+            | "resource"
+            | "rlcompleter"
+            | "runpy"
+            | "sched"
+            | "secrets"
+            | "select"
+            | "selectors"
+            | "shelve"
+            | "shlex"
+            | "shutil"
+            | "signal"
+            | "site"
+            | "smtpd"
+            | "smtplib"
+            | "sndhdr"
+            | "socket"
+            | "socketserver"
+            | "spwd"
+            | "sqlite3"
+            | "ssl"
+            | "stat"
+            | "statistics"
+            | "string"
+            | "stringprep"
+            | "struct"
+            | "subprocess"
+            | "sunau"
+            | "symtable"
+            | "sys"
+            | "sysconfig"
+            | "syslog"
+            | "tabnanny"
+            | "tarfile"
+            | "telnetlib"
+            | "tempfile"
+            | "termios"
+            | "textwrap"
+            | "threading"
+            | "time"
+            | "timeit"
+            | "tkinter"
+            | "token"
+            | "tokenize"
+            | "tomllib"
+            | "trace"
+            | "traceback"
+            | "tracemalloc"
+            | "tty"
+            | "turtle"
+            | "types"
+            | "typing"
+            | "unicodedata"
+            | "unittest"
+            | "urllib"
+            | "uu"
+            | "uuid"
+            | "venv"
+            | "warnings"
+            | "wave"
+            | "weakref"
+            | "webbrowser"
+            | "winreg"
+            | "winsound"
+            | "wsgiref"
+            | "xdrlib"
+            | "xml"
+            | "xmlrpc"
+            | "zipapp"
+            | "zipfile"
+            | "zipimport"
+            | "zlib"
+            | "zoneinfo"
+    )
+}
+
+/// Identify R base distribution packages.
+///
+/// These packages ship with R itself and are not on CRAN, so importing them
+/// should not create graph edges that join to a `cran/<name>` declared
+/// dependency.
+pub(super) fn is_r_base_package(value: &str) -> bool {
+    matches!(
+        value,
+        "base"
+            | "compiler"
+            | "datasets"
+            | "graphics"
+            | "grDevices"
+            | "grid"
+            | "methods"
+            | "parallel"
+            | "splines"
+            | "stats"
+            | "stats4"
+            | "tcltk"
+            | "tools"
+            | "translations"
+            | "utils"
+    )
 }
 
 /// Extract a Cargo-style package root from a Rust import path.

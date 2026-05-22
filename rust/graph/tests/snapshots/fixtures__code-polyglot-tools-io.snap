@@ -356,35 +356,56 @@ nodes:
           name: value
           values: []
   - type: GraphNode
-    id: "package:csv-parse"
+    id: "package:cargo/serde"
     node:
-      type: SoftwareApplication
-      id: "package:csv-parse"
-      name: csv-parse
-  - type: GraphNode
-    id: "package:fs"
-    node:
-      type: SoftwareApplication
-      id: "package:fs"
-      name: fs
-  - type: GraphNode
-    id: "package:fs-extra"
-    node:
-      type: SoftwareApplication
-      id: "package:fs-extra"
-      name: fs-extra
-  - type: GraphNode
-    id: "package:serde"
-    node:
-      type: SoftwareApplication
-      id: "package:serde"
+      type: SoftwareSourceCode
+      id: "package:cargo/serde"
       name: serde
+      programmingLanguage: Rust
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cargo/serde"
   - type: GraphNode
-    id: "package:stats"
+    id: "package:matlab/stats"
     node:
-      type: SoftwareApplication
-      id: "package:stats"
+      type: SoftwareSourceCode
+      id: "package:matlab/stats"
       name: stats
+      programmingLanguage: MATLAB
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:matlab/stats"
+  - type: GraphNode
+    id: "package:node/fs"
+    node:
+      type: SoftwareSourceCode
+      id: "package:node/fs"
+      name: fs
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "package:npm/csv-parse"
+    node:
+      type: SoftwareSourceCode
+      id: "package:npm/csv-parse"
+      name: csv-parse
+      programmingLanguage: JavaScript
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:npm/csv-parse"
+  - type: GraphNode
+    id: "package:npm/fs-extra"
+    node:
+      type: SoftwareSourceCode
+      id: "package:npm/fs-extra"
+      name: fs-extra
+      programmingLanguage: JavaScript
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:npm/fs-extra"
   - type: GraphNode
     id: "symbol:analysis.js:javascript:input"
     node:
@@ -842,36 +863,36 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "package:csv-parse"
-    target: "code:qc.ts"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:fs"
-    target: "code:qc.ts"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:fs-extra"
-    target: "code:analysis.js"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:serde"
+    source: "package:cargo/serde"
     target: "code:src/bin/report.rs"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "package:stats"
+    source: "package:matlab/stats"
     target: "code:analysis.m"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:node/fs"
+    target: "code:qc.ts"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:npm/csv-parse"
+    target: "code:qc.ts"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:npm/fs-extra"
+    target: "code:analysis.js"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence

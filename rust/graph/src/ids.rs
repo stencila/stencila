@@ -134,7 +134,7 @@ impl WorkspaceRelPath {
 /// - `file:<path>`
 /// - `symlink:<path>`
 /// - `environment:<ecosystem>:<path>`
-/// - `package:<name-or-purl>`
+/// - `package:<ecosystem>/<name>`
 /// - `node:<scope>#<node-id>`
 /// - `node:<scope>` for a root node fallback when the schema node has no id
 /// - `output:<scope>#<node-id>:<index>`
@@ -273,7 +273,7 @@ impl LocalGraphId {
         )
     }
 
-    /// Create the graph id for an imported software package.
+    /// Create the graph id for an imported or declared software package.
     pub(crate) fn package(name: &str) -> String {
         format!("package:{}", encode_id_component(name))
     }

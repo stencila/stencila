@@ -268,29 +268,49 @@ nodes:
           name: count
           values: []
   - type: GraphNode
-    id: "package:ggplot2"
+    id: "package:cran/ggplot2"
     node:
-      type: SoftwareApplication
-      id: "package:ggplot2"
+      type: SoftwareSourceCode
+      id: "package:cran/ggplot2"
       name: ggplot2
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/ggplot2"
   - type: GraphNode
-    id: "package:matplotlib"
+    id: "package:cran/readr"
     node:
-      type: SoftwareApplication
-      id: "package:matplotlib"
-      name: matplotlib
-  - type: GraphNode
-    id: "package:pandas"
-    node:
-      type: SoftwareApplication
-      id: "package:pandas"
-      name: pandas
-  - type: GraphNode
-    id: "package:readr"
-    node:
-      type: SoftwareApplication
-      id: "package:readr"
+      type: SoftwareSourceCode
+      id: "package:cran/readr"
       name: readr
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/readr"
+  - type: GraphNode
+    id: "package:pypi/matplotlib"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pypi/matplotlib"
+      name: matplotlib
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/matplotlib"
+  - type: GraphNode
+    id: "package:pypi/pandas"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pypi/pandas"
+      name: pandas
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/pandas"
   - type: GraphNode
     id: "symbol:scripts/analysis.R:r:df"
     node:
@@ -806,29 +826,29 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "package:ggplot2"
+    source: "package:cran/ggplot2"
     target: "code:scripts/analysis.R"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "package:matplotlib"
-    target: "code:scripts/analysis.py"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:pandas"
-    target: "code:scripts/analysis.py"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:readr"
+    source: "package:cran/readr"
     target: "code:scripts/analysis.R"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pypi/matplotlib"
+    target: "code:scripts/analysis.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pypi/pandas"
+    target: "code:scripts/analysis.py"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence

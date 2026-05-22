@@ -29,6 +29,7 @@ mod scan;
 mod util;
 mod workspace;
 
+pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
 pub(crate) use document::DocumentCodeIndex;
 pub use facts::{CodeFacts, ColumnFact, WorkflowRuleFacts};
@@ -52,8 +53,12 @@ plt.savefig("plot.png")
 "#,
         );
 
-        assert!(facts.imports.contains("pandas"));
-        assert!(facts.imports.contains("matplotlib"));
+        assert!(facts.imports.contains(&PackageFact::new("pypi", "pandas")));
+        assert!(
+            facts
+                .imports
+                .contains(&PackageFact::new("pypi", "matplotlib"))
+        );
         assert!(facts.assignments.contains("df"));
         assert!(facts.reads.contains("data.csv"));
         assert!(facts.writes.contains("plot.png"));
@@ -73,7 +78,7 @@ write.csv(df, "output.csv")
 "#,
         );
 
-        assert!(facts.imports.contains("readr"));
+        assert!(facts.imports.contains(&PackageFact::new("cran", "readr")));
         assert!(facts.assignments.contains("df"));
         assert!(facts.reads.contains("input.csv"));
         assert!(facts.writes.contains("output.csv"));
@@ -99,9 +104,13 @@ CSV.write("results/output.csv", df)
 "#,
         );
 
-        assert!(facts.imports.contains("CSV"));
-        assert!(facts.imports.contains("DataFrames"));
-        assert!(!facts.imports.contains("df"));
+        assert!(facts.imports.contains(&PackageFact::new("julia", "CSV")));
+        assert!(
+            facts
+                .imports
+                .contains(&PackageFact::new("julia", "DataFrames"))
+        );
+        assert!(!facts.imports.contains(&PackageFact::new("julia", "df")));
         assert!(facts.assignments.contains("df"));
         assert!(facts.assignments.contains("total"));
         assert!(facts.declarations.contains("summarize"));
@@ -129,7 +138,7 @@ writetable(tbl, "results/output.csv");
 "#,
         );
 
-        assert!(facts.imports.contains("stats"));
+        assert!(facts.imports.contains(&PackageFact::new("matlab", "stats")));
         assert!(facts.assignments.contains("tbl"));
         assert!(facts.assignments.contains("total"));
         assert!(facts.declarations.contains("summarize"));
@@ -172,8 +181,12 @@ function summarize() {
 "#,
         );
 
-        assert!(facts.imports.contains("fs"));
-        assert!(facts.imports.contains("simple-statistics"));
+        assert!(facts.imports.contains(&PackageFact::new("node", "fs")));
+        assert!(
+            facts
+                .imports
+                .contains(&PackageFact::new("npm", "simple-statistics"))
+        );
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("summarize"));
         assert!(facts.reads.contains("data/input.txt"));
@@ -192,7 +205,7 @@ const summarize = () => data
 "#,
         );
 
-        assert!(facts.imports.contains("fs"));
+        assert!(facts.imports.contains(&PackageFact::new("node", "fs")));
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("summarize"));
         assert!(facts.reads.contains("data/input.txt"));
@@ -213,7 +226,7 @@ fn main() {
 "#,
         );
 
-        assert!(facts.imports.contains("serde"));
+        assert!(facts.imports.contains(&PackageFact::new("cargo", "serde")));
         assert!(facts.assignments.contains("data"));
         assert!(facts.declarations.contains("main"));
         assert!(facts.reads.contains("data/input.txt"));

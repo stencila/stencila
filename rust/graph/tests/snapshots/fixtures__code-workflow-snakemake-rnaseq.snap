@@ -298,12 +298,6 @@ nodes:
           name: count
           values: []
   - type: GraphNode
-    id: "package:pathlib"
-    node:
-      type: SoftwareApplication
-      id: "package:pathlib"
-      name: pathlib
-  - type: GraphNode
     id: "symbol:workflow/scripts/counts.py:python:Path"
     node:
       type: Variable
@@ -795,20 +789,6 @@ edges:
     source: "function:workflow/scripts/download.py:python:write_text"
     target: "code:workflow/scripts/download.py"
     kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:pathlib"
-    target: "code:workflow/scripts/counts.py"
-    kind: ImportedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "package:pathlib"
-    target: "code:workflow/scripts/download.py"
-    kind: ImportedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

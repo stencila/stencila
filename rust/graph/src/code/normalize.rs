@@ -5,10 +5,11 @@ use super::{
     language::CodeLanguage,
     util::{
         clean_string_literal, contains_identifier, first_identifier_owned, function_name,
-        identifier_target, is_ignored_identifier, javascript_package_name, package_name,
-        rust_imported_symbol, rust_package_name,
+        identifier_target, is_ignored_identifier, is_python_stdlib, is_r_base_package,
+        javascript_package_name, package_name, rust_imported_symbol, rust_package_name,
     },
 };
+use crate::package::PackageFact;
 
 /// Dispatch one ast-grep match to its language-specific normalizer.
 ///
@@ -85,8 +86,11 @@ pub(super) fn normalize_match(
 /// so identifiers such as `pd` or `plt` do not become false cross-chunk symbol
 /// dependencies.
 fn normalize_python_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
-    if let Some(module) = env_text(matched, "MODULE").and_then(|module| package_name(&module)) {
-        facts.imports.insert(module);
+    if let Some(module) = env_text(matched, "MODULE")
+        .and_then(|module| package_name(&module))
+        .filter(|module| !is_python_stdlib(module))
+    {
+        facts.imports.insert(PackageFact::new("pypi", module));
     }
 
     if let Some(alias) = env_text(matched, "ALIAS").and_then(|alias| first_identifier_owned(&alias))
@@ -125,8 +129,11 @@ fn normalize_javascript_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts:
 /// package root is enough for graph-level package relationships.
 fn normalize_r_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
     for name in ["PKG", "MODULE"] {
-        if let Some(package) = env_text(matched, name).and_then(|package| package_name(&package)) {
-            facts.imports.insert(package);
+        if let Some(package) = env_text(matched, name)
+            .and_then(|package| package_name(&package))
+            .filter(|package| !is_r_base_package(package))
+        {
+            facts.imports.insert(PackageFact::new("cran", package));
         }
     }
 }
@@ -138,7 +145,9 @@ fn normalize_r_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut Cod
 /// module names do not become variable-use dependencies.
 fn normalize_julia_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
     if let Some(package) = env_text(matched, "MODULE").and_then(|package| package_name(&package)) {
-        facts.imports.insert(package.clone());
+        facts
+            .imports
+            .insert(PackageFact::new("julia", package.as_str()));
         record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
     }
 
@@ -146,7 +155,9 @@ fn normalize_julia_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut
         .and_then(|package| package_name(&package))
         .filter(|package| package.chars().next().is_some_and(char::is_uppercase))
     {
-        facts.imports.insert(package.clone());
+        facts
+            .imports
+            .insert(PackageFact::new("julia", package.as_str()));
         record_imported_symbol(facts, package, env_range_start(matched, "PKG"));
     }
 }
@@ -169,7 +180,9 @@ fn normalize_matlab_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mu
     };
 
     if let Some(package) = package_name(&module) {
-        facts.imports.insert(package.clone());
+        facts
+            .imports
+            .insert(PackageFact::new("matlab", package.as_str()));
         record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
     }
 
@@ -213,7 +226,7 @@ fn normalize_rust_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut 
     let module = module.trim();
 
     if let Some(package) = rust_package_name(module) {
-        facts.imports.insert(package);
+        facts.imports.insert(PackageFact::new("cargo", package));
     }
 
     if let Some(symbol) = rust_imported_symbol(module) {

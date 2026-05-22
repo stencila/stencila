@@ -36,12 +36,12 @@ use sha2::{Digest, Sha256};
 use stencila_schema::{
     GraphEdgeKind, GraphEvidence, Node as SchemaNode, Object, Primitive, PropertyValue,
     PropertyValueOrString, SoftwareApplication, SoftwareApplicationOrSoftwareSourceCodeOrString,
-    SoftwareSourceCode, StringOrNumber,
 };
 
 use crate::{
     GraphBuilder, evidence,
     ids::{LocalGraphId, WorkspaceRelPath},
+    package::{package_id as package_graph_id, package_node, package_requirement_purl},
 };
 
 /// A manifest file parsed into a declared computational environment.
@@ -145,23 +145,6 @@ impl Ecosystem {
             Self::R => "cran",
             Self::Julia => "julia",
             Self::Matlab => "matlab",
-        }
-    }
-
-    /// Programming language used for package `SoftwareSourceCode` nodes.
-    ///
-    /// Dependencies are represented as `SoftwareSourceCode` because packages
-    /// are usually source or library artifacts rather than installed
-    /// applications. The language label gives consumers a coarse way to group
-    /// package nodes without parsing the PURL.
-    fn programming_language(self) -> &'static str {
-        match self {
-            Self::Python => "Python",
-            Self::Node => "JavaScript",
-            Self::Rust => "Rust",
-            Self::R => "R",
-            Self::Julia => "Julia",
-            Self::Matlab => "MATLAB",
         }
     }
 }
@@ -368,9 +351,11 @@ fn add_manifest_environment(
         .dependencies
         .iter()
         .map(|dependency| {
-            SoftwareApplicationOrSoftwareSourceCodeOrString::String(package_purl(
-                manifest.ecosystem,
-                dependency,
+            SoftwareApplicationOrSoftwareSourceCodeOrString::String(package_requirement_purl(
+                manifest.ecosystem.purl_type(),
+                &dependency.name,
+                dependency.exact_version.as_deref(),
+                &dependency.qualifiers,
             ))
         })
         .collect::<Vec<_>>();
@@ -398,19 +383,16 @@ fn add_manifest_environment(
     );
 
     for dependency in &manifest.dependencies {
-        let package_id = LocalGraphId::package(&package_purl(manifest.ecosystem, dependency));
-        let mut package = SoftwareSourceCode::new(
-            dependency.name.clone(),
-            manifest.ecosystem.programming_language().to_string(),
+        let package = package_node(
+            manifest.ecosystem.purl_type(),
+            &dependency.name,
+            &dependency.qualifiers,
         );
-        package.id = Some(package_id.clone());
-        package.options.identifiers = Some(vec![property_value_identifier(
-            "purl",
-            package_purl(manifest.ecosystem, dependency),
-        )]);
-        if let Some(version) = &dependency.exact_version {
-            package.version = Some(StringOrNumber::String(version.clone()));
-        }
+        let package_id = package_graph_id(
+            manifest.ecosystem.purl_type(),
+            &dependency.name,
+            &dependency.qualifiers,
+        );
 
         builder.add_schema_node(package_id.clone(), SchemaNode::SoftwareSourceCode(package));
         builder.add_edge_with_evidence(
@@ -543,114 +525,6 @@ fn file_name(rel: &WorkspaceRelPath) -> &str {
         .unwrap_or_else(|| rel.as_str())
 }
 
-/// Build a PURL for a dependency.
-///
-/// PURLs provide stable package identifiers that can be used both as Schema
-/// identifiers and graph-local package node keys. Only exact versions are
-/// included so range declarations do not fragment one package into many nodes.
-fn package_purl(ecosystem: Ecosystem, dependency: &Dependency) -> String {
-    let mut purl = format!(
-        "pkg:{}/{}",
-        ecosystem.purl_type(),
-        purl_package_name(ecosystem, &dependency.name)
-    );
-
-    if let Some(version) = &dependency.exact_version {
-        purl.push('@');
-        purl.push_str(&encode_purl_component(version));
-    }
-
-    if !dependency.qualifiers.is_empty() {
-        purl.push('?');
-        purl.push_str(
-            &dependency
-                .qualifiers
-                .iter()
-                .map(|(key, value)| {
-                    format!(
-                        "{}={}",
-                        encode_purl_component(key),
-                        encode_purl_component(value)
-                    )
-                })
-                .collect::<Vec<_>>()
-                .join("&"),
-        );
-    }
-
-    purl
-}
-
-/// Normalize and encode a package name for PURL use.
-///
-/// Package name rules differ by ecosystem. Python package indexes normalize
-/// separators and case, while scoped npm packages need to preserve their
-/// `@scope/name` structure across PURL path segments.
-fn purl_package_name(ecosystem: Ecosystem, name: &str) -> String {
-    let name = match ecosystem {
-        Ecosystem::Python => normalize_python_package_name(name),
-        _ => name.to_string(),
-    };
-
-    match ecosystem {
-        Ecosystem::Node if name.starts_with('@') => {
-            let Some((scope, package)) = name.split_once('/') else {
-                return encode_purl_component(&name);
-            };
-            format!(
-                "{}/{}",
-                encode_purl_component(scope),
-                encode_purl_component(package)
-            )
-        }
-        _ => encode_purl_component(&name),
-    }
-}
-
-/// Normalize Python package names as used by Python package indexes.
-///
-/// Python package names compare case-insensitively with runs of `.`, `_`, and
-/// `-` treated as equivalent. Applying that normalization before PURL creation
-/// avoids separate graph nodes for spelling variants of the same package.
-fn normalize_python_package_name(name: &str) -> String {
-    let mut normalized = String::new();
-    let mut previous_dash = false;
-    for char in name.chars().flat_map(char::to_lowercase) {
-        if matches!(char, '-' | '_' | '.') {
-            if !previous_dash {
-                normalized.push('-');
-                previous_dash = true;
-            }
-        } else {
-            normalized.push(char);
-            previous_dash = false;
-        }
-    }
-
-    normalized
-}
-
-/// Percent-encode a PURL component while keeping common PURL separators intact.
-///
-/// This is intentionally narrower than graph-id encoding: PURL components need
-/// URI-safe spelling, then the full PURL is encoded again when placed inside a
-/// graph-local id.
-fn encode_purl_component(value: &str) -> String {
-    let mut encoded = String::new();
-    for byte in value.as_bytes() {
-        match byte {
-            b'A'..=b'Z' | b'a'..=b'z' | b'0'..=b'9' | b'-' | b'_' | b'.' | b'~' => {
-                encoded.push(*byte as char)
-            }
-            byte => {
-                let _ = write!(&mut encoded, "%{byte:02X}");
-            }
-        }
-    }
-
-    encoded
-}
-
 /// Treat common equality specifiers as exact package versions.
 ///
 /// Exact versions can become package identity; ranges and source locators
@@ -713,7 +587,12 @@ fn requirement_details(manifest: &EnvironmentManifest, dependency: &Dependency) 
     details.insert("name".to_string(), string_primitive(&dependency.name));
     details.insert(
         "purl".to_string(),
-        string_primitive(package_purl(manifest.ecosystem, dependency)),
+        string_primitive(package_requirement_purl(
+            manifest.ecosystem.purl_type(),
+            &dependency.name,
+            dependency.exact_version.as_deref(),
+            &dependency.qualifiers,
+        )),
     );
 
     if let Some(raw) = &dependency.raw {

@@ -1,5 +1,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
+use crate::package::PackageFact;
+
 /// Static facts extracted from one code unit.
 ///
 /// This is the normalization boundary between parsing and graph construction.
@@ -12,8 +14,9 @@ pub struct CodeFacts {
     ///
     /// Imports become software package nodes connected to the code unit. Only
     /// the statically identifiable package root is kept, so `import pandas as
-    /// pd` and `from pandas import DataFrame` both record `pandas`.
-    pub imports: BTreeSet<String>,
+    /// pd` and `from pandas import DataFrame` both record `pandas` with
+    /// ecosystem `pypi`.
+    pub imports: BTreeSet<PackageFact>,
 
     /// Variables assigned by this unit.
     ///

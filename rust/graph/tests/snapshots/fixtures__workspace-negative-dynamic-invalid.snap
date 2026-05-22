@@ -209,11 +209,16 @@ nodes:
       content: []
       target: "../data/missing.csv"
   - type: GraphNode
-    id: "package:pandas"
+    id: "package:pypi/pandas"
     node:
-      type: SoftwareApplication
-      id: "package:pandas"
+      type: SoftwareSourceCode
+      id: "package:pypi/pandas"
       name: pandas
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/pandas"
   - type: GraphNode
     id: "symbol:analysis.jl:julia:x"
     node:
@@ -449,7 +454,7 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "package:pandas"
+    source: "package:pypi/pandas"
     target: "code:dynamic.py"
     kind: ImportedBy
     evidence:

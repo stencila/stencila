@@ -307,10 +307,10 @@ nodes:
           compatibleVersions: ">=1.0.0 <2.0.0"
           id: e6c4123e-0068-42be-aef2-00d49d1509f5
   - type: GraphNode
-    id: "package:pkg%3Acargo/csv"
+    id: "package:cargo/csv"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Acargo/csv"
+      id: "package:cargo/csv"
       name: csv
       programmingLanguage: Rust
       identifiers:
@@ -318,10 +318,10 @@ nodes:
           propertyId: purl
           value: "pkg:cargo/csv"
   - type: GraphNode
-    id: "package:pkg%3Acargo/serde"
+    id: "package:cargo/serde"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Acargo/serde"
+      id: "package:cargo/serde"
       name: serde
       programmingLanguage: Rust
       identifiers:
@@ -329,10 +329,10 @@ nodes:
           propertyId: purl
           value: "pkg:cargo/serde"
   - type: GraphNode
-    id: "package:pkg%3Acran/dplyr"
+    id: "package:cran/dplyr"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Acran/dplyr"
+      id: "package:cran/dplyr"
       name: dplyr
       programmingLanguage: R
       identifiers:
@@ -340,10 +340,10 @@ nodes:
           propertyId: purl
           value: "pkg:cran/dplyr"
   - type: GraphNode
-    id: "package:pkg%3Acran/ggplot2"
+    id: "package:cran/ggplot2"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Acran/ggplot2"
+      id: "package:cran/ggplot2"
       name: ggplot2
       programmingLanguage: R
       identifiers:
@@ -351,10 +351,10 @@ nodes:
           propertyId: purl
           value: "pkg:cran/ggplot2"
   - type: GraphNode
-    id: "package:pkg%3Acran/testthat"
+    id: "package:cran/testthat"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Acran/testthat"
+      id: "package:cran/testthat"
       name: testthat
       programmingLanguage: R
       identifiers:
@@ -362,10 +362,10 @@ nodes:
           propertyId: purl
           value: "pkg:cran/testthat"
   - type: GraphNode
-    id: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+    id: "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+      id: "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
       name: CSV
       programmingLanguage: Julia
       identifiers:
@@ -373,10 +373,10 @@ nodes:
           propertyId: purl
           value: "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
   - type: GraphNode
-    id: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    id: "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+      id: "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
       name: ChainRulesCore
       programmingLanguage: Julia
       identifiers:
@@ -384,10 +384,10 @@ nodes:
           propertyId: purl
           value: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
   - type: GraphNode
-    id: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    id: "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+      id: "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
       name: DataFrames
       programmingLanguage: Julia
       identifiers:
@@ -395,10 +395,10 @@ nodes:
           propertyId: purl
           value: "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
   - type: GraphNode
-    id: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+    id: "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+      id: "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
       name: Test
       programmingLanguage: Julia
       identifiers:
@@ -406,10 +406,10 @@ nodes:
           propertyId: purl
           value: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
   - type: GraphNode
-    id: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+    id: "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+      id: "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
       name: StatsTools
       programmingLanguage: MATLAB
       identifiers:
@@ -417,10 +417,10 @@ nodes:
           propertyId: purl
           value: "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
   - type: GraphNode
-    id: "package:pkg%3Anpm/d3-dsv"
+    id: "package:npm/d3-dsv"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Anpm/d3-dsv"
+      id: "package:npm/d3-dsv"
       name: d3-dsv
       programmingLanguage: JavaScript
       identifiers:
@@ -428,10 +428,10 @@ nodes:
           propertyId: purl
           value: "pkg:npm/d3-dsv"
   - type: GraphNode
-    id: "package:pkg%3Anpm/typescript"
+    id: "package:npm/typescript"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Anpm/typescript"
+      id: "package:npm/typescript"
       name: typescript
       programmingLanguage: JavaScript
       identifiers:
@@ -439,10 +439,10 @@ nodes:
           propertyId: purl
           value: "pkg:npm/typescript"
   - type: GraphNode
-    id: "package:pkg%3Apypi/matplotlib"
+    id: "package:pypi/matplotlib"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Apypi/matplotlib"
+      id: "package:pypi/matplotlib"
       name: matplotlib
       programmingLanguage: Python
       identifiers:
@@ -450,22 +450,21 @@ nodes:
           propertyId: purl
           value: "pkg:pypi/matplotlib"
   - type: GraphNode
-    id: "package:pkg%3Apypi/pandas%402.2.1"
+    id: "package:pypi/pandas"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Apypi/pandas%402.2.1"
+      id: "package:pypi/pandas"
       name: pandas
-      version: 2.2.1
       programmingLanguage: Python
       identifiers:
         - type: PropertyValue
           propertyId: purl
-          value: "pkg:pypi/pandas@2.2.1"
+          value: "pkg:pypi/pandas"
   - type: GraphNode
-    id: "package:pkg%3Apypi/requests"
+    id: "package:pypi/requests"
     node:
       type: SoftwareSourceCode
-      id: "package:pkg%3Apypi/requests"
+      id: "package:pypi/requests"
       name: requests
       programmingLanguage: Python
       identifiers:
@@ -662,7 +661,7 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "package:pkg%3Acargo/csv"
+    source: "package:cargo/csv"
     target: "environment:rust:Cargo.toml"
     kind: PartOf
     evidence:
@@ -689,7 +688,7 @@ edges:
           specifier: "1.3"
           extras: serde
   - type: GraphEdge
-    source: "package:pkg%3Acargo/serde"
+    source: "package:cargo/serde"
     target: "environment:rust:Cargo.toml"
     kind: PartOf
     evidence:
@@ -714,7 +713,7 @@ edges:
           raw: "1"
           specifier: "1"
   - type: GraphEdge
-    source: "package:pkg%3Acran/dplyr"
+    source: "package:cran/dplyr"
     target: "environment:r:DESCRIPTION"
     kind: PartOf
     evidence:
@@ -739,7 +738,7 @@ edges:
           raw: dplyr (>= 1.1.0)
           specifier: ">= 1.1.0"
   - type: GraphEdge
-    source: "package:pkg%3Acran/ggplot2"
+    source: "package:cran/ggplot2"
     target: "environment:r:DESCRIPTION"
     kind: PartOf
     evidence:
@@ -762,7 +761,7 @@ edges:
           purl: "pkg:cran/ggplot2"
           raw: ggplot2
   - type: GraphEdge
-    source: "package:pkg%3Acran/testthat"
+    source: "package:cran/testthat"
     target: "environment:r:DESCRIPTION"
     kind: PartOf
     evidence:
@@ -785,7 +784,7 @@ edges:
           purl: "pkg:cran/testthat"
           raw: testthat
   - type: GraphEdge
-    source: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+    source: "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
     target: "environment:julia:Project.toml"
     kind: PartOf
     evidence:
@@ -810,7 +809,7 @@ edges:
           raw: 336ed68f-0bac-5ca0-87d4-7b16caf5d00b
           specifier: "0.10"
   - type: GraphEdge
-    source: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    source: "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     target: "environment:julia:Project.toml"
     kind: PartOf
     evidence:
@@ -835,7 +834,7 @@ edges:
           raw: d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4
           specifier: "1"
   - type: GraphEdge
-    source: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    source: "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     target: "environment:julia:Project.toml"
     kind: PartOf
     evidence:
@@ -860,7 +859,7 @@ edges:
           raw: a93c6f00-e57d-5684-b7b6-d8193f3e46c0
           specifier: "1.6"
   - type: GraphEdge
-    source: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+    source: "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
     target: "environment:julia:Project.toml"
     kind: PartOf
     evidence:
@@ -883,7 +882,7 @@ edges:
           purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
           raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
   - type: GraphEdge
-    source: "package:pkg%3Amatlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
+    source: "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
     target: "environment:matlab:resources/mpackage.json"
     kind: PartOf
     evidence:
@@ -908,7 +907,7 @@ edges:
           raw: "{\"name\":\"StatsTools\",\"compatibleVersions\":\">=1.0.0 <2.0.0\",\"id\":\"e6c4123e-0068-42be-aef2-00d49d1509f5\"}"
           specifier: ">=1.0.0 <2.0.0"
   - type: GraphEdge
-    source: "package:pkg%3Anpm/d3-dsv"
+    source: "package:npm/d3-dsv"
     target: "environment:node:package.json"
     kind: PartOf
     evidence:
@@ -933,7 +932,7 @@ edges:
           raw: ^3.0.1
           specifier: ^3.0.1
   - type: GraphEdge
-    source: "package:pkg%3Anpm/typescript"
+    source: "package:npm/typescript"
     target: "environment:node:package.json"
     kind: PartOf
     evidence:
@@ -958,7 +957,7 @@ edges:
           raw: ~5.4.0
           specifier: ~5.4.0
   - type: GraphEdge
-    source: "package:pkg%3Apypi/matplotlib"
+    source: "package:pypi/matplotlib"
     target: "environment:python:pyproject.toml"
     kind: PartOf
     evidence:
@@ -983,7 +982,7 @@ edges:
           raw: matplotlib>=3.8
           specifier: ">=3.8"
   - type: GraphEdge
-    source: "package:pkg%3Apypi/pandas%402.2.1"
+    source: "package:pypi/pandas"
     target: "environment:python:pyproject.toml"
     kind: PartOf
     evidence:
@@ -1008,7 +1007,7 @@ edges:
           raw: pandas==2.2.1
           specifier: "==2.2.1"
   - type: GraphEdge
-    source: "package:pkg%3Apypi/requests"
+    source: "package:pypi/requests"
     target: "environment:python:pyproject.toml"
     kind: PartOf
     evidence:

@@ -110,11 +110,16 @@ nodes:
     id: "output:docs/notebook.json#cde_content-3-content-1:0"
     node: 16
   - type: GraphNode
-    id: "package:pandas"
+    id: "package:pypi/pandas"
     node:
-      type: SoftwareApplication
-      id: "package:pandas"
+      type: SoftwareSourceCode
+      id: "package:pypi/pandas"
       name: pandas
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/pandas"
   - type: GraphNode
     id: "symbol:docs/notebook.json:python:adjusted"
     node:
@@ -314,7 +319,7 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "package:pandas"
+    source: "package:pypi/pandas"
     target: "node:docs/notebook.json#cdc_setup"
     kind: ImportedBy
     evidence:

@@ -152,7 +152,7 @@ include manifests and sibling lockfiles where possible.
 Expected graph surface:
 
 - environment `SoftwareApplication` nodes for supported manifests
-- package `SoftwareSourceCode` nodes using package-url identifiers
+- package `SoftwareSourceCode` nodes using ecosystem-scoped ids and PURL identifiers
 - manifest `DerivedInto` edges to environment nodes
 - package `PartOf` edges to environment nodes with declared and static-analysis evidence
 - lockfile `ReferencedBy` edges to associated environment nodes
