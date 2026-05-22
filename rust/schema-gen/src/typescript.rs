@@ -653,6 +653,7 @@ export function {name}({required_args}options?: Partial<{title}>): {title} {{
             "LayoutPresetOrString",
             "StringOrNumber",
             "ThingVariant",
+            "ThingVariantOrString",
             "UnsignedIntegerOrString"
         ]
         .contains(&name.as_str());
