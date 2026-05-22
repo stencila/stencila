@@ -252,6 +252,19 @@ pub async fn serve_path(
         .get("~view")
         .map_or("dynamic", |value: &String| value.as_ref());
 
+    let graph_data = if view == "graph" {
+        doc.inspect(|node| match node {
+            Node::Graph(..) => Some(serde_json::to_string(node)),
+            _ => None,
+        })
+        .await
+        .transpose()
+        .map_err(InternalError::new)?
+        .map(|json| graph_data_script(&json))
+    } else {
+        None
+    };
+
     // Get theme name from query (default theme is used if not specified)
     let theme_name = query.get("~theme").cloned();
 
@@ -273,7 +286,7 @@ pub async fn serve_path(
         node_type,
         node_title,
         node_description,
-        None,
+        graph_data,
         node_html,
         web,
         themed,
@@ -302,6 +315,14 @@ pub async fn serve_path(
     .map_err(InternalError::new)?;
 
     Ok(response)
+}
+
+fn graph_data_script(json: &str) -> String {
+    let json = json.replace('<', "\\u003c");
+    format!(
+        r#"
+    <script id="stencila-graph-data" type="application/json">{json}</script>"#
+    )
 }
 
 /// Open a document and return its id

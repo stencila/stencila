@@ -7,7 +7,7 @@ use stencila_server::ServeOptions;
 use stencila_version::STENCILA_VERSION;
 
 use crate::{
-    compile, convert, db, demo, execute, init, lint,
+    compile, convert, db, demo, execute, graph, init, lint,
     logging::{LoggingFormat, LoggingLevel},
     mcp_codemode, merge, new, open, outputs, pull, push, render, site, status, sync, uninstall,
     unwatch, upgrade, watch,
@@ -254,6 +254,7 @@ pub enum Command {
     Lint(lint::Cli),
     Execute(execute::Cli),
     Render(render::Cli),
+    Graph(graph::Cli),
 
     Open(open::Cli),
     Publish(stencila_publish::Cli),
@@ -336,6 +337,7 @@ impl Cli {
             Command::Lint(lint) => lint.run().await,
             Command::Execute(execute) => execute.run().await,
             Command::Render(render) => render.run().await,
+            Command::Graph(graph) => graph.run().await,
 
             Command::Open(open) => open.run().await,
             Command::Publish(publish) => publish.run().await,

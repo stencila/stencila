@@ -10,6 +10,7 @@ mod db;
 mod demo;
 pub mod errors;
 mod execute;
+mod graph;
 mod init;
 mod lint;
 pub mod logging;
@@ -92,6 +93,7 @@ mod tests {
             ("lint", crate::lint::CLI_AFTER_LONG_HELP),
             ("execute", crate::execute::CLI_AFTER_LONG_HELP),
             ("render", crate::render::CLI_AFTER_LONG_HELP),
+            ("graph", crate::graph::CLI_AFTER_LONG_HELP),
             ("preview", crate::open::CLI_AFTER_LONG_HELP),
             ("demo", crate::demo::DEMO_AFTER_LONG_HELP),
             ("upgrade", crate::upgrade::CLI_AFTER_LONG_HELP),
