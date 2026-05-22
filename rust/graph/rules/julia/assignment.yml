@@ -1,0 +1,6 @@
+id: julia-assignment
+language: Julia
+message: Julia assignment
+severity: info
+rule:
+  pattern: $TARGET = $VALUE

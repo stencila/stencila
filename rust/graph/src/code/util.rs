@@ -345,6 +345,22 @@ pub(super) fn is_ignored_identifier(language: CodeLanguage, name: &str) -> bool 
             name,
             "FALSE" | "NULL" | "TRUE" | "c" | "data.frame" | "library" | "require"
         ),
+        CodeLanguage::Julia => matches!(
+            name,
+            "DataFrame"
+                | "Dict"
+                | "false"
+                | "length"
+                | "missing"
+                | "nothing"
+                | "open"
+                | "print"
+                | "println"
+                | "read"
+                | "true"
+                | "using"
+                | "write"
+        ),
     }
 }
 

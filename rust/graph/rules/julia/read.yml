@@ -1,0 +1,16 @@
+id: julia-read
+language: Julia
+message: Julia file read
+severity: info
+rule:
+  any:
+    - pattern: $TARGET = CSV.read($PATH, $$$ARGS)
+    - pattern: CSV.read($PATH, $$$ARGS)
+    - pattern: $TARGET = CSV.File($PATH)
+    - pattern: CSV.File($PATH)
+    - pattern: $TARGET = read($PATH, $$$ARGS)
+    - pattern: read($PATH, $$$ARGS)
+    - pattern: $TARGET = open($PATH)
+    - pattern: open($PATH)
+    - pattern: $TARGET = open($PATH, $MODE)
+    - pattern: open($PATH, $MODE)

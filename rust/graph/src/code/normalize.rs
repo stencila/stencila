@@ -57,6 +57,12 @@ pub(super) fn normalize_match(
         (CodeLanguage::R, "r-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::R, "r-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::R, "r-call") => normalize_call(matched, "FUNC", facts),
+        (CodeLanguage::Julia, "julia-import") => normalize_julia_import(matched, facts),
+        (CodeLanguage::Julia, "julia-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Julia, "julia-function") => normalize_declaration(matched, "NAME", facts),
+        (CodeLanguage::Julia, "julia-read") => normalize_io_match(matched, facts, true),
+        (CodeLanguage::Julia, "julia-write") => normalize_io_match(matched, facts, false),
+        (CodeLanguage::Julia, "julia-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Snakemake, "snakemake-rule") => {
             if let Some(node) = matched.field("name") {
                 let name = node.text().into_owned();
@@ -116,6 +122,26 @@ fn normalize_r_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut Cod
         if let Some(package) = env_text(matched, name).and_then(|package| package_name(&package)) {
             facts.imports.insert(package);
         }
+    }
+}
+
+/// Normalize a Julia import or module-qualified call match.
+///
+/// `using Package`, `import Package`, and calls such as `CSV.read` identify
+/// package roots statically. Imported roots are also tracked as local symbols so
+/// module names do not become variable-use dependencies.
+fn normalize_julia_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+    if let Some(package) = env_text(matched, "MODULE").and_then(|package| package_name(&package)) {
+        facts.imports.insert(package.clone());
+        record_imported_symbol(facts, package, env_range_start(matched, "MODULE"));
+    }
+
+    if let Some(package) = env_text(matched, "PKG")
+        .and_then(|package| package_name(&package))
+        .filter(|package| package.chars().next().is_some_and(char::is_uppercase))
+    {
+        facts.imports.insert(package.clone());
+        record_imported_symbol(facts, package, env_range_start(matched, "PKG"));
     }
 }
 

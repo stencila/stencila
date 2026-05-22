@@ -163,10 +163,10 @@ Expected graph surface:
 Purpose: exercise best-effort workspace graph behavior for realistic messy
 repository contents.
 
-The fixture is intended to contain unsupported source files, malformed supported
-code, dynamic path expressions, missing local references, and an invalid
-environment manifest. It should be used to assert absence of false-positive graph
-edges as much as presence of inventory nodes.
+The fixture is intended to contain unsupported source files such as SAS,
+malformed supported code, dynamic path expressions, missing local references,
+and an invalid environment manifest. It should be used to assert absence of
+false-positive graph edges as much as presence of inventory nodes.
 
 Expected graph surface:
 

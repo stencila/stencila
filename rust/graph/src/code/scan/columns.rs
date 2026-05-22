@@ -27,6 +27,7 @@ pub(in crate::code) fn collect_column_facts(
         let columns = match language {
             CodeLanguage::Python => python_columns(source, &dataframe),
             CodeLanguage::R => r_columns(source, &dataframe),
+            CodeLanguage::Julia => julia_columns(source, &dataframe),
             CodeLanguage::JavaScript
             | CodeLanguage::TypeScript
             | CodeLanguage::Rust
@@ -87,6 +88,36 @@ fn r_columns(source: &str, dataframe: &str) -> BTreeSet<String> {
         .map(|(index, _)| &source[index + bracket_marker.len()..])
     {
         let Some(end) = segment.find("]]") else {
+            continue;
+        };
+        collect_string_literals(&segment[..end], &mut columns);
+    }
+    columns
+}
+
+/// Extract simple Julia dataframe column literals.
+///
+/// DataFrames.jl commonly uses `df.column`, `df[!, "column"]`, and
+/// `df[:, "column"]`. This mirrors the narrow static approach used for Python
+/// and R: only literal or identifier columns tied to known dataframe variables
+/// are represented.
+fn julia_columns(source: &str, dataframe: &str) -> BTreeSet<String> {
+    let mut columns = BTreeSet::new();
+    let dot_marker = format!("{dataframe}.");
+    for segment in source
+        .match_indices(&dot_marker)
+        .map(|(index, _)| &source[index + dot_marker.len()..])
+    {
+        if let Some(column) = first_identifier(segment) {
+            columns.insert(column.to_string());
+        }
+    }
+    let bracket_marker = format!("{dataframe}[");
+    for segment in source
+        .match_indices(&bracket_marker)
+        .map(|(index, _)| &source[index + bracket_marker.len()..])
+    {
+        let Some(end) = segment.find(']') else {
             continue;
         };
         collect_string_literals(&segment[..end], &mut columns);

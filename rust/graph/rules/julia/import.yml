@@ -1,0 +1,9 @@
+id: julia-import
+language: Julia
+message: Julia package import
+severity: info
+rule:
+  any:
+    - pattern: using $MODULE
+    - pattern: import $MODULE
+    - pattern: $PKG.$FUN

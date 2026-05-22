@@ -6,6 +6,14 @@ type: Graph
 subject: "fixture:workspace-negative-dynamic-invalid"
 nodes:
   - type: GraphNode
+    id: "code:analysis.jl"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.jl"
+      name: analysis.jl
+      path: analysis.jl
+      programmingLanguage: Julia
+  - type: GraphNode
     id: "code:bad.py"
     node:
       type: SoftwareSourceCode
@@ -58,6 +66,20 @@ nodes:
       name: analysis.jl
       path: analysis.jl
       size: 6
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:analysis.sas"
+    node:
+      type: File
+      id: "file:analysis.sas"
+      name: analysis.sas
+      path: analysis.sas
+      size: 30
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -193,6 +215,13 @@ nodes:
       id: "package:pandas"
       name: pandas
   - type: GraphNode
+    id: "symbol:analysis.jl:julia:x"
+    node:
+      type: Variable
+      id: "symbol:analysis.jl:julia:x"
+      name: x
+      programmingLanguage: Julia
+  - type: GraphNode
     id: "symbol:dynamic.py:python:pd"
     node:
       type: Variable
@@ -242,6 +271,20 @@ nodes:
       name: read.csv
       programmingLanguage: R
 edges:
+  - type: GraphEdge
+    source: "code:analysis.jl"
+    target: "file:analysis.jl"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.jl"
+    target: "symbol:analysis.jl:julia:x"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:bad.py"
     target: "file:bad.py"
@@ -300,6 +343,13 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:analysis.jl"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:analysis.sas"
     target: "dir:."
     kind: PartOf
     evidence:

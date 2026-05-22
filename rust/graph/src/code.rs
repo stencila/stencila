@@ -1,7 +1,7 @@
 //! Static extraction of computation-oriented facts from source code.
 //!
-//! This module analyzes Python, R, JavaScript, TypeScript, Rust, Snakemake,
-//! and Nextflow source using embedded ast-grep rules plus small language-specific
+//! This module analyzes Python, R, Julia, JavaScript, TypeScript, Rust,
+//! Snakemake, and Nextflow source using embedded ast-grep rules plus small language-specific
 //! normalizers. It turns imports,
 //! assignments, symbol uses, calls, static file paths, dataframe columns, and
 //! workflow directives into graph nodes and edges.
@@ -78,6 +78,37 @@ write.csv(df, "output.csv")
         assert!(facts.reads.contains("input.csv"));
         assert!(facts.writes.contains("output.csv"));
         assert!(facts.columns.iter().any(|column| column.column == "A"));
+    }
+
+    #[test]
+    fn extracts_julia_facts() {
+        let facts = analyze_source(
+            CodeLanguage::Julia,
+            r#"
+using CSV
+using DataFrames
+
+df = CSV.read("data/input.csv", DataFrame)
+total = sum(df.count)
+
+function summarize(values)
+    return sum(values)
+end
+
+CSV.write("results/output.csv", df)
+"#,
+        );
+
+        assert!(facts.imports.contains("CSV"));
+        assert!(facts.imports.contains("DataFrames"));
+        assert!(!facts.imports.contains("df"));
+        assert!(facts.assignments.contains("df"));
+        assert!(facts.assignments.contains("total"));
+        assert!(facts.declarations.contains("summarize"));
+        assert!(facts.calls.contains("sum"));
+        assert!(facts.reads.contains("data/input.csv"));
+        assert!(facts.writes.contains("results/output.csv"));
+        assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
     #[test]

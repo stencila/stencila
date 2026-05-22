@@ -42,6 +42,25 @@ const R_RULES: &str = concat!(
     include_str!("../../rules/r/call.yml"),
 );
 
+/// Embedded ast-grep rules for Julia source.
+///
+/// Julia rules cover package imports, assignments, function declarations,
+/// common CSV/file reads and writes, and calls that can be represented as graph
+/// facts without evaluating Julia code.
+const JULIA_RULES: &str = concat!(
+    include_str!("../../rules/julia/import.yml"),
+    "\n---\n",
+    include_str!("../../rules/julia/assignment.yml"),
+    "\n---\n",
+    include_str!("../../rules/julia/function.yml"),
+    "\n---\n",
+    include_str!("../../rules/julia/read.yml"),
+    "\n---\n",
+    include_str!("../../rules/julia/write.yml"),
+    "\n---\n",
+    include_str!("../../rules/julia/call.yml"),
+);
+
 /// Embedded ast-grep rules for Snakemake source.
 ///
 /// Snakemake still receives a small text fallback later in this module because
@@ -161,6 +180,13 @@ pub enum CodeLanguage {
     #[serde(alias = "r", alias = "R")]
     R,
 
+    /// Julia source.
+    ///
+    /// Julia is analyzed through tree-sitter-julia and focuses on package
+    /// imports, assignments, function declarations, calls, and static file IO.
+    #[serde(alias = "julia", alias = "jl", alias = "Julia", alias = "JULIA")]
+    Julia,
+
     /// Snakemake workflow source.
     ///
     /// Snakemake is treated as a workflow language rather than a general Python
@@ -204,6 +230,7 @@ impl CodeLanguage {
             Some("rs") => Some(Self::Rust),
             Some("py") | Some("pyw") => Some(Self::Python),
             Some("r") | Some("R") => Some(Self::R),
+            Some("jl") => Some(Self::Julia),
             Some("smk") => Some(Self::Snakemake),
             Some("nf") => Some(Self::Nextflow),
             _ => None,
@@ -222,6 +249,7 @@ impl CodeLanguage {
             "rust" | "rs" => Some(Self::Rust),
             "python" | "py" => Some(Self::Python),
             "r" => Some(Self::R),
+            "julia" | "jl" => Some(Self::Julia),
             "snakemake" | "smk" | "snakefile" => Some(Self::Snakemake),
             "nextflow" | "nf" => Some(Self::Nextflow),
             _ => None,
@@ -239,6 +267,7 @@ impl CodeLanguage {
             Self::Rust => "Rust",
             Self::Python => "Python",
             Self::R => "R",
+            Self::Julia => "Julia",
             Self::Snakemake => "Snakemake",
             Self::Nextflow => "Nextflow",
         }
@@ -255,6 +284,7 @@ impl CodeLanguage {
             Self::Rust => "rust",
             Self::Python => "python",
             Self::R => "r",
+            Self::Julia => "julia",
             Self::Snakemake => "snakemake",
             Self::Nextflow => "nextflow",
         }
@@ -276,6 +306,7 @@ impl CodeLanguage {
             Self::Rust => RUST_RULES,
             Self::Python => PYTHON_RULES,
             Self::R => R_RULES,
+            Self::Julia => JULIA_RULES,
             Self::Snakemake => SNAKEMAKE_RULES,
             Self::Nextflow => "",
         }
@@ -353,6 +384,7 @@ impl LanguageExt for CodeLanguage {
             Self::Rust => tree_sitter_rust::LANGUAGE.into(),
             Self::Python => tree_sitter_python::LANGUAGE.into(),
             Self::R => tree_sitter_r::LANGUAGE.into(),
+            Self::Julia => tree_sitter_julia::LANGUAGE.into(),
             Self::Snakemake => tree_sitter_snakemake::LANGUAGE.into(),
             Self::Nextflow => unreachable!("Nextflow uses the text extractor, not ast-grep"),
         }

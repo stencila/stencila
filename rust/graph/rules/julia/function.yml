@@ -1,0 +1,12 @@
+id: julia-function
+language: Julia
+message: Julia function declaration
+severity: info
+rule:
+  any:
+    - pattern: |
+        function $NAME($$$ARGS)
+          $$$BODY
+        end
+    - pattern: |
+        $NAME($$$ARGS) = $VALUE
