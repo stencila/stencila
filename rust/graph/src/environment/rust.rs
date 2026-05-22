@@ -63,7 +63,7 @@ pub(super) fn parse_cargo_toml(path: &Path, rel: &WorkspaceRelPath) -> Result<En
         ecosystem: Ecosystem::Rust,
         rel: rel.clone(),
         dependencies,
-        lockfile_names: vec!["Cargo.lock"],
+        lockfile_names: vec!["Cargo.lock".to_string()],
     })
 }
 

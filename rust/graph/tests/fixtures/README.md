@@ -146,8 +146,8 @@ Purpose: exercise declared computational environment extraction across the
 supported manifest ecosystems.
 
 The fixture is intended to look like a reproducible scientific software
-workspace with Python, Node.js, Rust, and R project metadata. It should include
-manifests and sibling lockfiles where possible.
+workspace with Python, Node.js, Rust, R, and Julia project metadata. It should
+include manifests and sibling lockfiles where possible.
 
 Expected graph surface:
 

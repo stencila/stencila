@@ -45,7 +45,7 @@ pub(super) fn parse_description(
         ecosystem: Ecosystem::R,
         rel: rel.clone(),
         dependencies,
-        lockfile_names: vec!["renv.lock"],
+        lockfile_names: vec!["renv.lock".to_string()],
     })
 }
 

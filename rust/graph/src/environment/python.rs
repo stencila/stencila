@@ -91,7 +91,11 @@ pub(super) fn parse_pyproject(path: &Path, rel: &WorkspaceRelPath) -> Result<Env
         ecosystem: Ecosystem::Python,
         rel: rel.clone(),
         dependencies,
-        lockfile_names: vec!["uv.lock", "poetry.lock", "Pipfile.lock"],
+        lockfile_names: vec![
+            "uv.lock".to_string(),
+            "poetry.lock".to_string(),
+            "Pipfile.lock".to_string(),
+        ],
     })
 }
 

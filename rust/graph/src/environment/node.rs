@@ -49,10 +49,10 @@ pub(super) fn parse_package_json(
         rel: rel.clone(),
         dependencies,
         lockfile_names: vec![
-            "package-lock.json",
-            "pnpm-lock.yaml",
-            "yarn.lock",
-            "bun.lockb",
+            "package-lock.json".to_string(),
+            "pnpm-lock.yaml".to_string(),
+            "yarn.lock".to_string(),
+            "bun.lockb".to_string(),
         ],
     })
 }

@@ -1,0 +1,9 @@
+julia_version = "1.11.0"
+manifest_format = "2.0"
+project_hash = "b32f743c8bda5f7fc4ff12e0ac7bc5354c2e2d9a"
+
+[[deps.DataFrames]]
+deps = ["Compat", "DataAPI"]
+git-tree-sha1 = "0000000000000000000000000000000000000000"
+uuid = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+version = "1.6.1"

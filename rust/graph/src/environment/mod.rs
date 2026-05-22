@@ -18,6 +18,7 @@
 //! returns a normalized manifest summary that can be projected into Schema graph
 //! nodes using one shared graph shape.
 
+mod julia;
 mod node;
 mod python;
 mod r;
@@ -77,7 +78,7 @@ struct EnvironmentManifest {
     /// Lockfiles are linked as sibling files rather than parsed here so the
     /// graph can still show reproducibility evidence without pretending that a
     /// generic manifest pass understands every lockfile dialect.
-    lockfile_names: Vec<&'static str>,
+    lockfile_names: Vec<String>,
 }
 
 /// Supported direct-dependency ecosystems.
@@ -93,6 +94,7 @@ enum Ecosystem {
     Node,
     Rust,
     R,
+    Julia,
 }
 
 impl Ecosystem {
@@ -107,6 +109,7 @@ impl Ecosystem {
             Self::Node => "node",
             Self::Rust => "rust",
             Self::R => "r",
+            Self::Julia => "julia",
         }
     }
 
@@ -121,6 +124,7 @@ impl Ecosystem {
             Self::Node => "Node.js",
             Self::Rust => "Rust",
             Self::R => "R",
+            Self::Julia => "Julia",
         }
     }
 
@@ -135,6 +139,7 @@ impl Ecosystem {
             Self::Node => "npm",
             Self::Rust => "cargo",
             Self::R => "cran",
+            Self::Julia => "julia",
         }
     }
 
@@ -150,6 +155,7 @@ impl Ecosystem {
             Self::Node => "JavaScript",
             Self::Rust => "Rust",
             Self::R => "R",
+            Self::Julia => "Julia",
         }
     }
 }
@@ -210,6 +216,13 @@ pub(super) struct Dependency {
     /// platform or interpreter. The condition is preserved as evidence rather
     /// than evaluated against the current host.
     pub(super) marker: Option<String>,
+
+    /// PURL qualifiers for ecosystem-specific package identity.
+    ///
+    /// Some ecosystems need a package identifier in addition to the name. For
+    /// example, Julia package identity includes a UUID, represented in PURLs as
+    /// a qualifier rather than as part of the package name.
+    pub(super) qualifiers: Vec<(String, String)>,
 }
 
 impl Dependency {
@@ -227,6 +240,7 @@ impl Dependency {
             exact_version: None,
             extras: Vec::new(),
             marker: None,
+            qualifiers: Vec::new(),
         }
     }
 
@@ -321,6 +335,7 @@ fn parse_manifest(path: &Path, rel: &WorkspaceRelPath) -> Result<Option<Environm
         "package.json" => node::parse_package_json(path, rel)?,
         "Cargo.toml" => rust::parse_cargo_toml(path, rel)?,
         "DESCRIPTION" => r::parse_description(path, rel)?,
+        "Project.toml" | "JuliaProject.toml" => julia::parse_project_toml(path, rel)?,
         _ => return Ok(None),
     };
 
@@ -427,6 +442,8 @@ fn is_manifest_name(name: &str) -> bool {
             | "package.json"
             | "Cargo.toml"
             | "DESCRIPTION"
+            | "Project.toml"
+            | "JuliaProject.toml"
     )
 }
 
@@ -447,7 +464,33 @@ fn is_lockfile_name(name: &str) -> bool {
             | "poetry.lock"
             | "Pipfile.lock"
             | "renv.lock"
-    )
+    ) || is_julia_lockfile_name(name)
+}
+
+/// Julia lockfile filenames.
+///
+/// Julia supports conventional `Manifest.toml` files, alternative
+/// `JuliaManifest.toml` files, and Julia-version-specific lockfiles such as
+/// `Manifest-v1.11.toml`.
+fn is_julia_lockfile_name(name: &str) -> bool {
+    matches!(name, "Manifest.toml" | "JuliaManifest.toml")
+        || versioned_julia_lockfile_name(name, "Manifest-v")
+        || versioned_julia_lockfile_name(name, "JuliaManifest-v")
+}
+
+/// Whether a filename follows a Julia versioned manifest pattern.
+fn versioned_julia_lockfile_name(name: &str, prefix: &str) -> bool {
+    let Some(version) = name
+        .strip_prefix(prefix)
+        .and_then(|rest| rest.strip_suffix(".toml"))
+    else {
+        return false;
+    };
+
+    !version.is_empty()
+        && version
+            .chars()
+            .all(|char| char.is_ascii_digit() || char == '.')
 }
 
 /// Workspace-relative lockfile siblings associated with a manifest.
@@ -507,6 +550,24 @@ fn package_purl(ecosystem: Ecosystem, dependency: &Dependency) -> String {
     if let Some(version) = &dependency.exact_version {
         purl.push('@');
         purl.push_str(&encode_purl_component(version));
+    }
+
+    if !dependency.qualifiers.is_empty() {
+        purl.push('?');
+        purl.push_str(
+            &dependency
+                .qualifiers
+                .iter()
+                .map(|(key, value)| {
+                    format!(
+                        "{}={}",
+                        encode_purl_component(key),
+                        encode_purl_component(value)
+                    )
+                })
+                .collect::<Vec<_>>()
+                .join("&"),
+        );
     }
 
     purl

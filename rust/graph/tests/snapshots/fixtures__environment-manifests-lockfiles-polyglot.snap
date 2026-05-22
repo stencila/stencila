@@ -13,6 +13,18 @@ nodes:
       name: environment-manifests-lockfiles-polyglot
       path: "."
   - type: GraphNode
+    id: "environment:julia:Project.toml"
+    node:
+      type: SoftwareApplication
+      id: "environment:julia:Project.toml"
+      name: Julia environment declared by Project.toml
+      path: Project.toml
+      softwareRequirements:
+        - "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+        - "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+        - "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+        - "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
+  - type: GraphNode
     id: "environment:node:package.json"
     node:
       type: SoftwareApplication
@@ -102,6 +114,42 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:fe66c34077cb0c57a3cc727c9b15ac708e56c9e9a34ee4637f094c5908310086"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:Manifest-v1.11.toml"
+    node:
+      type: File
+      id: "file:Manifest-v1.11.toml"
+      name: Manifest-v1.11.toml
+      path: Manifest-v1.11.toml
+      size: 280
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:4b1e9b100239b83991532345f5eff930dd80a6b0402c17df1b132ac1b39698f6"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:Project.toml"
+    node:
+      type: File
+      id: "file:Project.toml"
+      name: Project.toml
+      path: Project.toml
+      size: 393
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:2eebf12e6ea103c128ab42812c48fbb7a43dd86f02d3d047eb6d98c4f69b009f"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -269,6 +317,50 @@ nodes:
           propertyId: purl
           value: "pkg:cran/testthat"
   - type: GraphNode
+    id: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+      name: CSV
+      programmingLanguage: Julia
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+  - type: GraphNode
+    id: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+      name: ChainRulesCore
+      programmingLanguage: Julia
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+  - type: GraphNode
+    id: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+      name: DataFrames
+      programmingLanguage: Julia
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+  - type: GraphNode
+    id: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+      name: Test
+      programmingLanguage: Julia
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
+  - type: GraphNode
     id: "package:pkg%3Anpm/d3-dsv"
     node:
       type: SoftwareSourceCode
@@ -363,6 +455,34 @@ edges:
   - type: GraphEdge
     source: "file:DESCRIPTION"
     target: "environment:r:DESCRIPTION"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:Manifest-v1.11.toml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Manifest-v1.11.toml"
+    target: "environment:julia:Project.toml"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:Project.toml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Project.toml"
+    target: "environment:julia:Project.toml"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -578,6 +698,104 @@ edges:
           name: testthat
           purl: "pkg:cran/testthat"
           raw: testthat
+  - type: GraphEdge
+    source: "package:pkg%3Ajulia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+    target: "environment:julia:Project.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: deps
+          name: CSV
+          purl: "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+          raw: 336ed68f-0bac-5ca0-87d4-7b16caf5d00b
+          specifier: "0.10"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: deps
+          name: CSV
+          purl: "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+          raw: 336ed68f-0bac-5ca0-87d4-7b16caf5d00b
+          specifier: "0.10"
+  - type: GraphEdge
+    source: "package:pkg%3Ajulia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+    target: "environment:julia:Project.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: weakdeps
+          name: ChainRulesCore
+          purl: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+          raw: d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4
+          specifier: "1"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: weakdeps
+          name: ChainRulesCore
+          purl: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+          raw: d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4
+          specifier: "1"
+  - type: GraphEdge
+    source: "package:pkg%3Ajulia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+    target: "environment:julia:Project.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: deps
+          name: DataFrames
+          purl: "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+          raw: a93c6f00-e57d-5684-b7b6-d8193f3e46c0
+          specifier: "1.6"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: deps
+          name: DataFrames
+          purl: "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+          raw: a93c6f00-e57d-5684-b7b6-d8193f3e46c0
+          specifier: "1.6"
+  - type: GraphEdge
+    source: "package:pkg%3Ajulia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
+    target: "environment:julia:Project.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: extras
+          name: Test
+          purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
+          raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: julia
+          manifest: Project.toml
+          group: extras
+          name: Test
+          purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
+          raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
   - type: GraphEdge
     source: "package:pkg%3Anpm/d3-dsv"
     target: "environment:node:package.json"

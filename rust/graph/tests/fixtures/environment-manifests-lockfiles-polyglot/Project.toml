@@ -1,0 +1,19 @@
+name = "GraphFixture"
+uuid = "2cc5171a-02b1-4f2f-9d31-62a0b2ecfa0a"
+version = "0.1.0"
+
+[deps]
+CSV = "336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
+DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
+
+[weakdeps]
+ChainRulesCore = "d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
+
+[extras]
+Test = "8dfed614-e22c-5e08-85e1-65c5234f0b40"
+
+[compat]
+CSV = "0.10"
+ChainRulesCore = "1"
+DataFrames = "1.6"
+julia = "1.10"
