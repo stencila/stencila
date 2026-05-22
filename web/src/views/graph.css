@@ -1,0 +1,7 @@
+body:has(stencila-graph-view) {
+  margin: 0;
+}
+
+stencila-graph-view {
+  display: block;
+}

@@ -46,6 +46,7 @@ export default defineConfig({
       input: {
         site: resolve(__dirname, 'src/site.ts'),
         'views/dynamic': resolve(__dirname, 'src/views/dynamic.ts'),
+        'views/graph': resolve(__dirname, 'src/views/graph.ts'),
         'views/static': resolve(__dirname, 'src/views/static.ts'),
         'themes/init': resolve(__dirname, 'src/themes/init.js'),
         'themes/base': resolve(__dirname, 'src/themes/_base.ts'),
@@ -60,6 +61,10 @@ export default defineConfig({
 
           if (originalFileNames.some((fileName) => fileName.endsWith('src/views/dynamic.ts'))) {
             return 'views/dynamic[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/views/graph.ts'))) {
+            return 'views/graph[extname]'
           }
 
           if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_base.ts'))) {
