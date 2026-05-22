@@ -1,0 +1,10 @@
+{
+  "name": "graph-fixture",
+  "version": "0.1.0",
+  "dependencies": {
+    "d3-dsv": "^3.0.1"
+  },
+  "devDependencies": {
+    "typescript": "~5.4.0"
+  }
+}

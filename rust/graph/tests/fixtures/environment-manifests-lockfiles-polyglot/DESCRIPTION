@@ -1,0 +1,7 @@
+Package: graphfixture
+Version: 0.1.0
+Imports:
+    dplyr (>= 1.1.0),
+    ggplot2
+Suggests:
+    testthat

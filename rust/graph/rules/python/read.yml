@@ -1,0 +1,14 @@
+id: python-read
+language: Python
+message: Python file read
+severity: info
+rule:
+  any:
+    - pattern: $TARGET = $READER.read_csv($PATH)
+    - pattern: $TARGET = read_csv($PATH)
+    - pattern: $READER.read_csv($PATH)
+    - pattern: read_csv($PATH)
+    - pattern: $TARGET = open($PATH)
+    - pattern: open($PATH)
+    - pattern: $TARGET = open($PATH, $MODE)
+    - pattern: open($PATH, $MODE)

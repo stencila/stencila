@@ -1,0 +1,13 @@
+# Manuscript
+
+See the [methods](#methods), the [data table](../data/table.tsv), and the external archive at [Zenodo](https://doi.org/10.5281/zenodo.12345).
+
+Prior studies @smith2020 and [@doe2021] motivate the sampling design.
+
+![Observed counts](../media/figure.svg)
+
+::: include ../data/table.tsv
+
+## Methods {#methods}
+
+Counts were summarized from the local table.

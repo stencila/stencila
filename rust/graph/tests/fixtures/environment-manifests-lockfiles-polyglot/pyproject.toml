@@ -1,0 +1,10 @@
+[project]
+name = "graph-fixture"
+version = "0.1.0"
+dependencies = [
+  "pandas==2.2.1",
+  "requests>=2.31",
+]
+
+[project.optional-dependencies]
+plot = ["matplotlib>=3.8"]

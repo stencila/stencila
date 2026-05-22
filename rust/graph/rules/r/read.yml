@@ -1,0 +1,12 @@
+id: r-read
+language: R
+message: R file read
+severity: info
+rule:
+  any:
+    - pattern: $TARGET <- read.csv($PATH)
+    - pattern: $TARGET <- read_csv($PATH)
+    - pattern: $TARGET <- readRDS($PATH)
+    - pattern: read.csv($PATH)
+    - pattern: read_csv($PATH)
+    - pattern: readRDS($PATH)

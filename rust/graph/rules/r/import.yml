@@ -1,0 +1,9 @@
+id: r-import
+language: R
+message: R package import
+severity: info
+rule:
+  any:
+    - pattern: library($PKG)
+    - pattern: require($PKG)
+    - pattern: $PKG::$FUN

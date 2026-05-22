@@ -1,0 +1,8 @@
+id: python-function
+language: Python
+message: Python function declaration
+severity: info
+rule:
+  pattern: |
+    def $NAME($$$ARGS):
+        $$$BODY

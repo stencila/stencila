@@ -1,0 +1,30 @@
+id: rust-read
+language: Rust
+message: Rust file read
+severity: info
+rule:
+  any:
+    - pattern: let $TARGET = std::fs::read_to_string($PATH);
+    - pattern: let mut $TARGET = std::fs::read_to_string($PATH);
+    - pattern: $TARGET = std::fs::read_to_string($PATH);
+    - pattern: std::fs::read_to_string($PATH)
+    - pattern: let $TARGET = fs::read_to_string($PATH);
+    - pattern: let mut $TARGET = fs::read_to_string($PATH);
+    - pattern: $TARGET = fs::read_to_string($PATH);
+    - pattern: fs::read_to_string($PATH)
+    - pattern: let $TARGET = std::fs::read($PATH);
+    - pattern: let mut $TARGET = std::fs::read($PATH);
+    - pattern: $TARGET = std::fs::read($PATH);
+    - pattern: std::fs::read($PATH)
+    - pattern: let $TARGET = fs::read($PATH);
+    - pattern: let mut $TARGET = fs::read($PATH);
+    - pattern: $TARGET = fs::read($PATH);
+    - pattern: fs::read($PATH)
+    - pattern: let $TARGET = File::open($PATH);
+    - pattern: let mut $TARGET = File::open($PATH);
+    - pattern: $TARGET = File::open($PATH);
+    - pattern: File::open($PATH)
+    - pattern: let $TARGET = Reader::from_path($PATH);
+    - pattern: let mut $TARGET = Reader::from_path($PATH);
+    - pattern: $TARGET = Reader::from_path($PATH);
+    - pattern: Reader::from_path($PATH)

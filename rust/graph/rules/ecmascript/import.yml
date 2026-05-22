@@ -1,0 +1,2 @@
+rule:
+  kind: import_statement

@@ -1,0 +1,6 @@
+rule:
+  any:
+    - pattern: const $TARGET = $VALUE
+    - pattern: let $TARGET = $VALUE
+    - pattern: var $TARGET = $VALUE
+    - pattern: $TARGET = $VALUE

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://stencila.org/Article.schema.json",
+  "type": "Article",
+  "content": [
+    {
+      "type": "Heading",
+      "level": 1,
+      "content": [{"type": "Text", "value": "Reactive notebook"}]
+    },
+    {
+      "type": "CodeChunk",
+      "id": "setup",
+      "programmingLanguage": "python",
+      "code": "import pandas as pd\nscale = 2\nsamples = pd.read_csv(\"../data/samples.dat\")"
+    },
+    {
+      "type": "CodeChunk",
+      "id": "analysis",
+      "programmingLanguage": "python",
+      "code": "adjusted = samples[\"count\"] * scale\nprint(adjusted.mean())",
+      "outputs": ["mean=8.0"],
+      "executionStatus": "Succeeded",
+      "executionEnded": {
+        "type": "Timestamp",
+        "value": 1714644290452,
+        "timeUnit": "Millisecond"
+      },
+      "executionDuration": {
+        "type": "Duration",
+        "value": 250,
+        "timeUnit": "Millisecond"
+      }
+    },
+    {
+      "type": "Paragraph",
+      "content": [
+        {"type": "Text", "value": "The scaled total is "},
+        {
+          "type": "CodeExpression",
+          "id": "total",
+          "programmingLanguage": "python",
+          "code": "adjusted.sum()",
+          "output": 16,
+          "executionStatus": "Succeeded",
+          "executionEnded": {
+            "type": "Timestamp",
+            "value": 1714644291452,
+            "timeUnit": "Millisecond"
+          },
+          "executionDuration": {
+            "type": "Duration",
+            "value": 25,
+            "timeUnit": "Millisecond"
+          }
+        },
+        {"type": "Text", "value": "."}
+      ]
+    }
+  ]
+}

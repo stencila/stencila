@@ -1,0 +1,10 @@
+id: python-write
+language: Python
+message: Python file write
+severity: info
+rule:
+  any:
+    - pattern: $OBJ.to_csv($PATH)
+    - pattern: to_csv($PATH)
+    - pattern: $OBJ.savefig($PATH)
+    - pattern: savefig($PATH)

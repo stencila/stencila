@@ -1,0 +1,225 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:workspace-nested-paths-ecology"
+nodes:
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: workspace-nested-paths-ecology
+      path: "."
+  - type: GraphNode
+    id: "dir:analysis"
+    node:
+      type: Directory
+      id: "dir:analysis"
+      name: analysis
+      path: analysis
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:data/derived"
+    node:
+      type: Directory
+      id: "dir:data/derived"
+      name: derived
+      path: data/derived
+  - type: GraphNode
+    id: "dir:data/raw"
+    node:
+      type: Directory
+      id: "dir:data/raw"
+      name: raw
+      path: data/raw
+  - type: GraphNode
+    id: "dir:docs"
+    node:
+      type: Directory
+      id: "dir:docs"
+      name: docs
+      path: docs
+  - type: GraphNode
+    id: "dir:figures"
+    node:
+      type: Directory
+      id: "dir:figures"
+      name: figures
+      path: figures
+  - type: GraphNode
+    id: "file:analysis/field%20notes.txt"
+    node:
+      type: File
+      id: "file:analysis/field%20notes.txt"
+      name: field notes.txt
+      path: analysis/field notes.txt
+      size: 47
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/derived/model-summary.dat"
+    node:
+      type: File
+      id: "file:data/derived/model-summary.dat"
+      name: model-summary.dat
+      path: data/derived/model-summary.dat
+      size: 39
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/raw/plot%201%25%20cover.dat"
+    node:
+      type: File
+      id: "file:data/raw/plot%201%25%20cover.dat"
+      name: plot 1% cover.dat
+      path: data/raw/plot 1% cover.dat
+      size: 39
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/raw/site%23alpha%3Asurvey.dat"
+    node:
+      type: File
+      id: "file:data/raw/site%23alpha%3Asurvey.dat"
+      name: "site#alpha:survey.dat"
+      path: "data/raw/site#alpha:survey.dat"
+      size: 29
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:docs/site%20summary.mdwn"
+    node:
+      type: File
+      id: "file:docs/site%20summary.mdwn"
+      name: site summary.mdwn
+      path: docs/site summary.mdwn
+      size: 27
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:figures/richness%25trend.svg"
+    node:
+      type: File
+      id: "file:figures/richness%25trend.svg"
+      name: richness%trend.svg
+      path: figures/richness%trend.svg
+      size: 101
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+edges:
+  - type: GraphEdge
+    source: "dir:analysis"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data/derived"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data/raw"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:docs"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:figures"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:analysis/field%20notes.txt"
+    target: "dir:analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/derived/model-summary.dat"
+    target: "dir:data/derived"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/plot%201%25%20cover.dat"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/site%23alpha%3Asurvey.dat"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:docs/site%20summary.mdwn"
+    target: "dir:docs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:figures/richness%25trend.svg"
+    target: "dir:figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed

@@ -1,0 +1,23 @@
+rule download:
+    output: "data/raw/S1.fastq"
+    script: "workflow/scripts/download.py"
+
+rule trim_reads:
+    input: "data/raw/S1.fastq"
+    output: "data/trimmed/S1.fastq"
+    shell: "cp data/raw/S1.fastq data/trimmed/S1.fastq"
+
+rule align:
+    input: "data/trimmed/S1.fastq"
+    output: "results/alignments/S1.bam"
+    shell: "touch results/alignments/S1.bam"
+
+rule counts:
+    input: "results/alignments/S1.bam"
+    output: "results/counts/gene-counts.tsv"
+    script: "workflow/scripts/counts.py"
+
+rule report:
+    input: "results/counts/gene-counts.tsv"
+    output: "reports/rnaseq.html"
+    shell: "touch reports/rnaseq.html"

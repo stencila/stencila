@@ -1,0 +1,877 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:code-workflow-snakemake-rnaseq"
+nodes:
+  - type: GraphNode
+    id: "code:Snakefile"
+    node:
+      type: SoftwareSourceCode
+      id: "code:Snakefile"
+      name: Snakefile
+      path: Snakefile
+      programmingLanguage: Snakemake
+  - type: GraphNode
+    id: "code:workflow/scripts/counts.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:workflow/scripts/counts.py"
+      name: counts.py
+      path: workflow/scripts/counts.py
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "code:workflow/scripts/download.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:workflow/scripts/download.py"
+      name: download.py
+      path: workflow/scripts/download.py
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: code-workflow-snakemake-rnaseq
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:data/raw"
+    node:
+      type: Directory
+      id: "dir:data/raw"
+      name: raw
+      path: data/raw
+  - type: GraphNode
+    id: "dir:data/trimmed"
+    node:
+      type: Directory
+      id: "dir:data/trimmed"
+      name: trimmed
+      path: data/trimmed
+  - type: GraphNode
+    id: "dir:reports"
+    node:
+      type: Directory
+      id: "dir:reports"
+      name: reports
+      path: reports
+  - type: GraphNode
+    id: "dir:results"
+    node:
+      type: Directory
+      id: "dir:results"
+      name: results
+      path: results
+  - type: GraphNode
+    id: "dir:results/alignments"
+    node:
+      type: Directory
+      id: "dir:results/alignments"
+      name: alignments
+      path: results/alignments
+  - type: GraphNode
+    id: "dir:results/counts"
+    node:
+      type: Directory
+      id: "dir:results/counts"
+      name: counts
+      path: results/counts
+  - type: GraphNode
+    id: "dir:workflow"
+    node:
+      type: Directory
+      id: "dir:workflow"
+      name: workflow
+      path: workflow
+  - type: GraphNode
+    id: "dir:workflow/scripts"
+    node:
+      type: Directory
+      id: "dir:workflow/scripts"
+      name: scripts
+      path: workflow/scripts
+  - type: GraphNode
+    id: "file:Snakefile"
+    node:
+      type: File
+      id: "file:Snakefile"
+      name: Snakefile
+      path: Snakefile
+      size: 634
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/raw/S1.fastq"
+    node:
+      type: File
+      id: "file:data/raw/S1.fastq"
+      name: S1.fastq
+      path: data/raw/S1.fastq
+      size: 16
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/trimmed/S1.fastq"
+    node:
+      type: File
+      id: "file:data/trimmed/S1.fastq"
+      name: S1.fastq
+      path: data/trimmed/S1.fastq
+      size: 16
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:reports/rnaseq.html"
+    node:
+      type: File
+      id: "file:reports/rnaseq.html"
+      name: rnaseq.html
+      path: reports/rnaseq.html
+      size: 41
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/alignments/S1.bam"
+    node:
+      type: File
+      id: "file:results/alignments/S1.bam"
+      name: S1.bam
+      path: results/alignments/S1.bam
+      size: 16
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/counts/gene-counts.tsv"
+    node:
+      type: File
+      id: "file:results/counts/gene-counts.tsv"
+      name: gene-counts.tsv
+      path: results/counts/gene-counts.tsv
+      size: 19
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:workflow/scripts/counts.py"
+    node:
+      type: File
+      id: "file:workflow/scripts/counts.py"
+      name: counts.py
+      path: workflow/scripts/counts.py
+      size: 103
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:workflow/scripts/download.py"
+    node:
+      type: File
+      id: "file:workflow/scripts/download.py"
+      name: download.py
+      path: workflow/scripts/download.py
+      size: 87
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:align"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:align"
+      name: align
+      parameters: []
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:counts"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:counts"
+      name: counts
+      parameters: []
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:download"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:download"
+      name: download
+      parameters: []
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:report"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:report"
+      name: report
+      parameters: []
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:shell"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:shell"
+      name: shell
+      parameters: []
+  - type: GraphNode
+    id: "function:Snakefile:snakemake:trim_reads"
+    node:
+      type: Function
+      id: "function:Snakefile:snakemake:trim_reads"
+      name: trim_reads
+      parameters: []
+  - type: GraphNode
+    id: "function:workflow/scripts/counts.py:python:Path"
+    node:
+      type: Function
+      id: "function:workflow/scripts/counts.py:python:Path"
+      name: Path
+      parameters: []
+  - type: GraphNode
+    id: "function:workflow/scripts/counts.py:python:write_text"
+    node:
+      type: Function
+      id: "function:workflow/scripts/counts.py:python:write_text"
+      name: write_text
+      parameters: []
+  - type: GraphNode
+    id: "function:workflow/scripts/download.py:python:Path"
+    node:
+      type: Function
+      id: "function:workflow/scripts/download.py:python:Path"
+      name: Path
+      parameters: []
+  - type: GraphNode
+    id: "function:workflow/scripts/download.py:python:write_text"
+    node:
+      type: Function
+      id: "function:workflow/scripts/download.py:python:write_text"
+      name: write_text
+      parameters: []
+  - type: GraphNode
+    id: "node:reports/rnaseq.html#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "node:results/counts/gene-counts.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: gene
+          values: []
+        - type: DatatableColumn
+          name: count
+          values: []
+  - type: GraphNode
+    id: "package:pathlib"
+    node:
+      type: SoftwareApplication
+      id: "package:pathlib"
+      name: pathlib
+  - type: GraphNode
+    id: "symbol:workflow/scripts/counts.py:python:Path"
+    node:
+      type: Variable
+      id: "symbol:workflow/scripts/counts.py:python:Path"
+      name: Path
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:workflow/scripts/counts.py:python:write_text"
+    node:
+      type: Variable
+      id: "symbol:workflow/scripts/counts.py:python:write_text"
+      name: write_text
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:workflow/scripts/download.py:python:Path"
+    node:
+      type: Variable
+      id: "symbol:workflow/scripts/download.py:python:Path"
+      name: Path
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:workflow/scripts/download.py:python:write_text"
+    node:
+      type: Variable
+      id: "symbol:workflow/scripts/download.py:python:write_text"
+      name: write_text
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "workflow-rule:Snakefile:align"
+    node:
+      type: Function
+      id: "workflow-rule:Snakefile:align"
+      name: align
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:Snakefile:counts"
+    node:
+      type: Function
+      id: "workflow-rule:Snakefile:counts"
+      name: counts
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:Snakefile:download"
+    node:
+      type: Function
+      id: "workflow-rule:Snakefile:download"
+      name: download
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:Snakefile:report"
+    node:
+      type: Function
+      id: "workflow-rule:Snakefile:report"
+      name: report
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:Snakefile:trim_reads"
+    node:
+      type: Function
+      id: "workflow-rule:Snakefile:trim_reads"
+      name: trim_reads
+      parameters: []
+edges:
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:data/raw/S1.fastq"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:data/trimmed/S1.fastq"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:reports/rnaseq.html"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:results/alignments/S1.bam"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "file:results/counts/gene-counts.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "function:Snakefile:snakemake:align"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "function:Snakefile:snakemake:counts"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "function:Snakefile:snakemake:download"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "function:Snakefile:snakemake:report"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "function:Snakefile:snakemake:trim_reads"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "workflow-rule:Snakefile:align"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "workflow-rule:Snakefile:counts"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "workflow-rule:Snakefile:download"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "workflow-rule:Snakefile:report"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
+    target: "workflow-rule:Snakefile:trim_reads"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/counts.py"
+    target: "file:workflow/scripts/counts.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/download.py"
+    target: "file:workflow/scripts/download.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data/raw"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data/trimmed"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:reports"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results/alignments"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results/counts"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:workflow"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:workflow/scripts"
+    target: "dir:workflow"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Snakefile"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/S1.fastq"
+    target: "code:Snakefile"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/S1.fastq"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/S1.fastq"
+    target: "file:data/trimmed/S1.fastq"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/S1.fastq"
+    target: "workflow-rule:Snakefile:trim_reads"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/trimmed/S1.fastq"
+    target: "code:Snakefile"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/trimmed/S1.fastq"
+    target: "dir:data/trimmed"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/trimmed/S1.fastq"
+    target: "file:results/alignments/S1.bam"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/trimmed/S1.fastq"
+    target: "workflow-rule:Snakefile:align"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:reports/rnaseq.html"
+    target: "dir:reports"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:reports/rnaseq.html"
+    target: "node:reports/rnaseq.html#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/alignments/S1.bam"
+    target: "code:Snakefile"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/alignments/S1.bam"
+    target: "dir:results/alignments"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/alignments/S1.bam"
+    target: "file:results/counts/gene-counts.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/alignments/S1.bam"
+    target: "workflow-rule:Snakefile:counts"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/counts/gene-counts.tsv"
+    target: "code:Snakefile"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/counts/gene-counts.tsv"
+    target: "dir:results/counts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/counts/gene-counts.tsv"
+    target: "file:reports/rnaseq.html"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/counts/gene-counts.tsv"
+    target: "node:results/counts/gene-counts.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/counts/gene-counts.tsv"
+    target: "workflow-rule:Snakefile:report"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:workflow/scripts/counts.py"
+    target: "code:Snakefile"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:workflow/scripts/counts.py"
+    target: "dir:workflow/scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:workflow/scripts/counts.py"
+    target: "workflow-rule:Snakefile:counts"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:workflow/scripts/download.py"
+    target: "code:Snakefile"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:workflow/scripts/download.py"
+    target: "dir:workflow/scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:workflow/scripts/download.py"
+    target: "workflow-rule:Snakefile:download"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:shell"
+    target: "code:Snakefile"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:shell"
+    target: "workflow-rule:Snakefile:align"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:shell"
+    target: "workflow-rule:Snakefile:report"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:shell"
+    target: "workflow-rule:Snakefile:trim_reads"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/counts.py:python:Path"
+    target: "code:workflow/scripts/counts.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/counts.py:python:write_text"
+    target: "code:workflow/scripts/counts.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/download.py:python:Path"
+    target: "code:workflow/scripts/download.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/download.py:python:write_text"
+    target: "code:workflow/scripts/download.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pathlib"
+    target: "code:workflow/scripts/counts.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pathlib"
+    target: "code:workflow/scripts/download.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/counts.py:python:Path"
+    target: "code:workflow/scripts/counts.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/counts.py:python:write_text"
+    target: "code:workflow/scripts/counts.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/download.py:python:Path"
+    target: "code:workflow/scripts/download.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/download.py:python:write_text"
+    target: "code:workflow/scripts/download.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:align"
+    target: "file:results/alignments/S1.bam"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:counts"
+    target: "file:results/counts/gene-counts.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:download"
+    target: "file:data/raw/S1.fastq"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:report"
+    target: "file:reports/rnaseq.html"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:trim_reads"
+    target: "file:data/trimmed/S1.fastq"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis

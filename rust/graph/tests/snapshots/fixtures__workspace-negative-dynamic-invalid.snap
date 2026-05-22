@@ -1,0 +1,435 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:workspace-negative-dynamic-invalid"
+nodes:
+  - type: GraphNode
+    id: "code:bad.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:bad.py"
+      name: bad.py
+      path: bad.py
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "code:dynamic.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:dynamic.py"
+      name: dynamic.py
+      path: dynamic.py
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "code:scripts/malformed.R"
+    node:
+      type: SoftwareSourceCode
+      id: "code:scripts/malformed.R"
+      name: malformed.R
+      path: scripts/malformed.R
+      programmingLanguage: R
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: workspace-negative-dynamic-invalid
+      path: "."
+  - type: GraphNode
+    id: "dir:docs"
+    node:
+      type: Directory
+      id: "dir:docs"
+      name: docs
+      path: docs
+  - type: GraphNode
+    id: "dir:scripts"
+    node:
+      type: Directory
+      id: "dir:scripts"
+      name: scripts
+      path: scripts
+  - type: GraphNode
+    id: "file:analysis.jl"
+    node:
+      type: File
+      id: "file:analysis.jl"
+      name: analysis.jl
+      path: analysis.jl
+      size: 6
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:bad.py"
+    node:
+      type: File
+      id: "file:bad.py"
+      name: bad.py
+      path: bad.py
+      size: 5
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:docs/missing-links.smd"
+    node:
+      type: File
+      id: "file:docs/missing-links.smd"
+      name: missing-links.smd
+      path: docs/missing-links.smd
+      size: 197
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:dynamic.py"
+    node:
+      type: File
+      id: "file:dynamic.py"
+      name: dynamic.py
+      path: dynamic.py
+      size: 115
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:package.json"
+    node:
+      type: File
+      id: "file:package.json"
+      name: package.json
+      path: package.json
+      size: 15
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:14b3f36a005f062412df3c2f1b90b55180ace98f87b118b52badc3d2be70a466"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:scripts/malformed.R"
+    node:
+      type: File
+      id: "file:scripts/malformed.R"
+      name: malformed.R
+      path: scripts/malformed.R
+      size: 16
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "function:dynamic.py:python:read_csv"
+    node:
+      type: Function
+      id: "function:dynamic.py:python:read_csv"
+      name: read_csv
+      parameters: []
+  - type: GraphNode
+    id: "function:dynamic.py:python:to_csv"
+    node:
+      type: Function
+      id: "function:dynamic.py:python:to_csv"
+      name: to_csv
+      parameters: []
+  - type: GraphNode
+    id: "function:scripts/malformed.R:r:csv"
+    node:
+      type: Function
+      id: "function:scripts/malformed.R:r:csv"
+      name: csv
+      parameters: []
+  - type: GraphNode
+    id: "node:docs/missing-links.smd#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "node:docs/missing-links.smd#hea_missing-references"
+    node:
+      type: Heading
+      level: 1
+      content: []
+  - type: GraphNode
+    id: "node:docs/missing-links.smd#img_content-1-content-3"
+    node:
+      type: ImageObject
+      contentUrl: "../figures/missing.png"
+  - type: GraphNode
+    id: "node:docs/missing-links.smd#inc_content-2"
+    node:
+      type: IncludeBlock
+      source: "../data/missing.csv"
+  - type: GraphNode
+    id: "node:docs/missing-links.smd#lin_content-1-content-1"
+    node:
+      type: Link
+      content: []
+      target: "../data/missing.csv"
+  - type: GraphNode
+    id: "package:pandas"
+    node:
+      type: SoftwareApplication
+      id: "package:pandas"
+      name: pandas
+  - type: GraphNode
+    id: "symbol:dynamic.py:python:pd"
+    node:
+      type: Variable
+      id: "symbol:dynamic.py:python:pd"
+      name: pd
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:dynamic.py:python:read_csv"
+    node:
+      type: Variable
+      id: "symbol:dynamic.py:python:read_csv"
+      name: read_csv
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:dynamic.py:python:sample"
+    node:
+      type: Variable
+      id: "symbol:dynamic.py:python:sample"
+      name: sample
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:dynamic.py:python:table"
+    node:
+      type: Variable
+      id: "symbol:dynamic.py:python:table"
+      name: table
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:dynamic.py:python:to_csv"
+    node:
+      type: Variable
+      id: "symbol:dynamic.py:python:to_csv"
+      name: to_csv
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:scripts/malformed.R:r:df"
+    node:
+      type: Variable
+      id: "symbol:scripts/malformed.R:r:df"
+      name: df
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:scripts/malformed.R:r:read.csv"
+    node:
+      type: Variable
+      id: "symbol:scripts/malformed.R:r:read.csv"
+      name: read.csv
+      programmingLanguage: R
+edges:
+  - type: GraphEdge
+    source: "code:bad.py"
+    target: "file:bad.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:dynamic.py"
+    target: "file:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:dynamic.py"
+    target: "symbol:dynamic.py:python:sample"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:dynamic.py"
+    target: "symbol:dynamic.py:python:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:scripts/malformed.R"
+    target: "file:scripts/malformed.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:scripts/malformed.R"
+    target: "symbol:scripts/malformed.R:r:df"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "dir:docs"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:scripts"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:analysis.jl"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:bad.py"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:docs/missing-links.smd"
+    target: "dir:docs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:docs/missing-links.smd"
+    target: "node:docs/missing-links.smd#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:dynamic.py"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:package.json"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:scripts/malformed.R"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "function:dynamic.py:python:read_csv"
+    target: "code:dynamic.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:dynamic.py:python:to_csv"
+    target: "code:dynamic.py"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:scripts/malformed.R:r:csv"
+    target: "code:scripts/malformed.R"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/missing-links.smd#hea_missing-references"
+    target: "node:docs/missing-links.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/missing-links.smd#img_content-1-content-3"
+    target: "node:docs/missing-links.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/missing-links.smd#inc_content-2"
+    target: "node:docs/missing-links.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/missing-links.smd#lin_content-1-content-1"
+    target: "node:docs/missing-links.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "package:pandas"
+    target: "code:dynamic.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:pd"
+    target: "code:dynamic.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:read_csv"
+    target: "code:dynamic.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:to_csv"
+    target: "code:dynamic.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/malformed.R:r:read.csv"
+    target: "code:scripts/malformed.R"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis

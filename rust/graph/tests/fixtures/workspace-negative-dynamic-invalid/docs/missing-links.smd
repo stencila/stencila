@@ -1,0 +1,5 @@
+# Missing references
+
+This document links to [missing data](../data/missing.csv), embeds a missing image ![](../figures/missing.png), and includes a missing table.
+
+::: include ../data/missing.csv

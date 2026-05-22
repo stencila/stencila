@@ -1,0 +1,9 @@
+id: python-import
+language: Python
+message: Python import
+severity: info
+rule:
+  any:
+    - pattern: import $MODULE
+    - pattern: import $MODULE as $ALIAS
+    - pattern: from $MODULE import $$$NAMES

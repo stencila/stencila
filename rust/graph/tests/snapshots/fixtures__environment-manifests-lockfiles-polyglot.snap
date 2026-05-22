@@ -1,0 +1,705 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:environment-manifests-lockfiles-polyglot"
+nodes:
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: environment-manifests-lockfiles-polyglot
+      path: "."
+  - type: GraphNode
+    id: "environment:node:package.json"
+    node:
+      type: SoftwareApplication
+      id: "environment:node:package.json"
+      name: Node.js environment declared by package.json
+      path: package.json
+      softwareRequirements:
+        - "pkg:npm/d3-dsv"
+        - "pkg:npm/typescript"
+  - type: GraphNode
+    id: "environment:python:pyproject.toml"
+    node:
+      type: SoftwareApplication
+      id: "environment:python:pyproject.toml"
+      name: Python environment declared by pyproject.toml
+      path: pyproject.toml
+      softwareRequirements:
+        - "pkg:pypi/pandas@2.2.1"
+        - "pkg:pypi/requests"
+        - "pkg:pypi/matplotlib"
+  - type: GraphNode
+    id: "environment:r:DESCRIPTION"
+    node:
+      type: SoftwareApplication
+      id: "environment:r:DESCRIPTION"
+      name: R environment declared by DESCRIPTION
+      path: DESCRIPTION
+      softwareRequirements:
+        - "pkg:cran/dplyr"
+        - "pkg:cran/ggplot2"
+        - "pkg:cran/testthat"
+  - type: GraphNode
+    id: "environment:rust:Cargo.toml"
+    node:
+      type: SoftwareApplication
+      id: "environment:rust:Cargo.toml"
+      name: Rust environment declared by Cargo.toml
+      path: Cargo.toml
+      softwareRequirements:
+        - "pkg:cargo/csv"
+        - "pkg:cargo/serde"
+  - type: GraphNode
+    id: "file:Cargo.lock"
+    node:
+      type: File
+      id: "file:Cargo.lock"
+      name: Cargo.lock
+      path: Cargo.lock
+      size: 96
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:1b2f5a617caa3d070390c8c9f1acd3b2d8cc198ed4d2c0069ee8397ad12d4231"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:Cargo.toml"
+    node:
+      type: File
+      id: "file:Cargo.toml"
+      name: Cargo.toml
+      path: Cargo.toml
+      size: 144
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:fbb3cd52c7ebbfc3f9ad6863b7b86cc9d56ffa9a5d960f37cd682a361da54035"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:DESCRIPTION"
+    node:
+      type: File
+      id: "file:DESCRIPTION"
+      name: DESCRIPTION
+      path: DESCRIPTION
+      size: 103
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:fe66c34077cb0c57a3cc727c9b15ac708e56c9e9a34ee4637f094c5908310086"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:package-lock.json"
+    node:
+      type: File
+      id: "file:package-lock.json"
+      name: package-lock.json
+      path: package-lock.json
+      size: 72
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:25133279b57543cbe3b79d81534c6b79c0a0eeaa7c82e13c2b92aeb943698d41"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:package.json"
+    node:
+      type: File
+      id: "file:package.json"
+      name: package.json
+      path: package.json
+      size: 155
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:13eb8dd48f83337fab686c0999469207ec38a782d613008fa811b4114e50ecbf"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:pyproject.toml"
+    node:
+      type: File
+      id: "file:pyproject.toml"
+      name: pyproject.toml
+      path: pyproject.toml
+      size: 169
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:53edd0a32745761ad6a6e88df286858a03afbb4663134e40d8290c809136c08c"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:renv.lock"
+    node:
+      type: File
+      id: "file:renv.lock"
+      name: renv.lock
+      path: renv.lock
+      size: 58
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:0770aaa1a9af718f3f248af1cfcb98fdb5f011122d5e5d509effe987d1cce7e1"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:uv.lock"
+    node:
+      type: File
+      id: "file:uv.lock"
+      name: uv.lock
+      path: uv.lock
+      size: 39
+      identifiers:
+        - type: PropertyValue
+          propertyId: sha256
+          value: "sha256:c0b8db057b9b36718982fea80396ba000fd75dd36ff2262bbbca881af07e341e"
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "node:package-lock.json"
+    node:
+      name: graph-fixture
+      lockfileVersion: 3
+      packages: {}
+  - type: GraphNode
+    id: "node:package.json"
+    node:
+      name: graph-fixture
+      version: 0.1.0
+      dependencies:
+        d3-dsv: ^3.0.1
+      devDependencies:
+        typescript: ~5.4.0
+  - type: GraphNode
+    id: "package:pkg%3Acargo/csv"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Acargo/csv"
+      name: csv
+      programmingLanguage: Rust
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cargo/csv"
+  - type: GraphNode
+    id: "package:pkg%3Acargo/serde"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Acargo/serde"
+      name: serde
+      programmingLanguage: Rust
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cargo/serde"
+  - type: GraphNode
+    id: "package:pkg%3Acran/dplyr"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Acran/dplyr"
+      name: dplyr
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/dplyr"
+  - type: GraphNode
+    id: "package:pkg%3Acran/ggplot2"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Acran/ggplot2"
+      name: ggplot2
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/ggplot2"
+  - type: GraphNode
+    id: "package:pkg%3Acran/testthat"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Acran/testthat"
+      name: testthat
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/testthat"
+  - type: GraphNode
+    id: "package:pkg%3Anpm/d3-dsv"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Anpm/d3-dsv"
+      name: d3-dsv
+      programmingLanguage: JavaScript
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:npm/d3-dsv"
+  - type: GraphNode
+    id: "package:pkg%3Anpm/typescript"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Anpm/typescript"
+      name: typescript
+      programmingLanguage: JavaScript
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:npm/typescript"
+  - type: GraphNode
+    id: "package:pkg%3Apypi/matplotlib"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Apypi/matplotlib"
+      name: matplotlib
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/matplotlib"
+  - type: GraphNode
+    id: "package:pkg%3Apypi/pandas%402.2.1"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Apypi/pandas%402.2.1"
+      name: pandas
+      version: 2.2.1
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/pandas@2.2.1"
+  - type: GraphNode
+    id: "package:pkg%3Apypi/requests"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pkg%3Apypi/requests"
+      name: requests
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/requests"
+edges:
+  - type: GraphEdge
+    source: "file:Cargo.lock"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Cargo.lock"
+    target: "environment:rust:Cargo.toml"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:Cargo.toml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Cargo.toml"
+    target: "environment:rust:Cargo.toml"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:DESCRIPTION"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:DESCRIPTION"
+    target: "environment:r:DESCRIPTION"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:package-lock.json"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:package-lock.json"
+    target: "environment:node:package.json"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:package-lock.json"
+    target: "node:package-lock.json"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:package.json"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:package.json"
+    target: "environment:node:package.json"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:package.json"
+    target: "node:package.json"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:pyproject.toml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:pyproject.toml"
+    target: "environment:python:pyproject.toml"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:renv.lock"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:renv.lock"
+    target: "environment:r:DESCRIPTION"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:uv.lock"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:uv.lock"
+    target: "environment:python:pyproject.toml"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pkg%3Acargo/csv"
+    target: "environment:rust:Cargo.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: rust
+          manifest: Cargo.toml
+          group: dependencies
+          name: csv
+          purl: "pkg:cargo/csv"
+          raw: "{ features = [\"serde\"], version = \"1.3\" }"
+          specifier: "1.3"
+          extras: serde
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: rust
+          manifest: Cargo.toml
+          group: dependencies
+          name: csv
+          purl: "pkg:cargo/csv"
+          raw: "{ features = [\"serde\"], version = \"1.3\" }"
+          specifier: "1.3"
+          extras: serde
+  - type: GraphEdge
+    source: "package:pkg%3Acargo/serde"
+    target: "environment:rust:Cargo.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: rust
+          manifest: Cargo.toml
+          group: dependencies
+          name: serde
+          purl: "pkg:cargo/serde"
+          raw: "1"
+          specifier: "1"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: rust
+          manifest: Cargo.toml
+          group: dependencies
+          name: serde
+          purl: "pkg:cargo/serde"
+          raw: "1"
+          specifier: "1"
+  - type: GraphEdge
+    source: "package:pkg%3Acran/dplyr"
+    target: "environment:r:DESCRIPTION"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Imports
+          name: dplyr
+          purl: "pkg:cran/dplyr"
+          raw: dplyr (>= 1.1.0)
+          specifier: ">= 1.1.0"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Imports
+          name: dplyr
+          purl: "pkg:cran/dplyr"
+          raw: dplyr (>= 1.1.0)
+          specifier: ">= 1.1.0"
+  - type: GraphEdge
+    source: "package:pkg%3Acran/ggplot2"
+    target: "environment:r:DESCRIPTION"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Imports
+          name: ggplot2
+          purl: "pkg:cran/ggplot2"
+          raw: ggplot2
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Imports
+          name: ggplot2
+          purl: "pkg:cran/ggplot2"
+          raw: ggplot2
+  - type: GraphEdge
+    source: "package:pkg%3Acran/testthat"
+    target: "environment:r:DESCRIPTION"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Suggests
+          name: testthat
+          purl: "pkg:cran/testthat"
+          raw: testthat
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: r
+          manifest: DESCRIPTION
+          group: Suggests
+          name: testthat
+          purl: "pkg:cran/testthat"
+          raw: testthat
+  - type: GraphEdge
+    source: "package:pkg%3Anpm/d3-dsv"
+    target: "environment:node:package.json"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: node
+          manifest: package.json
+          group: dependencies
+          name: d3-dsv
+          purl: "pkg:npm/d3-dsv"
+          raw: ^3.0.1
+          specifier: ^3.0.1
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: node
+          manifest: package.json
+          group: dependencies
+          name: d3-dsv
+          purl: "pkg:npm/d3-dsv"
+          raw: ^3.0.1
+          specifier: ^3.0.1
+  - type: GraphEdge
+    source: "package:pkg%3Anpm/typescript"
+    target: "environment:node:package.json"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: node
+          manifest: package.json
+          group: devDependencies
+          name: typescript
+          purl: "pkg:npm/typescript"
+          raw: ~5.4.0
+          specifier: ~5.4.0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: node
+          manifest: package.json
+          group: devDependencies
+          name: typescript
+          purl: "pkg:npm/typescript"
+          raw: ~5.4.0
+          specifier: ~5.4.0
+  - type: GraphEdge
+    source: "package:pkg%3Apypi/matplotlib"
+    target: "environment:python:pyproject.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.optional-dependencies.plot
+          name: matplotlib
+          purl: "pkg:pypi/matplotlib"
+          raw: matplotlib>=3.8
+          specifier: ">=3.8"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.optional-dependencies.plot
+          name: matplotlib
+          purl: "pkg:pypi/matplotlib"
+          raw: matplotlib>=3.8
+          specifier: ">=3.8"
+  - type: GraphEdge
+    source: "package:pkg%3Apypi/pandas%402.2.1"
+    target: "environment:python:pyproject.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.dependencies
+          name: pandas
+          purl: "pkg:pypi/pandas@2.2.1"
+          raw: pandas==2.2.1
+          specifier: "==2.2.1"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.dependencies
+          name: pandas
+          purl: "pkg:pypi/pandas@2.2.1"
+          raw: pandas==2.2.1
+          specifier: "==2.2.1"
+  - type: GraphEdge
+    source: "package:pkg%3Apypi/requests"
+    target: "environment:python:pyproject.toml"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.dependencies
+          name: requests
+          purl: "pkg:pypi/requests"
+          raw: requests>=2.31
+          specifier: ">=2.31"
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        details:
+          ecosystem: python
+          manifest: pyproject.toml
+          group: project.dependencies
+          name: requests
+          purl: "pkg:pypi/requests"
+          raw: requests>=2.31
+          specifier: ">=2.31"

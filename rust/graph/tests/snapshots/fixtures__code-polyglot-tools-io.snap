@@ -1,0 +1,719 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:code-polyglot-tools-io"
+nodes:
+  - type: GraphNode
+    id: "code:analysis.js"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.js"
+      name: analysis.js
+      path: analysis.js
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "code:qc.ts"
+    node:
+      type: SoftwareSourceCode
+      id: "code:qc.ts"
+      name: qc.ts
+      path: qc.ts
+      programmingLanguage: TypeScript
+  - type: GraphNode
+    id: "code:src/bin/report.rs"
+    node:
+      type: SoftwareSourceCode
+      id: "code:src/bin/report.rs"
+      name: report.rs
+      path: src/bin/report.rs
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: code-polyglot-tools-io
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:data/raw"
+    node:
+      type: Directory
+      id: "dir:data/raw"
+      name: raw
+      path: data/raw
+  - type: GraphNode
+    id: "dir:results"
+    node:
+      type: Directory
+      id: "dir:results"
+      name: results
+      path: results
+  - type: GraphNode
+    id: "dir:src"
+    node:
+      type: Directory
+      id: "dir:src"
+      name: src
+      path: src
+  - type: GraphNode
+    id: "dir:src/bin"
+    node:
+      type: Directory
+      id: "dir:src/bin"
+      name: bin
+      path: src/bin
+  - type: GraphNode
+    id: "file:analysis.js"
+    node:
+      type: File
+      id: "file:analysis.js"
+      name: analysis.js
+      path: analysis.js
+      size: 222
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/raw/samples.tsv"
+    node:
+      type: File
+      id: "file:data/raw/samples.tsv"
+      name: samples.tsv
+      path: data/raw/samples.tsv
+      size: 21
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:qc.ts"
+    node:
+      type: File
+      id: "file:qc.ts"
+      name: qc.ts
+      path: qc.ts
+      size: 204
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/js-summary.tsv"
+    node:
+      type: File
+      id: "file:results/js-summary.tsv"
+      name: js-summary.tsv
+      path: results/js-summary.tsv
+      size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/rust-summary.tsv"
+    node:
+      type: File
+      id: "file:results/rust-summary.tsv"
+      name: rust-summary.tsv
+      path: results/rust-summary.tsv
+      size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/ts-qc.tsv"
+    node:
+      type: File
+      id: "file:results/ts-qc.tsv"
+      name: ts-qc.tsv
+      path: results/ts-qc.tsv
+      size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:src/bin/report.rs"
+    node:
+      type: File
+      id: "file:src/bin/report.rs"
+      name: report.rs
+      path: src/bin/report.rs
+      size: 299
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "function:analysis.js:javascript:readFileSync"
+    node:
+      type: Function
+      id: "function:analysis.js:javascript:readFileSync"
+      name: readFileSync
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.js:javascript:summarize"
+    node:
+      type: Function
+      id: "function:analysis.js:javascript:summarize"
+      name: summarize
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.js:javascript:trim"
+    node:
+      type: Function
+      id: "function:analysis.js:javascript:trim"
+      name: trim
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.js:javascript:writeFileSync"
+    node:
+      type: Function
+      id: "function:analysis.js:javascript:writeFileSync"
+      name: writeFileSync
+      parameters: []
+  - type: GraphNode
+    id: "function:qc.ts:typescript:parse"
+    node:
+      type: Function
+      id: "function:qc.ts:typescript:parse"
+      name: parse
+      parameters: []
+  - type: GraphNode
+    id: "function:qc.ts:typescript:readFileSync"
+    node:
+      type: Function
+      id: "function:qc.ts:typescript:readFileSync"
+      name: readFileSync
+      parameters: []
+  - type: GraphNode
+    id: "function:qc.ts:typescript:writeFileSync"
+    node:
+      type: Function
+      id: "function:qc.ts:typescript:writeFileSync"
+      name: writeFileSync
+      parameters: []
+  - type: GraphNode
+    id: "function:src/bin/report.rs:rust:main"
+    node:
+      type: Function
+      id: "function:src/bin/report.rs:rust:main"
+      name: main
+      parameters: []
+  - type: GraphNode
+    id: "function:src/bin/report.rs:rust:read_to_string"
+    node:
+      type: Function
+      id: "function:src/bin/report.rs:rust:read_to_string"
+      name: read_to_string
+      parameters: []
+  - type: GraphNode
+    id: "function:src/bin/report.rs:rust:write"
+    node:
+      type: Function
+      id: "function:src/bin/report.rs:rust:write"
+      name: write
+      parameters: []
+  - type: GraphNode
+    id: "node:data/raw/samples.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "node:results/js-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "node:results/rust-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "node:results/ts-qc.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: metric
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "package:csv-parse"
+    node:
+      type: SoftwareApplication
+      id: "package:csv-parse"
+      name: csv-parse
+  - type: GraphNode
+    id: "package:fs"
+    node:
+      type: SoftwareApplication
+      id: "package:fs"
+      name: fs
+  - type: GraphNode
+    id: "package:fs-extra"
+    node:
+      type: SoftwareApplication
+      id: "package:fs-extra"
+      name: fs-extra
+  - type: GraphNode
+    id: "package:serde"
+    node:
+      type: SoftwareApplication
+      id: "package:serde"
+      name: serde
+  - type: GraphNode
+    id: "symbol:analysis.js:javascript:input"
+    node:
+      type: Variable
+      id: "symbol:analysis.js:javascript:input"
+      name: input
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "symbol:qc.ts:typescript:table"
+    node:
+      type: Variable
+      id: "symbol:qc.ts:typescript:table"
+      name: table
+      programmingLanguage: TypeScript
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:derive"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:derive"
+      name: derive
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:format"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:format"
+      name: format
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:read_to_string"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:read_to_string"
+      name: read_to_string
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:rows"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:rows"
+      name: rows
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:summary"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:summary"
+      name: summary
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:table"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:table"
+      name: table
+      programmingLanguage: Rust
+  - type: GraphNode
+    id: "symbol:src/bin/report.rs:rust:write"
+    node:
+      type: Variable
+      id: "symbol:src/bin/report.rs:rust:write"
+      name: write
+      programmingLanguage: Rust
+edges:
+  - type: GraphEdge
+    source: "code:analysis.js"
+    target: "file:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.js"
+    target: "file:results/js-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.js"
+    target: "function:analysis.js:javascript:summarize"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.js"
+    target: "symbol:analysis.js:javascript:input"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:qc.ts"
+    target: "file:qc.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:qc.ts"
+    target: "file:results/ts-qc.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:qc.ts"
+    target: "symbol:qc.ts:typescript:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/report.rs"
+    target: "file:results/rust-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/report.rs"
+    target: "file:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/report.rs"
+    target: "function:src/bin/report.rs:rust:main"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/report.rs"
+    target: "symbol:src/bin/report.rs:rust:summary"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/report.rs"
+    target: "symbol:src/bin/report.rs:rust:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data/raw"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:src"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:src/bin"
+    target: "dir:src"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:analysis.js"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "code:src/bin/report.rs"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "file:results/rust-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        description: Coarse static lineage from read/write literals in one code unit.
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "node:data/raw/samples.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:qc.ts"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/js-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/js-summary.tsv"
+    target: "node:results/js-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/rust-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/rust-summary.tsv"
+    target: "node:results/rust-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/ts-qc.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/ts-qc.tsv"
+    target: "node:results/ts-qc.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:src/bin/report.rs"
+    target: "dir:src/bin"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:readFileSync"
+    target: "code:analysis.js"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:summarize"
+    target: "code:analysis.js"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:trim"
+    target: "code:analysis.js"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:writeFileSync"
+    target: "code:analysis.js"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:qc.ts:typescript:parse"
+    target: "code:qc.ts"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:qc.ts:typescript:readFileSync"
+    target: "code:qc.ts"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:qc.ts:typescript:writeFileSync"
+    target: "code:qc.ts"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/report.rs:rust:read_to_string"
+    target: "code:src/bin/report.rs"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/report.rs:rust:write"
+    target: "code:src/bin/report.rs"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:csv-parse"
+    target: "code:qc.ts"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:fs"
+    target: "code:qc.ts"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:fs-extra"
+    target: "code:analysis.js"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:serde"
+    target: "code:src/bin/report.rs"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:derive"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:format"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:read_to_string"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:rows"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:write"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis

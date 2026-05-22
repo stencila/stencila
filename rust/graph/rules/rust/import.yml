@@ -1,0 +1,9 @@
+id: rust-import
+language: Rust
+message: Rust use item
+severity: info
+rule:
+  any:
+    - pattern: use $MODULE;
+    - pattern: use $MODULE::{ $$$NAMES };
+    - pattern: extern crate $MODULE;

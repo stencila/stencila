@@ -1,0 +1,314 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:workspace-symlinks-publication-assets"
+nodes:
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: workspace-symlinks-publication-assets
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:docs"
+    node:
+      type: Directory
+      id: "dir:docs"
+      name: docs
+      path: docs
+  - type: GraphNode
+    id: "dir:docs/figures"
+    node:
+      type: Directory
+      id: "dir:docs/figures"
+      name: figures
+      path: docs/figures
+  - type: GraphNode
+    id: "dir:figures"
+    node:
+      type: Directory
+      id: "dir:figures"
+      name: figures
+      path: figures
+  - type: GraphNode
+    id: "file:data/source-table.tsv"
+    node:
+      type: File
+      id: "file:data/source-table.tsv"
+      name: source-table.tsv
+      path: data/source-table.tsv
+      size: 27
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:docs/manuscript.smd"
+    node:
+      type: File
+      id: "file:docs/manuscript.smd"
+      name: manuscript.smd
+      path: docs/manuscript.smd
+      size: 135
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:figures/model-v1.png"
+    node:
+      type: File
+      id: "file:figures/model-v1.png"
+      name: model-v1.png
+      path: figures/model-v1.png
+      size: 27
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:figures/model-v2.png"
+    node:
+      type: File
+      id: "file:figures/model-v2.png"
+      name: model-v2.png
+      path: figures/model-v2.png
+      size: 27
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "node:data/source-table.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: metric
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "node:docs/manuscript.smd#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "node:docs/manuscript.smd#hea_publication-assets"
+    node:
+      type: Heading
+      level: 1
+      content: []
+  - type: GraphNode
+    id: "node:docs/manuscript.smd#img_content-1-content-1"
+    node:
+      type: ImageObject
+      contentUrl: figures/latest.png
+  - type: GraphNode
+    id: "node:docs/manuscript.smd#lin_content-1-content-3"
+    node:
+      type: Link
+      content: []
+      target: "../data/source-table.tsv"
+  - type: GraphNode
+    id: "symlink:docs/figures/latest.png"
+    node:
+      type: SymbolicLink
+      id: "symlink:docs/figures/latest.png"
+      name: latest.png
+      path: docs/figures/latest.png
+      target: "../../figures/model-v2.png"
+  - type: GraphNode
+    id: "symlink:docs/figures/missing.png"
+    node:
+      type: SymbolicLink
+      id: "symlink:docs/figures/missing.png"
+      name: missing.png
+      path: docs/figures/missing.png
+      target: "../../figures/missing.png"
+  - type: GraphNode
+    id: "symlink:docs/figures/outside-table.tsv"
+    node:
+      type: SymbolicLink
+      id: "symlink:docs/figures/outside-table.tsv"
+      name: outside-table.tsv
+      path: docs/figures/outside-table.tsv
+      target: "../../../outside-public-assets/table.tsv"
+  - type: GraphNode
+    id: "symlink:docs/figures/previous.png"
+    node:
+      type: SymbolicLink
+      id: "symlink:docs/figures/previous.png"
+      name: previous.png
+      path: docs/figures/previous.png
+      target: "../../figures/model-v1.png"
+edges:
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:docs"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:docs/figures"
+    target: "dir:docs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:figures"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/source-table.tsv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/source-table.tsv"
+    target: "node:data/source-table.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:data/source-table.tsv"
+    target: "node:docs/manuscript.smd#lin_content-1-content-3"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "file:docs/manuscript.smd"
+    target: "dir:docs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:docs/manuscript.smd"
+    target: "node:docs/manuscript.smd#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:figures/model-v1.png"
+    target: "dir:figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:figures/model-v1.png"
+    target: "symlink:docs/figures/previous.png"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "file:figures/model-v2.png"
+    target: "dir:figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:figures/model-v2.png"
+    target: "symlink:docs/figures/latest.png"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "node:docs/manuscript.smd#hea_publication-assets"
+    target: "node:docs/manuscript.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/manuscript.smd#img_content-1-content-1"
+    target: "node:docs/manuscript.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/manuscript.smd#lin_content-1-content-3"
+    target: "node:docs/manuscript.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "symlink:docs/figures/latest.png"
+    target: "dir:docs/figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "symlink:docs/figures/missing.png"
+    target: "dir:docs/figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "symlink:docs/figures/outside-table.tsv"
+    target: "dir:docs/figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "symlink:docs/figures/previous.png"
+    target: "dir:docs/figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed

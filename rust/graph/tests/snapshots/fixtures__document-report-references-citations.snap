@@ -1,0 +1,336 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:document-report-references-citations"
+nodes:
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: document-report-references-citations
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:manuscript"
+    node:
+      type: Directory
+      id: "dir:manuscript"
+      name: manuscript
+      path: manuscript
+  - type: GraphNode
+    id: "dir:media"
+    node:
+      type: Directory
+      id: "dir:media"
+      name: media
+      path: media
+  - type: GraphNode
+    id: "file:data/table.tsv"
+    node:
+      type: File
+      id: "file:data/table.tsv"
+      name: table.tsv
+      path: data/table.tsv
+      size: 26
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:manuscript/report.smd"
+    node:
+      type: File
+      id: "file:manuscript/report.smd"
+      name: report.smd
+      path: manuscript/report.smd
+      size: 368
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:media/figure.svg"
+    node:
+      type: File
+      id: "file:media/figure.svg"
+      name: figure.svg
+      path: media/figure.svg
+      size: 102
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "node:data/table.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: species
+          values: []
+        - type: DatatableColumn
+          name: count
+          values: []
+  - type: GraphNode
+    id: "node:manuscript/report.smd#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "node:manuscript/report.smd#cit_content-2-content-1"
+    node:
+      type: Citation
+      target: smith2020
+      citationMode: Narrative
+  - type: GraphNode
+    id: "node:manuscript/report.smd#cit_content-2-content-3"
+    node:
+      type: Citation
+      target: doe2021
+      citationMode: Parenthetical
+  - type: GraphNode
+    id: "node:manuscript/report.smd#hea_manuscript"
+    node:
+      type: Heading
+      level: 1
+      content: []
+  - type: GraphNode
+    id: "node:manuscript/report.smd#hea_methods-methods"
+    node:
+      type: Heading
+      level: 2
+      content: []
+  - type: GraphNode
+    id: "node:manuscript/report.smd#img_content-3"
+    node:
+      type: ImageObject
+      contentUrl: "../media/figure.svg"
+      caption:
+        - type: Text
+          value:
+            string: Observed counts
+  - type: GraphNode
+    id: "node:manuscript/report.smd#inc_content-4"
+    node:
+      type: IncludeBlock
+      source: "../data/table.tsv"
+  - type: GraphNode
+    id: "node:manuscript/report.smd#lin_content-1-content-1"
+    node:
+      type: Link
+      content: []
+      target: "#methods"
+  - type: GraphNode
+    id: "node:manuscript/report.smd#lin_content-1-content-3"
+    node:
+      type: Link
+      content: []
+      target: "../data/table.tsv"
+  - type: GraphNode
+    id: "node:manuscript/report.smd#lin_content-1-content-5"
+    node:
+      type: Link
+      content: []
+      target: "https://doi.org/10.5281/zenodo.12345"
+  - type: GraphNode
+    id: "reference:manuscript/report.smd#doe2021"
+    node:
+      type: Reference
+      id: doe2021
+  - type: GraphNode
+    id: "reference:manuscript/report.smd#smith2020"
+    node:
+      type: Reference
+      id: smith2020
+  - type: GraphNode
+    id: "resource:https%3A//doi.org/10.5281/zenodo.12345"
+    node:
+      type: CreativeWork
+      url: "https://doi.org/10.5281/zenodo.12345"
+edges:
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:manuscript"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:media"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/table.tsv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/table.tsv"
+    target: "node:data/table.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:data/table.tsv"
+    target: "node:manuscript/report.smd#inc_content-4"
+    kind: TranscludedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "file:data/table.tsv"
+    target: "node:manuscript/report.smd#lin_content-1-content-3"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "file:manuscript/report.smd"
+    target: "dir:manuscript"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:manuscript/report.smd"
+    target: "node:manuscript/report.smd#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:media/figure.svg"
+    target: "dir:media"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:media/figure.svg"
+    target: "node:manuscript/report.smd#img_content-3"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#cit_content-2-content-1"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#cit_content-2-content-3"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#hea_manuscript"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#hea_methods-methods"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#img_content-3"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#inc_content-4"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#lin_content-1-content-1"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#lin_content-1-content-3"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#lin_content-1-content-5"
+    target: "node:manuscript/report.smd#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "reference:manuscript/report.smd#doe2021"
+    target: "node:manuscript/report.smd#cit_content-2-content-3"
+    kind: CitedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+  - type: GraphEdge
+    source: "reference:manuscript/report.smd#smith2020"
+    target: "node:manuscript/report.smd#cit_content-2-content-1"
+    kind: CitedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+  - type: GraphEdge
+    source: "resource:https%3A//doi.org/10.5281/zenodo.12345"
+    target: "node:manuscript/report.smd#lin_content-1-content-5"
+    kind: ReferencedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared

@@ -1,0 +1,6 @@
+id: snakemake-rule
+language: Snakemake
+message: Snakemake rule declaration
+severity: info
+rule:
+  kind: rule_definition

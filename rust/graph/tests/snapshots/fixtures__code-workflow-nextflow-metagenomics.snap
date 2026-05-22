@@ -1,0 +1,568 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:code-workflow-nextflow-metagenomics"
+nodes:
+  - type: GraphNode
+    id: "code:main.nf"
+    node:
+      type: SoftwareSourceCode
+      id: "code:main.nf"
+      name: main.nf
+      path: main.nf
+      programmingLanguage: Nextflow
+  - type: GraphNode
+    id: "code:nextflow.config"
+    node:
+      type: SoftwareSourceCode
+      id: "code:nextflow.config"
+      name: nextflow.config
+      path: nextflow.config
+      programmingLanguage: Nextflow
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: code-workflow-nextflow-metagenomics
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:results"
+    node:
+      type: Directory
+      id: "dir:results"
+      name: results
+      path: results
+  - type: GraphNode
+    id: "dir:results/classify"
+    node:
+      type: Directory
+      id: "dir:results/classify"
+      name: classify
+      path: results/classify
+  - type: GraphNode
+    id: "dir:results/qc"
+    node:
+      type: Directory
+      id: "dir:results/qc"
+      name: qc
+      path: results/qc
+  - type: GraphNode
+    id: "dir:results/summary"
+    node:
+      type: Directory
+      id: "dir:results/summary"
+      name: summary
+      path: results/summary
+  - type: GraphNode
+    id: "file:data/reads.fastq"
+    node:
+      type: File
+      id: "file:data/reads.fastq"
+      name: reads.fastq
+      path: data/reads.fastq
+      size: 16
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:data/samplesheet.csv"
+    node:
+      type: File
+      id: "file:data/samplesheet.csv"
+      name: samplesheet.csv
+      path: data/samplesheet.csv
+      size: 28
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:main.nf"
+    node:
+      type: File
+      id: "file:main.nf"
+      name: main.nf
+      path: main.nf
+      size: 507
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:nextflow.config"
+    node:
+      type: File
+      id: "file:nextflow.config"
+      name: nextflow.config
+      path: nextflow.config
+      size: 61
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/classify/M1-taxa.tsv"
+    node:
+      type: File
+      id: "file:results/classify/M1-taxa.tsv"
+      name: M1-taxa.tsv
+      path: results/classify/M1-taxa.tsv
+      size: 23
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/qc/M1-qc.txt"
+    node:
+      type: File
+      id: "file:results/qc/M1-qc.txt"
+      name: M1-qc.txt
+      path: results/qc/M1-qc.txt
+      size: 8
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/summary/report.html"
+    node:
+      type: File
+      id: "file:results/summary/report.html"
+      name: report.html
+      path: results/summary/report.html
+      size: 46
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "function:main.nf:nextflow:classify"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:classify"
+      name: classify
+      parameters: []
+  - type: GraphNode
+    id: "function:main.nf:nextflow:exec"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:exec"
+      name: exec
+      parameters: []
+  - type: GraphNode
+    id: "function:main.nf:nextflow:qc"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:qc"
+      name: qc
+      parameters: []
+  - type: GraphNode
+    id: "function:main.nf:nextflow:script"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:script"
+      name: script
+      parameters: []
+  - type: GraphNode
+    id: "function:main.nf:nextflow:shell"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:shell"
+      name: shell
+      parameters: []
+  - type: GraphNode
+    id: "function:main.nf:nextflow:summarize"
+    node:
+      type: Function
+      id: "function:main.nf:nextflow:summarize"
+      name: summarize
+      parameters: []
+  - type: GraphNode
+    id: "node:data/samplesheet.csv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: reads
+          values: []
+  - type: GraphNode
+    id: "node:results/classify/M1-taxa.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: taxon
+          values: []
+        - type: DatatableColumn
+          name: count
+          values: []
+  - type: GraphNode
+    id: "node:results/summary/report.html#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "workflow-rule:main.nf:classify"
+    node:
+      type: Function
+      id: "workflow-rule:main.nf:classify"
+      name: classify
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:main.nf:qc"
+    node:
+      type: Function
+      id: "workflow-rule:main.nf:qc"
+      name: qc
+      parameters: []
+  - type: GraphNode
+    id: "workflow-rule:main.nf:summarize"
+    node:
+      type: Function
+      id: "workflow-rule:main.nf:summarize"
+      name: summarize
+      parameters: []
+edges:
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "file:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "file:results/classify/M1-taxa.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "file:results/qc/M1-qc.txt"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "file:results/summary/report.html"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "function:main.nf:nextflow:classify"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "function:main.nf:nextflow:qc"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "function:main.nf:nextflow:summarize"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "workflow-rule:main.nf:classify"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "workflow-rule:main.nf:qc"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
+    target: "workflow-rule:main.nf:summarize"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:nextflow.config"
+    target: "file:nextflow.config"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results/classify"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results/qc"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results/summary"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/reads.fastq"
+    target: "code:main.nf"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/reads.fastq"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/reads.fastq"
+    target: "file:results/qc/M1-qc.txt"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/reads.fastq"
+    target: "workflow-rule:main.nf:qc"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/samplesheet.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/samplesheet.csv"
+    target: "node:data/samplesheet.csv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:main.nf"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:nextflow.config"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/classify/M1-taxa.tsv"
+    target: "code:main.nf"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/classify/M1-taxa.tsv"
+    target: "dir:results/classify"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/classify/M1-taxa.tsv"
+    target: "file:results/summary/report.html"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/classify/M1-taxa.tsv"
+    target: "node:results/classify/M1-taxa.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/classify/M1-taxa.tsv"
+    target: "workflow-rule:main.nf:summarize"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/qc/M1-qc.txt"
+    target: "code:main.nf"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/qc/M1-qc.txt"
+    target: "dir:results/qc"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/qc/M1-qc.txt"
+    target: "file:results/classify/M1-taxa.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/qc/M1-qc.txt"
+    target: "workflow-rule:main.nf:classify"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/summary/report.html"
+    target: "dir:results/summary"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/summary/report.html"
+    target: "node:results/summary/report.html#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:exec"
+    target: "code:main.nf"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:exec"
+    target: "workflow-rule:main.nf:summarize"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:script"
+    target: "code:main.nf"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:script"
+    target: "workflow-rule:main.nf:qc"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:shell"
+    target: "code:main.nf"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:shell"
+    target: "workflow-rule:main.nf:classify"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:classify"
+    target: "file:results/classify/M1-taxa.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:qc"
+    target: "file:results/qc/M1-qc.txt"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:summarize"
+    target: "file:results/summary/report.html"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis

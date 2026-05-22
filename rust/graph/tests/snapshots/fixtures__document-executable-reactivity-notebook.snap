@@ -1,0 +1,364 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:document-executable-reactivity-notebook"
+nodes:
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: document-executable-reactivity-notebook
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:docs"
+    node:
+      type: Directory
+      id: "dir:docs"
+      name: docs
+      path: docs
+  - type: GraphNode
+    id: "file:data/samples.dat"
+    node:
+      type: File
+      id: "file:data/samples.dat"
+      name: samples.dat
+      path: data/samples.dat
+      size: 27
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:docs/notebook.json"
+    node:
+      type: File
+      id: "file:docs/notebook.json"
+      name: notebook.json
+      path: docs/notebook.json
+      size: 1601
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "function:docs/notebook.json:python:mean"
+    node:
+      type: Function
+      id: "function:docs/notebook.json:python:mean"
+      name: mean
+      parameters: []
+  - type: GraphNode
+    id: "function:docs/notebook.json:python:read_csv"
+    node:
+      type: Function
+      id: "function:docs/notebook.json:python:read_csv"
+      name: read_csv
+      parameters: []
+  - type: GraphNode
+    id: "node:docs/notebook.json#art_"
+    node:
+      type: Article
+      content: []
+  - type: GraphNode
+    id: "node:docs/notebook.json#cdc_analysis"
+    node:
+      type: CodeChunk
+      id: analysis
+      code:
+        string: "adjusted = samples[\"count\"] * scale\nprint(adjusted.mean())"
+      programmingLanguage: python
+  - type: GraphNode
+    id: "node:docs/notebook.json#cdc_setup"
+    node:
+      type: CodeChunk
+      id: setup
+      code:
+        string: "import pandas as pd\nscale = 2\nsamples = pd.read_csv(\"../data/samples.dat\")"
+      programmingLanguage: python
+  - type: GraphNode
+    id: "node:docs/notebook.json#cde_content-3-content-1"
+    node:
+      type: CodeExpression
+      id: total
+      code:
+        string: adjusted.sum()
+      programmingLanguage: python
+  - type: GraphNode
+    id: "node:docs/notebook.json#hea_reactive-notebook"
+    node:
+      type: Heading
+      level: 1
+      content: []
+  - type: GraphNode
+    id: "output:docs/notebook.json#cdc_analysis:0"
+    node: mean=8.0
+  - type: GraphNode
+    id: "output:docs/notebook.json#cde_content-3-content-1:0"
+    node: 16
+  - type: GraphNode
+    id: "package:pandas"
+    node:
+      type: SoftwareApplication
+      id: "package:pandas"
+      name: pandas
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:adjusted"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:adjusted"
+      name: adjusted
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:mean"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:mean"
+      name: mean
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:pd"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:pd"
+      name: pd
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:read_csv"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:read_csv"
+      name: read_csv
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:samples"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:samples"
+      name: samples
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:docs/notebook.json:python:scale"
+    node:
+      type: Variable
+      id: "symbol:docs/notebook.json:python:scale"
+      name: scale
+      programmingLanguage: Python
+edges:
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:docs"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/samples.dat"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:data/samples.dat"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:docs/notebook.json"
+    target: "dir:docs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:docs/notebook.json"
+    target: "node:docs/notebook.json#art_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_analysis"
+    target: "node:docs/notebook.json#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_analysis"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: DependsOn
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_analysis"
+    target: "output:docs/notebook.json#cdc_analysis:0"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Recorded
+    actions:
+      - type: ExecuteAction
+        id: "action:execute:docs/notebook.json#cdc_analysis"
+        actionStatus: CompletedActionStatus
+        startTime:
+          type: DateTime
+          value: "[datetime]"
+        endTime:
+          type: DateTime
+          value: "[datetime]"
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_analysis"
+    target: "symbol:docs/notebook.json:python:adjusted"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_setup"
+    target: "node:docs/notebook.json#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_setup"
+    target: "symbol:docs/notebook.json:python:samples"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cdc_setup"
+    target: "symbol:docs/notebook.json:python:scale"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cde_content-3-content-1"
+    target: "node:docs/notebook.json#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cde_content-3-content-1"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: DependsOn
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#cde_content-3-content-1"
+    target: "output:docs/notebook.json#cde_content-3-content-1:0"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Recorded
+    actions:
+      - type: ExecuteAction
+        id: "action:execute:docs/notebook.json#cde_content-3-content-1"
+        actionStatus: CompletedActionStatus
+        startTime:
+          type: DateTime
+          value: "[datetime]"
+        endTime:
+          type: DateTime
+          value: "[datetime]"
+  - type: GraphEdge
+    source: "node:docs/notebook.json#hea_reactive-notebook"
+    target: "node:docs/notebook.json#art_"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "package:pandas"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:adjusted"
+    target: "node:docs/notebook.json#cde_content-3-content-1"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:pd"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:samples"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:scale"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis

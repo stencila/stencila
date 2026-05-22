@@ -1,0 +1,6 @@
+id: python-assignment
+language: Python
+message: Python assignment
+severity: info
+rule:
+  pattern: $TARGET = $VALUE
