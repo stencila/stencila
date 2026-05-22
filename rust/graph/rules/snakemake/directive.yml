@@ -1,6 +1,4 @@
 id: snakemake-directive
 language: Snakemake
-message: Snakemake directive
-severity: info
 rule:
   kind: directive

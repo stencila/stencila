@@ -1,7 +1,5 @@
 id: rust-read
 language: Rust
-message: Rust file read
-severity: info
 rule:
   any:
     - pattern: let $TARGET = std::fs::read_to_string($PATH);

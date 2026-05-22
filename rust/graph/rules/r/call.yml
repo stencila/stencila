@@ -1,6 +1,4 @@
 id: r-call
 language: R
-message: R call
-severity: info
 rule:
   pattern: $FUNC($$$ARGS)

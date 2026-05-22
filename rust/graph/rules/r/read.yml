@@ -1,7 +1,5 @@
 id: r-read
 language: R
-message: R file read
-severity: info
 rule:
   any:
     - pattern: $TARGET <- read.csv($PATH)

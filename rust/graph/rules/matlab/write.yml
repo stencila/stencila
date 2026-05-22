@@ -1,7 +1,5 @@
 id: matlab-write
 language: Matlab
-message: MATLAB file write
-severity: info
 rule:
   any:
     - kind: function_call

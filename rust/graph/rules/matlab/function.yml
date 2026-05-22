@@ -1,6 +1,4 @@
 id: matlab-function
 language: Matlab
-message: MATLAB function declaration
-severity: info
 rule:
   kind: function_definition

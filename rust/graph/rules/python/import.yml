@@ -1,7 +1,5 @@
 id: python-import
 language: Python
-message: Python import
-severity: info
 rule:
   any:
     - pattern: import $MODULE

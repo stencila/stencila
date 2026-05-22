@@ -1,7 +1,5 @@
 id: julia-function
 language: Julia
-message: Julia function declaration
-severity: info
 rule:
   any:
     - pattern: |

@@ -1,7 +1,5 @@
 id: r-assignment
 language: R
-message: R assignment
-severity: info
 rule:
   any:
     - pattern: $TARGET <- $VALUE

@@ -1,7 +1,5 @@
 id: rust-function
 language: Rust
-message: Rust function declaration
-severity: info
 rule:
   any:
     - pattern: |

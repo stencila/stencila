@@ -1,6 +1,4 @@
 id: rust-call
 language: Rust
-message: Rust call
-severity: info
 rule:
   pattern: $FUNC($$$ARGS)

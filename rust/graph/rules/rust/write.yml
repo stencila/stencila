@@ -1,7 +1,5 @@
 id: rust-write
 language: Rust
-message: Rust file write
-severity: info
 rule:
   any:
     - pattern: std::fs::write($PATH, $$$ARGS)

@@ -1,7 +1,5 @@
 id: rust-assignment
 language: Rust
-message: Rust assignment
-severity: info
 rule:
   any:
     - pattern: let $TARGET = $VALUE;

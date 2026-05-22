@@ -1,6 +1,4 @@
 id: python-call
 language: Python
-message: Python call
-severity: info
 rule:
   pattern: $FUNC($$$ARGS)

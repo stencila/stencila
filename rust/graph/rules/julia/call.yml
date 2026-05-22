@@ -1,6 +1,4 @@
 id: julia-call
 language: Julia
-message: Julia call
-severity: info
 rule:
   pattern: $FUNC($$$ARGS)

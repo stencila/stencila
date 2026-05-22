@@ -1,7 +1,5 @@
 id: python-read
 language: Python
-message: Python file read
-severity: info
 rule:
   any:
     - pattern: $TARGET = $READER.read_csv($PATH)

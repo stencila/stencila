@@ -1,7 +1,5 @@
 id: julia-write
 language: Julia
-message: Julia file write
-severity: info
 rule:
   any:
     - pattern: CSV.write($PATH, $$$ARGS)

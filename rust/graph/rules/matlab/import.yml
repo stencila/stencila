@@ -1,7 +1,5 @@
 id: matlab-import
 language: Matlab
-message: MATLAB import
-severity: info
 rule:
   kind: command
   regex: '^import\s+'

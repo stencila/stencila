@@ -1,7 +1,5 @@
 id: julia-read
 language: Julia
-message: Julia file read
-severity: info
 rule:
   any:
     - pattern: $TARGET = CSV.read($PATH, $$$ARGS)

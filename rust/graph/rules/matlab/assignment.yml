@@ -1,7 +1,5 @@
 id: matlab-assignment
 language: Matlab
-message: MATLAB assignment
-severity: info
 rule:
   kind: assignment
   pattern: $TARGET = $VALUE

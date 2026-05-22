@@ -1,7 +1,5 @@
 id: matlab-call
 language: Matlab
-message: MATLAB call
-severity: info
 rule:
   kind: function_call
   pattern: $FUNC($$$ARGS)

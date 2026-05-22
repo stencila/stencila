@@ -1,7 +1,5 @@
 id: r-write
 language: R
-message: R file write
-severity: info
 rule:
   any:
     - pattern: write.csv($VALUE, $PATH)

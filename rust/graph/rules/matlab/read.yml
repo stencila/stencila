@@ -1,7 +1,5 @@
 id: matlab-read
 language: Matlab
-message: MATLAB file read
-severity: info
 rule:
   any:
     - kind: assignment
