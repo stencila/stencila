@@ -13,6 +13,8 @@ import type {
 import { initUno } from '../unocss'
 import { buildCytoscapeTheme } from '../utilities/cytoscapeTheme'
 
+import '../site/components/color-mode'
+
 import './graph.css'
 
 initUno()
@@ -84,6 +86,11 @@ export class GraphViewElement extends LitElement {
       display: flex;
       flex-direction: column;
       align-items: flex-end;
+      gap: 0.5rem;
+    }
+
+    .control-buttons {
+      display: flex;
       gap: 0.5rem;
     }
 
@@ -159,6 +166,30 @@ export class GraphViewElement extends LitElement {
       background: var(--surface-highlight, #edf2f7);
     }
 
+    stencila-color-mode .toggle {
+      display: inline-grid;
+      place-items: center;
+      width: 2rem;
+      height: 2rem;
+      border: 1px solid var(--border-color, #c8d1dc);
+      border-radius: 6px;
+      background: var(--surface-front, #fff);
+      color: inherit;
+      cursor: pointer;
+      opacity: 1;
+    }
+
+    stencila-color-mode .toggle:hover {
+      background: var(--surface-highlight, #edf2f7);
+    }
+
+    stencila-color-mode .icon {
+      display: inline-block;
+      width: 1rem;
+      height: 1rem;
+      background-color: currentColor;
+    }
+
     .actions {
       display: flex;
       gap: 0.5rem;
@@ -196,6 +227,14 @@ export class GraphViewElement extends LitElement {
     }
   `
 
+  override connectedCallback() {
+    super.connectedCallback()
+    window.addEventListener(
+      'stencila-color-scheme-changed',
+      this.onColorSchemeChange
+    )
+  }
+
   override firstUpdated() {
     if (!this.graph) {
       this.loadGraph()
@@ -216,6 +255,10 @@ export class GraphViewElement extends LitElement {
   }
 
   override disconnectedCallback() {
+    window.removeEventListener(
+      'stencila-color-scheme-changed',
+      this.onColorSchemeChange
+    )
     this.cy?.destroy()
     this.cy = undefined
     super.disconnectedCallback()
@@ -229,15 +272,18 @@ export class GraphViewElement extends LitElement {
     return html`
       <div class="canvas" @click=${this.closeSettings}></div>
       <div class="controls" @click=${this.stopClickPropagation}>
-        <button
-          class="settings-toggle"
-          title="Graph settings"
-          aria-label="Graph settings"
-          aria-expanded=${this.settingsOpen}
-          @click=${this.toggleSettings}
-        >
-          <span class="i-lucide:settings"></span>
-        </button>
+        <div class="control-buttons">
+          <stencila-color-mode style="icon"></stencila-color-mode>
+          <button
+            class="settings-toggle"
+            title="Graph settings"
+            aria-label="Graph settings"
+            aria-expanded=${this.settingsOpen}
+            @click=${this.toggleSettings}
+          >
+            <span class="i-lucide:settings"></span>
+          </button>
+        </div>
         ${this.settingsOpen
           ? html`
               <div class="settings-card">
@@ -352,6 +398,10 @@ export class GraphViewElement extends LitElement {
 
   private fit = () => {
     this.cy?.fit(undefined, 40)
+  }
+
+  private onColorSchemeChange = () => {
+    this.renderGraph()
   }
 
   private toggleSettings = () => {
