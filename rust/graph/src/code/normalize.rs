@@ -2,15 +2,15 @@ use ast_grep_core::{matcher::NodeMatch, tree_sitter::StrDoc};
 
 use super::{
     facts::{
-        CodeFacts, IoDirection, IoFact, IoMode, IoPath, record_definition, record_imported_symbol,
-        record_use,
+        CodeFacts, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, record_definition,
+        record_imported_symbol, record_use,
     },
     language::CodeLanguage,
     util::{
-        clean_string_literal, contains_identifier, first_identifier_owned, function_name,
-        identifier_target, is_ignored_identifier, is_python_stdlib, is_r_base_package,
-        javascript_package_name, package_name, path_expression, rust_imported_symbol,
-        rust_package_name,
+        clean_string_literal, contains_identifier, expression_identifiers, first_identifier_owned,
+        function_name, identifier_target, is_ignored_identifier, is_python_stdlib,
+        is_r_base_package, javascript_package_name, package_name, path_expression,
+        rust_imported_symbol, rust_package_name,
     },
 };
 use crate::package::PackageFact;
@@ -31,7 +31,7 @@ pub(super) fn normalize_match(
             normalize_javascript_import(matched, facts)
         }
         (language, "ecmascript-assignment") if language.is_ecmascript() => {
-            normalize_assignment(matched, facts)
+            normalize_assignment(language, matched, facts)
         }
         (language, "ecmascript-function") if language.is_ecmascript() => {
             normalize_declaration(matched, "NAME", facts)
@@ -46,30 +46,38 @@ pub(super) fn normalize_match(
             normalize_call(matched, "FUNC", facts)
         }
         (CodeLanguage::Rust, "rust-import") => normalize_rust_import(matched, facts),
-        (CodeLanguage::Rust, "rust-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Rust, "rust-assignment") => {
+            normalize_assignment(CodeLanguage::Rust, matched, facts)
+        }
         (CodeLanguage::Rust, "rust-function") => normalize_declaration(matched, "NAME", facts),
         (CodeLanguage::Rust, "rust-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::Rust, "rust-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::Rust, "rust-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Python, "python-import") => normalize_python_import(matched, facts),
-        (CodeLanguage::Python, "python-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Python, "python-assignment") => {
+            normalize_assignment(CodeLanguage::Python, matched, facts)
+        }
         (CodeLanguage::Python, "python-function") => normalize_declaration(matched, "NAME", facts),
         (CodeLanguage::Python, "python-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::Python, "python-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::Python, "python-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::R, "r-import") => normalize_r_import(matched, facts),
-        (CodeLanguage::R, "r-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::R, "r-assignment") => normalize_assignment(CodeLanguage::R, matched, facts),
         (CodeLanguage::R, "r-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::R, "r-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::R, "r-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Julia, "julia-import") => normalize_julia_import(matched, facts),
-        (CodeLanguage::Julia, "julia-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Julia, "julia-assignment") => {
+            normalize_assignment(CodeLanguage::Julia, matched, facts)
+        }
         (CodeLanguage::Julia, "julia-function") => normalize_declaration(matched, "NAME", facts),
         (CodeLanguage::Julia, "julia-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::Julia, "julia-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::Julia, "julia-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Matlab, "matlab-import") => normalize_matlab_import(matched, facts),
-        (CodeLanguage::Matlab, "matlab-assignment") => normalize_assignment(matched, facts),
+        (CodeLanguage::Matlab, "matlab-assignment") => {
+            normalize_assignment(CodeLanguage::Matlab, matched, facts)
+        }
         (CodeLanguage::Matlab, "matlab-function") => normalize_matlab_function(matched, facts),
         (CodeLanguage::Matlab, "matlab-read") => normalize_io_match(matched, facts, true),
         (CodeLanguage::Matlab, "matlab-write") => normalize_io_match(matched, facts, false),
@@ -243,7 +251,11 @@ fn normalize_rust_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut 
 /// Assignment targets define symbols. When the assignment came from a read rule
 /// with a captured path, the target is also recorded as a dataframe-like source
 /// so later column accesses can derive from the same static file.
-fn normalize_assignment(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
+fn normalize_assignment(
+    language: CodeLanguage,
+    matched: &NodeMatch<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
     let Some(target_node) = matched.get_env().get_match("TARGET") else {
         return;
     };
@@ -251,13 +263,25 @@ fn normalize_assignment(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut C
     let Some(target) = identifier_target(target_text.trim()) else {
         return;
     };
-    if env_text(matched, "VALUE").is_some_and(|value| contains_identifier(&value, &target))
-        && facts
-            .definition_offsets
-            .get(&target)
-            .is_none_or(|definition_offset| *definition_offset >= target_node.range().start)
-    {
-        facts.read_before_write_symbols.insert(target.clone());
+    if let Some(value) = env_text(matched, "VALUE") {
+        if contains_identifier(&value, &target)
+            && facts
+                .definition_offsets
+                .get(&target)
+                .is_none_or(|definition_offset| *definition_offset >= target_node.range().start)
+        {
+            facts.read_before_write_symbols.insert(target.clone());
+        }
+
+        for source in expression_identifiers(language, &value) {
+            if source != target {
+                facts.variable_flows.insert(VariableFlowFact {
+                    source,
+                    target: target.clone(),
+                    target_offset: target_node.range().start,
+                });
+            }
+        }
     }
     facts.assignments.insert(target.clone());
     record_definition(facts, &target, target_node.range().start);
@@ -326,16 +350,30 @@ fn normalize_io_match(
     };
 
     let target = env_text(matched, "TARGET").and_then(|target| identifier_target(target.trim()));
-    let value = env_text(matched, "VALUE")
-        .or_else(|| env_text(matched, "OBJ"))
-        .and_then(|value| identifier_target(value.trim()));
+    let target_offset = target
+        .as_ref()
+        .and_then(|_| env_range_start(matched, "TARGET"));
+    let value_capture = ["VALUE", "OBJ"]
+        .into_iter()
+        .find_map(|var| env_text(matched, var).map(|value| (var, value)));
+    let value = value_capture
+        .as_ref()
+        .and_then(|(_, value)| identifier_target(value.trim()));
+    let value_offset = value
+        .as_ref()
+        .and(value_capture.as_ref())
+        .and_then(|(var, _)| env_range_start(matched, var));
+    let operation_offset = env_range_start(matched, "PATH");
     let function = io_function_name(matched);
 
     facts.io.insert(IoFact {
         direction,
         path: path.clone(),
+        operation_offset,
         target: target.clone(),
+        target_offset,
         value,
+        value_offset,
         function,
         mode,
     });

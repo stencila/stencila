@@ -59,6 +59,14 @@ pub struct CodeFacts {
     /// enough for useful dataflow edges without implementing dataframe semantics.
     pub columns: BTreeSet<ColumnFact>,
 
+    /// Static data flow between variables in this unit.
+    ///
+    /// These facts are intentionally shallow: they record that one assigned
+    /// variable was computed from another identifier in the same source unit.
+    /// Graph projection later filters sources to known local definitions so
+    /// package aliases, method names, and builtins do not become lineage hops.
+    pub variable_flows: BTreeSet<VariableFlowFact>,
+
     /// Snakemake workflow rules declared by this unit.
     ///
     /// Rules are kept explicitly because workflow graphs often need to query
@@ -228,11 +236,20 @@ pub struct IoFact {
     /// Resource path or path expression.
     pub path: IoPath,
 
+    /// Byte offset where the I/O operation was detected, when known.
+    pub operation_offset: Option<usize>,
+
     /// Assignment target receiving a read result, when present.
     pub target: Option<String>,
 
+    /// Byte offset of the read target, when present.
+    pub target_offset: Option<usize>,
+
     /// Value or receiver being written, when present.
     pub value: Option<String>,
+
+    /// Byte offset of the written value or receiver, when present.
+    pub value_offset: Option<usize>,
 
     /// Function or method used for the I/O operation, when known.
     pub function: Option<String>,
@@ -247,8 +264,11 @@ impl IoFact {
         Self {
             direction,
             path,
+            operation_offset: None,
             target: None,
+            target_offset: None,
             value: None,
+            value_offset: None,
             function: None,
             mode: None,
         }
@@ -359,6 +379,19 @@ pub struct ColumnFact {
     /// When present, graph projection can relate the column node to a concrete
     /// file resource. Without it the column is still scoped to the code unit.
     pub source: Option<String>,
+}
+
+/// A static dependency from one variable to another.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct VariableFlowFact {
+    /// Variable used by an assignment expression.
+    pub source: String,
+
+    /// Variable assigned from the source.
+    pub target: String,
+
+    /// Byte offset of the assignment target.
+    pub target_offset: usize,
 }
 
 /// Record an imported local symbol and its definition position when known.

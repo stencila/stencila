@@ -2,6 +2,10 @@ id: julia-write
 language: Julia
 rule:
   any:
+    - pattern: CSV.write($PATH, $VALUE)
+    - pattern: CSV.write($PATH, $VALUE, $$$ARGS)
     - pattern: CSV.write($PATH, $$$ARGS)
+    - pattern: write($PATH, $VALUE)
+    - pattern: write($PATH, $VALUE, $$$ARGS)
     - pattern: write($PATH, $$$ARGS)
     - pattern: savefig($PATH)

@@ -303,6 +303,18 @@ edges:
           expression: "data/{sample}.csv"
         description: template I/O path detected by static analysis.
   - type: GraphEdge
+    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "symbol:dynamic.py:python:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "data/{sample}.csv"
+        description: template I/O path detected by static analysis.
+  - type: GraphEdge
     source: "code:analysis.jl"
     target: "file:analysis.jl"
     kind: PartOf
@@ -512,6 +524,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:table"
+    target: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "results/{sample}.csv"
+        description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "symbol:dynamic.py:python:to_csv"
     target: "code:dynamic.py"

@@ -192,6 +192,13 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "file:data/samples.dat"
+    target: "symbol:docs/notebook.json:python:samples"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "file:docs/notebook.json"
     target: "dir:docs"
     kind: PartOf

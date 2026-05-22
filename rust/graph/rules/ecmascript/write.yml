@@ -1,8 +1,16 @@
 rule:
   any:
+    - pattern: $WRITER.writeFileSync($PATH, $VALUE)
+    - pattern: $WRITER.writeFileSync($PATH, $VALUE, $$$ARGS)
     - pattern: $WRITER.writeFileSync($PATH, $$$ARGS)
+    - pattern: writeFileSync($PATH, $VALUE)
+    - pattern: writeFileSync($PATH, $VALUE, $$$ARGS)
     - pattern: writeFileSync($PATH, $$$ARGS)
+    - pattern: $WRITER.writeFile($PATH, $VALUE)
+    - pattern: $WRITER.writeFile($PATH, $VALUE, $$$ARGS)
     - pattern: $WRITER.writeFile($PATH, $$$ARGS)
+    - pattern: writeFile($PATH, $VALUE)
+    - pattern: writeFile($PATH, $VALUE, $$$ARGS)
     - pattern: writeFile($PATH, $$$ARGS)
     - pattern: $WRITER.createWriteStream($PATH)
     - pattern: createWriteStream($PATH)

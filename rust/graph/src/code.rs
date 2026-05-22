@@ -32,7 +32,9 @@ mod workspace;
 pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
 pub(crate) use document::DocumentCodeIndex;
-pub use facts::{CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, WorkflowRuleFacts};
+pub use facts::{
+    CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, WorkflowRuleFacts,
+};
 pub use language::CodeLanguage;
 pub(crate) use workspace::add_workspace_code;
 
@@ -72,6 +74,12 @@ plt.savefig("plot.png")
         assert_no_io(&facts, "helper.csv");
         assert_io(&facts, IoDirection::Write, "named-out.csv");
         assert_io(&facts, IoDirection::Write, "plot.png");
+        assert!(
+            facts
+                .variable_flows
+                .iter()
+                .any(|flow| flow.source == "df" && flow.target == "plot")
+        );
         assert!(facts.columns.iter().any(|column| column.column == "A"));
         assert!(facts.columns.iter().any(|column| column.column == "D"));
     }
@@ -103,6 +111,26 @@ write.csv(df, "output.csv")
         assert_io(&facts, IoDirection::Write, "named-output.csv");
         assert_io(&facts, IoDirection::Write, "output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "A"));
+    }
+
+    #[test]
+    fn preserves_r_dotted_variable_flow_names() {
+        let facts = analyze_source(
+            CodeLanguage::R,
+            r#"
+raw.data <- read.csv("input.csv")
+clean.data <- raw.data
+write.csv(clean.data, "output.csv")
+"#,
+        );
+
+        assert!(
+            facts
+                .variable_flows
+                .iter()
+                .any(|flow| flow.source == "raw.data" && flow.target == "clean.data")
+        );
+        assert!(facts.variable_flows.iter().all(|flow| flow.source != "raw"));
     }
 
     #[test]
@@ -211,6 +239,150 @@ function summarize() {
         assert!(facts.declarations.contains("summarize"));
         assert_io(&facts, IoDirection::Read, "data/input.txt");
         assert_io(&facts, IoDirection::Write, "results/output.txt");
+        assert!(
+            facts
+                .io
+                .iter()
+                .any(|fact| fact.value.as_deref() == Some("data"))
+        );
+    }
+
+    #[test]
+    fn excludes_imported_aliases_from_variable_lineage() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::JavaScript,
+            r#"
+const stats = require("simple-statistics")
+const data = readFileSync("data/input.txt")
+const summary = stats.mean(data)
+writeFileSync("results/output.txt", summary)
+"#,
+        );
+        let graph = project_test_graph("analysis.js", CodeLanguage::JavaScript, &facts)?;
+
+        assert!(!has_graph_edge(
+            &graph,
+            "symbol:analysis.js:javascript:stats",
+            "symbol:analysis.js:javascript:summary",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "symbol:analysis.js:javascript:data",
+            "symbol:analysis.js:javascript:summary",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn keeps_coarse_lineage_when_precise_chain_is_partial() -> eyre::Result<()> {
+        let facts = CodeFacts {
+            assignments: std::collections::BTreeSet::from(["df".to_string()]),
+            io: std::collections::BTreeSet::from([
+                IoFact {
+                    direction: IoDirection::Read,
+                    path: IoPath::Static("input.csv".to_string()),
+                    operation_offset: None,
+                    target: None,
+                    target_offset: None,
+                    value: None,
+                    value_offset: None,
+                    function: None,
+                    mode: None,
+                },
+                IoFact {
+                    direction: IoDirection::Write,
+                    path: IoPath::Static("output.csv".to_string()),
+                    operation_offset: None,
+                    target: None,
+                    target_offset: None,
+                    value: Some("df".to_string()),
+                    value_offset: None,
+                    function: None,
+                    mode: None,
+                },
+            ]),
+            ..Default::default()
+        };
+        let graph = project_test_graph("partial.py", CodeLanguage::Python, &facts)?;
+
+        assert!(has_graph_edge(
+            &graph,
+            "code-file:partial.py:input.csv",
+            "code-file:partial.py:output.csv",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "symbol:partial.py:python:df",
+            "code-file:partial.py:output.csv",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn ignores_later_reads_for_earlier_writes() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+clean.to_csv("output.csv")
+clean = read_csv("input.csv")
+"#,
+        );
+        let graph = project_test_graph("ordering.py", CodeLanguage::Python, &facts)?;
+
+        assert!(!has_graph_edge(
+            &graph,
+            "code-file:ordering.py:input.csv",
+            "code-file:ordering.py:output.csv",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "symbol:ordering.py:python:clean",
+            "code-file:ordering.py:output.csv",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "code-file:ordering.py:input.csv",
+            "symbol:ordering.py:python:clean",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn ignores_later_definitions_for_earlier_variable_flows() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+summary = clean
+clean = read_csv("input.csv")
+summary.to_csv("output.csv")
+"#,
+        );
+        let graph = project_test_graph("flow-order.py", CodeLanguage::Python, &facts)?;
+
+        assert!(!has_graph_edge(
+            &graph,
+            "symbol:flow-order.py:python:clean",
+            "symbol:flow-order.py:python:summary",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "symbol:flow-order.py:python:summary",
+            "code-file:flow-order.py:output.csv",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+
+        Ok(())
     }
 
     #[test]
@@ -230,6 +402,12 @@ const summarize = () => data
         assert!(facts.declarations.contains("summarize"));
         assert_io(&facts, IoDirection::Read, "data/input.txt");
         assert_io(&facts, IoDirection::Write, "results/output.txt");
+        assert!(
+            facts
+                .io
+                .iter()
+                .any(|fact| fact.value.as_deref() == Some("data"))
+        );
     }
 
     #[test]
@@ -251,6 +429,12 @@ fn main() {
         assert!(facts.declarations.contains("main"));
         assert_io(&facts, IoDirection::Read, "data/input.txt");
         assert_io(&facts, IoDirection::Write, "results/output.txt");
+        assert!(
+            facts
+                .io
+                .iter()
+                .any(|fact| fact.value.as_deref() == Some("data"))
+        );
     }
 
     #[test]
@@ -342,5 +526,40 @@ process align {
             }),
             "missing rule {direction:?} I/O fact for {path}"
         );
+    }
+
+    fn project_test_graph(
+        scope: &str,
+        language: CodeLanguage,
+        facts: &CodeFacts,
+    ) -> eyre::Result<stencila_schema::Graph> {
+        let mut builder = crate::GraphBuilder::new("fixture:code-test");
+        let unit_id = format!("code:{scope}");
+        builder.add_schema_node(
+            unit_id.clone(),
+            stencila_schema::Node::String(unit_id.clone()),
+        );
+        super::project::add_code_facts_to_graph(
+            &mut builder,
+            &unit_id,
+            scope,
+            language,
+            facts,
+            0,
+            None,
+        );
+        builder.build()
+    }
+
+    fn has_graph_edge(
+        graph: &stencila_schema::Graph,
+        source: &str,
+        target: &str,
+        kind: stencila_schema::GraphEdgeKind,
+    ) -> bool {
+        graph
+            .edges
+            .iter()
+            .any(|edge| edge.source == source && edge.target == target && edge.kind == kind)
     }
 }

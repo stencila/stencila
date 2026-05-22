@@ -2,7 +2,11 @@ id: rust-write
 language: Rust
 rule:
   any:
+    - pattern: std::fs::write($PATH, $VALUE)
+    - pattern: std::fs::write($PATH, $VALUE, $$$ARGS)
     - pattern: std::fs::write($PATH, $$$ARGS)
+    - pattern: fs::write($PATH, $VALUE)
+    - pattern: fs::write($PATH, $VALUE, $$$ARGS)
     - pattern: fs::write($PATH, $$$ARGS)
     - pattern: File::create($PATH)
     - pattern: Writer::from_path($PATH)

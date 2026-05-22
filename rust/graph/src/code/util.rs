@@ -655,6 +655,70 @@ pub(super) fn contains_identifier(source: &str, name: &str) -> bool {
     })
 }
 
+/// Extract identifier-like roots from an expression fragment.
+///
+/// This is used for conservative variable-flow facts. It skips string literals
+/// and reduces member paths such as `df.loc` or `input.trim` to their root
+/// identifier because local data lineage is carried by the receiver variable.
+/// R dotted names are preserved because `.` is commonly part of the symbol name.
+pub(super) fn expression_identifiers(language: CodeLanguage, source: &str) -> BTreeSet<String> {
+    let mut identifiers = BTreeSet::new();
+    let mut chars = source.char_indices().peekable();
+
+    while let Some((index, char)) = chars.next() {
+        if matches!(char, '\'' | '"' | '`') {
+            skip_quoted_expression(char, &mut chars);
+            continue;
+        }
+
+        if !(char == '_' || char.is_alphabetic()) {
+            continue;
+        }
+
+        let end = chars
+            .clone()
+            .find_map(|(index, char)| (!is_identifier_continue(char)).then_some(index))
+            .unwrap_or(source.len());
+        while chars.peek().is_some_and(|(next, _)| *next < end) {
+            chars.next();
+        }
+
+        let candidate = &source[index..end];
+        let root = if language == CodeLanguage::R {
+            candidate.trim_end_matches('.')
+        } else {
+            candidate
+                .split('.')
+                .next()
+                .unwrap_or(candidate)
+                .trim_end_matches('.')
+        };
+        if is_identifier_like(root) {
+            identifiers.insert(root.to_string());
+        }
+    }
+
+    identifiers
+}
+
+/// Advance an expression scanner over a quoted string literal.
+fn skip_quoted_expression(quote: char, chars: &mut std::iter::Peekable<std::str::CharIndices<'_>>) {
+    let mut escaped = false;
+    for (_, char) in chars.by_ref() {
+        if escaped {
+            escaped = false;
+            continue;
+        }
+        if char == '\\' {
+            escaped = true;
+            continue;
+        }
+        if char == quote {
+            break;
+        }
+    }
+}
+
 /// Check whether text is a simple identifier-like name.
 ///
 /// The predicate is shared by packages, symbols, and callables so every graph id

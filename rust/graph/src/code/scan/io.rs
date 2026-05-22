@@ -89,8 +89,11 @@ fn collect_named_marker(source: &str, marker: &NamedIoMarker, facts: &mut CodeFa
         facts.io.insert(IoFact {
             direction: marker.direction,
             path,
+            operation_offset: Some(call_index),
             target: None,
+            target_offset: None,
             value: None,
+            value_offset: None,
             function: function_name(marker.function),
             mode: None,
         });

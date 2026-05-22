@@ -698,24 +698,6 @@ edges:
         description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "file:data/raw/observations.csv"
-    target: "file:outputs/python-clean.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "file:outputs/r-summary.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
     target: "node:data/raw/observations.csv#dtb_"
     kind: ConvertedInto
     evidence:
@@ -723,6 +705,20 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
+  - type: GraphEdge
+    source: "file:data/raw/observations.csv"
+    target: "symbol:scripts/analysis.R:r:df"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/observations.csv"
+    target: "symbol:scripts/analysis.py:python:df"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:figures/python-counts.png"
     target: "dir:figures"
@@ -854,6 +850,13 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:df"
+    target: "file:outputs/r-summary.csv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:ggsave"
     target: "code:scripts/analysis.R"
     kind: UsedBy
@@ -878,6 +881,27 @@ edges:
     source: "symbol:scripts/analysis.R:r:write.csv"
     target: "code:scripts/analysis.R"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:clean"
+    target: "file:outputs/python-clean.csv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:df"
+    target: "symbol:scripts/analysis.py:python:clean"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:df"
+    target: "symbol:scripts/analysis.py:python:mean_count"
+    kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

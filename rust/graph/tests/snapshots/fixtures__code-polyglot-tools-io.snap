@@ -709,15 +709,6 @@ edges:
         description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
-    target: "file:results/ts-qc.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
     target: "node:data/raw/samples.tsv#dtb_"
     kind: ConvertedInto
     evidence:
@@ -725,6 +716,34 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:analysis.js:javascript:input"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:analysis.m:matlab:tbl"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:qc.ts:typescript:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:src/bin/report.rs:rust:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:qc.ts"
     target: "dir:."
@@ -926,6 +945,20 @@ edges:
     source: "package:npm/fs-extra"
     target: "code:analysis.js"
     kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.m:matlab:tbl"
+    target: "symbol:analysis.m:matlab:count"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:qc.ts:typescript:table"
+    target: "file:results/ts-qc.tsv"
+    kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
