@@ -54,6 +54,7 @@ export function defaultProjectionOptions(
 ): GraphProjectionOptions {
   const options: GraphProjectionOptions = {
     preset,
+    detail: 'medium',
     includeLowConfidenceEdges: true,
     collapseCitationNodes: true,
   }
@@ -85,6 +86,7 @@ function resolveProjectionOptions(
       options.includeStructureEdges ??
       defaultProjectionOptions(preset).includeStructureEdges ??
       false,
+    detail: options.detail ?? 'medium',
     includeLowConfidenceEdges: options.includeLowConfidenceEdges ?? true,
     collapseCitationNodes: options.collapseCitationNodes ?? true,
   }
@@ -102,15 +104,15 @@ export function projectGraph(
   graph: Graph,
   options: GraphProjectionOptions
 ): GraphView {
-  const preset = resolvePreset(graph, options)
-  const resolvedOptions = resolveProjectionOptions(preset, options)
   const nodesById = new Map(graph.nodes.map((node) => [node.id, node]))
+  const preset = resolvePreset(graph, options, nodesById)
+  const resolvedOptions = resolveProjectionOptions(preset, options)
   const parentById = parentMap(graph)
   const nodeIds = new Set<string>()
   const edges = new Map<string, GraphViewEdge>()
 
   graph.edges.forEach((edge) => {
-    if (!includePrimaryEdge(edge, preset, resolvedOptions)) {
+    if (!includePrimaryEdge(edge, preset, resolvedOptions, nodesById)) {
       return
     }
 
@@ -158,6 +160,7 @@ export function projectGraph(
 
   return {
     preset,
+    detail: resolvedOptions.detail,
     nodes,
     edges: Array.from(edges.values()).sort((left, right) =>
       left.id.localeCompare(right.id)
@@ -175,7 +178,8 @@ export function projectGraph(
  */
 function resolvePreset(
   graph: Graph,
-  options: GraphProjectionOptions
+  options: GraphProjectionOptions,
+  nodesById: Map<string, GraphNode>
 ): ResolvedGraphViewPreset {
   if (options.preset !== 'auto') {
     return options.preset
@@ -185,8 +189,9 @@ function resolvePreset(
     AUTO_PRESETS.find((preset) =>
       graph.edges.some((edge) =>
         includePrimaryEdge(edge, preset, {
+          detail: options.detail ?? 'medium',
           includeLowConfidenceEdges: options.includeLowConfidenceEdges,
-        })
+        }, nodesById)
       )
     ) ?? 'full'
   )
@@ -202,7 +207,8 @@ function resolvePreset(
 function includePrimaryEdge(
   edge: GraphEdge,
   preset: ResolvedGraphViewPreset,
-  options: Pick<GraphProjectionOptions, 'includeLowConfidenceEdges'>
+  options: Pick<GraphProjectionOptions, 'detail' | 'includeLowConfidenceEdges'>,
+  nodesById: Map<string, GraphNode>
 ): boolean {
   if (options.includeLowConfidenceEdges === false && hasLowConfidence(edge)) {
     return false
@@ -212,7 +218,71 @@ function includePrimaryEdge(
     return false
   }
 
-  return edgeKindInPreset(edge.kind, preset)
+  if (preset === 'reactivity') {
+    return isReactiveEdge(edge, nodesById)
+  }
+
+  return (
+    edgeKindInPreset(edge.kind, preset) &&
+    includeEdgeForDetail(edge, preset, options.detail ?? 'medium', nodesById)
+  )
+}
+
+function includeEdgeForDetail(
+  edge: GraphEdge,
+  preset: ResolvedGraphViewPreset,
+  detail: NonNullable<GraphProjectionOptions['detail']>,
+  nodesById: Map<string, GraphNode>
+): boolean {
+  if (preset === 'full' || preset === 'reactivity' || preset === 'citations' || detail === 'high') {
+    return true
+  }
+
+  const sourceKind = nodeKind(nodesById.get(edge.source))
+  const targetKind = nodeKind(nodesById.get(edge.target))
+  const sourceInternal = isLocalCodeInternal(edge.source, sourceKind)
+  const targetInternal = isLocalCodeInternal(edge.target, targetKind)
+  const sourceDatatable = sourceKind === 'datatable'
+  const targetDatatable = targetKind === 'datatable'
+
+  if (preset === 'data-flow') {
+    return detail === 'low'
+      ? !sourceInternal && !targetInternal && !sourceDatatable && !targetDatatable
+      : !sourceInternal &&
+          !targetInternal &&
+          (!(sourceDatatable || targetDatatable) || edge.kind === 'DerivedInto')
+  }
+
+  if (preset === 'software-dependencies') {
+    return !sourceInternal && !targetInternal
+  }
+
+  return true
+}
+
+function isLocalCodeInternal(
+  id: string,
+  kind: ReturnType<typeof nodeKind>
+): boolean {
+  return kind === 'symbol' || (kind === 'function' && graphIdNamespace(id) !== 'workflow-rule')
+}
+
+function isReactiveEdge(
+  edge: GraphEdge,
+  nodesById: Map<string, GraphNode>
+): boolean {
+  const sourceKind = nodeKind(nodesById.get(edge.source))
+  const targetKind = nodeKind(nodesById.get(edge.target))
+
+  if (edge.kind === 'Generated') {
+    return sourceKind === 'code' && ['function', 'symbol'].includes(targetKind)
+  }
+
+  if (edge.kind === 'UsedBy') {
+    return ['function', 'symbol'].includes(sourceKind) && targetKind === 'code'
+  }
+
+  return false
 }
 
 /**
@@ -359,6 +429,11 @@ function updateEdgeSummary(edge: GraphViewEdge) {
  */
 function structureEdgeKey(source: string, target: string): string {
   return `${source}\u0000${target}`
+}
+
+function graphIdNamespace(id: string): string {
+  const index = id.indexOf(':')
+  return index === -1 ? id : id.slice(0, index)
 }
 
 /**

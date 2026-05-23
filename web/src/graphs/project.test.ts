@@ -105,6 +105,50 @@ describe('projectGraph', () => {
       lowConfidence: true,
     })
   })
+
+  it('defaults flow detail to medium without local symbols', () => {
+    const view = projectGraph(detailGraph(), defaultProjectionOptions('data-flow'))
+
+    expect(view.nodes.some((node) => node.kind === 'symbol')).toBe(false)
+    expect(
+      view.nodes.some((node) => node.id === 'function:analysis.py:python:read_csv')
+    ).toBe(false)
+    expect(
+      view.nodes.some((node) => node.id === 'column:analysis.py:data.csv:count')
+    ).toBe(true)
+    expect(
+      view.edges.map((edge) => `${edge.kind}:${edge.source}->${edge.target}`)
+    ).toEqual([
+      'DerivedInto:column:analysis.py:data.csv:count->file:plot.png',
+      'Generated:code:analysis.py->file:plot.png',
+      'ReadBy:file:data.csv->code:analysis.py',
+    ])
+  })
+
+  it('hides datatable columns at low flow detail', () => {
+    const view = projectGraph(detailGraph(), {
+      ...defaultProjectionOptions('data-flow'),
+      detail: 'low',
+    })
+
+    expect(view.nodes.some((node) => node.kind === 'datatable')).toBe(false)
+    expect(view.edges.map((edge) => edge.kind)).toEqual(['Generated', 'ReadBy'])
+  })
+
+  it('includes local symbols and functions at high flow detail', () => {
+    const view = projectGraph(detailGraph(), {
+      ...defaultProjectionOptions('data-flow'),
+      detail: 'high',
+    })
+
+    expect(view.nodes.some((node) => node.id === 'symbol:analysis.py:python:df')).toBe(
+      true
+    )
+    expect(
+      view.nodes.some((node) => node.id === 'function:analysis.py:python:read_csv')
+    ).toBe(true)
+    expect(view.edges.some((edge) => edge.kind === 'CalledBy')).toBe(true)
+  })
 })
 
 /**
@@ -308,6 +352,89 @@ function duplicateEdgeGraph(): Graph {
         target: 'code:analysis.py',
         kind: 'ReadBy',
         evidence: [{ type: 'GraphEvidence', kind: 'Inferred', confidence: 'Low' }],
+      },
+    ],
+  } as Graph
+}
+
+function detailGraph(): Graph {
+  return {
+    type: 'Graph',
+    subject: 'test:detail',
+    nodes: [
+      {
+        type: 'GraphNode',
+        id: 'file:data.csv',
+        node: { type: 'File', name: 'data.csv', path: 'data.csv' },
+      },
+      {
+        type: 'GraphNode',
+        id: 'file:plot.png',
+        node: { type: 'File', name: 'plot.png', path: 'plot.png' },
+      },
+      {
+        type: 'GraphNode',
+        id: 'code:analysis.py',
+        node: { type: 'SoftwareSourceCode', name: 'analysis.py' },
+      },
+      {
+        type: 'GraphNode',
+        id: 'symbol:analysis.py:python:df',
+        node: { type: 'Variable', name: 'df' },
+      },
+      {
+        type: 'GraphNode',
+        id: 'function:analysis.py:python:read_csv',
+        node: { type: 'Function', name: 'read_csv' },
+      },
+      {
+        type: 'GraphNode',
+        id: 'column:analysis.py:data.csv:count',
+        node: { type: 'DatatableColumn', name: 'count' },
+      },
+    ],
+    edges: [
+      {
+        type: 'GraphEdge',
+        source: 'file:data.csv',
+        target: 'code:analysis.py',
+        kind: 'ReadBy',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'code:analysis.py',
+        target: 'file:plot.png',
+        kind: 'Generated',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'code:analysis.py',
+        target: 'symbol:analysis.py:python:df',
+        kind: 'Generated',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'symbol:analysis.py:python:df',
+        target: 'code:analysis.py',
+        kind: 'UsedBy',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'function:analysis.py:python:read_csv',
+        target: 'code:analysis.py',
+        kind: 'CalledBy',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'column:analysis.py:data.csv:count',
+        target: 'code:analysis.py',
+        kind: 'UsedBy',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'column:analysis.py:data.csv:count',
+        target: 'file:plot.png',
+        kind: 'DerivedInto',
       },
     ],
   } as Graph

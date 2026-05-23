@@ -36,10 +36,10 @@ const GRAPH_EDGE_KEY_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b'}');
 
 const AUTO_PRESETS: [GraphProjectionPreset; 4] = [
-    GraphProjectionPreset::Flow,
-    GraphProjectionPreset::Deps,
-    GraphProjectionPreset::Cite,
     GraphProjectionPreset::React,
+    GraphProjectionPreset::Cite,
+    GraphProjectionPreset::Deps,
+    GraphProjectionPreset::Flow,
 ];
 
 /// User-facing graph projection preset.
@@ -47,10 +47,10 @@ const AUTO_PRESETS: [GraphProjectionPreset; 4] = [
 pub enum GraphProjectionPreset {
     /// Choose the first useful projection from the graph's relationships.
     ///
-    /// Auto mode prefers focused views in the order most useful for authoring
-    /// review: data/resource flow, software dependencies, citations, then
-    /// executable reactivity. If no focused relationship family is present it
-    /// falls back to the full graph.
+    /// Auto mode scores focused views using the graph's relationships. It gives
+    /// document reactivity and citations enough weight to beat generic file
+    /// conversion/provenance edges, then falls back to all relationships when only
+    /// structural containment is present.
     Auto,
 
     /// Show every graph node and edge without applying a focused projection.
@@ -58,39 +58,69 @@ pub enum GraphProjectionPreset {
     /// This is the most complete view and the noisiest one. Use it when
     /// debugging graph collection itself, checking whether expected nodes or
     /// edges exist, or comparing a projected view against the raw graph shape.
-    Full,
+    All,
 
     /// Show resource flow, data lineage, and provenance relationships.
     ///
     /// This answers questions such as which files, tables, code units, or
-    /// outputs read, generated, derived, converted, used, or transcluded each
-    /// other. It is intended for tracing where data and rendered outputs came
-    /// from, rather than for ordering executable document updates.
+    /// outputs read, generated, derived, converted, or used each other. It is
+    /// intended for tracing where data and rendered outputs came from, rather
+    /// than for ordering executable document updates.
     Flow,
 
-    /// Show software imports, calls, packages, and dependency use.
+    /// Show software imports, calls, environments, packages, and dependency use.
     ///
     /// This focuses on code and environment relationships: imported packages,
-    /// package use by source files, and calls between discovered functions or
-    /// code units. It is useful for understanding the software stack behind a
-    /// workspace without mixing in data products and document structure.
+    /// declared environment packages, package use by source files, manifests,
+    /// lockfiles, and calls between discovered functions or code units. It is
+    /// useful for understanding the software stack behind a workspace without
+    /// mixing in data products and document structure.
     Deps,
 
-    /// Show bibliographic references, citations, and document links.
+    /// Show bibliographic references, citations, and document/resource links.
     ///
-    /// This focuses on `CitedBy` and `ReferencedBy` relationships. Citation
-    /// marker nodes are collapsed to their document parent by default so the
+    /// This focuses on `CitedBy` and `LinkedBy` relationships. Citation marker
+    /// nodes are collapsed to their document parent by default so the
     /// graph reads as "this work is cited or referenced by this document region"
     /// instead of exposing every inline citation marker.
     Cite,
 
     /// Show executable document reactivity dependencies.
     ///
-    /// This focuses on dependencies that decide what should update or rerun when
-    /// executable document state changes, such as `DependsOn` between code
-    /// chunks and `Parameterizes` from controls or parameters. It is distinct
-    /// from `flow`, which tracks provenance and produced resources.
+    /// This focuses on code-symbol dependency chains that decide what should
+    /// update or rerun when executable document state changes. It is distinct
+    /// from `flow`, which also tracks broader provenance and produced resources.
     React,
+}
+
+/// Amount of detail to include in focused graph projections.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
+pub enum GraphProjectionDetail {
+    /// Show only the main resource, code, output, and environment relationships.
+    Low,
+
+    /// Show useful data-level detail while hiding local symbol and function internals.
+    Medium,
+
+    /// Show all relationships selected by the preset.
+    High,
+}
+
+impl Default for GraphProjectionDetail {
+    fn default() -> Self {
+        Self::Medium
+    }
+}
+
+impl GraphProjectionDetail {
+    /// Stable CLI/display name for the detail level.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Low => "low",
+            Self::Medium => "medium",
+            Self::High => "high",
+        }
+    }
 }
 
 impl GraphProjectionPreset {
@@ -98,11 +128,82 @@ impl GraphProjectionPreset {
     pub fn as_str(self) -> &'static str {
         match self {
             Self::Auto => "auto",
-            Self::Full => "full",
+            Self::All => "all",
             Self::Flow => "flow",
             Self::Deps => "deps",
             Self::Cite => "cite",
             Self::React => "react",
+        }
+    }
+}
+
+/// How structural containment should be represented in projected graph exports.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
+pub enum GraphContainmentMode {
+    /// Do not include structural containment context.
+    None,
+
+    /// Use containment to group nodes visually, without rendering PartOf edges.
+    Clusters,
+
+    /// Render containment as explicit PartOf edges.
+    Edges,
+
+    /// Use both visual groups and explicit PartOf edges.
+    Both,
+}
+
+impl GraphContainmentMode {
+    /// Stable CLI/display name for the mode.
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::None => "none",
+            Self::Clusters => "clusters",
+            Self::Edges => "edges",
+            Self::Both => "both",
+        }
+    }
+
+    pub(crate) fn uses_clusters(self) -> bool {
+        matches!(self, Self::Clusters | Self::Both)
+    }
+
+    fn uses_edges(self) -> bool {
+        matches!(self, Self::Edges | Self::Both)
+    }
+
+    fn includes_context(self) -> bool {
+        self != Self::None
+    }
+}
+
+/// Broad relationship family used by display projections and legends.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
+pub enum GraphEdgeFamily {
+    Structure,
+    DataFlow,
+    Software,
+    Citation,
+    Reference,
+}
+
+/// Classify a graph edge kind into the user-facing question it helps answer.
+pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
+    match kind {
+        GraphEdgeKind::PartOf => GraphEdgeFamily::Structure,
+        GraphEdgeKind::ReadBy
+        | GraphEdgeKind::Generated
+        | GraphEdgeKind::DerivedInto
+        | GraphEdgeKind::ConvertedInto => GraphEdgeFamily::DataFlow,
+        GraphEdgeKind::ImportedBy
+        | GraphEdgeKind::CalledBy
+        | GraphEdgeKind::Declares
+        | GraphEdgeKind::RequiredBy
+        | GraphEdgeKind::Pins
+        | GraphEdgeKind::Configures => GraphEdgeFamily::Software,
+        GraphEdgeKind::CitedBy => GraphEdgeFamily::Citation,
+        GraphEdgeKind::UsedBy | GraphEdgeKind::LinkedBy | GraphEdgeKind::IncludedBy => {
+            GraphEdgeFamily::Reference
         }
     }
 }
@@ -113,7 +214,16 @@ pub struct GraphProjectionOptions {
     /// Projection preset to apply.
     pub preset: GraphProjectionPreset,
 
+    /// Amount of detail to include in focused projections.
+    pub detail: GraphProjectionDetail,
+
+    /// How to represent structural containment relationships.
+    pub containment: Option<GraphContainmentMode>,
+
     /// Include structural containment edges.
+    ///
+    /// This legacy option is retained for callers that still treat structure as
+    /// an edge toggle. Prefer `containment` for new code.
     pub include_structure_edges: Option<bool>,
 
     /// Include edges carrying low-confidence evidence.
@@ -127,6 +237,8 @@ impl Default for GraphProjectionOptions {
     fn default() -> Self {
         Self {
             preset: GraphProjectionPreset::Auto,
+            detail: GraphProjectionDetail::default(),
+            containment: None,
             include_structure_edges: None,
             include_low_confidence_edges: true,
             collapse_citation_nodes: true,
@@ -136,7 +248,8 @@ impl Default for GraphProjectionOptions {
 
 #[derive(Debug, Clone, Copy)]
 struct ResolvedGraphProjectionOptions {
-    include_structure_edges: bool,
+    detail: GraphProjectionDetail,
+    containment: GraphContainmentMode,
     include_low_confidence_edges: bool,
     collapse_citation_nodes: bool,
 }
@@ -211,8 +324,11 @@ pub struct GraphViewEdge {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct GraphView {
     pub preset: GraphProjectionPreset,
+    pub detail: GraphProjectionDetail,
+    pub containment: GraphContainmentMode,
     pub nodes: Vec<GraphViewNode>,
     pub edges: Vec<GraphViewEdge>,
+    pub containments: Vec<GraphViewEdge>,
 }
 
 #[derive(Debug)]
@@ -224,19 +340,26 @@ struct ProjectedEdge<'a> {
 
 /// Project a Schema graph into a display graph view.
 pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphView {
-    let preset = resolve_preset(graph, options);
-    let resolved = resolve_projection_options(preset, options);
     let nodes_by_id = graph
         .nodes
         .iter()
         .map(|node| (node.id.as_str(), node))
         .collect::<BTreeMap<_, _>>();
+    let preset = resolve_preset(graph, options, &nodes_by_id);
+    let resolved = resolve_projection_options(preset, options);
     let parent_by_id = parent_map(graph);
     let mut node_ids = BTreeSet::new();
     let mut edges = BTreeMap::new();
+    let mut containments = BTreeMap::new();
 
     for edge in &graph.edges {
-        if !include_primary_edge(edge, preset, resolved.include_low_confidence_edges) {
+        if !include_primary_edge(
+            edge,
+            preset,
+            resolved.detail,
+            resolved.include_low_confidence_edges,
+            &nodes_by_id,
+        ) {
             continue;
         }
 
@@ -267,20 +390,36 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
         );
     }
 
-    if preset == GraphProjectionPreset::Full {
+    if preset == GraphProjectionPreset::All {
         node_ids.extend(graph.nodes.iter().map(|node| node.id.clone()));
     }
 
-    if resolved.include_structure_edges {
+    if preset == GraphProjectionPreset::Deps {
+        add_dependency_memberships(
+            graph,
+            &nodes_by_id,
+            &mut node_ids,
+            &mut containments,
+            resolved.include_low_confidence_edges,
+        );
+    }
+
+    if resolved.containment.includes_context() {
         add_structure_edges(
             graph,
             &nodes_by_id,
             &parent_by_id,
             &mut node_ids,
-            &mut edges,
+            &mut containments,
             resolved.include_low_confidence_edges,
             preset,
         );
+    }
+
+    if resolved.containment.uses_edges() {
+        for containment in containments.values() {
+            edges.insert(containment.id.clone(), containment.clone());
+        }
     }
 
     let nodes = node_ids
@@ -290,8 +429,11 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
 
     GraphView {
         preset,
+        detail: resolved.detail,
+        containment: resolved.containment,
         nodes,
         edges: edges.into_values().collect(),
+        containments: containments.into_values().collect(),
     }
 }
 
@@ -300,70 +442,320 @@ fn resolve_projection_options(
     options: &GraphProjectionOptions,
 ) -> ResolvedGraphProjectionOptions {
     ResolvedGraphProjectionOptions {
-        include_structure_edges: options
-            .include_structure_edges
-            .unwrap_or(preset == GraphProjectionPreset::Full),
+        containment: options.containment.unwrap_or_else(|| {
+            options.include_structure_edges.map_or_else(
+                || default_containment_mode(preset),
+                |include| {
+                    if include {
+                        GraphContainmentMode::Edges
+                    } else {
+                        GraphContainmentMode::None
+                    }
+                },
+            )
+        }),
+        detail: options.detail,
         include_low_confidence_edges: options.include_low_confidence_edges,
         collapse_citation_nodes: options.collapse_citation_nodes,
     }
 }
 
-fn resolve_preset(graph: &Graph, options: &GraphProjectionOptions) -> GraphProjectionPreset {
+fn default_containment_mode(preset: GraphProjectionPreset) -> GraphContainmentMode {
+    if preset == GraphProjectionPreset::All {
+        GraphContainmentMode::Edges
+    } else {
+        GraphContainmentMode::Clusters
+    }
+}
+
+fn resolve_preset(
+    graph: &Graph,
+    options: &GraphProjectionOptions,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> GraphProjectionPreset {
     if options.preset != GraphProjectionPreset::Auto {
         return options.preset;
     }
 
-    AUTO_PRESETS
+    let scores = AUTO_PRESETS
         .into_iter()
-        .find(|preset| {
-            graph.edges.iter().any(|edge| {
-                include_primary_edge(edge, *preset, options.include_low_confidence_edges)
-            })
+        .map(|preset| {
+            (
+                preset,
+                preset_score(
+                    graph,
+                    preset,
+                    options.detail,
+                    options.include_low_confidence_edges,
+                    nodes_by_id,
+                ),
+            )
         })
-        .unwrap_or(GraphProjectionPreset::Full)
+        .collect::<Vec<_>>();
+    let best_score = scores.iter().map(|(.., score)| *score).max().unwrap_or(0);
+
+    if best_score == 0 {
+        GraphProjectionPreset::All
+    } else {
+        scores
+            .into_iter()
+            .find(|(.., score)| *score == best_score)
+            .map(|(preset, ..)| preset)
+            .unwrap_or(GraphProjectionPreset::All)
+    }
 }
 
 fn include_primary_edge(
     edge: &GraphEdge,
     preset: GraphProjectionPreset,
+    detail: GraphProjectionDetail,
     include_low_confidence_edges: bool,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
 ) -> bool {
     if !include_low_confidence_edges && has_low_confidence(edge) {
         return false;
     }
 
-    if edge.kind == STRUCTURE_EDGE_KIND {
+    if edge_family(edge.kind) == GraphEdgeFamily::Structure {
         return false;
     }
 
-    edge_kind_in_preset(edge.kind, preset)
+    edge_score(edge, preset, nodes_by_id) > 0
+        && include_edge_for_detail(edge, preset, detail, nodes_by_id)
 }
 
-fn edge_kind_in_preset(kind: GraphEdgeKind, preset: GraphProjectionPreset) -> bool {
-    if preset == GraphProjectionPreset::Full {
+fn preset_score(
+    graph: &Graph,
+    preset: GraphProjectionPreset,
+    detail: GraphProjectionDetail,
+    include_low_confidence_edges: bool,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> usize {
+    graph
+        .edges
+        .iter()
+        .filter(|edge| include_low_confidence_edges || !has_low_confidence(edge))
+        .filter(|edge| include_edge_for_detail(edge, preset, detail, nodes_by_id))
+        .map(|edge| edge_score(edge, preset, nodes_by_id))
+        .sum()
+}
+
+fn include_edge_for_detail(
+    edge: &GraphEdge,
+    preset: GraphProjectionPreset,
+    detail: GraphProjectionDetail,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> bool {
+    if matches!(
+        preset,
+        GraphProjectionPreset::All | GraphProjectionPreset::React | GraphProjectionPreset::Cite
+    ) || detail == GraphProjectionDetail::High
+    {
         return true;
     }
 
-    match kind {
-        GraphEdgeKind::UsedBy => matches!(
-            preset,
-            GraphProjectionPreset::Flow | GraphProjectionPreset::Deps
-        ),
+    let source_kind = node_kind(nodes_by_id.get(edge.source.as_str()).copied());
+    let target_kind = node_kind(nodes_by_id.get(edge.target.as_str()).copied());
+    let source_internal = is_local_code_internal(&edge.source, source_kind);
+    let target_internal = is_local_code_internal(&edge.target, target_kind);
+    let source_datatable = source_kind == GraphViewNodeKind::Datatable;
+    let target_datatable = target_kind == GraphViewNodeKind::Datatable;
+
+    match preset {
+        GraphProjectionPreset::Flow => match detail {
+            GraphProjectionDetail::Low => {
+                !source_internal && !target_internal && !source_datatable && !target_datatable
+            }
+            GraphProjectionDetail::Medium => {
+                !source_internal
+                    && !target_internal
+                    && (!(source_datatable || target_datatable)
+                        || edge.kind == GraphEdgeKind::DerivedInto)
+            }
+            GraphProjectionDetail::High => true,
+        },
+        GraphProjectionPreset::Deps => !source_internal && !target_internal,
+        GraphProjectionPreset::Auto
+        | GraphProjectionPreset::All
+        | GraphProjectionPreset::Cite
+        | GraphProjectionPreset::React => true,
+    }
+}
+
+fn is_local_code_internal(id: &str, kind: GraphViewNodeKind) -> bool {
+    kind == GraphViewNodeKind::Symbol
+        || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-rule")
+}
+
+fn edge_score(
+    edge: &GraphEdge,
+    preset: GraphProjectionPreset,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> usize {
+    if preset == GraphProjectionPreset::All {
+        return usize::from(edge_family(edge.kind) != GraphEdgeFamily::Structure);
+    }
+
+    match edge.kind {
+        GraphEdgeKind::UsedBy => {
+            if preset == GraphProjectionPreset::React && is_reactive_use_edge(edge, nodes_by_id) {
+                20
+            } else {
+                matches!(
+                    preset,
+                    GraphProjectionPreset::Flow | GraphProjectionPreset::Deps
+                )
+                .then_some(1)
+                .unwrap_or(0)
+            }
+        }
         GraphEdgeKind::ReadBy
         | GraphEdgeKind::Generated
         | GraphEdgeKind::DerivedInto
         | GraphEdgeKind::ConvertedInto
-        | GraphEdgeKind::TranscludedBy => preset == GraphProjectionPreset::Flow,
-        GraphEdgeKind::CalledBy | GraphEdgeKind::ImportedBy => {
-            preset == GraphProjectionPreset::Deps
+        | GraphEdgeKind::IncludedBy => {
+            if preset == GraphProjectionPreset::React
+                && edge.kind == GraphEdgeKind::Generated
+                && is_reactive_generation_edge(edge, nodes_by_id)
+            {
+                20
+            } else if preset == GraphProjectionPreset::Deps
+                && edge_targets_environment(edge, nodes_by_id)
+            {
+                match edge.kind {
+                    GraphEdgeKind::DerivedInto => 6,
+                    _ => 0,
+                }
+            } else if preset == GraphProjectionPreset::Flow {
+                match edge.kind {
+                    GraphEdgeKind::ReadBy | GraphEdgeKind::DerivedInto => 5,
+                    GraphEdgeKind::IncludedBy => 4,
+                    GraphEdgeKind::Generated => 3,
+                    GraphEdgeKind::ConvertedInto => 1,
+                    _ => 0,
+                }
+            } else {
+                0
+            }
         }
-        GraphEdgeKind::Parameterizes | GraphEdgeKind::DependsOn => {
-            preset == GraphProjectionPreset::React
+        GraphEdgeKind::CalledBy => {
+            if matches!(
+                preset,
+                GraphProjectionPreset::Deps | GraphProjectionPreset::Flow
+            ) {
+                4
+            } else {
+                0
+            }
         }
-        GraphEdgeKind::CitedBy | GraphEdgeKind::ReferencedBy => {
-            preset == GraphProjectionPreset::Cite
+        GraphEdgeKind::ImportedBy => {
+            if preset == GraphProjectionPreset::Deps {
+                4
+            } else {
+                0
+            }
         }
-        GraphEdgeKind::PartOf => false,
+        GraphEdgeKind::CitedBy => {
+            if preset == GraphProjectionPreset::Cite {
+                20
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::LinkedBy => {
+            let targets_environment = edge_targets_environment(edge, nodes_by_id);
+            if (preset == GraphProjectionPreset::Deps && targets_environment)
+                || (preset == GraphProjectionPreset::Cite && !targets_environment)
+            {
+                4
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::Declares | GraphEdgeKind::Pins => {
+            if preset == GraphProjectionPreset::Deps && edge_targets_environment(edge, nodes_by_id)
+            {
+                8
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::RequiredBy => {
+            if preset == GraphProjectionPreset::Deps && edge_targets_environment(edge, nodes_by_id)
+            {
+                10
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::Configures => {
+            if preset == GraphProjectionPreset::Deps || preset == GraphProjectionPreset::Flow {
+                3
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::PartOf => {
+            if preset == GraphProjectionPreset::Deps && is_dependency_membership(edge, nodes_by_id)
+            {
+                10
+            } else {
+                0
+            }
+        }
+    }
+}
+
+fn edge_targets_environment(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
+    node_kind(nodes_by_id.get(edge.target.as_str()).copied()) == GraphViewNodeKind::Environment
+}
+
+fn is_reactive_generation_edge(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
+    node_kind(nodes_by_id.get(edge.source.as_str()).copied()) == GraphViewNodeKind::Code
+        && matches!(
+            node_kind(nodes_by_id.get(edge.target.as_str()).copied()),
+            GraphViewNodeKind::Symbol | GraphViewNodeKind::Function
+        )
+}
+
+fn is_reactive_use_edge(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
+    matches!(
+        node_kind(nodes_by_id.get(edge.source.as_str()).copied()),
+        GraphViewNodeKind::Symbol | GraphViewNodeKind::Function
+    ) && node_kind(nodes_by_id.get(edge.target.as_str()).copied()) == GraphViewNodeKind::Code
+}
+
+fn is_dependency_membership(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
+    edge.kind == STRUCTURE_EDGE_KIND
+        && node_kind(nodes_by_id.get(edge.source.as_str()).copied()) == GraphViewNodeKind::Package
+        && node_kind(nodes_by_id.get(edge.target.as_str()).copied())
+            == GraphViewNodeKind::Environment
+}
+
+fn add_dependency_memberships(
+    graph: &Graph,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    node_ids: &mut BTreeSet<String>,
+    containments: &mut BTreeMap<String, GraphViewEdge>,
+    include_low_confidence_edges: bool,
+) {
+    for edge in &graph.edges {
+        if (!include_low_confidence_edges && has_low_confidence(edge))
+            || !is_dependency_membership(edge, nodes_by_id)
+        {
+            continue;
+        }
+
+        node_ids.insert(edge.source.clone());
+        node_ids.insert(edge.target.clone());
+        add_view_edge(
+            containments,
+            ProjectedEdge {
+                edge,
+                source: edge.source.clone(),
+                target: edge.target.clone(),
+            },
+        );
     }
 }
 
@@ -397,7 +789,7 @@ fn add_structure_edges(
         );
     }
 
-    if preset == GraphProjectionPreset::Full {
+    if preset == GraphProjectionPreset::All {
         for edge in structure_edges.into_values() {
             add_view_edge(edges, edge);
         }
@@ -581,7 +973,7 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
         Some(
             "CodeBlock" | "CodeChunk" | "CodeExpression" | "CodeInline" | "SoftwareSourceCode",
         ) => GraphViewNodeKind::Code,
-        Some("Variable") => GraphViewNodeKind::Symbol,
+        Some("Parameter" | "Variable") => GraphViewNodeKind::Symbol,
         Some("Function") => GraphViewNodeKind::Function,
         Some("Datatable" | "DatatableColumn") => GraphViewNodeKind::Datatable,
         Some("Directory") => GraphViewNodeKind::Workspace,
@@ -599,10 +991,20 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
 fn node_label(node: &GraphNode) -> String {
     let value = serde_json::to_value(node.node.as_ref()).unwrap_or(Value::Null);
 
-    for key in ["name", "title", "path", "url", "target", "id"] {
+    for key in ["name", "title", "path", "url", "target"] {
         if let Some(label) = string_value(value.get(key)) {
             return compact_label(&label);
         }
+    }
+
+    if node_kind(Some(node)) == GraphViewNodeKind::Document
+        && let Some(label) = document_scope_label(&node.id)
+    {
+        return label;
+    }
+
+    if let Some(label) = string_value(value.get("id")) {
+        return compact_label(&label);
     }
 
     compact_label(&node.id)
@@ -610,6 +1012,16 @@ fn node_label(node: &GraphNode) -> String {
 
 fn graph_id_namespace(id: &str) -> &str {
     id.split_once(':').map_or(id, |(namespace, ..)| namespace)
+}
+
+fn document_scope_label(id: &str) -> Option<String> {
+    let (namespace, scoped) = id.split_once(':')?;
+    if namespace != "node" {
+        return None;
+    }
+
+    let (scope, ..) = scoped.split_once('#')?;
+    (!scope.is_empty()).then(|| compact_label(scope))
 }
 
 fn schema_node_type(node: &GraphNode) -> Option<String> {
@@ -678,15 +1090,16 @@ pub fn edge_label(kind: GraphEdgeKind) -> String {
 mod tests {
     use eyre::Result;
     use stencila_schema::{
-        Article, File, Graph, GraphEdge, GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence,
-        GraphEvidenceKind, GraphNode, Node, Reference, SoftwareSourceCode,
+        Article, DatatableColumn, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphEvidence,
+        GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node, Reference,
+        SoftwareApplication, SoftwareSourceCode, Variable,
     };
 
     use super::*;
 
     #[test]
     fn selects_data_flow_projection_automatically() {
-        let view = project_graph(&graph(), &GraphProjectionOptions::default());
+        let view = project_graph(&duplicate_edge_graph(), &GraphProjectionOptions::default());
 
         assert_eq!(view.preset, GraphProjectionPreset::Flow);
         assert_eq!(
@@ -699,6 +1112,33 @@ mod tests {
                 .map(|node| node.id.as_str())
                 .collect::<Vec<_>>(),
             vec!["code:analysis.py", "file:data.csv"]
+        );
+    }
+
+    #[test]
+    fn prefers_citation_projection_over_generic_flow_edges() {
+        let view = project_graph(&graph(), &GraphProjectionOptions::default());
+
+        assert_eq!(view.preset, GraphProjectionPreset::Cite);
+        assert_eq!(
+            view.edges.iter().map(|edge| edge.kind).collect::<Vec<_>>(),
+            vec![GraphEdgeKind::CitedBy]
+        );
+    }
+
+    #[test]
+    fn selects_dependency_projection_for_declared_environments() {
+        let view = project_graph(&environment_graph(), &GraphProjectionOptions::default());
+
+        assert_eq!(view.preset, GraphProjectionPreset::Deps);
+        assert_eq!(view.containment, GraphContainmentMode::Clusters);
+        assert_eq!(
+            view.edges.iter().map(|edge| edge.kind).collect::<Vec<_>>(),
+            vec![
+                GraphEdgeKind::Declares,
+                GraphEdgeKind::Pins,
+                GraphEdgeKind::RequiredBy
+            ]
         );
     }
 
@@ -768,10 +1208,34 @@ mod tests {
     }
 
     #[test]
-    fn uses_full_preset_structure_defaults_after_auto_resolution() {
+    fn uses_clusters_for_focused_containment_by_default() {
+        let view = project_graph(
+            &graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        assert_eq!(view.containment, GraphContainmentMode::Clusters);
+        assert_eq!(
+            view.edges.iter().map(|edge| edge.kind).collect::<Vec<_>>(),
+            vec![GraphEdgeKind::ReadBy]
+        );
+        assert_eq!(
+            view.containments
+                .iter()
+                .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+                .collect::<Vec<_>>(),
+            vec!["PartOf:code:analysis.py->node:document#article"]
+        );
+    }
+
+    #[test]
+    fn uses_all_preset_structure_defaults_after_auto_resolution() {
         let view = project_graph(&structure_only_graph(), &GraphProjectionOptions::default());
 
-        assert_eq!(view.preset, GraphProjectionPreset::Full);
+        assert_eq!(view.preset, GraphProjectionPreset::All);
         assert_eq!(
             view.nodes
                 .iter()
@@ -803,6 +1267,107 @@ mod tests {
         assert_eq!(view.edges[0].count, 2);
         assert_eq!(view.edges[0].evidence_count, 1);
         assert!(view.edges[0].low_confidence);
+    }
+
+    #[test]
+    fn flow_detail_defaults_to_medium_without_local_symbols() {
+        let view = project_graph(
+            &detail_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.kind == GraphViewNodeKind::Symbol)
+        );
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.id == "function:analysis.py:python:read_csv")
+        );
+        assert!(
+            view.nodes
+                .iter()
+                .any(|node| node.id == "column:analysis.py:data.csv:count")
+        );
+        assert_eq!(
+            view.edges
+                .iter()
+                .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+                .collect::<Vec<_>>(),
+            vec![
+                "DerivedInto:column:analysis.py:data.csv:count->file:plot.png",
+                "Generated:code:analysis.py->file:plot.png",
+                "ReadBy:file:data.csv->code:analysis.py",
+            ]
+        );
+    }
+
+    #[test]
+    fn flow_detail_low_hides_datatable_columns() {
+        let view = project_graph(
+            &detail_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::Low,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.kind == GraphViewNodeKind::Datatable)
+        );
+        assert_eq!(
+            view.edges.iter().map(|edge| edge.kind).collect::<Vec<_>>(),
+            vec![GraphEdgeKind::Generated, GraphEdgeKind::ReadBy]
+        );
+    }
+
+    #[test]
+    fn flow_detail_high_includes_local_symbols_and_functions() {
+        let view = project_graph(
+            &detail_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            view.nodes
+                .iter()
+                .any(|node| node.id == "symbol:analysis.py:python:df")
+        );
+        assert!(
+            view.nodes
+                .iter()
+                .any(|node| node.id == "function:analysis.py:python:read_csv")
+        );
+        assert!(
+            view.edges
+                .iter()
+                .any(|edge| edge.kind == GraphEdgeKind::CalledBy)
+        );
+    }
+
+    #[test]
+    fn labels_document_roots_from_their_scope() {
+        let node = graph_node(
+            "node:manuscript/report.smd#art_",
+            Node::Article(Article::new(Vec::new())),
+        );
+
+        assert_eq!(node_label(&node), "report.smd");
     }
 
     fn graph() -> Graph {
@@ -905,6 +1470,129 @@ mod tests {
                     GraphEdgeKind::ReadBy,
                 ),
                 low_confidence_edge("file:data.csv", "code:analysis.py", GraphEdgeKind::ReadBy),
+            ],
+        )
+    }
+
+    fn environment_graph() -> Graph {
+        Graph::new(
+            "test:environment".to_string(),
+            vec![
+                graph_node(
+                    "file:pyproject.toml",
+                    Node::File(File::new(
+                        "pyproject.toml".to_string(),
+                        "pyproject.toml".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:uv.lock",
+                    Node::File(File::new("uv.lock".to_string(), "uv.lock".to_string())),
+                ),
+                graph_node(
+                    "environment:python:pyproject.toml",
+                    Node::SoftwareApplication(SoftwareApplication::new(
+                        "Python environment declared by pyproject.toml".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "package:pypi/pandas",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "pandas".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:pyproject.toml".to_string(),
+                    "environment:python:pyproject.toml".to_string(),
+                    GraphEdgeKind::Declares,
+                ),
+                GraphEdge::new(
+                    "file:uv.lock".to_string(),
+                    "environment:python:pyproject.toml".to_string(),
+                    GraphEdgeKind::Pins,
+                ),
+                GraphEdge::new(
+                    "package:pypi/pandas".to_string(),
+                    "environment:python:pyproject.toml".to_string(),
+                    GraphEdgeKind::RequiredBy,
+                ),
+            ],
+        )
+    }
+
+    fn detail_graph() -> Graph {
+        Graph::new(
+            "test:detail".to_string(),
+            vec![
+                graph_node(
+                    "file:data.csv",
+                    Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
+                ),
+                graph_node(
+                    "file:plot.png",
+                    Node::File(File::new("plot.png".to_string(), "plot.png".to_string())),
+                ),
+                graph_node(
+                    "code:analysis.py",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.py".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "symbol:analysis.py:python:df",
+                    Node::Variable(Variable::new("df".to_string())),
+                ),
+                graph_node(
+                    "function:analysis.py:python:read_csv",
+                    Node::Function(Function::new("read_csv".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "column:analysis.py:data.csv:count",
+                    Node::DatatableColumn(DatatableColumn::new("count".to_string(), Vec::new())),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:data.csv".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "code:analysis.py".to_string(),
+                    "file:plot.png".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "code:analysis.py".to_string(),
+                    "symbol:analysis.py:python:df".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "symbol:analysis.py:python:df".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::UsedBy,
+                ),
+                GraphEdge::new(
+                    "function:analysis.py:python:read_csv".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::CalledBy,
+                ),
+                GraphEdge::new(
+                    "column:analysis.py:data.csv:count".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::UsedBy,
+                ),
+                GraphEdge::new(
+                    "column:analysis.py:data.csv:count".to_string(),
+                    "file:plot.png".to_string(),
+                    GraphEdgeKind::DerivedInto,
+                ),
             ],
         )
     }

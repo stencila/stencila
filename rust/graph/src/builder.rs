@@ -127,6 +127,106 @@ impl GraphBuilder {
         self.add_edge_with_metadata(source, target, kind, [], []);
     }
 
+    /// Add structural containment from a child node to its parent container.
+    pub fn add_containment(
+        &mut self,
+        child: impl Into<String>,
+        parent: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(child, parent, GraphEdgeKind::PartOf, evidence);
+    }
+
+    /// Add a resource-read relationship from a resource to its consumer.
+    pub fn add_read(
+        &mut self,
+        resource: impl Into<String>,
+        consumer: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(resource, consumer, GraphEdgeKind::ReadBy, evidence);
+    }
+
+    /// Add a generated-output relationship from a generator to its output.
+    pub fn add_generation(
+        &mut self,
+        generator: impl Into<String>,
+        output: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(generator, output, GraphEdgeKind::Generated, evidence);
+    }
+
+    /// Add a lineage relationship from an upstream value or resource to a downstream result.
+    pub fn add_derivation(
+        &mut self,
+        source: impl Into<String>,
+        result: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(source, result, GraphEdgeKind::DerivedInto, evidence);
+    }
+
+    /// Add a citation relationship from a cited work to its citing context.
+    pub fn add_citation(
+        &mut self,
+        cited: impl Into<String>,
+        citing: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(cited, citing, GraphEdgeKind::CitedBy, evidence);
+    }
+
+    /// Add a link relationship from a linked resource to the link or document region.
+    pub fn add_link(
+        &mut self,
+        resource: impl Into<String>,
+        linked_by: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(resource, linked_by, GraphEdgeKind::LinkedBy, evidence);
+    }
+
+    /// Add an inclusion relationship from an included source to the including document node.
+    pub fn add_include(
+        &mut self,
+        source: impl Into<String>,
+        included_by: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(source, included_by, GraphEdgeKind::IncludedBy, evidence);
+    }
+
+    /// Add a declaration relationship from a manifest or config source to what it declares.
+    pub fn add_declaration(
+        &mut self,
+        source: impl Into<String>,
+        declared: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(source, declared, GraphEdgeKind::Declares, evidence);
+    }
+
+    /// Add a package requirement relationship from a package to its environment.
+    pub fn add_requirement(
+        &mut self,
+        package: impl Into<String>,
+        environment: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(package, environment, GraphEdgeKind::RequiredBy, evidence);
+    }
+
+    /// Add a reproducibility pin from a lockfile or exact pin to its environment.
+    pub fn add_pin(
+        &mut self,
+        pin: impl Into<String>,
+        pinned: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(pin, pinned, GraphEdgeKind::Pins, evidence);
+    }
+
     /// Add a directed graph edge with supporting evidence.
     ///
     /// If the edge already exists, new evidence items are appended when they are

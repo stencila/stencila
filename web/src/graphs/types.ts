@@ -41,6 +41,11 @@ export type GraphViewPreset =
 export type ResolvedGraphViewPreset = Exclude<GraphViewPreset, 'auto'>
 
 /**
+ * Amount of detail to include in focused graph projections.
+ */
+export type GraphProjectionDetail = 'low' | 'medium' | 'high'
+
+/**
  * User-selectable Cytoscape layout.
  *
  * The view exposes a constrained layout vocabulary so controls remain stable
@@ -57,6 +62,7 @@ export type GraphLayout = 'breadthfirst' | 'cose' | 'grid' | 'circle'
  */
 export interface GraphProjectionOptions {
   preset: GraphViewPreset
+  detail?: GraphProjectionDetail
   includeStructureEdges?: boolean
   includeLowConfidenceEdges?: boolean
   collapseCitationNodes?: boolean
@@ -70,6 +76,7 @@ export interface GraphProjectionOptions {
  */
 export interface ResolvedGraphProjectionOptions {
   preset: ResolvedGraphViewPreset
+  detail: GraphProjectionDetail
   includeStructureEdges: boolean
   includeLowConfidenceEdges: boolean
   collapseCitationNodes: boolean
@@ -142,6 +149,7 @@ export interface GraphViewEdge {
  */
 export interface GraphView {
   preset: ResolvedGraphViewPreset
+  detail: GraphProjectionDetail
   nodes: GraphViewNode[]
   edges: GraphViewEdge[]
 }

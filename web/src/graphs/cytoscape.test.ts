@@ -14,6 +14,7 @@ describe('toElements', () => {
   it('converts a graph view to Cytoscape elements', () => {
     const elements = toElements({
       preset: 'data-flow',
+      detail: 'medium',
       nodes: [
         {
           id: 'file:data.csv',

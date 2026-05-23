@@ -830,9 +830,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:analysis.js:javascript:readFileSync"
+    target: "code:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:analysis.js:javascript:summarize"
     target: "code:analysis.js"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:summarize"
+    target: "code:analysis.js"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -844,9 +858,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:analysis.js:javascript:trim"
+    target: "code:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:analysis.js:javascript:writeFileSync"
     target: "code:analysis.js"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.js:javascript:writeFileSync"
+    target: "code:analysis.js"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -858,9 +886,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:analysis.m:matlab:height"
+    target: "code:analysis.m"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:analysis.m:matlab:readtable"
     target: "code:analysis.m"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.m:matlab:readtable"
+    target: "code:analysis.m"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -872,9 +914,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:analysis.m:matlab:table"
+    target: "code:analysis.m"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:analysis.m:matlab:writetable"
     target: "code:analysis.m"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.m:matlab:writetable"
+    target: "code:analysis.m"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -886,9 +942,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:qc.ts:typescript:parse"
+    target: "code:qc.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:qc.ts:typescript:readFileSync"
     target: "code:qc.ts"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:qc.ts:typescript:readFileSync"
+    target: "code:qc.ts"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -900,7 +970,35 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:qc.ts:typescript:writeFileSync"
+    target: "code:qc.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/report.rs:rust:main"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:src/bin/report.rs:rust:read_to_string"
+    target: "code:src/bin/report.rs"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/report.rs:rust:read_to_string"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/report.rs:rust:write"
     target: "code:src/bin/report.rs"
     kind: CalledBy
     evidence:
@@ -909,7 +1007,7 @@ edges:
   - type: GraphEdge
     source: "function:src/bin/report.rs:rust:write"
     target: "code:src/bin/report.rs"
-    kind: CalledBy
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -949,9 +1047,37 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:analysis.js:javascript:input"
+    target: "code:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.m:matlab:count"
+    target: "code:analysis.m"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.m:matlab:tbl"
+    target: "code:analysis.m"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:analysis.m:matlab:tbl"
     target: "symbol:analysis.m:matlab:count"
     kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:qc.ts:typescript:table"
+    target: "code:qc.ts"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -970,9 +1096,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:derive"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:src/bin/report.rs:rust:format"
     target: "code:src/bin/report.rs"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:format"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -984,7 +1124,42 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:read_to_string"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:src/bin/report.rs:rust:rows"
+    target: "code:src/bin/report.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:rows"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:summary"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:table"
+    target: "code:src/bin/report.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/report.rs:rust:write"
     target: "code:src/bin/report.rs"
     kind: UsedBy
     evidence:
@@ -993,7 +1168,7 @@ edges:
   - type: GraphEdge
     source: "symbol:src/bin/report.rs:rust:write"
     target: "code:src/bin/report.rs"
-    kind: UsedBy
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

@@ -7,6 +7,7 @@ import { defaultProjectionOptions, projectGraph } from '../graphs/project'
 import type {
   Graph,
   GraphLayout,
+  GraphProjectionDetail,
   GraphViewPreset,
   ResolvedGraphViewPreset,
 } from '../graphs/types'
@@ -32,6 +33,9 @@ export class GraphViewElement extends LitElement {
 
   @state()
   private layout: GraphLayout = 'breadthfirst'
+
+  @state()
+  private detail: GraphProjectionDetail = 'medium'
 
   @state()
   private includeStructureEdges?: boolean
@@ -246,6 +250,7 @@ export class GraphViewElement extends LitElement {
       changed.has('graph') ||
       changed.has('projection') ||
       changed.has('layout') ||
+      changed.has('detail') ||
       changed.has('includeStructureEdges') ||
       changed.has('includeLowConfidenceEdges') ||
       changed.has('collapseCitationNodes')
@@ -310,6 +315,14 @@ export class GraphViewElement extends LitElement {
                     <option value="cose">Force</option>
                     <option value="grid">Grid</option>
                     <option value="circle">Circle</option>
+                  </select>
+                </label>
+                <label class="setting">
+                  <span class="setting-label">Detail</span>
+                  <select .value=${this.detail} @change=${this.onDetailChange}>
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
                   </select>
                 </label>
                 <label class="checkbox-setting">
@@ -383,6 +396,7 @@ export class GraphViewElement extends LitElement {
 
     const view = projectGraph(this.graph, {
       ...defaultProjectionOptions(this.projection),
+      detail: this.detail,
       includeStructureEdges: this.includeStructureEdges,
       includeLowConfidenceEdges: this.includeLowConfidenceEdges,
       collapseCitationNodes: this.collapseCitationNodes,
@@ -426,6 +440,11 @@ export class GraphViewElement extends LitElement {
 
   private onLayoutChange = (event: Event) => {
     this.layout = (event.currentTarget as HTMLSelectElement).value as GraphLayout
+  }
+
+  private onDetailChange = (event: Event) => {
+    this.detail = (event.currentTarget as HTMLSelectElement)
+      .value as GraphProjectionDetail
   }
 
   private onStructureChange = (event: Event) => {

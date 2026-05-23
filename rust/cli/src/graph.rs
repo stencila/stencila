@@ -12,8 +12,9 @@ use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
 use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
-    Graph, GraphProjectionOptions, GraphProjectionPreset, WorkspaceOptions, dot::to_dot,
-    graph_from_node, graph_from_path, project_graph,
+    Graph, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
+    GraphProjectionPreset, WorkspaceOptions, dot::to_dot, graph_from_node, graph_from_path,
+    project_graph,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -39,12 +40,20 @@ pub struct Cli {
     #[arg(long, value_enum, default_value_t = GraphProjectionPreset::Auto)]
     view: GraphProjectionPreset,
 
-    /// Include structural containment edges in projected graph exports
-    #[arg(long, conflicts_with = "no_structure")]
+    /// Detail level for projected graph exports
+    #[arg(long, value_enum, default_value_t = GraphProjectionDetail::Medium)]
+    detail: GraphProjectionDetail,
+
+    /// How to represent containment in projected graph exports
+    #[arg(long, value_enum, conflicts_with_all = ["structure", "no_structure"])]
+    containment: Option<GraphContainmentMode>,
+
+    /// Include structural containment as visual clusters in projected graph exports
+    #[arg(long, conflicts_with_all = ["containment", "no_structure"])]
     structure: bool,
 
-    /// Exclude structural containment edges in projected graph exports
-    #[arg(long)]
+    /// Exclude structural containment context in projected graph exports
+    #[arg(long, conflicts_with = "containment")]
     no_structure: bool,
 
     /// Exclude low-confidence edges in projected graph exports
@@ -114,6 +123,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Export a projected data flow graph as Graphviz DOT</dim>
   <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</>
 
+  <dim># Export a detailed data flow graph including local symbols</dim>
+  <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</> <c>--detail</> <g>high</>
+
+  <dim># Export the same graph without directory/document containment clusters</dim>
+  <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</> <c>--containment</> <g>none</>
+
   <dim># Export a projected software dependency graph as SVG using Graphviz</dim>
   <b>stencila graph</> <g>.</> <g>graph.svg</> <c>--view</> <g>deps</>
 "
@@ -145,13 +160,15 @@ impl Cli {
     fn projection_options(&self) -> GraphProjectionOptions {
         GraphProjectionOptions {
             preset: self.view,
-            include_structure_edges: if self.structure {
-                Some(true)
+            detail: self.detail,
+            containment: if self.structure {
+                Some(GraphContainmentMode::Clusters)
             } else if self.no_structure {
-                Some(false)
+                Some(GraphContainmentMode::None)
             } else {
-                None
+                self.containment
             },
+            include_structure_edges: None,
             include_low_confidence_edges: !self.no_low_confidence,
             collapse_citation_nodes: !self.no_collapse_citations,
         }

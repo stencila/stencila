@@ -304,6 +304,13 @@ edges:
         description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
     target: "symbol:dynamic.py:python:table"
     kind: DerivedInto
     evidence:
@@ -314,6 +321,13 @@ edges:
           pathKind: template
           expression: "data/{sample}.csv"
         description: template I/O path detected by static analysis.
+  - type: GraphEdge
+    source: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.jl"
     target: "file:analysis.jl"
@@ -462,6 +476,13 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:dynamic.py:python:read_csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:dynamic.py:python:to_csv"
     target: "code:dynamic.py"
     kind: CalledBy
@@ -469,9 +490,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:dynamic.py:python:to_csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:scripts/malformed.R:r:csv"
     target: "code:scripts/malformed.R"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:scripts/malformed.R:r:csv"
+    target: "code:scripts/malformed.R"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -511,7 +546,28 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:analysis.jl:julia:x"
+    target: "code:analysis.jl"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:dynamic.py:python:pd"
+    target: "code:dynamic.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:pd"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:read_csv"
     target: "code:dynamic.py"
     kind: UsedBy
     evidence:
@@ -520,7 +576,14 @@ edges:
   - type: GraphEdge
     source: "symbol:dynamic.py:python:read_csv"
     target: "code:dynamic.py"
-    kind: UsedBy
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:sample"
+    target: "code:dynamic.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -537,6 +600,13 @@ edges:
           expression: "results/{sample}.csv"
         description: template I/O path detected by static analysis.
   - type: GraphEdge
+    source: "symbol:dynamic.py:python:table"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:dynamic.py:python:to_csv"
     target: "code:dynamic.py"
     kind: UsedBy
@@ -544,9 +614,30 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:dynamic.py:python:to_csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/malformed.R:r:df"
+    target: "code:scripts/malformed.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/malformed.R:r:read.csv"
     target: "code:scripts/malformed.R"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/malformed.R:r:read.csv"
+    target: "code:scripts/malformed.R"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

@@ -751,9 +751,44 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:Snakefile:snakemake:align"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:counts"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:download"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:report"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
     target: "code:Snakefile"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:Snakefile:snakemake:shell"
+    target: "code:Snakefile"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -779,9 +814,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:Snakefile:snakemake:trim_reads"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:workflow/scripts/counts.py:python:Path"
     target: "code:workflow/scripts/counts.py"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/counts.py:python:Path"
+    target: "code:workflow/scripts/counts.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -793,9 +842,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:workflow/scripts/counts.py:python:write_text"
+    target: "code:workflow/scripts/counts.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:workflow/scripts/download.py:python:Path"
     target: "code:workflow/scripts/download.py"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:workflow/scripts/download.py:python:Path"
+    target: "code:workflow/scripts/download.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -807,9 +870,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:workflow/scripts/download.py:python:write_text"
+    target: "code:workflow/scripts/download.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:workflow/scripts/counts.py:python:Path"
     target: "code:workflow/scripts/counts.py"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/counts.py:python:Path"
+    target: "code:workflow/scripts/counts.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -821,7 +898,28 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:workflow/scripts/counts.py:python:write_text"
+    target: "code:workflow/scripts/counts.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:workflow/scripts/download.py:python:Path"
+    target: "code:workflow/scripts/download.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/download.py:python:Path"
+    target: "code:workflow/scripts/download.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:workflow/scripts/download.py:python:write_text"
     target: "code:workflow/scripts/download.py"
     kind: UsedBy
     evidence:
@@ -830,7 +928,14 @@ edges:
   - type: GraphEdge
     source: "symbol:workflow/scripts/download.py:python:write_text"
     target: "code:workflow/scripts/download.py"
-    kind: UsedBy
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:align"
+    target: "code:Snakefile"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -843,8 +948,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "workflow-rule:Snakefile:counts"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:counts"
     target: "file:results/counts/gene-counts.tsv"
     kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:download"
+    target: "code:Snakefile"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -857,8 +976,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "workflow-rule:Snakefile:report"
+    target: "code:Snakefile"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:report"
     target: "file:reports/rnaseq.html"
     kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:Snakefile:trim_reads"
+    target: "code:Snakefile"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

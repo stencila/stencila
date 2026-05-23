@@ -861,7 +861,6 @@ process align {
             scope,
             language,
             facts,
-            0,
             None,
         );
         builder.build()

@@ -130,10 +130,9 @@ pub async fn graph_from_path(
             WorkspaceEntryKind::Directory => {
                 add_directory(&mut builder, &entry.rel, &entry.path);
                 if let Some(parent) = entry.rel.parent() {
-                    builder.add_edge_with_evidence(
+                    builder.add_containment(
                         LocalGraphId::directory(&entry.rel),
                         LocalGraphId::directory(&parent),
-                        GraphEdgeKind::PartOf,
                         vec![evidence::observed()],
                     );
                 }
@@ -141,10 +140,9 @@ pub async fn graph_from_path(
             WorkspaceEntryKind::File => {
                 let file_id = add_file(&mut builder, &entry.path, &entry.rel, &entry.metadata);
                 if let Some(parent) = entry.rel.parent() {
-                    builder.add_edge_with_evidence(
+                    builder.add_containment(
                         &file_id,
                         LocalGraphId::directory(&parent),
-                        GraphEdgeKind::PartOf,
                         vec![evidence::observed()],
                     );
                 }
@@ -203,9 +201,9 @@ pub async fn graph_from_path(
                                     WorkspaceReferenceTarget::File,
                                 )?;
                                 let edge_kind = match kind {
-                                    DocumentReferenceKind::Media => GraphEdgeKind::ReferencedBy,
-                                    DocumentReferenceKind::Include => GraphEdgeKind::TranscludedBy,
-                                    DocumentReferenceKind::Link => GraphEdgeKind::ReferencedBy,
+                                    DocumentReferenceKind::Media => GraphEdgeKind::LinkedBy,
+                                    DocumentReferenceKind::Include => GraphEdgeKind::IncludedBy,
+                                    DocumentReferenceKind::Link => GraphEdgeKind::LinkedBy,
                                 };
 
                                 Some((file_id, edge_kind))
@@ -230,22 +228,16 @@ pub async fn graph_from_path(
             WorkspaceEntryKind::SymbolicLink => {
                 let symlink_id = add_symbolic_link(&mut builder, &entry.path, &entry.rel)?;
                 if let Some(parent) = entry.rel.parent() {
-                    builder.add_edge_with_evidence(
+                    builder.add_containment(
                         &symlink_id,
                         LocalGraphId::directory(&parent),
-                        GraphEdgeKind::PartOf,
                         vec![evidence::observed()],
                     );
                 }
 
                 if let Some(target_id) = symbolic_link_target_id(&root, &entry.path, &entry_kinds)?
                 {
-                    builder.add_edge_with_evidence(
-                        target_id,
-                        symlink_id,
-                        GraphEdgeKind::ReferencedBy,
-                        evidence::observed_and_resolved(),
-                    );
+                    builder.add_link(target_id, symlink_id, evidence::observed_and_resolved());
                 }
             }
             WorkspaceEntryKind::Other => {}

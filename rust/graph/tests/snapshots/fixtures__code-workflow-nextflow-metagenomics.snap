@@ -504,9 +504,23 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
+    source: "function:main.nf:nextflow:classify"
+    target: "code:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:main.nf:nextflow:exec"
     target: "code:main.nf"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:exec"
+    target: "code:main.nf"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -518,9 +532,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:main.nf:nextflow:qc"
+    target: "code:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:main.nf:nextflow:script"
     target: "code:main.nf"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:script"
+    target: "code:main.nf"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -540,8 +568,29 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "function:main.nf:nextflow:shell"
+    target: "code:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:shell"
     target: "workflow-rule:main.nf:classify"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:main.nf:nextflow:summarize"
+    target: "code:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:classify"
+    target: "code:main.nf"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -554,8 +603,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "workflow-rule:main.nf:qc"
+    target: "code:main.nf"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:qc"
     target: "file:results/qc/M1-qc.txt"
     kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "workflow-rule:main.nf:summarize"
+    target: "code:main.nf"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

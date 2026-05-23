@@ -203,7 +203,7 @@ edges:
   - type: GraphEdge
     source: "file:data/table.tsv"
     target: "node:manuscript/report.smd#inc_content-4"
-    kind: TranscludedBy
+    kind: IncludedBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -212,7 +212,7 @@ edges:
   - type: GraphEdge
     source: "file:data/table.tsv"
     target: "node:manuscript/report.smd#lin_content-1-content-3"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -244,7 +244,7 @@ edges:
   - type: GraphEdge
     source: "file:media/figure.svg"
     target: "node:manuscript/report.smd#img_content-3"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -330,7 +330,7 @@ edges:
   - type: GraphEdge
     source: "resource:https%3A//doi.org/10.5281/zenodo.12345"
     target: "node:manuscript/report.smd#lin_content-1-content-5"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Declared

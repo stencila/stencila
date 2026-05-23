@@ -34,8 +34,8 @@ use std::{
 use eyre::{Result, WrapErr};
 use sha2::{Digest, Sha256};
 use stencila_schema::{
-    GraphEdgeKind, GraphEvidence, Node as SchemaNode, Object, Primitive, PropertyValue,
-    PropertyValueOrString, SoftwareApplication, SoftwareApplicationOrSoftwareSourceCodeOrString,
+    GraphEvidence, Node as SchemaNode, Object, Primitive, PropertyValue, PropertyValueOrString,
+    SoftwareApplication, SoftwareApplicationOrSoftwareSourceCodeOrString,
 };
 
 use crate::{
@@ -375,10 +375,9 @@ fn add_manifest_environment(
         environment_id.clone(),
         SchemaNode::SoftwareApplication(environment),
     );
-    builder.add_edge_with_evidence(
+    builder.add_declaration(
         manifest_file_id,
         &environment_id,
-        GraphEdgeKind::DerivedInto,
         vec![evidence::static_analysis()],
     );
 
@@ -395,20 +394,18 @@ fn add_manifest_environment(
         );
 
         builder.add_schema_node(package_id.clone(), SchemaNode::SoftwareSourceCode(package));
-        builder.add_edge_with_evidence(
+        builder.add_requirement(
             package_id,
             &environment_id,
-            GraphEdgeKind::PartOf,
             declared_static_analysis_evidence(&manifest, dependency),
         );
     }
 
     for lockfile in associated_lockfiles(&manifest) {
         if let Some(lockfile_id) = file_id_for_rel(&lockfile) {
-            builder.add_edge_with_evidence(
+            builder.add_pin(
                 lockfile_id,
                 &environment_id,
-                GraphEdgeKind::ReferencedBy,
                 vec![evidence::static_analysis()],
             );
         }

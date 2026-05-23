@@ -116,7 +116,7 @@ Expected graph surface:
 
 - `CodeChunk` and `CodeExpression` boundary nodes
 - static code facts extracted from executable document nodes
-- `DependsOn` edges between chunks based on symbol use and prior definitions
+- `Generated` and `UsedBy` symbol edges for dependencies between chunks
 - local file `ReadBy` edges resolved relative to the document file
 - recorded output nodes and `Generated` edges with execute-action metadata when executed outputs are present
 - output nodes should remain shallow enough for stable snapshots
@@ -135,9 +135,9 @@ Expected graph surface:
 - decoded document boundary nodes such as `Article`, `Heading`, `Link`, `Citation`, `Reference`, `ImageObject`, and `IncludeBlock`
 - `ConvertedInto` edges from source document files to decoded document roots
 - document structural `PartOf` edges
-- local media and link `ReferencedBy` edges
+- local media and link `LinkedBy` edges
 - citation `CitedBy` edges
-- include `TranscludedBy` edges
+- include `IncludedBy` edges
 - external resources represented as resource nodes when appropriate
 
 ## environment-manifests-lockfiles-polyglot
@@ -153,9 +153,9 @@ Expected graph surface:
 
 - environment `SoftwareApplication` nodes for supported manifests
 - package `SoftwareSourceCode` nodes using ecosystem-scoped ids and PURL identifiers
-- manifest `DerivedInto` edges to environment nodes
-- package `PartOf` edges to environment nodes with declared and static-analysis evidence
-- lockfile `ReferencedBy` edges to associated environment nodes
+- manifest `Declares` edges to environment nodes
+- package `RequiredBy` edges to environment nodes with declared and static-analysis evidence
+- lockfile `Pins` edges to associated environment nodes
 - SHA-256 identifiers on manifest and lockfile `File` nodes
 
 ## workspace-negative-dynamic-invalid
@@ -190,6 +190,6 @@ Expected graph surface:
 
 - `SymbolicLink` nodes for link entries
 - `PartOf` edges from symlinks to their containing directories
-- `ReferencedBy` edges from in-workspace symlink targets to symlink nodes
+- `LinkedBy` edges from in-workspace symlink targets to symlink nodes
 - no document decoding or code analysis through symlink targets
 - unresolved or outside-workspace symlink targets should not create dangling edges

@@ -222,9 +222,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:docs/notebook.json:python:read_csv"
     target: "node:docs/notebook.json#cdc_setup"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -235,13 +249,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "node:docs/notebook.json#cdc_analysis"
-    target: "node:docs/notebook.json#cdc_setup"
-    kind: DependsOn
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "node:docs/notebook.json#cdc_analysis"
     target: "output:docs/notebook.json#cdc_analysis:0"
@@ -296,13 +303,6 @@ edges:
         kind: Computed
   - type: GraphEdge
     source: "node:docs/notebook.json#cde_content-3-content-1"
-    target: "node:docs/notebook.json#cdc_analysis"
-    kind: DependsOn
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "node:docs/notebook.json#cde_content-3-content-1"
     target: "output:docs/notebook.json#cde_content-3-content-1:0"
     kind: Generated
     evidence:
@@ -334,8 +334,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:adjusted"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:adjusted"
     target: "node:docs/notebook.json#cde_content-3-content-1"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:adjusted"
+    target: "node:docs/notebook.json#cde_content-3-content-1"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -347,9 +361,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:docs/notebook.json:python:pd"
     target: "node:docs/notebook.json#cdc_setup"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:pd"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -361,7 +389,35 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:docs/notebook.json:python:samples"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:samples"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:samples"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:scale"
     target: "node:docs/notebook.json#cdc_analysis"
     kind: UsedBy
     evidence:
@@ -370,7 +426,14 @@ edges:
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:scale"
     target: "node:docs/notebook.json#cdc_analysis"
-    kind: UsedBy
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:docs/notebook.json:python:scale"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

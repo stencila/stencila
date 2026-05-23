@@ -29,16 +29,18 @@ const EDGE_PRESETS_BY_KIND: Record<
   UsedBy: ['data-flow', 'software-dependencies'],
   ReadBy: ['data-flow'],
   Generated: ['data-flow'],
-  CalledBy: ['software-dependencies'],
   DerivedInto: ['data-flow'],
   ConvertedInto: ['data-flow'],
-  Parameterizes: ['reactivity'],
-  DependsOn: ['reactivity'],
-  PartOf: [],
-  TranscludedBy: ['data-flow'],
+  CalledBy: ['data-flow', 'software-dependencies'],
   ImportedBy: ['software-dependencies'],
+  PartOf: [],
+  IncludedBy: ['data-flow'],
+  LinkedBy: ['citations'],
   CitedBy: ['citations'],
-  ReferencedBy: ['citations'],
+  Declares: ['software-dependencies'],
+  Configures: ['data-flow', 'software-dependencies'],
+  RequiredBy: ['software-dependencies'],
+  Pins: ['software-dependencies'],
 }
 
 /**
@@ -132,7 +134,7 @@ export function nodeKind(node: GraphNode | undefined): GraphViewNodeKind {
     return 'code'
   }
 
-  if (nodeType === 'Variable') {
+  if (nodeType === 'Parameter' || nodeType === 'Variable') {
     return 'symbol'
   }
 

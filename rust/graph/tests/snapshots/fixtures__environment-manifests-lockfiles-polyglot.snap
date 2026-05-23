@@ -489,7 +489,7 @@ edges:
   - type: GraphEdge
     source: "file:Cargo.lock"
     target: "environment:rust:Cargo.toml"
-    kind: ReferencedBy
+    kind: Pins
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -503,7 +503,7 @@ edges:
   - type: GraphEdge
     source: "file:Cargo.toml"
     target: "environment:rust:Cargo.toml"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -517,7 +517,7 @@ edges:
   - type: GraphEdge
     source: "file:DESCRIPTION"
     target: "environment:r:DESCRIPTION"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -531,7 +531,7 @@ edges:
   - type: GraphEdge
     source: "file:Manifest-v1.11.toml"
     target: "environment:julia:Project.toml"
-    kind: ReferencedBy
+    kind: Pins
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -545,7 +545,7 @@ edges:
   - type: GraphEdge
     source: "file:Project.toml"
     target: "environment:julia:Project.toml"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -559,7 +559,7 @@ edges:
   - type: GraphEdge
     source: "file:package-lock.json"
     target: "environment:node:package.json"
-    kind: ReferencedBy
+    kind: Pins
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -582,7 +582,7 @@ edges:
   - type: GraphEdge
     source: "file:package.json"
     target: "environment:node:package.json"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -605,7 +605,7 @@ edges:
   - type: GraphEdge
     source: "file:pyproject.toml"
     target: "environment:python:pyproject.toml"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -619,7 +619,7 @@ edges:
   - type: GraphEdge
     source: "file:renv.lock"
     target: "environment:r:DESCRIPTION"
-    kind: ReferencedBy
+    kind: Pins
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -633,7 +633,7 @@ edges:
   - type: GraphEdge
     source: "file:resources/mpackage.json"
     target: "environment:matlab:resources/mpackage.json"
-    kind: DerivedInto
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -656,14 +656,14 @@ edges:
   - type: GraphEdge
     source: "file:uv.lock"
     target: "environment:python:pyproject.toml"
-    kind: ReferencedBy
+    kind: Pins
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "package:cargo/csv"
     target: "environment:rust:Cargo.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -690,7 +690,7 @@ edges:
   - type: GraphEdge
     source: "package:cargo/serde"
     target: "environment:rust:Cargo.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -715,7 +715,7 @@ edges:
   - type: GraphEdge
     source: "package:cran/dplyr"
     target: "environment:r:DESCRIPTION"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -740,7 +740,7 @@ edges:
   - type: GraphEdge
     source: "package:cran/ggplot2"
     target: "environment:r:DESCRIPTION"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -763,7 +763,7 @@ edges:
   - type: GraphEdge
     source: "package:cran/testthat"
     target: "environment:r:DESCRIPTION"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -786,7 +786,7 @@ edges:
   - type: GraphEdge
     source: "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
     target: "environment:julia:Project.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -811,7 +811,7 @@ edges:
   - type: GraphEdge
     source: "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
     target: "environment:julia:Project.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -836,7 +836,7 @@ edges:
   - type: GraphEdge
     source: "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     target: "environment:julia:Project.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -861,7 +861,7 @@ edges:
   - type: GraphEdge
     source: "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40"
     target: "environment:julia:Project.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -884,7 +884,7 @@ edges:
   - type: GraphEdge
     source: "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
     target: "environment:matlab:resources/mpackage.json"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -909,7 +909,7 @@ edges:
   - type: GraphEdge
     source: "package:npm/d3-dsv"
     target: "environment:node:package.json"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -934,7 +934,7 @@ edges:
   - type: GraphEdge
     source: "package:npm/typescript"
     target: "environment:node:package.json"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -959,7 +959,7 @@ edges:
   - type: GraphEdge
     source: "package:pypi/matplotlib"
     target: "environment:python:pyproject.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -984,7 +984,7 @@ edges:
   - type: GraphEdge
     source: "package:pypi/pandas"
     target: "environment:python:pyproject.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -1009,7 +1009,7 @@ edges:
   - type: GraphEdge
     source: "package:pypi/requests"
     target: "environment:python:pyproject.toml"
-    kind: PartOf
+    kind: RequiredBy
     evidence:
       - type: GraphEvidence
         kind: Declared

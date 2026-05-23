@@ -6,15 +6,17 @@ export type GraphEdgeKind =
   'UsedBy' |
   'ReadBy' |
   'Generated' |
-  'CalledBy' |
   'DerivedInto' |
   'ConvertedInto' |
-  'Parameterizes' |
-  'DependsOn' |
-  'PartOf' |
-  'TranscludedBy' |
+  'CalledBy' |
   'ImportedBy' |
+  'PartOf' |
+  'IncludedBy' |
+  'LinkedBy' |
   'CitedBy' |
-  'ReferencedBy';
+  'Declares' |
+  'Configures' |
+  'RequiredBy' |
+  'Pins';
 
 

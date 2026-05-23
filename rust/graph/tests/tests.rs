@@ -121,8 +121,17 @@ fn resolves_read_before_write_document_reactivity() -> Result<()> {
             _ => None,
         })
         .ok_or_eyre("update chunk should be present")?;
+    let symbol_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::Variable(variable) if variable.name == "x" => Some(node.id.as_str()),
+            _ => None,
+        })
+        .ok_or_eyre("symbol x should be present")?;
 
-    assert_graph_edge(&graph, update_id, setup_id, GraphEdgeKind::DependsOn);
+    assert_graph_edge(&graph, setup_id, symbol_id, GraphEdgeKind::Generated);
+    assert_graph_edge(&graph, symbol_id, update_id, GraphEdgeKind::UsedBy);
 
     Ok(())
 }
@@ -192,12 +201,12 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
     assert!(graph.edges.iter().any(|edge| {
         edge.source == "file:assets/source.svg"
             && edge.target.starts_with("node:docs/report.smd#img_")
-            && edge.kind == GraphEdgeKind::ReferencedBy
+            && edge.kind == GraphEdgeKind::LinkedBy
     }));
     assert!(graph.edges.iter().any(|edge| {
         edge.source == "file:docs/assets%3Araw/source%231%25%20copy.svg"
             && edge.target.starts_with("node:docs/report.smd#img_")
-            && edge.kind == GraphEdgeKind::ReferencedBy
+            && edge.kind == GraphEdgeKind::LinkedBy
     }));
     let link_edge = graph
         .edges
@@ -205,7 +214,7 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
         .find(|edge| {
             edge.source == "file:assets/source.svg"
                 && edge.target.starts_with("node:docs/report.smd#lin_")
-                && edge.kind == GraphEdgeKind::ReferencedBy
+                && edge.kind == GraphEdgeKind::LinkedBy
         })
         .ok_or_eyre("workspace-relative link edge should exist")?;
     assert_edge_evidence(link_edge, GraphEvidenceKind::Declared);
@@ -249,7 +258,7 @@ fn adds_citation_and_external_link_provenance() -> Result<()> {
         .edges
         .iter()
         .find(|edge| {
-            edge.kind == GraphEdgeKind::ReferencedBy
+            edge.kind == GraphEdgeKind::LinkedBy
                 && edge.source == "resource:https%3A//example.org/data"
         })
         .ok_or_eyre("external link edge should exist")?;

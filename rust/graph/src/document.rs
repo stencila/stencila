@@ -202,7 +202,7 @@ struct DocumentCollector<'a> {
     /// document collector.
     reference_resolver: Option<&'a mut DocumentReferenceResolver<'a>>,
 
-    /// Static code facts used to resolve document reactivity after traversal.
+    /// Static code facts discovered in executable document nodes.
     code_index: DocumentCodeIndex,
 }
 
@@ -225,26 +225,20 @@ impl<'a> DocumentCollector<'a> {
             anchors: HashMap::new(),
             pending_internal_references: Vec::new(),
             reference_resolver,
-            code_index: DocumentCodeIndex::default(),
+            code_index: DocumentCodeIndex,
         }
     }
 
     /// Resolve edges that needed a complete document anchor index.
     fn finish(&mut self) {
-        self.code_index.finish(self.builder);
-
         let pending = std::mem::take(&mut self.pending_internal_references);
         for (link_id, target) in pending {
             let Some(target_id) = self.anchors.get(&target) else {
                 continue;
             };
 
-            self.builder.add_edge_with_evidence(
-                target_id,
-                link_id,
-                GraphEdgeKind::ReferencedBy,
-                evidence::declared_and_resolved(),
-            );
+            self.builder
+                .add_link(target_id, link_id, evidence::declared_and_resolved());
         }
     }
 
@@ -283,12 +277,8 @@ impl<'a> DocumentCollector<'a> {
         self.builder.add_schema_node(graph_id.clone(), embedded);
 
         if structural && let Some(parent_id) = self.parent_stack.last() {
-            self.builder.add_edge_with_evidence(
-                graph_id.clone(),
-                parent_id,
-                GraphEdgeKind::PartOf,
-                vec![evidence::computed()],
-            );
+            self.builder
+                .add_containment(graph_id.clone(), parent_id, vec![evidence::computed()]);
         }
 
         self.add_document_reference(&graph_id, &node);
@@ -369,12 +359,22 @@ impl<'a> DocumentCollector<'a> {
             return false;
         };
 
-        self.builder.add_edge_with_evidence(
-            file_id,
-            graph_id,
-            edge_kind,
-            evidence::declared_and_resolved(),
-        );
+        match edge_kind {
+            GraphEdgeKind::IncludedBy => {
+                self.builder
+                    .add_include(file_id, graph_id, evidence::declared_and_resolved());
+            }
+            GraphEdgeKind::LinkedBy => {
+                self.builder
+                    .add_link(file_id, graph_id, evidence::declared_and_resolved());
+            }
+            _ => self.builder.add_edge_with_evidence(
+                file_id,
+                graph_id,
+                edge_kind,
+                evidence::declared_and_resolved(),
+            ),
+        }
         true
     }
 
@@ -397,10 +397,9 @@ impl<'a> DocumentCollector<'a> {
 
         self.builder
             .add_schema_node(reference_id.clone(), Node::Reference(reference));
-        self.builder.add_edge_with_evidence(
+        self.builder.add_citation(
             reference_id,
             citation_id,
-            GraphEdgeKind::CitedBy,
             declared_citation_evidence(citation),
         );
     }
@@ -429,12 +428,8 @@ impl<'a> DocumentCollector<'a> {
 
             self.builder
                 .add_schema_node(resource_id.clone(), Node::CreativeWork(resource));
-            self.builder.add_edge_with_evidence(
-                resource_id,
-                link_id,
-                GraphEdgeKind::ReferencedBy,
-                vec![evidence::declared()],
-            );
+            self.builder
+                .add_link(resource_id, link_id, vec![evidence::declared()]);
         }
     }
 

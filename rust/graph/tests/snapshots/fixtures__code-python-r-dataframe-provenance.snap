@@ -787,9 +787,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:scripts/analysis.R:r:csv"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:scripts/analysis.R:r:ggsave"
     target: "code:scripts/analysis.R"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:scripts/analysis.R:r:ggsave"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -801,9 +815,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:scripts/analysis.py:python:mean"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:scripts/analysis.py:python:read_csv"
     target: "code:scripts/analysis.py"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:scripts/analysis.py:python:read_csv"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -815,9 +843,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "function:scripts/analysis.py:python:savefig"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:scripts/analysis.py:python:to_csv"
     target: "code:scripts/analysis.py"
     kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:scripts/analysis.py:python:to_csv"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -851,6 +893,13 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:df"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:df"
     target: "file:outputs/r-summary.csv"
     kind: DerivedInto
     evidence:
@@ -864,9 +913,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:ggsave"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:read.csv"
     target: "code:scripts/analysis.R"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:read.csv"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -878,6 +941,13 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:site"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:write.csv"
     target: "code:scripts/analysis.R"
     kind: UsedBy
@@ -885,9 +955,30 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.R:r:write.csv"
+    target: "code:scripts/analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:clean"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
     target: "file:outputs/python-clean.csv"
     kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:df"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -913,9 +1004,30 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:loc"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:mean"
     target: "code:scripts/analysis.py"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:mean"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:mean_count"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -927,9 +1039,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:pd"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:plt"
     target: "code:scripts/analysis.py"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:plt"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -941,9 +1067,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:pyplot"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:read_csv"
     target: "code:scripts/analysis.py"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:read_csv"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -955,9 +1095,23 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:savefig"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:to_csv"
     target: "code:scripts/analysis.py"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:scripts/analysis.py:python:to_csv"
+    target: "code:scripts/analysis.py"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

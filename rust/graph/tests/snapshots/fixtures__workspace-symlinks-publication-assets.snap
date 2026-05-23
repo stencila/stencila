@@ -209,7 +209,7 @@ edges:
   - type: GraphEdge
     source: "file:data/source-table.tsv"
     target: "node:docs/manuscript.smd#lin_content-1-content-3"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Declared
@@ -241,7 +241,7 @@ edges:
   - type: GraphEdge
     source: "file:figures/model-v1.png"
     target: "symlink:docs/figures/previous.png"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Observed
@@ -257,7 +257,7 @@ edges:
   - type: GraphEdge
     source: "file:figures/model-v2.png"
     target: "symlink:docs/figures/latest.png"
-    kind: ReferencedBy
+    kind: LinkedBy
     evidence:
       - type: GraphEvidence
         kind: Observed
