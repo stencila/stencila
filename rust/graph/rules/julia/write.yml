@@ -1,11 +1,112 @@
 id: julia-write
 language: Julia
+
+# Pattern order convention within each API family:
+#
+# 1. namespaced call, variadic before fixed arity
+# 2. bare function call, variadic before fixed arity
+#
+# Core handle constructors with MODE are classified from read.yml because mode
+# strings decide whether the operation reads, writes, or does both. Keyword-
+# argument variants for these functions are also handled by the Julia text
+# scanner in `code/scan/io.rs`.
 rule:
   any:
-    - pattern: CSV.write($PATH, $VALUE)
-    - pattern: CSV.write($PATH, $VALUE, $$$ARGS)
-    - pattern: CSV.write($PATH, $$$ARGS)
-    - pattern: write($PATH, $VALUE)
+    # Core Julia file, delimited text, and serialization writers.
+    - pattern: $WRITER.write($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write($PATH, $VALUE)
     - pattern: write($PATH, $VALUE, $$$ARGS)
+    - pattern: write($PATH, $VALUE)
+    - pattern: $WRITER.write($PATH, $$$ARGS)
     - pattern: write($PATH, $$$ARGS)
+    - pattern: $WRITER.writedlm($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.writedlm($PATH, $VALUE)
+    - pattern: writedlm($PATH, $VALUE, $$$ARGS)
+    - pattern: writedlm($PATH, $VALUE)
+    - pattern: $WRITER.serialize($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.serialize($PATH, $VALUE)
+    - pattern: serialize($PATH, $VALUE, $$$ARGS)
+    - pattern: serialize($PATH, $VALUE)
+
+    # Delimited and dataframe writers.
+    - pattern: CSV.write($PATH, $VALUE, $$$ARGS)
+    - pattern: CSV.write($PATH, $VALUE)
+    - pattern: $WRITER.write_csv($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write_csv($PATH, $VALUE)
+    - pattern: write_csv($PATH, $VALUE, $$$ARGS)
+    - pattern: write_csv($PATH, $VALUE)
+    - pattern: CSV.write($PATH, $$$ARGS)
+    - pattern: $WRITER.write_csv($PATH, $$$ARGS)
+    - pattern: write_csv($PATH, $$$ARGS)
+    - pattern: $WRITER.write_parquet($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write_parquet($PATH, $VALUE)
+    - pattern: write_parquet($PATH, $VALUE, $$$ARGS)
+    - pattern: write_parquet($PATH, $VALUE)
+    - pattern: $WRITER.write_parquet($PATH, $$$ARGS)
+    - pattern: write_parquet($PATH, $$$ARGS)
+    - pattern: $WRITER.write_table($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write_table($PATH, $VALUE)
+    - pattern: write_table($PATH, $VALUE, $$$ARGS)
+    - pattern: write_table($PATH, $VALUE)
+
+    # Serialization, arrays, workbooks, and scientific data stores.
+    - pattern: $WRITER.save($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.save($PATH, $VALUE)
+    - pattern: save($PATH, $VALUE, $$$ARGS)
+    - pattern: save($PATH, $VALUE)
+    - pattern: $WRITER.save($PATH, $$$ARGS)
+    - pattern: save($PATH, $$$ARGS)
+    - pattern: $WRITER.bson($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.bson($PATH, $VALUE)
+    - pattern: bson($PATH, $VALUE, $$$ARGS)
+    - pattern: bson($PATH, $VALUE)
+    - pattern: $WRITER.npzwrite($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.npzwrite($PATH, $VALUE)
+    - pattern: npzwrite($PATH, $VALUE, $$$ARGS)
+    - pattern: npzwrite($PATH, $VALUE)
+    - pattern: $WRITER.npywrite($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.npywrite($PATH, $VALUE)
+    - pattern: npywrite($PATH, $VALUE, $$$ARGS)
+    - pattern: npywrite($PATH, $VALUE)
+    - pattern: $WRITER.matwrite($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.matwrite($PATH, $VALUE)
+    - pattern: matwrite($PATH, $VALUE, $$$ARGS)
+    - pattern: matwrite($PATH, $VALUE)
+    - pattern: $WRITER.writetable($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.writetable($PATH, $VALUE)
+    - pattern: writetable($PATH, $VALUE, $$$ARGS)
+    - pattern: writetable($PATH, $VALUE)
+    - pattern: $WRITER.h5write($PATH, $$$ARGS)
+    - pattern: h5write($PATH, $$$ARGS)
+
+    # Structured, spatial, image, and plot writers.
+    - pattern: $WRITER.write_file($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write_file($PATH, $VALUE)
+    - pattern: write_file($PATH, $VALUE, $$$ARGS)
+    - pattern: write_file($PATH, $VALUE)
+    - pattern: $WRITER.write_json($PATH, $VALUE, $$$ARGS)
+    - pattern: $WRITER.write_json($PATH, $VALUE)
+    - pattern: write_json($PATH, $VALUE, $$$ARGS)
+    - pattern: write_json($PATH, $VALUE)
+    - pattern: $WRITER.savefig($VALUE, $PATH, $$$ARGS)
+    - pattern: $WRITER.savefig($VALUE, $PATH)
+    - pattern: savefig($VALUE, $PATH, $$$ARGS)
+    - pattern: savefig($VALUE, $PATH)
+    - pattern: $WRITER.savefig($PATH, $$$ARGS)
+    - pattern: $WRITER.savefig($PATH)
+    - pattern: savefig($PATH, $$$ARGS)
     - pattern: savefig($PATH)
+
+    # URL download and copy helpers. Sources are represented in read.yml.
+    - pattern: $WRITER.download($SRC, $PATH, $$$ARGS)
+    - pattern: $WRITER.download($SRC, $PATH)
+    - pattern: download($SRC, $PATH, $$$ARGS)
+    - pattern: download($SRC, $PATH)
+    - pattern: $WRITER.cp($SRC, $PATH, $$$ARGS)
+    - pattern: $WRITER.cp($SRC, $PATH)
+    - pattern: cp($SRC, $PATH, $$$ARGS)
+    - pattern: cp($SRC, $PATH)
+    - pattern: $WRITER.mv($SRC, $PATH, $$$ARGS)
+    - pattern: $WRITER.mv($SRC, $PATH)
+    - pattern: mv($SRC, $PATH, $$$ARGS)
+    - pattern: mv($SRC, $PATH)

@@ -390,6 +390,101 @@ CSV.write("results/output.csv", df)
     }
 
     #[test]
+    fn extracts_scientific_julia_io_facts() {
+        let facts = analyze_source(
+            CodeLanguage::Julia,
+            r#"
+using CSV
+using Downloads
+using Serialization
+using XLSX
+
+table = CSV.read("data/table.csv", DataFrame; delim = ',')
+rows = CSV.File(; file = "data/rows.csv")
+matrix = readdlm(source = "data/matrix.tsv")
+text = read("data/config.txt", String)
+lines = readlines(; filename = "data/lines.txt")
+workbook = XLSX.readxlsx(; filename = "https://example.org/workbook.xlsx")
+cube = h5read(; filename = "data/cube.h5", name = "/x")
+model = deserialize(filename = "data/model.bin")
+parquet = read_parquet(path = "data/table.parquet")
+download("https://example.org/raw.csv", "downloads/raw.csv")
+Downloads.download(; url = "https://example.org/api.json", output = "downloads/api.json")
+cp("downloads/raw.csv", "copies/raw.csv")
+mv(src = "staging/report.csv", dst = "reports/report.csv")
+out = open("outputs/handle.txt", "w")
+rw = h5open("outputs/cube.h5", "r+")
+unopened = open("data/unopened.txt")
+nested = wrapper(input = CSV.read(; file = "nested/no-target.csv"))
+# CSV.read(file = "comment-julia.csv")
+string = "CSV.read(file = \"string-julia.csv\")"
+myread(filename = "helper-julia.csv")
+table.count
+
+CSV.write("outputs/table.csv", table)
+writedlm("outputs/matrix.tsv", matrix)
+serialize(model; filename = "outputs/model.bin")
+write("outputs/config.txt", text)
+write_parquet(table; path = "outputs/table.parquet")
+XLSX.writetable(table; filename = "outputs/workbook.xlsx")
+h5write("outputs/data.h5", "/x", matrix)
+save("outputs/image.png", matrix)
+savefig(; filename = "outputs/plot.png")
+"#,
+        );
+
+        assert!(facts.imports.contains(&PackageFact::new("julia", "CSV")));
+        assert!(
+            facts
+                .imports
+                .contains(&PackageFact::new("julia", "Downloads"))
+        );
+        assert_io(&facts, IoDirection::Read, "data/table.csv");
+        assert_io(&facts, IoDirection::Read, "data/rows.csv");
+        assert_io(&facts, IoDirection::Read, "data/matrix.tsv");
+        assert_io(&facts, IoDirection::Read, "data/config.txt");
+        assert_io(&facts, IoDirection::Read, "data/lines.txt");
+        assert_io(
+            &facts,
+            IoDirection::Read,
+            "https://example.org/workbook.xlsx",
+        );
+        assert_io(&facts, IoDirection::Read, "data/cube.h5");
+        assert_io(&facts, IoDirection::Read, "data/model.bin");
+        assert_io(&facts, IoDirection::Read, "data/table.parquet");
+        assert_io(&facts, IoDirection::Read, "https://example.org/raw.csv");
+        assert_io(&facts, IoDirection::Read, "https://example.org/api.json");
+        assert_io(&facts, IoDirection::Read, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Read, "staging/report.csv");
+        assert_io(&facts, IoDirection::Write, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Write, "downloads/api.json");
+        assert_io(&facts, IoDirection::Write, "copies/raw.csv");
+        assert_io(&facts, IoDirection::Write, "reports/report.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/handle.txt");
+        assert_io(&facts, IoDirection::ReadWrite, "outputs/cube.h5");
+        assert_io(&facts, IoDirection::Read, "data/unopened.txt");
+        assert_io(&facts, IoDirection::Read, "nested/no-target.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/table.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/matrix.tsv");
+        assert_io(&facts, IoDirection::Write, "outputs/model.bin");
+        assert_io(&facts, IoDirection::Write, "outputs/config.txt");
+        assert_io(&facts, IoDirection::Write, "outputs/table.parquet");
+        assert_io(&facts, IoDirection::Write, "outputs/workbook.xlsx");
+        assert_io(&facts, IoDirection::Write, "outputs/data.h5");
+        assert_io(&facts, IoDirection::Write, "outputs/image.png");
+        assert_io(&facts, IoDirection::Write, "outputs/plot.png");
+        assert_no_io(&facts, "comment-julia.csv");
+        assert_no_io(&facts, "string-julia.csv");
+        assert_no_io(&facts, "helper-julia.csv");
+        assert_eq!(
+            facts.variable_sources.get("rows").map(String::as_str),
+            Some("data/rows.csv")
+        );
+        assert!(!facts.variable_sources.contains_key("nested"));
+        assert!(facts.columns.iter().any(|column| column.column == "count"));
+    }
+
+    #[test]
     fn extracts_matlab_facts() {
         let facts = analyze_source(
             CodeLanguage::Matlab,

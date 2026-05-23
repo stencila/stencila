@@ -183,6 +183,98 @@ pub(in crate::code) fn collect_named_io_text_facts(
             NamedIoMarker::write("file.copy", "to"),
             NamedIoMarker::write("file.rename", "to"),
         ],
+        CodeLanguage::Julia => &[
+            // Core Julia file readers and handles.
+            NamedIoMarker::read("open", "filename"),
+            NamedIoMarker::read("open", "path"),
+            NamedIoMarker::read("read", "filename"),
+            NamedIoMarker::read("read", "path"),
+            NamedIoMarker::read("readlines", "filename"),
+            NamedIoMarker::read("readlines", "path"),
+            NamedIoMarker::read("readline", "filename"),
+            NamedIoMarker::read("readline", "path"),
+            NamedIoMarker::read("readchomp", "filename"),
+            NamedIoMarker::read("readchomp", "path"),
+            NamedIoMarker::read("eachline", "filename"),
+            NamedIoMarker::read("eachline", "path"),
+            NamedIoMarker::read("readdlm", "source"),
+            NamedIoMarker::read("readdlm", "input"),
+            // Delimited and dataframe readers.
+            NamedIoMarker::read("CSV.read", "file"),
+            NamedIoMarker::read("CSV.read", "source"),
+            NamedIoMarker::read("CSV.File", "file"),
+            NamedIoMarker::read("CSV.File", "source"),
+            NamedIoMarker::read("CSV.Rows", "file"),
+            NamedIoMarker::read("CSV.Rows", "source"),
+            NamedIoMarker::read("read_csv", "file"),
+            NamedIoMarker::read("read_parquet", "path"),
+            NamedIoMarker::read("read_parquet", "file"),
+            NamedIoMarker::read("Table", "source"),
+            NamedIoMarker::read("Table", "file"),
+            NamedIoMarker::read("Stream", "source"),
+            NamedIoMarker::read("Stream", "file"),
+            // Serialization, arrays, workbooks, and scientific data stores.
+            NamedIoMarker::read("load", "filename"),
+            NamedIoMarker::read("load", "file"),
+            NamedIoMarker::read("deserialize", "filename"),
+            NamedIoMarker::read("npzread", "filename"),
+            NamedIoMarker::read("npyread", "filename"),
+            NamedIoMarker::read("matread", "file"),
+            NamedIoMarker::read("readxlsx", "filename"),
+            NamedIoMarker::read("openxlsx", "filename"),
+            NamedIoMarker::read("h5open", "filename"),
+            NamedIoMarker::read("h5read", "filename"),
+            NamedIoMarker::read("NCDataset", "path"),
+            NamedIoMarker::read("NCDataset", "filename"),
+            // Structured, spatial, image, and plot readers.
+            NamedIoMarker::read("parsefile", "filename"),
+            NamedIoMarker::read("parsefile", "path"),
+            NamedIoMarker::read("load_file", "filename"),
+            NamedIoMarker::read("Raster", "filename"),
+            NamedIoMarker::read("Raster", "path"),
+            // URL and copy helpers.
+            NamedIoMarker::status_read("download", "url"),
+            NamedIoMarker::status_read("Downloads.download", "url"),
+            NamedIoMarker::status_read("cp", "src"),
+            NamedIoMarker::status_read("mv", "src"),
+            // Core Julia file, delimited text, and serialization writers.
+            NamedIoMarker::write("write", "filename"),
+            NamedIoMarker::write("write", "path"),
+            NamedIoMarker::write("writedlm", "f"),
+            NamedIoMarker::write("writedlm", "filename"),
+            NamedIoMarker::write("serialize", "filename"),
+            // Delimited and dataframe writers.
+            NamedIoMarker::write("CSV.write", "file"),
+            NamedIoMarker::write("CSV.write", "source"),
+            NamedIoMarker::write("write_csv", "file"),
+            NamedIoMarker::write("write_parquet", "path"),
+            NamedIoMarker::write("write_parquet", "file"),
+            NamedIoMarker::write("write_table", "filename"),
+            // Serialization, arrays, workbooks, and scientific data stores.
+            NamedIoMarker::write("save", "filename"),
+            NamedIoMarker::write("save", "file"),
+            NamedIoMarker::write("bson", "filename"),
+            NamedIoMarker::write("npzwrite", "filename"),
+            NamedIoMarker::write("npywrite", "filename"),
+            NamedIoMarker::write("matwrite", "file"),
+            NamedIoMarker::write("writetable", "filename"),
+            NamedIoMarker::write("h5write", "filename"),
+            // Structured, spatial, image, and plot writers.
+            NamedIoMarker::write("write_file", "filename"),
+            NamedIoMarker::write("write_file", "path"),
+            NamedIoMarker::write("write_json", "filename"),
+            NamedIoMarker::write("write_json", "path"),
+            NamedIoMarker::write("savefig", "filename"),
+            NamedIoMarker::write("savefig", "fname"),
+            NamedIoMarker::write("savefig", "path"),
+            // URL and copy helpers.
+            NamedIoMarker::write("download", "output"),
+            NamedIoMarker::write("download", "path"),
+            NamedIoMarker::write("Downloads.download", "output"),
+            NamedIoMarker::write("Downloads.download", "path"),
+            NamedIoMarker::write("cp", "dst"),
+            NamedIoMarker::write("mv", "dst"),
+        ],
         _ => return,
     };
 
@@ -455,11 +547,11 @@ fn assignment_target_before_call(
     source: &str,
     call_index: usize,
 ) -> Option<(String, usize)> {
-    if language != CodeLanguage::R {
+    if !matches!(language, CodeLanguage::R | CodeLanguage::Julia) {
         return None;
     }
 
-    let statement_start = r_statement_start(source, call_index)?;
+    let statement_start = statement_start_before_call(source, call_index)?;
     let prefix = source.get(statement_start..call_index)?;
     if !is_top_level_statement_prefix(prefix) {
         return None;
@@ -467,7 +559,9 @@ fn assignment_target_before_call(
 
     let trimmed_end = prefix.trim_end().len();
     let prefix = prefix.get(..trimmed_end)?;
-    let (target_source, target_end) = if let Some(operator_index) = prefix.rfind("<-") {
+    let (target_source, target_end) = if language == CodeLanguage::R
+        && let Some(operator_index) = prefix.rfind("<-")
+    {
         prefix
             .get(..operator_index)
             .map(|target| (target, operator_index))?
@@ -489,7 +583,7 @@ fn assignment_target_before_call(
     (target_end == target_source.len()).then_some((target, target_offset))
 }
 
-fn r_statement_start(source: &str, call_index: usize) -> Option<usize> {
+fn statement_start_before_call(source: &str, call_index: usize) -> Option<usize> {
     let prefix = source.get(..call_index)?;
     prefix
         .char_indices()
@@ -613,7 +707,7 @@ fn top_level_segments(source: &str) -> Vec<&str> {
             '\'' | '"' | '`' => quote = Some(char),
             '(' | '[' | '{' => depth += 1,
             ')' | ']' | '}' => depth = depth.saturating_sub(1),
-            ',' if depth == 0 => {
+            ',' | ';' if depth == 0 => {
                 if let Some(segment) = source.get(start..index) {
                     segments.push(segment);
                 }
