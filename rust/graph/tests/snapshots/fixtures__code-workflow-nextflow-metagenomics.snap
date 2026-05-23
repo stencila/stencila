@@ -13,6 +13,12 @@ nodes:
       name: main.nf
       path: main.nf
       programmingLanguage: Nextflow
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:nextflow.config"
     node:
@@ -21,6 +27,12 @@ nodes:
       name: nextflow.config
       path: nextflow.config
       programmingLanguage: Nextflow
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "dir:."
     node:
@@ -85,34 +97,6 @@ nodes:
       name: samplesheet.csv
       path: data/samplesheet.csv
       size: 28
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:main.nf"
-    node:
-      type: File
-      id: "file:main.nf"
-      name: main.nf
-      path: main.nf
-      size: 507
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:nextflow.config"
-    node:
-      type: File
-      id: "file:nextflow.config"
-      name: nextflow.config
-      path: nextflow.config
-      size: 61
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -254,11 +238,11 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:main.nf"
-    target: "file:main.nf"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:main.nf"
     target: "file:results/classify/M1-taxa.tsv"
@@ -324,11 +308,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:nextflow.config"
-    target: "file:nextflow.config"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -408,20 +392,6 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "file:main.nf"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:nextflow.config"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
   - type: GraphEdge
     source: "file:results/classify/M1-taxa.tsv"
     target: "code:main.nf"

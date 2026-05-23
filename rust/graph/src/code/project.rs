@@ -1,4 +1,4 @@
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::BTreeSet;
 
 use stencila_schema::{
     CreativeWork, DatatableColumn, File, Function, GraphEdgeKind, GraphEvidence,
@@ -110,9 +110,9 @@ pub(super) fn add_code_facts_to_graph(
             vec![io_path_evidence(&resource.path)],
         );
     }
-    let static_write_ids = static_resource_ids(&write_resources);
-    let precise_write_ids = add_variable_data_flow_edges(
+    add_variable_data_flow_edges(
         builder,
+        unit_id,
         scope,
         language,
         facts,
@@ -120,35 +120,16 @@ pub(super) fn add_code_facts_to_graph(
         &write_resources,
     );
 
-    if facts.workflow_rule_facts.is_empty() {
-        add_derived_resource_edges(
-            builder,
-            &read_resources,
-            &write_resources,
-            &precise_write_ids,
-            evidence::coarse_static_analysis,
-        );
-    }
-
     for column in &facts.columns {
-        let source_id = column
-            .source
-            .as_ref()
-            .and_then(|source| add_resource_node(builder, unit_id, scope, source, &mut resolver));
-        let column_id = add_column_node(builder, scope, column, source_id.as_deref());
+        let dataframe_id = add_variable_node(builder, scope, language, &column.dataframe);
+        builder.add_containment(&dataframe_id, unit_id, vec![evidence::static_analysis()]);
+        let column_id = add_column_node(builder, scope, column, &dataframe_id);
         builder.add_edge_with_evidence(
             &column_id,
             unit_id,
             GraphEdgeKind::UsedBy,
             vec![evidence::static_analysis()],
         );
-        for output_id in &static_write_ids {
-            builder.add_derivation(
-                &column_id,
-                output_id,
-                vec![evidence::coarse_static_analysis()],
-            );
-        }
     }
 
     for rule in &facts.workflow_rules {
@@ -286,23 +267,20 @@ fn add_workflow_rule_node(builder: &mut GraphBuilder, scope: &str, rule: &str) -
 
 /// Add or reuse a dataframe column node.
 ///
-/// Column ids include the code scope and origin so columns with the same name in
-/// different files or dataframes stay distinct. When a source resource is known,
-/// a `PartOf` edge records the column's table-level origin.
+/// Column ids include the code scope and dataframe so columns with the same
+/// name in different dataframes stay distinct. The `PartOf` edge records the
+/// dataframe variable that the column was accessed through.
 fn add_column_node(
     builder: &mut GraphBuilder,
     scope: &str,
     column: &ColumnFact,
-    source_id: Option<&str>,
+    dataframe_id: &str,
 ) -> String {
-    let origin = column.source.as_deref().unwrap_or(&column.dataframe);
-    let id = LocalGraphId::column(scope, origin, &column.column);
+    let id = LocalGraphId::column(scope, &column.dataframe, &column.column);
     let mut node = DatatableColumn::new(column.column.clone(), Vec::new());
     node.id = Some(id.clone());
     builder.add_schema_node(id.clone(), Node::DatatableColumn(node));
-    if let Some(source_id) = source_id {
-        builder.add_containment(&id, source_id, vec![evidence::static_analysis()]);
-    }
+    builder.add_containment(&id, dataframe_id, vec![evidence::static_analysis()]);
     id
 }
 
@@ -373,7 +351,6 @@ struct IoResourceNode {
     path: IoPath,
     operation_offset: Option<usize>,
     target: Option<String>,
-    target_offset: Option<usize>,
     value: Option<String>,
     value_offset: Option<usize>,
 }
@@ -404,7 +381,6 @@ fn add_io_resource_nodes(
                 path: fact.path.clone(),
                 operation_offset: fact.operation_offset,
                 target: fact.target.clone(),
-                target_offset: fact.target_offset,
                 value: fact.value.clone(),
                 value_offset: fact.value_offset,
             });
@@ -415,25 +391,25 @@ fn add_io_resource_nodes(
 
 /// Add precise data-flow edges that can be inferred through local variables.
 ///
-/// Coarse resource-to-resource lineage remains useful when code does not expose
-/// a written value. When reads, assignments, and writes do name variables, these
-/// edges provide the fuller chain through `Variable` nodes.
+/// Unit-level resource I/O is represented separately by `ReadBy` and
+/// `Generated` edges through the code node. This function only adds the finer
+/// symbol-mediated derivations when reads, assignments, and writes name local
+/// variables.
 fn add_variable_data_flow_edges(
     builder: &mut GraphBuilder,
+    unit_id: &str,
     scope: &str,
     language: CodeLanguage,
     facts: &CodeFacts,
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
-) -> BTreeSet<String> {
+) {
     let local_variables = facts
         .assignments
         .iter()
         .filter(|symbol| !facts.imported_symbols.contains(*symbol))
         .cloned()
         .collect::<BTreeSet<_>>();
-    let mut read_reachable_variables = BTreeMap::new();
-    let mut local_flow_edges = Vec::new();
 
     for resource in read_resources {
         let Some(target) = resource
@@ -444,16 +420,12 @@ fn add_variable_data_flow_edges(
             continue;
         };
         let target_id = add_variable_node(builder, scope, language, target);
+        builder.add_containment(&target_id, unit_id, vec![evidence::static_analysis()]);
         builder.add_derivation(
             &resource.id,
             target_id,
             vec![io_path_evidence(&resource.path)],
         );
-        let target_offset = resource
-            .target_offset
-            .or(resource.operation_offset)
-            .unwrap_or_default();
-        insert_earliest_reachable(&mut read_reachable_variables, target, target_offset);
     }
 
     for flow in &facts.variable_flows {
@@ -463,19 +435,13 @@ fn add_variable_data_flow_edges(
         if !variable_available_at(facts, &flow.source, flow.target_offset) {
             continue;
         }
-        local_flow_edges.push((
-            flow.source.as_str(),
-            flow.target.as_str(),
-            flow.target_offset,
-        ));
         let source_id = add_variable_node(builder, scope, language, &flow.source);
         let target_id = add_variable_node(builder, scope, language, &flow.target);
+        builder.add_containment(&source_id, unit_id, vec![evidence::static_analysis()]);
+        builder.add_containment(&target_id, unit_id, vec![evidence::static_analysis()]);
         builder.add_derivation(source_id, target_id, vec![evidence::static_analysis()]);
     }
 
-    while extend_reachable_variables(&mut read_reachable_variables, &local_flow_edges) {}
-
-    let mut precise_write_ids = BTreeSet::new();
     for resource in write_resources {
         let Some(value) = resource
             .value
@@ -489,53 +455,13 @@ fn add_variable_data_flow_edges(
             continue;
         }
         let value_id = add_variable_node(builder, scope, language, value);
+        builder.add_containment(&value_id, unit_id, vec![evidence::static_analysis()]);
         builder.add_derivation(
             value_id,
             &resource.id,
             vec![io_path_evidence(&resource.path)],
         );
-        let read_reaches_write =
-            read_reachable_before(&read_reachable_variables, value, value_offset);
-        if resource.path.is_static() && read_reaches_write {
-            precise_write_ids.insert(resource.id.clone());
-        }
     }
-
-    precise_write_ids
-}
-
-/// Propagate local variable reachability by one step.
-fn extend_reachable_variables(
-    reachable: &mut BTreeMap<String, usize>,
-    flow_edges: &[(&str, &str, usize)],
-) -> bool {
-    let mut changed = false;
-    for (source, target, target_offset) in flow_edges {
-        let Some(source_offset) = reachable.get(*source).copied() else {
-            continue;
-        };
-        if source_offset <= *target_offset
-            && reachable
-                .get(*target)
-                .is_none_or(|existing| *existing > *target_offset)
-        {
-            reachable.insert((*target).to_string(), *target_offset);
-            changed = true;
-        }
-    }
-    changed
-}
-
-/// Record the earliest offset where a variable is reachable from a static read.
-fn insert_earliest_reachable(
-    reachable: &mut BTreeMap<String, usize>,
-    variable: &str,
-    offset: usize,
-) {
-    reachable
-        .entry(variable.to_string())
-        .and_modify(|existing| *existing = (*existing).min(offset))
-        .or_insert(offset);
 }
 
 /// Check whether a local variable has been defined by a given source offset.
@@ -544,19 +470,6 @@ fn variable_available_at(facts: &CodeFacts, variable: &str, offset: usize) -> bo
         .definition_offsets
         .get(variable)
         .is_none_or(|definition_offset| *definition_offset <= offset)
-}
-
-/// Check whether a read-derived variable is available before a write.
-fn read_reachable_before(
-    reachable: &BTreeMap<String, usize>,
-    variable: &str,
-    write_offset: Option<usize>,
-) -> bool {
-    let Some(read_offset) = reachable.get(variable) else {
-        return false;
-    };
-
-    write_offset.is_none_or(|write_offset| *read_offset <= write_offset)
 }
 
 /// Keep only concrete resource ids for derivation edges.
@@ -585,39 +498,6 @@ fn io_path_evidence(path: &IoPath) -> GraphEvidence {
         ("expression", Primitive::String(path.value().to_string())),
     ]));
     evidence
-}
-
-/// Add ordered input-to-output lineage edges between concrete I/O resources.
-fn add_derived_resource_edges(
-    builder: &mut GraphBuilder,
-    read_resources: &[IoResourceNode],
-    write_resources: &[IoResourceNode],
-    skip_write_ids: &BTreeSet<String>,
-    make_evidence: fn() -> GraphEvidence,
-) {
-    for input in read_resources {
-        if !input.path.is_static() {
-            continue;
-        }
-        for output in write_resources {
-            if !output.path.is_static()
-                || skip_write_ids.contains(&output.id)
-                || !resource_order_allows(input.operation_offset, output.operation_offset)
-            {
-                continue;
-            }
-
-            builder.add_derivation(&input.id, &output.id, vec![make_evidence()]);
-        }
-    }
-}
-
-/// Check whether static source order allows one I/O operation to feed another.
-fn resource_order_allows(read_offset: Option<usize>, write_offset: Option<usize>) -> bool {
-    match (read_offset, write_offset) {
-        (Some(read_offset), Some(write_offset)) => read_offset <= write_offset,
-        _ => true,
-    }
 }
 
 /// Add input-to-output lineage edges using the supplied evidence constructor.

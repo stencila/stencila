@@ -1,9 +1,6 @@
-use stencila_schema::{Node, SoftwareSourceCode};
+use stencila_schema::{DateTime, Node, SoftwareSourceCode};
 
-use crate::{
-    GraphBuilder, evidence,
-    ids::{LocalGraphId, WorkspaceRelPath},
-};
+use crate::{GraphBuilder, evidence, ids::WorkspaceRelPath};
 
 use super::{
     analyze::analyze_source,
@@ -12,11 +9,23 @@ use super::{
     util::path_name,
 };
 
+/// Source file metadata needed to add a workspace code node.
+pub(crate) struct WorkspaceCode<'a> {
+    pub(crate) unit_id: &'a str,
+    pub(crate) rel: &'a WorkspaceRelPath,
+    pub(crate) code: &'a str,
+    pub(crate) language: CodeLanguage,
+    pub(crate) parent_id: Option<String>,
+    pub(crate) date_created: Option<DateTime>,
+    pub(crate) date_modified: Option<DateTime>,
+}
+
 /// Add static code graph facts for a workspace source file.
 ///
-/// Workspace source files get their own `SoftwareSourceCode` node in addition
-/// to the filesystem `File` node. The code node carries computational facts,
-/// while the file node preserves inventory and filesystem provenance.
+/// Workspace source files are represented by a single `SoftwareSourceCode` node.
+/// The code node carries both path identity and computational facts so focused
+/// graph views do not need to reconcile separate file and code nodes for the
+/// same source file.
 ///
 /// Static resource literals are resolved by the caller whenever they name
 /// another workspace file or symbolic link. Unresolved literals remain scoped
@@ -24,29 +33,29 @@ use super::{
 /// workspace inventory.
 pub(crate) fn add_workspace_code(
     builder: &mut GraphBuilder,
-    rel: &WorkspaceRelPath,
-    code: &str,
-    language: CodeLanguage,
+    source: WorkspaceCode,
     mut resolver: impl FnMut(&str) -> Option<String>,
 ) {
-    let unit_id = LocalGraphId::code_unit(rel.as_str());
-    let mut node = SoftwareSourceCode::new(path_name(rel.as_str()), language.name().to_string());
-    node.id = Some(unit_id.clone());
-    node.path = Some(rel.as_str().to_string());
-    builder.add_schema_node(unit_id.clone(), Node::SoftwareSourceCode(node));
-    builder.add_containment(
-        &unit_id,
-        LocalGraphId::file(rel),
-        vec![evidence::static_analysis()],
+    let mut node = SoftwareSourceCode::new(
+        path_name(source.rel.as_str()),
+        source.language.name().to_string(),
     );
+    node.id = Some(source.unit_id.to_string());
+    node.path = Some(source.rel.as_str().to_string());
+    node.options.date_created = source.date_created;
+    node.options.date_modified = source.date_modified;
+    builder.add_schema_node(source.unit_id, Node::SoftwareSourceCode(node));
+    if let Some(parent_id) = source.parent_id {
+        builder.add_containment(source.unit_id, parent_id, vec![evidence::observed()]);
+    }
 
-    let facts = analyze_source(language, code);
-    let scope = rel.as_str();
+    let facts = analyze_source(source.language, source.code);
+    let scope = source.rel.as_str();
     add_code_facts_to_graph(
         builder,
-        &unit_id,
+        source.unit_id,
         scope,
-        language,
+        source.language,
         &facts,
         Some(&mut resolver as &mut ResourceResolver<'_>),
     );

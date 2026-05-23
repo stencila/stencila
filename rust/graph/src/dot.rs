@@ -2,7 +2,10 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::{GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode, GraphViewNodeKind};
+use crate::{
+    GraphProjectionDetail, GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode,
+    GraphViewNodeKind,
+};
 use stencila_schema::GraphEdgeKind;
 
 /// Render a projected graph view as Graphviz DOT.
@@ -75,12 +78,14 @@ fn render_cluster(
     ));
     dot.push_str(&format!(
         "    label=\"{}\"; style=\"rounded,dashed\"; color=\"{}\"; bgcolor=\"{}\"; fontname=\"Arial\"; fontsize=\"11\";\n",
-        dot_escape(&node.label),
+        dot_escape(&cluster_label(node)),
         style.color,
         style.background_color
     ));
 
-    render_node(dot, node);
+    if node.kind != GraphViewNodeKind::Workspace {
+        render_node(dot, node);
+    }
     rendered.insert(id.to_string());
 
     for child in tree.children.get(id).into_iter().flatten() {
@@ -97,6 +102,14 @@ fn render_cluster(
     }
 
     dot.push_str("  }\n");
+}
+
+fn cluster_label(node: &GraphViewNode) -> String {
+    if node.kind == GraphViewNodeKind::Workspace && !node.label.ends_with('/') {
+        format!("{}/", node.label)
+    } else {
+        node.label.clone()
+    }
 }
 
 fn render_node(dot: &mut String, node: &GraphViewNode) {
@@ -159,7 +172,9 @@ impl<'a> ContainmentTree<'a> {
         let mut containers = BTreeSet::new();
 
         for node in &view.nodes {
-            let Some(parent) = nearest_container_parent(&node.id, &nodes, &raw_parents) else {
+            let Some(parent) =
+                nearest_container_parent(&node.id, &nodes, &raw_parents, view.detail)
+            else {
                 continue;
             };
 
@@ -203,6 +218,7 @@ fn nearest_container_parent(
     id: &str,
     nodes: &BTreeMap<&str, &GraphViewNode>,
     raw_parents: &BTreeMap<&str, &str>,
+    detail: GraphProjectionDetail,
 ) -> Option<String> {
     let mut current = id;
     let mut visited = BTreeSet::new();
@@ -210,7 +226,7 @@ fn nearest_container_parent(
     while visited.insert(current.to_string()) {
         let parent = raw_parents.get(current)?;
         let parent_node = nodes.get(*parent)?;
-        if is_container(parent_node.kind) {
+        if is_container(parent_node.kind, detail) {
             return Some((*parent).to_string());
         }
         current = parent;
@@ -219,11 +235,11 @@ fn nearest_container_parent(
     None
 }
 
-fn is_container(kind: GraphViewNodeKind) -> bool {
+fn is_container(kind: GraphViewNodeKind, detail: GraphProjectionDetail) -> bool {
     matches!(
         kind,
         GraphViewNodeKind::Workspace | GraphViewNodeKind::Document | GraphViewNodeKind::Environment
-    )
+    ) || (detail == GraphProjectionDetail::High && kind == GraphViewNodeKind::Code)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -363,7 +379,8 @@ mod tests {
     };
 
     use crate::{
-        GraphContainmentMode, GraphProjectionOptions, GraphProjectionPreset, project_graph,
+        GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions, GraphProjectionPreset,
+        project_graph,
     };
 
     use super::*;
@@ -469,8 +486,69 @@ mod tests {
         let dot = to_dot(&view);
 
         assert!(dot.contains("subgraph \"cluster_dir:scripts\""));
+        assert!(dot.contains("label=\"scripts/\""));
+        assert!(!dot.contains("\"dir:scripts\" ["));
         assert!(dot.contains("\"code:scripts/analysis.py\""));
         assert!(!dot.contains("label=\"Part Of\""));
+    }
+
+    #[test]
+    fn renders_code_clusters_for_high_detail_containment() {
+        let graph = Graph::new(
+            "test:code-cluster".to_string(),
+            vec![
+                graph_node(
+                    "dir:scripts",
+                    Node::Directory(Directory::new("scripts".to_string(), "scripts".to_string())),
+                ),
+                graph_node("code:scripts/analysis.py", code_node("analysis.py")),
+                graph_node(
+                    "symbol:scripts/analysis.py:python:df",
+                    Node::Variable(stencila_schema::Variable::new("df".to_string())),
+                ),
+                graph_node(
+                    "file:data.csv",
+                    Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:data.csv".to_string(),
+                    "code:scripts/analysis.py".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "code:scripts/analysis.py".to_string(),
+                    "symbol:scripts/analysis.py:python:df".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "symbol:scripts/analysis.py:python:df".to_string(),
+                    "code:scripts/analysis.py".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "code:scripts/analysis.py".to_string(),
+                    "dir:scripts".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+            ],
+        );
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        let dot = to_dot(&view);
+
+        assert!(dot.contains("subgraph \"cluster_code:scripts/analysis.py\""));
+        assert!(dot.contains("\"code:scripts/analysis.py\" ["));
+        assert!(dot.contains("\"symbol:scripts/analysis.py:python:df\" ["));
+        assert!(dot.contains("\"file:data.csv\" -> \"code:scripts/analysis.py\""));
     }
 
     #[test]

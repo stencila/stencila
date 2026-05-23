@@ -13,6 +13,12 @@ nodes:
       name: analysis.js
       path: analysis.js
       programmingLanguage: JavaScript
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:analysis.m"
     node:
@@ -21,6 +27,12 @@ nodes:
       name: analysis.m
       path: analysis.m
       programmingLanguage: MATLAB
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:qc.ts"
     node:
@@ -29,6 +41,12 @@ nodes:
       name: qc.ts
       path: qc.ts
       programmingLanguage: TypeScript
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:src/bin/report.rs"
     node:
@@ -37,6 +55,12 @@ nodes:
       name: report.rs
       path: src/bin/report.rs
       programmingLanguage: Rust
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "dir:."
     node:
@@ -80,34 +104,6 @@ nodes:
       name: bin
       path: src/bin
   - type: GraphNode
-    id: "file:analysis.js"
-    node:
-      type: File
-      id: "file:analysis.js"
-      name: analysis.js
-      path: analysis.js
-      size: 222
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:analysis.m"
-    node:
-      type: File
-      id: "file:analysis.m"
-      name: analysis.m
-      path: analysis.m
-      size: 134
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:data/raw/samples.tsv"
     node:
       type: File
@@ -115,20 +111,6 @@ nodes:
       name: samples.tsv
       path: data/raw/samples.tsv
       size: 21
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:qc.ts"
-    node:
-      type: File
-      id: "file:qc.ts"
-      name: qc.ts
-      path: qc.ts
-      size: 204
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -185,20 +167,6 @@ nodes:
       name: ts-qc.tsv
       path: results/ts-qc.tsv
       size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:src/bin/report.rs"
-    node:
-      type: File
-      id: "file:src/bin/report.rs"
-      name: report.rs
-      path: src/bin/report.rs
-      size: 299
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -486,11 +454,11 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:analysis.js"
-    target: "file:analysis.js"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:analysis.js"
     target: "file:results/js-summary.tsv"
@@ -514,11 +482,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.m"
-    target: "file:analysis.m"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:analysis.m"
     target: "file:results/matlab-summary.tsv"
@@ -542,11 +510,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:qc.ts"
-    target: "file:qc.ts"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:qc.ts"
     target: "file:results/ts-qc.tsv"
@@ -563,15 +531,15 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:src/bin/report.rs"
-    target: "file:results/rust-summary.tsv"
-    kind: Generated
+    target: "dir:src/bin"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:src/bin/report.rs"
-    target: "file:src/bin/report.rs"
-    kind: PartOf
+    target: "file:results/rust-summary.tsv"
+    kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -632,20 +600,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:analysis.js"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:analysis.m"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
     source: "file:data/raw/samples.tsv"
     target: "code:analysis.js"
     kind: ReadBy
@@ -680,33 +634,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "file:results/js-summary.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "file:results/matlab-summary.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "file:results/rust-summary.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
     target: "node:data/raw/samples.tsv#dtb_"
@@ -744,13 +671,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:qc.ts"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
   - type: GraphEdge
     source: "file:results/js-summary.tsv"
     target: "dir:results"
@@ -815,13 +735,6 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "file:src/bin/report.rs"
-    target: "dir:src/bin"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
   - type: GraphEdge
     source: "function:analysis.js:javascript:readFileSync"
     target: "code:analysis.js"

@@ -27,6 +27,12 @@ nodes:
       name: analysis.jl
       path: analysis.jl
       programmingLanguage: Julia
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:bad.py"
     node:
@@ -35,6 +41,12 @@ nodes:
       name: bad.py
       path: bad.py
       programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:dynamic.py"
     node:
@@ -43,6 +55,12 @@ nodes:
       name: dynamic.py
       path: dynamic.py
       programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:scripts/malformed.R"
     node:
@@ -51,6 +69,12 @@ nodes:
       name: malformed.R
       path: scripts/malformed.R
       programmingLanguage: R
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "dir:."
     node:
@@ -73,20 +97,6 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
-    id: "file:analysis.jl"
-    node:
-      type: File
-      id: "file:analysis.jl"
-      name: analysis.jl
-      path: analysis.jl
-      size: 6
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:analysis.sas"
     node:
       type: File
@@ -94,20 +104,6 @@ nodes:
       name: analysis.sas
       path: analysis.sas
       size: 30
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:bad.py"
-    node:
-      type: File
-      id: "file:bad.py"
-      name: bad.py
-      path: bad.py
-      size: 5
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -129,20 +125,6 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:dynamic.py"
-    node:
-      type: File
-      id: "file:dynamic.py"
-      name: dynamic.py
-      path: dynamic.py
-      size: 115
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:package.json"
     node:
       type: File
@@ -154,20 +136,6 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:14b3f36a005f062412df3c2f1b90b55180ace98f87b118b52badc3d2be70a466"
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:scripts/malformed.R"
-    node:
-      type: File
-      id: "file:scripts/malformed.R"
-      name: malformed.R
-      path: scripts/malformed.R
-      size: 16
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -330,11 +298,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.jl"
-    target: "file:analysis.jl"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:analysis.jl"
     target: "symbol:analysis.jl:julia:x"
@@ -344,11 +312,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:bad.py"
-    target: "file:bad.py"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:dynamic.py"
     target: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
@@ -363,11 +331,11 @@ edges:
         description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "code:dynamic.py"
-    target: "file:dynamic.py"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:dynamic.py"
     target: "symbol:dynamic.py:python:sample"
@@ -384,11 +352,11 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:scripts/malformed.R"
-    target: "file:scripts/malformed.R"
+    target: "dir:scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:scripts/malformed.R"
     target: "symbol:scripts/malformed.R:r:df"
@@ -411,21 +379,7 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:analysis.jl"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
     source: "file:analysis.sas"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:bad.py"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -448,22 +402,8 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "file:dynamic.py"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
     source: "file:package.json"
     target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:scripts/malformed.R"
-    target: "dir:scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence

@@ -4,7 +4,7 @@
 //! optionally links decoded document graphs back to the files they came from.
 
 use std::{
-    collections::BTreeMap,
+    collections::{BTreeMap, BTreeSet},
     fs::Metadata,
     path::{Path, PathBuf},
 };
@@ -125,6 +125,20 @@ pub async fn graph_from_path(
         .iter()
         .map(|entry| (entry.rel.clone(), entry.kind))
         .collect::<BTreeMap<_, _>>();
+    let source_files = entries
+        .iter()
+        .filter_map(|entry| {
+            if entry.kind != WorkspaceEntryKind::File {
+                return None;
+            }
+
+            let language = CodeLanguage::from_path(&entry.path)?;
+            let code = std::fs::read_to_string(&entry.path).ok()?;
+            Some((entry.rel.clone(), (language, code)))
+        })
+        .collect::<BTreeMap<_, _>>();
+    let source_file_rels = source_files.keys().cloned().collect::<BTreeSet<_>>();
+
     for entry in entries {
         match entry.kind {
             WorkspaceEntryKind::Directory => {
@@ -138,15 +152,6 @@ pub async fn graph_from_path(
                 }
             }
             WorkspaceEntryKind::File => {
-                let file_id = add_file(&mut builder, &entry.path, &entry.rel, &entry.metadata);
-                if let Some(parent) = entry.rel.parent() {
-                    builder.add_containment(
-                        &file_id,
-                        LocalGraphId::directory(&parent),
-                        vec![evidence::observed()],
-                    );
-                }
-
                 if options.analyze_environment {
                     let file_id_for_rel = |rel: &WorkspaceRelPath| {
                         matches!(entry_kinds.get(rel), Some(WorkspaceEntryKind::File))
@@ -161,14 +166,18 @@ pub async fn graph_from_path(
                     )?;
                 }
 
-                if let Some(language) = CodeLanguage::from_path(&entry.path)
-                    && let Ok(code) = std::fs::read_to_string(&entry.path)
-                {
+                let source_id = if let Some((language, code)) = source_files.get(&entry.rel) {
+                    let code_id = LocalGraphId::code_unit(entry.rel.as_str());
+                    let parent_id = entry
+                        .rel
+                        .parent()
+                        .map(|parent| LocalGraphId::directory(&parent));
                     let resolver = |literal: &str| {
                         workspace_reference_id(
                             &root_rel,
                             literal,
                             &entry_kinds,
+                            &source_file_rels,
                             WorkspaceReferenceTarget::FileOrSymbolicLink,
                         )
                         .or_else(|| {
@@ -176,12 +185,36 @@ pub async fn graph_from_path(
                                 &entry.rel,
                                 literal,
                                 &entry_kinds,
+                                &source_file_rels,
                                 WorkspaceReferenceTarget::FileOrSymbolicLink,
                             )
                         })
                     };
-                    code::add_workspace_code(&mut builder, &entry.rel, &code, language, resolver);
-                }
+                    code::add_workspace_code(
+                        &mut builder,
+                        code::WorkspaceCode {
+                            unit_id: &code_id,
+                            rel: &entry.rel,
+                            code,
+                            language: *language,
+                            parent_id,
+                            date_created: file_created_time(&entry.metadata),
+                            date_modified: file_modified_time(&entry.metadata),
+                        },
+                        resolver,
+                    );
+                    code_id
+                } else {
+                    let file_id = add_file(&mut builder, &entry.path, &entry.rel, &entry.metadata);
+                    if let Some(parent) = entry.rel.parent() {
+                        builder.add_containment(
+                            &file_id,
+                            LocalGraphId::directory(&parent),
+                            vec![evidence::observed()],
+                        );
+                    }
+                    file_id
+                };
 
                 if options.decode
                     && decode_is_supported(&entry.path, options.decode_options.as_ref())
@@ -198,6 +231,7 @@ pub async fn graph_from_path(
                                     &entry.rel,
                                     reference,
                                     &entry_kinds,
+                                    &source_file_rels,
                                     WorkspaceReferenceTarget::File,
                                 )?;
                                 let edge_kind = match kind {
@@ -212,7 +246,7 @@ pub async fn graph_from_path(
                                 &mut builder,
                                 entry.rel.as_str().to_string(),
                                 &node,
-                                Some(&file_id),
+                                Some(&source_id),
                                 Some(&mut reference_resolver),
                             );
                         }
@@ -235,7 +269,8 @@ pub async fn graph_from_path(
                     );
                 }
 
-                if let Some(target_id) = symbolic_link_target_id(&root, &entry.path, &entry_kinds)?
+                if let Some(target_id) =
+                    symbolic_link_target_id(&root, &entry.path, &entry_kinds, &source_file_rels)?
                 {
                     builder.add_link(target_id, symlink_id, evidence::observed_and_resolved());
                 }
@@ -252,6 +287,7 @@ fn workspace_reference_id(
     document_rel: &WorkspaceRelPath,
     reference: &str,
     entry_kinds: &BTreeMap<WorkspaceRelPath, WorkspaceEntryKind>,
+    source_file_rels: &BTreeSet<WorkspaceRelPath>,
     target: WorkspaceReferenceTarget,
 ) -> Option<String> {
     let reference = reference.trim();
@@ -267,6 +303,9 @@ fn workspace_reference_id(
             continue;
         };
         let id = match (target, kind) {
+            (_, WorkspaceEntryKind::File) if source_file_rels.contains(&rel) => {
+                Some(LocalGraphId::code_unit(rel.as_str()))
+            }
             (_, WorkspaceEntryKind::File) => Some(LocalGraphId::file(&rel)),
             (WorkspaceReferenceTarget::FileOrSymbolicLink, WorkspaceEntryKind::SymbolicLink) => {
                 Some(LocalGraphId::symbolic_link(&rel))
@@ -508,6 +547,7 @@ fn symbolic_link_target_id(
     root: &Path,
     link_path: &Path,
     entry_kinds: &BTreeMap<WorkspaceRelPath, WorkspaceEntryKind>,
+    source_file_rels: &BTreeSet<WorkspaceRelPath>,
 ) -> Result<Option<String>> {
     let target = link_path
         .read_link()
@@ -534,6 +574,9 @@ fn symbolic_link_target_id(
 
     Ok(match kind {
         WorkspaceEntryKind::Directory => Some(LocalGraphId::directory(&rel)),
+        WorkspaceEntryKind::File if source_file_rels.contains(&rel) => {
+            Some(LocalGraphId::code_unit(rel.as_str()))
+        }
         WorkspaceEntryKind::File => Some(LocalGraphId::file(&rel)),
         WorkspaceEntryKind::SymbolicLink => Some(LocalGraphId::symbolic_link(&rel)),
         WorkspaceEntryKind::Other => None,

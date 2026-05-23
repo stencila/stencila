@@ -4,7 +4,7 @@
 //! graph extraction. Keeping the constructors in one place prevents provenance
 //! labels and default metadata from drifting between collectors.
 
-use stencila_schema::{GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind};
+use stencila_schema::{GraphEvidence, GraphEvidenceKind};
 
 /// Create evidence for an explicit authored relationship.
 pub(crate) fn declared() -> GraphEvidence {
@@ -34,15 +34,6 @@ pub(crate) fn recorded() -> GraphEvidence {
 /// Create evidence for a relationship produced by static analysis.
 pub(crate) fn static_analysis() -> GraphEvidence {
     evidence(GraphEvidenceKind::StaticAnalysis)
-}
-
-/// Create low-confidence evidence for coarse unit-level static lineage.
-pub(crate) fn coarse_static_analysis() -> GraphEvidence {
-    let mut evidence = static_analysis();
-    evidence.confidence = Some(GraphEvidenceConfidence::Low);
-    evidence.options.description =
-        Some("Coarse static lineage from read/write literals in one code unit.".to_string());
-    evidence
 }
 
 /// Create evidence for a declared reference that was also resolved locally.

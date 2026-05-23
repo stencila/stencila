@@ -36,7 +36,7 @@ pub use facts::{
     CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, WorkflowRuleFacts,
 };
 pub use language::CodeLanguage;
-pub(crate) use workspace::add_workspace_code;
+pub(crate) use workspace::{WorkspaceCode, add_workspace_code};
 
 #[cfg(test)]
 mod tests {
@@ -82,6 +82,39 @@ plt.savefig("plot.png")
         );
         assert!(facts.columns.iter().any(|column| column.column == "A"));
         assert!(facts.columns.iter().any(|column| column.column == "D"));
+    }
+
+    #[test]
+    fn projects_dataframe_columns_under_dataframe_variable() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+df = read_csv("data.csv")
+plot = df[["site", "count"]]
+"#,
+        );
+        let graph = project_test_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        assert!(has_graph_edge(
+            &graph,
+            "code-file:analysis.py:data.csv",
+            "symbol:analysis.py:python:df",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "column:analysis.py:df:site",
+            "symbol:analysis.py:python:df",
+            stencila_schema::GraphEdgeKind::PartOf
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "column:analysis.py:data.csv:site",
+            "code-file:analysis.py:data.csv",
+            stencila_schema::GraphEdgeKind::PartOf
+        ));
+
+        Ok(())
     }
 
     #[test]
@@ -593,7 +626,7 @@ writeFileSync("results/output.txt", summary)
     }
 
     #[test]
-    fn keeps_coarse_lineage_when_precise_chain_is_partial() -> eyre::Result<()> {
+    fn keeps_code_mediated_io_when_precise_chain_is_partial() -> eyre::Result<()> {
         let facts = CodeFacts {
             assignments: std::collections::BTreeSet::from(["df".to_string()]),
             io: std::collections::BTreeSet::from([
@@ -624,11 +657,23 @@ writeFileSync("results/output.txt", summary)
         };
         let graph = project_test_graph("partial.py", CodeLanguage::Python, &facts)?;
 
-        assert!(has_graph_edge(
+        assert!(!has_graph_edge(
             &graph,
             "code-file:partial.py:input.csv",
             "code-file:partial.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "code-file:partial.py:input.csv",
+            "code:partial.py",
+            stencila_schema::GraphEdgeKind::ReadBy
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "code:partial.py",
+            "code-file:partial.py:output.csv",
+            stencila_schema::GraphEdgeKind::Generated
         ));
         assert!(has_graph_edge(
             &graph,

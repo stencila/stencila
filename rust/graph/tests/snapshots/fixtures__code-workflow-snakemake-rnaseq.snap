@@ -13,6 +13,12 @@ nodes:
       name: Snakefile
       path: Snakefile
       programmingLanguage: Snakemake
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:workflow/scripts/counts.py"
     node:
@@ -21,6 +27,12 @@ nodes:
       name: counts.py
       path: workflow/scripts/counts.py
       programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:workflow/scripts/download.py"
     node:
@@ -29,6 +41,12 @@ nodes:
       name: download.py
       path: workflow/scripts/download.py
       programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "dir:."
     node:
@@ -100,20 +118,6 @@ nodes:
       name: scripts
       path: workflow/scripts
   - type: GraphNode
-    id: "file:Snakefile"
-    node:
-      type: File
-      id: "file:Snakefile"
-      name: Snakefile
-      path: Snakefile
-      size: 634
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:data/raw/S1.fastq"
     node:
       type: File
@@ -177,34 +181,6 @@ nodes:
       name: gene-counts.tsv
       path: results/counts/gene-counts.tsv
       size: 19
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:workflow/scripts/counts.py"
-    node:
-      type: File
-      id: "file:workflow/scripts/counts.py"
-      name: counts.py
-      path: workflow/scripts/counts.py
-      size: 103
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:workflow/scripts/download.py"
-    node:
-      type: File
-      id: "file:workflow/scripts/download.py"
-      name: download.py
-      path: workflow/scripts/download.py
-      size: 87
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -363,11 +339,11 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "file:Snakefile"
+    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:Snakefile"
     target: "file:data/raw/S1.fastq"
@@ -475,6 +451,20 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
+    target: "code:Snakefile"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/counts.py"
+    target: "dir:workflow/scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:workflow/scripts/counts.py"
     target: "file:results/counts/gene-counts.tsv"
     kind: Generated
     evidence:
@@ -482,11 +472,25 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
-    target: "file:workflow/scripts/counts.py"
-    kind: PartOf
+    target: "workflow-rule:Snakefile:counts"
+    kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/download.py"
+    target: "code:Snakefile"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/download.py"
+    target: "dir:workflow/scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
     target: "file:data/raw/S1.fastq"
@@ -496,8 +500,8 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
-    target: "file:workflow/scripts/download.py"
-    kind: PartOf
+    target: "workflow-rule:Snakefile:download"
+    kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -560,13 +564,6 @@ edges:
   - type: GraphEdge
     source: "dir:workflow/scripts"
     target: "dir:workflow"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:Snakefile"
-    target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -705,48 +702,6 @@ edges:
     source: "file:results/counts/gene-counts.tsv"
     target: "workflow-rule:Snakefile:report"
     kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:workflow/scripts/counts.py"
-    target: "code:Snakefile"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:workflow/scripts/counts.py"
-    target: "dir:workflow/scripts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:workflow/scripts/counts.py"
-    target: "workflow-rule:Snakefile:counts"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:workflow/scripts/download.py"
-    target: "code:Snakefile"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:workflow/scripts/download.py"
-    target: "dir:workflow/scripts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:workflow/scripts/download.py"
-    target: "workflow-rule:Snakefile:download"
-    kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

@@ -13,6 +13,12 @@ nodes:
       name: analysis.R
       path: scripts/analysis.R
       programmingLanguage: R
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "code:scripts/analysis.py"
     node:
@@ -21,32 +27,38 @@ nodes:
       name: analysis.py
       path: scripts/analysis.py
       programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
-    id: "column:scripts/analysis.R:../data/raw/observations.csv:count"
+    id: "column:scripts/analysis.R:df:count"
     node:
       type: DatatableColumn
-      id: "column:scripts/analysis.R:../data/raw/observations.csv:count"
+      id: "column:scripts/analysis.R:df:count"
       name: count
       values: []
   - type: GraphNode
-    id: "column:scripts/analysis.R:../data/raw/observations.csv:site"
+    id: "column:scripts/analysis.R:df:site"
     node:
       type: DatatableColumn
-      id: "column:scripts/analysis.R:../data/raw/observations.csv:site"
+      id: "column:scripts/analysis.R:df:site"
       name: site
       values: []
   - type: GraphNode
-    id: "column:scripts/analysis.py:../data/raw/observations.csv:count"
+    id: "column:scripts/analysis.py:df:count"
     node:
       type: DatatableColumn
-      id: "column:scripts/analysis.py:../data/raw/observations.csv:count"
+      id: "column:scripts/analysis.py:df:count"
       name: count
       values: []
   - type: GraphNode
-    id: "column:scripts/analysis.py:../data/raw/observations.csv:site"
+    id: "column:scripts/analysis.py:df:site"
     node:
       type: DatatableColumn
-      id: "column:scripts/analysis.py:../data/raw/observations.csv:site"
+      id: "column:scripts/analysis.py:df:site"
       name: site
       values: []
   - type: GraphNode
@@ -155,34 +167,6 @@ nodes:
       name: r-summary.csv
       path: outputs/r-summary.csv
       size: 11
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:scripts/analysis.R"
-    node:
-      type: File
-      id: "file:scripts/analysis.R"
-      name: analysis.R
-      path: scripts/analysis.R
-      size: 178
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:scripts/analysis.py"
-    node:
-      type: File
-      id: "file:scripts/analysis.py"
-      name: analysis.py
-      path: scripts/analysis.py
-      size: 259
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -426,6 +410,13 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:scripts/analysis.R"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/analysis.R"
     target: "file:figures/r-counts.png"
     kind: Generated
     evidence:
@@ -440,18 +431,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:scripts/analysis.R"
-    target: "file:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.R"
     target: "symbol:scripts/analysis.R:r:df"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:scripts/analysis.py"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "code:scripts/analysis.py"
     target: "file:figures/python-counts.png"
@@ -463,13 +454,6 @@ edges:
     source: "code:scripts/analysis.py"
     target: "file:outputs/python-clean.csv"
     kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "file:scripts/analysis.py"
-    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -495,133 +479,61 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:count"
+    source: "column:scripts/analysis.R:df:count"
     target: "code:scripts/analysis.R"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:count"
-    target: "file:data/raw/observations.csv"
+    source: "column:scripts/analysis.R:df:count"
+    target: "symbol:scripts/analysis.R:r:df"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:count"
-    target: "file:figures/r-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:count"
-    target: "file:outputs/r-summary.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:site"
+    source: "column:scripts/analysis.R:df:site"
     target: "code:scripts/analysis.R"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:site"
-    target: "file:data/raw/observations.csv"
+    source: "column:scripts/analysis.R:df:site"
+    target: "symbol:scripts/analysis.R:r:df"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:site"
-    target: "file:figures/r-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:../data/raw/observations.csv:site"
-    target: "file:outputs/r-summary.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:count"
+    source: "column:scripts/analysis.py:df:count"
     target: "code:scripts/analysis.py"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:count"
-    target: "file:data/raw/observations.csv"
+    source: "column:scripts/analysis.py:df:count"
+    target: "symbol:scripts/analysis.py:python:df"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:count"
-    target: "file:figures/python-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:count"
-    target: "file:outputs/python-clean.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:site"
+    source: "column:scripts/analysis.py:df:site"
     target: "code:scripts/analysis.py"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:site"
-    target: "file:data/raw/observations.csv"
+    source: "column:scripts/analysis.py:df:site"
+    target: "symbol:scripts/analysis.py:python:df"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:site"
-    target: "file:figures/python-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:../data/raw/observations.csv:site"
-    target: "file:outputs/python-clean.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -678,24 +590,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "file:figures/python-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "file:figures/r-counts.png"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        description: Coarse static lineage from read/write literals in one code unit.
   - type: GraphEdge
     source: "file:data/raw/observations.csv"
     target: "node:data/raw/observations.csv#dtb_"
@@ -765,20 +659,6 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "file:scripts/analysis.R"
-    target: "dir:scripts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:scripts/analysis.py"
-    target: "dir:scripts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
   - type: GraphEdge
     source: "function:scripts/analysis.R:r:csv"
     target: "code:scripts/analysis.R"
