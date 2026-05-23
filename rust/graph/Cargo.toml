@@ -10,6 +10,7 @@ ast-grep-config = "0.42.3"
 ast-grep-core = "0.42.3"
 clap = { workspace = true }
 eyre = { workspace = true }
+glob = { workspace = true }
 ignore = { workspace = true }
 percent-encoding = { workspace = true }
 serde = { workspace = true, features = ["derive"] }

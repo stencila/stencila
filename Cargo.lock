@@ -11429,6 +11429,7 @@ dependencies = [
  "ast-grep-core",
  "clap",
  "eyre",
+ "glob",
  "ignore",
  "insta",
  "percent-encoding",

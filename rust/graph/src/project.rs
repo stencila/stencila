@@ -4,9 +4,11 @@
 //! answer a narrower reader question by selecting relationship families,
 //! collapsing noisy intermediates, and attaching compact labels.
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 
 use clap::ValueEnum;
+use eyre::{Result, bail};
+use glob::Pattern;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
@@ -331,6 +333,55 @@ pub struct GraphView {
     pub containments: Vec<GraphViewEdge>,
 }
 
+/// How a connected-node filter should traverse projected graph edges.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
+pub enum GraphConnectedMode {
+    /// Include upstream dependencies and downstream dependents of matched nodes.
+    ///
+    /// Traversal does not switch direction at intermediate nodes, so shared
+    /// inputs do not pull in sibling consumers.
+    Directed,
+
+    /// Include the full undirected component containing matched nodes.
+    Undirected,
+}
+
+impl Default for GraphConnectedMode {
+    fn default() -> Self {
+        Self::Directed
+    }
+}
+
+/// Filter a projected graph view to nodes connected to matched seed nodes.
+///
+/// In directed mode, connectivity is computed as the union of upstream and
+/// downstream projected non-structural edges from the seed nodes. In undirected
+/// mode, connectivity is the full component over those same non-structural
+/// edges. Structural ancestors are then re-added for retained nodes.
+pub fn filter_graph_view_connected_to(
+    view: &GraphView,
+    patterns: &[String],
+    mode: GraphConnectedMode,
+) -> Result<GraphView> {
+    if patterns.is_empty() {
+        return Ok(view.clone());
+    }
+
+    let mut seeds = BTreeSet::new();
+    for pattern in patterns {
+        let matches = matching_node_ids(view, pattern)?;
+        if matches.is_empty() {
+            bail!(
+                "no projected graph nodes match `{pattern}`; check the pattern or projection options"
+            );
+        }
+        seeds.extend(matches);
+    }
+
+    let retained = connected_node_ids(view, &seeds, mode);
+    Ok(retain_graph_view_nodes(view, &retained))
+}
+
 #[derive(Debug)]
 struct ProjectedEdge<'a> {
     edge: &'a GraphEdge,
@@ -435,6 +486,219 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
         edges: edges.into_values().collect(),
         containments: containments.into_values().collect(),
     }
+}
+
+fn matching_node_ids(view: &GraphView, pattern: &str) -> Result<Vec<String>> {
+    let exact_id = view
+        .nodes
+        .iter()
+        .filter(|node| node.id == pattern)
+        .map(|node| node.id.clone())
+        .collect::<Vec<_>>();
+    if !exact_id.is_empty() {
+        return Ok(exact_id);
+    }
+
+    let exact_text = view
+        .nodes
+        .iter()
+        .filter(|node| node_match_texts(node).iter().any(|text| text == pattern))
+        .map(|node| node.id.clone())
+        .collect::<Vec<_>>();
+    if !exact_text.is_empty() {
+        return Ok(exact_text);
+    }
+
+    if has_glob_metacharacters(pattern) {
+        let glob = Pattern::new(pattern).map_err(|error| {
+            eyre::eyre!("invalid connected-to glob pattern `{pattern}`: {error}")
+        })?;
+        let glob_matches = view
+            .nodes
+            .iter()
+            .filter(|node| node_match_texts(node).iter().any(|text| glob.matches(text)))
+            .map(|node| node.id.clone())
+            .collect::<Vec<_>>();
+        if !glob_matches.is_empty() {
+            return Ok(glob_matches);
+        }
+    }
+
+    Ok(view
+        .nodes
+        .iter()
+        .filter(|node| {
+            node_match_texts(node)
+                .iter()
+                .any(|text| text.contains(pattern))
+        })
+        .map(|node| node.id.clone())
+        .collect())
+}
+
+fn connected_node_ids(
+    view: &GraphView,
+    seeds: &BTreeSet<String>,
+    mode: GraphConnectedMode,
+) -> BTreeSet<String> {
+    let visible_node_ids = view
+        .nodes
+        .iter()
+        .map(|node| node.id.as_str())
+        .collect::<BTreeSet<_>>();
+    let mut incoming = BTreeMap::<&str, BTreeSet<&str>>::new();
+    let mut outgoing = BTreeMap::<&str, BTreeSet<&str>>::new();
+
+    for edge in view
+        .edges
+        .iter()
+        .filter(|edge| edge.kind != STRUCTURE_EDGE_KIND)
+    {
+        if !visible_node_ids.contains(edge.source.as_str())
+            || !visible_node_ids.contains(edge.target.as_str())
+        {
+            continue;
+        }
+
+        outgoing
+            .entry(edge.source.as_str())
+            .or_default()
+            .insert(edge.target.as_str());
+        incoming
+            .entry(edge.target.as_str())
+            .or_default()
+            .insert(edge.source.as_str());
+    }
+
+    let visible_seeds = seeds
+        .iter()
+        .filter(|id| visible_node_ids.contains(id.as_str()))
+        .cloned()
+        .collect::<BTreeSet<_>>();
+    let mut retained = visible_seeds.clone();
+
+    match mode {
+        GraphConnectedMode::Directed => {
+            retained.extend(directed_reachable_node_ids(&visible_seeds, &incoming));
+            retained.extend(directed_reachable_node_ids(&visible_seeds, &outgoing));
+        }
+        GraphConnectedMode::Undirected => {
+            retained.extend(undirected_reachable_node_ids(
+                &visible_seeds,
+                &incoming,
+                &outgoing,
+            ));
+        }
+    }
+
+    retained
+}
+
+fn directed_reachable_node_ids(
+    seeds: &BTreeSet<String>,
+    adjacency: &BTreeMap<&str, BTreeSet<&str>>,
+) -> BTreeSet<String> {
+    let mut retained = BTreeSet::new();
+    let mut queue = seeds.iter().map(String::as_str).collect::<VecDeque<_>>();
+
+    while let Some(id) = queue.pop_front() {
+        for adjacent in adjacency.get(id).into_iter().flatten() {
+            if retained.insert((*adjacent).to_string()) {
+                queue.push_back(adjacent);
+            }
+        }
+    }
+
+    retained
+}
+
+fn undirected_reachable_node_ids(
+    seeds: &BTreeSet<String>,
+    incoming: &BTreeMap<&str, BTreeSet<&str>>,
+    outgoing: &BTreeMap<&str, BTreeSet<&str>>,
+) -> BTreeSet<String> {
+    let mut retained = BTreeSet::new();
+    let mut queue = seeds.iter().map(String::as_str).collect::<VecDeque<_>>();
+
+    while let Some(id) = queue.pop_front() {
+        for adjacent in incoming
+            .get(id)
+            .into_iter()
+            .chain(outgoing.get(id))
+            .flatten()
+        {
+            if retained.insert((*adjacent).to_string()) {
+                queue.push_back(adjacent);
+            }
+        }
+    }
+
+    retained
+}
+
+fn retain_graph_view_nodes(view: &GraphView, retained: &BTreeSet<String>) -> GraphView {
+    let mut contextual = retained.clone();
+    let mut changed = true;
+
+    while changed {
+        changed = false;
+        for edge in &view.containments {
+            if contextual.contains(&edge.source) && contextual.insert(edge.target.clone()) {
+                changed = true;
+            }
+        }
+    }
+
+    GraphView {
+        preset: view.preset,
+        detail: view.detail,
+        containment: view.containment,
+        nodes: view
+            .nodes
+            .iter()
+            .filter(|node| contextual.contains(&node.id))
+            .cloned()
+            .collect(),
+        edges: view
+            .edges
+            .iter()
+            .filter(|edge| contextual.contains(&edge.source) && contextual.contains(&edge.target))
+            .cloned()
+            .collect(),
+        containments: view
+            .containments
+            .iter()
+            .filter(|edge| contextual.contains(&edge.source) && contextual.contains(&edge.target))
+            .cloned()
+            .collect(),
+    }
+}
+
+fn node_match_texts(node: &GraphViewNode) -> Vec<String> {
+    let mut texts = BTreeSet::from([node.id.clone(), node.label.clone()]);
+    let value = serde_json::to_value(node.node.node.as_ref()).unwrap_or(Value::Null);
+
+    for key in ["id", "name", "title", "path", "url", "target"] {
+        let Some(text) = string_value(value.get(key)) else {
+            continue;
+        };
+
+        texts.insert(text.clone());
+        if let Some(basename) = basename(&text) {
+            texts.insert(basename);
+        }
+    }
+
+    texts.into_iter().collect()
+}
+
+fn basename(value: &str) -> Option<String> {
+    let basename = value.rsplit(['/', '\\']).next().unwrap_or(value);
+    (!basename.is_empty() && basename != value).then(|| basename.to_string())
+}
+
+fn has_glob_metacharacters(pattern: &str) -> bool {
+    pattern.contains(['*', '?', '['])
 }
 
 fn resolve_projection_options(
@@ -1090,8 +1354,8 @@ pub fn edge_label(kind: GraphEdgeKind) -> String {
 mod tests {
     use eyre::Result;
     use stencila_schema::{
-        Article, DatatableColumn, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphEvidence,
-        GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node, Reference,
+        Article, DatatableColumn, Directory, File, Function, Graph, GraphEdge, GraphEdgeKind,
+        GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node, Reference,
         SoftwareApplication, SoftwareSourceCode, Variable,
     };
 
@@ -1370,6 +1634,288 @@ mod tests {
         assert_eq!(node_label(&node), "report.smd");
     }
 
+    #[test]
+    fn connected_filter_matches_exact_node_id() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["code:scripts/analysis.R".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/analysis.R")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:data/raw.csv")
+        );
+        assert!(
+            !filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/other.R")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_prefers_exact_text_before_substring() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["analysis.R".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/analysis.R")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:scripts/analysis.R")
+        );
+        assert!(
+            !filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:archive/analysis.R.old")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_matches_glob_patterns() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        for pattern in ["*/analysis.R", "**/analysis.R"] {
+            let filtered = filter_graph_view_connected_to(
+                &view,
+                &[pattern.into()],
+                GraphConnectedMode::Directed,
+            )?;
+
+            assert!(
+                filtered
+                    .nodes
+                    .iter()
+                    .any(|node| node.id == "code:scripts/analysis.R")
+            );
+            assert!(
+                !filtered
+                    .nodes
+                    .iter()
+                    .any(|node| node.id == "code:archive/analysis.R.old")
+            );
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_uses_union_of_best_tier_matches() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["analysis.R".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:scripts/analysis.R")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:r-plot.png")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_does_not_traverse_structure_edges() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["analysis.R".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(filtered.nodes.iter().any(|node| node.id == "dir:scripts"));
+        assert!(
+            !filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/other.R")
+        );
+        assert!(
+            !filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:scripts/other.R")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_does_not_cross_shared_inputs_to_sibling_consumers() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["code:scripts/analysis.R".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:data/raw.csv")
+        );
+        assert!(
+            !filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/other.R")
+        );
+        assert!(!filtered.edges.iter().any(
+            |edge| edge.source == "file:data/raw.csv" && edge.target == "code:scripts/other.R"
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_undirected_crosses_shared_inputs_to_sibling_consumers() -> Result<()> {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["code:scripts/analysis.R".into()],
+            GraphConnectedMode::Undirected,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/analysis.R")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:data/raw.csv")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:scripts/other.R")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:other-plot.png")
+        );
+        assert!(filtered.edges.iter().any(
+            |edge| edge.source == "file:data/raw.csv" && edge.target == "code:scripts/other.R"
+        ));
+        Ok(())
+    }
+
+    #[test]
+    fn connected_filter_reports_invalid_and_unmatched_patterns() {
+        let view = project_graph(
+            &connected_pattern_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        let invalid =
+            filter_graph_view_connected_to(&view, &["[".into()], GraphConnectedMode::Directed)
+                .expect_err("invalid glob should error");
+        assert!(
+            invalid
+                .to_string()
+                .contains("invalid connected-to glob pattern")
+        );
+
+        let unmatched = filter_graph_view_connected_to(
+            &view,
+            &["missing.R".into()],
+            GraphConnectedMode::Directed,
+        )
+        .expect_err("unmatched pattern should error");
+        assert!(
+            unmatched
+                .to_string()
+                .contains("no projected graph nodes match")
+        );
+    }
+
     fn graph() -> Graph {
         let mut graph = Graph::new(
             "test:graph".to_string(),
@@ -1426,6 +1972,159 @@ mod tests {
         );
         graph.nodes[3].node = Box::new(Node::Citation(Default::default()));
         graph
+    }
+
+    fn connected_pattern_graph() -> Graph {
+        Graph::new(
+            "test:connected-pattern".to_string(),
+            vec![
+                graph_node(
+                    "dir:.",
+                    Node::Directory(Directory::new("workspace".to_string(), ".".to_string())),
+                ),
+                graph_node(
+                    "dir:scripts",
+                    Node::Directory(Directory::new("scripts".to_string(), "scripts".to_string())),
+                ),
+                graph_node(
+                    "code:scripts/analysis.R",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.R".to_string(),
+                        path: Some("scripts/analysis.R".to_string()),
+                        programming_language: "r".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "file:scripts/analysis.R",
+                    Node::File(File::new(
+                        "analysis.R".to_string(),
+                        "scripts/analysis.R".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:data/raw.csv",
+                    Node::File(File::new("raw.csv".to_string(), "data/raw.csv".to_string())),
+                ),
+                graph_node(
+                    "file:r-plot.png",
+                    Node::File(File::new(
+                        "r-plot.png".to_string(),
+                        "r-plot.png".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "code:scripts/other.R",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "other.R".to_string(),
+                        path: Some("scripts/other.R".to_string()),
+                        programming_language: "r".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "file:scripts/other.R",
+                    Node::File(File::new(
+                        "other.R".to_string(),
+                        "scripts/other.R".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:other-data.csv",
+                    Node::File(File::new(
+                        "other-data.csv".to_string(),
+                        "other-data.csv".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:other-plot.png",
+                    Node::File(File::new(
+                        "other-plot.png".to_string(),
+                        "other-plot.png".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "code:archive/analysis.R.old",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.R.old".to_string(),
+                        path: Some("archive/analysis.R.old".to_string()),
+                        programming_language: "r".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "file:archive-data.csv",
+                    Node::File(File::new(
+                        "archive-data.csv".to_string(),
+                        "archive-data.csv".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:archive-plot.png",
+                    Node::File(File::new(
+                        "archive-plot.png".to_string(),
+                        "archive-plot.png".to_string(),
+                    )),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:data/raw.csv".to_string(),
+                    "code:scripts/analysis.R".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "code:scripts/analysis.R".to_string(),
+                    "file:r-plot.png".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "code:scripts/analysis.R".to_string(),
+                    "file:scripts/analysis.R".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:scripts/analysis.R".to_string(),
+                    "dir:scripts".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "dir:scripts".to_string(),
+                    "dir:.".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:data/raw.csv".to_string(),
+                    "code:scripts/other.R".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "code:scripts/other.R".to_string(),
+                    "file:other-plot.png".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "code:scripts/other.R".to_string(),
+                    "file:scripts/other.R".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:scripts/other.R".to_string(),
+                    "dir:scripts".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:archive-data.csv".to_string(),
+                    "code:archive/analysis.R.old".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "code:archive/analysis.R.old".to_string(),
+                    "file:archive-plot.png".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+            ],
+        )
     }
 
     fn structure_only_graph() -> Graph {

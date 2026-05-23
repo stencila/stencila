@@ -61,9 +61,9 @@ pub use builder::GraphBuilder;
 pub(crate) use document::{DocumentReferenceKind, add_document_with_reference_resolver};
 pub use document::{add_document, graph_from_node};
 pub use project::{
-    GraphContainmentMode, GraphEdgeFamily, GraphProjectionDetail, GraphProjectionOptions,
-    GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode, GraphViewNodeKind, edge_family,
-    project_graph,
+    GraphConnectedMode, GraphContainmentMode, GraphEdgeFamily, GraphProjectionDetail,
+    GraphProjectionOptions, GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode,
+    GraphViewNodeKind, edge_family, filter_graph_view_connected_to, project_graph,
 };
 pub use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
 pub use workspace::{WorkspaceOptions, graph_from_path};

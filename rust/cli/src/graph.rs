@@ -12,9 +12,9 @@ use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
 use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
-    Graph, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
-    GraphProjectionPreset, WorkspaceOptions, dot::to_dot, graph_from_node, graph_from_path,
-    project_graph,
+    Graph, GraphConnectedMode, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
+    GraphProjectionPreset, WorkspaceOptions, dot::to_dot, filter_graph_view_connected_to,
+    graph_from_node, graph_from_path, project_graph,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -63,6 +63,14 @@ pub struct Cli {
     /// Keep citation marker nodes visible in projected graph exports
     #[arg(long)]
     no_collapse_citations: bool,
+
+    /// Filter projected graph exports to nodes connected to matching nodes
+    #[arg(long, value_name = "PATTERN")]
+    connected_to: Vec<String>,
+
+    /// How to traverse graph edges for connected-to filtering
+    #[arg(long, value_enum, default_value_t = GraphConnectedMode::Directed)]
+    connected_mode: GraphConnectedMode,
 
     /// The address to serve on
     #[arg(long, short, default_value = "127.0.0.1")]
@@ -126,6 +134,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
   <dim># Export a detailed data flow graph including local symbols</dim>
   <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</> <c>--detail</> <g>high</>
 
+  <dim># Export only the data flow connected to a matching script</dim>
+  <b>stencila graph</> <g>.</> <g>graph.png</> <c>--view</> <g>flow</> <c>--connected-to</> <g>analysis.R</>
+
+  <dim># Export the full connected component through shared inputs</dim>
+  <b>stencila graph</> <g>.</> <g>graph.png</> <c>--view</> <g>flow</> <c>--connected-to</> <g>analysis.R</> <c>--connected-mode</> <g>undirected</>
+
   <dim># Export the same graph without directory/document containment clusters</dim>
   <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</> <c>--containment</> <g>none</>
 
@@ -141,9 +155,21 @@ impl Cli {
         match &self.output {
             Some(output) => {
                 let projection_options = self.projection_options();
-                export_graph(&graph, output, self.to, &projection_options).await
+                export_graph(
+                    &graph,
+                    output,
+                    self.to,
+                    &projection_options,
+                    &self.connected_to,
+                    self.connected_mode,
+                )
+                .await
             }
             None => {
+                if !self.connected_to.is_empty() {
+                    bail!("`--connected-to` is only supported for DOT, SVG, and PNG graph exports");
+                }
+
                 serve_graph(
                     graph,
                     path,
@@ -180,12 +206,42 @@ async fn export_graph(
     output: &Path,
     format: Option<GraphOutputFormat>,
     projection_options: &GraphProjectionOptions,
+    connected_to: &[String],
+    connected_mode: GraphConnectedMode,
 ) -> Result<()> {
     let format = output_format(output, format)?;
 
     match format {
-        GraphOutputFormat::Json | GraphOutputFormat::Yaml | GraphOutputFormat::Dot => {
-            let content = serialize_graph(graph, format, projection_options)?;
+        GraphOutputFormat::Json | GraphOutputFormat::Yaml => {
+            if !connected_to.is_empty() {
+                bail!("`--connected-to` is only supported for DOT, SVG, and PNG graph exports");
+            }
+
+            let content = serialize_graph(
+                graph,
+                format,
+                projection_options,
+                connected_to,
+                connected_mode,
+            )?;
+            if is_stdout_output(output) {
+                if let Some(format) = schema_format(format) {
+                    Code::new_from(format, graph)?.to_stdout();
+                } else {
+                    tokio::io::stdout().write_all(content.as_bytes()).await?;
+                }
+            } else {
+                tokio::fs::write(output, content).await?;
+            }
+        }
+        GraphOutputFormat::Dot => {
+            let content = serialize_graph(
+                graph,
+                format,
+                projection_options,
+                connected_to,
+                connected_mode,
+            )?;
             if is_stdout_output(output) {
                 if let Some(format) = schema_format(format) {
                     Code::new_from(format, graph)?.to_stdout();
@@ -197,7 +253,14 @@ async fn export_graph(
             }
         }
         GraphOutputFormat::Svg | GraphOutputFormat::Png => {
-            let content = render_graph_image(graph, format, projection_options).await?;
+            let content = render_graph_image(
+                graph,
+                format,
+                projection_options,
+                connected_to,
+                connected_mode,
+            )
+            .await?;
             if is_stdout_output(output) {
                 tokio::io::stdout().write_all(&content).await?;
             } else {
@@ -213,8 +276,16 @@ async fn render_graph_image(
     graph: &Graph,
     format: GraphOutputFormat,
     projection_options: &GraphProjectionOptions,
+    connected_to: &[String],
+    connected_mode: GraphConnectedMode,
 ) -> Result<Vec<u8>> {
-    let dot = serialize_graph(graph, GraphOutputFormat::Dot, projection_options)?;
+    let dot = serialize_graph(
+        graph,
+        GraphOutputFormat::Dot,
+        projection_options,
+        connected_to,
+        connected_mode,
+    )?;
     let image_format = match format {
         GraphOutputFormat::Svg => "svg",
         GraphOutputFormat::Png => "png",
@@ -360,12 +431,15 @@ fn serialize_graph(
     graph: &Graph,
     format: GraphOutputFormat,
     projection_options: &GraphProjectionOptions,
+    connected_to: &[String],
+    connected_mode: GraphConnectedMode,
 ) -> Result<String> {
     let content = match format {
         GraphOutputFormat::Json => serde_json::to_string_pretty(graph)?,
         GraphOutputFormat::Yaml => serde_yaml::to_string(graph)?,
         GraphOutputFormat::Dot => {
             let view = project_graph(graph, projection_options);
+            let view = filter_graph_view_connected_to(&view, connected_to, connected_mode)?;
             to_dot(&view)
         }
         GraphOutputFormat::Svg | GraphOutputFormat::Png => {
@@ -406,7 +480,7 @@ mod tests {
 
     use eyre::Result;
     use stencila_graph::GraphBuilder;
-    use stencila_schema::{File, Node};
+    use stencila_schema::{File, Node, SoftwareSourceCode};
 
     #[test]
     fn infers_output_format() -> Result<()> {
@@ -456,11 +530,23 @@ mod tests {
         let graph = graph()?;
         let options = GraphProjectionOptions::default();
 
-        let json = serialize_graph(&graph, GraphOutputFormat::Json, &options)?;
+        let json = serialize_graph(
+            &graph,
+            GraphOutputFormat::Json,
+            &options,
+            &[],
+            GraphConnectedMode::Directed,
+        )?;
         assert!(json.contains(r#""type": "Graph""#));
         assert!(json.contains(r#""subject": "test:graph""#));
 
-        let yaml = serialize_graph(&graph, GraphOutputFormat::Yaml, &options)?;
+        let yaml = serialize_graph(
+            &graph,
+            GraphOutputFormat::Yaml,
+            &options,
+            &[],
+            GraphConnectedMode::Directed,
+        )?;
         assert!(yaml.contains("type: Graph"));
         assert!(yaml.contains("subject: test:graph"));
 
@@ -474,10 +560,76 @@ mod tests {
             &graph,
             GraphOutputFormat::Dot,
             &GraphProjectionOptions::default(),
+            &[],
+            GraphConnectedMode::Directed,
         )?;
 
         assert!(dot.contains("digraph stencila_graph"));
         assert!(dot.contains("\"file:data.csv\""));
+        Ok(())
+    }
+
+    #[test]
+    fn serializes_projected_dot_connected_to_pattern() -> Result<()> {
+        let graph = graph()?;
+        let dot = serialize_graph(
+            &graph,
+            GraphOutputFormat::Dot,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+            &["analysis.py".to_string()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(dot.contains("\"code:analysis.py\""));
+        assert!(dot.contains("\"file:data.csv\""));
+        assert!(dot.contains("\"file:plot.png\""));
+        assert!(!dot.contains("\"code:other.py\""));
+        Ok(())
+    }
+
+    #[test]
+    fn serializes_projected_dot_connected_to_undirected() -> Result<()> {
+        let graph = graph()?;
+        let dot = serialize_graph(
+            &graph,
+            GraphOutputFormat::Dot,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+            &["analysis.py".to_string()],
+            GraphConnectedMode::Undirected,
+        )?;
+
+        assert!(dot.contains("\"code:analysis.py\""));
+        assert!(dot.contains("\"file:data.csv\""));
+        assert!(dot.contains("\"code:other.py\""));
+        assert!(dot.contains("\"file:other-plot.png\""));
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn rejects_connected_to_for_raw_exports() -> Result<()> {
+        let graph = graph()?;
+        let error = export_graph(
+            &graph,
+            Path::new("-"),
+            Some(GraphOutputFormat::Json),
+            &GraphProjectionOptions::default(),
+            &["analysis.py".to_string()],
+            GraphConnectedMode::Directed,
+        )
+        .await
+        .expect_err("connected-to should not apply to raw graph exports");
+
+        assert!(
+            error
+                .to_string()
+                .contains("`--connected-to` is only supported for DOT, SVG, and PNG")
+        );
         Ok(())
     }
 
@@ -487,6 +639,39 @@ mod tests {
             "file:data.csv",
             Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
         );
+        builder.add_schema_node(
+            "code:analysis.py",
+            Node::SoftwareSourceCode(SoftwareSourceCode {
+                name: "analysis.py".to_string(),
+                path: Some("analysis.py".to_string()),
+                programming_language: "python".to_string(),
+                ..Default::default()
+            }),
+        );
+        builder.add_schema_node(
+            "file:plot.png",
+            Node::File(File::new("plot.png".to_string(), "plot.png".to_string())),
+        );
+        builder.add_schema_node(
+            "code:other.py",
+            Node::SoftwareSourceCode(SoftwareSourceCode {
+                name: "other.py".to_string(),
+                path: Some("other.py".to_string()),
+                programming_language: "python".to_string(),
+                ..Default::default()
+            }),
+        );
+        builder.add_schema_node(
+            "file:other-plot.png",
+            Node::File(File::new(
+                "other-plot.png".to_string(),
+                "other-plot.png".to_string(),
+            )),
+        );
+        builder.add_read("file:data.csv", "code:analysis.py", []);
+        builder.add_generation("code:analysis.py", "file:plot.png", []);
+        builder.add_read("file:data.csv", "code:other.py", []);
+        builder.add_generation("code:other.py", "file:other-plot.png", []);
         builder.build()
     }
 }
