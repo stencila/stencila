@@ -30,8 +30,8 @@ Expected graph surface:
 
 ## code-polyglot-tools-io
 
-Purpose: exercise static IO extraction from JavaScript, TypeScript, and Rust
-source files.
+Purpose: exercise static IO extraction from JavaScript, TypeScript, Rust,
+Python, R, Julia, and MATLAB source files.
 
 The fixture is intended to look like a scientific tooling repository with small
 helper programs that read common input files and write tool-specific outputs.
@@ -40,7 +40,7 @@ covered.
 
 Expected graph surface:
 
-- source-code `SoftwareSourceCode` nodes for JavaScript, TypeScript, and Rust files
+- source-code `SoftwareSourceCode` nodes for supported polyglot tool scripts
 - package import nodes and `ImportedBy` edges
 - static local file `ReadBy` edges
 - static output `Generated` edges

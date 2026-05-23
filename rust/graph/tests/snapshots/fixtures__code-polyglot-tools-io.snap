@@ -6,6 +6,34 @@ type: Graph
 subject: "fixture:code-polyglot-tools-io"
 nodes:
   - type: GraphNode
+    id: "code:analysis.R"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.R"
+      name: analysis.R
+      path: analysis.R
+      programmingLanguage: R
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:analysis.jl"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.jl"
+      name: analysis.jl
+      path: analysis.jl
+      programmingLanguage: Julia
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
     id: "code:analysis.js"
     node:
       type: SoftwareSourceCode
@@ -34,12 +62,26 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "code:qc.ts"
+    id: "code:analysis.py"
     node:
       type: SoftwareSourceCode
-      id: "code:qc.ts"
-      name: qc.ts
-      path: qc.ts
+      id: "code:analysis.py"
+      name: analysis.py
+      path: analysis.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:analysis.ts"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.ts"
+      name: analysis.ts
+      path: analysis.ts
       programmingLanguage: TypeScript
       dateCreated:
         type: DateTime
@@ -48,12 +90,12 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "code:src/bin/report.rs"
+    id: "code:src/bin/analysis.rs"
     node:
       type: SoftwareSourceCode
-      id: "code:src/bin/report.rs"
-      name: report.rs
-      path: src/bin/report.rs
+      id: "code:src/bin/analysis.rs"
+      name: analysis.rs
+      path: src/bin/analysis.rs
       programmingLanguage: Rust
       dateCreated:
         type: DateTime
@@ -132,6 +174,20 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "file:results/julia-summary.tsv"
+    node:
+      type: File
+      id: "file:results/julia-summary.tsv"
+      name: julia-summary.tsv
+      path: results/julia-summary.tsv
+      size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
     id: "file:results/matlab-summary.tsv"
     node:
       type: File
@@ -139,6 +195,34 @@ nodes:
       name: matlab-summary.tsv
       path: results/matlab-summary.tsv
       size: 8
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/python-summary.tsv"
+    node:
+      type: File
+      id: "file:results/python-summary.tsv"
+      name: python-summary.tsv
+      path: results/python-summary.tsv
+      size: 13
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:results/r-summary.tsv"
+    node:
+      type: File
+      id: "file:results/r-summary.tsv"
+      name: r-summary.tsv
+      path: results/r-summary.tsv
+      size: 13
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -160,12 +244,12 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:results/ts-qc.tsv"
+    id: "file:results/ts-summary.tsv"
     node:
       type: File
-      id: "file:results/ts-qc.tsv"
-      name: ts-qc.tsv
-      path: results/ts-qc.tsv
+      id: "file:results/ts-summary.tsv"
+      name: ts-summary.tsv
+      path: results/ts-summary.tsv
       size: 13
       dateCreated:
         type: DateTime
@@ -173,6 +257,27 @@ nodes:
       dateModified:
         type: DateTime
         value: "[datetime]"
+  - type: GraphNode
+    id: "function:analysis.R:r:read_tsv"
+    node:
+      type: Function
+      id: "function:analysis.R:r:read_tsv"
+      name: read_tsv
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.R:r:write_tsv"
+    node:
+      type: Function
+      id: "function:analysis.R:r:write_tsv"
+      name: write_tsv
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.jl:julia:File"
+    node:
+      type: Function
+      id: "function:analysis.jl:julia:File"
+      name: File
+      parameters: []
   - type: GraphNode
     id: "function:analysis.js:javascript:readFileSync"
     node:
@@ -230,45 +335,66 @@ nodes:
       name: writetable
       parameters: []
   - type: GraphNode
-    id: "function:qc.ts:typescript:parse"
+    id: "function:analysis.py:python:read_csv"
     node:
       type: Function
-      id: "function:qc.ts:typescript:parse"
+      id: "function:analysis.py:python:read_csv"
+      name: read_csv
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.py:python:summarize"
+    node:
+      type: Function
+      id: "function:analysis.py:python:summarize"
+      name: summarize
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.py:python:to_csv"
+    node:
+      type: Function
+      id: "function:analysis.py:python:to_csv"
+      name: to_csv
+      parameters: []
+  - type: GraphNode
+    id: "function:analysis.ts:typescript:parse"
+    node:
+      type: Function
+      id: "function:analysis.ts:typescript:parse"
       name: parse
       parameters: []
   - type: GraphNode
-    id: "function:qc.ts:typescript:readFileSync"
+    id: "function:analysis.ts:typescript:readFileSync"
     node:
       type: Function
-      id: "function:qc.ts:typescript:readFileSync"
+      id: "function:analysis.ts:typescript:readFileSync"
       name: readFileSync
       parameters: []
   - type: GraphNode
-    id: "function:qc.ts:typescript:writeFileSync"
+    id: "function:analysis.ts:typescript:writeFileSync"
     node:
       type: Function
-      id: "function:qc.ts:typescript:writeFileSync"
+      id: "function:analysis.ts:typescript:writeFileSync"
       name: writeFileSync
       parameters: []
   - type: GraphNode
-    id: "function:src/bin/report.rs:rust:main"
+    id: "function:src/bin/analysis.rs:rust:main"
     node:
       type: Function
-      id: "function:src/bin/report.rs:rust:main"
+      id: "function:src/bin/analysis.rs:rust:main"
       name: main
       parameters: []
   - type: GraphNode
-    id: "function:src/bin/report.rs:rust:read_to_string"
+    id: "function:src/bin/analysis.rs:rust:read_to_string"
     node:
       type: Function
-      id: "function:src/bin/report.rs:rust:read_to_string"
+      id: "function:src/bin/analysis.rs:rust:read_to_string"
       name: read_to_string
       parameters: []
   - type: GraphNode
-    id: "function:src/bin/report.rs:rust:write"
+    id: "function:src/bin/analysis.rs:rust:write"
     node:
       type: Function
-      id: "function:src/bin/report.rs:rust:write"
+      id: "function:src/bin/analysis.rs:rust:write"
       name: write
       parameters: []
   - type: GraphNode
@@ -294,12 +420,45 @@ nodes:
           name: value
           values: []
   - type: GraphNode
+    id: "node:results/julia-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
     id: "node:results/matlab-summary.tsv#dtb_"
     node:
       type: Datatable
       columns:
         - type: DatatableColumn
           name: count
+          values: []
+  - type: GraphNode
+    id: "node:results/python-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
+          values: []
+  - type: GraphNode
+    id: "node:results/r-summary.tsv#dtb_"
+    node:
+      type: Datatable
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+        - type: DatatableColumn
+          name: value
           values: []
   - type: GraphNode
     id: "node:results/rust-summary.tsv#dtb_"
@@ -313,7 +472,7 @@ nodes:
           name: value
           values: []
   - type: GraphNode
-    id: "node:results/ts-qc.tsv#dtb_"
+    id: "node:results/ts-summary.tsv#dtb_"
     node:
       type: Datatable
       columns:
@@ -334,6 +493,28 @@ nodes:
         - type: PropertyValue
           propertyId: purl
           value: "pkg:cargo/serde"
+  - type: GraphNode
+    id: "package:cran/readr"
+    node:
+      type: SoftwareSourceCode
+      id: "package:cran/readr"
+      name: readr
+      programmingLanguage: R
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:cran/readr"
+  - type: GraphNode
+    id: "package:julia/CSV"
+    node:
+      type: SoftwareSourceCode
+      id: "package:julia/CSV"
+      name: CSV
+      programmingLanguage: Julia
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:julia/CSV"
   - type: GraphNode
     id: "package:matlab/stats"
     node:
@@ -375,6 +556,59 @@ nodes:
           propertyId: purl
           value: "pkg:npm/fs-extra"
   - type: GraphNode
+    id: "package:pypi/pandas"
+    node:
+      type: SoftwareSourceCode
+      id: "package:pypi/pandas"
+      name: pandas
+      programmingLanguage: Python
+      identifiers:
+        - type: PropertyValue
+          propertyId: purl
+          value: "pkg:pypi/pandas"
+  - type: GraphNode
+    id: "symbol:analysis.R:r:read_tsv"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:read_tsv"
+      name: read_tsv
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:show_col_types"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:show_col_types"
+      name: show_col_types
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:table"
+      name: table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:write_tsv"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:write_tsv"
+      name: write_tsv
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.jl:julia:File"
+    node:
+      type: Variable
+      id: "symbol:analysis.jl:julia:File"
+      name: File
+      programmingLanguage: Julia
+  - type: GraphNode
+    id: "symbol:analysis.jl:julia:table"
+    node:
+      type: Variable
+      id: "symbol:analysis.jl:julia:table"
+      name: table
+      programmingLanguage: Julia
+  - type: GraphNode
     id: "symbol:analysis.js:javascript:input"
     node:
       type: Variable
@@ -396,62 +630,146 @@ nodes:
       name: tbl
       programmingLanguage: MATLAB
   - type: GraphNode
-    id: "symbol:qc.ts:typescript:table"
+    id: "symbol:analysis.py:python:index"
     node:
       type: Variable
-      id: "symbol:qc.ts:typescript:table"
+      id: "symbol:analysis.py:python:index"
+      name: index
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:pd"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:pd"
+      name: pd
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:read_csv"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:read_csv"
+      name: read_csv
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:sep"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:sep"
+      name: sep
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:table"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:table"
+      name: table
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:to_csv"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:to_csv"
+      name: to_csv
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.ts:typescript:table"
+    node:
+      type: Variable
+      id: "symbol:analysis.ts:typescript:table"
       name: table
       programmingLanguage: TypeScript
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:derive"
+    id: "symbol:src/bin/analysis.rs:rust:derive"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:derive"
+      id: "symbol:src/bin/analysis.rs:rust:derive"
       name: derive
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:format"
+    id: "symbol:src/bin/analysis.rs:rust:format"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:format"
+      id: "symbol:src/bin/analysis.rs:rust:format"
       name: format
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:read_to_string"
+    id: "symbol:src/bin/analysis.rs:rust:read_to_string"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:read_to_string"
+      id: "symbol:src/bin/analysis.rs:rust:read_to_string"
       name: read_to_string
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:rows"
+    id: "symbol:src/bin/analysis.rs:rust:rows"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:rows"
+      id: "symbol:src/bin/analysis.rs:rust:rows"
       name: rows
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:summary"
+    id: "symbol:src/bin/analysis.rs:rust:summary"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:summary"
+      id: "symbol:src/bin/analysis.rs:rust:summary"
       name: summary
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:table"
+    id: "symbol:src/bin/analysis.rs:rust:table"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:table"
+      id: "symbol:src/bin/analysis.rs:rust:table"
       name: table
       programmingLanguage: Rust
   - type: GraphNode
-    id: "symbol:src/bin/report.rs:rust:write"
+    id: "symbol:src/bin/analysis.rs:rust:write"
     node:
       type: Variable
-      id: "symbol:src/bin/report.rs:rust:write"
+      id: "symbol:src/bin/analysis.rs:rust:write"
       name: write
       programmingLanguage: Rust
 edges:
+  - type: GraphEdge
+    source: "code:analysis.R"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:analysis.R"
+    target: "file:results/r-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.R"
+    target: "symbol:analysis.R:r:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.jl"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:analysis.jl"
+    target: "file:results/julia-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.jl"
+    target: "symbol:analysis.jl:julia:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.js"
     target: "dir:."
@@ -509,57 +827,85 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:qc.ts"
+    source: "code:analysis.py"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:qc.ts"
-    target: "file:results/ts-qc.tsv"
+    source: "code:analysis.py"
+    target: "file:results/python-summary.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:qc.ts"
-    target: "symbol:qc.ts:typescript:table"
+    source: "code:analysis.py"
+    target: "function:analysis.py:python:summarize"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:src/bin/report.rs"
+    source: "code:analysis.py"
+    target: "symbol:analysis.py:python:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.ts"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:analysis.ts"
+    target: "file:results/ts-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.ts"
+    target: "symbol:analysis.ts:typescript:table"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:src/bin/analysis.rs"
     target: "dir:src/bin"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:src/bin/report.rs"
+    source: "code:src/bin/analysis.rs"
     target: "file:results/rust-summary.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:src/bin/report.rs"
-    target: "function:src/bin/report.rs:rust:main"
+    source: "code:src/bin/analysis.rs"
+    target: "function:src/bin/analysis.rs:rust:main"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:src/bin/report.rs"
-    target: "symbol:src/bin/report.rs:rust:summary"
+    source: "code:src/bin/analysis.rs"
+    target: "symbol:src/bin/analysis.rs:rust:summary"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:src/bin/report.rs"
-    target: "symbol:src/bin/report.rs:rust:table"
+    source: "code:src/bin/analysis.rs"
+    target: "symbol:src/bin/analysis.rs:rust:table"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -601,6 +947,20 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
+    target: "code:analysis.R"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "code:analysis.jl"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
     target: "code:analysis.js"
     kind: ReadBy
     evidence:
@@ -615,14 +975,21 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
-    target: "code:qc.ts"
+    target: "code:analysis.py"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
-    target: "code:src/bin/report.rs"
+    target: "code:analysis.ts"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "code:src/bin/analysis.rs"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -645,6 +1012,20 @@ edges:
         kind: Computed
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
+    target: "symbol:analysis.R:r:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:analysis.jl:julia:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
     target: "symbol:analysis.js:javascript:input"
     kind: DerivedInto
     evidence:
@@ -659,14 +1040,21 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
-    target: "symbol:qc.ts:typescript:table"
+    target: "symbol:analysis.py:python:table"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/raw/samples.tsv"
-    target: "symbol:src/bin/report.rs:rust:table"
+    target: "symbol:analysis.ts:typescript:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:data/raw/samples.tsv"
+    target: "symbol:src/bin/analysis.rs:rust:table"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -681,6 +1069,22 @@ edges:
   - type: GraphEdge
     source: "file:results/js-summary.tsv"
     target: "node:results/js-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/julia-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/julia-summary.tsv"
+    target: "node:results/julia-summary.tsv#dtb_"
     kind: ConvertedInto
     evidence:
       - type: GraphEvidence
@@ -704,6 +1108,38 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
+    source: "file:results/python-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/python-summary.tsv"
+    target: "node:results/python-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
+    source: "file:results/r-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:results/r-summary.tsv"
+    target: "node:results/r-summary.tsv#dtb_"
+    kind: ConvertedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+      - type: GraphEvidence
+        kind: Computed
+  - type: GraphEdge
     source: "file:results/rust-summary.tsv"
     target: "dir:results"
     kind: PartOf
@@ -720,15 +1156,15 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "file:results/ts-qc.tsv"
+    source: "file:results/ts-summary.tsv"
     target: "dir:results"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:results/ts-qc.tsv"
-    target: "node:results/ts-qc.tsv#dtb_"
+    source: "file:results/ts-summary.tsv"
+    target: "node:results/ts-summary.tsv#dtb_"
     kind: ConvertedInto
     evidence:
       - type: GraphEvidence
@@ -736,6 +1172,48 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
+    source: "function:analysis.R:r:read_tsv"
+    target: "code:analysis.R"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.R:r:read_tsv"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.R:r:write_tsv"
+    target: "code:analysis.R"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.R:r:write_tsv"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.jl:julia:File"
+    target: "code:analysis.jl"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.jl:julia:File"
+    target: "code:analysis.jl"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "function:analysis.js:javascript:readFileSync"
     target: "code:analysis.js"
     kind: CalledBy
@@ -848,85 +1326,141 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:parse"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:read_csv"
+    target: "code:analysis.py"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:parse"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:read_csv"
+    target: "code:analysis.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:readFileSync"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:summarize"
+    target: "code:analysis.py"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:readFileSync"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:summarize"
+    target: "code:analysis.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:writeFileSync"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:to_csv"
+    target: "code:analysis.py"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:qc.ts:typescript:writeFileSync"
-    target: "code:qc.ts"
+    source: "function:analysis.py:python:to_csv"
+    target: "code:analysis.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:src/bin/report.rs:rust:main"
-    target: "code:src/bin/report.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:src/bin/report.rs:rust:read_to_string"
-    target: "code:src/bin/report.rs"
+    source: "function:analysis.ts:typescript:parse"
+    target: "code:analysis.ts"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:src/bin/report.rs:rust:read_to_string"
-    target: "code:src/bin/report.rs"
+    source: "function:analysis.ts:typescript:parse"
+    target: "code:analysis.ts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:src/bin/report.rs:rust:write"
-    target: "code:src/bin/report.rs"
+    source: "function:analysis.ts:typescript:readFileSync"
+    target: "code:analysis.ts"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:src/bin/report.rs:rust:write"
-    target: "code:src/bin/report.rs"
+    source: "function:analysis.ts:typescript:readFileSync"
+    target: "code:analysis.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.ts:typescript:writeFileSync"
+    target: "code:analysis.ts"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:analysis.ts:typescript:writeFileSync"
+    target: "code:analysis.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/analysis.rs:rust:main"
+    target: "code:src/bin/analysis.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/analysis.rs:rust:read_to_string"
+    target: "code:src/bin/analysis.rs"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/analysis.rs:rust:read_to_string"
+    target: "code:src/bin/analysis.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/analysis.rs:rust:write"
+    target: "code:src/bin/analysis.rs"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:src/bin/analysis.rs:rust:write"
+    target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "package:cargo/serde"
-    target: "code:src/bin/report.rs"
+    target: "code:src/bin/analysis.rs"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:cran/readr"
+    target: "code:analysis.R"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:julia/CSV"
+    target: "code:analysis.jl"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence
@@ -940,14 +1474,14 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "package:node/fs"
-    target: "code:qc.ts"
+    target: "code:analysis.ts"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "package:npm/csv-parse"
-    target: "code:qc.ts"
+    target: "code:analysis.ts"
     kind: ImportedBy
     evidence:
       - type: GraphEvidence
@@ -956,6 +1490,97 @@ edges:
     source: "package:npm/fs-extra"
     target: "code:analysis.js"
     kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "package:pypi/pandas"
+    target: "code:analysis.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:read_tsv"
+    target: "code:analysis.R"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:read_tsv"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:show_col_types"
+    target: "code:analysis.R"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:show_col_types"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:table"
+    target: "file:results/r-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:write_tsv"
+    target: "code:analysis.R"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:write_tsv"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.jl:julia:File"
+    target: "code:analysis.jl"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.jl:julia:File"
+    target: "code:analysis.jl"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.jl:julia:table"
+    target: "code:analysis.jl"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.jl:julia:table"
+    target: "file:results/julia-summary.tsv"
+    kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -988,99 +1613,183 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:qc.ts:typescript:table"
-    target: "code:qc.ts"
+    source: "symbol:analysis.py:python:index"
+    target: "code:analysis.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:index"
+    target: "code:analysis.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:qc.ts:typescript:table"
-    target: "file:results/ts-qc.tsv"
+    source: "symbol:analysis.py:python:pd"
+    target: "code:analysis.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:pd"
+    target: "code:analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:read_csv"
+    target: "code:analysis.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:read_csv"
+    target: "code:analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:sep"
+    target: "code:analysis.py"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:sep"
+    target: "code:analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:table"
+    target: "code:analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:table"
+    target: "file:results/python-summary.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:derive"
-    target: "code:src/bin/report.rs"
+    source: "symbol:analysis.py:python:to_csv"
+    target: "code:analysis.py"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:derive"
-    target: "code:src/bin/report.rs"
+    source: "symbol:analysis.py:python:to_csv"
+    target: "code:analysis.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:format"
-    target: "code:src/bin/report.rs"
+    source: "symbol:analysis.ts:typescript:table"
+    target: "code:analysis.ts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:analysis.ts:typescript:table"
+    target: "file:results/ts-summary.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/analysis.rs:rust:derive"
+    target: "code:src/bin/analysis.rs"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:format"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:derive"
+    target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:read_to_string"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:format"
+    target: "code:src/bin/analysis.rs"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:read_to_string"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:format"
+    target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:rows"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:read_to_string"
+    target: "code:src/bin/analysis.rs"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:rows"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:read_to_string"
+    target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:summary"
-    target: "code:src/bin/report.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:table"
-    target: "code:src/bin/report.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:write"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:rows"
+    target: "code:src/bin/analysis.rs"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/report.rs:rust:write"
-    target: "code:src/bin/report.rs"
+    source: "symbol:src/bin/analysis.rs:rust:rows"
+    target: "code:src/bin/analysis.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/analysis.rs:rust:summary"
+    target: "code:src/bin/analysis.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/analysis.rs:rust:table"
+    target: "code:src/bin/analysis.rs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/analysis.rs:rust:write"
+    target: "code:src/bin/analysis.rs"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:src/bin/analysis.rs:rust:write"
+    target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
       - type: GraphEvidence
