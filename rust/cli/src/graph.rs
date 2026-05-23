@@ -1,16 +1,20 @@
 use std::{
     net::{IpAddr, Ipv4Addr},
     path::{Path, PathBuf},
+    process::Stdio,
 };
 
 use clap::{Parser, ValueEnum};
-use eyre::{Result, bail};
-use tokio::sync::oneshot;
+use eyre::{Result, WrapErr, bail};
+use tokio::{io::AsyncWriteExt, sync::oneshot};
 
 use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
 use stencila_document::Document;
 use stencila_format::Format;
-use stencila_graph::{Graph, WorkspaceOptions, graph_from_node, graph_from_path};
+use stencila_graph::{
+    Graph, GraphProjectionOptions, GraphProjectionPreset, WorkspaceOptions, dot::to_dot,
+    graph_from_node, graph_from_path, project_graph,
+};
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
 const GRAPH_FILE: &str = "graph.json";
@@ -30,6 +34,26 @@ pub struct Cli {
     /// Output format, overriding inference from the output extension
     #[arg(long, value_enum)]
     to: Option<GraphOutputFormat>,
+
+    /// Projection preset for DOT, SVG, and PNG graph exports
+    #[arg(long, value_enum, default_value_t = GraphProjectionPreset::Auto)]
+    view: GraphProjectionPreset,
+
+    /// Include structural containment edges in projected graph exports
+    #[arg(long, conflicts_with = "no_structure")]
+    structure: bool,
+
+    /// Exclude structural containment edges in projected graph exports
+    #[arg(long)]
+    no_structure: bool,
+
+    /// Exclude low-confidence edges in projected graph exports
+    #[arg(long)]
+    no_low_confidence: bool,
+
+    /// Keep citation marker nodes visible in projected graph exports
+    #[arg(long)]
+    no_collapse_citations: bool,
 
     /// The address to serve on
     #[arg(long, short, default_value = "127.0.0.1")]
@@ -56,15 +80,15 @@ enum GraphOutputFormat {
 
     /// Stencila Schema Graph as YAML.
     Yaml,
-}
 
-impl From<GraphOutputFormat> for Format {
-    fn from(format: GraphOutputFormat) -> Self {
-        match format {
-            GraphOutputFormat::Json => Format::Json,
-            GraphOutputFormat::Yaml => Format::Yaml,
-        }
-    }
+    /// Projected graph as Graphviz DOT.
+    Dot,
+
+    /// Projected graph rendered to SVG by Graphviz.
+    Svg,
+
+    /// Projected graph rendered to PNG by Graphviz.
+    Png,
 }
 
 pub static CLI_AFTER_LONG_HELP: &str = cstr!(
@@ -86,6 +110,12 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Export graph YAML to stdout</dim>
   <b>stencila graph</> <g>.</> <g>-</> <c>--to</> <g>yaml</>
+
+  <dim># Export a projected data flow graph as Graphviz DOT</dim>
+  <b>stencila graph</> <g>.</> <g>graph.dot</> <c>--view</> <g>flow</>
+
+  <dim># Export a projected software dependency graph as SVG using Graphviz</dim>
+  <b>stencila graph</> <g>.</> <g>graph.svg</> <c>--view</> <g>deps</>
 "
 );
 
@@ -93,8 +123,11 @@ impl Cli {
     pub async fn run(self) -> Result<()> {
         let GraphSource { graph, path } = build_graph(&self.path).await?;
 
-        match self.output {
-            Some(output) => export_graph(&graph, &output, self.to).await,
+        match &self.output {
+            Some(output) => {
+                let projection_options = self.projection_options();
+                export_graph(&graph, output, self.to, &projection_options).await
+            }
             None => {
                 serve_graph(
                     graph,
@@ -108,23 +141,94 @@ impl Cli {
             }
         }
     }
+
+    fn projection_options(&self) -> GraphProjectionOptions {
+        GraphProjectionOptions {
+            preset: self.view,
+            include_structure_edges: if self.structure {
+                Some(true)
+            } else if self.no_structure {
+                Some(false)
+            } else {
+                None
+            },
+            include_low_confidence_edges: !self.no_low_confidence,
+            collapse_citation_nodes: !self.no_collapse_citations,
+        }
+    }
 }
 
 async fn export_graph(
     graph: &Graph,
     output: &Path,
     format: Option<GraphOutputFormat>,
+    projection_options: &GraphProjectionOptions,
 ) -> Result<()> {
     let format = output_format(output, format)?;
 
-    if is_stdout_output(output) {
-        Code::new_from(format.into(), graph)?.to_stdout();
-    } else {
-        let content = serialize_graph(graph, format)?;
-        tokio::fs::write(output, content).await?;
+    match format {
+        GraphOutputFormat::Json | GraphOutputFormat::Yaml | GraphOutputFormat::Dot => {
+            let content = serialize_graph(graph, format, projection_options)?;
+            if is_stdout_output(output) {
+                if let Some(format) = schema_format(format) {
+                    Code::new_from(format, graph)?.to_stdout();
+                } else {
+                    tokio::io::stdout().write_all(content.as_bytes()).await?;
+                }
+            } else {
+                tokio::fs::write(output, content).await?;
+            }
+        }
+        GraphOutputFormat::Svg | GraphOutputFormat::Png => {
+            let content = render_graph_image(graph, format, projection_options).await?;
+            if is_stdout_output(output) {
+                tokio::io::stdout().write_all(&content).await?;
+            } else {
+                tokio::fs::write(output, content).await?;
+            }
+        }
     }
 
     Ok(())
+}
+
+async fn render_graph_image(
+    graph: &Graph,
+    format: GraphOutputFormat,
+    projection_options: &GraphProjectionOptions,
+) -> Result<Vec<u8>> {
+    let dot = serialize_graph(graph, GraphOutputFormat::Dot, projection_options)?;
+    let image_format = match format {
+        GraphOutputFormat::Svg => "svg",
+        GraphOutputFormat::Png => "png",
+        _ => bail!("Graphviz rendering only supports SVG and PNG outputs"),
+    };
+
+    let mut child = tokio::process::Command::new("dot")
+        .arg(format!("-T{image_format}"))
+        .stdin(Stdio::piped())
+        .stdout(Stdio::piped())
+        .stderr(Stdio::piped())
+        .spawn()
+        .wrap_err("unable to run Graphviz `dot`; install Graphviz and ensure `dot` is on PATH")?;
+
+    let mut stdin = child
+        .stdin
+        .take()
+        .ok_or_else(|| eyre::eyre!("unable to open Graphviz stdin"))?;
+    stdin.write_all(dot.as_bytes()).await?;
+    drop(stdin);
+
+    let output = child.wait_with_output().await?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        bail!(
+            "Graphviz `dot` failed to render graph as {image_format}: {}",
+            stderr.trim()
+        );
+    }
+
+    Ok(output.stdout)
 }
 
 async fn serve_graph(
@@ -225,20 +329,46 @@ fn output_format(output: &Path, requested: Option<GraphOutputFormat>) -> Result<
     match output.extension().and_then(|extension| extension.to_str()) {
         Some("json") => Ok(GraphOutputFormat::Json),
         Some("yaml" | "yml") => Ok(GraphOutputFormat::Yaml),
+        Some("dot" | "gv") => Ok(GraphOutputFormat::Dot),
+        Some("svg") => Ok(GraphOutputFormat::Svg),
+        Some("png") => Ok(GraphOutputFormat::Png),
         _ => bail!(
-            "Unable to infer graph export format from `{}`; use `--to json` or `--to yaml`",
+            "Unable to infer graph export format from `{}`; use `--to json`, `--to yaml`, `--to dot`, `--to svg`, or `--to png`",
             output.display()
         ),
     }
 }
 
-fn serialize_graph(graph: &Graph, format: GraphOutputFormat) -> Result<String> {
+fn serialize_graph(
+    graph: &Graph,
+    format: GraphOutputFormat,
+    projection_options: &GraphProjectionOptions,
+) -> Result<String> {
     let content = match format {
         GraphOutputFormat::Json => serde_json::to_string_pretty(graph)?,
         GraphOutputFormat::Yaml => serde_yaml::to_string(graph)?,
+        GraphOutputFormat::Dot => {
+            let view = project_graph(graph, projection_options);
+            to_dot(&view)
+        }
+        GraphOutputFormat::Svg | GraphOutputFormat::Png => {
+            bail!("image graph exports must be rendered with Graphviz")
+        }
     };
 
-    Ok(format!("{content}\n"))
+    if content.ends_with('\n') {
+        Ok(content)
+    } else {
+        Ok(format!("{content}\n"))
+    }
+}
+
+fn schema_format(format: GraphOutputFormat) -> Option<Format> {
+    match format {
+        GraphOutputFormat::Json => Some(Format::Json),
+        GraphOutputFormat::Yaml => Some(Format::Yaml),
+        _ => None,
+    }
 }
 
 fn is_stdout_output(output: &Path) -> bool {
@@ -276,6 +406,22 @@ mod tests {
             GraphOutputFormat::Yaml
         );
         assert_eq!(
+            output_format(Path::new("graph.dot"), None)?,
+            GraphOutputFormat::Dot
+        );
+        assert_eq!(
+            output_format(Path::new("graph.gv"), None)?,
+            GraphOutputFormat::Dot
+        );
+        assert_eq!(
+            output_format(Path::new("graph.svg"), None)?,
+            GraphOutputFormat::Svg
+        );
+        assert_eq!(
+            output_format(Path::new("graph.png"), None)?,
+            GraphOutputFormat::Png
+        );
+        assert_eq!(
             output_format(Path::new("-"), None)?,
             GraphOutputFormat::Json
         );
@@ -291,15 +437,30 @@ mod tests {
     #[test]
     fn serializes_graph_as_json_and_yaml() -> Result<()> {
         let graph = graph()?;
+        let options = GraphProjectionOptions::default();
 
-        let json = serialize_graph(&graph, GraphOutputFormat::Json)?;
+        let json = serialize_graph(&graph, GraphOutputFormat::Json, &options)?;
         assert!(json.contains(r#""type": "Graph""#));
         assert!(json.contains(r#""subject": "test:graph""#));
 
-        let yaml = serialize_graph(&graph, GraphOutputFormat::Yaml)?;
+        let yaml = serialize_graph(&graph, GraphOutputFormat::Yaml, &options)?;
         assert!(yaml.contains("type: Graph"));
         assert!(yaml.contains("subject: test:graph"));
 
+        Ok(())
+    }
+
+    #[test]
+    fn serializes_graph_as_dot() -> Result<()> {
+        let graph = graph()?;
+        let dot = serialize_graph(
+            &graph,
+            GraphOutputFormat::Dot,
+            &GraphProjectionOptions::default(),
+        )?;
+
+        assert!(dot.contains("digraph stencila_graph"));
+        assert!(dot.contains("\"file:data.csv\""));
         Ok(())
     }
 

@@ -48,15 +48,21 @@
 mod builder;
 pub mod code;
 mod document;
+pub mod dot;
 mod environment;
 mod evidence;
 mod ids;
 mod package;
+pub mod project;
 mod reference;
 mod workspace;
 
 pub use builder::GraphBuilder;
 pub(crate) use document::{DocumentReferenceKind, add_document_with_reference_resolver};
 pub use document::{add_document, graph_from_node};
+pub use project::{
+    GraphProjectionOptions, GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode,
+    GraphViewNodeKind, project_graph,
+};
 pub use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
 pub use workspace::{WorkspaceOptions, graph_from_path};

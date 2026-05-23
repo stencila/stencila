@@ -11427,6 +11427,7 @@ version = "0.0.0"
 dependencies = [
  "ast-grep-config",
  "ast-grep-core",
+ "clap",
  "eyre",
  "ignore",
  "insta",
