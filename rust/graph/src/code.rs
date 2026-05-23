@@ -183,6 +183,7 @@ named <- read.csv(file = "named.csv", sep = ",")
 # read.csv(file = "comment-r.csv")
 text <- 'read.csv(file = "string-r.csv")'
 my_read.csv(file = "helper-r.csv")
+my.read.csv(file = "helper-dot-r.csv")
 df$A
 write.csv(df, file = "named-output.csv", row.names = FALSE)
 write.csv(df, "output.csv")
@@ -196,9 +197,141 @@ write.csv(df, "output.csv")
         assert_no_io(&facts, "comment-r.csv");
         assert_no_io(&facts, "string-r.csv");
         assert_no_io(&facts, "helper-r.csv");
+        assert_no_io(&facts, "helper-dot-r.csv");
         assert_io(&facts, IoDirection::Write, "named-output.csv");
         assert_io(&facts, IoDirection::Write, "output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "A"));
+    }
+
+    #[test]
+    fn extracts_scientific_r_io_facts() {
+        let facts = analyze_source(
+            CodeLanguage::R,
+            r#"
+library(arrow)
+library(terra)
+
+table <- read_parquet(file = "data/table.parquet")
+fixed <- read_fwf("data/fixed-width.txt")
+workbook <- read_excel(path = "https://example.org/workbook.xlsx")
+sav <- read_sav("data/table.sav")
+rds <- read_rds("data/object.rds")
+loaded <- load("data/workspace.RData")
+lines <- readLines(con = "data/config.txt")
+json <- read_json(path = "data/config.json")
+xml <- read_xml(x = "data/table.xml")
+html <- read_html("https://example.org/table.html")
+dataset <- open_dataset(sources = "https://example.org/cube")
+shape <- st_read(dsn = "data/shape.gpkg")
+raster <- terra::rast("data/elevation.tif")
+vector <- terra::vect(x = "data/boundary.gpkg")
+image <- image_read(path = "images/source.tif")
+png_image <- readPNG(source = "images/source.png")
+compressed <- gzfile("data/archive.csv.gz", "rt")
+out_connection <- file("outputs/connection.txt", "w")
+unopened_connection <- file("data/unopened.txt")
+# read_parquet(file = "comment-r.parquet")
+text <- 'read_parquet(file = "string-r.parquet")'
+my.read_parquet(file = "helper-r.parquet")
+wrapper(input = read_parquet(file = "nested/no-target.parquet"))
+table[["count"]]
+
+downloaded <- download.file("https://example.org/raw.csv", "downloads/raw.csv")
+curl_download(url = "https://example.org/api.json", destfile = "downloads/api.json")
+copied <- file.copy("downloads/raw.csv", "copies/raw.csv")
+renamed <- file.rename(from = "staging/report.csv", to = "reports/report.csv")
+
+write_parquet(table, "outputs/table.parquet")
+write_csv(table, file = "outputs/table.csv")
+write_tsv(table, "outputs/table.tsv")
+write_xlsx(table, path = "outputs/table.xlsx")
+write_json(table, path = "outputs/table.json")
+write_xml(xml, file = "outputs/table.xml")
+write_rds(table, "outputs/object.rds")
+save(table, file = "outputs/workspace.RData")
+save.image(file = "outputs/session.RData")
+writeLines(lines, con = "outputs/config.txt")
+cat("status", file = "outputs/status.txt")
+st_write(shape, dsn = "outputs/shape.gpkg")
+writeRaster(raster, filename = "outputs/elevation.tif")
+writeVector(vector, filename = "outputs/boundary.gpkg")
+ggsave(filename = "outputs/plot.png")
+png(filename = "outputs/device.png")
+pdf(file = "outputs/report.pdf")
+svglite(file = "outputs/figure.svg")
+agg_png(filename = "outputs/agg.png")
+image_write(image, path = "outputs/image.tif")
+writePNG(png_image, target = "outputs/image.png")
+"#,
+        );
+
+        assert!(facts.imports.contains(&PackageFact::new("cran", "arrow")));
+        assert!(facts.imports.contains(&PackageFact::new("cran", "terra")));
+        assert_io(&facts, IoDirection::Read, "data/table.parquet");
+        assert_io(&facts, IoDirection::Read, "data/fixed-width.txt");
+        assert_io(
+            &facts,
+            IoDirection::Read,
+            "https://example.org/workbook.xlsx",
+        );
+        assert_io(&facts, IoDirection::Read, "data/table.sav");
+        assert_io(&facts, IoDirection::Read, "data/object.rds");
+        assert_io(&facts, IoDirection::Read, "data/workspace.RData");
+        assert_io(&facts, IoDirection::Read, "data/config.txt");
+        assert_io(&facts, IoDirection::Read, "data/config.json");
+        assert_io(&facts, IoDirection::Read, "data/table.xml");
+        assert_io(&facts, IoDirection::Read, "https://example.org/table.html");
+        assert_io(&facts, IoDirection::Read, "https://example.org/cube");
+        assert_io(&facts, IoDirection::Read, "data/shape.gpkg");
+        assert_io(&facts, IoDirection::Read, "data/elevation.tif");
+        assert_io(&facts, IoDirection::Read, "data/boundary.gpkg");
+        assert_io(&facts, IoDirection::Read, "images/source.tif");
+        assert_io(&facts, IoDirection::Read, "images/source.png");
+        assert_io(&facts, IoDirection::Read, "data/archive.csv.gz");
+        assert_io(&facts, IoDirection::Write, "outputs/connection.txt");
+        assert_no_io(&facts, "data/unopened.txt");
+        assert_io(&facts, IoDirection::Read, "nested/no-target.parquet");
+        assert_io(&facts, IoDirection::Read, "https://example.org/raw.csv");
+        assert_io(&facts, IoDirection::Read, "https://example.org/api.json");
+        assert_io(&facts, IoDirection::Read, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Read, "staging/report.csv");
+        assert_io(&facts, IoDirection::Write, "downloads/raw.csv");
+        assert_io(&facts, IoDirection::Write, "downloads/api.json");
+        assert_io(&facts, IoDirection::Write, "copies/raw.csv");
+        assert_io(&facts, IoDirection::Write, "reports/report.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/table.parquet");
+        assert_io(&facts, IoDirection::Write, "outputs/table.csv");
+        assert_io(&facts, IoDirection::Write, "outputs/table.tsv");
+        assert_io(&facts, IoDirection::Write, "outputs/table.xlsx");
+        assert_io(&facts, IoDirection::Write, "outputs/table.json");
+        assert_io(&facts, IoDirection::Write, "outputs/table.xml");
+        assert_io(&facts, IoDirection::Write, "outputs/object.rds");
+        assert_io(&facts, IoDirection::Write, "outputs/workspace.RData");
+        assert_io(&facts, IoDirection::Write, "outputs/session.RData");
+        assert_io(&facts, IoDirection::Write, "outputs/config.txt");
+        assert_io(&facts, IoDirection::Write, "outputs/status.txt");
+        assert_io(&facts, IoDirection::Write, "outputs/shape.gpkg");
+        assert_io(&facts, IoDirection::Write, "outputs/elevation.tif");
+        assert_io(&facts, IoDirection::Write, "outputs/boundary.gpkg");
+        assert_io(&facts, IoDirection::Write, "outputs/plot.png");
+        assert_io(&facts, IoDirection::Write, "outputs/device.png");
+        assert_io(&facts, IoDirection::Write, "outputs/report.pdf");
+        assert_io(&facts, IoDirection::Write, "outputs/figure.svg");
+        assert_io(&facts, IoDirection::Write, "outputs/agg.png");
+        assert_io(&facts, IoDirection::Write, "outputs/image.tif");
+        assert_io(&facts, IoDirection::Write, "outputs/image.png");
+        assert_no_io(&facts, "comment-r.parquet");
+        assert_no_io(&facts, "string-r.parquet");
+        assert_no_io(&facts, "helper-r.parquet");
+        assert_eq!(
+            facts.variable_sources.get("table").map(String::as_str),
+            Some("data/table.parquet")
+        );
+        assert!(!facts.variable_sources.contains_key("input"));
+        assert!(!facts.variable_sources.contains_key("downloaded"));
+        assert!(!facts.variable_sources.contains_key("copied"));
+        assert!(!facts.variable_sources.contains_key("renamed"));
+        assert!(facts.columns.iter().any(|column| column.column == "count"));
     }
 
     #[test]

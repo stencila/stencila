@@ -1,7 +1,7 @@
 use super::super::{
-    facts::{CodeFacts, IoDirection, IoFact},
+    facts::{CodeFacts, IoDirection, IoFact, IoPath, record_definition},
     language::CodeLanguage,
-    util::{function_name, path_expression},
+    util::{function_name, identifier_target, path_expression},
 };
 
 /// Collect named-argument I/O facts from source text.
@@ -79,19 +79,115 @@ pub(in crate::code) fn collect_named_io_text_facts(
             NamedIoMarker::write("urlretrieve", "filename"),
         ],
         CodeLanguage::R => &[
+            // Base R, tidyverse, data.table, workbook, statistical, and
+            // columnar readers.
+            NamedIoMarker::read("read.table", "file"),
             NamedIoMarker::read("read.csv", "file"),
+            NamedIoMarker::read("read.csv2", "file"),
+            NamedIoMarker::read("read.delim", "file"),
+            NamedIoMarker::read("read.delim2", "file"),
+            NamedIoMarker::read("read.fwf", "file"),
             NamedIoMarker::read("read_csv", "file"),
+            NamedIoMarker::read("read_tsv", "file"),
+            NamedIoMarker::read("read_delim", "file"),
+            NamedIoMarker::read("read_fwf", "file"),
+            NamedIoMarker::read("read_table", "file"),
+            NamedIoMarker::read("vroom", "file"),
+            NamedIoMarker::read("fread", "file"),
+            NamedIoMarker::read("fread", "input"),
             NamedIoMarker::read("readRDS", "file"),
+            NamedIoMarker::read("read_rds", "file"),
+            NamedIoMarker::read("load", "file"),
+            NamedIoMarker::read("readBin", "con"),
+            NamedIoMarker::read("readChar", "con"),
+            NamedIoMarker::read("readLines", "con"),
+            NamedIoMarker::read("scan", "file"),
+            NamedIoMarker::read("source", "file"),
+            NamedIoMarker::read("dget", "file"),
+            NamedIoMarker::read("read_excel", "path"),
+            NamedIoMarker::read("read_sav", "file"),
+            NamedIoMarker::read("read_dta", "file"),
+            NamedIoMarker::read("read_parquet", "file"),
+            NamedIoMarker::read("read_feather", "file"),
+            NamedIoMarker::read("open_dataset", "sources"),
+            // Structured, HTML, media, and spatial readers.
+            NamedIoMarker::read("read_json", "path"),
+            NamedIoMarker::read("read_xml", "x"),
+            NamedIoMarker::read("read_html", "x"),
+            NamedIoMarker::read("st_read", "dsn"),
+            NamedIoMarker::read("read_sf", "dsn"),
+            NamedIoMarker::read("terra::rast", "x"),
+            NamedIoMarker::read("terra::vect", "x"),
+            NamedIoMarker::read("image_read", "path"),
+            NamedIoMarker::read("readPNG", "source"),
+            NamedIoMarker::read("readJPEG", "source"),
+            NamedIoMarker::read("readTIFF", "source"),
+            // URL and copy helpers.
+            NamedIoMarker::status_read("download.file", "url"),
+            NamedIoMarker::status_read("curl_download", "url"),
+            NamedIoMarker::status_read("file.copy", "from"),
+            NamedIoMarker::status_read("file.rename", "from"),
+            // Base R, tidyverse, data.table, workbook, statistical, and
+            // columnar writers.
+            NamedIoMarker::write("write.table", "file"),
             NamedIoMarker::write("write.csv", "file"),
+            NamedIoMarker::write("write.csv2", "file"),
+            NamedIoMarker::write("write", "file"),
+            NamedIoMarker::write("writeLines", "con"),
+            NamedIoMarker::write("cat", "file"),
+            NamedIoMarker::write("sink", "file"),
             NamedIoMarker::write("write_csv", "file"),
+            NamedIoMarker::write("write_tsv", "file"),
+            NamedIoMarker::write("write_delim", "file"),
             NamedIoMarker::write("saveRDS", "file"),
+            NamedIoMarker::write("save", "file"),
+            NamedIoMarker::write("save.image", "file"),
+            NamedIoMarker::write("dump", "file"),
+            NamedIoMarker::write("dput", "file"),
+            NamedIoMarker::write("writeBin", "con"),
+            NamedIoMarker::write("writeChar", "con"),
+            NamedIoMarker::write("write_rds", "file"),
+            NamedIoMarker::write("vroom_write", "file"),
+            NamedIoMarker::write("fwrite", "file"),
+            NamedIoMarker::write("write_xlsx", "path"),
+            NamedIoMarker::write("write_sav", "path"),
+            NamedIoMarker::write("write_dta", "path"),
+            NamedIoMarker::write("write_parquet", "sink"),
+            NamedIoMarker::write("write_feather", "sink"),
+            NamedIoMarker::write("write_dataset", "path"),
+            // Structured, spatial, image, and plot writers.
+            NamedIoMarker::write("write_json", "path"),
+            NamedIoMarker::write("write_xml", "file"),
+            NamedIoMarker::write("st_write", "dsn"),
+            NamedIoMarker::write("write_sf", "dsn"),
+            NamedIoMarker::write("writeRaster", "filename"),
+            NamedIoMarker::write("writeVector", "filename"),
             NamedIoMarker::write("ggsave", "filename"),
+            NamedIoMarker::write("png", "filename"),
+            NamedIoMarker::write("pdf", "file"),
+            NamedIoMarker::write("svg", "filename"),
+            NamedIoMarker::write("jpeg", "filename"),
+            NamedIoMarker::write("tiff", "filename"),
+            NamedIoMarker::write("bmp", "filename"),
+            NamedIoMarker::write("postscript", "file"),
+            NamedIoMarker::write("cairo_pdf", "filename"),
+            NamedIoMarker::write("svglite", "file"),
+            NamedIoMarker::write("agg_png", "filename"),
+            NamedIoMarker::write("image_write", "path"),
+            NamedIoMarker::write("writePNG", "target"),
+            NamedIoMarker::write("writeJPEG", "target"),
+            NamedIoMarker::write("writeTIFF", "target"),
+            // URL and copy helpers.
+            NamedIoMarker::write("download.file", "destfile"),
+            NamedIoMarker::write("curl_download", "destfile"),
+            NamedIoMarker::write("file.copy", "to"),
+            NamedIoMarker::write("file.rename", "to"),
         ],
         _ => return,
     };
 
     for marker in markers {
-        collect_named_marker(source, marker, facts);
+        collect_named_marker(language, source, marker, facts);
     }
 
     let positional_markers: &[PositionalIoMarker] = match language {
@@ -103,7 +199,7 @@ pub(in crate::code) fn collect_named_io_text_facts(
     };
 
     for marker in positional_markers {
-        collect_positional_marker(source, marker, facts);
+        collect_positional_marker(language, source, marker, facts);
     }
 }
 
@@ -117,6 +213,9 @@ struct NamedIoMarker {
 
     /// Named argument that carries the input or output path expression.
     argument: &'static str,
+
+    /// Whether an assignment target receives the resource data.
+    captures_target: bool,
 }
 
 impl NamedIoMarker {
@@ -125,6 +224,16 @@ impl NamedIoMarker {
             direction: IoDirection::Read,
             function,
             argument,
+            captures_target: true,
+        }
+    }
+
+    fn status_read(function: &'static str, argument: &'static str) -> Self {
+        Self {
+            direction: IoDirection::Read,
+            function,
+            argument,
+            captures_target: false,
         }
     }
 
@@ -133,6 +242,7 @@ impl NamedIoMarker {
             direction: IoDirection::Write,
             function,
             argument,
+            captures_target: false,
         }
     }
 }
@@ -159,9 +269,14 @@ impl PositionalIoMarker {
     }
 }
 
-fn collect_named_marker(source: &str, marker: &NamedIoMarker, facts: &mut CodeFacts) {
+fn collect_named_marker(
+    language: CodeLanguage,
+    source: &str,
+    marker: &NamedIoMarker,
+    facts: &mut CodeFacts,
+) {
     let call_marker = format!("{}(", marker.function);
-    for call_index in call_indices(source, &call_marker) {
+    for call_index in call_indices(language, source, &call_marker) {
         let Some(call_source) = source.get(call_index..) else {
             continue;
         };
@@ -174,24 +289,48 @@ fn collect_named_marker(source: &str, marker: &NamedIoMarker, facts: &mut CodeFa
         let Some(path) = path_from_argument_value(value) else {
             continue;
         };
+        let (target, target_offset) = if marker.captures_target {
+            assignment_target_before_call(language, source, call_index)
+                .map(|(target, offset)| (Some(target), Some(offset)))
+                .unwrap_or((None, None))
+        } else {
+            (None, None)
+        };
 
         facts.io.insert(IoFact {
             direction: marker.direction,
-            path,
+            path: path.clone(),
             operation_offset: Some(call_index),
-            target: None,
-            target_offset: None,
+            target: target.clone(),
+            target_offset,
             value: None,
             value_offset: None,
             function: function_name(marker.function),
             mode: None,
         });
+
+        if let Some(target) = target {
+            facts.assignments.insert(target.clone());
+            if let Some(target_offset) = target_offset {
+                record_definition(facts, &target, target_offset);
+            }
+            if marker.direction.reads()
+                && let IoPath::Static(path) = path
+            {
+                facts.variable_sources.insert(target, path);
+            }
+        }
     }
 }
 
-fn collect_positional_marker(source: &str, marker: &PositionalIoMarker, facts: &mut CodeFacts) {
+fn collect_positional_marker(
+    language: CodeLanguage,
+    source: &str,
+    marker: &PositionalIoMarker,
+    facts: &mut CodeFacts,
+) {
     let call_marker = format!("{}(", marker.function);
-    for call_index in call_indices(source, &call_marker) {
+    for call_index in call_indices(language, source, &call_marker) {
         let Some(call_source) = source.get(call_index..) else {
             continue;
         };
@@ -227,8 +366,9 @@ fn collect_positional_marker(source: &str, marker: &PositionalIoMarker, facts: &
 ///
 /// This fallback scanner deliberately stays lexical. It does enough to avoid
 /// matching commented-out code, string contents, and longer helper names such as
-/// `my_read_csv(...)`, while leaving full parsing to the primary ast-grep pass.
-fn call_indices(source: &str, call_marker: &str) -> Vec<usize> {
+/// `my_read_csv(...)` or R dotted names such as `my.read.csv(...)`, while
+/// leaving full parsing to the primary ast-grep pass.
+fn call_indices(language: CodeLanguage, source: &str, call_marker: &str) -> Vec<usize> {
     let mut indices = Vec::new();
     let mut index = 0usize;
 
@@ -249,7 +389,7 @@ fn call_indices(source: &str, call_marker: &str) -> Vec<usize> {
             _ => {}
         }
 
-        if source[index..].starts_with(call_marker) && is_call_boundary(source, index) {
+        if source[index..].starts_with(call_marker) && is_call_boundary(language, source, index) {
             indices.push(index);
             index += call_marker.len();
         } else {
@@ -299,15 +439,91 @@ fn skip_quoted(source: &str, index: usize, quote: char) -> usize {
     source.len()
 }
 
-fn is_call_boundary(source: &str, index: usize) -> bool {
+fn is_call_boundary(language: CodeLanguage, source: &str, index: usize) -> bool {
     source[..index]
         .chars()
         .next_back()
-        .is_none_or(|char| !is_identifier_continue(char))
+        .is_none_or(|char| !is_identifier_continue(language, char))
 }
 
-fn is_identifier_continue(char: char) -> bool {
-    char == '_' || char.is_ascii_alphanumeric()
+fn is_identifier_continue(language: CodeLanguage, char: char) -> bool {
+    char == '_' || char.is_ascii_alphanumeric() || (language == CodeLanguage::R && char == '.')
+}
+
+fn assignment_target_before_call(
+    language: CodeLanguage,
+    source: &str,
+    call_index: usize,
+) -> Option<(String, usize)> {
+    if language != CodeLanguage::R {
+        return None;
+    }
+
+    let statement_start = r_statement_start(source, call_index)?;
+    let prefix = source.get(statement_start..call_index)?;
+    if !is_top_level_statement_prefix(prefix) {
+        return None;
+    }
+
+    let trimmed_end = prefix.trim_end().len();
+    let prefix = prefix.get(..trimmed_end)?;
+    let (target_source, target_end) = if let Some(operator_index) = prefix.rfind("<-") {
+        prefix
+            .get(..operator_index)
+            .map(|target| (target, operator_index))?
+    } else if let Some(operator_index) = prefix.rfind('=') {
+        prefix
+            .get(..operator_index)
+            .map(|target| (target, operator_index))?
+    } else {
+        return None;
+    };
+
+    let target_trimmed = target_source.trim();
+    let target = identifier_target(target_trimmed)?;
+    let leading = target_source
+        .len()
+        .saturating_sub(target_source.trim_start().len());
+    let target_offset = statement_start + leading;
+
+    (target_end == target_source.len()).then_some((target, target_offset))
+}
+
+fn r_statement_start(source: &str, call_index: usize) -> Option<usize> {
+    let prefix = source.get(..call_index)?;
+    prefix
+        .char_indices()
+        .rev()
+        .find_map(|(index, char)| matches!(char, '\n' | ';' | '{' | '}').then_some(index + 1))
+        .or(Some(0))
+}
+
+fn is_top_level_statement_prefix(source: &str) -> bool {
+    let mut depth = 0usize;
+    let mut quote = None;
+    let mut escaped = false;
+
+    for char in source.chars() {
+        if let Some(delimiter) = quote {
+            if escaped {
+                escaped = false;
+            } else if char == '\\' {
+                escaped = true;
+            } else if char == delimiter {
+                quote = None;
+            }
+            continue;
+        }
+
+        match char {
+            '\'' | '"' | '`' => quote = Some(char),
+            '(' | '[' => depth += 1,
+            ')' | ']' => depth = depth.saturating_sub(1),
+            _ => {}
+        }
+    }
+
+    depth == 0 && quote.is_none()
 }
 
 /// Return the argument source for the first call in a source slice.
