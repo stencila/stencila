@@ -32,6 +32,12 @@ pub struct CodeFacts {
     /// dependency resolution.
     pub declarations: BTreeSet<String>,
 
+    /// Function declarations with source ranges.
+    ///
+    /// These ranges let lean workspace graphs retain a function node only when
+    /// it owns visible data-flow variables.
+    pub function_declarations: BTreeSet<FunctionFact>,
+
     /// Symbols used by this unit.
     ///
     /// Uses are filtered after extraction to remove local definitions, imports,
@@ -139,6 +145,19 @@ pub struct WorkflowUnitFacts {
 
     /// Function-like actions used by the unit, such as `shell`.
     pub calls: BTreeSet<String>,
+}
+
+/// A function declaration discovered in source code.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct FunctionFact {
+    /// Function name.
+    pub name: String,
+
+    /// Byte offset where the function declaration starts.
+    pub start: usize,
+
+    /// Byte offset where the function declaration ends.
+    pub end: usize,
 }
 
 /// Workflow resource direction for whole-file and unit-level facts.

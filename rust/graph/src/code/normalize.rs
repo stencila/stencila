@@ -206,11 +206,7 @@ fn normalize_matlab_import(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mu
 /// Normalize a MATLAB function definition.
 fn normalize_matlab_function(matched: &NodeMatch<StrDoc<CodeLanguage>>, facts: &mut CodeFacts) {
     if let Some(node) = matched.field("name") {
-        let name = node.text();
-        if let Some(name) = identifier_target(name.trim()) {
-            facts.declarations.insert(name.to_string());
-            record_definition(facts, &name, node.range().start);
-        }
+        record_function_declaration(&node, facts);
     }
 }
 
@@ -301,11 +297,27 @@ fn normalize_declaration(
     facts: &mut CodeFacts,
 ) {
     if let Some(node) = matched.get_env().get_match(var) {
-        let name = node.text();
-        if let Some(name) = identifier_target(name.trim()) {
-            facts.declarations.insert(name.to_string());
-            record_definition(facts, &name, node.range().start);
-        }
+        record_function_declaration(node, facts);
+    }
+}
+
+/// Record a function declaration from its captured name node.
+fn record_function_declaration(
+    node: &ast_grep_core::Node<StrDoc<CodeLanguage>>,
+    facts: &mut CodeFacts,
+) {
+    let name = node.text();
+    if let Some(name) = identifier_target(name.trim()) {
+        facts.declarations.insert(name.to_string());
+        let range = declaration_range(node);
+        facts
+            .function_declarations
+            .insert(super::facts::FunctionFact {
+                name: name.to_string(),
+                start: range.start,
+                end: range.end,
+            });
+        record_definition(facts, &name, node.range().start);
     }
 }
 
@@ -444,6 +456,22 @@ fn env_range_start(matched: &NodeMatch<StrDoc<CodeLanguage>>, var: &str) -> Opti
         .get_env()
         .get_match(var)
         .map(|node| node.range().start)
+}
+
+/// Return the range of the declaration that owns a captured name.
+fn declaration_range(node: &ast_grep_core::Node<StrDoc<CodeLanguage>>) -> std::ops::Range<usize> {
+    let Some(parent) = node.parent() else {
+        return node.range();
+    };
+
+    match parent.kind().as_ref() {
+        "function_declaration"
+        | "function_definition"
+        | "function_item"
+        | "method_definition"
+        | "variable_declarator" => parent.range(),
+        _ => node.range(),
+    }
 }
 
 /// Check whether an identifier node is part of a definition site.

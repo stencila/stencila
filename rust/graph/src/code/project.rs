@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    facts::{CodeFacts, ColumnFact, IoFact, IoPath},
+    facts::{CodeFacts, ColumnFact, FunctionFact, IoFact, IoPath},
     language::CodeLanguage,
     util::{is_static_literal, path_name},
 };
@@ -24,6 +24,16 @@ use super::{
 /// same file node created by filesystem inventory. Document-only graphs omit a
 /// resolver and use scoped synthetic resources instead.
 pub(super) type ResourceResolver<'a> = dyn FnMut(&str) -> Option<String> + 'a;
+
+/// Level of code symbols to project into graph nodes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(super) enum CodeGraphMode {
+    /// Keep only symbols that participate in workspace data-flow.
+    Lean,
+
+    /// Keep generated and used symbols needed for interactive document reactivity.
+    Full,
+}
 
 /// Project normalized code facts into graph nodes and edges.
 ///
@@ -41,6 +51,7 @@ pub(super) fn add_code_facts_to_graph(
     scope: &str,
     language: CodeLanguage,
     facts: &CodeFacts,
+    mode: CodeGraphMode,
     mut resolver: Option<&mut ResourceResolver<'_>>,
 ) {
     if facts.syntax_error {
@@ -57,6 +68,70 @@ pub(super) fn add_code_facts_to_graph(
         );
     }
 
+    if mode == CodeGraphMode::Full {
+        add_reactive_symbol_edges(builder, unit_id, scope, language, facts);
+    }
+
+    let read_resources =
+        add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, &mut resolver);
+    let write_resources =
+        add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, &mut resolver);
+
+    match mode {
+        CodeGraphMode::Lean => add_lean_flow_edges(
+            builder,
+            unit_id,
+            scope,
+            language,
+            facts,
+            &read_resources,
+            &write_resources,
+        ),
+        CodeGraphMode::Full => add_full_flow_edges(
+            builder,
+            unit_id,
+            scope,
+            language,
+            facts,
+            &read_resources,
+            &write_resources,
+        ),
+    }
+
+    add_workflow_edges(
+        builder,
+        unit_id,
+        scope,
+        language,
+        facts,
+        IoResourceSets {
+            reads: &read_resources,
+            writes: &write_resources,
+        },
+        &mut resolver,
+    );
+
+    for script in &facts.script_links {
+        let Some(script_id) = add_resource_node(builder, unit_id, scope, script, &mut resolver)
+        else {
+            continue;
+        };
+        builder.add_edge_with_evidence(
+            script_id,
+            unit_id,
+            GraphEdgeKind::UsedBy,
+            vec![evidence::static_analysis()],
+        );
+    }
+}
+
+fn add_reactive_symbol_edges(
+    builder: &mut GraphBuilder,
+    unit_id: &str,
+    scope: &str,
+    language: CodeLanguage,
+    facts: &CodeFacts,
+) {
     for symbol in &facts.assignments {
         let symbol_id = add_variable_node(builder, scope, language, symbol);
         builder.add_containment(&symbol_id, unit_id, vec![evidence::static_analysis()]);
@@ -90,10 +165,18 @@ pub(super) fn add_code_facts_to_graph(
             vec![evidence::static_analysis()],
         );
     }
+}
 
-    let read_resources =
-        add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, &mut resolver);
-    for resource in &read_resources {
+fn add_full_flow_edges(
+    builder: &mut GraphBuilder,
+    unit_id: &str,
+    scope: &str,
+    language: CodeLanguage,
+    facts: &CodeFacts,
+    read_resources: &[IoResourceNode],
+    write_resources: &[IoResourceNode],
+) {
+    for resource in read_resources {
         builder.add_read(
             &resource.id,
             unit_id,
@@ -101,9 +184,7 @@ pub(super) fn add_code_facts_to_graph(
         );
     }
 
-    let write_resources =
-        add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, &mut resolver);
-    for resource in &write_resources {
+    for resource in write_resources {
         builder.add_generation(
             unit_id,
             &resource.id,
@@ -116,8 +197,8 @@ pub(super) fn add_code_facts_to_graph(
         scope,
         language,
         facts,
-        &read_resources,
-        &write_resources,
+        read_resources,
+        write_resources,
     );
 
     for column in &facts.columns {
@@ -131,7 +212,17 @@ pub(super) fn add_code_facts_to_graph(
             vec![evidence::static_analysis()],
         );
     }
+}
 
+fn add_workflow_edges(
+    builder: &mut GraphBuilder,
+    unit_id: &str,
+    scope: &str,
+    language: CodeLanguage,
+    facts: &CodeFacts,
+    resources: IoResourceSets<'_>,
+    resolver: &mut Option<&mut ResourceResolver<'_>>,
+) {
     for unit in &facts.workflow_units {
         let workflow_unit_id = add_workflow_unit_node(builder, scope, unit);
         builder.add_containment(
@@ -146,15 +237,11 @@ pub(super) fn add_code_facts_to_graph(
         );
         let workflow_unit_facts = facts.workflow_unit_facts.get(unit);
         let unit_read_resources = workflow_unit_facts
-            .map(|facts| {
-                add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, &mut resolver)
-            })
-            .unwrap_or_else(|| read_resources.clone());
+            .map(|facts| add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, resolver))
+            .unwrap_or_else(|| resources.reads.to_vec());
         let unit_write_resources = workflow_unit_facts
-            .map(|facts| {
-                add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, &mut resolver)
-            })
-            .unwrap_or_else(|| write_resources.clone());
+            .map(|facts| add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, resolver))
+            .unwrap_or_else(|| resources.writes.to_vec());
 
         for input in &unit_read_resources {
             builder.add_read(
@@ -181,8 +268,7 @@ pub(super) fn add_code_facts_to_graph(
 
         if let Some(workflow_unit_facts) = workflow_unit_facts {
             for script in &workflow_unit_facts.script_links {
-                let Some(script_id) =
-                    add_resource_node(builder, unit_id, scope, script, &mut resolver)
+                let Some(script_id) = add_resource_node(builder, unit_id, scope, script, resolver)
                 else {
                     continue;
                 };
@@ -205,19 +291,6 @@ pub(super) fn add_code_facts_to_graph(
                 );
             }
         }
-    }
-
-    for script in &facts.script_links {
-        let Some(script_id) = add_resource_node(builder, unit_id, scope, script, &mut resolver)
-        else {
-            continue;
-        };
-        builder.add_edge_with_evidence(
-            script_id,
-            unit_id,
-            GraphEdgeKind::UsedBy,
-            vec![evidence::static_analysis()],
-        );
     }
 }
 
@@ -244,6 +317,22 @@ fn add_variable_node(
     symbol: &str,
 ) -> String {
     let id = LocalGraphId::symbol(scope, language.id_component(), symbol);
+    let mut node = Variable::new(symbol.to_string());
+    node.id = Some(id.clone());
+    node.programming_language = Some(language.name().to_string());
+    builder.add_schema_node(id.clone(), Node::Variable(node));
+    id
+}
+
+/// Add or reuse a variable node under a function lexical scope.
+fn add_function_variable_node(
+    builder: &mut GraphBuilder,
+    scope: &str,
+    language: CodeLanguage,
+    function: &str,
+    symbol: &str,
+) -> String {
+    let id = LocalGraphId::function_symbol(scope, language.id_component(), function, symbol);
     let mut node = Variable::new(symbol.to_string());
     node.id = Some(id.clone());
     node.programming_language = Some(language.name().to_string());
@@ -368,8 +457,15 @@ struct IoResourceNode {
     path: IoPath,
     operation_offset: Option<usize>,
     target: Option<String>,
+    target_offset: Option<usize>,
     value: Option<String>,
     value_offset: Option<usize>,
+}
+
+#[derive(Debug, Clone, Copy)]
+struct IoResourceSets<'a> {
+    reads: &'a [IoResourceNode],
+    writes: &'a [IoResourceNode],
 }
 
 /// Add all I/O resources in a given read/write direction.
@@ -398,6 +494,7 @@ fn add_io_resource_nodes(
                 path: fact.path.clone(),
                 operation_offset: fact.operation_offset,
                 target: fact.target.clone(),
+                target_offset: fact.target_offset,
                 value: fact.value.clone(),
                 value_offset: fact.value_offset,
             });
@@ -406,12 +503,183 @@ fn add_io_resource_nodes(
     ids
 }
 
+/// Add lean workspace data-flow edges through retained local variables.
+fn add_lean_flow_edges(
+    builder: &mut GraphBuilder,
+    unit_id: &str,
+    scope: &str,
+    language: CodeLanguage,
+    facts: &CodeFacts,
+    read_resources: &[IoResourceNode],
+    write_resources: &[IoResourceNode],
+) {
+    let local_variables = local_variables(facts);
+    let precise_read_ids = read_resources
+        .iter()
+        .filter(|resource| {
+            resource
+                .target
+                .as_deref()
+                .is_some_and(|target| local_variables.contains(target))
+        })
+        .map(|resource| resource.id.clone())
+        .collect::<BTreeSet<_>>();
+    let precise_write_ids = write_resources
+        .iter()
+        .filter(|resource| {
+            let Some(value) = resource
+                .value
+                .as_deref()
+                .filter(|value| local_variables.contains(*value))
+            else {
+                return false;
+            };
+            let value_offset = resource.value_offset.or(resource.operation_offset);
+            value_offset.is_none_or(|offset| variable_available_at(facts, value, offset))
+        })
+        .map(|resource| resource.id.clone())
+        .collect::<BTreeSet<_>>();
+
+    for resource in read_resources {
+        if let Some(target) = resource
+            .target
+            .as_deref()
+            .filter(|target| local_variables.contains(*target))
+        {
+            let target_id = add_lean_variable_node(
+                builder,
+                unit_id,
+                scope,
+                language,
+                facts,
+                target,
+                resource.target_offset,
+            );
+            builder.add_read(
+                &resource.id,
+                target_id,
+                vec![io_path_evidence(&resource.path)],
+            );
+        } else if !precise_read_ids.contains(&resource.id) {
+            builder.add_read(
+                &resource.id,
+                unit_id,
+                vec![io_path_evidence(&resource.path)],
+            );
+        }
+    }
+
+    for flow in &facts.variable_flows {
+        if !local_variables.contains(&flow.source) || !local_variables.contains(&flow.target) {
+            continue;
+        }
+        if !variable_available_at(facts, &flow.source, flow.target_offset) {
+            continue;
+        }
+        let source_id = add_lean_variable_node(
+            builder,
+            unit_id,
+            scope,
+            language,
+            facts,
+            &flow.source,
+            Some(flow.target_offset),
+        );
+        let target_id = add_lean_variable_node(
+            builder,
+            unit_id,
+            scope,
+            language,
+            facts,
+            &flow.target,
+            Some(flow.target_offset),
+        );
+        builder.add_derivation(source_id, target_id, vec![evidence::static_analysis()]);
+    }
+
+    for resource in write_resources {
+        if let Some(value) = resource
+            .value
+            .as_deref()
+            .filter(|value| local_variables.contains(*value))
+        {
+            let value_offset = resource.value_offset.or(resource.operation_offset);
+            if value_offset.is_none_or(|offset| variable_available_at(facts, value, offset)) {
+                let value_id = add_lean_variable_node(
+                    builder,
+                    unit_id,
+                    scope,
+                    language,
+                    facts,
+                    value,
+                    value_offset,
+                );
+                builder.add_write(
+                    value_id,
+                    &resource.id,
+                    vec![io_path_evidence(&resource.path)],
+                );
+                continue;
+            }
+        }
+
+        if !precise_write_ids.contains(&resource.id) {
+            builder.add_generation(
+                unit_id,
+                &resource.id,
+                vec![io_path_evidence(&resource.path)],
+            );
+        }
+    }
+}
+
+fn add_lean_variable_node(
+    builder: &mut GraphBuilder,
+    unit_id: &str,
+    scope: &str,
+    language: CodeLanguage,
+    facts: &CodeFacts,
+    variable: &str,
+    offset: Option<usize>,
+) -> String {
+    let Some(function) = enclosing_function(facts, offset) else {
+        let variable_id = add_variable_node(builder, scope, language, variable);
+        builder.add_containment(&variable_id, unit_id, vec![evidence::static_analysis()]);
+        return variable_id;
+    };
+
+    let function_id = add_function_node(builder, scope, language, &function.name);
+    builder.add_containment(&function_id, unit_id, vec![evidence::static_analysis()]);
+    let variable_id =
+        add_function_variable_node(builder, scope, language, &function.name, variable);
+    builder.add_containment(&variable_id, function_id, vec![evidence::static_analysis()]);
+    variable_id
+}
+
+fn enclosing_function(facts: &CodeFacts, offset: Option<usize>) -> Option<&FunctionFact> {
+    let offset = offset?;
+    facts
+        .function_declarations
+        .iter()
+        .filter(|function| function.start <= offset && offset <= function.end)
+        .min_by_key(|function| function.end.saturating_sub(function.start))
+}
+
+fn local_variables(facts: &CodeFacts) -> BTreeSet<String> {
+    facts
+        .assignments
+        .iter()
+        .filter(|symbol| !facts.imported_symbols.contains(*symbol))
+        .cloned()
+        .collect()
+}
+
 /// Add precise data-flow edges that can be inferred through local variables.
 ///
 /// Unit-level resource I/O is represented separately by `ReadBy` and
 /// `Generated` edges through the code node. This function only adds the finer
-/// symbol-mediated derivations when reads, assignments, and writes name local
-/// variables.
+/// symbol-mediated data-flow edges when reads, assignments, and writes name
+/// local variables.
 fn add_variable_data_flow_edges(
     builder: &mut GraphBuilder,
     unit_id: &str,
@@ -421,12 +689,7 @@ fn add_variable_data_flow_edges(
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
 ) {
-    let local_variables = facts
-        .assignments
-        .iter()
-        .filter(|symbol| !facts.imported_symbols.contains(*symbol))
-        .cloned()
-        .collect::<BTreeSet<_>>();
+    let local_variables = local_variables(facts);
 
     for resource in read_resources {
         let Some(target) = resource
@@ -473,7 +736,7 @@ fn add_variable_data_flow_edges(
         }
         let value_id = add_variable_node(builder, scope, language, value);
         builder.add_containment(&value_id, unit_id, vec![evidence::static_analysis()]);
-        builder.add_derivation(
+        builder.add_write(
             value_id,
             &resource.id,
             vec![io_path_evidence(&resource.path)],

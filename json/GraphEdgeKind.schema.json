@@ -146,6 +146,11 @@
       "const": "Generated"
     },
     {
+      "@id": "stencila:WrittenTo",
+      "description": "The upstream data or value is written to the downstream resource. Related to `prov:generated` for the downstream resource and to `prov:used` for the upstream value.",
+      "const": "WrittenTo"
+    },
+    {
       "@id": "stencila:DerivedInto",
       "description": "The upstream node is derived into the downstream node. Related to `prov:wasDerivedFrom` with inverse direction.",
       "const": "DerivedInto"

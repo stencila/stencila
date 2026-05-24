@@ -83,6 +83,20 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
+    id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "data/{sample}.csv"
+  - type: GraphNode
+    id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "results/{sample}.csv"
+  - type: GraphNode
     id: "file:analysis.sas"
     node:
       type: File
@@ -129,27 +143,6 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "function:dynamic.py:python:read_csv"
-    node:
-      type: Function
-      id: "function:dynamic.py:python:read_csv"
-      name: read_csv
-      parameters: []
-  - type: GraphNode
-    id: "function:dynamic.py:python:to_csv"
-    node:
-      type: Function
-      id: "function:dynamic.py:python:to_csv"
-      name: to_csv
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/malformed.R:r:csv"
-    node:
-      type: Function
-      id: "function:scripts/malformed.R:r:csv"
-      name: csv
-      parameters: []
-  - type: GraphNode
     id: "node:docs/missing-links.smd#art_"
     node:
       type: Article
@@ -188,75 +181,12 @@ nodes:
           propertyId: purl
           value: "pkg:pypi/pandas"
   - type: GraphNode
-    id: "symbol:analysis.jl:julia:x"
-    node:
-      type: Variable
-      id: "symbol:analysis.jl:julia:x"
-      name: x
-      programmingLanguage: Julia
-  - type: GraphNode
-    id: "symbol:dynamic.py:python:pd"
-    node:
-      type: Variable
-      id: "symbol:dynamic.py:python:pd"
-      name: pd
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:dynamic.py:python:read_csv"
-    node:
-      type: Variable
-      id: "symbol:dynamic.py:python:read_csv"
-      name: read_csv
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:dynamic.py:python:sample"
-    node:
-      type: Variable
-      id: "symbol:dynamic.py:python:sample"
-      name: sample
-      programmingLanguage: Python
-  - type: GraphNode
     id: "symbol:dynamic.py:python:table"
     node:
       type: Variable
       id: "symbol:dynamic.py:python:table"
       name: table
       programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:dynamic.py:python:to_csv"
-    node:
-      type: Variable
-      id: "symbol:dynamic.py:python:to_csv"
-      name: to_csv
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/malformed.R:r:df"
-    node:
-      type: Variable
-      id: "symbol:scripts/malformed.R:r:df"
-      name: df
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:scripts/malformed.R:r:read.csv"
-    node:
-      type: Variable
-      id: "symbol:scripts/malformed.R:r:read.csv"
-      name: read.csv
-      programmingLanguage: R
-  - type: GraphNode
-    id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    node:
-      type: File
-      id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "data/{sample}.csv"
-  - type: GraphNode
-    id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    node:
-      type: File
-      id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "results/{sample}.csv"
 edges:
   - type: GraphEdge
     source: "code:analysis.jl"
@@ -265,13 +195,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.jl"
-    target: "symbol:analysis.jl:julia:x"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:bad.py"
     target: "dir:."
@@ -287,45 +210,12 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:dynamic.py"
-    target: "symbol:dynamic.py:python:sample"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:dynamic.py"
-    target: "symbol:dynamic.py:python:table"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:dynamic.py"
-    target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "results/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
     source: "code:scripts/malformed.R"
     target: "dir:scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:scripts/malformed.R"
-    target: "symbol:scripts/malformed.R:r:df"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "dir:docs"
     target: "dir:."
@@ -340,6 +230,32 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "symbol:dynamic.py:python:table"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "data/{sample}.csv"
+        description: template I/O path detected by static analysis.
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:analysis.sas"
     target: "dir:."
@@ -370,48 +286,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "function:dynamic.py:python:read_csv"
-    target: "code:dynamic.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:dynamic.py:python:read_csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:dynamic.py:python:to_csv"
-    target: "code:dynamic.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:dynamic.py:python:to_csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/malformed.R:r:csv"
-    target: "code:scripts/malformed.R"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/malformed.R:r:csv"
-    target: "code:scripts/malformed.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "node:docs/missing-links.smd#hea_missing-references"
     target: "node:docs/missing-links.smd#art_"
@@ -448,48 +322,6 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:analysis.jl:julia:x"
-    target: "code:analysis.jl"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:pd"
-    target: "code:dynamic.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:pd"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:read_csv"
-    target: "code:dynamic.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:read_csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:sample"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
     target: "code:dynamic.py"
     kind: PartOf
@@ -499,7 +331,7 @@ edges:
   - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
     target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    kind: DerivedInto
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -508,76 +340,3 @@ edges:
           pathKind: template
           expression: "results/{sample}.csv"
         description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:to_csv"
-    target: "code:dynamic.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:to_csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/malformed.R:r:df"
-    target: "code:scripts/malformed.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/malformed.R:r:read.csv"
-    target: "code:scripts/malformed.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/malformed.R:r:read.csv"
-    target: "code:scripts/malformed.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "data/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "symbol:dynamic.py:python:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "data/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis

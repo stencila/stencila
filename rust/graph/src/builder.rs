@@ -157,6 +157,16 @@ impl GraphBuilder {
         self.add_edge_with_evidence(generator, output, GraphEdgeKind::Generated, evidence);
     }
 
+    /// Add a value-write relationship from an in-memory value to a persisted resource.
+    pub fn add_write(
+        &mut self,
+        value: impl Into<String>,
+        resource: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(value, resource, GraphEdgeKind::WrittenTo, evidence);
+    }
+
     /// Add a lineage relationship from an upstream value or resource to a downstream result.
     pub fn add_derivation(
         &mut self,

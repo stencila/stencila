@@ -195,6 +195,7 @@ pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
         GraphEdgeKind::PartOf => GraphEdgeFamily::Structure,
         GraphEdgeKind::ReadBy
         | GraphEdgeKind::Generated
+        | GraphEdgeKind::WrittenTo
         | GraphEdgeKind::DerivedInto
         | GraphEdgeKind::ConvertedInto => GraphEdgeFamily::DataFlow,
         GraphEdgeKind::ImportedBy
@@ -396,49 +397,29 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
         .iter()
         .map(|node| (node.id.as_str(), node))
         .collect::<BTreeMap<_, _>>();
-    let preset = resolve_preset(graph, options, &nodes_by_id);
-    let resolved = resolve_projection_options(preset, options);
     let parent_by_id = parent_map(graph);
+    let preset = resolve_preset(graph, options, &nodes_by_id, &parent_by_id);
+    let resolved = resolve_projection_options(preset, options);
     let mut node_ids = BTreeSet::new();
     let mut edges = BTreeMap::new();
     let mut containments = BTreeMap::new();
 
     for edge in &graph.edges {
-        if !include_primary_edge(
+        let Some(projected) = project_primary_edge(
             edge,
             preset,
             resolved.detail,
             resolved.include_low_confidence_edges,
+            resolved.collapse_citation_nodes,
             &nodes_by_id,
-        ) {
+            &parent_by_id,
+        ) else {
             continue;
-        }
+        };
 
-        let source = edge.source.clone();
-        let mut target = edge.target.clone();
-
-        if preset == GraphProjectionPreset::Cite
-            && resolved.collapse_citation_nodes
-            && edge.kind == GraphEdgeKind::CitedBy
-        {
-            target = collapse_citation_target(&target, &nodes_by_id, &parent_by_id);
-        }
-
-        if !nodes_by_id.contains_key(source.as_str()) || !nodes_by_id.contains_key(target.as_str())
-        {
-            continue;
-        }
-
-        node_ids.insert(source.clone());
-        node_ids.insert(target.clone());
-        add_view_edge(
-            &mut edges,
-            ProjectedEdge {
-                edge,
-                source,
-                target,
-            },
-        );
+        node_ids.insert(projected.source.clone());
+        node_ids.insert(projected.target.clone());
+        add_view_edge(&mut edges, projected);
     }
 
     if preset == GraphProjectionPreset::All {
@@ -575,19 +556,52 @@ fn connected_node_ids(
         .filter(|id| visible_node_ids.contains(id.as_str()))
         .cloned()
         .collect::<BTreeSet<_>>();
-    let mut retained = visible_seeds.clone();
+    let expanded_seeds = containment_descendant_node_ids(view, &visible_seeds, &visible_node_ids);
+    let mut retained = expanded_seeds.clone();
 
     match mode {
         GraphConnectedMode::Directed => {
-            retained.extend(directed_reachable_node_ids(&visible_seeds, &incoming));
-            retained.extend(directed_reachable_node_ids(&visible_seeds, &outgoing));
+            retained.extend(directed_reachable_node_ids(&expanded_seeds, &incoming));
+            retained.extend(directed_reachable_node_ids(&expanded_seeds, &outgoing));
         }
         GraphConnectedMode::Undirected => {
             retained.extend(undirected_reachable_node_ids(
-                &visible_seeds,
+                &expanded_seeds,
                 &incoming,
                 &outgoing,
             ));
+        }
+    }
+
+    retained
+}
+
+fn containment_descendant_node_ids(
+    view: &GraphView,
+    seeds: &BTreeSet<String>,
+    visible_node_ids: &BTreeSet<&str>,
+) -> BTreeSet<String> {
+    let mut children = BTreeMap::<&str, BTreeSet<&str>>::new();
+
+    for edge in &view.containments {
+        if visible_node_ids.contains(edge.source.as_str())
+            && visible_node_ids.contains(edge.target.as_str())
+        {
+            children
+                .entry(edge.target.as_str())
+                .or_default()
+                .insert(edge.source.as_str());
+        }
+    }
+
+    let mut retained = seeds.clone();
+    let mut queue = seeds.iter().map(String::as_str).collect::<VecDeque<_>>();
+
+    while let Some(id) = queue.pop_front() {
+        for child in children.get(id).into_iter().flatten() {
+            if retained.insert((*child).to_string()) {
+                queue.push_back(child);
+            }
         }
     }
 
@@ -736,6 +750,7 @@ fn resolve_preset(
     graph: &Graph,
     options: &GraphProjectionOptions,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    parent_by_id: &BTreeMap<String, String>,
 ) -> GraphProjectionPreset {
     if options.preset != GraphProjectionPreset::Auto {
         return options.preset;
@@ -751,7 +766,9 @@ fn resolve_preset(
                     preset,
                     options.detail,
                     options.include_low_confidence_edges,
+                    options.collapse_citation_nodes,
                     nodes_by_id,
+                    parent_by_id,
                 ),
             )
         })
@@ -769,23 +786,59 @@ fn resolve_preset(
     }
 }
 
-fn include_primary_edge(
-    edge: &GraphEdge,
+fn project_primary_edge<'a>(
+    edge: &'a GraphEdge,
     preset: GraphProjectionPreset,
     detail: GraphProjectionDetail,
     include_low_confidence_edges: bool,
+    collapse_citation_nodes: bool,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
-) -> bool {
+    parent_by_id: &BTreeMap<String, String>,
+) -> Option<ProjectedEdge<'a>> {
     if !include_low_confidence_edges && has_low_confidence(edge) {
-        return false;
+        return None;
     }
 
     if edge_family(edge.kind) == GraphEdgeFamily::Structure {
-        return false;
+        return None;
     }
 
-    edge_score(edge, preset, nodes_by_id) > 0
-        && include_edge_for_detail(edge, preset, detail, nodes_by_id)
+    if edge_score(edge, preset, nodes_by_id) == 0 {
+        return None;
+    }
+
+    let mut source = edge.source.clone();
+    let mut target = edge.target.clone();
+    let mut endpoints_projected = false;
+
+    if preset == GraphProjectionPreset::Cite
+        && collapse_citation_nodes
+        && edge.kind == GraphEdgeKind::CitedBy
+    {
+        target = collapse_citation_target(&target, nodes_by_id, parent_by_id);
+        endpoints_projected = target != edge.target;
+    }
+
+    if preset == GraphProjectionPreset::Flow && detail != GraphProjectionDetail::High {
+        source = collapse_local_code_internal_endpoint(&source, nodes_by_id, parent_by_id);
+        target = collapse_local_code_internal_endpoint(&target, nodes_by_id, parent_by_id);
+        endpoints_projected = source != edge.source || target != edge.target;
+    }
+
+    if (endpoints_projected && source == target)
+        || !nodes_by_id.contains_key(source.as_str())
+        || !nodes_by_id.contains_key(target.as_str())
+    {
+        return None;
+    }
+
+    include_edge_for_detail(edge.kind, &source, &target, preset, detail, nodes_by_id).then_some(
+        ProjectedEdge {
+            edge,
+            source,
+            target,
+        },
+    )
 }
 
 fn preset_score(
@@ -793,19 +846,32 @@ fn preset_score(
     preset: GraphProjectionPreset,
     detail: GraphProjectionDetail,
     include_low_confidence_edges: bool,
+    collapse_citation_nodes: bool,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    parent_by_id: &BTreeMap<String, String>,
 ) -> usize {
     graph
         .edges
         .iter()
-        .filter(|edge| include_low_confidence_edges || !has_low_confidence(edge))
-        .filter(|edge| include_edge_for_detail(edge, preset, detail, nodes_by_id))
-        .map(|edge| edge_score(edge, preset, nodes_by_id))
+        .filter_map(|edge| {
+            project_primary_edge(
+                edge,
+                preset,
+                detail,
+                include_low_confidence_edges,
+                collapse_citation_nodes,
+                nodes_by_id,
+                parent_by_id,
+            )
+        })
+        .map(|projected| edge_score(projected.edge, preset, nodes_by_id))
         .sum()
 }
 
 fn include_edge_for_detail(
-    edge: &GraphEdge,
+    kind: GraphEdgeKind,
+    source: &str,
+    target: &str,
     preset: GraphProjectionPreset,
     detail: GraphProjectionDetail,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
@@ -818,23 +884,26 @@ fn include_edge_for_detail(
         return true;
     }
 
-    let source_kind = node_kind(nodes_by_id.get(edge.source.as_str()).copied());
-    let target_kind = node_kind(nodes_by_id.get(edge.target.as_str()).copied());
-    let source_internal = is_local_code_internal(&edge.source, source_kind);
-    let target_internal = is_local_code_internal(&edge.target, target_kind);
-    let source_datatable = source_kind == GraphViewNodeKind::Datatable;
-    let target_datatable = target_kind == GraphViewNodeKind::Datatable;
+    let source_kind = node_kind(nodes_by_id.get(source).copied());
+    let target_kind = node_kind(nodes_by_id.get(target).copied());
+    let source_internal = is_local_code_internal(source, source_kind);
+    let target_internal = is_local_code_internal(target, target_kind);
+    let source_datatable_detail = is_datatable_detail_node(source, source_kind, nodes_by_id);
+    let target_datatable_detail = is_datatable_detail_node(target, target_kind, nodes_by_id);
 
     match preset {
         GraphProjectionPreset::Flow => match detail {
             GraphProjectionDetail::Low => {
-                !source_internal && !target_internal && !source_datatable && !target_datatable
+                !source_internal
+                    && !target_internal
+                    && !source_datatable_detail
+                    && !target_datatable_detail
             }
             GraphProjectionDetail::Medium => {
                 !source_internal
                     && !target_internal
-                    && (!(source_datatable || target_datatable)
-                        || edge.kind == GraphEdgeKind::DerivedInto)
+                    && (!(source_datatable_detail || target_datatable_detail)
+                        || kind == GraphEdgeKind::DerivedInto)
             }
             GraphProjectionDetail::High => true,
         },
@@ -849,6 +918,21 @@ fn include_edge_for_detail(
 fn is_local_code_internal(id: &str, kind: GraphViewNodeKind) -> bool {
     kind == GraphViewNodeKind::Symbol
         || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-unit")
+}
+
+fn is_datatable_detail_node(
+    id: &str,
+    kind: GraphViewNodeKind,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> bool {
+    kind == GraphViewNodeKind::Datatable
+        && (graph_id_namespace(id) == "column"
+            || nodes_by_id
+                .get(id)
+                .copied()
+                .and_then(schema_node_type)
+                .as_deref()
+                == Some("DatatableColumn"))
 }
 
 fn edge_score(
@@ -875,6 +959,7 @@ fn edge_score(
         }
         GraphEdgeKind::ReadBy
         | GraphEdgeKind::Generated
+        | GraphEdgeKind::WrittenTo
         | GraphEdgeKind::DerivedInto
         | GraphEdgeKind::ConvertedInto
         | GraphEdgeKind::IncludedBy => {
@@ -894,7 +979,7 @@ fn edge_score(
                 match edge.kind {
                     GraphEdgeKind::ReadBy | GraphEdgeKind::DerivedInto => 5,
                     GraphEdgeKind::IncludedBy => 4,
-                    GraphEdgeKind::Generated => 3,
+                    GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo => 3,
                     GraphEdgeKind::ConvertedInto => 1,
                     _ => 0,
                 }
@@ -1195,6 +1280,31 @@ fn collapse_citation_target(
     current
 }
 
+fn collapse_local_code_internal_endpoint(
+    id: &str,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    parent_by_id: &BTreeMap<String, String>,
+) -> String {
+    let mut current = id.to_string();
+    let mut visited = BTreeSet::new();
+
+    while is_local_code_internal(
+        &current,
+        node_kind(nodes_by_id.get(current.as_str()).copied()),
+    ) {
+        if !visited.insert(current.clone()) {
+            break;
+        }
+
+        let Some(parent) = parent_by_id.get(&current) else {
+            break;
+        };
+        current = parent.clone();
+    }
+
+    current
+}
+
 fn view_node(node: &GraphNode) -> GraphViewNode {
     GraphViewNode {
         id: node.id.clone(),
@@ -1354,9 +1464,9 @@ pub fn edge_label(kind: GraphEdgeKind) -> String {
 mod tests {
     use eyre::Result;
     use stencila_schema::{
-        Article, DatatableColumn, Directory, File, Function, Graph, GraphEdge, GraphEdgeKind,
-        GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node, Reference,
-        SoftwareApplication, SoftwareSourceCode, Variable,
+        Article, Datatable, DatatableColumn, Directory, File, Function, Graph, GraphEdge,
+        GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node,
+        Reference, SoftwareApplication, SoftwareSourceCode, Variable,
     };
 
     use super::*;
@@ -1805,6 +1915,119 @@ mod tests {
     }
 
     #[test]
+    fn connected_filter_starts_from_contained_descendants() -> Result<()> {
+        let view = project_graph(
+            &contained_symbol_flow_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        let filtered = filter_graph_view_connected_to(
+            &view,
+            &["analysis.py".into()],
+            GraphConnectedMode::Directed,
+        )?;
+
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:analysis.py")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "function:analysis.py:python:summarize")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "symbol:analysis.py:python:summarize:table")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:data/samples.tsv")
+        );
+        assert!(
+            filtered
+                .nodes
+                .iter()
+                .any(|node| node.id == "file:results/python-summary.tsv")
+        );
+        Ok(())
+    }
+
+    #[test]
+    fn flow_medium_collapses_contained_symbol_io_to_code() {
+        let view = project_graph(
+            &contained_symbol_flow_graph(),
+            &GraphProjectionOptions::default(),
+        );
+
+        assert_eq!(view.preset, GraphProjectionPreset::Flow);
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.kind == GraphViewNodeKind::Symbol)
+        );
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.id == "function:analysis.py:python:summarize")
+        );
+        assert_eq!(
+            view.edges
+                .iter()
+                .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+                .collect::<Vec<_>>(),
+            vec![
+                "ReadBy:file:data/samples.tsv->code:analysis.py",
+                "WrittenTo:code:analysis.py->file:results/python-summary.tsv",
+            ]
+        );
+    }
+
+    #[test]
+    fn flow_low_and_medium_keep_datatable_resources() {
+        for detail in [GraphProjectionDetail::Low, GraphProjectionDetail::Medium] {
+            let view = project_graph(
+                &contained_datatable_symbol_flow_graph(),
+                &GraphProjectionOptions {
+                    preset: GraphProjectionPreset::Flow,
+                    detail,
+                    ..Default::default()
+                },
+            );
+
+            assert!(
+                !view
+                    .nodes
+                    .iter()
+                    .any(|node| node.kind == GraphViewNodeKind::Symbol)
+            );
+            assert_eq!(
+                view.edges
+                    .iter()
+                    .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+                    .collect::<Vec<_>>(),
+                vec![
+                    "ReadBy:datatable:data/samples.tsv->code:analysis.py",
+                    "WrittenTo:code:analysis.py->datatable:results/python-summary.tsv",
+                ]
+            );
+        }
+    }
+
+    #[test]
     fn connected_filter_does_not_cross_shared_inputs_to_sibling_consumers() -> Result<()> {
         let view = project_graph(
             &connected_pattern_graph(),
@@ -2122,6 +2345,120 @@ mod tests {
                     "code:archive/analysis.R.old".to_string(),
                     "file:archive-plot.png".to_string(),
                     GraphEdgeKind::Generated,
+                ),
+            ],
+        )
+    }
+
+    fn contained_symbol_flow_graph() -> Graph {
+        Graph::new(
+            "test:contained-symbol-flow".to_string(),
+            vec![
+                graph_node(
+                    "code:analysis.py",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.py".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "function:analysis.py:python:summarize",
+                    Node::Function(Function::new("summarize".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "symbol:analysis.py:python:summarize:table",
+                    Node::Variable(Variable::new("table".to_string())),
+                ),
+                graph_node(
+                    "file:data/samples.tsv",
+                    Node::File(File::new(
+                        "samples.tsv".to_string(),
+                        "data/samples.tsv".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:results/python-summary.tsv",
+                    Node::File(File::new(
+                        "python-summary.tsv".to_string(),
+                        "results/python-summary.tsv".to_string(),
+                    )),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:data/samples.tsv".to_string(),
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    "file:results/python-summary.tsv".to_string(),
+                    GraphEdgeKind::WrittenTo,
+                ),
+                GraphEdge::new(
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    "function:analysis.py:python:summarize".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "function:analysis.py:python:summarize".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+            ],
+        )
+    }
+
+    fn contained_datatable_symbol_flow_graph() -> Graph {
+        Graph::new(
+            "test:contained-datatable-symbol-flow".to_string(),
+            vec![
+                graph_node(
+                    "code:analysis.py",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.py".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "function:analysis.py:python:summarize",
+                    Node::Function(Function::new("summarize".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "symbol:analysis.py:python:summarize:table",
+                    Node::Variable(Variable::new("table".to_string())),
+                ),
+                graph_node(
+                    "datatable:data/samples.tsv",
+                    Node::Datatable(Datatable::new(Vec::new())),
+                ),
+                graph_node(
+                    "datatable:results/python-summary.tsv",
+                    Node::Datatable(Datatable::new(Vec::new())),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "datatable:data/samples.tsv".to_string(),
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    "datatable:results/python-summary.tsv".to_string(),
+                    GraphEdgeKind::WrittenTo,
+                ),
+                GraphEdge::new(
+                    "symbol:analysis.py:python:summarize:table".to_string(),
+                    "function:analysis.py:python:summarize".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "function:analysis.py:python:summarize".to_string(),
+                    "code:analysis.py".to_string(),
+                    GraphEdgeKind::PartOf,
                 ),
             ],
         )

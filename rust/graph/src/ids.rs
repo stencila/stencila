@@ -323,6 +323,22 @@ impl LocalGraphId {
         )
     }
 
+    /// Create the graph id for a symbol in an enclosing function scope.
+    pub(crate) fn function_symbol(
+        scope: &str,
+        language: &str,
+        function: &str,
+        name: &str,
+    ) -> String {
+        format!(
+            "symbol:{}:{}:{}:{}",
+            encode_id_component(scope),
+            encode_id_component(language),
+            encode_id_component(function),
+            encode_id_component(name)
+        )
+    }
+
     /// Create the graph id for a function-like callable in a source-code scope.
     pub(crate) fn function(scope: &str, language: &str, name: &str) -> String {
         format!(

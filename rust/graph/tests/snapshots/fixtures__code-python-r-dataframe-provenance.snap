@@ -34,34 +34,6 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "column:scripts/analysis.R:df:count"
-    node:
-      type: DatatableColumn
-      id: "column:scripts/analysis.R:df:count"
-      name: count
-      values: []
-  - type: GraphNode
-    id: "column:scripts/analysis.R:df:site"
-    node:
-      type: DatatableColumn
-      id: "column:scripts/analysis.R:df:site"
-      name: site
-      values: []
-  - type: GraphNode
-    id: "column:scripts/analysis.py:df:count"
-    node:
-      type: DatatableColumn
-      id: "column:scripts/analysis.py:df:count"
-      name: count
-      values: []
-  - type: GraphNode
-    id: "column:scripts/analysis.py:df:site"
-    node:
-      type: DatatableColumn
-      id: "column:scripts/analysis.py:df:site"
-      name: site
-      values: []
-  - type: GraphNode
     id: "datatable:data/raw/observations.csv"
     node:
       type: Datatable
@@ -198,48 +170,6 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
-    id: "function:scripts/analysis.R:r:csv"
-    node:
-      type: Function
-      id: "function:scripts/analysis.R:r:csv"
-      name: csv
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/analysis.R:r:ggsave"
-    node:
-      type: Function
-      id: "function:scripts/analysis.R:r:ggsave"
-      name: ggsave
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/analysis.py:python:mean"
-    node:
-      type: Function
-      id: "function:scripts/analysis.py:python:mean"
-      name: mean
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/analysis.py:python:read_csv"
-    node:
-      type: Function
-      id: "function:scripts/analysis.py:python:read_csv"
-      name: read_csv
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/analysis.py:python:savefig"
-    node:
-      type: Function
-      id: "function:scripts/analysis.py:python:savefig"
-      name: savefig
-      parameters: []
-  - type: GraphNode
-    id: "function:scripts/analysis.py:python:to_csv"
-    node:
-      type: Function
-      id: "function:scripts/analysis.py:python:to_csv"
-      name: to_csv
-      parameters: []
-  - type: GraphNode
     id: "image:figures/python-counts.png"
     node:
       type: ImageObject
@@ -319,34 +249,6 @@ nodes:
       name: df
       programmingLanguage: R
   - type: GraphNode
-    id: "symbol:scripts/analysis.R:r:ggsave"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.R:r:ggsave"
-      name: ggsave
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:scripts/analysis.R:r:read.csv"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.R:r:read.csv"
-      name: read.csv
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:scripts/analysis.R:r:site"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.R:r:site"
-      name: site
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:scripts/analysis.R:r:write.csv"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.R:r:write.csv"
-      name: write.csv
-      programmingLanguage: R
-  - type: GraphNode
     id: "symbol:scripts/analysis.py:python:clean"
     node:
       type: Variable
@@ -361,76 +263,13 @@ nodes:
       name: df
       programmingLanguage: Python
   - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:loc"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:loc"
-      name: loc
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:mean"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:mean"
-      name: mean
-      programmingLanguage: Python
-  - type: GraphNode
     id: "symbol:scripts/analysis.py:python:mean_count"
     node:
       type: Variable
       id: "symbol:scripts/analysis.py:python:mean_count"
       name: mean_count
       programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:pd"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:pd"
-      name: pd
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:plt"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:plt"
-      name: plt
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:pyplot"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:pyplot"
-      name: pyplot
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:read_csv"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:read_csv"
-      name: read_csv
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:savefig"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:savefig"
-      name: savefig
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:scripts/analysis.py:python:to_csv"
-    node:
-      type: Variable
-      id: "symbol:scripts/analysis.py:python:to_csv"
-      name: to_csv
-      programmingLanguage: Python
 edges:
-  - type: GraphEdge
-    source: "code:scripts/analysis.R"
-    target: "datatable:outputs/r-summary.csv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:scripts/analysis.R"
     target: "dir:scripts"
@@ -441,20 +280,6 @@ edges:
   - type: GraphEdge
     source: "code:scripts/analysis.R"
     target: "image:figures/r-counts.png"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.R"
-    target: "symbol:scripts/analysis.R:r:df"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "datatable:outputs/python-clean.csv"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -474,97 +299,6 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "symbol:scripts/analysis.py:python:clean"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "symbol:scripts/analysis.py:python:df"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "symbol:scripts/analysis.py:python:mean_count"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:df:count"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:df:count"
-    target: "symbol:scripts/analysis.R:r:df"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:df:site"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.R:df:site"
-    target: "symbol:scripts/analysis.R:r:df"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:df:count"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:df:count"
-    target: "symbol:scripts/analysis.py:python:df"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:df:site"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "column:scripts/analysis.py:df:site"
-    target: "symbol:scripts/analysis.py:python:df"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/observations.csv"
-    target: "code:scripts/analysis.R"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/observations.csv"
-    target: "code:scripts/analysis.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "datatable:data/raw/observations.csv"
     target: "dir:data/raw"
     kind: PartOf
@@ -574,14 +308,14 @@ edges:
   - type: GraphEdge
     source: "datatable:data/raw/observations.csv"
     target: "symbol:scripts/analysis.R:r:df"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/observations.csv"
     target: "symbol:scripts/analysis.py:python:df"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -635,90 +369,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "function:scripts/analysis.R:r:csv"
-    target: "code:scripts/analysis.R"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.R:r:csv"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.R:r:ggsave"
-    target: "code:scripts/analysis.R"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.R:r:ggsave"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:mean"
-    target: "code:scripts/analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:mean"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:read_csv"
-    target: "code:scripts/analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:read_csv"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:savefig"
-    target: "code:scripts/analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:savefig"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:to_csv"
-    target: "code:scripts/analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:scripts/analysis.py:python:to_csv"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "image:figures/python-counts.png"
     target: "dir:figures"
     kind: PartOf
@@ -770,63 +420,7 @@ edges:
   - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:df"
     target: "datatable:outputs/r-summary.csv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:ggsave"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:ggsave"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:read.csv"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:read.csv"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:site"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:site"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:write.csv"
-    target: "code:scripts/analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.R:r:write.csv"
-    target: "code:scripts/analysis.R"
-    kind: PartOf
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -840,7 +434,7 @@ edges:
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
     target: "datatable:outputs/python-clean.csv"
-    kind: DerivedInto
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -866,119 +460,7 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:loc"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:loc"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:mean"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:mean"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:mean_count"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:pd"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:pd"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:plt"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:plt"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:pyplot"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:pyplot"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:read_csv"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:read_csv"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:savefig"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:savefig"
-    target: "code:scripts/analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:to_csv"
-    target: "code:scripts/analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:scripts/analysis.py:python:to_csv"
     target: "code:scripts/analysis.py"
     kind: PartOf
     evidence:

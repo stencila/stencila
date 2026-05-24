@@ -424,13 +424,6 @@ edges:
   - type: GraphEdge
     source: "function:main.nf:nextflow:exec"
     target: "code:main.nf"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:main.nf:nextflow:exec"
-    target: "code:main.nf"
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -445,13 +438,6 @@ edges:
   - type: GraphEdge
     source: "function:main.nf:nextflow:script"
     target: "code:main.nf"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:main.nf:nextflow:script"
-    target: "code:main.nf"
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -459,13 +445,6 @@ edges:
   - type: GraphEdge
     source: "function:main.nf:nextflow:script"
     target: "workflow-unit:main.nf:qc"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:main.nf:nextflow:shell"
-    target: "code:main.nf"
     kind: CalledBy
     evidence:
       - type: GraphEvidence

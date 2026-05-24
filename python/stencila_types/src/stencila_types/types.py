@@ -345,6 +345,7 @@ class GraphEdgeKind(StrEnum):
     UsedBy = "UsedBy"
     ReadBy = "ReadBy"
     Generated = "Generated"
+    WrittenTo = "WrittenTo"
     DerivedInto = "DerivedInto"
     ConvertedInto = "ConvertedInto"
     CalledBy = "CalledBy"

@@ -6,6 +6,7 @@ export type GraphEdgeKind =
   'UsedBy' |
   'ReadBy' |
   'Generated' |
+  'WrittenTo' |
   'DerivedInto' |
   'ConvertedInto' |
   'CalledBy' |

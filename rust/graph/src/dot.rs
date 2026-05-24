@@ -2,10 +2,7 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::{
-    GraphProjectionDetail, GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode,
-    GraphViewNodeKind,
-};
+use crate::{GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode, GraphViewNodeKind};
 use stencila_schema::GraphEdgeKind;
 
 /// Render a projected graph view as Graphviz DOT.
@@ -83,7 +80,7 @@ fn render_cluster(
         style.background_color
     ));
 
-    if node.kind != GraphViewNodeKind::Workspace {
+    if tree.edge_endpoints.contains(id) {
         render_node(dot, node);
     }
     rendered.insert(id.to_string());
@@ -107,6 +104,8 @@ fn render_cluster(
 fn cluster_label(node: &GraphViewNode) -> String {
     if node.kind == GraphViewNodeKind::Workspace && !node.label.ends_with('/') {
         format!("{}/", node.label)
+    } else if node.kind == GraphViewNodeKind::Function {
+        format!("fn {}", node.label)
     } else {
         node.label.clone()
     }
@@ -150,6 +149,7 @@ struct ContainmentTree<'a> {
     parents: BTreeMap<String, String>,
     children: BTreeMap<String, Vec<String>>,
     containers: BTreeSet<String>,
+    edge_endpoints: BTreeSet<String>,
 }
 
 impl<'a> ContainmentTree<'a> {
@@ -159,32 +159,29 @@ impl<'a> ContainmentTree<'a> {
             .iter()
             .map(|node| (node.id.as_str(), node))
             .collect::<BTreeMap<_, _>>();
+        let edge_endpoints = view
+            .edges
+            .iter()
+            .flat_map(|edge| [edge.source.clone(), edge.target.clone()])
+            .collect::<BTreeSet<_>>();
         let raw_parents = view
             .containments
             .iter()
             .filter(|edge| {
                 nodes.contains_key(edge.source.as_str()) && nodes.contains_key(edge.target.as_str())
             })
-            .map(|edge| (edge.source.as_str(), edge.target.as_str()))
-            .collect::<BTreeMap<_, _>>();
+            .filter(|edge| edge.source != edge.target)
+            .map(|edge| (edge.source.clone(), edge.target.clone()))
+            .collect::<Vec<_>>();
         let mut parents = BTreeMap::new();
         let mut children = BTreeMap::<String, Vec<String>>::new();
         let mut containers = BTreeSet::new();
 
-        for node in &view.nodes {
-            let Some(parent) =
-                nearest_container_parent(&node.id, &nodes, &raw_parents, view.detail)
-            else {
-                continue;
-            };
-
+        for (child, parent) in raw_parents {
             parents
-                .entry(node.id.clone())
+                .entry(child.clone())
                 .or_insert_with(|| parent.clone());
-            children
-                .entry(parent.clone())
-                .or_default()
-                .push(node.id.clone());
+            children.entry(parent.clone()).or_default().push(child);
             containers.insert(parent);
         }
 
@@ -198,6 +195,7 @@ impl<'a> ContainmentTree<'a> {
             parents,
             children,
             containers,
+            edge_endpoints,
         }
     }
 
@@ -212,34 +210,6 @@ impl<'a> ContainmentTree<'a> {
             .map(String::as_str)
             .collect()
     }
-}
-
-fn nearest_container_parent(
-    id: &str,
-    nodes: &BTreeMap<&str, &GraphViewNode>,
-    raw_parents: &BTreeMap<&str, &str>,
-    detail: GraphProjectionDetail,
-) -> Option<String> {
-    let mut current = id;
-    let mut visited = BTreeSet::new();
-
-    while visited.insert(current.to_string()) {
-        let parent = raw_parents.get(current)?;
-        let parent_node = nodes.get(*parent)?;
-        if is_container(parent_node.kind, detail) {
-            return Some((*parent).to_string());
-        }
-        current = parent;
-    }
-
-    None
-}
-
-fn is_container(kind: GraphViewNodeKind, detail: GraphProjectionDetail) -> bool {
-    matches!(
-        kind,
-        GraphViewNodeKind::Workspace | GraphViewNodeKind::Document | GraphViewNodeKind::Environment
-    ) || (detail == GraphProjectionDetail::High && kind == GraphViewNodeKind::Code)
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -375,7 +345,8 @@ fn dot_escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use stencila_schema::{
-        Directory, File, Graph, GraphEdge, GraphEdgeKind, GraphNode, Node, SoftwareSourceCode,
+        Directory, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphNode, Node,
+        SoftwareSourceCode,
     };
 
     use crate::{
@@ -549,6 +520,86 @@ mod tests {
         assert!(dot.contains("\"code:scripts/analysis.py\" ["));
         assert!(dot.contains("\"symbol:scripts/analysis.py:python:df\" ["));
         assert!(dot.contains("\"file:data.csv\" -> \"code:scripts/analysis.py\""));
+    }
+
+    #[test]
+    fn renders_all_containers_as_clusters_and_hides_edge_less_container_nodes() {
+        let graph = Graph::new(
+            "test:function-cluster".to_string(),
+            vec![
+                graph_node(
+                    "dir:scripts",
+                    Node::Directory(Directory::new("scripts".to_string(), "scripts".to_string())),
+                ),
+                graph_node("code:scripts/analysis.py", code_node("analysis.py")),
+                graph_node(
+                    "function:scripts/analysis.py:python:summarize",
+                    Node::Function(Function::new("summarize".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "symbol:scripts/analysis.py:python:summarize:table",
+                    Node::Variable(stencila_schema::Variable::new("table".to_string())),
+                ),
+                graph_node(
+                    "file:data.csv",
+                    Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
+                ),
+                graph_node(
+                    "file:summary.csv",
+                    Node::File(File::new(
+                        "summary.csv".to_string(),
+                        "summary.csv".to_string(),
+                    )),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "file:data.csv".to_string(),
+                    "symbol:scripts/analysis.py:python:summarize:table".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "symbol:scripts/analysis.py:python:summarize:table".to_string(),
+                    "file:summary.csv".to_string(),
+                    GraphEdgeKind::WrittenTo,
+                ),
+                GraphEdge::new(
+                    "symbol:scripts/analysis.py:python:summarize:table".to_string(),
+                    "function:scripts/analysis.py:python:summarize".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "function:scripts/analysis.py:python:summarize".to_string(),
+                    "code:scripts/analysis.py".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "code:scripts/analysis.py".to_string(),
+                    "dir:scripts".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+            ],
+        );
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        let dot = to_dot(&view);
+
+        assert!(dot.contains("subgraph \"cluster_code:scripts/analysis.py\""));
+        assert!(dot.contains("subgraph \"cluster_function:scripts/analysis.py:python:summarize\""));
+        assert!(dot.contains("label=\"fn summarize\""));
+        assert!(!dot.contains("\"code:scripts/analysis.py\" ["));
+        assert!(!dot.contains("\"function:scripts/analysis.py:python:summarize\" ["));
+        assert!(dot.contains("\"symbol:scripts/analysis.py:python:summarize:table\" ["));
+        assert!(dot.contains(
+            "\"symbol:scripts/analysis.py:python:summarize:table\" -> \"file:summary.csv\""
+        ));
     }
 
     #[test]

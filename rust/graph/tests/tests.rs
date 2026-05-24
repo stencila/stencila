@@ -294,7 +294,7 @@ source = Path("helper.py").read_text()
     assert_graph_edge(
         &graph,
         "code:helper.py",
-        "code:analysis.py",
+        "symbol:analysis.py:python:source",
         GraphEdgeKind::ReadBy,
     );
     assert!(

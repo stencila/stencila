@@ -16,6 +16,9 @@ pub enum GraphEdgeKind {
     /// The upstream node generated the downstream node. Related to `prov:generated` and to `prov:wasGeneratedBy` with inverse direction.
     Generated,
 
+    /// The upstream data or value is written to the downstream resource. Related to `prov:generated` for the downstream resource and to `prov:used` for the upstream value.
+    WrittenTo,
+
     /// The upstream node is derived into the downstream node. Related to `prov:wasDerivedFrom` with inverse direction.
     DerivedInto,
 

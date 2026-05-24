@@ -3,7 +3,7 @@ use crate::GraphBuilder;
 use super::{
     analyze::analyze_source,
     language::CodeLanguage,
-    project::{ResourceResolver, add_code_facts_to_graph},
+    project::{CodeGraphMode, ResourceResolver, add_code_facts_to_graph},
 };
 
 /// Document-level code fact collector.
@@ -31,6 +31,14 @@ impl DocumentCodeIndex {
         resolver: Option<&mut ResourceResolver<'_>>,
     ) {
         let facts = analyze_source(language, code);
-        add_code_facts_to_graph(builder, unit_id, scope, language, &facts, resolver);
+        add_code_facts_to_graph(
+            builder,
+            unit_id,
+            scope,
+            language,
+            &facts,
+            CodeGraphMode::Full,
+            resolver,
+        );
     }
 }

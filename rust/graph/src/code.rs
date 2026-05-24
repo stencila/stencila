@@ -33,7 +33,8 @@ pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
 pub(crate) use document::DocumentCodeIndex;
 pub use facts::{
-    CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, WorkflowUnitFacts,
+    CodeFacts, ColumnFact, FunctionFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact,
+    WorkflowUnitFacts,
 };
 pub use language::CodeLanguage;
 pub(crate) use workspace::{WorkspaceCode, add_workspace_code};
@@ -93,7 +94,7 @@ df = read_csv("data.csv")
 plot = df[["site", "count"]]
 "#,
         );
-        let graph = project_test_graph("analysis.py", CodeLanguage::Python, &facts)?;
+        let graph = project_reactive_graph("analysis.py", CodeLanguage::Python, &facts)?;
 
         assert!(has_graph_edge(
             &graph,
@@ -627,6 +628,117 @@ writeFileSync("results/output.txt", summary)
     }
 
     #[test]
+    fn lean_workspace_graph_keeps_only_useful_python_symbols() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+import pandas as pd
+
+def summarize():
+    table = pd.read_csv("input.csv", sep="\t")
+    table.to_csv("output.csv", index=False)
+
+summarize()
+"#,
+        );
+        let graph = project_test_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        let table = "symbol:analysis.py:python:summarize:table";
+        let summarize = "function:analysis.py:python:summarize";
+
+        assert!(has_graph_edge(
+            &graph,
+            "package:pypi/pandas",
+            "code:analysis.py",
+            stencila_schema::GraphEdgeKind::ImportedBy
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "file-ref:analysis.py:input.csv",
+            table,
+            stencila_schema::GraphEdgeKind::ReadBy
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            table,
+            "file-ref:analysis.py:output.csv",
+            stencila_schema::GraphEdgeKind::WrittenTo
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            table,
+            summarize,
+            stencila_schema::GraphEdgeKind::PartOf
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            summarize,
+            "code:analysis.py",
+            stencila_schema::GraphEdgeKind::PartOf
+        ));
+
+        for id in [
+            "function:analysis.py:python:read_csv",
+            "function:analysis.py:python:to_csv",
+            "symbol:analysis.py:python:pd",
+            "symbol:analysis.py:python:read_csv",
+            "symbol:analysis.py:python:sep",
+            "symbol:analysis.py:python:index",
+            "symbol:analysis.py:python:to_csv",
+        ] {
+            assert!(!has_graph_node(&graph, id), "unexpected graph node {id}");
+        }
+
+        Ok(())
+    }
+
+    #[test]
+    fn lean_workspace_graph_scopes_javascript_function_expression_symbols() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::JavaScript,
+            r#"
+import { readFileSync, writeFileSync } from "node:fs";
+
+const summarize = () => {
+  const input = readFileSync("input.txt", "utf8");
+  writeFileSync("output.txt", input);
+};
+
+summarize();
+"#,
+        );
+        let graph = project_test_graph("analysis.js", CodeLanguage::JavaScript, &facts)?;
+
+        let input = "symbol:analysis.js:javascript:summarize:input";
+        let summarize = "function:analysis.js:javascript:summarize";
+
+        assert!(has_graph_edge(
+            &graph,
+            "file-ref:analysis.js:input.txt",
+            input,
+            stencila_schema::GraphEdgeKind::ReadBy
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            input,
+            "file-ref:analysis.js:output.txt",
+            stencila_schema::GraphEdgeKind::WrittenTo
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            input,
+            summarize,
+            stencila_schema::GraphEdgeKind::PartOf
+        ));
+        assert!(!has_graph_node(
+            &graph,
+            "symbol:analysis.js:javascript:input"
+        ));
+
+        Ok(())
+    }
+
+    #[test]
     fn keeps_code_mediated_io_when_precise_chain_is_partial() -> eyre::Result<()> {
         let facts = CodeFacts {
             assignments: std::collections::BTreeSet::from(["df".to_string()]),
@@ -672,15 +784,15 @@ writeFileSync("results/output.txt", summary)
         ));
         assert!(has_graph_edge(
             &graph,
+            "symbol:partial.py:python:df",
+            "file-ref:partial.py:output.csv",
+            stencila_schema::GraphEdgeKind::WrittenTo
+        ));
+        assert!(!has_graph_edge(
+            &graph,
             "code:partial.py",
             "file-ref:partial.py:output.csv",
             stencila_schema::GraphEdgeKind::Generated
-        ));
-        assert!(has_graph_edge(
-            &graph,
-            "symbol:partial.py:python:df",
-            "file-ref:partial.py:output.csv",
-            stencila_schema::GraphEdgeKind::DerivedInto
         ));
 
         Ok(())
@@ -707,13 +819,13 @@ clean = read_csv("input.csv")
             &graph,
             "symbol:ordering.py:python:clean",
             "file-ref:ordering.py:output.csv",
-            stencila_schema::GraphEdgeKind::DerivedInto
+            stencila_schema::GraphEdgeKind::WrittenTo
         ));
         assert!(has_graph_edge(
             &graph,
             "file-ref:ordering.py:input.csv",
             "symbol:ordering.py:python:clean",
-            stencila_schema::GraphEdgeKind::DerivedInto
+            stencila_schema::GraphEdgeKind::ReadBy
         ));
 
         Ok(())
@@ -741,7 +853,7 @@ summary.to_csv("output.csv")
             &graph,
             "symbol:flow-order.py:python:summary",
             "file-ref:flow-order.py:output.csv",
-            stencila_schema::GraphEdgeKind::DerivedInto
+            stencila_schema::GraphEdgeKind::WrittenTo
         ));
 
         Ok(())
@@ -895,6 +1007,23 @@ process align {
         language: CodeLanguage,
         facts: &CodeFacts,
     ) -> eyre::Result<stencila_schema::Graph> {
+        project_graph_with_mode(scope, language, facts, super::project::CodeGraphMode::Lean)
+    }
+
+    fn project_reactive_graph(
+        scope: &str,
+        language: CodeLanguage,
+        facts: &CodeFacts,
+    ) -> eyre::Result<stencila_schema::Graph> {
+        project_graph_with_mode(scope, language, facts, super::project::CodeGraphMode::Full)
+    }
+
+    fn project_graph_with_mode(
+        scope: &str,
+        language: CodeLanguage,
+        facts: &CodeFacts,
+        mode: super::project::CodeGraphMode,
+    ) -> eyre::Result<stencila_schema::Graph> {
         let mut builder = crate::GraphBuilder::new("fixture:code-test");
         let unit_id = format!("code:{scope}");
         builder.add_schema_node(
@@ -907,6 +1036,7 @@ process align {
             scope,
             language,
             facts,
+            mode,
             None,
         );
         builder.build()
@@ -922,5 +1052,9 @@ process align {
             .edges
             .iter()
             .any(|edge| edge.source == source && edge.target == target && edge.kind == kind)
+    }
+
+    fn has_graph_node(graph: &stencila_schema::Graph, id: &str) -> bool {
+        graph.nodes.iter().any(|node| node.id == id)
     }
 }

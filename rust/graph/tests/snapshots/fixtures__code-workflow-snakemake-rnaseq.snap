@@ -210,66 +210,10 @@ nodes:
       name: shell
       parameters: []
   - type: GraphNode
-    id: "function:workflow/scripts/counts.py:python:Path"
-    node:
-      type: Function
-      id: "function:workflow/scripts/counts.py:python:Path"
-      name: Path
-      parameters: []
-  - type: GraphNode
-    id: "function:workflow/scripts/counts.py:python:write_text"
-    node:
-      type: Function
-      id: "function:workflow/scripts/counts.py:python:write_text"
-      name: write_text
-      parameters: []
-  - type: GraphNode
-    id: "function:workflow/scripts/download.py:python:Path"
-    node:
-      type: Function
-      id: "function:workflow/scripts/download.py:python:Path"
-      name: Path
-      parameters: []
-  - type: GraphNode
-    id: "function:workflow/scripts/download.py:python:write_text"
-    node:
-      type: Function
-      id: "function:workflow/scripts/download.py:python:write_text"
-      name: write_text
-      parameters: []
-  - type: GraphNode
     id: "node:reports/rnaseq.html#art_"
     node:
       type: Article
       content: []
-  - type: GraphNode
-    id: "symbol:workflow/scripts/counts.py:python:Path"
-    node:
-      type: Variable
-      id: "symbol:workflow/scripts/counts.py:python:Path"
-      name: Path
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:workflow/scripts/counts.py:python:write_text"
-    node:
-      type: Variable
-      id: "symbol:workflow/scripts/counts.py:python:write_text"
-      name: write_text
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:workflow/scripts/download.py:python:Path"
-    node:
-      type: Variable
-      id: "symbol:workflow/scripts/download.py:python:Path"
-      name: Path
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:workflow/scripts/download.py:python:write_text"
-    node:
-      type: Variable
-      id: "symbol:workflow/scripts/download.py:python:write_text"
-      name: write_text
-      programmingLanguage: Python
   - type: GraphNode
     id: "workflow-unit:Snakefile:align"
     node:
@@ -633,13 +577,6 @@ edges:
   - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
     target: "code:Snakefile"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:Snakefile:snakemake:shell"
-    target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -662,118 +599,6 @@ edges:
     source: "function:Snakefile:snakemake:shell"
     target: "workflow-unit:Snakefile:trim_reads"
     kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/counts.py:python:Path"
-    target: "code:workflow/scripts/counts.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/counts.py:python:Path"
-    target: "code:workflow/scripts/counts.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/counts.py:python:write_text"
-    target: "code:workflow/scripts/counts.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/counts.py:python:write_text"
-    target: "code:workflow/scripts/counts.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/download.py:python:Path"
-    target: "code:workflow/scripts/download.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/download.py:python:Path"
-    target: "code:workflow/scripts/download.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/download.py:python:write_text"
-    target: "code:workflow/scripts/download.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:workflow/scripts/download.py:python:write_text"
-    target: "code:workflow/scripts/download.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/counts.py:python:Path"
-    target: "code:workflow/scripts/counts.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/counts.py:python:Path"
-    target: "code:workflow/scripts/counts.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/counts.py:python:write_text"
-    target: "code:workflow/scripts/counts.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/counts.py:python:write_text"
-    target: "code:workflow/scripts/counts.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/download.py:python:Path"
-    target: "code:workflow/scripts/download.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/download.py:python:Path"
-    target: "code:workflow/scripts/download.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/download.py:python:write_text"
-    target: "code:workflow/scripts/download.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:workflow/scripts/download.py:python:write_text"
-    target: "code:workflow/scripts/download.py"
-    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

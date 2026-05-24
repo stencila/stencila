@@ -360,88 +360,11 @@ nodes:
       name: bin
       path: src/bin
   - type: GraphNode
-    id: "function:analysis.R:r:read_tsv"
-    node:
-      type: Function
-      id: "function:analysis.R:r:read_tsv"
-      name: read_tsv
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.R:r:write_tsv"
-    node:
-      type: Function
-      id: "function:analysis.R:r:write_tsv"
-      name: write_tsv
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.jl:julia:File"
-    node:
-      type: Function
-      id: "function:analysis.jl:julia:File"
-      name: File
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.js:javascript:readFileSync"
-    node:
-      type: Function
-      id: "function:analysis.js:javascript:readFileSync"
-      name: readFileSync
-      parameters: []
-  - type: GraphNode
     id: "function:analysis.js:javascript:summarize"
     node:
       type: Function
       id: "function:analysis.js:javascript:summarize"
       name: summarize
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.js:javascript:trim"
-    node:
-      type: Function
-      id: "function:analysis.js:javascript:trim"
-      name: trim
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.js:javascript:writeFileSync"
-    node:
-      type: Function
-      id: "function:analysis.js:javascript:writeFileSync"
-      name: writeFileSync
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.m:matlab:height"
-    node:
-      type: Function
-      id: "function:analysis.m:matlab:height"
-      name: height
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.m:matlab:readtable"
-    node:
-      type: Function
-      id: "function:analysis.m:matlab:readtable"
-      name: readtable
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.m:matlab:table"
-    node:
-      type: Function
-      id: "function:analysis.m:matlab:table"
-      name: table
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.m:matlab:writetable"
-    node:
-      type: Function
-      id: "function:analysis.m:matlab:writetable"
-      name: writetable
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.py:python:read_csv"
-    node:
-      type: Function
-      id: "function:analysis.py:python:read_csv"
-      name: read_csv
       parameters: []
   - type: GraphNode
     id: "function:analysis.py:python:summarize"
@@ -451,53 +374,11 @@ nodes:
       name: summarize
       parameters: []
   - type: GraphNode
-    id: "function:analysis.py:python:to_csv"
-    node:
-      type: Function
-      id: "function:analysis.py:python:to_csv"
-      name: to_csv
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.ts:typescript:parse"
-    node:
-      type: Function
-      id: "function:analysis.ts:typescript:parse"
-      name: parse
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.ts:typescript:readFileSync"
-    node:
-      type: Function
-      id: "function:analysis.ts:typescript:readFileSync"
-      name: readFileSync
-      parameters: []
-  - type: GraphNode
-    id: "function:analysis.ts:typescript:writeFileSync"
-    node:
-      type: Function
-      id: "function:analysis.ts:typescript:writeFileSync"
-      name: writeFileSync
-      parameters: []
-  - type: GraphNode
     id: "function:src/bin/analysis.rs:rust:main"
     node:
       type: Function
       id: "function:src/bin/analysis.rs:rust:main"
       name: main
-      parameters: []
-  - type: GraphNode
-    id: "function:src/bin/analysis.rs:rust:read_to_string"
-    node:
-      type: Function
-      id: "function:src/bin/analysis.rs:rust:read_to_string"
-      name: read_to_string
-      parameters: []
-  - type: GraphNode
-    id: "function:src/bin/analysis.rs:rust:write"
-    node:
-      type: Function
-      id: "function:src/bin/analysis.rs:rust:write"
-      name: write
       parameters: []
   - type: GraphNode
     id: "package:cargo/serde"
@@ -584,40 +465,12 @@ nodes:
           propertyId: purl
           value: "pkg:pypi/pandas"
   - type: GraphNode
-    id: "symbol:analysis.R:r:read_tsv"
-    node:
-      type: Variable
-      id: "symbol:analysis.R:r:read_tsv"
-      name: read_tsv
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:analysis.R:r:show_col_types"
-    node:
-      type: Variable
-      id: "symbol:analysis.R:r:show_col_types"
-      name: show_col_types
-      programmingLanguage: R
-  - type: GraphNode
     id: "symbol:analysis.R:r:table"
     node:
       type: Variable
       id: "symbol:analysis.R:r:table"
       name: table
       programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:analysis.R:r:write_tsv"
-    node:
-      type: Variable
-      id: "symbol:analysis.R:r:write_tsv"
-      name: write_tsv
-      programmingLanguage: R
-  - type: GraphNode
-    id: "symbol:analysis.jl:julia:File"
-    node:
-      type: Variable
-      id: "symbol:analysis.jl:julia:File"
-      name: File
-      programmingLanguage: Julia
   - type: GraphNode
     id: "symbol:analysis.jl:julia:table"
     node:
@@ -626,10 +479,10 @@ nodes:
       name: table
       programmingLanguage: Julia
   - type: GraphNode
-    id: "symbol:analysis.js:javascript:input"
+    id: "symbol:analysis.js:javascript:summarize:input"
     node:
       type: Variable
-      id: "symbol:analysis.js:javascript:input"
+      id: "symbol:analysis.js:javascript:summarize:input"
       name: input
       programmingLanguage: JavaScript
   - type: GraphNode
@@ -647,46 +500,11 @@ nodes:
       name: tbl
       programmingLanguage: MATLAB
   - type: GraphNode
-    id: "symbol:analysis.py:python:index"
+    id: "symbol:analysis.py:python:summarize:table"
     node:
       type: Variable
-      id: "symbol:analysis.py:python:index"
-      name: index
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:analysis.py:python:pd"
-    node:
-      type: Variable
-      id: "symbol:analysis.py:python:pd"
-      name: pd
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:analysis.py:python:read_csv"
-    node:
-      type: Variable
-      id: "symbol:analysis.py:python:read_csv"
-      name: read_csv
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:analysis.py:python:sep"
-    node:
-      type: Variable
-      id: "symbol:analysis.py:python:sep"
-      name: sep
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:analysis.py:python:table"
-    node:
-      type: Variable
-      id: "symbol:analysis.py:python:table"
+      id: "symbol:analysis.py:python:summarize:table"
       name: table
-      programmingLanguage: Python
-  - type: GraphNode
-    id: "symbol:analysis.py:python:to_csv"
-    node:
-      type: Variable
-      id: "symbol:analysis.py:python:to_csv"
-      name: to_csv
       programmingLanguage: Python
   - type: GraphNode
     id: "symbol:analysis.ts:typescript:table"
@@ -696,85 +514,15 @@ nodes:
       name: table
       programmingLanguage: TypeScript
   - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:derive"
+    id: "symbol:src/bin/analysis.rs:rust:main:table"
     node:
       type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:derive"
-      name: derive
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:format"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:format"
-      name: format
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:read_to_string"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:read_to_string"
-      name: read_to_string
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:rows"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:rows"
-      name: rows
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:summary"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:summary"
-      name: summary
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:table"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:table"
+      id: "symbol:src/bin/analysis.rs:rust:main:table"
       name: table
-      programmingLanguage: Rust
-  - type: GraphNode
-    id: "symbol:src/bin/analysis.rs:rust:write"
-    node:
-      type: Variable
-      id: "symbol:src/bin/analysis.rs:rust:write"
-      name: write
       programmingLanguage: Rust
 edges:
   - type: GraphEdge
     source: "code:analysis.R"
-    target: "datatable:results/r-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.R"
-    target: "dir:."
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.R"
-    target: "symbol:analysis.R:r:table"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.jl"
-    target: "datatable:results/julia-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.jl"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -782,11 +530,11 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:analysis.jl"
-    target: "symbol:analysis.jl:julia:table"
-    kind: Generated
+    target: "dir:."
+    kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Observed
   - type: GraphEdge
     source: "code:analysis.js"
     target: "datatable:results/js-summary.tsv"
@@ -802,20 +550,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:analysis.js"
-    target: "function:analysis.js:javascript:summarize"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.js"
-    target: "symbol:analysis.js:javascript:input"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "code:analysis.m"
     target: "datatable:results/matlab-summary.tsv"
     kind: Generated
@@ -830,27 +564,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:analysis.m"
-    target: "symbol:analysis.m:matlab:count"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.m"
-    target: "symbol:analysis.m:matlab:tbl"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.py"
-    target: "datatable:results/python-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "code:analysis.py"
     target: "dir:."
     kind: PartOf
@@ -858,40 +571,12 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:analysis.py"
-    target: "function:analysis.py:python:summarize"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.py"
-    target: "symbol:analysis.py:python:table"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:analysis.ts"
-    target: "datatable:results/ts-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "code:analysis.ts"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.ts"
-    target: "symbol:analysis.ts:typescript:table"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:src/bin/analysis.rs"
     target: "datatable:results/rust-summary.tsv"
@@ -907,76 +592,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "code:src/bin/analysis.rs"
-    target: "function:src/bin/analysis.rs:rust:main"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:src/bin/analysis.rs"
-    target: "symbol:src/bin/analysis.rs:rust:summary"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:src/bin/analysis.rs"
-    target: "symbol:src/bin/analysis.rs:rust:table"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.R"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.jl"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.js"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.m"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:analysis.ts"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:data/raw/samples.tsv"
-    target: "code:src/bin/analysis.rs"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "dir:data/raw"
     kind: PartOf
@@ -986,49 +601,49 @@ edges:
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.R:r:table"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.jl:julia:table"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
-    target: "symbol:analysis.js:javascript:input"
-    kind: DerivedInto
+    target: "symbol:analysis.js:javascript:summarize:input"
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.m:matlab:tbl"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
-    target: "symbol:analysis.py:python:table"
-    kind: DerivedInto
+    target: "symbol:analysis.py:python:summarize:table"
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.ts:typescript:table"
-    kind: DerivedInto
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
-    target: "symbol:src/bin/analysis.rs:rust:table"
-    kind: DerivedInto
+    target: "symbol:src/bin/analysis.rs:rust:main:table"
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -1117,69 +732,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "function:analysis.R:r:read_tsv"
-    target: "code:analysis.R"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.R:r:read_tsv"
-    target: "code:analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.R:r:write_tsv"
-    target: "code:analysis.R"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.R:r:write_tsv"
-    target: "code:analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.jl:julia:File"
-    target: "code:analysis.jl"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.jl:julia:File"
-    target: "code:analysis.jl"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:readFileSync"
-    target: "code:analysis.js"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:readFileSync"
-    target: "code:analysis.js"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:summarize"
-    target: "code:analysis.js"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "function:analysis.js:javascript:summarize"
     target: "code:analysis.js"
     kind: PartOf
@@ -1187,203 +739,14 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:analysis.js:javascript:trim"
-    target: "code:analysis.js"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:trim"
-    target: "code:analysis.js"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:writeFileSync"
-    target: "code:analysis.js"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.js:javascript:writeFileSync"
-    target: "code:analysis.js"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:height"
-    target: "code:analysis.m"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:height"
-    target: "code:analysis.m"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:readtable"
-    target: "code:analysis.m"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:readtable"
-    target: "code:analysis.m"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:table"
-    target: "code:analysis.m"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:table"
-    target: "code:analysis.m"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:writetable"
-    target: "code:analysis.m"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.m:matlab:writetable"
-    target: "code:analysis.m"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.py:python:read_csv"
-    target: "code:analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.py:python:read_csv"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "function:analysis.py:python:summarize"
     target: "code:analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.py:python:summarize"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.py:python:to_csv"
-    target: "code:analysis.py"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.py:python:to_csv"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:parse"
-    target: "code:analysis.ts"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:parse"
-    target: "code:analysis.ts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:readFileSync"
-    target: "code:analysis.ts"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:readFileSync"
-    target: "code:analysis.ts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:writeFileSync"
-    target: "code:analysis.ts"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:analysis.ts:typescript:writeFileSync"
-    target: "code:analysis.ts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "function:src/bin/analysis.rs:rust:main"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:src/bin/analysis.rs:rust:read_to_string"
-    target: "code:src/bin/analysis.rs"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:src/bin/analysis.rs:rust:read_to_string"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:src/bin/analysis.rs:rust:write"
-    target: "code:src/bin/analysis.rs"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:src/bin/analysis.rs:rust:write"
     target: "code:src/bin/analysis.rs"
     kind: PartOf
     evidence:
@@ -1446,34 +809,6 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:analysis.R:r:read_tsv"
-    target: "code:analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.R:r:read_tsv"
-    target: "code:analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.R:r:show_col_types"
-    target: "code:analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.R:r:show_col_types"
-    target: "code:analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "symbol:analysis.R:r:table"
     target: "code:analysis.R"
     kind: PartOf
@@ -1483,35 +818,7 @@ edges:
   - type: GraphEdge
     source: "symbol:analysis.R:r:table"
     target: "datatable:results/r-summary.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.R:r:write_tsv"
-    target: "code:analysis.R"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.R:r:write_tsv"
-    target: "code:analysis.R"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.jl:julia:File"
-    target: "code:analysis.jl"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.jl:julia:File"
-    target: "code:analysis.jl"
-    kind: PartOf
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -1525,13 +832,13 @@ edges:
   - type: GraphEdge
     source: "symbol:analysis.jl:julia:table"
     target: "datatable:results/julia-summary.tsv"
-    kind: DerivedInto
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:analysis.js:javascript:input"
-    target: "code:analysis.js"
+    source: "symbol:analysis.js:javascript:summarize:input"
+    target: "function:analysis.js:javascript:summarize"
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -1558,85 +865,15 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:analysis.py:python:index"
-    target: "code:analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:index"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:pd"
-    target: "code:analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:pd"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:read_csv"
-    target: "code:analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:read_csv"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:sep"
-    target: "code:analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:sep"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:table"
-    target: "code:analysis.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:table"
+    source: "symbol:analysis.py:python:summarize:table"
     target: "datatable:results/python-summary.tsv"
-    kind: DerivedInto
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:analysis.py:python:to_csv"
-    target: "code:analysis.py"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:analysis.py:python:to_csv"
-    target: "code:analysis.py"
+    source: "symbol:analysis.py:python:summarize:table"
+    target: "function:analysis.py:python:summarize"
     kind: PartOf
     evidence:
       - type: GraphEvidence
@@ -1651,90 +888,13 @@ edges:
   - type: GraphEdge
     source: "symbol:analysis.ts:typescript:table"
     target: "datatable:results/ts-summary.tsv"
-    kind: DerivedInto
+    kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:derive"
-    target: "code:src/bin/analysis.rs"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:derive"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:format"
-    target: "code:src/bin/analysis.rs"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:format"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:read_to_string"
-    target: "code:src/bin/analysis.rs"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:read_to_string"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:rows"
-    target: "code:src/bin/analysis.rs"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:rows"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:summary"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:table"
-    target: "code:src/bin/analysis.rs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:write"
-    target: "code:src/bin/analysis.rs"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "symbol:src/bin/analysis.rs:rust:write"
-    target: "code:src/bin/analysis.rs"
+    source: "symbol:src/bin/analysis.rs:rust:main:table"
+    target: "function:src/bin/analysis.rs:rust:main"
     kind: PartOf
     evidence:
       - type: GraphEvidence
