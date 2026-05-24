@@ -199,12 +199,12 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
     .await?;
 
     assert!(graph.edges.iter().any(|edge| {
-        edge.source == "file:assets/source.svg"
+        edge.source == "image:assets/source.svg"
             && edge.target.starts_with("node:docs/report.smd#img_")
             && edge.kind == GraphEdgeKind::LinkedBy
     }));
     assert!(graph.edges.iter().any(|edge| {
-        edge.source == "file:docs/assets%3Araw/source%231%25%20copy.svg"
+        edge.source == "image:docs/assets%3Araw/source%231%25%20copy.svg"
             && edge.target.starts_with("node:docs/report.smd#img_")
             && edge.kind == GraphEdgeKind::LinkedBy
     }));
@@ -212,13 +212,98 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
         .edges
         .iter()
         .find(|edge| {
-            edge.source == "file:assets/source.svg"
+            edge.source == "image:assets/source.svg"
                 && edge.target.starts_with("node:docs/report.smd#lin_")
                 && edge.kind == GraphEdgeKind::LinkedBy
         })
         .ok_or_eyre("workspace-relative link edge should exist")?;
     assert_edge_evidence(link_edge, GraphEvidenceKind::Declared);
     assert_edge_evidence(link_edge, GraphEvidenceKind::Resolved);
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn represents_media_files_as_media_objects() -> Result<()> {
+    let workspace = tempdir()?;
+    write(workspace.path().join("plot.png"), "not a real png\n")?;
+    write(workspace.path().join("interview.mp3"), "not a real mp3\n")?;
+    write(workspace.path().join("demo.mp4"), "not a real mp4\n")?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            subject: Some("fixture:media-files".to_string()),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert!(graph.nodes.iter().any(|node| {
+        node.id == "image:plot.png"
+            && matches!(
+                node.node.as_ref(),
+                Node::ImageObject(image)
+                    if image.content_url == "plot.png"
+                        && image.media_type.as_deref() == Some("image/png")
+            )
+    }));
+    assert!(graph.nodes.iter().any(|node| {
+        node.id == "audio:interview.mp3"
+            && matches!(
+                node.node.as_ref(),
+                Node::AudioObject(audio)
+                    if audio.content_url == "interview.mp3"
+                        && audio.media_type.as_deref() == Some("audio/mp3")
+            )
+    }));
+    assert!(graph.nodes.iter().any(|node| {
+        node.id == "video:demo.mp4"
+            && matches!(
+                node.node.as_ref(),
+                Node::VideoObject(video)
+                    if video.content_url == "demo.mp4"
+                        && video.media_type.as_deref() == Some("video/mp4")
+            )
+    }));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn resolves_code_literals_to_observed_code_files() -> Result<()> {
+    let workspace = tempdir()?;
+    write(
+        workspace.path().join("analysis.py"),
+        r#"
+from pathlib import Path
+source = Path("helper.py").read_text()
+"#,
+    )?;
+    write(workspace.path().join("helper.py"), "VALUE = 1\n")?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            subject: Some("fixture:observed-code-reference".to_string()),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert_graph_edge(
+        &graph,
+        "code:helper.py",
+        "code:analysis.py",
+        GraphEdgeKind::ReadBy,
+    );
+    assert!(
+        !graph
+            .nodes
+            .iter()
+            .any(|node| node.id == "file-ref:analysis.py:helper.py"),
+        "observed code file should not also be represented as a synthetic file"
+    );
 
     Ok(())
 }

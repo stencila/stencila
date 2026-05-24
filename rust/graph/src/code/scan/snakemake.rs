@@ -22,7 +22,7 @@ pub(in crate::code) fn collect_snakemake_text_facts(source: &str, facts: &mut Co
             let rule_name = rule_name.trim();
             if !rule_name.is_empty() {
                 let rule_name = rule_name.to_string();
-                facts.record_workflow_rule(rule_name.clone(), None);
+                facts.record_workflow_unit(rule_name.clone(), None);
                 current_rule = Some(rule_name);
             }
         }

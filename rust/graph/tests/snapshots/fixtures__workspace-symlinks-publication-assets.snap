@@ -84,13 +84,13 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:figures/model-v1.png"
+    id: "image:figures/model-v1.png"
     node:
-      type: File
-      id: "file:figures/model-v1.png"
+      type: ImageObject
+      id: "image:figures/model-v1.png"
+      contentUrl: figures/model-v1.png
+      mediaType: image/png
       name: model-v1.png
-      path: figures/model-v1.png
-      size: 27
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -98,13 +98,13 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:figures/model-v2.png"
+    id: "image:figures/model-v2.png"
     node:
-      type: File
-      id: "file:figures/model-v2.png"
+      type: ImageObject
+      id: "image:figures/model-v2.png"
+      contentUrl: figures/model-v2.png
+      mediaType: image/png
       name: model-v2.png
-      path: figures/model-v2.png
-      size: 27
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -227,14 +227,14 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "file:figures/model-v1.png"
+    source: "image:figures/model-v1.png"
     target: "dir:figures"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:figures/model-v1.png"
+    source: "image:figures/model-v1.png"
     target: "symlink:docs/figures/previous.png"
     kind: LinkedBy
     evidence:
@@ -243,14 +243,14 @@ edges:
       - type: GraphEvidence
         kind: Resolved
   - type: GraphEdge
-    source: "file:figures/model-v2.png"
+    source: "image:figures/model-v2.png"
     target: "dir:figures"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:figures/model-v2.png"
+    source: "image:figures/model-v2.png"
     target: "symlink:docs/figures/latest.png"
     kind: LinkedBy
     evidence:

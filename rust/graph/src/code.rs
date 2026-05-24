@@ -33,7 +33,7 @@ pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
 pub(crate) use document::DocumentCodeIndex;
 pub use facts::{
-    CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, WorkflowRuleFacts,
+    CodeFacts, ColumnFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact, WorkflowUnitFacts,
 };
 pub use language::CodeLanguage;
 pub(crate) use workspace::{WorkspaceCode, add_workspace_code};
@@ -97,7 +97,7 @@ plot = df[["site", "count"]]
 
         assert!(has_graph_edge(
             &graph,
-            "code-file:analysis.py:data.csv",
+            "file-ref:analysis.py:data.csv",
             "symbol:analysis.py:python:df",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
@@ -110,7 +110,7 @@ plot = df[["site", "count"]]
         assert!(!has_graph_edge(
             &graph,
             "column:analysis.py:data.csv:site",
-            "code-file:analysis.py:data.csv",
+            "file-ref:analysis.py:data.csv",
             stencila_schema::GraphEdgeKind::PartOf
         ));
 
@@ -557,7 +557,8 @@ rule plot:
 "#,
         );
 
-        assert!(facts.workflow_rules.contains("plot"));
+        assert!(facts.workflow_units.contains("plot"));
+        assert!(!facts.declarations.contains("plot"));
         assert_io(&facts, IoDirection::Read, "data.csv");
         assert_io(&facts, IoDirection::Write, "plot.png");
         assert!(facts.script_links.contains("scripts/plot.py"));
@@ -659,26 +660,26 @@ writeFileSync("results/output.txt", summary)
 
         assert!(!has_graph_edge(
             &graph,
-            "code-file:partial.py:input.csv",
-            "code-file:partial.py:output.csv",
+            "file-ref:partial.py:input.csv",
+            "file-ref:partial.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
         assert!(has_graph_edge(
             &graph,
-            "code-file:partial.py:input.csv",
+            "file-ref:partial.py:input.csv",
             "code:partial.py",
             stencila_schema::GraphEdgeKind::ReadBy
         ));
         assert!(has_graph_edge(
             &graph,
             "code:partial.py",
-            "code-file:partial.py:output.csv",
+            "file-ref:partial.py:output.csv",
             stencila_schema::GraphEdgeKind::Generated
         ));
         assert!(has_graph_edge(
             &graph,
             "symbol:partial.py:python:df",
-            "code-file:partial.py:output.csv",
+            "file-ref:partial.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
 
@@ -698,19 +699,19 @@ clean = read_csv("input.csv")
 
         assert!(!has_graph_edge(
             &graph,
-            "code-file:ordering.py:input.csv",
-            "code-file:ordering.py:output.csv",
+            "file-ref:ordering.py:input.csv",
+            "file-ref:ordering.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
         assert!(!has_graph_edge(
             &graph,
             "symbol:ordering.py:python:clean",
-            "code-file:ordering.py:output.csv",
+            "file-ref:ordering.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
         assert!(has_graph_edge(
             &graph,
-            "code-file:ordering.py:input.csv",
+            "file-ref:ordering.py:input.csv",
             "symbol:ordering.py:python:clean",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
@@ -739,7 +740,7 @@ summary.to_csv("output.csv")
         assert!(has_graph_edge(
             &graph,
             "symbol:flow-order.py:python:summary",
-            "code-file:flow-order.py:output.csv",
+            "file-ref:flow-order.py:output.csv",
             stencila_schema::GraphEdgeKind::DerivedInto
         ));
 
@@ -818,19 +819,19 @@ process align {
 "#,
         );
 
-        assert!(facts.workflow_rules.contains("align"));
-        assert!(facts.declarations.contains("align"));
+        assert!(facts.workflow_units.contains("align"));
+        assert!(!facts.declarations.contains("align"));
         assert_io(&facts, IoDirection::Read, "data/input.fq");
         assert_io(&facts, IoDirection::Write, "results/aligned.bam");
         assert_template_io(&facts, IoDirection::Write, "results/${sample}.bai");
         assert_template_io(&facts, IoDirection::Write, "results/$sample.idx");
         assert!(facts.calls.contains("script"));
-        let rule = facts
-            .workflow_rule_facts
+        let unit = facts
+            .workflow_unit_facts
             .get("align")
-            .expect("align rule facts should be grouped");
-        assert_rule_io(rule, IoDirection::Read, "data/input.fq");
-        assert_rule_io(rule, IoDirection::Write, "results/aligned.bam");
+            .expect("align workflow unit facts should be grouped");
+        assert_unit_io(unit, IoDirection::Read, "data/input.fq");
+        assert_unit_io(unit, IoDirection::Write, "results/aligned.bam");
     }
 
     #[test]
@@ -879,13 +880,13 @@ process align {
         );
     }
 
-    fn assert_rule_io(rule: &WorkflowRuleFacts, direction: IoDirection, path: &str) {
+    fn assert_unit_io(unit: &WorkflowUnitFacts, direction: IoDirection, path: &str) {
         assert!(
-            rule.io.iter().any(|fact| {
+            unit.io.iter().any(|fact| {
                 fact.direction == direction
                     && matches!(fact.path, IoPath::Static(ref value) if value == path)
             }),
-            "missing rule {direction:?} I/O fact for {path}"
+            "missing workflow unit {direction:?} I/O fact for {path}"
         );
     }
 

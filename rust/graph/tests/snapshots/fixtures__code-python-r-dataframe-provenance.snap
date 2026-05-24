@@ -198,34 +198,6 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
-    id: "file:figures/python-counts.png"
-    node:
-      type: File
-      id: "file:figures/python-counts.png"
-      name: python-counts.png
-      path: figures/python-counts.png
-      size: 26
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:figures/r-counts.png"
-    node:
-      type: File
-      id: "file:figures/r-counts.png"
-      name: r-counts.png
-      path: figures/r-counts.png
-      size: 21
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "function:scripts/analysis.R:r:csv"
     node:
       type: Function
@@ -267,6 +239,34 @@ nodes:
       id: "function:scripts/analysis.py:python:to_csv"
       name: to_csv
       parameters: []
+  - type: GraphNode
+    id: "image:figures/python-counts.png"
+    node:
+      type: ImageObject
+      id: "image:figures/python-counts.png"
+      contentUrl: figures/python-counts.png
+      mediaType: image/png
+      name: python-counts.png
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "image:figures/r-counts.png"
+    node:
+      type: ImageObject
+      id: "image:figures/r-counts.png"
+      contentUrl: figures/r-counts.png
+      mediaType: image/png
+      name: r-counts.png
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
   - type: GraphNode
     id: "package:cran/ggplot2"
     node:
@@ -440,7 +440,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:scripts/analysis.R"
-    target: "file:figures/r-counts.png"
+    target: "image:figures/r-counts.png"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -468,7 +468,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:scripts/analysis.py"
-    target: "file:figures/python-counts.png"
+    target: "image:figures/python-counts.png"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -635,20 +635,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:figures/python-counts.png"
-    target: "dir:figures"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:figures/r-counts.png"
-    target: "dir:figures"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
     source: "function:scripts/analysis.R:r:csv"
     target: "code:scripts/analysis.R"
     kind: CalledBy
@@ -732,6 +718,20 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "image:figures/python-counts.png"
+    target: "dir:figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "image:figures/r-counts.png"
+    target: "dir:figures"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "package:cran/ggplot2"
     target: "code:scripts/analysis.R"

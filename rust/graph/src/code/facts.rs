@@ -25,7 +25,7 @@ pub struct CodeFacts {
     /// earlier chunk that declared a used symbol.
     pub assignments: BTreeSet<String>,
 
-    /// Functions or workflow rules declared by this unit.
+    /// Functions declared by this unit.
     ///
     /// Declarations are modeled separately from assignments because they become
     /// function-like graph nodes while still acting as definitions for document
@@ -67,25 +67,29 @@ pub struct CodeFacts {
     /// package aliases, method names, and builtins do not become lineage hops.
     pub variable_flows: BTreeSet<VariableFlowFact>,
 
-    /// Snakemake workflow rules declared by this unit.
+    /// Workflow units declared by this unit.
     ///
-    /// Rules are kept explicitly because workflow graphs often need to query
-    /// rule-level inputs and outputs separately from the source file as a whole.
-    pub workflow_rules: BTreeSet<String>,
+    /// Snakemake calls these rules, while Nextflow calls them processes. They
+    /// are kept explicitly because workflow graphs often need to query
+    /// unit-level inputs and outputs separately from the source file as a whole.
+    /// They are not mirrored into `declarations`, because graph projection emits
+    /// them through the dedicated workflow namespace instead of as generic
+    /// functions.
+    pub workflow_units: BTreeSet<String>,
 
-    /// Static script links from Snakemake rules.
+    /// Static script links from workflow units.
     ///
     /// Script links connect a workflow file to external source files used by
-    /// rules. They are stored as literals first so workspace analysis can later
+    /// units. They are stored as literals first so workspace analysis can later
     /// resolve them to concrete file nodes when possible.
     pub script_links: BTreeSet<String>,
 
-    /// Static facts grouped by Snakemake rule name.
+    /// Static facts grouped by workflow unit name.
     ///
     /// Whole-file facts are still retained for the source file itself, but
-    /// rule-level facts prevent inputs and outputs from one rule being attached to
-    /// every other rule in the same workflow file.
-    pub workflow_rule_facts: BTreeMap<String, WorkflowRuleFacts>,
+    /// unit-level facts prevent inputs and outputs from one rule or process
+    /// being attached to every other unit in the same workflow file.
+    pub workflow_unit_facts: BTreeMap<String, WorkflowUnitFacts>,
 
     /// Whether tree-sitter reported parse errors for this source.
     ///
@@ -124,20 +128,20 @@ pub struct CodeFacts {
     pub(super) read_before_write_symbols: BTreeSet<String>,
 }
 
-/// Static facts for one Snakemake workflow rule.
+/// Static facts for one workflow unit.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
-pub struct WorkflowRuleFacts {
-    /// File or URL paths read or written by the rule.
+pub struct WorkflowUnitFacts {
+    /// File or URL paths read or written by the unit.
     pub io: BTreeSet<IoFact>,
 
-    /// Static script file literals used by the rule.
+    /// Static script file literals used by the unit.
     pub script_links: BTreeSet<String>,
 
-    /// Function-like actions used by the rule, such as `shell`.
+    /// Function-like actions used by the unit, such as `shell`.
     pub calls: BTreeSet<String>,
 }
 
-/// Workflow resource direction for whole-file and rule-level facts.
+/// Workflow resource direction for whole-file and unit-level facts.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub(super) enum WorkflowResourceKind {
     /// Resource read by a workflow unit.
@@ -276,20 +280,19 @@ impl IoFact {
 }
 
 impl CodeFacts {
-    /// Record a workflow rule or process declaration.
-    pub(super) fn record_workflow_rule(&mut self, name: String, offset: Option<usize>) {
-        self.workflow_rules.insert(name.clone());
-        self.declarations.insert(name.clone());
-        self.workflow_rule_facts.entry(name.clone()).or_default();
+    /// Record a workflow unit declaration.
+    pub(super) fn record_workflow_unit(&mut self, name: String, offset: Option<usize>) {
+        self.workflow_units.insert(name.clone());
+        self.workflow_unit_facts.entry(name.clone()).or_default();
         if let Some(offset) = offset {
             record_definition(self, &name, offset);
         }
     }
 
-    /// Add workflow resources to whole-file and optional rule-level facts.
+    /// Add workflow resources to whole-file and optional unit-level facts.
     pub(super) fn extend_workflow_resources(
         &mut self,
-        rule: Option<&str>,
+        unit: Option<&str>,
         kind: WorkflowResourceKind,
         paths: BTreeSet<IoPath>,
     ) {
@@ -316,19 +319,19 @@ impl CodeFacts {
             }));
         }
 
-        let Some(rule) = rule else {
+        let Some(unit) = unit else {
             return;
         };
-        let rule_facts = self
-            .workflow_rule_facts
-            .entry(rule.to_string())
+        let unit_facts = self
+            .workflow_unit_facts
+            .entry(unit.to_string())
             .or_default();
         if let Some(direction) = direction {
-            rule_facts
+            unit_facts
                 .io
                 .extend(paths.into_iter().map(|path| IoFact::new(direction, path)));
         } else {
-            rule_facts
+            unit_facts
                 .script_links
                 .extend(paths.into_iter().filter_map(|path| {
                     if let IoPath::Static(path) = path {
@@ -340,13 +343,13 @@ impl CodeFacts {
         }
     }
 
-    /// Record a call-like workflow action for the whole file and optional rule.
-    pub(super) fn record_workflow_call(&mut self, rule: Option<&str>, call: impl Into<String>) {
+    /// Record a call-like workflow action for the whole file and optional unit.
+    pub(super) fn record_workflow_call(&mut self, unit: Option<&str>, call: impl Into<String>) {
         let call = call.into();
         self.calls.insert(call.clone());
-        if let Some(rule) = rule {
-            self.workflow_rule_facts
-                .entry(rule.to_string())
+        if let Some(unit) = unit {
+            self.workflow_unit_facts
+                .entry(unit.to_string())
                 .or_default()
                 .calls
                 .insert(call);

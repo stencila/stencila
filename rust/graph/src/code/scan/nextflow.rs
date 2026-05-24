@@ -21,7 +21,7 @@ pub(in crate::code) fn collect_nextflow_text_facts(source: &str, facts: &mut Cod
         let mut started_process = false;
 
         if let Some(process) = nextflow_process_name(line) {
-            facts.record_workflow_rule(
+            facts.record_workflow_unit(
                 process.clone(),
                 Some(offset + raw_line.find(line).unwrap_or_default()),
             );
@@ -112,7 +112,7 @@ impl NextflowBlock {
 ///
 /// Process names can be bare or quoted. The scanner only accepts the first
 /// static token after `process`, which avoids treating Groovy expressions as
-/// concrete workflow rule ids.
+/// concrete workflow unit ids.
 fn nextflow_process_name(line: &str) -> Option<String> {
     let rest = line.strip_prefix("process ")?.trim();
     let rest = rest.trim_start_matches('(').trim_start();

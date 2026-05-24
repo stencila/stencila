@@ -130,20 +130,38 @@ impl WorkspaceRelPath {
 /// These ids are optimized for readability in serialized graphs while remaining
 /// unambiguous enough for tools to parse if they need to. The grammar is:
 ///
+/// Workspace filesystem entries:
+///
 /// - `dir:<path>`
 /// - `file:<path>`
 /// - `symlink:<path>`
-///
+/// - `code:<scope>`
 /// - `datatable:<path>`
+/// - `image:<path>`
+/// - `audio:<path>`
+/// - `video:<path>`
+///
+/// Software environments:
 ///
 /// - `environment:<ecosystem>:<path>`
 /// - `package:<ecosystem>/<name>`
 ///
+/// Document graph nodes and references:
+///
 /// - `node:<scope>#<node-id>`
 /// - `node:<scope>` for a root node fallback when the schema node has no id
+/// - `action:execute:<scope>#<node-id>`
 /// - `output:<scope>#<node-id>:<index>`
 /// - `reference:<scope>#<citation-target>`
 /// - `resource:<uri>`
+///
+/// Static code analysis nodes:
+///
+/// - `file-ref:<scope>:<path>`
+/// - `symbol:<scope>:<language>:<name>`
+/// - `function:<scope>:<language>:<name>`
+/// - `workflow-unit:<scope>:<name>`
+/// - `column:<scope>:<dataframe>:<name>`
 ///
 /// Dynamic components are percent-encoded, keeping `/` visible in workspace
 /// paths but escaping delimiters such as `:`, `#`, `%`, whitespace, controls,
@@ -167,15 +185,6 @@ impl LocalGraphId {
         format!("file:{}", path.encoded_for_id())
     }
 
-    /// Create the graph id for a tabular data file represented as a Datatable.
-    ///
-    /// Datatable ids use the workspace-relative path because file-backed
-    /// tabular data has the same durable identity as a generic file, while
-    /// participating directly as a schema resource in data-flow edges.
-    pub(crate) fn datatable(path: &WorkspaceRelPath) -> String {
-        format!("datatable:{}", path.encoded_for_id())
-    }
-
     /// Create the graph id for a symbolic link node.
     ///
     /// Symbolic links get their own prefix because the link path is a filesystem
@@ -185,6 +194,31 @@ impl LocalGraphId {
         format!("symlink:{}", path.encoded_for_id())
     }
 
+    /// Create the graph id for a source-code file represented as a SoftwareSourceCode node.
+    pub(crate) fn code(scope: &str) -> String {
+        format!("code:{}", encode_id_component(scope))
+    }
+
+    /// Create the graph id for a tabular data file represented as a Datatable.
+    pub(crate) fn datatable(path: &WorkspaceRelPath) -> String {
+        format!("datatable:{}", path.encoded_for_id())
+    }
+
+    /// Create the graph id for an image file represented as an ImageObject.
+    pub(crate) fn image(path: &WorkspaceRelPath) -> String {
+        format!("image:{}", path.encoded_for_id())
+    }
+
+    /// Create the graph id for an audio file represented as an AudioObject.
+    pub(crate) fn audio(path: &WorkspaceRelPath) -> String {
+        format!("audio:{}", path.encoded_for_id())
+    }
+
+    /// Create the graph id for a video file represented as a VideoObject.
+    pub(crate) fn video(path: &WorkspaceRelPath) -> String {
+        format!("video:{}", path.encoded_for_id())
+    }
+
     /// Create the graph id for an environment declared by a manifest file.
     pub(crate) fn environment(ecosystem: &str, path: &WorkspaceRelPath) -> String {
         format!(
@@ -192,6 +226,11 @@ impl LocalGraphId {
             encode_id_component(ecosystem),
             path.encoded_for_id()
         )
+    }
+
+    /// Create the graph id for an imported or declared software package.
+    pub(crate) fn package(name: &str) -> String {
+        format!("package:{}", encode_id_component(name))
     }
 
     /// Create the graph id for a schema node inside a scoped document graph.
@@ -261,9 +300,17 @@ impl LocalGraphId {
         format!("resource:{}", encode_id_component(uri))
     }
 
-    /// Create the graph id for a source-code unit keyed by scope.
-    pub(crate) fn code_unit(scope: &str) -> String {
-        format!("code:{}", encode_id_component(scope))
+    /// Create the graph id for an unresolved file reference discovered in code.
+    ///
+    /// Workspace graph construction resolves references to concrete workspace
+    /// resource ids when possible. This constructor is for the remaining
+    /// synthetic `File` nodes scoped under the analyzed code unit.
+    pub(crate) fn file_ref(scope: &str, path: &str) -> String {
+        format!(
+            "file-ref:{}:{}",
+            encode_id_component(scope),
+            encode_id_component(path)
+        )
     }
 
     /// Create the graph id for a symbol in a source-code scope.
@@ -286,17 +333,22 @@ impl LocalGraphId {
         )
     }
 
-    /// Create the graph id for an imported or declared software package.
-    pub(crate) fn package(name: &str) -> String {
-        format!("package:{}", encode_id_component(name))
-    }
-
-    /// Create the graph id for a static file literal discovered in code.
-    pub(crate) fn code_file_resource(scope: &str, path: &str) -> String {
+    /// Create the graph id for a workflow unit discovered in code.
+    ///
+    /// The schema currently represents these as `Function` nodes, but they get
+    /// their own namespace because workflow schedulers give them graph semantics
+    /// ordinary functions do not have: they are named execution units with
+    /// rule/process-level inputs, outputs, and script links. Keeping the
+    /// namespace separate lets projections keep workflow structure visible
+    /// without also showing every local function call.
+    ///
+    /// The neutral `workflow-unit` namespace covers both Snakemake rules and
+    /// Nextflow processes.
+    pub(crate) fn workflow_unit(scope: &str, name: &str) -> String {
         format!(
-            "code-file:{}:{}",
+            "workflow-unit:{}:{}",
             encode_id_component(scope),
-            encode_id_component(path)
+            encode_id_component(name)
         )
     }
 
@@ -306,15 +358,6 @@ impl LocalGraphId {
             "column:{}:{}:{}",
             encode_id_component(scope),
             encode_id_component(origin),
-            encode_id_component(name)
-        )
-    }
-
-    /// Create the graph id for a workflow rule discovered in code.
-    pub(crate) fn workflow_rule(scope: &str, name: &str) -> String {
-        format!(
-            "workflow-rule:{}:{}",
-            encode_id_component(scope),
             encode_id_component(name)
         )
     }

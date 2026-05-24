@@ -79,13 +79,13 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:media/figure.svg"
+    id: "image:media/figure.svg"
     node:
-      type: File
-      id: "file:media/figure.svg"
+      type: ImageObject
+      id: "image:media/figure.svg"
+      contentUrl: media/figure.svg
+      mediaType: image/svg
       name: figure.svg
-      path: media/figure.svg
-      size: 102
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -232,14 +232,14 @@ edges:
       - type: GraphEvidence
         kind: Computed
   - type: GraphEdge
-    source: "file:media/figure.svg"
+    source: "image:media/figure.svg"
     target: "dir:media"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:media/figure.svg"
+    source: "image:media/figure.svg"
     target: "node:manuscript/report.smd#img_content-3"
     kind: LinkedBy
     evidence:

@@ -848,7 +848,7 @@ fn include_edge_for_detail(
 
 fn is_local_code_internal(id: &str, kind: GraphViewNodeKind) -> bool {
     kind == GraphViewNodeKind::Symbol
-        || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-rule")
+        || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-unit")
 }
 
 fn edge_score(
@@ -1215,7 +1215,7 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
         "file" | "symlink" | "resource" | "code-file" => return GraphViewNodeKind::Resource,
         "code" => return GraphViewNodeKind::Code,
         "symbol" => return GraphViewNodeKind::Symbol,
-        "function" | "workflow-rule" => return GraphViewNodeKind::Function,
+        "function" | "workflow-unit" => return GraphViewNodeKind::Function,
         "package" => return GraphViewNodeKind::Package,
         "column" => return GraphViewNodeKind::Datatable,
         "reference" => return GraphViewNodeKind::Reference,

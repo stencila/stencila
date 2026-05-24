@@ -125,13 +125,13 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:figures/richness%25trend.svg"
+    id: "image:figures/richness%25trend.svg"
     node:
-      type: File
-      id: "file:figures/richness%25trend.svg"
+      type: ImageObject
+      id: "image:figures/richness%25trend.svg"
+      contentUrl: figures/richness%trend.svg
+      mediaType: image/svg
       name: richness%trend.svg
-      path: figures/richness%trend.svg
-      size: 101
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -217,7 +217,7 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:figures/richness%25trend.svg"
+    source: "image:figures/richness%25trend.svg"
     target: "dir:figures"
     kind: PartOf
     evidence:

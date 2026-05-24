@@ -6,20 +6,6 @@ type: Graph
 subject: "fixture:workspace-negative-dynamic-invalid"
 nodes:
   - type: GraphNode
-    id: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    node:
-      type: File
-      id: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "data/{sample}.csv"
-  - type: GraphNode
-    id: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    node:
-      type: File
-      id: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "results/{sample}.csv"
-  - type: GraphNode
     id: "code:analysis.jl"
     node:
       type: SoftwareSourceCode
@@ -257,45 +243,21 @@ nodes:
       id: "symbol:scripts/malformed.R:r:read.csv"
       name: read.csv
       programmingLanguage: R
+  - type: GraphNode
+    id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "data/{sample}.csv"
+  - type: GraphNode
+    id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    node:
+      type: File
+      id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+      name: "{sample}.csv"
+      path: "results/{sample}.csv"
 edges:
-  - type: GraphEdge
-    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "data/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code-file:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-    target: "symbol:dynamic.py:python:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "data/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.jl"
     target: "dir:."
@@ -319,18 +281,6 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:dynamic.py"
-    target: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        confidence: Low
-        details:
-          pathKind: template
-          expression: "results/{sample}.csv"
-        description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "code:dynamic.py"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -350,6 +300,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:dynamic.py"
+    target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "results/{sample}.csv"
+        description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "code:scripts/malformed.R"
     target: "dir:scripts"
@@ -529,7 +491,14 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
-    target: "code-file:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "symbol:dynamic.py:python:table"
+    target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -539,13 +508,6 @@ edges:
           pathKind: template
           expression: "results/{sample}.csv"
         description: template I/O path detected by static analysis.
-  - type: GraphEdge
-    source: "symbol:dynamic.py:python:table"
-    target: "code:dynamic.py"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:dynamic.py:python:to_csv"
     target: "code:dynamic.py"
@@ -577,6 +539,44 @@ edges:
   - type: GraphEdge
     source: "symbol:scripts/malformed.R:r:read.csv"
     target: "code:scripts/malformed.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "data/{sample}.csv"
+        description: template I/O path detected by static analysis.
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    target: "symbol:dynamic.py:python:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        confidence: Low
+        details:
+          pathKind: template
+          expression: "data/{sample}.csv"
+        description: template I/O path detected by static analysis.
+  - type: GraphEdge
+    source: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    target: "code:dynamic.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence

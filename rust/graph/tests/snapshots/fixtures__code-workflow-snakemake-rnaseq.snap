@@ -203,46 +203,11 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "function:Snakefile:snakemake:align"
-    node:
-      type: Function
-      id: "function:Snakefile:snakemake:align"
-      name: align
-      parameters: []
-  - type: GraphNode
-    id: "function:Snakefile:snakemake:counts"
-    node:
-      type: Function
-      id: "function:Snakefile:snakemake:counts"
-      name: counts
-      parameters: []
-  - type: GraphNode
-    id: "function:Snakefile:snakemake:download"
-    node:
-      type: Function
-      id: "function:Snakefile:snakemake:download"
-      name: download
-      parameters: []
-  - type: GraphNode
-    id: "function:Snakefile:snakemake:report"
-    node:
-      type: Function
-      id: "function:Snakefile:snakemake:report"
-      name: report
-      parameters: []
-  - type: GraphNode
     id: "function:Snakefile:snakemake:shell"
     node:
       type: Function
       id: "function:Snakefile:snakemake:shell"
       name: shell
-      parameters: []
-  - type: GraphNode
-    id: "function:Snakefile:snakemake:trim_reads"
-    node:
-      type: Function
-      id: "function:Snakefile:snakemake:trim_reads"
-      name: trim_reads
       parameters: []
   - type: GraphNode
     id: "function:workflow/scripts/counts.py:python:Path"
@@ -306,38 +271,38 @@ nodes:
       name: write_text
       programmingLanguage: Python
   - type: GraphNode
-    id: "workflow-rule:Snakefile:align"
+    id: "workflow-unit:Snakefile:align"
     node:
       type: Function
-      id: "workflow-rule:Snakefile:align"
+      id: "workflow-unit:Snakefile:align"
       name: align
       parameters: []
   - type: GraphNode
-    id: "workflow-rule:Snakefile:counts"
+    id: "workflow-unit:Snakefile:counts"
     node:
       type: Function
-      id: "workflow-rule:Snakefile:counts"
+      id: "workflow-unit:Snakefile:counts"
       name: counts
       parameters: []
   - type: GraphNode
-    id: "workflow-rule:Snakefile:download"
+    id: "workflow-unit:Snakefile:download"
     node:
       type: Function
-      id: "workflow-rule:Snakefile:download"
+      id: "workflow-unit:Snakefile:download"
       name: download
       parameters: []
   - type: GraphNode
-    id: "workflow-rule:Snakefile:report"
+    id: "workflow-unit:Snakefile:report"
     node:
       type: Function
-      id: "workflow-rule:Snakefile:report"
+      id: "workflow-unit:Snakefile:report"
       name: report
       parameters: []
   - type: GraphNode
-    id: "workflow-rule:Snakefile:trim_reads"
+    id: "workflow-unit:Snakefile:trim_reads"
     node:
       type: Function
-      id: "workflow-rule:Snakefile:trim_reads"
+      id: "workflow-unit:Snakefile:trim_reads"
       name: trim_reads
       parameters: []
 edges:
@@ -385,70 +350,35 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "function:Snakefile:snakemake:align"
+    target: "workflow-unit:Snakefile:align"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "function:Snakefile:snakemake:counts"
+    target: "workflow-unit:Snakefile:counts"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "function:Snakefile:snakemake:download"
+    target: "workflow-unit:Snakefile:download"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "function:Snakefile:snakemake:report"
+    target: "workflow-unit:Snakefile:report"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "function:Snakefile:snakemake:trim_reads"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "workflow-rule:Snakefile:align"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "workflow-rule:Snakefile:counts"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "workflow-rule:Snakefile:download"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "workflow-rule:Snakefile:report"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "workflow-rule:Snakefile:trim_reads"
+    target: "workflow-unit:Snakefile:trim_reads"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -476,7 +406,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
-    target: "workflow-rule:Snakefile:counts"
+    target: "workflow-unit:Snakefile:counts"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
@@ -504,7 +434,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
-    target: "workflow-rule:Snakefile:download"
+    target: "workflow-unit:Snakefile:download"
     kind: UsedBy
     evidence:
       - type: GraphEvidence
@@ -532,7 +462,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:results/counts/gene-counts.tsv"
-    target: "workflow-rule:Snakefile:report"
+    target: "workflow-unit:Snakefile:report"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -623,7 +553,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/raw/S1.fastq"
-    target: "workflow-rule:Snakefile:trim_reads"
+    target: "workflow-unit:Snakefile:trim_reads"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -651,7 +581,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/trimmed/S1.fastq"
-    target: "workflow-rule:Snakefile:align"
+    target: "workflow-unit:Snakefile:align"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -695,40 +625,12 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:results/alignments/S1.bam"
-    target: "workflow-rule:Snakefile:counts"
+    target: "workflow-unit:Snakefile:counts"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "function:Snakefile:snakemake:align"
-    target: "code:Snakefile"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:Snakefile:snakemake:counts"
-    target: "code:Snakefile"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:Snakefile:snakemake:download"
-    target: "code:Snakefile"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:Snakefile:snakemake:report"
-    target: "code:Snakefile"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
     target: "code:Snakefile"
     kind: CalledBy
@@ -744,29 +646,22 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
-    target: "workflow-rule:Snakefile:align"
+    target: "workflow-unit:Snakefile:align"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
-    target: "workflow-rule:Snakefile:report"
+    target: "workflow-unit:Snakefile:report"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
-    target: "workflow-rule:Snakefile:trim_reads"
+    target: "workflow-unit:Snakefile:trim_reads"
     kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:Snakefile:snakemake:trim_reads"
-    target: "code:Snakefile"
-    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -883,70 +778,70 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:align"
+    source: "workflow-unit:Snakefile:align"
     target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:align"
+    source: "workflow-unit:Snakefile:align"
     target: "file:results/alignments/S1.bam"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:counts"
+    source: "workflow-unit:Snakefile:counts"
     target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:counts"
+    source: "workflow-unit:Snakefile:counts"
     target: "datatable:results/counts/gene-counts.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:download"
+    source: "workflow-unit:Snakefile:download"
     target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:download"
+    source: "workflow-unit:Snakefile:download"
     target: "file:data/raw/S1.fastq"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:report"
+    source: "workflow-unit:Snakefile:report"
     target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:report"
+    source: "workflow-unit:Snakefile:report"
     target: "file:reports/rnaseq.html"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:trim_reads"
+    source: "workflow-unit:Snakefile:trim_reads"
     target: "code:Snakefile"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "workflow-rule:Snakefile:trim_reads"
+    source: "workflow-unit:Snakefile:trim_reads"
     target: "file:data/trimmed/S1.fastq"
     kind: Generated
     evidence:

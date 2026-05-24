@@ -13,8 +13,8 @@ use eyre::{Result, WrapErr, ensure};
 use ignore::WalkBuilder;
 use stencila_codecs::{CodecDirection, DecodeOptions, Format, node_type_from_path};
 use stencila_schema::{
-    Datatable, DateTime as SchemaDateTime, Directory, File, Graph, GraphEdgeKind, Node, NodeType,
-    SymbolicLink,
+    AudioObject, Datatable, DateTime as SchemaDateTime, Directory, File, Graph, GraphEdgeKind,
+    ImageObject, Node, NodeType, SymbolicLink, VideoObject,
 };
 
 use crate::{
@@ -170,7 +170,7 @@ pub async fn graph_from_path(
 
                 let source_id = match node_type {
                     NodeType::SoftwareSourceCode => {
-                        let code_id = LocalGraphId::code_unit(entry.rel.as_str());
+                        let code_id = LocalGraphId::code(entry.rel.as_str());
                         let parent_id = entry
                             .rel
                             .parent()
@@ -229,6 +229,23 @@ pub async fn graph_from_path(
                         }
                         datatable_id
                     }
+                    NodeType::ImageObject | NodeType::AudioObject | NodeType::VideoObject => {
+                        let media_id = add_media_object(
+                            &mut builder,
+                            &entry.path,
+                            &entry.rel,
+                            &entry.metadata,
+                            node_type,
+                        );
+                        if let Some(parent) = entry.rel.parent() {
+                            builder.add_containment(
+                                &media_id,
+                                LocalGraphId::directory(&parent),
+                                vec![evidence::observed()],
+                            );
+                        }
+                        media_id
+                    }
                     _ => {
                         let file_id =
                             add_file(&mut builder, &entry.path, &entry.rel, &entry.metadata);
@@ -243,7 +260,7 @@ pub async fn graph_from_path(
                     }
                 };
 
-                if node_type != NodeType::Datatable
+                if !is_file_backed_schema_resource(node_type)
                     && options.decode
                     && decode_is_supported(&entry.path, options.decode_options.as_ref())
                 {
@@ -349,9 +366,24 @@ enum WorkspaceReferenceTarget {
 /// Classify how a workspace file should be represented in the graph.
 fn workspace_file_node_type(path: &Path) -> NodeType {
     match node_type_from_path(path) {
-        Some(node_type @ (NodeType::Datatable | NodeType::SoftwareSourceCode)) => node_type,
+        Some(
+            node_type @ (NodeType::AudioObject
+            | NodeType::Datatable
+            | NodeType::ImageObject
+            | NodeType::SoftwareSourceCode
+            | NodeType::VideoObject),
+        ) => node_type,
         _ => NodeType::File,
     }
+}
+
+/// Check whether workspace graph construction directly represents the file as
+/// a concrete Schema resource, making document decoding for that file redundant.
+fn is_file_backed_schema_resource(node_type: NodeType) -> bool {
+    matches!(
+        node_type,
+        NodeType::AudioObject | NodeType::Datatable | NodeType::ImageObject | NodeType::VideoObject
+    )
 }
 
 /// Resolve a workspace path to the graph id that represents that filesystem entry.
@@ -378,8 +410,11 @@ fn workspace_file_id(
     file_node_types: &BTreeMap<WorkspaceRelPath, NodeType>,
 ) -> String {
     match file_node_types.get(rel).copied().unwrap_or(NodeType::File) {
-        NodeType::SoftwareSourceCode => LocalGraphId::code_unit(rel.as_str()),
+        NodeType::SoftwareSourceCode => LocalGraphId::code(rel.as_str()),
         NodeType::Datatable => LocalGraphId::datatable(rel),
+        NodeType::ImageObject => LocalGraphId::image(rel),
+        NodeType::AudioObject => LocalGraphId::audio(rel),
+        NodeType::VideoObject => LocalGraphId::video(rel),
         _ => LocalGraphId::file(rel),
     }
 }
@@ -568,6 +603,64 @@ async fn datatable_from_file(
     datatable.options.date_modified = file_modified_time(metadata);
 
     Ok(datatable)
+}
+
+/// Add a file-backed media object node to the graph.
+fn add_media_object(
+    builder: &mut GraphBuilder,
+    path: &Path,
+    rel: &WorkspaceRelPath,
+    metadata: &Metadata,
+    node_type: NodeType,
+) -> String {
+    let format = Format::from_path(path);
+    let media_type = Some(format.media_type());
+    let name = path_name(path, "");
+    let content_url = rel.as_str().to_string();
+    let date_created = file_created_time(metadata);
+    let date_modified = file_modified_time(metadata);
+    let identifiers =
+        environment::file_digest_identifier(path, rel).map(|identifier| vec![identifier]);
+
+    match node_type {
+        NodeType::ImageObject => {
+            let id = LocalGraphId::image(rel);
+            let mut image = ImageObject::new(content_url);
+            image.id = Some(id.clone());
+            image.media_type = media_type;
+            image.options.name = Some(name);
+            image.options.date_created = date_created;
+            image.options.date_modified = date_modified;
+            image.options.identifiers = identifiers;
+            builder.add_schema_node(id.clone(), Node::ImageObject(image));
+            id
+        }
+        NodeType::AudioObject => {
+            let id = LocalGraphId::audio(rel);
+            let mut audio = AudioObject::new(content_url);
+            audio.id = Some(id.clone());
+            audio.media_type = media_type;
+            audio.options.name = Some(name);
+            audio.options.date_created = date_created;
+            audio.options.date_modified = date_modified;
+            audio.options.identifiers = identifiers;
+            builder.add_schema_node(id.clone(), Node::AudioObject(audio));
+            id
+        }
+        NodeType::VideoObject => {
+            let id = LocalGraphId::video(rel);
+            let mut video = VideoObject::new(content_url);
+            video.id = Some(id.clone());
+            video.media_type = media_type;
+            video.options.name = Some(name);
+            video.options.date_created = date_created;
+            video.options.date_modified = date_modified;
+            video.options.identifiers = identifiers;
+            builder.add_schema_node(id.clone(), Node::VideoObject(video));
+            id
+        }
+        _ => unreachable!("media object node type should be image, audio, or video"),
+    }
 }
 
 /// Add a file node to the graph.

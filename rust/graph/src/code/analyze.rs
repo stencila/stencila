@@ -57,6 +57,7 @@ fn finish_facts(language: CodeLanguage, mut facts: CodeFacts) -> CodeFacts {
         .assignments
         .iter()
         .chain(&facts.declarations)
+        .chain(&facts.workflow_units)
         .chain(&facts.imported_symbols)
         .cloned()
         .collect::<BTreeSet<_>>();

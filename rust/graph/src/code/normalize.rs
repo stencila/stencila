@@ -85,7 +85,7 @@ pub(super) fn normalize_match(
         (CodeLanguage::Snakemake, "snakemake-rule") => {
             if let Some(node) = matched.field("name") {
                 let name = node.text().into_owned();
-                facts.record_workflow_rule(name, Some(node.range().start));
+                facts.record_workflow_unit(name, Some(node.range().start));
             }
         }
         _ => {}
@@ -294,7 +294,7 @@ fn normalize_assignment(
 /// Normalize a function or workflow declaration match.
 ///
 /// Declarations are kept distinct from assignments because the graph should
-/// represent declared callables as functions or workflow rules, not variables.
+/// represent declared callables as functions or workflow units, not variables.
 fn normalize_declaration(
     matched: &NodeMatch<StrDoc<CodeLanguage>>,
     var: &str,
