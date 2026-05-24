@@ -807,6 +807,14 @@ fn project_primary_edge<'a>(
         return None;
     }
 
+    if preset == GraphProjectionPreset::Flow
+        && detail != GraphProjectionDetail::High
+        && edge.kind == GraphEdgeKind::CalledBy
+        && edge_has_local_code_internal_endpoint(edge, nodes_by_id)
+    {
+        return None;
+    }
+
     let mut source = edge.source.clone();
     let mut target = edge.target.clone();
     let mut endpoints_projected = false;
@@ -918,6 +926,15 @@ fn include_edge_for_detail(
 fn is_local_code_internal(id: &str, kind: GraphViewNodeKind) -> bool {
     kind == GraphViewNodeKind::Symbol
         || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-unit")
+}
+
+fn edge_has_local_code_internal_endpoint(
+    edge: &GraphEdge,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> bool {
+    [edge.source.as_str(), edge.target.as_str()]
+        .into_iter()
+        .any(|id| is_local_code_internal(id, node_kind(nodes_by_id.get(id).copied())))
 }
 
 fn is_datatable_detail_node(
@@ -1997,6 +2014,61 @@ mod tests {
     }
 
     #[test]
+    fn flow_medium_hides_local_workflow_execution_calls() {
+        let graph = workflow_execution_call_graph();
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::Medium,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            view.edges
+                .iter()
+                .all(|edge| edge.kind != GraphEdgeKind::CalledBy)
+        );
+        assert!(
+            !view
+                .edges
+                .iter()
+                .any(|edge| edge.source == "code:main.nf"
+                    && edge.target == "workflow-unit:main.nf:qc")
+        );
+        assert!(
+            view.edges
+                .iter()
+                .any(|edge| edge.source == "file:data/reads.fastq"
+                    && edge.target == "workflow-unit:main.nf:qc"
+                    && edge.kind == GraphEdgeKind::ReadBy)
+        );
+        assert!(
+            view.edges
+                .iter()
+                .any(|edge| edge.source == "workflow-unit:main.nf:qc"
+                    && edge.target == "file:results/qc/M1-qc.txt"
+                    && edge.kind == GraphEdgeKind::Generated)
+        );
+
+        let high = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        assert!(high.edges.iter().any(|edge| {
+            edge.source == "function:main.nf:nextflow:script"
+                && edge.target == "workflow-unit:main.nf:qc"
+                && edge.kind == GraphEdgeKind::CalledBy
+        }));
+    }
+
+    #[test]
     fn flow_low_and_medium_keep_datatable_resources() {
         for detail in [GraphProjectionDetail::Low, GraphProjectionDetail::Medium] {
             let view = project_graph(
@@ -2459,6 +2531,76 @@ mod tests {
                     "function:analysis.py:python:summarize".to_string(),
                     "code:analysis.py".to_string(),
                     GraphEdgeKind::PartOf,
+                ),
+            ],
+        )
+    }
+
+    fn workflow_execution_call_graph() -> Graph {
+        Graph::new(
+            "test:workflow-execution-call".to_string(),
+            vec![
+                graph_node(
+                    "code:main.nf",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "main.nf".to_string(),
+                        programming_language: "nextflow".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "function:main.nf:nextflow:script",
+                    Node::Function(Function::new("script".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "workflow-unit:main.nf:qc",
+                    Node::Function(Function::new("qc".to_string(), Vec::new())),
+                ),
+                graph_node(
+                    "file:data/reads.fastq",
+                    Node::File(File::new(
+                        "reads.fastq".to_string(),
+                        "data/reads.fastq".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "file:results/qc/M1-qc.txt",
+                    Node::File(File::new(
+                        "M1-qc.txt".to_string(),
+                        "results/qc/M1-qc.txt".to_string(),
+                    )),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "code:main.nf".to_string(),
+                    "workflow-unit:main.nf:qc".to_string(),
+                    GraphEdgeKind::Declares,
+                ),
+                GraphEdge::new(
+                    "function:main.nf:nextflow:script".to_string(),
+                    "code:main.nf".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "function:main.nf:nextflow:script".to_string(),
+                    "workflow-unit:main.nf:qc".to_string(),
+                    GraphEdgeKind::CalledBy,
+                ),
+                GraphEdge::new(
+                    "workflow-unit:main.nf:qc".to_string(),
+                    "code:main.nf".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:data/reads.fastq".to_string(),
+                    "workflow-unit:main.nf:qc".to_string(),
+                    GraphEdgeKind::ReadBy,
+                ),
+                GraphEdge::new(
+                    "workflow-unit:main.nf:qc".to_string(),
+                    "file:results/qc/M1-qc.txt".to_string(),
+                    GraphEdgeKind::Generated,
                 ),
             ],
         )

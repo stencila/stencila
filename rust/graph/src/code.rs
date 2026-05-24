@@ -560,9 +560,15 @@ rule plot:
 
         assert!(facts.workflow_units.contains("plot"));
         assert!(!facts.declarations.contains("plot"));
-        assert_io(&facts, IoDirection::Read, "data.csv");
-        assert_io(&facts, IoDirection::Write, "plot.png");
-        assert!(facts.script_links.contains("scripts/plot.py"));
+        assert!(facts.io.is_empty());
+        assert!(facts.script_links.is_empty());
+        let unit = facts
+            .workflow_unit_facts
+            .get("plot")
+            .expect("plot workflow unit facts should be grouped");
+        assert_unit_io(unit, IoDirection::Read, "data.csv");
+        assert_unit_io(unit, IoDirection::Write, "plot.png");
+        assert!(unit.script_links.contains("scripts/plot.py"));
     }
 
     #[test]
@@ -933,10 +939,7 @@ process align {
 
         assert!(facts.workflow_units.contains("align"));
         assert!(!facts.declarations.contains("align"));
-        assert_io(&facts, IoDirection::Read, "data/input.fq");
-        assert_io(&facts, IoDirection::Write, "results/aligned.bam");
-        assert_template_io(&facts, IoDirection::Write, "results/${sample}.bai");
-        assert_template_io(&facts, IoDirection::Write, "results/$sample.idx");
+        assert!(facts.io.is_empty());
         assert!(facts.calls.contains("script"));
         let unit = facts
             .workflow_unit_facts
@@ -944,6 +947,8 @@ process align {
             .expect("align workflow unit facts should be grouped");
         assert_unit_io(unit, IoDirection::Read, "data/input.fq");
         assert_unit_io(unit, IoDirection::Write, "results/aligned.bam");
+        assert_unit_template_io(unit, IoDirection::Write, "results/${sample}.bai");
+        assert_unit_template_io(unit, IoDirection::Write, "results/$sample.idx");
     }
 
     #[test]
@@ -999,6 +1004,16 @@ process align {
                     && matches!(fact.path, IoPath::Static(ref value) if value == path)
             }),
             "missing workflow unit {direction:?} I/O fact for {path}"
+        );
+    }
+
+    fn assert_unit_template_io(unit: &WorkflowUnitFacts, direction: IoDirection, path: &str) {
+        assert!(
+            unit.io.iter().any(|fact| {
+                fact.direction == direction
+                    && matches!(fact.path, IoPath::Template(ref value) if value == path)
+            }),
+            "missing workflow unit template {direction:?} I/O fact for {path}"
         );
     }
 

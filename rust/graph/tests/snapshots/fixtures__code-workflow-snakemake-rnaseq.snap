@@ -252,13 +252,6 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "datatable:results/counts/gene-counts.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -266,71 +259,36 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:Snakefile"
-    target: "file:data/raw/S1.fastq"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "file:data/trimmed/S1.fastq"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "file:reports/rnaseq.html"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "file:results/alignments/S1.bam"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
     target: "workflow-unit:Snakefile:align"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:counts"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:download"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:report"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:trim_reads"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:workflow/scripts/counts.py"
-    target: "code:Snakefile"
-    kind: UsedBy
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -357,13 +315,6 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
-    target: "code:Snakefile"
-    kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:workflow/scripts/download.py"
     target: "dir:workflow/scripts"
     kind: PartOf
     evidence:
@@ -380,13 +331,6 @@ edges:
     source: "code:workflow/scripts/download.py"
     target: "workflow-unit:Snakefile:download"
     kind: UsedBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:results/counts/gene-counts.tsv"
-    target: "code:Snakefile"
-    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -397,13 +341,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "datatable:results/counts/gene-counts.tsv"
-    target: "file:reports/rnaseq.html"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:results/counts/gene-counts.tsv"
     target: "workflow-unit:Snakefile:report"
@@ -476,13 +413,6 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/raw/S1.fastq"
-    target: "code:Snakefile"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/S1.fastq"
     target: "dir:data/raw"
     kind: PartOf
     evidence:
@@ -490,21 +420,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/raw/S1.fastq"
-    target: "file:data/trimmed/S1.fastq"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/S1.fastq"
     target: "workflow-unit:Snakefile:trim_reads"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/trimmed/S1.fastq"
-    target: "code:Snakefile"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -516,13 +432,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/trimmed/S1.fastq"
-    target: "file:results/alignments/S1.bam"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:data/trimmed/S1.fastq"
     target: "workflow-unit:Snakefile:align"
@@ -546,20 +455,6 @@ edges:
         kind: Observed
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "file:results/alignments/S1.bam"
-    target: "code:Snakefile"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/alignments/S1.bam"
-    target: "datatable:results/counts/gene-counts.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:results/alignments/S1.bam"
     target: "dir:results/alignments"

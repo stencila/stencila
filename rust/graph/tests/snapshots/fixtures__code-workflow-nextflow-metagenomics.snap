@@ -225,13 +225,6 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:main.nf"
-    target: "datatable:results/classify/M1-taxa.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:main.nf"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -239,36 +232,22 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:main.nf"
-    target: "file:results/qc/M1-qc.txt"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:main.nf"
-    target: "file:results/summary/report.html"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:main.nf"
     target: "workflow-unit:main.nf:classify"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:qc"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:summarize"
-    kind: Generated
+    kind: Declares
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -288,25 +267,11 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "datatable:results/classify/M1-taxa.tsv"
-    target: "code:main.nf"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "datatable:results/classify/M1-taxa.tsv"
     target: "dir:results/classify"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "datatable:results/classify/M1-taxa.tsv"
-    target: "file:results/summary/report.html"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "datatable:results/classify/M1-taxa.tsv"
     target: "workflow-unit:main.nf:summarize"
@@ -351,13 +316,6 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/reads.fastq"
-    target: "code:main.nf"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/reads.fastq"
     target: "dir:data"
     kind: PartOf
     evidence:
@@ -365,29 +323,8 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/reads.fastq"
-    target: "file:results/qc/M1-qc.txt"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/reads.fastq"
     target: "workflow-unit:main.nf:qc"
     kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/qc/M1-qc.txt"
-    target: "code:main.nf"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/qc/M1-qc.txt"
-    target: "datatable:results/classify/M1-taxa.tsv"
-    kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

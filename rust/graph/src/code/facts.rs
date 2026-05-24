@@ -92,9 +92,9 @@ pub struct CodeFacts {
 
     /// Static facts grouped by workflow unit name.
     ///
-    /// Whole-file facts are still retained for the source file itself, but
-    /// unit-level facts prevent inputs and outputs from one rule or process
-    /// being attached to every other unit in the same workflow file.
+    /// Unit-level facts keep inputs and outputs attached to the workflow unit
+    /// that owns them. Whole-file facts are used only when a scanner cannot
+    /// establish a more precise unit owner.
     pub workflow_unit_facts: BTreeMap<String, WorkflowUnitFacts>,
 
     /// Whether tree-sitter reported parse errors for this source.
@@ -308,7 +308,7 @@ impl CodeFacts {
         }
     }
 
-    /// Add workflow resources to whole-file and optional unit-level facts.
+    /// Add workflow resources to whole-file or unit-level facts.
     pub(super) fn extend_workflow_resources(
         &mut self,
         unit: Option<&str>,
@@ -321,26 +321,23 @@ impl CodeFacts {
             WorkflowResourceKind::Script => None,
         };
 
-        if let Some(direction) = direction {
-            self.io.extend(
-                paths
-                    .iter()
-                    .cloned()
-                    .map(|path| IoFact::new(direction, path)),
-            );
-        } else {
-            self.script_links.extend(paths.iter().filter_map(|path| {
-                if let IoPath::Static(path) = path {
-                    Some(path.clone())
-                } else {
-                    None
-                }
-            }));
-        }
-
         let Some(unit) = unit else {
+            if let Some(direction) = direction {
+                self.io
+                    .extend(paths.into_iter().map(|path| IoFact::new(direction, path)));
+            } else {
+                self.script_links
+                    .extend(paths.into_iter().filter_map(|path| {
+                        if let IoPath::Static(path) = path {
+                            Some(path)
+                        } else {
+                            None
+                        }
+                    }));
+            }
             return;
         };
+
         let unit_facts = self
             .workflow_unit_facts
             .entry(unit.to_string())
