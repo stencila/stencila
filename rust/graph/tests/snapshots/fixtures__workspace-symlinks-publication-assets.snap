@@ -6,6 +6,35 @@ type: Graph
 subject: "fixture:workspace-symlinks-publication-assets"
 nodes:
   - type: GraphNode
+    id: "datatable:data/source-table.tsv"
+    node:
+      type: Datatable
+      id: "datatable:data/source-table.tsv"
+      columns:
+        - type: DatatableColumn
+          name: metric
+          values:
+            - accuracy
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values:
+            - 0.91
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: NumberValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/source-table.tsv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -40,20 +69,6 @@ nodes:
       id: "dir:figures"
       name: figures
       path: figures
-  - type: GraphNode
-    id: "file:data/source-table.tsv"
-    node:
-      type: File
-      id: "file:data/source-table.tsv"
-      name: source-table.tsv
-      path: data/source-table.tsv
-      size: 27
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
   - type: GraphNode
     id: "file:docs/manuscript.smd"
     node:
@@ -96,17 +111,6 @@ nodes:
       dateModified:
         type: DateTime
         value: "[datetime]"
-  - type: GraphNode
-    id: "node:data/source-table.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: metric
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
   - type: GraphNode
     id: "node:docs/manuscript.smd#art_"
     node:
@@ -163,6 +167,22 @@ nodes:
       target: "../../figures/model-v1.png"
 edges:
   - type: GraphEdge
+    source: "datatable:data/source-table.tsv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/source-table.tsv"
+    target: "node:docs/manuscript.smd#lin_content-1-content-3"
+    kind: LinkedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
     source: "dir:data"
     target: "dir:."
     kind: PartOf
@@ -190,31 +210,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/source-table.tsv"
-    target: "dir:data"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:data/source-table.tsv"
-    target: "node:data/source-table.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:data/source-table.tsv"
-    target: "node:docs/manuscript.smd#lin_content-1-content-3"
-    kind: LinkedBy
-    evidence:
-      - type: GraphEvidence
-        kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
   - type: GraphEdge
     source: "file:docs/manuscript.smd"
     target: "dir:docs"

@@ -62,6 +62,100 @@ nodes:
       name: site
       values: []
   - type: GraphNode
+    id: "datatable:data/raw/observations.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/raw/observations.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values:
+            - north
+            - south
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values:
+            - 3
+            - 5
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+        - type: DatatableColumn
+          name: treatment
+          values:
+            - control
+            - warmed
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/raw/observations.csv
+  - type: GraphNode
+    id: "datatable:outputs/python-clean.csv"
+    node:
+      type: Datatable
+      id: "datatable:outputs/python-clean.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: outputs/python-clean.csv
+  - type: GraphNode
+    id: "datatable:outputs/r-summary.csv"
+    node:
+      type: Datatable
+      id: "datatable:outputs/r-summary.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: outputs/r-summary.csv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -104,20 +198,6 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
-    id: "file:data/raw/observations.csv"
-    node:
-      type: File
-      id: "file:data/raw/observations.csv"
-      name: observations.csv
-      path: data/raw/observations.csv
-      size: 52
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:figures/python-counts.png"
     node:
       type: File
@@ -139,34 +219,6 @@ nodes:
       name: r-counts.png
       path: figures/r-counts.png
       size: 21
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:outputs/python-clean.csv"
-    node:
-      type: File
-      id: "file:outputs/python-clean.csv"
-      name: python-clean.csv
-      path: outputs/python-clean.csv
-      size: 11
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:outputs/r-summary.csv"
-    node:
-      type: File
-      id: "file:outputs/r-summary.csv"
-      name: r-summary.csv
-      path: outputs/r-summary.csv
-      size: 11
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -215,42 +267,6 @@ nodes:
       id: "function:scripts/analysis.py:python:to_csv"
       name: to_csv
       parameters: []
-  - type: GraphNode
-    id: "node:data/raw/observations.csv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: site
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
-        - type: DatatableColumn
-          name: treatment
-          values: []
-  - type: GraphNode
-    id: "node:outputs/python-clean.csv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: site
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
-  - type: GraphNode
-    id: "node:outputs/r-summary.csv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: site
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
   - type: GraphNode
     id: "package:cran/ggplot2"
     node:
@@ -410,6 +426,13 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:scripts/analysis.R"
+    target: "datatable:outputs/r-summary.csv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:scripts/analysis.R"
     target: "dir:scripts"
     kind: PartOf
     evidence:
@@ -424,14 +447,14 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:scripts/analysis.R"
-    target: "file:outputs/r-summary.csv"
+    target: "symbol:scripts/analysis.R:r:df"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:scripts/analysis.R"
-    target: "symbol:scripts/analysis.R:r:df"
+    source: "code:scripts/analysis.py"
+    target: "datatable:outputs/python-clean.csv"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -446,13 +469,6 @@ edges:
   - type: GraphEdge
     source: "code:scripts/analysis.py"
     target: "file:figures/python-counts.png"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:scripts/analysis.py"
-    target: "file:outputs/python-clean.csv"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -535,6 +551,55 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "datatable:data/raw/observations.csv"
+    target: "code:scripts/analysis.R"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/observations.csv"
+    target: "code:scripts/analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/observations.csv"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/raw/observations.csv"
+    target: "symbol:scripts/analysis.R:r:df"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/observations.csv"
+    target: "symbol:scripts/analysis.py:python:df"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:outputs/python-clean.csv"
+    target: "dir:outputs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:outputs/r-summary.csv"
+    target: "dir:outputs"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
     source: "dir:data"
     target: "dir:."
     kind: PartOf
@@ -570,50 +635,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "code:scripts/analysis.R"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "code:scripts/analysis.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "dir:data/raw"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "node:data/raw/observations.csv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "symbol:scripts/analysis.R:r:df"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/observations.csv"
-    target: "symbol:scripts/analysis.py:python:df"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
     source: "file:figures/python-counts.png"
     target: "dir:figures"
     kind: PartOf
@@ -627,38 +648,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:outputs/python-clean.csv"
-    target: "dir:outputs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:outputs/python-clean.csv"
-    target: "node:outputs/python-clean.csv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:outputs/r-summary.csv"
-    target: "dir:outputs"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:outputs/r-summary.csv"
-    target: "node:outputs/r-summary.csv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "function:scripts/analysis.R:r:csv"
     target: "code:scripts/analysis.R"
@@ -780,7 +769,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:df"
-    target: "file:outputs/r-summary.csv"
+    target: "datatable:outputs/r-summary.csv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -850,7 +839,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
-    target: "file:outputs/python-clean.csv"
+    target: "datatable:outputs/python-clean.csv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence

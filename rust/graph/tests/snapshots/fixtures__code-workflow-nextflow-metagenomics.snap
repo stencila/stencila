@@ -34,6 +34,64 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "datatable:data/samplesheet.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/samplesheet.csv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values:
+            - M1
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: reads
+          values:
+            - reads.fastq
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/samplesheet.csv
+  - type: GraphNode
+    id: "datatable:results/classify/M1-taxa.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/classify/M1-taxa.tsv"
+      columns:
+        - type: DatatableColumn
+          name: taxon
+          values:
+            - Bacteria
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values:
+            - 1
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/classify/M1-taxa.tsv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -83,34 +141,6 @@ nodes:
       name: reads.fastq
       path: data/reads.fastq
       size: 16
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:data/samplesheet.csv"
-    node:
-      type: File
-      id: "file:data/samplesheet.csv"
-      name: samplesheet.csv
-      path: data/samplesheet.csv
-      size: 28
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/classify/M1-taxa.tsv"
-    node:
-      type: File
-      id: "file:results/classify/M1-taxa.tsv"
-      name: M1-taxa.tsv
-      path: results/classify/M1-taxa.tsv
-      size: 23
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -188,28 +218,6 @@ nodes:
       name: summarize
       parameters: []
   - type: GraphNode
-    id: "node:data/samplesheet.csv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: reads
-          values: []
-  - type: GraphNode
-    id: "node:results/classify/M1-taxa.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: taxon
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
-  - type: GraphNode
     id: "node:results/summary/report.html#art_"
     node:
       type: Article
@@ -238,18 +246,18 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:main.nf"
+    target: "datatable:results/classify/M1-taxa.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:main.nf"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:main.nf"
-    target: "file:results/classify/M1-taxa.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:main.nf"
     target: "file:results/qc/M1-qc.txt"
@@ -314,6 +322,41 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
+    source: "datatable:data/samplesheet.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/classify/M1-taxa.tsv"
+    target: "code:main.nf"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/classify/M1-taxa.tsv"
+    target: "dir:results/classify"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/classify/M1-taxa.tsv"
+    target: "file:results/summary/report.html"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/classify/M1-taxa.tsv"
+    target: "workflow-rule:main.nf:summarize"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "dir:data"
     target: "dir:."
     kind: PartOf
@@ -377,62 +420,16 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "file:data/samplesheet.csv"
-    target: "dir:data"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:data/samplesheet.csv"
-    target: "node:data/samplesheet.csv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/classify/M1-taxa.tsv"
+    source: "file:results/qc/M1-qc.txt"
     target: "code:main.nf"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/classify/M1-taxa.tsv"
-    target: "dir:results/classify"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/classify/M1-taxa.tsv"
-    target: "file:results/summary/report.html"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/classify/M1-taxa.tsv"
-    target: "node:results/classify/M1-taxa.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/classify/M1-taxa.tsv"
-    target: "workflow-rule:main.nf:summarize"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:results/qc/M1-qc.txt"
-    target: "code:main.nf"
-    kind: ReadBy
+    target: "datatable:results/classify/M1-taxa.tsv"
+    kind: DerivedInto
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -443,13 +440,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:results/qc/M1-qc.txt"
-    target: "file:results/classify/M1-taxa.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "file:results/qc/M1-qc.txt"
     target: "workflow-rule:main.nf:classify"
@@ -566,7 +556,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "workflow-rule:main.nf:classify"
-    target: "file:results/classify/M1-taxa.tsv"
+    target: "datatable:results/classify/M1-taxa.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence

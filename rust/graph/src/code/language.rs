@@ -6,6 +6,7 @@ use ast_grep_core::{
     tree_sitter::{LanguageExt, StrDoc, TSLanguage},
 };
 use serde::Deserialize;
+use stencila_codecs::Format;
 
 /// Embedded ast-grep rules for Python source.
 ///
@@ -236,32 +237,32 @@ pub enum CodeLanguage {
 }
 
 impl CodeLanguage {
-    /// Detect a supported source language from a filesystem path.
+    /// Detect a supported source language from a Stencila format.
     ///
-    /// Workspace analysis uses conservative filename and extension checks so
-    /// source discovery is predictable. Snakefile is handled by basename because
-    /// canonical Snakemake workflows commonly have no extension.
-    pub fn from_path(path: &Path) -> Option<Self> {
-        let name = path.file_name().and_then(|name| name.to_str())?;
-        if name == "Snakefile" {
-            return Some(Self::Snakemake);
-        }
-        if name == "nextflow.config" {
-            return Some(Self::Nextflow);
-        }
-
-        match path.extension().and_then(|extension| extension.to_str()) {
-            Some("js") | Some("mjs") | Some("cjs") | Some("jsx") => Some(Self::JavaScript),
-            Some("ts") | Some("mts") | Some("cts") => Some(Self::TypeScript),
-            Some("rs") => Some(Self::Rust),
-            Some("py") | Some("pyw") => Some(Self::Python),
-            Some("r") | Some("R") => Some(Self::R),
-            Some("jl") => Some(Self::Julia),
-            Some("m") => Some(Self::Matlab),
-            Some("smk") => Some(Self::Snakemake),
-            Some("nf") => Some(Self::Nextflow),
+    /// `Format::is_code` is intentionally broader than the static analyzers in
+    /// this crate. This function identifies the code formats that can be parsed
+    /// for graph facts.
+    pub(crate) fn from_format(format: &Format) -> Option<Self> {
+        match format {
+            Format::JavaScript => Some(Self::JavaScript),
+            Format::TypeScript => Some(Self::TypeScript),
+            Format::Rust => Some(Self::Rust),
+            Format::Python => Some(Self::Python),
+            Format::R => Some(Self::R),
+            Format::Julia => Some(Self::Julia),
+            Format::Matlab => Some(Self::Matlab),
+            Format::Snakemake => Some(Self::Snakemake),
+            Format::Nextflow => Some(Self::Nextflow),
             _ => None,
         }
+    }
+
+    /// Detect a supported source language from a filesystem path.
+    ///
+    /// Path and extension detection is owned by `Format`; this only narrows the
+    /// result to the code formats that graph static analysis supports.
+    pub fn from_path(path: &Path) -> Option<Self> {
+        Self::from_format(&Format::from_path(path))
     }
 
     /// Detect a supported source language from a Stencila programming language string.

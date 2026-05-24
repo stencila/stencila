@@ -6,6 +6,37 @@ type: Graph
 subject: "fixture:document-report-references-citations"
 nodes:
   - type: GraphNode
+    id: "datatable:data/table.tsv"
+    node:
+      type: Datatable
+      id: "datatable:data/table.tsv"
+      columns:
+        - type: DatatableColumn
+          name: species
+          values:
+            - kea
+            - tui
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values:
+            - 2
+            - 4
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/table.tsv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -34,20 +65,6 @@ nodes:
       name: media
       path: media
   - type: GraphNode
-    id: "file:data/table.tsv"
-    node:
-      type: File
-      id: "file:data/table.tsv"
-      name: table.tsv
-      path: data/table.tsv
-      size: 26
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "file:manuscript/report.smd"
     node:
       type: File
@@ -75,17 +92,6 @@ nodes:
       dateModified:
         type: DateTime
         value: "[datetime]"
-  - type: GraphNode
-    id: "node:data/table.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: species
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
   - type: GraphNode
     id: "node:manuscript/report.smd#art_"
     node:
@@ -164,6 +170,31 @@ nodes:
       url: "https://doi.org/10.5281/zenodo.12345"
 edges:
   - type: GraphEdge
+    source: "datatable:data/table.tsv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/table.tsv"
+    target: "node:manuscript/report.smd#inc_content-4"
+    kind: IncludedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
+    source: "datatable:data/table.tsv"
+    target: "node:manuscript/report.smd#lin_content-1-content-3"
+    kind: LinkedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+      - type: GraphEvidence
+        kind: Resolved
+  - type: GraphEdge
     source: "dir:data"
     target: "dir:."
     kind: PartOf
@@ -184,40 +215,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/table.tsv"
-    target: "dir:data"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:data/table.tsv"
-    target: "node:data/table.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:data/table.tsv"
-    target: "node:manuscript/report.smd#inc_content-4"
-    kind: IncludedBy
-    evidence:
-      - type: GraphEvidence
-        kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
-  - type: GraphEdge
-    source: "file:data/table.tsv"
-    target: "node:manuscript/report.smd#lin_content-1-content-3"
-    kind: LinkedBy
-    evidence:
-      - type: GraphEvidence
-        kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
   - type: GraphEdge
     source: "file:manuscript/report.smd"
     target: "dir:manuscript"

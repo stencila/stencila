@@ -133,8 +133,12 @@ impl WorkspaceRelPath {
 /// - `dir:<path>`
 /// - `file:<path>`
 /// - `symlink:<path>`
+///
+/// - `datatable:<path>`
+///
 /// - `environment:<ecosystem>:<path>`
 /// - `package:<ecosystem>/<name>`
+///
 /// - `node:<scope>#<node-id>`
 /// - `node:<scope>` for a root node fallback when the schema node has no id
 /// - `output:<scope>#<node-id>:<index>`
@@ -161,6 +165,15 @@ impl LocalGraphId {
     /// identity available before a document is decoded and stabilized.
     pub(crate) fn file(path: &WorkspaceRelPath) -> String {
         format!("file:{}", path.encoded_for_id())
+    }
+
+    /// Create the graph id for a tabular data file represented as a Datatable.
+    ///
+    /// Datatable ids use the workspace-relative path because file-backed
+    /// tabular data has the same durable identity as a generic file, while
+    /// participating directly as a schema resource in data-flow edges.
+    pub(crate) fn datatable(path: &WorkspaceRelPath) -> String {
+        format!("datatable:{}", path.encoded_for_id())
     }
 
     /// Create the graph id for a symbolic link node.

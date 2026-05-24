@@ -19,8 +19,8 @@
 //!
 //! Graph endpoints are local identifiers, not dereferenceable URLs. The current
 //! grammar uses readable prefixes such as `dir:<path>`, `file:<path>`,
-//! `symlink:<path>`, `node:<scope>#<node-id>`, `code:<scope>`,
-//! `package:<ecosystem>/<name>`, and `resource:<uri>`. Dynamic
+//! `datatable:<path>`, `symlink:<path>`, `node:<scope>#<node-id>`,
+//! `code:<scope>`, `package:<ecosystem>/<name>`, and `resource:<uri>`. Dynamic
 //! components are percent-encoded so delimiters like `:`, `#`, and `%` remain
 //! unambiguous while normal workspace path separators stay visible.
 //!

@@ -104,6 +104,220 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "datatable:data/raw/samples.tsv"
+    node:
+      type: Datatable
+      id: "datatable:data/raw/samples.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values:
+            - a
+            - b
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values:
+            - 1
+            - 2
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/raw/samples.tsv
+  - type: GraphNode
+    id: "datatable:results/js-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/js-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/js-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/julia-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/julia-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/julia-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/matlab-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/matlab-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: count
+          values:
+            - 2
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/matlab-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/python-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/python-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/python-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/r-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/r-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/r-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/rust-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/rust-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: sample
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/rust-summary.tsv
+  - type: GraphNode
+    id: "datatable:results/ts-summary.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/ts-summary.tsv"
+      columns:
+        - type: DatatableColumn
+          name: metric
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/ts-summary.tsv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -145,118 +359,6 @@ nodes:
       id: "dir:src/bin"
       name: bin
       path: src/bin
-  - type: GraphNode
-    id: "file:data/raw/samples.tsv"
-    node:
-      type: File
-      id: "file:data/raw/samples.tsv"
-      name: samples.tsv
-      path: data/raw/samples.tsv
-      size: 21
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/js-summary.tsv"
-    node:
-      type: File
-      id: "file:results/js-summary.tsv"
-      name: js-summary.tsv
-      path: results/js-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/julia-summary.tsv"
-    node:
-      type: File
-      id: "file:results/julia-summary.tsv"
-      name: julia-summary.tsv
-      path: results/julia-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/matlab-summary.tsv"
-    node:
-      type: File
-      id: "file:results/matlab-summary.tsv"
-      name: matlab-summary.tsv
-      path: results/matlab-summary.tsv
-      size: 8
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/python-summary.tsv"
-    node:
-      type: File
-      id: "file:results/python-summary.tsv"
-      name: python-summary.tsv
-      path: results/python-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/r-summary.tsv"
-    node:
-      type: File
-      id: "file:results/r-summary.tsv"
-      name: r-summary.tsv
-      path: results/r-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/rust-summary.tsv"
-    node:
-      type: File
-      id: "file:results/rust-summary.tsv"
-      name: rust-summary.tsv
-      path: results/rust-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
-    id: "file:results/ts-summary.tsv"
-    node:
-      type: File
-      id: "file:results/ts-summary.tsv"
-      name: ts-summary.tsv
-      path: results/ts-summary.tsv
-      size: 13
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
   - type: GraphNode
     id: "function:analysis.R:r:read_tsv"
     node:
@@ -397,91 +499,6 @@ nodes:
       id: "function:src/bin/analysis.rs:rust:write"
       name: write
       parameters: []
-  - type: GraphNode
-    id: "node:data/raw/samples.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/js-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/julia-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/matlab-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: count
-          values: []
-  - type: GraphNode
-    id: "node:results/python-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/r-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/rust-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: sample
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
-  - type: GraphNode
-    id: "node:results/ts-summary.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: metric
-          values: []
-        - type: DatatableColumn
-          name: value
-          values: []
   - type: GraphNode
     id: "package:cargo/serde"
     node:
@@ -730,18 +747,18 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:analysis.R"
+    target: "datatable:results/r-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.R"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.R"
-    target: "file:results/r-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.R"
     target: "symbol:analysis.R:r:table"
@@ -751,18 +768,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.jl"
+    target: "datatable:results/julia-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.jl"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.jl"
-    target: "file:results/julia-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.jl"
     target: "symbol:analysis.jl:julia:table"
@@ -772,18 +789,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.js"
+    target: "datatable:results/js-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.js"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.js"
-    target: "file:results/js-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.js"
     target: "function:analysis.js:javascript:summarize"
@@ -800,18 +817,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.m"
+    target: "datatable:results/matlab-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.m"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.m"
-    target: "file:results/matlab-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.m"
     target: "symbol:analysis.m:matlab:count"
@@ -828,18 +845,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.py"
+    target: "datatable:results/python-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.py"
     target: "dir:."
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:analysis.py"
-    target: "file:results/python-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.py"
     target: "function:analysis.py:python:summarize"
@@ -856,6 +873,13 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:analysis.ts"
+    target: "datatable:results/ts-summary.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:analysis.ts"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -863,14 +887,14 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "code:analysis.ts"
-    target: "file:results/ts-summary.tsv"
+    target: "symbol:analysis.ts:typescript:table"
     kind: Generated
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "code:analysis.ts"
-    target: "symbol:analysis.ts:typescript:table"
+    source: "code:src/bin/analysis.rs"
+    target: "datatable:results/rust-summary.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -882,13 +906,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:src/bin/analysis.rs"
-    target: "file:results/rust-summary.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:src/bin/analysis.rs"
     target: "function:src/bin/analysis.rs:rust:main"
@@ -910,6 +927,160 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.R"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.jl"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.m"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:analysis.ts"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "code:src/bin/analysis.rs"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "dir:data/raw"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.R:r:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.jl:julia:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.js:javascript:input"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.m:matlab:tbl"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.py:python:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:analysis.ts:typescript:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:data/raw/samples.tsv"
+    target: "symbol:src/bin/analysis.rs:rust:table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/js-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/julia-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/matlab-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/python-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/r-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/rust-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/ts-summary.tsv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -945,232 +1116,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.R"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.jl"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.js"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.m"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.py"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:analysis.ts"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "code:src/bin/analysis.rs"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "dir:data/raw"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "node:data/raw/samples.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.R:r:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.jl:julia:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.js:javascript:input"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.m:matlab:tbl"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.py:python:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:analysis.ts:typescript:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:data/raw/samples.tsv"
-    target: "symbol:src/bin/analysis.rs:rust:table"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/js-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/js-summary.tsv"
-    target: "node:results/js-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/julia-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/julia-summary.tsv"
-    target: "node:results/julia-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/matlab-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/matlab-summary.tsv"
-    target: "node:results/matlab-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/python-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/python-summary.tsv"
-    target: "node:results/python-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/r-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/r-summary.tsv"
-    target: "node:results/r-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/rust-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/rust-summary.tsv"
-    target: "node:results/rust-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/ts-summary.tsv"
-    target: "dir:results"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/ts-summary.tsv"
-    target: "node:results/ts-summary.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "function:analysis.R:r:read_tsv"
     target: "code:analysis.R"
@@ -1537,7 +1482,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:analysis.R:r:table"
-    target: "file:results/r-summary.tsv"
+    target: "datatable:results/r-summary.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -1579,7 +1524,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:analysis.jl:julia:table"
-    target: "file:results/julia-summary.tsv"
+    target: "datatable:results/julia-summary.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -1677,7 +1622,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:analysis.py:python:table"
-    target: "file:results/python-summary.tsv"
+    target: "datatable:results/python-summary.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence
@@ -1705,7 +1650,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "symbol:analysis.ts:typescript:table"
-    target: "file:results/ts-summary.tsv"
+    target: "datatable:results/ts-summary.tsv"
     kind: DerivedInto
     evidence:
       - type: GraphEvidence

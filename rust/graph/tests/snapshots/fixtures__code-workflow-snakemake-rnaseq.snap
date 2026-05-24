@@ -48,6 +48,35 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "datatable:results/counts/gene-counts.tsv"
+    node:
+      type: Datatable
+      id: "datatable:results/counts/gene-counts.tsv"
+      columns:
+        - type: DatatableColumn
+          name: gene
+          values:
+            - geneA
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values:
+            - 7
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/counts/gene-counts.tsv
+  - type: GraphNode
     id: "dir:."
     node:
       type: Directory
@@ -174,20 +203,6 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
-    id: "file:results/counts/gene-counts.tsv"
-    node:
-      type: File
-      id: "file:results/counts/gene-counts.tsv"
-      name: gene-counts.tsv
-      path: results/counts/gene-counts.tsv
-      size: 19
-      dateCreated:
-        type: DateTime
-        value: "[datetime]"
-      dateModified:
-        type: DateTime
-        value: "[datetime]"
-  - type: GraphNode
     id: "function:Snakefile:snakemake:align"
     node:
       type: Function
@@ -263,17 +278,6 @@ nodes:
       type: Article
       content: []
   - type: GraphNode
-    id: "node:results/counts/gene-counts.tsv#dtb_"
-    node:
-      type: Datatable
-      columns:
-        - type: DatatableColumn
-          name: gene
-          values: []
-        - type: DatatableColumn
-          name: count
-          values: []
-  - type: GraphNode
     id: "symbol:workflow/scripts/counts.py:python:Path"
     node:
       type: Variable
@@ -339,6 +343,13 @@ nodes:
 edges:
   - type: GraphEdge
     source: "code:Snakefile"
+    target: "datatable:results/counts/gene-counts.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:Snakefile"
     target: "dir:."
     kind: PartOf
     evidence:
@@ -368,13 +379,6 @@ edges:
   - type: GraphEdge
     source: "code:Snakefile"
     target: "file:results/alignments/S1.bam"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "code:Snakefile"
-    target: "file:results/counts/gene-counts.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
@@ -458,18 +462,18 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
+    target: "datatable:results/counts/gene-counts.tsv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "code:workflow/scripts/counts.py"
     target: "dir:workflow/scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "code:workflow/scripts/counts.py"
-    target: "file:results/counts/gene-counts.tsv"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
     target: "workflow-rule:Snakefile:counts"
@@ -502,6 +506,34 @@ edges:
     source: "code:workflow/scripts/download.py"
     target: "workflow-rule:Snakefile:download"
     kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/counts/gene-counts.tsv"
+    target: "code:Snakefile"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/counts/gene-counts.tsv"
+    target: "dir:results/counts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/counts/gene-counts.tsv"
+    target: "file:reports/rnaseq.html"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "datatable:results/counts/gene-counts.tsv"
+    target: "workflow-rule:Snakefile:report"
+    kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
@@ -649,6 +681,13 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "file:results/alignments/S1.bam"
+    target: "datatable:results/counts/gene-counts.tsv"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "file:results/alignments/S1.bam"
     target: "dir:results/alignments"
     kind: PartOf
     evidence:
@@ -656,51 +695,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:results/alignments/S1.bam"
-    target: "file:results/counts/gene-counts.tsv"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/alignments/S1.bam"
     target: "workflow-rule:Snakefile:counts"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/counts/gene-counts.tsv"
-    target: "code:Snakefile"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/counts/gene-counts.tsv"
-    target: "dir:results/counts"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-  - type: GraphEdge
-    source: "file:results/counts/gene-counts.tsv"
-    target: "file:reports/rnaseq.html"
-    kind: DerivedInto
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:results/counts/gene-counts.tsv"
-    target: "node:results/counts/gene-counts.tsv#dtb_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "file:results/counts/gene-counts.tsv"
-    target: "workflow-rule:Snakefile:report"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
@@ -910,7 +905,7 @@ edges:
         kind: StaticAnalysis
   - type: GraphEdge
     source: "workflow-rule:Snakefile:counts"
-    target: "file:results/counts/gene-counts.tsv"
+    target: "datatable:results/counts/gene-counts.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence

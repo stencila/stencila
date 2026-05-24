@@ -430,7 +430,27 @@ pub fn node_type_from_path(path: &Path) -> Option<NodeType> {
         "prompt" => Some(NodeType::Prompt),
         "skill" => Some(NodeType::Skill),
         "workflow" => Some(NodeType::Workflow),
-        _ => None,
+        _ => node_type_from_format(&Format::from_path(path)),
+    }
+}
+
+/// Infer a [`NodeType`] from a format.
+///
+/// This keeps schema-resource mapping outside `stencila-format`, which should
+/// remain independent of Stencila Schema node types.
+pub fn node_type_from_format(format: &Format) -> Option<NodeType> {
+    if format.is_datatable() {
+        Some(NodeType::Datatable)
+    } else if format.is_code() {
+        Some(NodeType::SoftwareSourceCode)
+    } else if format.is_image() {
+        Some(NodeType::ImageObject)
+    } else if format.is_audio() {
+        Some(NodeType::AudioObject)
+    } else if format.is_video() {
+        Some(NodeType::VideoObject)
+    } else {
+        None
     }
 }
 

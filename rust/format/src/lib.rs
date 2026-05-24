@@ -59,6 +59,13 @@ pub enum Format {
     Python,
     R,
     Rhai,
+    TypeScript,
+    Rust,
+    Julia,
+    Matlab,
+    // Workflow languages
+    Snakemake,
+    Nextflow,
     // Database query languages
     Cypher,
     Sql,
@@ -178,6 +185,7 @@ impl Format {
             Json5 => "JSON5",
             JsonLd => "JSON-LD",
             JsonZip => "JSON+Zip",
+            Julia => "Julia",
             Koenig => "Koenig JSON",
             Latex => "LaTeX",
             Lexical => "Lexical JSON",
@@ -191,6 +199,8 @@ impl Format {
             Mp3 => "MPEG-3",
             Mp4 => "MPEG-4",
             Myst => "MyST Markdown",
+            Matlab => "MATLAB",
+            Nextflow => "Nextflow",
             Ods => "OpenDocument Spreadsheet",
             Odt => "OpenDocument Text",
             Oxa => "OXA JSON",
@@ -207,8 +217,10 @@ impl Format {
             R => "R",
             Rhai => "Rhai",
             Rnw => "R+LaTeX",
+            Rust => "Rust",
             Shell => "Shell",
             Smd => "Stencila Markdown",
+            Snakemake => "Snakemake",
             Sql => "SQL",
             Svg => "SVG",
             Swb => "Stencila Web Bundle",
@@ -217,6 +229,7 @@ impl Format {
             Text => "Plain text",
             Toml => "TOML",
             Tsv => "TSV",
+            TypeScript => "TypeScript",
             VegaLite => "Vega-Lite",
             Wav => "WAV",
             WebM => "WebM",
@@ -317,6 +330,38 @@ impl Format {
         matches!(self, Avi | Mkv | Mov | Mp4 | Ogv | WebM | Wmv)
     }
 
+    /// Is this a tabular data format?
+    pub fn is_datatable(&self) -> bool {
+        use Format::*;
+        matches!(self, Csv | Tsv | Parquet | Arrow | Xlsx | Xls | Ods)
+    }
+
+    /// Is this a source, workflow, query, diagramming, or styling code format?
+    pub fn is_code(&self) -> bool {
+        use Format::*;
+        matches!(
+            self,
+            Bash | Shell
+                | JavaScript
+                | TypeScript
+                | Jinja
+                | Python
+                | R
+                | Rhai
+                | Rust
+                | Julia
+                | Matlab
+                | Snakemake
+                | Nextflow
+                | Cypher
+                | Sql
+                | Dot
+                | Mermaid
+                | Tailwind
+                | Css
+        )
+    }
+
     /// Is this format a visualization format?
     pub fn is_viz(&self) -> bool {
         matches!(
@@ -394,18 +439,20 @@ impl Format {
             "html" => Html,
             "ipynb" => Ipynb,
             "jats" | "jats.xml" => Jats,
-            "javascript" | "js" | "nodejs" | "quickjs" => JavaScript,
+            "javascript" | "js" | "mjs" | "cjs" | "jsx" | "nodejs" | "quickjs" => JavaScript,
             "jinja" => Jinja,
             "jpeg" | "jpg" => Jpeg,
             "json" => Json,
             "json5" => Json5,
             "jsonld" | "json-ld" => JsonLd,
             "jsonzip" | "json.zip" => JsonZip,
+            "julia" | "jl" => Julia,
             "koenig" => Koenig,
             "latex" => Latex,
             "lexical" => Lexical,
             "llmd" | "llmmd" => Llmd,
             "markdown" | "md" => Markdown,
+            "matlab" | "m" => Matlab,
             "meca" => Meca,
             "mermaid" => Mermaid,
             "mjml" => Mjml,
@@ -414,6 +461,7 @@ impl Format {
             "mp3" => Mp3,
             "mp4" => Mp4,
             "myst" => Myst,
+            "nextflow" | "nextflow.config" | "nf" => Nextflow,
             "ods" => Ods,
             "odt" => Odt,
             "ogg" => Ogg,
@@ -425,13 +473,15 @@ impl Format {
             "plotly" => Plotly,
             "pmcoa" => PmcOa,
             "png" => Png,
-            "python" | "py" => Python,
+            "python" | "py" | "pyw" => Python,
             "qmd" => Qmd,
             "r" => R,
             "rhai" => Rhai,
             "rnw" => Rnw,
+            "rs" | "rust" => Rust,
             "shell" | "sh" => Shell,
             "smd" => Smd,
+            "snakefile" | "snakemake" | "smk" => Snakemake,
             "sql" => Sql,
             "svg" => Svg,
             "swb" => Swb,
@@ -440,6 +490,7 @@ impl Format {
             "text" | "txt" => Text,
             "toml" => Toml,
             "tsv" | "tab" => Tsv,
+            "typescript" | "ts" | "mts" | "cts" | "tsx" => TypeScript,
             "unknown" => Unknown,
             "vegalite" | "vega-lite" => VegaLite,
             "wav" => Wav,
@@ -459,6 +510,10 @@ impl Format {
 
         if path.is_dir() {
             return Directory;
+        }
+
+        if path.file_name().and_then(|name| name.to_str()) == Some("nextflow.config") {
+            return Nextflow;
         }
 
         // Catch "double extensions" here
@@ -652,10 +707,12 @@ impl Display for Format {
             JsonLd => "jsonld",
             JsonZip => "json.zip",
             Koenig => "koenig",
+            Julia => "julia",
             Latex => "latex",
             Lexical => "lexical",
             Llmd => "llmd",
             Markdown => "md",
+            Matlab => "matlab",
             Meca => "meca",
             Mermaid => "mermaid",
             Mjml => "mjml",
@@ -664,6 +721,7 @@ impl Display for Format {
             Mp3 => "mp3",
             Mp4 => "mp4",
             Myst => "myst",
+            Nextflow => "nf",
             Ods => "ods",
             Odt => "odt",
             Ogg => "ogg",
@@ -680,8 +738,10 @@ impl Display for Format {
             R => "r",
             Rhai => "rhai",
             Rnw => "rnw",
+            Rust => "rs",
             Shell => "shell",
             Smd => "smd",
+            Snakemake => "smk",
             Sql => "sql",
             Svg => "svg",
             Swb => "swb",
@@ -690,6 +750,7 @@ impl Display for Format {
             Text => "text",
             Toml => "toml",
             Tsv => "tsv",
+            TypeScript => "ts",
             VegaLite => "vegalite",
             Wav => "wav",
             WebM => "webm",
@@ -716,6 +777,13 @@ mod test {
         assert_eq!(Format::from_url("python"), Format::Python);
         assert_eq!(Format::from_url("Py"), Format::Python);
         assert_eq!(Format::from_url("py"), Format::Python);
+        assert_eq!(Format::from_url("script.pyw"), Format::Python);
+        assert_eq!(Format::from_url("analysis.ts"), Format::TypeScript);
+        assert_eq!(Format::from_url("analysis.rs"), Format::Rust);
+        assert_eq!(Format::from_url("analysis.jl"), Format::Julia);
+        assert_eq!(Format::from_url("analysis.m"), Format::Matlab);
+        assert_eq!(Format::from_url("Snakefile"), Format::Snakemake);
+        assert_eq!(Format::from_url("nextflow.config"), Format::Nextflow);
 
         assert_eq!(Format::from_url("cborZstd"), Format::CborZstd);
         assert_eq!(Format::from_url("cborzstd"), Format::CborZstd);
@@ -845,6 +913,58 @@ mod test {
         }
 
         Ok(())
+    }
+
+    #[test]
+    fn code_formats() {
+        let code_formats = [
+            Format::Bash,
+            Format::Shell,
+            Format::JavaScript,
+            Format::TypeScript,
+            Format::Jinja,
+            Format::Python,
+            Format::R,
+            Format::Rhai,
+            Format::Rust,
+            Format::Julia,
+            Format::Matlab,
+            Format::Snakemake,
+            Format::Nextflow,
+            Format::Cypher,
+            Format::Sql,
+            Format::Dot,
+            Format::Mermaid,
+            Format::Tailwind,
+            Format::Css,
+        ];
+
+        for format in code_formats {
+            assert!(format.is_code(), "{format} should be code");
+        }
+
+        assert!(!Format::Markdown.is_code());
+        assert!(!Format::Csv.is_code());
+    }
+
+    #[test]
+    fn datatable_formats() {
+        let datatable_formats = [
+            Format::Csv,
+            Format::Tsv,
+            Format::Parquet,
+            Format::Arrow,
+            Format::Xlsx,
+            Format::Xls,
+            Format::Ods,
+        ];
+
+        for format in datatable_formats {
+            assert!(format.is_datatable(), "{format} should be datatable");
+        }
+
+        assert!(!Format::Json.is_datatable());
+        assert!(!Format::Python.is_datatable());
     }
 
     #[test]

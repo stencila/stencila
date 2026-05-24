@@ -1,3 +1,4 @@
+use stencila_codecs::Format;
 use stencila_schema::{DateTime, Node, SoftwareSourceCode};
 
 use crate::{GraphBuilder, evidence, ids::WorkspaceRelPath};
@@ -13,8 +14,8 @@ use super::{
 pub(crate) struct WorkspaceCode<'a> {
     pub(crate) unit_id: &'a str,
     pub(crate) rel: &'a WorkspaceRelPath,
-    pub(crate) code: &'a str,
-    pub(crate) language: CodeLanguage,
+    pub(crate) format: Format,
+    pub(crate) code: Option<&'a str>,
     pub(crate) parent_id: Option<String>,
     pub(crate) date_created: Option<DateTime>,
     pub(crate) date_modified: Option<DateTime>,
@@ -38,7 +39,10 @@ pub(crate) fn add_workspace_code(
 ) {
     let mut node = SoftwareSourceCode::new(
         path_name(source.rel.as_str()),
-        source.language.name().to_string(),
+        CodeLanguage::from_format(&source.format)
+            .map(CodeLanguage::name)
+            .unwrap_or_else(|| source.format.name())
+            .to_string(),
     );
     node.id = Some(source.unit_id.to_string());
     node.path = Some(source.rel.as_str().to_string());
@@ -49,14 +53,16 @@ pub(crate) fn add_workspace_code(
         builder.add_containment(source.unit_id, parent_id, vec![evidence::observed()]);
     }
 
-    let facts = analyze_source(source.language, source.code);
-    let scope = source.rel.as_str();
-    add_code_facts_to_graph(
-        builder,
-        source.unit_id,
-        scope,
-        source.language,
-        &facts,
-        Some(&mut resolver as &mut ResourceResolver<'_>),
-    );
+    if let Some((language, code)) = CodeLanguage::from_format(&source.format).zip(source.code) {
+        let facts = analyze_source(language, code);
+        let scope = source.rel.as_str();
+        add_code_facts_to_graph(
+            builder,
+            source.unit_id,
+            scope,
+            language,
+            &facts,
+            Some(&mut resolver as &mut ResourceResolver<'_>),
+        );
+    }
 }
