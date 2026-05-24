@@ -59,11 +59,11 @@ scripts directory.
 Expected graph surface:
 
 - workflow rule nodes for each Snakemake rule
-- `Generated` edges from the `Snakefile` code unit to rule nodes
+- `Declares` edges from the `Snakefile` code unit to rule nodes in raw graphs
 - rule-level `ReadBy` edges for declared inputs
 - rule-level `Generated` edges for declared outputs
-- `UsedBy` edges for external rule scripts
-- `DerivedInto` edges from rule inputs to rule outputs
+- `UsedBy` and script-level IO edges for external rule scripts in raw, all, and high-detail graphs
+- default flow projections suppress redundant script IO when rule-level IO already carries the lineage
 - no cross-contamination of inputs and outputs between separate rules
 
 ## code-workflow-nextflow-metagenomics
@@ -78,11 +78,11 @@ metadata, and representative outputs for processes such as `qc`, `classify`, and
 Expected graph surface:
 
 - workflow rule nodes for recognized Nextflow `process` declarations
-- `Generated` edges from the Nextflow code unit to process nodes
+- `Declares` edges from the Nextflow code unit to process nodes in raw graphs
 - process-level `ReadBy` edges for static `path` inputs
 - process-level `Generated` edges for static `path` outputs
-- `CalledBy` edges for executable blocks such as `script`, `shell`, or `exec`
-- `DerivedInto` edges from process inputs to process outputs
+- `CalledBy` edges for executable blocks such as `script`, `shell`, or `exec` in raw, all, and high-detail graphs
+- default flow projections prefer process-level lineage over workflow-file shortcut edges
 - dynamic channel expressions should not be mistaken for concrete resources
 
 ## code-python-r-dataframe-provenance

@@ -257,6 +257,14 @@ struct ResolvedGraphProjectionOptions {
     collapse_citation_nodes: bool,
 }
 
+#[derive(Debug, Clone, Copy)]
+struct PrimaryGraphProjectionOptions {
+    preset: GraphProjectionPreset,
+    detail: GraphProjectionDetail,
+    include_low_confidence_edges: bool,
+    collapse_citation_nodes: bool,
+}
+
 /// Coarse graph node category used by display renderers.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum GraphViewNodeKind {
@@ -390,6 +398,40 @@ struct ProjectedEdge<'a> {
     target: String,
 }
 
+#[derive(Debug, Default)]
+struct WorkflowScriptFlow {
+    units_by_script: BTreeMap<String, BTreeSet<String>>,
+    redundant_reads: BTreeSet<(String, String)>,
+    redundant_writes: BTreeSet<(String, String)>,
+    nonredundant_by_script_unit: BTreeSet<(String, String)>,
+}
+
+impl WorkflowScriptFlow {
+    fn is_redundant_projected_edge(&self, kind: GraphEdgeKind, source: &str, target: &str) -> bool {
+        match kind {
+            GraphEdgeKind::ReadBy if self.units_by_script.contains_key(target) => self
+                .redundant_reads
+                .contains(&(source.to_string(), target.to_string())),
+            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo
+                if self.units_by_script.contains_key(source) =>
+            {
+                self.redundant_writes
+                    .contains(&(source.to_string(), target.to_string()))
+            }
+            GraphEdgeKind::UsedBy if self.is_workflow_script_use(source, target) => !self
+                .nonredundant_by_script_unit
+                .contains(&(source.to_string(), target.to_string())),
+            _ => false,
+        }
+    }
+
+    fn is_workflow_script_use(&self, script: &str, unit: &str) -> bool {
+        self.units_by_script
+            .get(script)
+            .is_some_and(|units| units.contains(unit))
+    }
+}
+
 /// Project a Schema graph into a display graph view.
 pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphView {
     let nodes_by_id = graph
@@ -398,8 +440,26 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
         .map(|node| (node.id.as_str(), node))
         .collect::<BTreeMap<_, _>>();
     let parent_by_id = parent_map(graph);
-    let preset = resolve_preset(graph, options, &nodes_by_id, &parent_by_id);
+    let workflow_script_flow = workflow_script_flow(
+        graph,
+        &nodes_by_id,
+        &parent_by_id,
+        options.include_low_confidence_edges,
+    );
+    let preset = resolve_preset(
+        graph,
+        options,
+        &nodes_by_id,
+        &parent_by_id,
+        &workflow_script_flow,
+    );
     let resolved = resolve_projection_options(preset, options);
+    let primary_options = PrimaryGraphProjectionOptions {
+        preset,
+        detail: resolved.detail,
+        include_low_confidence_edges: resolved.include_low_confidence_edges,
+        collapse_citation_nodes: resolved.collapse_citation_nodes,
+    };
     let mut node_ids = BTreeSet::new();
     let mut edges = BTreeMap::new();
     let mut containments = BTreeMap::new();
@@ -407,12 +467,10 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
     for edge in &graph.edges {
         let Some(projected) = project_primary_edge(
             edge,
-            preset,
-            resolved.detail,
-            resolved.include_low_confidence_edges,
-            resolved.collapse_citation_nodes,
+            primary_options,
             &nodes_by_id,
             &parent_by_id,
+            &workflow_script_flow,
         ) else {
             continue;
         };
@@ -751,6 +809,7 @@ fn resolve_preset(
     options: &GraphProjectionOptions,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
     parent_by_id: &BTreeMap<String, String>,
+    workflow_script_flow: &WorkflowScriptFlow,
 ) -> GraphProjectionPreset {
     if options.preset != GraphProjectionPreset::Auto {
         return options.preset;
@@ -763,12 +822,15 @@ fn resolve_preset(
                 preset,
                 preset_score(
                     graph,
-                    preset,
-                    options.detail,
-                    options.include_low_confidence_edges,
-                    options.collapse_citation_nodes,
+                    PrimaryGraphProjectionOptions {
+                        preset,
+                        detail: options.detail,
+                        include_low_confidence_edges: options.include_low_confidence_edges,
+                        collapse_citation_nodes: options.collapse_citation_nodes,
+                    },
                     nodes_by_id,
                     parent_by_id,
+                    workflow_script_flow,
                 ),
             )
         })
@@ -788,14 +850,12 @@ fn resolve_preset(
 
 fn project_primary_edge<'a>(
     edge: &'a GraphEdge,
-    preset: GraphProjectionPreset,
-    detail: GraphProjectionDetail,
-    include_low_confidence_edges: bool,
-    collapse_citation_nodes: bool,
+    options: PrimaryGraphProjectionOptions,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
     parent_by_id: &BTreeMap<String, String>,
+    workflow_script_flow: &WorkflowScriptFlow,
 ) -> Option<ProjectedEdge<'a>> {
-    if !include_low_confidence_edges && has_low_confidence(edge) {
+    if !options.include_low_confidence_edges && has_low_confidence(edge) {
         return None;
     }
 
@@ -803,12 +863,12 @@ fn project_primary_edge<'a>(
         return None;
     }
 
-    if edge_score(edge, preset, nodes_by_id) == 0 {
+    if edge_score(edge, options.preset, nodes_by_id) == 0 {
         return None;
     }
 
-    if preset == GraphProjectionPreset::Flow
-        && detail != GraphProjectionDetail::High
+    if options.preset == GraphProjectionPreset::Flow
+        && options.detail != GraphProjectionDetail::High
         && edge.kind == GraphEdgeKind::CalledBy
         && edge_has_local_code_internal_endpoint(edge, nodes_by_id)
     {
@@ -819,15 +879,17 @@ fn project_primary_edge<'a>(
     let mut target = edge.target.clone();
     let mut endpoints_projected = false;
 
-    if preset == GraphProjectionPreset::Cite
-        && collapse_citation_nodes
+    if options.preset == GraphProjectionPreset::Cite
+        && options.collapse_citation_nodes
         && edge.kind == GraphEdgeKind::CitedBy
     {
         target = collapse_citation_target(&target, nodes_by_id, parent_by_id);
         endpoints_projected = target != edge.target;
     }
 
-    if preset == GraphProjectionPreset::Flow && detail != GraphProjectionDetail::High {
+    if options.preset == GraphProjectionPreset::Flow
+        && options.detail != GraphProjectionDetail::High
+    {
         source = collapse_local_code_internal_endpoint(&source, nodes_by_id, parent_by_id);
         target = collapse_local_code_internal_endpoint(&target, nodes_by_id, parent_by_id);
         endpoints_projected = source != edge.source || target != edge.target;
@@ -840,23 +902,34 @@ fn project_primary_edge<'a>(
         return None;
     }
 
-    include_edge_for_detail(edge.kind, &source, &target, preset, detail, nodes_by_id).then_some(
-        ProjectedEdge {
-            edge,
-            source,
-            target,
-        },
+    if options.preset == GraphProjectionPreset::Flow
+        && options.detail != GraphProjectionDetail::High
+        && workflow_script_flow.is_redundant_projected_edge(edge.kind, &source, &target)
+    {
+        return None;
+    }
+
+    include_edge_for_detail(
+        edge.kind,
+        &source,
+        &target,
+        options.preset,
+        options.detail,
+        nodes_by_id,
     )
+    .then_some(ProjectedEdge {
+        edge,
+        source,
+        target,
+    })
 }
 
 fn preset_score(
     graph: &Graph,
-    preset: GraphProjectionPreset,
-    detail: GraphProjectionDetail,
-    include_low_confidence_edges: bool,
-    collapse_citation_nodes: bool,
+    options: PrimaryGraphProjectionOptions,
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
     parent_by_id: &BTreeMap<String, String>,
+    workflow_script_flow: &WorkflowScriptFlow,
 ) -> usize {
     graph
         .edges
@@ -864,16 +937,136 @@ fn preset_score(
         .filter_map(|edge| {
             project_primary_edge(
                 edge,
-                preset,
-                detail,
-                include_low_confidence_edges,
-                collapse_citation_nodes,
+                options,
                 nodes_by_id,
                 parent_by_id,
+                workflow_script_flow,
             )
         })
-        .map(|projected| edge_score(projected.edge, preset, nodes_by_id))
+        .map(|projected| edge_score(projected.edge, options.preset, nodes_by_id))
         .sum()
+}
+
+fn workflow_script_flow(
+    graph: &Graph,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    parent_by_id: &BTreeMap<String, String>,
+    include_low_confidence_edges: bool,
+) -> WorkflowScriptFlow {
+    let mut flow = WorkflowScriptFlow::default();
+
+    for edge in &graph.edges {
+        if edge.kind != GraphEdgeKind::UsedBy
+            || (!include_low_confidence_edges && has_low_confidence(edge))
+            || !is_code_node(&edge.source, nodes_by_id)
+            || !is_workflow_unit(&edge.target)
+        {
+            continue;
+        }
+
+        flow.units_by_script
+            .entry(edge.source.clone())
+            .or_default()
+            .insert(edge.target.clone());
+    }
+
+    if flow.units_by_script.is_empty() {
+        return flow;
+    }
+
+    let mut unit_reads = BTreeSet::new();
+    let mut unit_writes = BTreeSet::new();
+    let mut script_reads = BTreeSet::new();
+    let mut script_writes = BTreeSet::new();
+
+    for edge in &graph.edges {
+        if (!include_low_confidence_edges && has_low_confidence(edge))
+            || !matches!(
+                edge.kind,
+                GraphEdgeKind::ReadBy | GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo
+            )
+        {
+            continue;
+        }
+
+        let source = collapse_local_code_internal_endpoint(&edge.source, nodes_by_id, parent_by_id);
+        let target = collapse_local_code_internal_endpoint(&edge.target, nodes_by_id, parent_by_id);
+
+        if source == target
+            || !nodes_by_id.contains_key(source.as_str())
+            || !nodes_by_id.contains_key(target.as_str())
+        {
+            continue;
+        }
+
+        match edge.kind {
+            GraphEdgeKind::ReadBy => {
+                if is_workflow_unit(&target) {
+                    unit_reads.insert((source.clone(), target.clone()));
+                }
+                if flow.units_by_script.contains_key(&target) {
+                    script_reads.insert((source, target));
+                }
+            }
+            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo => {
+                if is_workflow_unit(&source) {
+                    unit_writes.insert((source.clone(), target.clone()));
+                }
+                if flow.units_by_script.contains_key(&source) {
+                    script_writes.insert((source, target));
+                }
+            }
+            _ => {}
+        }
+    }
+
+    for (resource, script) in script_reads {
+        let units = flow
+            .units_by_script
+            .get(&script)
+            .cloned()
+            .unwrap_or_default();
+        let mut redundant = true;
+
+        for unit in units {
+            if unit_reads.contains(&(resource.clone(), unit.clone())) {
+                continue;
+            }
+
+            redundant = false;
+            flow.nonredundant_by_script_unit
+                .insert((script.clone(), unit));
+        }
+
+        if redundant {
+            flow.redundant_reads.insert((resource, script));
+        }
+    }
+
+    for (script, resource) in script_writes {
+        let units = flow
+            .units_by_script
+            .get(&script)
+            .cloned()
+            .unwrap_or_default();
+        let mut redundant = true;
+
+        for unit in units {
+            if unit_writes.contains(&(unit.clone(), resource.clone())) {
+                continue;
+            }
+
+            redundant = false;
+            flow.nonredundant_by_script_unit
+                .insert((script.clone(), unit));
+        }
+
+        if redundant {
+            flow.redundant_writes.insert((script, resource));
+        }
+    }
+
+    flow
 }
 
 fn include_edge_for_detail(
@@ -926,6 +1119,14 @@ fn include_edge_for_detail(
 fn is_local_code_internal(id: &str, kind: GraphViewNodeKind) -> bool {
     kind == GraphViewNodeKind::Symbol
         || (kind == GraphViewNodeKind::Function && graph_id_namespace(id) != "workflow-unit")
+}
+
+fn is_code_node(id: &str, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
+    node_kind(nodes_by_id.get(id).copied()) == GraphViewNodeKind::Code
+}
+
+fn is_workflow_unit(id: &str) -> bool {
+    graph_id_namespace(id) == "workflow-unit"
 }
 
 fn edge_has_local_code_internal_endpoint(
@@ -2069,6 +2270,100 @@ mod tests {
     }
 
     #[test]
+    fn flow_medium_hides_redundant_workflow_script_io() {
+        let graph = workflow_script_io_graph(false);
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::Medium,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.id == "code:workflow/scripts/download.py")
+        );
+        assert!(
+            view.edges
+                .iter()
+                .all(|edge| edge.kind != GraphEdgeKind::UsedBy)
+        );
+        assert!(!view.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "file:data/raw/S1.fastq"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+        assert!(view.edges.iter().any(|edge| {
+            edge.source == "workflow-unit:Snakefile:download"
+                && edge.target == "file:data/raw/S1.fastq"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+
+        let high = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        assert!(high.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "workflow-unit:Snakefile:download"
+                && edge.kind == GraphEdgeKind::UsedBy
+        }));
+        assert!(high.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "file:data/raw/S1.fastq"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+    }
+
+    #[test]
+    fn flow_medium_keeps_workflow_script_fallback_io() {
+        let graph = workflow_script_io_graph(true);
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::Medium,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            view.nodes
+                .iter()
+                .any(|node| node.id == "code:workflow/scripts/download.py")
+        );
+        assert!(view.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "workflow-unit:Snakefile:download"
+                && edge.kind == GraphEdgeKind::UsedBy
+        }));
+        assert!(!view.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "file:data/raw/S1.fastq"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+        assert!(view.edges.iter().any(|edge| {
+            edge.source == "code:workflow/scripts/download.py"
+                && edge.target == "file:logs/download.log"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+        assert!(view.edges.iter().any(|edge| {
+            edge.source == "workflow-unit:Snakefile:download"
+                && edge.target == "file:data/raw/S1.fastq"
+                && edge.kind == GraphEdgeKind::Generated
+        }));
+    }
+
+    #[test]
     fn flow_hides_document_conversion_edges() {
         let view = project_graph(
             &converted_document_graph(),
@@ -2649,6 +2944,83 @@ mod tests {
                 ),
             ],
         )
+    }
+
+    fn workflow_script_io_graph(include_extra_output: bool) -> Graph {
+        let mut nodes = vec![
+            graph_node(
+                "code:Snakefile",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "Snakefile".to_string(),
+                    programming_language: "snakemake".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "workflow-unit:Snakefile:download",
+                Node::Function(Function::new("download".to_string(), Vec::new())),
+            ),
+            graph_node(
+                "code:workflow/scripts/download.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "download.py".to_string(),
+                    path: Some("workflow/scripts/download.py".to_string()),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "file:data/raw/S1.fastq",
+                Node::File(File::new(
+                    "S1.fastq".to_string(),
+                    "data/raw/S1.fastq".to_string(),
+                )),
+            ),
+        ];
+        let mut edges = vec![
+            GraphEdge::new(
+                "code:Snakefile".to_string(),
+                "workflow-unit:Snakefile:download".to_string(),
+                GraphEdgeKind::Declares,
+            ),
+            GraphEdge::new(
+                "workflow-unit:Snakefile:download".to_string(),
+                "code:Snakefile".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                "code:workflow/scripts/download.py".to_string(),
+                "workflow-unit:Snakefile:download".to_string(),
+                GraphEdgeKind::UsedBy,
+            ),
+            GraphEdge::new(
+                "code:workflow/scripts/download.py".to_string(),
+                "file:data/raw/S1.fastq".to_string(),
+                GraphEdgeKind::Generated,
+            ),
+            GraphEdge::new(
+                "workflow-unit:Snakefile:download".to_string(),
+                "file:data/raw/S1.fastq".to_string(),
+                GraphEdgeKind::Generated,
+            ),
+        ];
+
+        if include_extra_output {
+            nodes.push(graph_node(
+                "file:logs/download.log",
+                Node::File(File::new(
+                    "download.log".to_string(),
+                    "logs/download.log".to_string(),
+                )),
+            ));
+            edges.push(GraphEdge::new(
+                "code:workflow/scripts/download.py".to_string(),
+                "file:logs/download.log".to_string(),
+                GraphEdgeKind::Generated,
+            ));
+        }
+
+        Graph::new("test:workflow-script-io".to_string(), nodes, edges)
     }
 
     fn converted_document_graph() -> Graph {
