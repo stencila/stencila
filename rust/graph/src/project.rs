@@ -65,7 +65,7 @@ pub enum GraphProjectionPreset {
     /// Show resource flow, data lineage, and provenance relationships.
     ///
     /// This answers questions such as which files, tables, code units, or
-    /// outputs read, generated, derived, converted, or used each other. It is
+    /// outputs read, generated, derived, or used each other. It is
     /// intended for tracing where data and rendered outputs came from, rather
     /// than for ordering executable document updates.
     Flow,
@@ -997,7 +997,7 @@ fn edge_score(
                     GraphEdgeKind::ReadBy | GraphEdgeKind::DerivedInto => 5,
                     GraphEdgeKind::IncludedBy => 4,
                     GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo => 3,
-                    GraphEdgeKind::ConvertedInto => 1,
+                    GraphEdgeKind::ConvertedInto => 0,
                     _ => 0,
                 }
             } else {
@@ -2069,6 +2069,51 @@ mod tests {
     }
 
     #[test]
+    fn flow_hides_document_conversion_edges() {
+        let view = project_graph(
+            &converted_document_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                detail: GraphProjectionDetail::High,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            view.edges
+                .iter()
+                .all(|edge| edge.kind != GraphEdgeKind::ConvertedInto)
+        );
+        assert!(
+            !view
+                .nodes
+                .iter()
+                .any(|node| node.id == "node:report.html#art_")
+        );
+        assert!(
+            view.edges
+                .iter()
+                .any(|edge| edge.source == "code:analysis.py"
+                    && edge.target == "file:report.html"
+                    && edge.kind == GraphEdgeKind::Generated)
+        );
+
+        let all = project_graph(
+            &converted_document_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::All,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            all.edges
+                .iter()
+                .any(|edge| edge.kind == GraphEdgeKind::ConvertedInto)
+        );
+    }
+
+    #[test]
     fn flow_low_and_medium_keep_datatable_resources() {
         for detail in [GraphProjectionDetail::Low, GraphProjectionDetail::Medium] {
             let view = project_graph(
@@ -2601,6 +2646,45 @@ mod tests {
                     "workflow-unit:main.nf:qc".to_string(),
                     "file:results/qc/M1-qc.txt".to_string(),
                     GraphEdgeKind::Generated,
+                ),
+            ],
+        )
+    }
+
+    fn converted_document_graph() -> Graph {
+        Graph::new(
+            "test:converted-document".to_string(),
+            vec![
+                graph_node(
+                    "code:analysis.py",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "analysis.py".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "file:report.html",
+                    Node::File(File::new(
+                        "report.html".to_string(),
+                        "report.html".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "node:report.html#art_",
+                    Node::Article(Article::new(Vec::new())),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "code:analysis.py".to_string(),
+                    "file:report.html".to_string(),
+                    GraphEdgeKind::Generated,
+                ),
+                GraphEdge::new(
+                    "file:report.html".to_string(),
+                    "node:report.html#art_".to_string(),
+                    GraphEdgeKind::ConvertedInto,
                 ),
             ],
         )

@@ -271,7 +271,12 @@ fn node_style(kind: GraphViewNodeKind) -> NodeStyle {
             fill_color: "#eef2f7",
             color: "#516981",
         },
-        GraphViewNodeKind::Document | GraphViewNodeKind::Other => NodeStyle {
+        GraphViewNodeKind::Document => NodeStyle {
+            shape: "note",
+            fill_color: "#ffffff",
+            color: "#647486",
+        },
+        GraphViewNodeKind::Other => NodeStyle {
             shape: "box",
             fill_color: "#ffffff",
             color: "#647486",
@@ -345,7 +350,7 @@ fn dot_escape(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use stencila_schema::{
-        Directory, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphNode, Node,
+        Article, Directory, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphNode, Node,
         SoftwareSourceCode,
     };
 
@@ -642,6 +647,32 @@ mod tests {
         assert!(dot.contains("\"symbol:setup.py:x\" -> \"code:analysis.py\""));
         assert!(dot.contains("label=\"Generated\""));
         assert!(dot.contains("label=\"Used By\""));
+    }
+
+    #[test]
+    fn renders_decoded_documents_as_note_shapes() {
+        let graph = Graph::new(
+            "test:document-shape".to_string(),
+            vec![graph_node(
+                "node:report.html#art_",
+                Node::Article(Article::new(Vec::new())),
+            )],
+            Vec::new(),
+        );
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::All,
+                containment: Some(GraphContainmentMode::None),
+                ..Default::default()
+            },
+        );
+
+        let dot = to_dot(&view);
+
+        assert!(dot.contains(
+            "\"node:report.html#art_\" [label=\"report.html\", kind=\"document\", shape=\"note\""
+        ));
     }
 
     fn graph_node(id: &str, node: Node) -> GraphNode {
