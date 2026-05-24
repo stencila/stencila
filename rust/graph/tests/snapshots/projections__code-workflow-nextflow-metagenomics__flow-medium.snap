@@ -1,0 +1,47 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="flow"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="code-workflow-nextflow-metagenomics/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_code:main.nf" {
+      label="main.nf"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "workflow-unit:main.nf:classify" [label="classify", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:main.nf:qc" [label="qc", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:main.nf:summarize" [label="summarize", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+    }
+    subgraph "cluster_dir:data" {
+      label="data/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "file:data/reads.fastq" [label="reads.fastq", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    }
+    subgraph "cluster_dir:results" {
+      label="results/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_dir:results/classify" {
+        label="classify/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "datatable:results/classify/M1-taxa.tsv" [label="M1-taxa.tsv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+      }
+      subgraph "cluster_dir:results/qc" {
+        label="qc/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "file:results/qc/M1-qc.txt" [label="M1-qc.txt", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+      }
+      subgraph "cluster_dir:results/summary" {
+        label="summary/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "file:results/summary/report.html" [label="report.html", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+      }
+    }
+  }
+
+  "workflow-unit:main.nf:classify" -> "datatable:results/classify/M1-taxa.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:main.nf:qc" -> "file:results/qc/M1-qc.txt" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:main.nf:summarize" -> "file:results/summary/report.html" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "datatable:results/classify/M1-taxa.tsv" -> "workflow-unit:main.nf:summarize" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:data/reads.fastq" -> "workflow-unit:main.nf:qc" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:results/qc/M1-qc.txt" -> "workflow-unit:main.nf:classify" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

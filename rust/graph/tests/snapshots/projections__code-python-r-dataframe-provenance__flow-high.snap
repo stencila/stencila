@@ -1,0 +1,56 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="flow"];
+  graph [detail="high"];
+
+  subgraph "cluster_dir:." {
+    label="code-python-r-dataframe-provenance/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_dir:data" {
+      label="data/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_dir:data/raw" {
+        label="raw/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "datatable:data/raw/observations.csv" [label="observations.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+      }
+    }
+    subgraph "cluster_dir:figures" {
+      label="figures/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "image:figures/python-counts.png" [label="python-counts.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
+      "image:figures/r-counts.png" [label="r-counts.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
+    }
+    subgraph "cluster_dir:outputs" {
+      label="outputs/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "datatable:outputs/python-clean.csv" [label="python-clean.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+      "datatable:outputs/r-summary.csv" [label="r-summary.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+    }
+    subgraph "cluster_dir:scripts" {
+      label="scripts/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_code:scripts/analysis.R" {
+        label="analysis.R"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "code:scripts/analysis.R" [label="analysis.R", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        "symbol:scripts/analysis.R:r:df" [label="df", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      }
+      subgraph "cluster_code:scripts/analysis.py" {
+        label="analysis.py"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "code:scripts/analysis.py" [label="analysis.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        "symbol:scripts/analysis.py:python:clean" [label="clean", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        "symbol:scripts/analysis.py:python:df" [label="df", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        "symbol:scripts/analysis.py:python:mean_count" [label="mean_count", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      }
+    }
+  }
+
+  "symbol:scripts/analysis.py:python:df" -> "symbol:scripts/analysis.py:python:clean" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:scripts/analysis.py:python:df" -> "symbol:scripts/analysis.py:python:mean_count" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/analysis.R" -> "image:figures/r-counts.png" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/analysis.py" -> "image:figures/python-counts.png" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "datatable:data/raw/observations.csv" -> "symbol:scripts/analysis.R:r:df" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "datatable:data/raw/observations.csv" -> "symbol:scripts/analysis.py:python:df" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:scripts/analysis.R:r:df" -> "datatable:outputs/r-summary.csv" [label="Written To", kind="WrittenTo", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:scripts/analysis.py:python:clean" -> "datatable:outputs/python-clean.csv" [label="Written To", kind="WrittenTo", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

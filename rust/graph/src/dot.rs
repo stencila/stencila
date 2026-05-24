@@ -2,40 +2,62 @@
 
 use std::collections::{BTreeMap, BTreeSet};
 
-use crate::{GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode, GraphViewNodeKind};
+use crate::{GraphView, GraphViewEdge, GraphViewNode, GraphViewNodeKind};
 use stencila_schema::GraphEdgeKind;
+
+const INDENT: &str = "  ";
 
 /// Render a projected graph view as Graphviz DOT.
 pub fn to_dot(view: &GraphView) -> String {
     let mut dot = String::new();
 
-    dot.push_str("digraph stencila_graph {\n");
-    dot.push_str("  graph [rankdir=\"LR\", overlap=\"false\", splines=\"true\"];\n");
-    dot.push_str("  node [fontname=\"Arial\", fontsize=\"10\", margin=\"0.08,0.05\"];\n");
-    dot.push_str("  edge [fontname=\"Arial\", fontsize=\"9\", arrowsize=\"0.7\"];\n");
-    dot.push_str(&format!(
-        "  graph [preset=\"{}\"];\n",
-        dot_escape(view.preset.as_str())
-    ));
-    dot.push_str(&format!(
-        "  graph [detail=\"{}\"];\n",
-        dot_escape(view.detail.as_str())
-    ));
+    push_line(&mut dot, 0, "digraph stencila_graph {");
+    push_line(
+        &mut dot,
+        1,
+        "graph [rankdir=\"LR\", overlap=\"false\", splines=\"true\"];",
+    );
+    push_line(
+        &mut dot,
+        1,
+        "node [fontname=\"Arial\", fontsize=\"10\", margin=\"0.08,0.05\"];",
+    );
+    push_line(
+        &mut dot,
+        1,
+        "edge [fontname=\"Arial\", fontsize=\"9\", arrowsize=\"0.7\"];",
+    );
+    push_line(
+        &mut dot,
+        1,
+        &format!("graph [preset=\"{}\"];", dot_escape(view.preset.as_str())),
+    );
+    push_line(
+        &mut dot,
+        1,
+        &format!("graph [detail=\"{}\"];", dot_escape(view.detail.as_str())),
+    );
 
-    render_nodes(&mut dot, view);
-
-    for edge in &view.edges {
-        render_edge(&mut dot, edge, view.preset);
+    if !view.nodes.is_empty() {
+        dot.push('\n');
+        render_nodes(&mut dot, view, 1);
     }
 
-    dot.push_str("}\n");
+    if !view.edges.is_empty() {
+        dot.push('\n');
+        for edge in &view.edges {
+            render_edge(&mut dot, edge, 1);
+        }
+    }
+
+    push_line(&mut dot, 0, "}");
     dot
 }
 
-fn render_nodes(dot: &mut String, view: &GraphView) {
+fn render_nodes(dot: &mut String, view: &GraphView, indent: usize) {
     if !view.containment.uses_clusters() {
         for node in &view.nodes {
-            render_node(dot, node);
+            render_node(dot, node, indent);
         }
         return;
     }
@@ -44,12 +66,12 @@ fn render_nodes(dot: &mut String, view: &GraphView) {
     let mut rendered = BTreeSet::new();
 
     for id in tree.root_containers() {
-        render_cluster(dot, &tree, id, &mut rendered);
+        render_cluster(dot, &tree, id, &mut rendered, indent);
     }
 
     for node in &view.nodes {
         if !rendered.contains(node.id.as_str()) {
-            render_node(dot, node);
+            render_node(dot, node, indent);
         }
     }
 }
@@ -59,6 +81,7 @@ fn render_cluster(
     tree: &ContainmentTree,
     id: &str,
     rendered: &mut BTreeSet<String>,
+    indent: usize,
 ) {
     let Some(node) = tree.nodes.get(id) else {
         return;
@@ -69,19 +92,24 @@ fn render_cluster(
     }
 
     let style = cluster_style(node.kind);
-    dot.push_str(&format!(
-        "  subgraph \"{}\" {{\n",
-        dot_escape(&format!("cluster_{id}"))
-    ));
-    dot.push_str(&format!(
-        "    label=\"{}\"; style=\"rounded,dashed\"; color=\"{}\"; bgcolor=\"{}\"; fontname=\"Arial\"; fontsize=\"11\";\n",
-        dot_escape(&cluster_label(node)),
-        style.color,
-        style.background_color
-    ));
+    push_line(
+        dot,
+        indent,
+        &format!("subgraph \"{}\" {{", dot_escape(&format!("cluster_{id}"))),
+    );
+    push_line(
+        dot,
+        indent + 1,
+        &format!(
+            "label=\"{}\"; style=\"rounded,dashed\"; color=\"{}\"; bgcolor=\"{}\"; fontname=\"Arial\"; fontsize=\"11\";",
+            dot_escape(&cluster_label(node)),
+            style.color,
+            style.background_color
+        ),
+    );
 
     if tree.edge_endpoints.contains(id) {
-        render_node(dot, node);
+        render_node(dot, node, indent + 1);
     }
     rendered.insert(id.to_string());
 
@@ -91,14 +119,14 @@ fn render_cluster(
         }
 
         if tree.containers.contains(child.as_str()) {
-            render_cluster(dot, tree, child, rendered);
+            render_cluster(dot, tree, child, rendered, indent + 1);
         } else if let Some(child_node) = tree.nodes.get(child.as_str()) {
-            render_node(dot, child_node);
+            render_node(dot, child_node, indent + 1);
             rendered.insert(child.clone());
         }
     }
 
-    dot.push_str("  }\n");
+    push_line(dot, indent, "}");
 }
 
 fn cluster_label(node: &GraphViewNode) -> String {
@@ -111,36 +139,53 @@ fn cluster_label(node: &GraphViewNode) -> String {
     }
 }
 
-fn render_node(dot: &mut String, node: &GraphViewNode) {
+fn render_node(dot: &mut String, node: &GraphViewNode, indent: usize) {
     let style = node_style(node.kind);
-    dot.push_str(&format!(
-        "  \"{}\" [label=\"{}\", kind=\"{}\", shape=\"{}\", style=\"filled\", fillcolor=\"{}\", color=\"{}\"];\n",
-        dot_escape(&node.id),
-        dot_escape(&node.label),
-        node.kind.as_str(),
-        style.shape,
-        style.fill_color,
-        style.color
-    ));
+    push_line(
+        dot,
+        indent,
+        &format!(
+            "\"{}\" [label=\"{}\", kind=\"{}\", shape=\"{}\", style=\"filled\", fillcolor=\"{}\", color=\"{}\"];",
+            dot_escape(&node.id),
+            dot_escape(&node.label),
+            node.kind.as_str(),
+            style.shape,
+            style.fill_color,
+            style.color
+        ),
+    );
 }
 
-fn render_edge(dot: &mut String, edge: &GraphViewEdge, _preset: GraphProjectionPreset) {
+fn render_edge(dot: &mut String, edge: &GraphViewEdge, indent: usize) {
     let style = edge_style(edge);
     let (source, target, label) = (&edge.source, &edge.target, edge.label.as_str());
 
-    dot.push_str(&format!(
-        "  \"{}\" -> \"{}\" [label=\"{}\", kind=\"{}\", count=\"{}\", evidence_count=\"{}\", action_count=\"{}\", low_confidence=\"{}\", style=\"{}\", color=\"{}\"];\n",
-        dot_escape(source),
-        dot_escape(target),
-        dot_escape(label),
-        edge.kind,
-        edge.count,
-        edge.evidence_count,
-        edge.action_count,
-        edge.low_confidence,
-        style.line_style,
-        style.color
-    ));
+    push_line(
+        dot,
+        indent,
+        &format!(
+            "\"{}\" -> \"{}\" [label=\"{}\", kind=\"{}\", count=\"{}\", evidence_count=\"{}\", action_count=\"{}\", low_confidence=\"{}\", style=\"{}\", color=\"{}\"];",
+            dot_escape(source),
+            dot_escape(target),
+            dot_escape(label),
+            edge.kind,
+            edge.count,
+            edge.evidence_count,
+            edge.action_count,
+            edge.low_confidence,
+            style.line_style,
+            style.color
+        ),
+    );
+}
+
+fn push_line(dot: &mut String, indent: usize, line: &str) {
+    for _ in 0..indent {
+        dot.push_str(INDENT);
+    }
+
+    dot.push_str(line);
+    dot.push('\n');
 }
 
 #[derive(Debug)]

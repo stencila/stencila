@@ -1,0 +1,49 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="react"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="document-executable-reactivity-notebook/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_dir:docs" {
+      label="docs/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_node:docs/notebook.json#art_" {
+        label="notebook.json"; style="rounded,dashed"; color="#b8c2cc"; bgcolor="#fbfcfe"; fontname="Arial"; fontsize="11";
+        subgraph "cluster_node:docs/notebook.json#cdc_analysis" {
+          label="analysis"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+          "node:docs/notebook.json#cdc_analysis" [label="analysis", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:mean" [label="mean", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        }
+        subgraph "cluster_node:docs/notebook.json#cdc_setup" {
+          label="setup"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+          "node:docs/notebook.json#cdc_setup" [label="setup", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:pd" [label="pd", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:read_csv" [label="read_csv", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:samples" [label="samples", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:scale" [label="scale", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        }
+        subgraph "cluster_node:docs/notebook.json#cde_content-3-content-1" {
+          label="total"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+          "node:docs/notebook.json#cde_content-3-content-1" [label="total", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+          "symbol:docs/notebook.json:python:adjusted" [label="adjusted", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        }
+      }
+    }
+  }
+
+  "node:docs/notebook.json#cdc_analysis" -> "symbol:docs/notebook.json:python:adjusted" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:docs/notebook.json#cdc_setup" -> "symbol:docs/notebook.json:python:samples" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:docs/notebook.json#cdc_setup" -> "symbol:docs/notebook.json:python:scale" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:adjusted" -> "node:docs/notebook.json#cde_content-3-content-1" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:mean" -> "node:docs/notebook.json#cdc_analysis" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:pd" -> "node:docs/notebook.json#cdc_setup" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:read_csv" -> "node:docs/notebook.json#cdc_setup" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:samples" -> "node:docs/notebook.json#cdc_analysis" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "symbol:docs/notebook.json:python:scale" -> "node:docs/notebook.json#cdc_analysis" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

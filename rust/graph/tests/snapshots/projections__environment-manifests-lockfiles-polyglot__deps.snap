@@ -1,0 +1,77 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="deps"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="environment-manifests-lockfiles-polyglot/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_dir:resources" {
+      label="resources/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "file:resources/mpackage.json" [label="mpackage.json", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    }
+    "file:Cargo.lock" [label="Cargo.lock", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:Cargo.toml" [label="Cargo.toml", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:DESCRIPTION" [label="DESCRIPTION", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:Manifest-v1.11.toml" [label="Manifest-v1.11.toml", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:Project.toml" [label="Project.toml", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:package-lock.json" [label="package-lock.json", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:package.json" [label="package.json", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:pyproject.toml" [label="pyproject.toml", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:renv.lock" [label="renv.lock", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    "file:uv.lock" [label="uv.lock", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+  }
+  "environment:julia:Project.toml" [label="Julia environment declared by Project.toml", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "environment:matlab:resources/mpackage.json" [label="mpackage.json", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "environment:node:package.json" [label="Node.js environment declared by package...", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "environment:python:pyproject.toml" [label="Python environment declared by pyprojec...", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "environment:r:DESCRIPTION" [label="R environment declared by DESCRIPTION", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "environment:rust:Cargo.toml" [label="Rust environment declared by Cargo.toml", kind="environment", shape="folder", style="filled", fillcolor="#f2f5f8", color="#647486"];
+  "package:cargo/csv" [label="csv", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:cargo/serde" [label="serde", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:cran/dplyr" [label="dplyr", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:cran/ggplot2" [label="ggplot2", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:cran/testthat" [label="testthat", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b" [label="CSV", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4" [label="ChainRulesCore", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0" [label="DataFrames", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40" [label="Test", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5" [label="StatsTools", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:npm/d3-dsv" [label="d3-dsv", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:npm/typescript" [label="typescript", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:pypi/matplotlib" [label="matplotlib", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:pypi/pandas" [label="pandas", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+  "package:pypi/requests" [label="requests", kind="package", shape="hexagon", style="filled", fillcolor="#f8f0dd", color="#a06d15"];
+
+  "file:Cargo.toml" -> "environment:rust:Cargo.toml" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:DESCRIPTION" -> "environment:r:DESCRIPTION" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:Project.toml" -> "environment:julia:Project.toml" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:package.json" -> "environment:node:package.json" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:pyproject.toml" -> "environment:python:pyproject.toml" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:resources/mpackage.json" -> "environment:matlab:resources/mpackage.json" [label="Declares", kind="Declares", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:Cargo.lock" -> "environment:rust:Cargo.toml" [label="Pins", kind="Pins", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:Manifest-v1.11.toml" -> "environment:julia:Project.toml" [label="Pins", kind="Pins", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:package-lock.json" -> "environment:node:package.json" [label="Pins", kind="Pins", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:renv.lock" -> "environment:r:DESCRIPTION" [label="Pins", kind="Pins", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:uv.lock" -> "environment:python:pyproject.toml" [label="Pins", kind="Pins", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:cargo/csv" -> "environment:rust:Cargo.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:cargo/serde" -> "environment:rust:Cargo.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:cran/dplyr" -> "environment:r:DESCRIPTION" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:cran/ggplot2" -> "environment:r:DESCRIPTION" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:cran/testthat" -> "environment:r:DESCRIPTION" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b" -> "environment:julia:Project.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:julia/ChainRulesCore%3Fuuid%3Dd360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4" -> "environment:julia:Project.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0" -> "environment:julia:Project.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:julia/Test%3Fuuid%3D8dfed614-e22c-5e08-85e1-65c5234f0b40" -> "environment:julia:Project.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5" -> "environment:matlab:resources/mpackage.json" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:npm/d3-dsv" -> "environment:node:package.json" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:npm/typescript" -> "environment:node:package.json" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:pypi/matplotlib" -> "environment:python:pyproject.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:pypi/pandas" -> "environment:python:pyproject.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "package:pypi/requests" -> "environment:python:pyproject.toml" [label="Required By", kind="RequiredBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

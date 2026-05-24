@@ -1,0 +1,59 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="flow"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="code-workflow-snakemake-rnaseq/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_code:Snakefile" {
+      label="Snakefile"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "workflow-unit:Snakefile:align" [label="align", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:Snakefile:counts" [label="counts", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:Snakefile:download" [label="download", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:Snakefile:report" [label="report", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+      "workflow-unit:Snakefile:trim_reads" [label="trim_reads", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
+    }
+    subgraph "cluster_dir:data" {
+      label="data/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_dir:data/raw" {
+        label="raw/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "file:data/raw/S1.fastq" [label="S1.fastq", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+      }
+      subgraph "cluster_dir:data/trimmed" {
+        label="trimmed/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "file:data/trimmed/S1.fastq" [label="S1.fastq", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+      }
+    }
+    subgraph "cluster_dir:reports" {
+      label="reports/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "file:reports/rnaseq.html" [label="rnaseq.html", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+    }
+    subgraph "cluster_dir:results" {
+      label="results/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      subgraph "cluster_dir:results/alignments" {
+        label="alignments/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "file:results/alignments/S1.bam" [label="S1.bam", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+      }
+      subgraph "cluster_dir:results/counts" {
+        label="counts/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "datatable:results/counts/gene-counts.tsv" [label="gene-counts.tsv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+      }
+    }
+  }
+
+  "workflow-unit:Snakefile:align" -> "file:results/alignments/S1.bam" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:Snakefile:counts" -> "datatable:results/counts/gene-counts.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:Snakefile:download" -> "file:data/raw/S1.fastq" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:Snakefile:report" -> "file:reports/rnaseq.html" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "workflow-unit:Snakefile:trim_reads" -> "file:data/trimmed/S1.fastq" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "datatable:results/counts/gene-counts.tsv" -> "workflow-unit:Snakefile:report" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:data/raw/S1.fastq" -> "workflow-unit:Snakefile:trim_reads" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:data/trimmed/S1.fastq" -> "workflow-unit:Snakefile:align" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "file:results/alignments/S1.bam" -> "workflow-unit:Snakefile:counts" [label="Read By", kind="ReadBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

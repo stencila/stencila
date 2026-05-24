@@ -1,0 +1,26 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="cite"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="document-report-references-citations/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    subgraph "cluster_dir:manuscript" {
+      label="manuscript/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      "node:manuscript/report.smd#art_" [label="report.smd", kind="document", shape="note", style="filled", fillcolor="#ffffff", color="#647486"];
+    }
+  }
+  "reference:manuscript/report.smd#doe2021" [label="doe2021", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
+  "reference:manuscript/report.smd#smith2020" [label="smith2020", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
+  "resource:https%3A//doi.org/10.5281/zenodo.12345" [label="zenodo.12345", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
+
+  "reference:manuscript/report.smd#doe2021" -> "node:manuscript/report.smd#art_" [label="Cited By", kind="CitedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "reference:manuscript/report.smd#smith2020" -> "node:manuscript/report.smd#art_" [label="Cited By", kind="CitedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "resource:https%3A//doi.org/10.5281/zenodo.12345" -> "node:manuscript/report.smd#art_" [label="Linked By", kind="LinkedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}
