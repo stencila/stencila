@@ -9,7 +9,7 @@ use std::collections::HashMap;
 use eyre::Result;
 use stencila_node_stabilize::stabilize;
 use stencila_schema::{
-    ActionStatusType, Block, Citation, CodeChunk, CodeExpression, CreativeWork,
+    ActionStatusType, Block, Citation, CitationGroup, CodeChunk, CodeExpression, CreativeWork,
     DateTime as SchemaDateTime, Duration as SchemaDuration, ExecuteAction, ExecutionStatus, Graph,
     GraphAction, GraphEdgeKind, GraphEvidence, Inline, Link, Node, NodeId, NodeType, Reference,
     StripNode, StripScope, StripTargets, Timestamp, Visitor, WalkControl, WalkNode,
@@ -29,9 +29,9 @@ use crate::{
 /// have a workspace graph builder to extend.
 ///
 /// Document graphs promote the root node plus coarse boundary nodes such as
-/// figures, tables, media objects, includes, files, and executable code. This
-/// keeps the graph useful for provenance and reactivity without embedding every
-/// prose node in the document.
+/// figures, tables, files, and executable code. Inline citations, links, media
+/// references, includes, and headings contribute relationships to retained
+/// containers without becoming graph nodes themselves.
 pub fn graph_from_node(subject: impl Into<String>, node: &Node) -> Result<Graph> {
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, "document", node, None);
@@ -77,8 +77,6 @@ pub(crate) fn add_document_with_reference_resolver<'a>(
     let mut collector = DocumentCollector::new(builder, scope, reference_resolver);
     collector.add_schema_node(node.clone(), Some(root_id.clone()), true, false);
     node.walk(&mut collector);
-    collector.finish();
-
     root_id
 }
 
@@ -177,15 +175,6 @@ struct DocumentCollector<'a> {
     /// over non-boundary wrapper nodes.
     parent_stack: Vec<String>,
 
-    /// Internal document anchors keyed by authored id or stable node id.
-    ///
-    /// Links may refer to nodes later in the document, so anchors are collected
-    /// during traversal and pending internal link edges are resolved afterward.
-    anchors: HashMap<String, String>,
-
-    /// Internal link references waiting for all document anchors to be known.
-    pending_internal_references: Vec<(String, String)>,
-
     /// Optional resolver for file references discovered in document-local fields.
     ///
     /// Workspace graph construction uses this to resolve paths relative to the
@@ -213,23 +202,8 @@ impl<'a> DocumentCollector<'a> {
             boundaries: HashMap::new(),
             struct_stack: Vec::new(),
             parent_stack: Vec::new(),
-            anchors: HashMap::new(),
-            pending_internal_references: Vec::new(),
             reference_resolver,
             code_index: DocumentCodeIndex,
-        }
-    }
-
-    /// Resolve edges that needed a complete document anchor index.
-    fn finish(&mut self) {
-        let pending = std::mem::take(&mut self.pending_internal_references);
-        for (link_id, target) in pending {
-            let Some(target_id) = self.anchors.get(&target) else {
-                continue;
-            };
-
-            self.builder
-                .add_link(target_id, link_id, evidence::declared_and_resolved());
         }
     }
 
@@ -257,11 +231,6 @@ impl<'a> DocumentCollector<'a> {
 
         if let Some(node_id) = &node_id {
             self.boundaries.insert(node_id.clone(), graph_id.clone());
-            self.anchors.insert(node_id.to_string(), graph_id.clone());
-        }
-
-        if let Some(id) = authored_id(&node) {
-            self.anchors.insert(id.to_string(), graph_id.clone());
         }
 
         let embedded = shallow_node(&node);
@@ -305,6 +274,41 @@ impl<'a> DocumentCollector<'a> {
         }
 
         Some(graph_id)
+    }
+
+    /// Add relationships represented by a non-boundary document syntax node.
+    ///
+    /// Inline links, citations, media references, and includes are useful graph
+    /// facts, but the syntax occurrence itself usually is not. Attach those
+    /// facts to the nearest retained document container instead.
+    fn add_non_boundary_relationships(&mut self, node: &Node) {
+        let Some(target_id) = self.parent_stack.last().cloned() else {
+            return;
+        };
+
+        match node {
+            Node::Citation(citation) => self.add_citation_reference(&target_id, citation),
+            Node::CitationGroup(group) => self.add_citation_group_references(&target_id, group),
+            Node::Link(link) => self.add_link_reference(&target_id, link),
+            Node::AudioObject(_)
+            | Node::ImageObject(_)
+            | Node::MediaObject(_)
+            | Node::VideoObject(_)
+            | Node::IncludeBlock(_) => {
+                self.add_document_reference(&target_id, node);
+            }
+            _ => {}
+        }
+    }
+
+    /// Add a walked node, preserving relationships even when it is not retained.
+    fn add_walked_node(&mut self, node: Node) {
+        if self
+            .add_schema_node(node.clone(), None, false, true)
+            .is_none()
+        {
+            self.add_non_boundary_relationships(&node);
+        }
     }
 
     /// Add static code graph facts for a supported executable document node.
@@ -369,8 +373,8 @@ impl<'a> DocumentCollector<'a> {
         true
     }
 
-    /// Add citation provenance from a cited reference to the citation node.
-    fn add_citation_reference(&mut self, citation_id: &str, citation: &Citation) {
+    /// Add citation provenance from a cited reference to a document target.
+    fn add_citation_reference(&mut self, target_id: &str, citation: &Citation) {
         let target = citation.target.trim();
         if target.is_empty() {
             return;
@@ -390,25 +394,30 @@ impl<'a> DocumentCollector<'a> {
             .add_schema_node(reference_id.clone(), Node::Reference(reference));
         self.builder.add_citation(
             reference_id,
-            citation_id,
+            target_id,
             declared_citation_evidence(citation),
         );
     }
 
-    /// Add link provenance from the linked target to the link node.
-    fn add_link_reference(&mut self, link_id: &str, link: &Link) {
+    /// Add citation provenance for every citation in a grouped citation marker.
+    fn add_citation_group_references(&mut self, target_id: &str, group: &CitationGroup) {
+        for citation in &group.items {
+            self.add_citation_reference(target_id, citation);
+        }
+    }
+
+    /// Add link provenance from the linked target to a document target.
+    fn add_link_reference(&mut self, target_id: &str, link: &Link) {
         let target = link.target.trim();
         if target.is_empty() {
             return;
         }
 
-        if let Some(anchor) = internal_reference_anchor(target) {
-            self.pending_internal_references
-                .push((link_id.to_string(), anchor.to_string()));
+        if target.starts_with('#') {
             return;
         }
 
-        if self.add_document_reference(link_id, &Node::Link(link.clone())) {
+        if self.add_document_reference(target_id, &Node::Link(link.clone())) {
             return;
         }
 
@@ -420,7 +429,7 @@ impl<'a> DocumentCollector<'a> {
             self.builder
                 .add_schema_node(resource_id.clone(), Node::CreativeWork(resource));
             self.builder
-                .add_link(resource_id, link_id, vec![evidence::declared()]);
+                .add_link(resource_id, target_id, vec![evidence::declared()]);
         }
     }
 
@@ -549,7 +558,7 @@ impl Visitor for DocumentCollector<'_> {
     /// This catches boundary nodes that are exposed as `Node` values rather than
     /// only through block or inline enum variants.
     fn visit_node(&mut self, node: &Node) -> WalkControl {
-        self.add_schema_node(node.clone(), None, false, true);
+        self.add_walked_node(node.clone());
         WalkControl::Continue
     }
 
@@ -558,7 +567,7 @@ impl Visitor for DocumentCollector<'_> {
     /// Blocks are common graph boundaries in documents, so this hook gives the
     /// collector access before the walk enters the block's struct fields.
     fn visit_block(&mut self, block: &Block) -> WalkControl {
-        self.add_schema_node(block.clone().into(), None, false, true);
+        self.add_walked_node(block.clone().into());
         WalkControl::Continue
     }
 
@@ -567,7 +576,7 @@ impl Visitor for DocumentCollector<'_> {
     /// Inline media and executable expressions can be graph boundaries, so this
     /// hook records them without promoting every inline text node.
     fn visit_inline(&mut self, inline: &Inline) -> WalkControl {
-        self.add_schema_node(inline.clone().into(), None, false, true);
+        self.add_walked_node(inline.clone().into());
         WalkControl::Continue
     }
 }
@@ -589,31 +598,6 @@ fn graph_id_for_node_id(scope: &str, node_id: &NodeId) -> String {
     LocalGraphId::document_node(scope, node_id)
 }
 
-/// Return an authored schema `id` for boundary nodes that expose one.
-fn authored_id(node: &Node) -> Option<&str> {
-    match node {
-        Node::Article(node) => node.id.as_deref(),
-        Node::AudioObject(node) => node.id.as_deref(),
-        Node::Citation(node) => node.id.as_deref(),
-        Node::CitationGroup(node) => node.id.as_deref(),
-        Node::CodeChunk(node) => node.id.as_deref(),
-        Node::CodeExpression(node) => node.id.as_deref(),
-        Node::Datatable(node) => node.id.as_deref(),
-        Node::Figure(node) => node.id.as_deref(),
-        Node::File(node) => node.id.as_deref(),
-        Node::Heading(node) => node.id.as_deref(),
-        Node::ImageObject(node) => node.id.as_deref(),
-        Node::IncludeBlock(node) => node.id.as_deref(),
-        Node::Link(node) => node.id.as_deref(),
-        Node::MediaObject(node) => node.id.as_deref(),
-        Node::Reference(node) => node.id.as_deref(),
-        Node::SymbolicLink(node) => node.id.as_deref(),
-        Node::Table(node) => node.id.as_deref(),
-        Node::VideoObject(node) => node.id.as_deref(),
-        _ => None,
-    }
-}
-
 /// Return a file reference represented by a document node.
 fn document_reference(node: &Node) -> Option<(DocumentReferenceKind, &str)> {
     match node {
@@ -625,12 +609,6 @@ fn document_reference(node: &Node) -> Option<(DocumentReferenceKind, &str)> {
         Node::IncludeBlock(node) => Some((DocumentReferenceKind::Include, &node.source)),
         _ => None,
     }
-}
-
-/// Return the target anchor for an internal document reference.
-fn internal_reference_anchor(target: &str) -> Option<&str> {
-    let target = target.strip_prefix('#')?;
-    (!target.is_empty()).then_some(target)
 }
 
 /// Create a lightweight reference node for an unresolved citation target.
@@ -668,23 +646,14 @@ fn is_boundary_node_type(node_type: NodeType) -> bool {
     matches!(
         node_type,
         NodeType::Article
-            | NodeType::AudioObject
-            | NodeType::Citation
-            | NodeType::CitationGroup
             | NodeType::CodeChunk
             | NodeType::CodeExpression
             | NodeType::Datatable
             | NodeType::Figure
             | NodeType::File
-            | NodeType::Heading
-            | NodeType::ImageObject
-            | NodeType::IncludeBlock
-            | NodeType::Link
-            | NodeType::MediaObject
             | NodeType::Reference
             | NodeType::SymbolicLink
             | NodeType::Table
-            | NodeType::VideoObject
     )
 }
 

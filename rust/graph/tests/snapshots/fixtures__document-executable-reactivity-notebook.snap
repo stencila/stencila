@@ -98,12 +98,6 @@ nodes:
         string: adjusted.sum()
       programmingLanguage: python
   - type: GraphNode
-    id: "node:docs/notebook.json#hea_reactive-notebook"
-    node:
-      type: Heading
-      level: 1
-      content: []
-  - type: GraphNode
     id: "output:docs/notebook.json#cdc_analysis:0"
     node: mean=8.0
   - type: GraphNode
@@ -316,13 +310,6 @@ edges:
         endTime:
           type: DateTime
           value: "[datetime]"
-  - type: GraphEdge
-    source: "node:docs/notebook.json#hea_reactive-notebook"
-    target: "node:docs/notebook.json#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "output:docs/notebook.json#cdc_analysis:0"
     target: "node:docs/notebook.json#cdc_analysis"

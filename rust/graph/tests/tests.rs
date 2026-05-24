@@ -9,8 +9,8 @@ use std::fs::write;
 use eyre::{OptionExt, Result};
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_graph::{
-    Graph, GraphBuilder, GraphEdge, GraphEdgeKind, WorkspaceOptions, graph_from_node,
-    graph_from_path,
+    Graph, GraphBuilder, GraphEdge, GraphEdgeKind, GraphProjectionOptions, GraphProjectionPreset,
+    WorkspaceOptions, graph_from_node, graph_from_path, project_graph,
 };
 use stencila_schema::{
     Article, Block, Citation, CodeChunk, Cord, ExecuteAction, GraphAction, GraphEvidenceKind,
@@ -240,27 +240,62 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
     )
     .await?;
 
-    assert!(graph.edges.iter().any(|edge| {
-        edge.source == "image:assets/source.svg"
-            && edge.target.starts_with("node:docs/report.smd#img_")
-            && edge.kind == GraphEdgeKind::LinkedBy
-    }));
-    assert!(graph.edges.iter().any(|edge| {
-        edge.source == "image:docs/assets%3Araw/source%231%25%20copy.svg"
-            && edge.target.starts_with("node:docs/report.smd#img_")
-            && edge.kind == GraphEdgeKind::LinkedBy
-    }));
+    let article_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| {
+            matches!(node.node.as_ref(), Node::Article(..)).then_some(node.id.as_str())
+        })
+        .ok_or_eyre("decoded article should be present")?;
+
+    assert_graph_edge(
+        &graph,
+        "image:assets/source.svg",
+        article_id,
+        GraphEdgeKind::LinkedBy,
+    );
+    assert_graph_edge(
+        &graph,
+        "image:docs/assets%3Araw/source%231%25%20copy.svg",
+        article_id,
+        GraphEdgeKind::LinkedBy,
+    );
     let link_edge = graph
         .edges
         .iter()
         .find(|edge| {
             edge.source == "image:assets/source.svg"
-                && edge.target.starts_with("node:docs/report.smd#lin_")
+                && edge.target == article_id
                 && edge.kind == GraphEdgeKind::LinkedBy
         })
-        .ok_or_eyre("workspace-relative link edge should exist")?;
+        .ok_or_eyre("workspace-relative media/link edge should exist")?;
     assert_edge_evidence(link_edge, GraphEvidenceKind::Declared);
     assert_edge_evidence(link_edge, GraphEvidenceKind::Resolved);
+    assert!(
+        graph.nodes.iter().all(|node| {
+            !(node.id.starts_with("node:")
+                && matches!(
+                    node.node.as_ref(),
+                    Node::ImageObject(..) | Node::Link(..) | Node::Heading(..)
+                ))
+        }),
+        "document syntax nodes should not be promoted to graph nodes"
+    );
+
+    let cite_view = project_graph(
+        &graph,
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Cite,
+            ..Default::default()
+        },
+    );
+    assert!(
+        cite_view
+            .edges
+            .iter()
+            .all(|edge| edge.kind != GraphEdgeKind::LinkedBy),
+        "local media/link references should stay out of cite projection"
+    );
 
     Ok(())
 }
@@ -376,8 +411,15 @@ fn adds_citation_and_external_link_provenance() -> Result<()> {
         .iter()
         .find(|edge| edge.kind == GraphEdgeKind::CitedBy)
         .ok_or_eyre("citation edge should exist")?;
+    let article_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| {
+            matches!(node.node.as_ref(), Node::Article(..)).then_some(node.id.as_str())
+        })
+        .ok_or_eyre("article should be present")?;
     assert!(citation_edge.source == "reference:document#smith2020");
-    assert!(citation_edge.target.starts_with("node:document#cit_"));
+    assert_eq!(citation_edge.target, article_id);
     assert_edge_evidence(citation_edge, GraphEvidenceKind::Declared);
     assert_edge_evidence(citation_edge, GraphEvidenceKind::Resolved);
 
@@ -389,8 +431,37 @@ fn adds_citation_and_external_link_provenance() -> Result<()> {
                 && edge.source == "resource:https%3A//example.org/data"
         })
         .ok_or_eyre("external link edge should exist")?;
-    assert!(link_edge.target.starts_with("node:document#lin_"));
+    assert_eq!(link_edge.target, article_id);
     assert_edge_evidence(link_edge, GraphEvidenceKind::Declared);
+    assert!(
+        graph.nodes.iter().all(|node| {
+            !(node.id.starts_with("node:")
+                && matches!(
+                    node.node.as_ref(),
+                    Node::Citation(..) | Node::Link(..) | Node::Heading(..)
+                ))
+        }),
+        "inline citation and link markers should not be graph nodes"
+    );
+
+    let cite_view = project_graph(
+        &graph,
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Cite,
+            ..Default::default()
+        },
+    );
+    assert_eq!(cite_view.edges.len(), 2);
+    assert!(cite_view.edges.iter().any(|edge| {
+        edge.kind == GraphEdgeKind::CitedBy
+            && edge.source == "reference:document#smith2020"
+            && edge.target == article_id
+    }));
+    assert!(cite_view.edges.iter().any(|edge| {
+        edge.kind == GraphEdgeKind::LinkedBy
+            && edge.source == "resource:https%3A//example.org/data"
+            && edge.target == article_id
+    }));
 
     Ok(())
 }

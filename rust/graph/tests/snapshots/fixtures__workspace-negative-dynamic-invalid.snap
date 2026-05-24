@@ -148,28 +148,6 @@ nodes:
       type: Article
       content: []
   - type: GraphNode
-    id: "node:docs/missing-links.smd#hea_missing-references"
-    node:
-      type: Heading
-      level: 1
-      content: []
-  - type: GraphNode
-    id: "node:docs/missing-links.smd#img_content-1-content-3"
-    node:
-      type: ImageObject
-      contentUrl: "../figures/missing.png"
-  - type: GraphNode
-    id: "node:docs/missing-links.smd#inc_content-2"
-    node:
-      type: IncludeBlock
-      source: "../data/missing.csv"
-  - type: GraphNode
-    id: "node:docs/missing-links.smd#lin_content-1-content-1"
-    node:
-      type: Link
-      content: []
-      target: "../data/missing.csv"
-  - type: GraphNode
     id: "package:pypi/pandas"
     node:
       type: SoftwareSourceCode
@@ -284,34 +262,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "node:docs/missing-links.smd#hea_missing-references"
-    target: "node:docs/missing-links.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "node:docs/missing-links.smd#img_content-1-content-3"
-    target: "node:docs/missing-links.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "node:docs/missing-links.smd#inc_content-2"
-    target: "node:docs/missing-links.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "node:docs/missing-links.smd#lin_content-1-content-1"
-    target: "node:docs/missing-links.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "package:pypi/pandas"
     target: "code:dynamic.py"

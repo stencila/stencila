@@ -7,9 +7,10 @@
 //! resource-flow relationship came about.
 //!
 //! Document graphs are deliberately compact. They promote the document root and
-//! coarse boundary nodes such as figures, tables, media objects, files,
-//! includes, and executable code, while leaving prose-level structure embedded
-//! in the original document model.
+//! coarse boundary nodes such as figures, tables, files, and executable code.
+//! Prose-level syntax such as headings, links, citations, media references, and
+//! include markers contributes relationships to retained document containers
+//! without becoming graph nodes themselves.
 //!
 //! Workspace graphs follow git ignore rules, retain hidden authored files, skip
 //! common cache and build directories, and can decode supported document files

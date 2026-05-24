@@ -132,12 +132,14 @@ blocks that point to local data or table files.
 
 Expected graph surface:
 
-- decoded document boundary nodes such as `Article`, `Heading`, `Link`, `Citation`, `Reference`, `ImageObject`, and `IncludeBlock`
+- decoded document boundary nodes such as `Article` and `Reference`, without
+  promoting inline syntax occurrences such as headings, links, citations,
+  images, or include markers
 - decoded document roots contained under their source file directories
 - document structural `PartOf` edges
-- local media and link `LinkedBy` edges
-- citation `CitedBy` edges
-- include `IncludedBy` edges
+- local media and link `LinkedBy` edges attached to retained document containers
+- citation `CitedBy` edges attached to retained document containers
+- include `IncludedBy` edges attached to retained document containers
 - external resources represented as resource nodes when appropriate
 
 ## environment-manifests-lockfiles-polyglot

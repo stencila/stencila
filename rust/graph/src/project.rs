@@ -79,12 +79,12 @@ pub enum GraphProjectionPreset {
     /// mixing in data products and document structure.
     Deps,
 
-    /// Show bibliographic references, citations, and document/resource links.
+    /// Show bibliographic references, citations, and external resource links.
     ///
-    /// This focuses on `CitedBy` and `LinkedBy` relationships. Citation marker
-    /// nodes are collapsed to their document parent by default so the
-    /// graph reads as "this work is cited or referenced by this document region"
-    /// instead of exposing every inline citation marker.
+    /// This focuses on `CitedBy` relationships plus `LinkedBy` relationships
+    /// from external resources. Local file, table, and media references are
+    /// left to the flow view so citation graphs stay focused on works and
+    /// external resources cited or referenced by the document.
     Cite,
 
     /// Show executable document reactivity dependencies.
@@ -1232,7 +1232,8 @@ fn edge_score(
         GraphEdgeKind::LinkedBy => {
             let targets_environment = edge_targets_environment(edge, nodes_by_id);
             if (preset == GraphProjectionPreset::Deps && targets_environment)
-                || (preset == GraphProjectionPreset::Cite && !targets_environment)
+                || (preset == GraphProjectionPreset::Cite
+                    && edge_sources_external_resource(edge, nodes_by_id))
             {
                 4
             } else {
@@ -1275,6 +1276,15 @@ fn edge_score(
 
 fn edge_targets_environment(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
     node_kind(nodes_by_id.get(edge.target.as_str()).copied()) == GraphViewNodeKind::Environment
+}
+
+fn edge_sources_external_resource(
+    edge: &GraphEdge,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> bool {
+    graph_id_namespace(&edge.source) == "resource"
+        && !edge_targets_environment(edge, nodes_by_id)
+        && node_kind(nodes_by_id.get(edge.source.as_str()).copied()) == GraphViewNodeKind::Resource
 }
 
 fn is_reactive_generation_edge(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
@@ -1751,6 +1761,46 @@ mod tests {
         assert_eq!(
             view.nodes.iter().map(|node| node.kind).collect::<Vec<_>>(),
             vec![GraphViewNodeKind::Document, GraphViewNodeKind::Reference]
+        );
+    }
+
+    #[test]
+    fn cite_projection_keeps_external_links_only() {
+        let mut graph = graph();
+        graph.nodes.push(graph_node(
+            "resource:https%3A//example.org/archive",
+            Node::String("https://example.org/archive".to_string()),
+        ));
+        graph.edges.extend([
+            GraphEdge::new(
+                "resource:https%3A//example.org/archive".to_string(),
+                "node:document#article".to_string(),
+                GraphEdgeKind::LinkedBy,
+            ),
+            GraphEdge::new(
+                "file:data.csv".to_string(),
+                "node:document#article".to_string(),
+                GraphEdgeKind::LinkedBy,
+            ),
+        ]);
+
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Cite,
+                ..Default::default()
+            },
+        );
+
+        assert!(view.edges.iter().any(|edge| {
+            edge.kind == GraphEdgeKind::LinkedBy
+                && edge.source == "resource:https%3A//example.org/archive"
+        }));
+        assert!(
+            !view.edges.iter().any(|edge| {
+                edge.kind == GraphEdgeKind::LinkedBy && edge.source == "file:data.csv"
+            }),
+            "local file links should stay out of cite projection"
         );
     }
 

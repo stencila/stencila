@@ -117,23 +117,6 @@ nodes:
       type: Article
       content: []
   - type: GraphNode
-    id: "node:docs/manuscript.smd#hea_publication-assets"
-    node:
-      type: Heading
-      level: 1
-      content: []
-  - type: GraphNode
-    id: "node:docs/manuscript.smd#img_content-1-content-1"
-    node:
-      type: ImageObject
-      contentUrl: figures/latest.png
-  - type: GraphNode
-    id: "node:docs/manuscript.smd#lin_content-1-content-3"
-    node:
-      type: Link
-      content: []
-      target: "../data/source-table.tsv"
-  - type: GraphNode
     id: "symlink:docs/figures/latest.png"
     node:
       type: SymbolicLink
@@ -175,7 +158,7 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "datatable:data/source-table.tsv"
-    target: "node:docs/manuscript.smd#lin_content-1-content-3"
+    target: "node:docs/manuscript.smd#art_"
     kind: LinkedBy
     evidence:
       - type: GraphEvidence
@@ -256,27 +239,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-  - type: GraphEdge
-    source: "node:docs/manuscript.smd#hea_publication-assets"
-    target: "node:docs/manuscript.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "node:docs/manuscript.smd#img_content-1-content-1"
-    target: "node:docs/manuscript.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "node:docs/manuscript.smd#lin_content-1-content-3"
-    target: "node:docs/manuscript.smd#art_"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "symlink:docs/figures/latest.png"
     target: "dir:docs/figures"
