@@ -564,15 +564,6 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "file:package-lock.json"
-    target: "node:package-lock.json"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
     source: "file:package.json"
     target: "dir:."
     kind: PartOf
@@ -586,15 +577,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
-  - type: GraphEdge
-    source: "file:package.json"
-    target: "node:package.json"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
     source: "file:pyproject.toml"
     target: "dir:."
@@ -638,15 +620,6 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "file:resources/mpackage.json"
-    target: "node:resources/mpackage.json"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
     source: "file:uv.lock"
     target: "dir:."
     kind: PartOf
@@ -660,6 +633,27 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:package-lock.json"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "node:package.json"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "node:resources/mpackage.json"
+    target: "dir:resources"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "package:cargo/csv"
     target: "environment:rust:Cargo.toml"

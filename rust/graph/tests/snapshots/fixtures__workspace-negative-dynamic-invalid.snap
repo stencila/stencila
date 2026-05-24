@@ -271,17 +271,15 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:docs/missing-links.smd"
-    target: "node:docs/missing-links.smd#art_"
-    kind: ConvertedInto
+    source: "file:package.json"
+    target: "dir:."
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-      - type: GraphEvidence
-        kind: Computed
   - type: GraphEdge
-    source: "file:package.json"
-    target: "dir:."
+    source: "node:docs/missing-links.smd#art_"
+    target: "dir:docs"
     kind: PartOf
     evidence:
       - type: GraphEvidence

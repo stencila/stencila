@@ -2409,6 +2409,34 @@ mod tests {
     }
 
     #[test]
+    fn flow_containment_uses_decoded_document_structure() {
+        let view = project_graph(
+            &converted_document_containment_graph(),
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::Flow,
+                ..Default::default()
+            },
+        );
+
+        assert!(
+            view.edges
+                .iter()
+                .all(|edge| edge.kind != GraphEdgeKind::ConvertedInto)
+        );
+        assert_eq!(
+            view.containments
+                .iter()
+                .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+                .collect::<Vec<_>>(),
+            vec![
+                "PartOf:dir:docs->dir:.",
+                "PartOf:node:docs/notebook.json#art_->dir:docs",
+                "PartOf:node:docs/notebook.json#cdc_setup->node:docs/notebook.json#art_",
+            ]
+        );
+    }
+
+    #[test]
     fn flow_low_and_medium_keep_datatable_resources() {
         for detail in [GraphProjectionDetail::Low, GraphProjectionDetail::Medium] {
             let view = project_graph(
@@ -3057,6 +3085,72 @@ mod tests {
                     "file:report.html".to_string(),
                     "node:report.html#art_".to_string(),
                     GraphEdgeKind::ConvertedInto,
+                ),
+            ],
+        )
+    }
+
+    fn converted_document_containment_graph() -> Graph {
+        Graph::new(
+            "test:converted-document-containment".to_string(),
+            vec![
+                graph_node(
+                    "dir:.",
+                    Node::Directory(Directory::new("workspace".to_string(), ".".to_string())),
+                ),
+                graph_node(
+                    "dir:docs",
+                    Node::Directory(Directory::new("docs".to_string(), "docs".to_string())),
+                ),
+                graph_node(
+                    "file:docs/notebook.json",
+                    Node::File(File::new(
+                        "notebook.json".to_string(),
+                        "docs/notebook.json".to_string(),
+                    )),
+                ),
+                graph_node(
+                    "node:docs/notebook.json#art_",
+                    Node::Article(Article::new(Vec::new())),
+                ),
+                graph_node(
+                    "node:docs/notebook.json#cdc_setup",
+                    Node::SoftwareSourceCode(SoftwareSourceCode {
+                        name: "setup".to_string(),
+                        programming_language: "python".to_string(),
+                        ..Default::default()
+                    }),
+                ),
+                graph_node(
+                    "file:data.csv",
+                    Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
+                ),
+            ],
+            vec![
+                GraphEdge::new(
+                    "dir:docs".to_string(),
+                    "dir:.".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:docs/notebook.json".to_string(),
+                    "dir:docs".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "node:docs/notebook.json#art_".to_string(),
+                    "dir:docs".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "node:docs/notebook.json#cdc_setup".to_string(),
+                    "node:docs/notebook.json#art_".to_string(),
+                    GraphEdgeKind::PartOf,
+                ),
+                GraphEdge::new(
+                    "file:data.csv".to_string(),
+                    "node:docs/notebook.json#cdc_setup".to_string(),
+                    GraphEdgeKind::ReadBy,
                 ),
             ],
         )

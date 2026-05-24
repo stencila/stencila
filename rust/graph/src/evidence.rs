@@ -46,11 +46,6 @@ pub(crate) fn observed_and_resolved() -> Vec<GraphEvidence> {
     vec![observed(), resolved()]
 }
 
-/// Create evidence for an observed relationship with computed output.
-pub(crate) fn observed_and_computed() -> Vec<GraphEvidence> {
-    vec![observed(), computed()]
-}
-
 /// Build one evidence value.
 fn evidence(kind: GraphEvidenceKind) -> GraphEvidence {
     GraphEvidence::new(kind)

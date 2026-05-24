@@ -41,7 +41,8 @@ async fn decode_options_override_extension() -> Result<()> {
     .await?;
 
     assert!(graph.nodes.iter().any(|node| node.id == "node:report#art_"));
-    assert_graph_edge(
+    assert_graph_edge(&graph, "node:report#art_", "dir:.", GraphEdgeKind::PartOf);
+    assert_no_graph_edge(
         &graph,
         "file:report",
         "node:report#art_",
@@ -76,6 +77,12 @@ async fn escapes_delimiters_in_document_scopes() -> Result<()> {
             .any(|node| node.id == "node:report%231%3Araw.smd#art_")
     );
     assert_graph_edge(
+        &graph,
+        "node:report%231%3Araw.smd#art_",
+        "dir:.",
+        GraphEdgeKind::PartOf,
+    );
+    assert_no_graph_edge(
         &graph,
         "file:report%231%3Araw.smd",
         "node:report%231%3Araw.smd#art_",
@@ -133,6 +140,41 @@ fn resolves_read_before_write_document_reactivity() -> Result<()> {
     assert_graph_edge(&graph, setup_id, symbol_id, GraphEdgeKind::Generated);
     assert_graph_edge(&graph, symbol_id, update_id, GraphEdgeKind::UsedBy);
 
+    Ok(())
+}
+
+#[test]
+fn contains_recorded_outputs_in_executable_nodes() -> Result<()> {
+    let mut chunk = CodeChunk::new(Cord::from("print('done')\n"));
+    chunk.id = Some("analysis".to_string());
+    chunk.programming_language = Some("python".to_string());
+    chunk.outputs = Some(vec![Node::String("done".to_string())]);
+
+    let graph = graph_from_node(
+        "fixture:recorded-output-containment",
+        &Node::Article(Article::new(vec![Block::CodeChunk(chunk)])),
+    )?;
+
+    let chunk_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::CodeChunk(chunk) if chunk.id.as_deref() == Some("analysis") => {
+                Some(node.id.as_str())
+            }
+            _ => None,
+        })
+        .ok_or_eyre("analysis chunk should be present")?;
+    let output_id = graph
+        .edges
+        .iter()
+        .find_map(|edge| {
+            (edge.source == chunk_id && edge.kind == GraphEdgeKind::Generated)
+                .then_some(edge.target.as_str())
+        })
+        .ok_or_eyre("analysis output should be generated")?;
+
+    assert_graph_edge(&graph, output_id, chunk_id, GraphEdgeKind::PartOf);
     Ok(())
 }
 
@@ -460,6 +502,16 @@ fn assert_graph_edge(graph: &Graph, source: &str, target: &str, kind: GraphEdgeK
             .iter()
             .any(|edge| edge.source == source && edge.target == target && edge.kind == kind),
         "missing edge {source} -> {target} ({kind})"
+    );
+}
+
+fn assert_no_graph_edge(graph: &Graph, source: &str, target: &str, kind: GraphEdgeKind) {
+    assert!(
+        graph
+            .edges
+            .iter()
+            .all(|edge| !(edge.source == source && edge.target == target && edge.kind == kind)),
+        "unexpected edge {source} -> {target} ({kind})"
     );
 }
 

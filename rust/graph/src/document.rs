@@ -43,8 +43,9 @@ pub fn graph_from_node(subject: impl Into<String>, node: &Node) -> Result<Graph>
 /// The node tree is cloned and stabilized before graph IDs are generated so
 /// repeated calls for equivalent input produce the same graph.
 ///
-/// When `source_file_id` is supplied, the function adds a direct conversion
-/// edge between the file and the decoded document root.
+/// The optional source file id is retained for API compatibility. Workspace
+/// graph construction records decoded document placement as structural
+/// containment rather than as a conversion edge.
 ///
 /// Call [`GraphBuilder::build`] after adding all documents to validate that all
 /// emitted edges refer to graph nodes.
@@ -52,9 +53,9 @@ pub fn add_document(
     builder: &mut GraphBuilder,
     scope: impl Into<String>,
     node: &Node,
-    source_file_id: Option<&str>,
+    _source_file_id: Option<&str>,
 ) -> String {
-    add_document_with_reference_resolver(builder, scope, node, source_file_id, None)
+    add_document_with_reference_resolver(builder, scope, node, None)
 }
 
 /// Add document nodes with optional reference resolution.
@@ -65,7 +66,6 @@ pub(crate) fn add_document_with_reference_resolver<'a>(
     builder: &'a mut GraphBuilder,
     scope: impl Into<String>,
     node: &Node,
-    source_file_id: Option<&str>,
     reference_resolver: Option<&'a mut DocumentReferenceResolver<'a>>,
 ) -> String {
     let scope = scope.into();
@@ -73,15 +73,6 @@ pub(crate) fn add_document_with_reference_resolver<'a>(
     stabilize(&mut node);
     let root_id =
         graph_id_for_node(&scope, &node).unwrap_or_else(|| LocalGraphId::document_root(&scope));
-
-    if let Some(source_file_id) = source_file_id {
-        builder.add_edge_with_evidence(
-            source_file_id,
-            &root_id,
-            GraphEdgeKind::ConvertedInto,
-            evidence::observed_and_computed(),
-        );
-    }
 
     let mut collector = DocumentCollector::new(builder, scope, reference_resolver);
     collector.add_schema_node(node.clone(), Some(root_id.clone()), true, false);
@@ -511,6 +502,11 @@ impl<'a> DocumentCollector<'a> {
             if let Some(output_id) =
                 self.add_schema_node(output.clone(), Some(fallback_id), true, false)
             {
+                self.builder.add_containment(
+                    output_id.clone(),
+                    executable_id,
+                    vec![evidence::recorded()],
+                );
                 self.builder.add_edge_with_evidence_and_actions(
                     executable_id,
                     output_id,

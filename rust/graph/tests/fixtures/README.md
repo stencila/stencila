@@ -133,7 +133,7 @@ blocks that point to local data or table files.
 Expected graph surface:
 
 - decoded document boundary nodes such as `Article`, `Heading`, `Link`, `Citation`, `Reference`, `ImageObject`, and `IncludeBlock`
-- `ConvertedInto` edges from source document files to decoded document roots
+- decoded document roots contained under their source file directories
 - document structural `PartOf` edges
 - local media and link `LinkedBy` edges
 - citation `CitedBy` edges

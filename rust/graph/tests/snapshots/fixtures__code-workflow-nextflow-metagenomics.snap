@@ -350,15 +350,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:results/summary/report.html"
-    target: "node:results/summary/report.html#art_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
     source: "function:main.nf:nextflow:exec"
     target: "code:main.nf"
     kind: PartOf
@@ -400,6 +391,13 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:results/summary/report.html#art_"
+    target: "dir:results/summary"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "workflow-unit:main.nf:classify"
     target: "code:main.nf"

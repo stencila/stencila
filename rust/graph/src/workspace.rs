@@ -1,7 +1,7 @@
 //! Workspace graph extraction.
 //!
 //! This module walks a directory tree, represents filesystem objects, and
-//! optionally links decoded document graphs back to the files they came from.
+//! optionally adds decoded document graphs under their source file directories.
 
 use std::{
     collections::BTreeMap,
@@ -168,7 +168,7 @@ pub async fn graph_from_path(
                     .copied()
                     .unwrap_or(NodeType::File);
 
-                let source_id = match node_type {
+                match node_type {
                     NodeType::SoftwareSourceCode => {
                         let code_id = LocalGraphId::code(entry.rel.as_str());
                         let parent_id = entry
@@ -209,7 +209,6 @@ pub async fn graph_from_path(
                             },
                             resolver,
                         );
-                        code_id
                     }
                     NodeType::Datatable => {
                         let datatable =
@@ -227,7 +226,6 @@ pub async fn graph_from_path(
                                 vec![evidence::observed()],
                             );
                         }
-                        datatable_id
                     }
                     NodeType::ImageObject | NodeType::AudioObject | NodeType::VideoObject => {
                         let media_id = add_media_object(
@@ -244,7 +242,6 @@ pub async fn graph_from_path(
                                 vec![evidence::observed()],
                             );
                         }
-                        media_id
                     }
                     _ => {
                         let file_id =
@@ -256,7 +253,6 @@ pub async fn graph_from_path(
                                 vec![evidence::observed()],
                             );
                         }
-                        file_id
                     }
                 };
 
@@ -287,13 +283,19 @@ pub async fn graph_from_path(
 
                                 Some((file_id, edge_kind))
                             };
-                            add_document_with_reference_resolver(
+                            let document_id = add_document_with_reference_resolver(
                                 &mut builder,
                                 entry.rel.as_str().to_string(),
                                 &node,
-                                Some(&source_id),
                                 Some(&mut reference_resolver),
                             );
+                            if let Some(parent) = entry.rel.parent() {
+                                builder.add_containment(
+                                    document_id,
+                                    LocalGraphId::directory(&parent),
+                                    vec![evidence::observed()],
+                                );
+                            }
                         }
                         Err(error) if options.fail_on_decode_error => {
                             return Err(error).wrap_err_with(|| {
@@ -666,7 +668,7 @@ fn add_media_object(
 /// Add a file node to the graph.
 ///
 /// File nodes capture stable workspace-relative identity and lightweight
-/// metadata so decoded document graphs can point back to their source files.
+/// metadata for ordinary workspace resources.
 fn add_file(
     builder: &mut GraphBuilder,
     path: &Path,

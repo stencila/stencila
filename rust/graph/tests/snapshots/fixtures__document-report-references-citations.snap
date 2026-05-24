@@ -223,15 +223,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:manuscript/report.smd"
-    target: "node:manuscript/report.smd#art_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
     source: "image:media/figure.svg"
     target: "dir:media"
     kind: PartOf
@@ -247,6 +238,13 @@ edges:
         kind: Declared
       - type: GraphEvidence
         kind: Resolved
+  - type: GraphEdge
+    source: "node:manuscript/report.smd#art_"
+    target: "dir:manuscript"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "node:manuscript/report.smd#cit_content-2-content-1"
     target: "node:manuscript/report.smd#art_"

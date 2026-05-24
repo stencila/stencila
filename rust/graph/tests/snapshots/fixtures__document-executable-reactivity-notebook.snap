@@ -206,42 +206,40 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:docs/notebook.json"
-    target: "node:docs/notebook.json#art_"
-    kind: ConvertedInto
+    source: "function:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:mean"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: CalledBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "function:docs/notebook.json:python:read_csv"
+    target: "node:docs/notebook.json#cdc_setup"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:docs/notebook.json#art_"
+    target: "dir:docs"
+    kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
-    source: "function:docs/notebook.json:python:mean"
-    target: "node:docs/notebook.json#cdc_analysis"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:docs/notebook.json:python:mean"
-    target: "node:docs/notebook.json#cdc_analysis"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:docs/notebook.json:python:read_csv"
-    target: "node:docs/notebook.json#cdc_setup"
-    kind: CalledBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-  - type: GraphEdge
-    source: "function:docs/notebook.json:python:read_csv"
-    target: "node:docs/notebook.json#cdc_setup"
-    kind: PartOf
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
   - type: GraphEdge
     source: "node:docs/notebook.json#cdc_analysis"
     target: "node:docs/notebook.json#art_"
@@ -325,6 +323,20 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Computed
+  - type: GraphEdge
+    source: "output:docs/notebook.json#cdc_analysis:0"
+    target: "node:docs/notebook.json#cdc_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Recorded
+  - type: GraphEdge
+    source: "output:docs/notebook.json#cde_content-3-content-1:0"
+    target: "node:docs/notebook.json#cde_content-3-content-1"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Recorded
   - type: GraphEdge
     source: "package:pypi/pandas"
     target: "node:docs/notebook.json#cdc_setup"

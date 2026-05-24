@@ -447,15 +447,6 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file:reports/rnaseq.html"
-    target: "node:reports/rnaseq.html#art_"
-    kind: ConvertedInto
-    evidence:
-      - type: GraphEvidence
-        kind: Observed
-      - type: GraphEvidence
-        kind: Computed
-  - type: GraphEdge
     source: "file:results/alignments/S1.bam"
     target: "dir:results/alignments"
     kind: PartOf
@@ -497,6 +488,13 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+  - type: GraphEdge
+    source: "node:reports/rnaseq.html#art_"
+    target: "dir:reports"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
   - type: GraphEdge
     source: "workflow-unit:Snakefile:align"
     target: "code:Snakefile"
