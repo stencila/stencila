@@ -343,4 +343,5 @@ pub enum NodeProperty {
     WhenToUse,
     Work,
     WorkType,
+    WorktreeStatus,
 }

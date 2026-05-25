@@ -210,6 +210,7 @@ mod video_object;
 mod walkthrough;
 mod walkthrough_step;
 mod workflow;
+mod worktree_status;
 
 pub use action::*;
 pub use action_agent::*;
@@ -422,3 +423,4 @@ pub use video_object::*;
 pub use walkthrough::*;
 pub use walkthrough_step::*;
 pub use workflow::*;
+pub use worktree_status::*;

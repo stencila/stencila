@@ -699,6 +699,18 @@
       }
     },
     {
+      "@id": "stencila:worktreeStatus",
+      "@type": "rdfs:Property",
+      "rdfs:label": "worktreeStatus",
+      "rdfs:comment": "The status of the source worktree relative to the commit.",
+      "schema:domainIncludes": {
+        "@id": "schema:CreativeWork"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:WorktreeStatus"
+      }
+    },
+    {
       "@id": "schema:version",
       "@type": "rdfs:Property",
       "rdfs:label": "version",

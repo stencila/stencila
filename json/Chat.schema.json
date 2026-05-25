@@ -678,6 +678,19 @@
       ],
       "type": "string"
     },
+    "worktreeStatus": {
+      "@id": "stencila:worktreeStatus",
+      "description": "The status of the source worktree relative to the commit.",
+      "$comment": "Usually only used when the work's source file is within a Git (or other\nversion control) repository. This field records uncommitted or untracked\nstate that can not be represented by `commit` while preserving the commit\nhash that the worktree state is relative to. Omit this field when status\nwas not checked or does not apply.\n",
+      "aliases": [
+        "worktree-status",
+        "worktree_status"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "$ref": "WorktreeStatus.schema.json"
+    },
     "version": {
       "@id": "schema:version",
       "description": "The version of the creative work.",

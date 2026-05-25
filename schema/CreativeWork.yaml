@@ -352,6 +352,17 @@ properties:
       Only used when the work's source file is within a Git (or other version control) repository.
     type: string
     strip: [metadata]
+  worktreeStatus:
+    "@id": stencila:worktreeStatus
+    description: The status of the source worktree relative to the commit.
+    $comment: |
+      Usually only used when the work's source file is within a Git (or other
+      version control) repository. This field records uncommitted or untracked
+      state that can not be represented by `commit` while preserving the commit
+      hash that the worktree state is relative to. Omit this field when status
+      was not checked or does not apply.
+    $ref: WorktreeStatus
+    strip: [metadata]
   version:
     "@id": schema:version
     description: The version of the creative work.

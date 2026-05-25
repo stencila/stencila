@@ -214,6 +214,7 @@
     "Walkthrough": "stencila:Walkthrough",
     "WalkthroughStep": "stencila:WalkthroughStep",
     "Workflow": "stencila:Workflow",
+    "WorktreeStatus": "stencila:WorktreeStatus",
     "about": "schema:about",
     "abstract": "schema:abstract",
     "actionStatus": "schema:actionStatus",
@@ -548,6 +549,7 @@
     "whenNotToUse": "stencila:whenNotToUse",
     "whenToUse": "stencila:whenToUse",
     "work": "stencila:work",
-    "workType": "stencila:workType"
+    "workType": "stencila:workType",
+    "worktreeStatus": "stencila:worktreeStatus"
   }
 }

@@ -24,6 +24,7 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
+use super::worktree_status::WorktreeStatus;
 
 /// Source code for software.
 #[skip_serializing_none]
@@ -280,6 +281,11 @@ pub struct SoftwareSourceCodeOptions {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[dom(elem = "h1")]
     pub title: Option<Vec<Inline>>,
+
+    /// The status of the source worktree relative to the commit.
+    #[serde(alias = "worktree-status", alias = "worktree_status")]
+    #[strip(metadata)]
+    pub worktree_status: Option<WorktreeStatus>,
 
     /// What type of code sample: full (compile ready) solution, code snippet, inline code, scripts, template.
     #[serde(alias = "code-sample-type", alias = "code_sample_type")]

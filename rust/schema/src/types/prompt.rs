@@ -34,6 +34,7 @@ use super::text::Text;
 use super::thing_variant::ThingVariant;
 use super::timestamp::Timestamp;
 use super::unsigned_integer_or_string::UnsignedIntegerOrString;
+use super::worktree_status::WorktreeStatus;
 
 /// A prompt for creating or editing document content.
 #[skip_serializing_none]
@@ -323,6 +324,11 @@ pub struct PromptOptions {
     /// The commit hash (or similar) of the source of the work.
     #[strip(metadata)]
     pub commit: Option<String>,
+
+    /// The status of the source worktree relative to the commit.
+    #[serde(alias = "worktree-status", alias = "worktree_status")]
+    #[strip(metadata)]
+    pub worktree_status: Option<WorktreeStatus>,
 
     /// A digest of the content, semantics and dependencies of the node.
     #[serde(alias = "compilation-digest", alias = "compilation_digest")]

@@ -18,6 +18,7 @@ import { StringOrNumber } from "./StringOrNumber.js";
 import { Text } from "./Text.js";
 import { Thing } from "./Thing.js";
 import { ThingVariant } from "./ThingVariant.js";
+import { WorktreeStatus } from "./WorktreeStatus.js";
 
 /**
  * A creative work.
@@ -175,6 +176,11 @@ export class CreativeWork extends Thing {
    * The commit hash (or similar) of the source of the work.
    */
   commit?: string;
+
+  /**
+   * The status of the source worktree relative to the commit.
+   */
+  worktreeStatus?: WorktreeStatus;
 
   /**
    * The version of the creative work.

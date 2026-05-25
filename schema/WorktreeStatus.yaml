@@ -1,0 +1,26 @@
+title: WorktreeStatus
+'@id': stencila:WorktreeStatus
+extends: Enumeration
+category: works
+description: The status of a source worktree relative to a commit.
+$comment: |
+  This enumeration is used with source metadata such as `repository`, `path`,
+  and `commit` on `CreativeWork` and derived types.
+
+  It records whether the source worktree had uncommitted or untracked changes
+  when the work metadata was captured. Omit the property when status was not
+  checked or does not apply.
+
+  This avoids overloading the `commit` property with sentinel values such as
+  "dirty" or "untracked" while still preserving the commit hash that the
+  worktree state is relative to.
+anyOf:
+  - const: Clean
+    '@id': stencila:Clean
+    description: The source worktree matched the recorded commit with no known uncommitted or untracked changes.
+  - const: Dirty
+    '@id': stencila:Dirty
+    description: The source worktree had tracked changes that were not represented by the recorded commit.
+  - const: Untracked
+    '@id': stencila:Untracked
+    description: The source file or relevant worktree content was not tracked by version control.

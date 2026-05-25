@@ -613,6 +613,16 @@ class VerticalAlignment(StrEnum):
     AlignMiddle = "AlignMiddle"
 
 
+class WorktreeStatus(StrEnum):
+    """
+    The status of a source worktree relative to a commit.
+    """
+
+    Clean = "Clean"
+    Dirty = "Dirty"
+    Untracked = "Untracked"
+
+
 
 @dataclass(kw_only=True, repr=False)
 class Entity(_Base):
@@ -750,6 +760,9 @@ class CreativeWork(Thing):
 
     commit: str | None = None
     """The commit hash (or similar) of the source of the work."""
+
+    worktree_status: WorktreeStatus | None = None
+    """The status of the source worktree relative to the commit."""
 
     version: str | float | None = None
     """The version of the creative work."""

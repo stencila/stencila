@@ -22,6 +22,7 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
+use super::worktree_status::WorktreeStatus;
 
 /// A review of an item, e.g of an `Article` or `SoftwareApplication`.
 #[skip_serializing_none]
@@ -270,6 +271,11 @@ pub struct ReviewOptions {
     /// The commit hash (or similar) of the source of the work.
     #[strip(metadata)]
     pub commit: Option<String>,
+
+    /// The status of the source worktree relative to the commit.
+    #[serde(alias = "worktree-status", alias = "worktree_status")]
+    #[strip(metadata)]
+    pub worktree_status: Option<WorktreeStatus>,
 
     /// The version of the creative work.
     #[strip(metadata)]

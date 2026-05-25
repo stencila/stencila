@@ -23,6 +23,7 @@ use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
 use super::thing_variant::ThingVariant;
+use super::worktree_status::WorktreeStatus;
 
 /// A software application.
 #[skip_serializing_none]
@@ -275,6 +276,11 @@ pub struct SoftwareApplicationOptions {
     /// The commit hash (or similar) of the source of the work.
     #[strip(metadata)]
     pub commit: Option<String>,
+
+    /// The status of the source worktree relative to the commit.
+    #[serde(alias = "worktree-status", alias = "worktree_status")]
+    #[strip(metadata)]
+    pub worktree_status: Option<WorktreeStatus>,
 
     /// Requirements for application, including shared libraries that are not included in the application distribution.
     #[serde(alias = "software-requirements", alias = "software_requirements", alias = "softwareRequirement", alias = "software-requirement", alias = "software_requirement")]
