@@ -4,7 +4,11 @@
 //! Prefer extending an existing fixture, or adding a new fixture, before adding
 //! tests here.
 
-use std::{fs::write, path::Path, process::Command};
+use std::{
+    fs::{copy, write},
+    path::{Path, PathBuf},
+    process::Command,
+};
 
 use eyre::{OptionExt, Result, bail};
 use stencila_codecs::{DecodeOptions, Format};
@@ -47,6 +51,123 @@ async fn decode_options_override_extension() -> Result<()> {
         "file:report",
         "node:report#art_",
         GraphEdgeKind::ConvertedInto,
+    );
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn workspace_graph_includes_c2pa_provenance_by_default() -> Result<()> {
+    let workspace = tempdir()?;
+    copy(
+        content_credentials_fixture("ai-generated.png"),
+        workspace.path().join("ai-generated.png"),
+    )?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            source_metadata: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let credential_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| {
+            node.id
+                .starts_with("credential:")
+                .then_some(node.id.as_str())
+        })
+        .ok_or_eyre("missing credential node")?;
+
+    let credential_edge = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == "image:ai-generated.png"
+                && edge.target == credential_id
+                && edge.kind == GraphEdgeKind::LinkedBy
+        })
+        .ok_or_eyre("missing credential binding edge")?;
+    assert_edge_evidence(credential_edge, GraphEvidenceKind::Attested);
+
+    let graph_json = serde_json::to_value(&graph)?;
+    let raw_c2pa_details = graph_json
+        .pointer("/edges")
+        .and_then(serde_json::Value::as_array)
+        .into_iter()
+        .flatten()
+        .find_map(|edge| {
+            edge["evidence"][0]["details"]
+                .get("reader")
+                .map(|_| edge["evidence"][0]["details"].clone())
+        })
+        .ok_or_eyre("missing raw C2PA reader JSON in edge evidence")?;
+    assert_eq!(raw_c2pa_details["assetNodeId"], "image:ai-generated.png");
+    assert!(
+        raw_c2pa_details.get("assetPath").is_none(),
+        "C2PA graph evidence should not expose absolute asset paths"
+    );
+    assert!(
+        raw_c2pa_details.get("manifestPath").is_none(),
+        "C2PA graph evidence should not expose absolute manifest paths"
+    );
+    assert!(
+        !serde_json::to_string(&graph)?.contains(workspace.path().to_string_lossy().as_ref()),
+        "workspace graphs should not contain local absolute paths from C2PA inspection"
+    );
+
+    let graph_without_c2pa = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            include_c2pa: false,
+            source_metadata: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    assert!(
+        graph_without_c2pa
+            .nodes
+            .iter()
+            .all(|node| !node.id.starts_with("credential:"))
+    );
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn strict_c2pa_ignores_unsigned_embeddable_media_without_sidecar() -> Result<()> {
+    let workspace = tempdir()?;
+    copy(
+        content_credentials_fixture("sample.png"),
+        workspace.path().join("sample.png"),
+    )?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            fail_on_c2pa_error: true,
+            source_metadata: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .all(|node| !node.id.starts_with("credential:"))
     );
 
     Ok(())
@@ -701,6 +822,14 @@ fn assert_edge_evidence(edge: &GraphEdge, kind: GraphEvidenceKind) {
         edge.target,
         edge.kind
     );
+}
+
+fn content_credentials_fixture(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .parent()
+        .unwrap_or_else(|| Path::new("."))
+        .join("content-credentials/tests/fixtures")
+        .join(name)
 }
 
 fn git_available() -> bool {

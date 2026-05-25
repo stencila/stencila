@@ -1550,7 +1550,9 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
     match graph_id_namespace(&node.id) {
         "dir" => return GraphViewNodeKind::Workspace,
         "environment" => return GraphViewNodeKind::Environment,
-        "file" | "symlink" | "resource" | "code-file" => return GraphViewNodeKind::Resource,
+        "file" | "symlink" | "resource" | "code-file" | "credential" | "ingredient" | "agent" => {
+            return GraphViewNodeKind::Resource;
+        }
         "code" => return GraphViewNodeKind::Code,
         "symbol" => return GraphViewNodeKind::Symbol,
         "function" | "workflow-unit" => return GraphViewNodeKind::Function,

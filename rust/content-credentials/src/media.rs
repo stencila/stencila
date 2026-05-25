@@ -220,6 +220,7 @@ fn stencila_media_type(path: &Path) -> Option<&'static str> {
         .extension()
         .and_then(|extension| extension.to_str())
     {
+        Some("c2pa") => Some("application/c2pa"),
         Some("llmd") => Some("text/llmd"),
         Some("myst") => Some("text/myst"),
         Some("qmd") => Some("text/qmd"),

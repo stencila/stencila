@@ -60,4 +60,7 @@ pub use snapshot::{
     WorkflowSnapshot,
 };
 pub use trust::{TrustListStatus, official_trust_anchors, refresh_official_trust_list};
-pub use verifier::{CredentialVerifier, ExtractedResource, VerifyAssetRequest};
+pub use verifier::{
+    C2paInspection, C2paManifestSourceKind, CredentialVerifier, ExtractedResource,
+    InspectC2paRequest, VerifyAssetRequest,
+};

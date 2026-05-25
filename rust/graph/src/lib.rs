@@ -47,6 +47,7 @@
 //! ```
 
 mod builder;
+mod c2pa;
 pub mod code;
 mod document;
 pub mod dot;

@@ -64,6 +64,10 @@ pub struct Cli {
     #[arg(long)]
     no_collapse_citations: bool,
 
+    /// Do not inspect C2PA content credentials while building workspace graphs
+    #[arg(long)]
+    no_c2pa: bool,
+
     /// Filter projected graph exports to nodes connected to matching nodes
     #[arg(long, value_name = "PATTERN")]
     connected_to: Vec<String>,
@@ -150,7 +154,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let GraphSource { graph, path } = build_graph(&self.path).await?;
+        let GraphSource { graph, path } = build_graph(&self.path, self.no_c2pa).await?;
 
         match &self.output {
             Some(output) => {
@@ -383,11 +387,18 @@ struct GraphSource {
     path: PathBuf,
 }
 
-async fn build_graph(path: &Path) -> Result<GraphSource> {
+async fn build_graph(path: &Path, no_c2pa: bool) -> Result<GraphSource> {
     let path = path.canonicalize()?;
 
     if path.is_dir() {
-        let graph = graph_from_path(&path, Some(WorkspaceOptions::default())).await?;
+        let graph = graph_from_path(
+            &path,
+            Some(WorkspaceOptions {
+                include_c2pa: !no_c2pa,
+                ..Default::default()
+            }),
+        )
+        .await?;
         return Ok(GraphSource { graph, path });
     }
 

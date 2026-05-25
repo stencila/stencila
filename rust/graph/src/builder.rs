@@ -114,6 +114,11 @@ impl GraphBuilder {
         }
     }
 
+    /// Check whether a graph node id has already been added.
+    pub fn contains_node(&self, id: &str) -> bool {
+        self.nodes.contains_key(id)
+    }
+
     /// Add a directed graph edge.
     ///
     /// Self edges are ignored because the graph represents relationships between

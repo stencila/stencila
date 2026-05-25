@@ -72,6 +72,19 @@ pub struct WorkspaceOptions {
     /// workspace inventory graph, but stricter callers can opt into failure.
     pub fail_on_environment_error: bool,
 
+    /// Inspect embedded and sidecar C2PA manifests and add provenance to the graph.
+    ///
+    /// Enabled by default so workspace graphs include signed provenance when it
+    /// is present. Disable when callers need a pure filesystem/static-analysis
+    /// graph or want to avoid C2PA SDK reads over media files.
+    pub include_c2pa: bool,
+
+    /// Fail graph construction when C2PA metadata is present but cannot be inspected.
+    ///
+    /// The default is permissive so unsigned files or invalid credentials do not
+    /// prevent a workspace graph, but stricter callers can opt into failure.
+    pub fail_on_c2pa_error: bool,
+
     /// Record source repository metadata on the generated graph when available.
     ///
     /// When enabled, graph construction records `repository`, `path`, `commit`,
@@ -89,6 +102,8 @@ impl Default for WorkspaceOptions {
             fail_on_decode_error: false,
             analyze_environment: true,
             fail_on_environment_error: false,
+            include_c2pa: true,
+            fail_on_c2pa_error: false,
             source_metadata: true,
         }
     }
@@ -141,7 +156,7 @@ pub async fn graph_from_path(
         .map(|entry| (entry.rel.clone(), workspace_file_node_type(&entry.path)))
         .collect::<BTreeMap<_, _>>();
 
-    for entry in entries {
+    for entry in &entries {
         match entry.kind {
             WorkspaceEntryKind::Directory => {
                 add_directory(&mut builder, &entry.rel, &entry.path);
@@ -333,6 +348,21 @@ pub async fn graph_from_path(
             }
             WorkspaceEntryKind::Other => {}
         }
+    }
+
+    if options.include_c2pa {
+        let c2pa_files = entries
+            .iter()
+            .filter(|entry| entry.kind == WorkspaceEntryKind::File)
+            .map(|entry| {
+                (
+                    entry.path.clone(),
+                    workspace_file_id(&entry.rel, &file_node_types),
+                )
+            });
+        let candidates = crate::c2pa::candidates_from_files(c2pa_files);
+        crate::c2pa::add_c2pa_from_candidates(&mut builder, candidates, options.fail_on_c2pa_error)
+            .await?;
     }
 
     let mut graph = builder.build()?;

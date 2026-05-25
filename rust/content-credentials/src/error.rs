@@ -77,6 +77,12 @@ pub enum Error {
 }
 
 impl Error {
+    /// Whether this error means the scanned asset did not contain a C2PA manifest.
+    #[must_use]
+    pub fn is_missing_c2pa_manifest(&self) -> bool {
+        matches!(self, Self::C2pa(c2pa::Error::JumbfNotFound))
+    }
+
     pub fn other(message: impl Into<String>) -> Self {
         Self::Other(message.into())
     }

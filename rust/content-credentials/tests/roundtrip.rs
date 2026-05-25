@@ -5,9 +5,10 @@ use std::{fs, io::Cursor};
 
 use serde_json::Value;
 use stencila_content_credentials::{
-    AssetSnapshot, CredentialProducer, CredentialVerifier, DocumentSnapshot, Error,
-    IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot, ManifestKind,
-    ProducerSnapshot, ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
+    AssetSnapshot, C2paManifestSourceKind, CredentialProducer, CredentialVerifier,
+    DocumentSnapshot, Error, IngredientRelationship, IngredientSnapshot,
+    IngredientThumbnailSnapshot, InspectC2paRequest, ManifestKind, ProducerSnapshot,
+    ProvenanceSnapshot, SignAssetRequest, SourceSnapshot, VerifyAssetRequest,
     init_local_signing_identity, signer::CredentialSignerConfig,
 };
 use tempfile::TempDir;
@@ -59,7 +60,7 @@ async fn sign_then_verify_png() {
     let verifier = CredentialVerifier::new();
     let report = verifier
         .verify_asset(VerifyAssetRequest {
-            asset_path,
+            asset_path: asset_path.clone(),
             require_trusted_signer: false,
             require_stencila_assertion: false,
             require_repro_exact: false,
@@ -87,6 +88,18 @@ async fn sign_then_verify_png() {
     assert_eq!(assertion.asset.asset_type, "image");
     assert_eq!(assertion.root_node.node_type, "File");
     assert_eq!(assertion.reproducibility.status, "not-checked");
+
+    let inspection = verifier
+        .inspect_c2pa(InspectC2paRequest {
+            path: asset_path,
+            paired_asset_path: None,
+            trust_anchors: None,
+        })
+        .await
+        .expect("inspect c2pa");
+    assert_eq!(inspection.source_kind, C2paManifestSourceKind::Embedded);
+    assert!(inspection.report.asset_binding.valid);
+    assert!(inspection.reader_json["active_manifest"].is_string());
 }
 
 /// Exercises signing with an explicit Stencila provenance snapshot.
@@ -358,7 +371,37 @@ async fn sign_emits_static_article_claim_thumbnail_for_non_image_asset() {
         "non-image asset should have sidecar credentials: {signed:?}"
     );
 
+    let sidecar_path = signed
+        .sidecar_path
+        .clone()
+        .expect("sidecar path for sidecar manifest");
+
     let verifier = CredentialVerifier::new();
+    let inspection = verifier
+        .inspect_c2pa(InspectC2paRequest {
+            path: sidecar_path.clone(),
+            paired_asset_path: Some(asset_path.clone()),
+            trust_anchors: None,
+        })
+        .await
+        .expect("inspect sidecar c2pa");
+    assert_eq!(inspection.source_kind, C2paManifestSourceKind::Sidecar);
+    assert!(inspection.report.asset_binding.valid);
+
+    let standalone_inspection = verifier
+        .inspect_c2pa(InspectC2paRequest {
+            path: sidecar_path,
+            paired_asset_path: None,
+            trust_anchors: None,
+        })
+        .await
+        .expect("inspect standalone c2pa");
+    assert_eq!(
+        standalone_inspection.source_kind,
+        C2paManifestSourceKind::Standalone
+    );
+    assert!(standalone_inspection.reader_json["active_manifest"].is_string());
+
     let manifest_json = verifier
         .inspect_asset(&asset_path, None)
         .await

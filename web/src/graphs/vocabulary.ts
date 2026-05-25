@@ -92,6 +92,9 @@ export function nodeKind(node: GraphNode | undefined): GraphViewNodeKind {
     case 'symlink':
     case 'resource':
     case 'code-file':
+    case 'credential':
+    case 'ingredient':
+    case 'agent':
       return 'resource'
     case 'code':
       return 'code'

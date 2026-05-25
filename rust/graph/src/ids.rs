@@ -300,6 +300,33 @@ impl LocalGraphId {
         format!("resource:{}", encode_id_component(uri))
     }
 
+    /// Create the graph id for a C2PA credential manifest.
+    pub(crate) fn credential(scope: &str, manifest_id: &str) -> String {
+        format!(
+            "credential:{}#{}",
+            encode_id_component(scope),
+            encode_id_component(manifest_id)
+        )
+    }
+
+    /// Create the graph id for a C2PA ingredient.
+    pub(crate) fn credential_ingredient(scope: &str, index: usize, identity: &str) -> String {
+        format!(
+            "ingredient:{}:{index}:{}",
+            encode_id_component(scope),
+            encode_id_component(identity)
+        )
+    }
+
+    /// Create the graph id for an agent imported from C2PA provenance metadata.
+    pub(crate) fn credential_agent(scope: &str, identity: &str) -> String {
+        format!(
+            "agent:{}#{}",
+            encode_id_component(scope),
+            encode_id_component(identity)
+        )
+    }
+
     /// Create the graph id for an unresolved file reference discovered in code.
     ///
     /// Workspace graph construction resolves references to concrete workspace

@@ -70,6 +70,53 @@ pub struct ExtractedResource {
     pub bytes: usize,
 }
 
+/// Source from which a C2PA manifest store was inspected.
+#[derive(Debug, Clone, Copy, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "camelCase")]
+pub enum C2paManifestSourceKind {
+    /// The manifest was embedded in the inspected asset.
+    Embedded,
+
+    /// The manifest was loaded from a sidecar and validated against a paired asset.
+    Sidecar,
+
+    /// The manifest store was inspected directly without a paired asset.
+    Standalone,
+}
+
+/// Inputs for inspecting C2PA provenance for graph extraction.
+#[derive(Debug, Clone)]
+pub struct InspectC2paRequest {
+    /// Asset or standalone `.c2pa` path to inspect.
+    pub path: PathBuf,
+
+    /// Original asset to validate a sidecar against when `path` is a `.c2pa` file.
+    pub paired_asset_path: Option<PathBuf>,
+
+    /// Optional PEM bundle of C2PA trust anchors for local signer trust checks.
+    pub trust_anchors: Option<String>,
+}
+
+/// Structured result from inspecting a C2PA manifest store.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct C2paInspection {
+    /// Where the inspected manifest store came from.
+    pub source_kind: C2paManifestSourceKind,
+
+    /// Asset path whose bytes were bound to the manifest, if any.
+    pub asset_path: Option<PathBuf>,
+
+    /// Sidecar or standalone manifest path, if the manifest was not embedded.
+    pub manifest_path: Option<PathBuf>,
+
+    /// Raw `c2pa::Reader` JSON for lossless downstream projection.
+    pub reader_json: Value,
+
+    /// Verification report for the inspected manifest store.
+    pub report: VerificationReport,
+}
+
 /// High-level credential verifier.
 #[derive(Debug, Default)]
 pub struct CredentialVerifier;
@@ -155,6 +202,26 @@ impl CredentialVerifier {
         .await??;
         let value: Value = serde_json::from_str(&json_str)?;
         Ok(value)
+    }
+
+    /// Inspect C2PA provenance from an asset, paired sidecar, or standalone manifest store.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the requested path does not exist, a paired asset is
+    /// required but missing, the c2pa SDK cannot open the manifest store, or
+    /// the reader JSON cannot be parsed.
+    pub async fn inspect_c2pa(&self, request: InspectC2paRequest) -> Result<C2paInspection> {
+        if !request.path.exists() {
+            return Err(Error::InputNotFound(request.path));
+        }
+        if let Some(path) = request.paired_asset_path.as_ref()
+            && !path.exists()
+        {
+            return Err(Error::InputNotFound(path.clone()));
+        }
+
+        tokio::task::spawn_blocking(move || inspect_c2pa_blocking(request)).await?
     }
 
     /// Extract binary resources referenced by an inspected C2PA manifest.
@@ -309,6 +376,73 @@ fn resource_extension(format: Option<&str>, identifier: &str) -> &'static str {
     }
 }
 
+/// Inspect a C2PA manifest store using the synchronous c2pa reader APIs.
+///
+/// This performs the actual asset, sidecar, or standalone manifest read and
+/// converts the resulting reader state into a graph-friendly inspection record.
+/// The c2pa SDK reader is synchronous and may perform blocking file IO,
+/// manifest parsing, validation, signature checks, and sidecar reads, so the
+/// async [`CredentialVerifier::inspect_c2pa`] wrapper runs this helper with
+/// `tokio::task::spawn_blocking` instead of doing that work on a Tokio worker
+/// thread.
+fn inspect_c2pa_blocking(request: InspectC2paRequest) -> Result<C2paInspection> {
+    let InspectC2paRequest {
+        path,
+        paired_asset_path,
+        trust_anchors,
+    } = request;
+
+    let (reader, source_kind, asset_path, manifest_path) = if is_sidecar_path(&path) {
+        if let Some(asset_path) = paired_asset_path {
+            let media_type = media::guess_media_type(&asset_path)?;
+            let reader =
+                read_with_sidecar(&asset_path, &path, &media_type, trust_anchors.as_deref())?;
+
+            (
+                reader,
+                C2paManifestSourceKind::Sidecar,
+                Some(asset_path),
+                Some(path),
+            )
+        } else {
+            let reader = read_standalone_manifest(&path, trust_anchors.as_deref())?;
+
+            (reader, C2paManifestSourceKind::Standalone, None, Some(path))
+        }
+    } else {
+        let media_type = media::guess_media_type(&path)?;
+        let sidecar_path = media::sidecar_path(&path);
+        let (reader, from_sidecar) =
+            open_reader_with_source(&path, &sidecar_path, &media_type, trust_anchors.as_deref());
+        let reader = reader?;
+
+        if from_sidecar {
+            (
+                reader,
+                C2paManifestSourceKind::Sidecar,
+                Some(path),
+                Some(sidecar_path),
+            )
+        } else {
+            (reader, C2paManifestSourceKind::Embedded, Some(path), None)
+        }
+    };
+
+    let reader_json = serde_json::from_str(&reader.json())?;
+    let report = report_from_reader(
+        &reader,
+        matches!(source_kind, C2paManifestSourceKind::Sidecar),
+    );
+
+    Ok(C2paInspection {
+        source_kind,
+        asset_path,
+        manifest_path,
+        reader_json,
+        report,
+    })
+}
+
 fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationReport {
     let media_type = media::guess_media_type(asset_path).unwrap_or_default();
     let sidecar_path = media::sidecar_path(asset_path);
@@ -363,6 +497,10 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
         }
     };
 
+    report_from_reader(&reader, from_sidecar)
+}
+
+fn report_from_reader(reader: &Reader, from_sidecar: bool) -> VerificationReport {
     let validation_state = reader.validation_state();
     let manifest_valid = matches!(
         validation_state,
@@ -379,7 +517,7 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
         from_sidecar,
     };
 
-    let signature_valid = read_signature_validity(&reader);
+    let signature_valid = read_signature_validity(reader);
     let mut signature = SignerStatus {
         valid: signature_valid,
         trusted: signer_trusted,
@@ -391,13 +529,13 @@ fn read_report(asset_path: &Path, trust_anchors: Option<&str>) -> VerificationRe
         signature.signer = cn.or(issuer);
     }
 
-    let asset_binding = read_asset_binding(&reader);
+    let asset_binding = read_asset_binding(reader);
 
     let (provenance, provenance_problem) = active
         .map(|manifest| read_provenance(manifest, signature_valid, asset_binding.valid))
         .unwrap_or_default();
 
-    let mut problems = collect_problems(&reader);
+    let mut problems = collect_problems(reader);
     if let Some(problem) = provenance_problem {
         problems.push(problem);
     }
@@ -625,6 +763,13 @@ fn read_with_sidecar(
     let mut asset = File::open(asset_path)?;
     reader_with_context(trust_anchors)?
         .with_manifest_data_and_stream(&manifest_bytes, media_type, &mut asset)
+        .map_err(Error::C2pa)
+}
+
+fn read_standalone_manifest(path: &Path, trust_anchors: Option<&str>) -> Result<Reader> {
+    let mut manifest = File::open(path)?;
+    reader_with_context(trust_anchors)?
+        .with_stream("application/c2pa", &mut manifest)
         .map_err(Error::C2pa)
 }
 
