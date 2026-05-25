@@ -354,9 +354,9 @@ fn add_actions(
 
         let mut sources = action_ingredient_ids(action, ingredient_ids);
         if sources.is_empty()
-            && let Some(agent_id) = add_action_agent(builder, scope, action)
+            && let Some(software_id) = add_action_software(builder, scope, action)
         {
-            sources.push(agent_id);
+            sources.push(software_id);
         }
 
         for source in sources {
@@ -427,7 +427,7 @@ fn add_stencila_assertion(
         let Some(agent_name) = attribution.agent.name.as_deref() else {
             continue;
         };
-        let agent_id = add_software_agent(
+        let software_id = add_software_agent(
             builder,
             scope,
             attribution.agent.id.as_deref().unwrap_or(agent_name),
@@ -435,7 +435,7 @@ fn add_stencila_assertion(
             attribution.agent.version.as_deref(),
             attribution.agent.provider.as_deref(),
         );
-        builder.add_generation(agent_id, asset_id, [evidence.clone()]);
+        builder.add_generation(software_id, asset_id, [evidence.clone()]);
     }
 }
 
@@ -464,8 +464,8 @@ fn add_ai_disclosure(
             .or(disclosure.model_identifier.as_deref())
             .unwrap_or("AI model");
         let identity = disclosure.model_identifier.as_deref().unwrap_or(name);
-        let agent_id = add_software_agent(builder, scope, identity, name, None, None);
-        builder.add_generation(agent_id, asset_id, [evidence.clone()]);
+        let software_id = add_software_agent(builder, scope, identity, name, None, None);
+        builder.add_generation(software_id, asset_id, [evidence.clone()]);
     }
 
     for assertion in manifest
@@ -489,8 +489,8 @@ fn add_ai_disclosure(
             .or_else(|| data.get("model_identifier"))
             .and_then(Value::as_str)
             .unwrap_or(name);
-        let agent_id = add_software_agent(builder, scope, identity, name, None, None);
-        builder.add_generation(agent_id, asset_id, [evidence.clone()]);
+        let software_id = add_software_agent(builder, scope, identity, name, None, None);
+        builder.add_generation(software_id, asset_id, [evidence.clone()]);
     }
 }
 
@@ -513,13 +513,13 @@ fn add_stencila_node(
     builder.add_schema_node(node_id, Node::CreativeWork(node));
 }
 
-fn add_action_agent(builder: &mut GraphBuilder, scope: &str, action: &Value) -> Option<String> {
-    let agent = action.get("softwareAgent")?;
-    let name = agent
+fn add_action_software(builder: &mut GraphBuilder, scope: &str, action: &Value) -> Option<String> {
+    let software_agent = action.get("softwareAgent")?;
+    let name = software_agent
         .get("name")
         .and_then(Value::as_str)
-        .or_else(|| agent.as_str())?;
-    let version = agent.get("version").and_then(Value::as_str);
+        .or_else(|| software_agent.as_str())?;
+    let version = software_agent.get("version").and_then(Value::as_str);
 
     Some(add_software_agent(
         builder, scope, name, name, version, None,
@@ -534,19 +534,19 @@ fn add_software_agent(
     version: Option<&str>,
     provider: Option<&str>,
 ) -> String {
-    let agent_id = LocalGraphId::credential_agent(scope, identity);
-    if builder.contains_node(&agent_id) {
-        return agent_id;
+    let software_id = LocalGraphId::credential_software(scope, identity);
+    if builder.contains_node(&software_id) {
+        return software_id;
     }
 
-    let mut agent = SoftwareApplication::new(name.to_string());
-    agent.id = Some(agent_id.clone());
-    agent.options.software_version = version.map(ToString::to_string);
-    agent.options.description =
-        provider.map(|provider| format!("C2PA provenance agent from {provider}"));
-    builder.add_schema_node(&agent_id, Node::SoftwareApplication(agent));
+    let mut software = SoftwareApplication::new(name.to_string());
+    software.id = Some(software_id.clone());
+    software.options.software_version = version.map(ToString::to_string);
+    software.options.description =
+        provider.map(|provider| format!("C2PA provenance software from {provider}"));
+    builder.add_schema_node(&software_id, Node::SoftwareApplication(software));
 
-    agent_id
+    software_id
 }
 
 fn graph_action(scope: &str, action: &Value, index: usize) -> GraphAction {

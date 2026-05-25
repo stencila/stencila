@@ -311,6 +311,11 @@ fn node_style(kind: GraphViewNodeKind) -> NodeStyle {
             fill_color: "#f2f5f8",
             color: "#647486",
         },
+        GraphViewNodeKind::Software => NodeStyle {
+            shape: "box3d",
+            fill_color: "#f1f5ff",
+            color: "#5261b8",
+        },
         GraphViewNodeKind::Resource | GraphViewNodeKind::Output => NodeStyle {
             shape: "component",
             fill_color: "#eef2f7",
@@ -396,7 +401,7 @@ fn dot_escape(value: &str) -> String {
 mod tests {
     use stencila_schema::{
         Article, Directory, File, Function, Graph, GraphEdge, GraphEdgeKind, GraphNode, Node,
-        SoftwareSourceCode,
+        SoftwareApplication, SoftwareSourceCode,
     };
 
     use crate::{
@@ -717,6 +722,32 @@ mod tests {
 
         assert!(dot.contains(
             "\"node:report.html#art_\" [label=\"report.html\", kind=\"document\", shape=\"note\""
+        ));
+    }
+
+    #[test]
+    fn renders_software_applications_with_distinct_shape() {
+        let graph = Graph::new(
+            "test:software-shape".to_string(),
+            vec![graph_node(
+                "software:gpt-image",
+                Node::SoftwareApplication(SoftwareApplication::new("gpt-image".to_string())),
+            )],
+            Vec::new(),
+        );
+        let view = project_graph(
+            &graph,
+            &GraphProjectionOptions {
+                preset: GraphProjectionPreset::All,
+                containment: Some(GraphContainmentMode::None),
+                ..Default::default()
+            },
+        );
+
+        let dot = to_dot(&view);
+
+        assert!(dot.contains(
+            "\"software:gpt-image\" [label=\"gpt-image\", kind=\"software\", shape=\"box3d\""
         ));
     }
 

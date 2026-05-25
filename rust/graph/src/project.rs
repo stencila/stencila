@@ -271,6 +271,7 @@ pub enum GraphViewNodeKind {
     Document,
     Workspace,
     Environment,
+    Software,
     Resource,
     Content,
     Code,
@@ -291,6 +292,7 @@ impl GraphViewNodeKind {
             Self::Document => "document",
             Self::Workspace => "workspace",
             Self::Environment => "environment",
+            Self::Software => "software",
             Self::Resource => "resource",
             Self::Content => "content",
             Self::Code => "code",
@@ -1231,7 +1233,10 @@ fn edge_score(
         }
         GraphEdgeKind::LinkedBy => {
             let targets_environment = edge_targets_environment(edge, nodes_by_id);
-            if (preset == GraphProjectionPreset::Deps && targets_environment)
+            if (preset == GraphProjectionPreset::Flow
+                && edge_targets_content_context(edge, nodes_by_id)
+                && !edge_sources_external_resource(edge, nodes_by_id))
+                || (preset == GraphProjectionPreset::Deps && targets_environment)
                 || (preset == GraphProjectionPreset::Cite
                     && edge_sources_external_resource(edge, nodes_by_id))
             {
@@ -1285,6 +1290,16 @@ fn edge_sources_external_resource(
     graph_id_namespace(&edge.source) == "resource"
         && !edge_targets_environment(edge, nodes_by_id)
         && node_kind(nodes_by_id.get(edge.source.as_str()).copied()) == GraphViewNodeKind::Resource
+}
+
+fn edge_targets_content_context(
+    edge: &GraphEdge,
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+) -> bool {
+    matches!(
+        node_kind(nodes_by_id.get(edge.target.as_str()).copied()),
+        GraphViewNodeKind::Content | GraphViewNodeKind::Document
+    )
 }
 
 fn is_reactive_generation_edge(edge: &GraphEdge, nodes_by_id: &BTreeMap<&str, &GraphNode>) -> bool {
@@ -1550,7 +1565,8 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
     match graph_id_namespace(&node.id) {
         "dir" => return GraphViewNodeKind::Workspace,
         "environment" => return GraphViewNodeKind::Environment,
-        "file" | "symlink" | "resource" | "code-file" | "credential" | "ingredient" | "agent" => {
+        "software" => return GraphViewNodeKind::Software,
+        "file" | "symlink" | "resource" | "code-file" | "credential" | "ingredient" => {
             return GraphViewNodeKind::Resource;
         }
         "code" => return GraphViewNodeKind::Code,
@@ -1581,6 +1597,7 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
         Some("Function") => GraphViewNodeKind::Function,
         Some("Datatable" | "DatatableColumn") => GraphViewNodeKind::Datatable,
         Some("Directory") => GraphViewNodeKind::Workspace,
+        Some("SoftwareApplication") => GraphViewNodeKind::Software,
         Some("File" | "SymbolicLink") => GraphViewNodeKind::Resource,
         Some("Article" | "Collection" | "Prompt") => GraphViewNodeKind::Document,
         Some(

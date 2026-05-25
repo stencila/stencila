@@ -318,10 +318,10 @@ impl LocalGraphId {
         )
     }
 
-    /// Create the graph id for an agent imported from C2PA provenance metadata.
-    pub(crate) fn credential_agent(scope: &str, identity: &str) -> String {
+    /// Create the graph id for software imported from C2PA provenance metadata.
+    pub(crate) fn credential_software(scope: &str, identity: &str) -> String {
         format!(
-            "agent:{}#{}",
+            "software:{}#{}",
             encode_id_component(scope),
             encode_id_component(identity)
         )
