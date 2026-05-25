@@ -264,6 +264,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 9
+          startColumn: 5
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:counts"
@@ -271,6 +276,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 14
+          startColumn: 5
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:download"
@@ -278,6 +288,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 0
+          startColumn: 5
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:report"
@@ -285,6 +300,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 19
+          startColumn: 5
   - type: GraphEdge
     source: "code:Snakefile"
     target: "workflow-unit:Snakefile:trim_reads"
@@ -292,6 +312,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 4
+          startColumn: 5
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
     target: "datatable:results/counts/gene-counts.tsv"
@@ -299,6 +324,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: workflow/scripts/counts.py
+          startLine: 2
+          startColumn: 5
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: results/counts/gene-counts.tsv
+          byteOffset: 31
+          function: Path
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
     target: "dir:workflow/scripts"
@@ -327,6 +364,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: workflow/scripts/download.py
+          startLine: 2
+          startColumn: 5
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/raw/S1.fastq
+          byteOffset: 31
+          function: Path
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
     target: "workflow-unit:Snakefile:download"
@@ -348,6 +397,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: results/counts/gene-counts.tsv
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -425,6 +479,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: data/raw/S1.fastq
   - type: GraphEdge
     source: "file:data/trimmed/S1.fastq"
     target: "dir:data/trimmed"
@@ -439,6 +498,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: data/trimmed/S1.fastq
   - type: GraphEdge
     source: "file:reports/rnaseq.html"
     target: "dir:reports"
@@ -460,6 +524,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: results/alignments/S1.bam
   - type: GraphEdge
     source: "function:Snakefile:snakemake:shell"
     target: "code:Snakefile"
@@ -502,6 +571,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 9
+          startColumn: 5
   - type: GraphEdge
     source: "workflow-unit:Snakefile:align"
     target: "file:results/alignments/S1.bam"
@@ -509,6 +583,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: results/alignments/S1.bam
   - type: GraphEdge
     source: "workflow-unit:Snakefile:counts"
     target: "code:Snakefile"
@@ -516,6 +595,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 14
+          startColumn: 5
   - type: GraphEdge
     source: "workflow-unit:Snakefile:counts"
     target: "datatable:results/counts/gene-counts.tsv"
@@ -523,6 +607,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: results/counts/gene-counts.tsv
   - type: GraphEdge
     source: "workflow-unit:Snakefile:download"
     target: "code:Snakefile"
@@ -530,6 +619,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 0
+          startColumn: 5
   - type: GraphEdge
     source: "workflow-unit:Snakefile:download"
     target: "file:data/raw/S1.fastq"
@@ -537,6 +631,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: data/raw/S1.fastq
   - type: GraphEdge
     source: "workflow-unit:Snakefile:report"
     target: "code:Snakefile"
@@ -544,6 +643,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 19
+          startColumn: 5
   - type: GraphEdge
     source: "workflow-unit:Snakefile:report"
     target: "file:reports/rnaseq.html"
@@ -551,6 +655,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: reports/rnaseq.html
   - type: GraphEdge
     source: "workflow-unit:Snakefile:trim_reads"
     target: "code:Snakefile"
@@ -558,6 +667,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 4
+          startColumn: 5
   - type: GraphEdge
     source: "workflow-unit:Snakefile:trim_reads"
     target: "file:data/trimmed/S1.fastq"
@@ -565,3 +679,8 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: snakemake
+          pathKind: static
+          expression: data/trimmed/S1.fastq

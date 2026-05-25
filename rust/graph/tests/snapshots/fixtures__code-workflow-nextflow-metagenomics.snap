@@ -237,6 +237,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 11
+          startColumn: 0
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:qc"
@@ -244,6 +249,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:summarize"
@@ -251,6 +261,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 22
+          startColumn: 0
   - type: GraphEdge
     source: "code:nextflow.config"
     target: "dir:."
@@ -279,6 +294,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: results/classify/M1-taxa.tsv
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -328,6 +348,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: data/reads.fastq
   - type: GraphEdge
     source: "file:results/qc/M1-qc.txt"
     target: "dir:results/qc"
@@ -342,6 +367,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: results/qc/M1-qc.txt
   - type: GraphEdge
     source: "file:results/summary/report.html"
     target: "dir:results/summary"
@@ -405,6 +435,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 11
+          startColumn: 0
   - type: GraphEdge
     source: "workflow-unit:main.nf:classify"
     target: "datatable:results/classify/M1-taxa.tsv"
@@ -412,6 +447,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: results/classify/M1-taxa.tsv
   - type: GraphEdge
     source: "workflow-unit:main.nf:qc"
     target: "code:main.nf"
@@ -419,6 +459,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "workflow-unit:main.nf:qc"
     target: "file:results/qc/M1-qc.txt"
@@ -426,6 +471,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: results/qc/M1-qc.txt
   - type: GraphEdge
     source: "workflow-unit:main.nf:summarize"
     target: "code:main.nf"
@@ -433,6 +483,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: main.nf
+          startLine: 22
+          startColumn: 0
   - type: GraphEdge
     source: "workflow-unit:main.nf:summarize"
     target: "file:results/summary/report.html"
@@ -440,3 +495,8 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        details:
+          detector: stencila-code-static-analysis
+          language: nextflow
+          pathKind: static
+          expression: results/summary/report.html

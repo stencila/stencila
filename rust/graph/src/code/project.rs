@@ -13,7 +13,7 @@ use crate::{
 };
 
 use super::{
-    facts::{CodeFacts, ColumnFact, FunctionFact, IoFact, IoPath},
+    facts::{CodeFacts, ColumnFact, FunctionFact, IoFact, IoMode, IoPath},
     language::CodeLanguage,
     util::{is_static_literal, path_name},
 };
@@ -35,6 +35,16 @@ pub(super) enum CodeGraphMode {
     Full,
 }
 
+/// Source unit being projected into graph facts.
+#[derive(Debug, Clone, Copy)]
+pub(super) struct CodeGraphSource<'a> {
+    pub(super) unit_id: &'a str,
+    pub(super) scope: &'a str,
+    pub(super) language: CodeLanguage,
+    pub(super) source_text: Option<&'a str>,
+    pub(super) mode: CodeGraphMode,
+}
+
 /// Project normalized code facts into graph nodes and edges.
 ///
 /// This is the graph-facing half of the analysis pipeline. It intentionally
@@ -48,62 +58,68 @@ pub(super) enum CodeGraphMode {
 /// materialized code-unit trigger edges.
 pub(super) fn add_code_facts_to_graph(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    source: CodeGraphSource,
     facts: &CodeFacts,
-    mode: CodeGraphMode,
     mut resolver: Option<&mut ResourceResolver<'_>>,
 ) {
     if facts.syntax_error {
         return;
     }
 
+    let context = CodeProjectionContext {
+        unit_id: source.unit_id,
+        scope: source.scope,
+        language: source.language,
+        evidence: CodeEvidenceSource {
+            source: source.scope,
+            source_text: source.source_text,
+            language: source.language,
+        },
+    };
+
     for package in &facts.imports {
         let package_id = add_package_node(builder, package);
         builder.add_edge_with_evidence(
             package_id,
-            unit_id,
+            context.unit_id,
             GraphEdgeKind::ImportedBy,
-            vec![evidence::static_analysis()],
+            vec![context.evidence.static_analysis(None)],
         );
     }
 
-    if mode == CodeGraphMode::Full {
-        add_reactive_symbol_edges(builder, unit_id, scope, language, facts);
+    if source.mode == CodeGraphMode::Full {
+        add_reactive_symbol_edges(builder, &context, facts);
     }
 
-    let read_resources =
-        add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, &mut resolver);
-    let write_resources =
-        add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, &mut resolver);
+    let read_resources = add_io_resource_nodes(
+        builder,
+        context.unit_id,
+        context.scope,
+        &facts.io,
+        true,
+        &mut resolver,
+    );
+    let write_resources = add_io_resource_nodes(
+        builder,
+        context.unit_id,
+        context.scope,
+        &facts.io,
+        false,
+        &mut resolver,
+    );
 
-    match mode {
-        CodeGraphMode::Lean => add_lean_flow_edges(
-            builder,
-            unit_id,
-            scope,
-            language,
-            facts,
-            &read_resources,
-            &write_resources,
-        ),
-        CodeGraphMode::Full => add_full_flow_edges(
-            builder,
-            unit_id,
-            scope,
-            language,
-            facts,
-            &read_resources,
-            &write_resources,
-        ),
+    match source.mode {
+        CodeGraphMode::Lean => {
+            add_lean_flow_edges(builder, &context, facts, &read_resources, &write_resources)
+        }
+        CodeGraphMode::Full => {
+            add_full_flow_edges(builder, &context, facts, &read_resources, &write_resources)
+        }
     }
 
     add_workflow_edges(
         builder,
-        unit_id,
-        scope,
-        language,
+        &context,
         facts,
         IoResourceSets {
             reads: &read_resources,
@@ -113,66 +129,100 @@ pub(super) fn add_code_facts_to_graph(
     );
 
     for script in &facts.script_links {
-        let Some(script_id) = add_resource_node(builder, unit_id, scope, script, &mut resolver)
-        else {
+        let Some(script_id) = add_resource_node(
+            builder,
+            context.unit_id,
+            context.scope,
+            script,
+            &mut resolver,
+        ) else {
             continue;
         };
         builder.add_edge_with_evidence(
             script_id,
-            unit_id,
+            context.unit_id,
             GraphEdgeKind::UsedBy,
-            vec![evidence::static_analysis()],
+            vec![context.evidence.static_analysis(None)],
         );
+    }
+}
+
+/// Projection context shared by code graph helpers.
+#[derive(Debug, Clone, Copy)]
+struct CodeProjectionContext<'a> {
+    unit_id: &'a str,
+    scope: &'a str,
+    language: CodeLanguage,
+    evidence: CodeEvidenceSource<'a>,
+}
+
+/// Source context used to attach locations and common details to code evidence.
+#[derive(Debug, Clone, Copy)]
+struct CodeEvidenceSource<'a> {
+    source: &'a str,
+    source_text: Option<&'a str>,
+    language: CodeLanguage,
+}
+
+impl CodeEvidenceSource<'_> {
+    fn static_analysis(&self, offset: Option<usize>) -> GraphEvidence {
+        evidence::static_analysis_at(self.source, self.source_text, offset)
     }
 }
 
 fn add_reactive_symbol_edges(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
 ) {
     for symbol in &facts.assignments {
-        let symbol_id = add_variable_node(builder, scope, language, symbol);
-        builder.add_containment(&symbol_id, unit_id, vec![evidence::static_analysis()]);
-        builder.add_generation(unit_id, symbol_id, vec![evidence::static_analysis()]);
+        let symbol_id = add_variable_node(builder, context.scope, context.language, symbol);
+        let evidence = context
+            .evidence
+            .static_analysis(facts.definition_offsets.get(symbol).copied());
+        builder.add_containment(&symbol_id, context.unit_id, vec![evidence.clone()]);
+        builder.add_generation(context.unit_id, symbol_id, vec![evidence]);
     }
 
     for declaration in &facts.declarations {
-        let function_id = add_function_node(builder, scope, language, declaration);
-        builder.add_containment(&function_id, unit_id, vec![evidence::static_analysis()]);
-        builder.add_generation(unit_id, function_id, vec![evidence::static_analysis()]);
+        let function_id = add_function_node(builder, context.scope, context.language, declaration);
+        let evidence = context
+            .evidence
+            .static_analysis(function_offset(facts, declaration.as_str()));
+        builder.add_containment(&function_id, context.unit_id, vec![evidence.clone()]);
+        builder.add_generation(context.unit_id, function_id, vec![evidence]);
     }
 
     for symbol in &facts.uses {
-        let symbol_id = add_variable_node(builder, scope, language, symbol);
-        builder.add_containment(&symbol_id, unit_id, vec![evidence::static_analysis()]);
+        let symbol_id = add_variable_node(builder, context.scope, context.language, symbol);
+        let evidence = context
+            .evidence
+            .static_analysis(facts.use_offsets.get(symbol).copied());
+        builder.add_containment(&symbol_id, context.unit_id, vec![evidence.clone()]);
         builder.add_edge_with_evidence(
             symbol_id,
-            unit_id,
+            context.unit_id,
             GraphEdgeKind::UsedBy,
-            vec![evidence::static_analysis()],
+            vec![evidence],
         );
     }
 
     for call in &facts.calls {
-        let function_id = add_function_node(builder, scope, language, call);
-        builder.add_containment(&function_id, unit_id, vec![evidence::static_analysis()]);
+        let function_id = add_function_node(builder, context.scope, context.language, call);
+        let evidence = context.evidence.static_analysis(None);
+        builder.add_containment(&function_id, context.unit_id, vec![evidence.clone()]);
         builder.add_edge_with_evidence(
             function_id,
-            unit_id,
+            context.unit_id,
             GraphEdgeKind::CalledBy,
-            vec![evidence::static_analysis()],
+            vec![evidence],
         );
     }
 }
 
 fn add_full_flow_edges(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
@@ -180,87 +230,96 @@ fn add_full_flow_edges(
     for resource in read_resources {
         builder.add_read(
             &resource.id,
-            unit_id,
-            vec![io_path_evidence(&resource.path)],
+            context.unit_id,
+            vec![io_path_evidence(&context.evidence, resource)],
         );
     }
 
     for resource in write_resources {
         builder.add_generation(
-            unit_id,
+            context.unit_id,
             &resource.id,
-            vec![io_path_evidence(&resource.path)],
+            vec![io_path_evidence(&context.evidence, resource)],
         );
     }
-    add_variable_data_flow_edges(
-        builder,
-        unit_id,
-        scope,
-        language,
-        facts,
-        read_resources,
-        write_resources,
-    );
+    add_variable_data_flow_edges(builder, context, facts, read_resources, write_resources);
 
     for column in &facts.columns {
-        let dataframe_id = add_variable_node(builder, scope, language, &column.dataframe);
-        builder.add_containment(&dataframe_id, unit_id, vec![evidence::static_analysis()]);
-        let column_id = add_column_node(builder, scope, column, &dataframe_id);
+        let dataframe_id =
+            add_variable_node(builder, context.scope, context.language, &column.dataframe);
+        builder.add_containment(
+            &dataframe_id,
+            context.unit_id,
+            vec![context.evidence.static_analysis(None)],
+        );
+        let column_id = add_column_node(builder, context.scope, column, &dataframe_id);
         builder.add_edge_with_evidence(
             &column_id,
-            unit_id,
+            context.unit_id,
             GraphEdgeKind::UsedBy,
-            vec![evidence::static_analysis()],
+            vec![context.evidence.static_analysis(None)],
         );
     }
 }
 
 fn add_workflow_edges(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
     resources: IoResourceSets<'_>,
     resolver: &mut Option<&mut ResourceResolver<'_>>,
 ) {
     for unit in &facts.workflow_units {
-        let workflow_unit_id = add_workflow_unit_node(builder, scope, unit);
-        builder.add_containment(
-            &workflow_unit_id,
-            unit_id,
-            vec![evidence::static_analysis()],
-        );
-        builder.add_declaration(
-            unit_id,
-            &workflow_unit_id,
-            vec![evidence::static_analysis()],
-        );
+        let workflow_unit_id = add_workflow_unit_node(builder, context.scope, unit);
+        let evidence = context
+            .evidence
+            .static_analysis(facts.definition_offsets.get(unit).copied());
+        builder.add_containment(&workflow_unit_id, context.unit_id, vec![evidence.clone()]);
+        builder.add_declaration(context.unit_id, &workflow_unit_id, vec![evidence]);
         let workflow_unit_facts = facts.workflow_unit_facts.get(unit);
         let unit_read_resources = workflow_unit_facts
-            .map(|facts| add_io_resource_nodes(builder, unit_id, scope, &facts.io, true, resolver))
+            .map(|facts| {
+                add_io_resource_nodes(
+                    builder,
+                    context.unit_id,
+                    context.scope,
+                    &facts.io,
+                    true,
+                    resolver,
+                )
+            })
             .unwrap_or_else(|| resources.reads.to_vec());
         let unit_write_resources = workflow_unit_facts
-            .map(|facts| add_io_resource_nodes(builder, unit_id, scope, &facts.io, false, resolver))
+            .map(|facts| {
+                add_io_resource_nodes(
+                    builder,
+                    context.unit_id,
+                    context.scope,
+                    &facts.io,
+                    false,
+                    resolver,
+                )
+            })
             .unwrap_or_else(|| resources.writes.to_vec());
 
         for input in &unit_read_resources {
             builder.add_read(
                 &input.id,
                 &workflow_unit_id,
-                vec![io_path_evidence(&input.path)],
+                vec![io_path_evidence(&context.evidence, input)],
             );
         }
         for output in &unit_write_resources {
             builder.add_generation(
                 &workflow_unit_id,
                 &output.id,
-                vec![io_path_evidence(&output.path)],
+                vec![io_path_evidence(&context.evidence, output)],
             );
         }
         if let Some(workflow_unit_facts) = workflow_unit_facts {
             for script in &workflow_unit_facts.script_links {
-                let Some(script_id) = add_resource_node(builder, unit_id, scope, script, resolver)
+                let Some(script_id) =
+                    add_resource_node(builder, context.unit_id, context.scope, script, resolver)
                 else {
                     continue;
                 };
@@ -268,18 +327,19 @@ fn add_workflow_edges(
                     script_id,
                     &workflow_unit_id,
                     GraphEdgeKind::UsedBy,
-                    vec![evidence::static_analysis()],
+                    vec![context.evidence.static_analysis(None)],
                 );
             }
 
             for call in &workflow_unit_facts.calls {
-                let function_id = add_function_node(builder, scope, language, call);
-                builder.add_containment(&function_id, unit_id, vec![evidence::static_analysis()]);
+                let function_id = add_function_node(builder, context.scope, context.language, call);
+                let evidence = context.evidence.static_analysis(None);
+                builder.add_containment(&function_id, context.unit_id, vec![evidence.clone()]);
                 builder.add_edge_with_evidence(
                     function_id,
                     &workflow_unit_id,
                     GraphEdgeKind::CalledBy,
-                    vec![evidence::static_analysis()],
+                    vec![evidence],
                 );
             }
         }
@@ -452,6 +512,8 @@ struct IoResourceNode {
     target_offset: Option<usize>,
     value: Option<String>,
     value_offset: Option<usize>,
+    function: Option<String>,
+    mode: Option<IoMode>,
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -489,6 +551,8 @@ fn add_io_resource_nodes(
                 target_offset: fact.target_offset,
                 value: fact.value.clone(),
                 value_offset: fact.value_offset,
+                function: fact.function.clone(),
+                mode: fact.mode,
             });
         }
     }
@@ -498,9 +562,7 @@ fn add_io_resource_nodes(
 /// Add lean workspace data-flow edges through retained local variables.
 fn add_lean_flow_edges(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
@@ -538,25 +600,18 @@ fn add_lean_flow_edges(
             .as_deref()
             .filter(|target| local_variables.contains(*target))
         {
-            let target_id = add_lean_variable_node(
-                builder,
-                unit_id,
-                scope,
-                language,
-                facts,
-                target,
-                resource.target_offset,
-            );
+            let target_id =
+                add_lean_variable_node(builder, context, facts, target, resource.target_offset);
             builder.add_read(
                 &resource.id,
                 target_id,
-                vec![io_path_evidence(&resource.path)],
+                vec![io_path_evidence(&context.evidence, resource)],
             );
         } else if !precise_read_ids.contains(&resource.id) {
             builder.add_read(
                 &resource.id,
-                unit_id,
-                vec![io_path_evidence(&resource.path)],
+                context.unit_id,
+                vec![io_path_evidence(&context.evidence, resource)],
             );
         }
     }
@@ -570,23 +625,23 @@ fn add_lean_flow_edges(
         }
         let source_id = add_lean_variable_node(
             builder,
-            unit_id,
-            scope,
-            language,
+            context,
             facts,
             &flow.source,
             Some(flow.target_offset),
         );
         let target_id = add_lean_variable_node(
             builder,
-            unit_id,
-            scope,
-            language,
+            context,
             facts,
             &flow.target,
             Some(flow.target_offset),
         );
-        builder.add_derivation(source_id, target_id, vec![evidence::static_analysis()]);
+        builder.add_derivation(
+            source_id,
+            target_id,
+            vec![context.evidence.static_analysis(Some(flow.target_offset))],
+        );
     }
 
     for resource in write_resources {
@@ -597,19 +652,11 @@ fn add_lean_flow_edges(
         {
             let value_offset = resource.value_offset.or(resource.operation_offset);
             if value_offset.is_none_or(|offset| variable_available_at(facts, value, offset)) {
-                let value_id = add_lean_variable_node(
-                    builder,
-                    unit_id,
-                    scope,
-                    language,
-                    facts,
-                    value,
-                    value_offset,
-                );
+                let value_id = add_lean_variable_node(builder, context, facts, value, value_offset);
                 builder.add_write(
                     value_id,
                     &resource.id,
-                    vec![io_path_evidence(&resource.path)],
+                    vec![io_path_evidence(&context.evidence, resource)],
                 );
                 continue;
             }
@@ -617,9 +664,9 @@ fn add_lean_flow_edges(
 
         if !precise_write_ids.contains(&resource.id) {
             builder.add_generation(
-                unit_id,
+                context.unit_id,
                 &resource.id,
-                vec![io_path_evidence(&resource.path)],
+                vec![io_path_evidence(&context.evidence, resource)],
             );
         }
     }
@@ -627,24 +674,39 @@ fn add_lean_flow_edges(
 
 fn add_lean_variable_node(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
     variable: &str,
     offset: Option<usize>,
 ) -> String {
     let Some(function) = enclosing_function(facts, offset) else {
-        let variable_id = add_variable_node(builder, scope, language, variable);
-        builder.add_containment(&variable_id, unit_id, vec![evidence::static_analysis()]);
+        let variable_id = add_variable_node(builder, context.scope, context.language, variable);
+        builder.add_containment(
+            &variable_id,
+            context.unit_id,
+            vec![context.evidence.static_analysis(offset)],
+        );
         return variable_id;
     };
 
-    let function_id = add_function_node(builder, scope, language, &function.name);
-    builder.add_containment(&function_id, unit_id, vec![evidence::static_analysis()]);
-    let variable_id =
-        add_function_variable_node(builder, scope, language, &function.name, variable);
-    builder.add_containment(&variable_id, function_id, vec![evidence::static_analysis()]);
+    let function_id = add_function_node(builder, context.scope, context.language, &function.name);
+    builder.add_containment(
+        &function_id,
+        context.unit_id,
+        vec![context.evidence.static_analysis(Some(function.start))],
+    );
+    let variable_id = add_function_variable_node(
+        builder,
+        context.scope,
+        context.language,
+        &function.name,
+        variable,
+    );
+    builder.add_containment(
+        &variable_id,
+        function_id,
+        vec![context.evidence.static_analysis(offset)],
+    );
     variable_id
 }
 
@@ -674,9 +736,7 @@ fn local_variables(facts: &CodeFacts) -> BTreeSet<String> {
 /// local variables.
 fn add_variable_data_flow_edges(
     builder: &mut GraphBuilder,
-    unit_id: &str,
-    scope: &str,
-    language: CodeLanguage,
+    context: &CodeProjectionContext,
     facts: &CodeFacts,
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
@@ -691,12 +751,16 @@ fn add_variable_data_flow_edges(
         else {
             continue;
         };
-        let target_id = add_variable_node(builder, scope, language, target);
-        builder.add_containment(&target_id, unit_id, vec![evidence::static_analysis()]);
+        let target_id = add_variable_node(builder, context.scope, context.language, target);
+        builder.add_containment(
+            &target_id,
+            context.unit_id,
+            vec![context.evidence.static_analysis(resource.target_offset)],
+        );
         builder.add_derivation(
             &resource.id,
             target_id,
-            vec![io_path_evidence(&resource.path)],
+            vec![io_path_evidence(&context.evidence, resource)],
         );
     }
 
@@ -707,11 +771,12 @@ fn add_variable_data_flow_edges(
         if !variable_available_at(facts, &flow.source, flow.target_offset) {
             continue;
         }
-        let source_id = add_variable_node(builder, scope, language, &flow.source);
-        let target_id = add_variable_node(builder, scope, language, &flow.target);
-        builder.add_containment(&source_id, unit_id, vec![evidence::static_analysis()]);
-        builder.add_containment(&target_id, unit_id, vec![evidence::static_analysis()]);
-        builder.add_derivation(source_id, target_id, vec![evidence::static_analysis()]);
+        let source_id = add_variable_node(builder, context.scope, context.language, &flow.source);
+        let target_id = add_variable_node(builder, context.scope, context.language, &flow.target);
+        let flow_evidence = context.evidence.static_analysis(Some(flow.target_offset));
+        builder.add_containment(&source_id, context.unit_id, vec![flow_evidence.clone()]);
+        builder.add_containment(&target_id, context.unit_id, vec![flow_evidence.clone()]);
+        builder.add_derivation(source_id, target_id, vec![flow_evidence]);
     }
 
     for resource in write_resources {
@@ -726,12 +791,16 @@ fn add_variable_data_flow_edges(
         if !value_offset.is_none_or(|offset| variable_available_at(facts, value, offset)) {
             continue;
         }
-        let value_id = add_variable_node(builder, scope, language, value);
-        builder.add_containment(&value_id, unit_id, vec![evidence::static_analysis()]);
+        let value_id = add_variable_node(builder, context.scope, context.language, value);
+        builder.add_containment(
+            &value_id,
+            context.unit_id,
+            vec![context.evidence.static_analysis(value_offset)],
+        );
         builder.add_write(
             value_id,
             &resource.id,
-            vec![io_path_evidence(&resource.path)],
+            vec![io_path_evidence(&context.evidence, resource)],
         );
     }
 }
@@ -744,21 +813,80 @@ fn variable_available_at(facts: &CodeFacts, variable: &str, offset: usize) -> bo
         .is_none_or(|definition_offset| *definition_offset <= offset)
 }
 
+/// Get the source offset for a function declaration by name.
+fn function_offset(facts: &CodeFacts, name: &str) -> Option<usize> {
+    facts
+        .function_declarations
+        .iter()
+        .find(|function| function.name == name)
+        .map(|function| function.start)
+}
+
 /// Evidence for an I/O path relationship.
-fn io_path_evidence(path: &IoPath) -> GraphEvidence {
-    if path.is_static() {
-        return evidence::static_analysis();
+fn io_path_evidence(
+    evidence_source: &CodeEvidenceSource,
+    resource: &IoResourceNode,
+) -> GraphEvidence {
+    let mut evidence = evidence_source.static_analysis(resource.operation_offset);
+    let mut details = Object::from([
+        (
+            "detector",
+            Primitive::String("stencila-code-static-analysis".to_string()),
+        ),
+        (
+            "language",
+            Primitive::String(evidence_source.language.id_component().to_string()),
+        ),
+        (
+            "pathKind",
+            Primitive::String(resource.path.kind().to_string()),
+        ),
+        (
+            "expression",
+            Primitive::String(resource.path.value().to_string()),
+        ),
+    ]);
+
+    if let Some(offset) = resource.operation_offset {
+        details.insert(
+            "byteOffset".to_string(),
+            Primitive::UnsignedInteger(offset as u64),
+        );
+    }
+    if let Some(function) = &resource.function {
+        details.insert("function".to_string(), Primitive::String(function.clone()));
+    }
+    if let Some(mode) = resource.mode {
+        details.insert(
+            "mode".to_string(),
+            Primitive::String(io_mode_label(mode).to_string()),
+        );
+    }
+    if let Some(target) = &resource.target {
+        details.insert("target".to_string(), Primitive::String(target.clone()));
+    }
+    if let Some(value) = &resource.value {
+        details.insert("value".to_string(), Primitive::String(value.clone()));
     }
 
-    let mut evidence = evidence::static_analysis();
-    evidence.confidence = Some(GraphEvidenceConfidence::Low);
-    evidence.options.description = Some(format!(
-        "{} I/O path detected by static analysis.",
-        path.kind()
-    ));
-    evidence.options.details = Some(Object::from([
-        ("pathKind", Primitive::String(path.kind().to_string())),
-        ("expression", Primitive::String(path.value().to_string())),
-    ]));
+    if !resource.path.is_static() {
+        evidence.confidence = Some(GraphEvidenceConfidence::Low);
+        evidence.options.description = Some(format!(
+            "{} I/O path detected by static analysis.",
+            resource.path.kind()
+        ));
+    }
+
+    evidence.options.details = Some(details);
     evidence
+}
+
+/// Stable label for an I/O mode in evidence details.
+fn io_mode_label(mode: IoMode) -> &'static str {
+    match mode {
+        IoMode::Read => "read",
+        IoMode::Write => "write",
+        IoMode::Append => "append",
+        IoMode::ReadWrite => "readWrite",
+    }
 }

@@ -6,7 +6,7 @@ use crate::{GraphBuilder, evidence, ids::WorkspaceRelPath};
 use super::{
     analyze::analyze_source,
     language::CodeLanguage,
-    project::{CodeGraphMode, ResourceResolver, add_code_facts_to_graph},
+    project::{CodeGraphMode, CodeGraphSource, ResourceResolver, add_code_facts_to_graph},
     util::path_name,
 };
 
@@ -58,11 +58,14 @@ pub(crate) fn add_workspace_code(
         let scope = source.rel.as_str();
         add_code_facts_to_graph(
             builder,
-            source.unit_id,
-            scope,
-            language,
+            CodeGraphSource {
+                unit_id: source.unit_id,
+                scope,
+                language,
+                source_text: Some(code),
+                mode: CodeGraphMode::Lean,
+            },
             &facts,
-            CodeGraphMode::Lean,
             Some(&mut resolver as &mut ResourceResolver<'_>),
         );
     }

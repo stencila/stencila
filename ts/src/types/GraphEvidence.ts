@@ -1,5 +1,6 @@
 // Generated file; do not edit. See https://github.com/stencila/stencila/tree/main/rust/schema-gen
 
+import { CodeLocation } from "./CodeLocation.js";
 import { Entity } from "./Entity.js";
 import { GraphEvidenceConfidence } from "./GraphEvidenceConfidence.js";
 import { GraphEvidenceKind } from "./GraphEvidenceKind.js";
@@ -25,7 +26,12 @@ export class GraphEvidence extends Entity {
   confidence?: GraphEvidenceConfidence;
 
   /**
-   * The source of the evidence.
+   * The exact location in source text where the evidence was found.
+   */
+  codeLocation?: CodeLocation;
+
+  /**
+   * The evidence carrier or authority, when not sufficiently represented by the code location.
    */
   source?: ThingVariantOrString;
 
@@ -35,12 +41,12 @@ export class GraphEvidence extends Entity {
   recordedAt?: Timestamp;
 
   /**
-   * Additional structured details about the evidence for machine consumers.
+   * Additional machine-readable details about the evidence.
    */
   details?: Object;
 
   /**
-   * A human-readable description of the evidence.
+   * Optional human-readable explanation of the evidence.
    */
   description?: string;
 

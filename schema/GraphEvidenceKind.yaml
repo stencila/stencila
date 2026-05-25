@@ -9,6 +9,10 @@ $comment: |
   relationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and
   allows a single edge to carry several signals, for example an authored
   declaration that was also resolved to a concrete local file.
+
+  Use `Observed` narrowly for direct inspection of existing state, such as a
+  filesystem entry or runtime access. Use `StaticAnalysis` for relationships
+  found by parsing or scanning source/configuration text without executing it.
 anyOf:
   - const: Declared
     '@id': stencila:Declared
@@ -18,7 +22,7 @@ anyOf:
     description: Evidence from deterministically resolving a declared locator to a concrete graph node.
   - const: Observed
     '@id': stencila:Observed
-    description: Evidence from directly observing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
+    description: Evidence from direct inspection of existing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
   - const: Computed
     '@id': stencila:Computed
     description: Evidence from a deterministic Stencila operation, such as walking document structure, decoding a file, or materializing recorded execution outputs.
@@ -27,7 +31,7 @@ anyOf:
     description: Evidence from persisted Stencila metadata already recorded on a node, such as execution dependencies, execution digests, or execution status.
   - const: StaticAnalysis
     '@id': stencila:StaticAnalysis
-    description: Evidence from analyzing code, configuration, or environment files without executing them.
+    description: Evidence from analyzing code, configuration, or environment files without executing them, preferably with a source location when available.
   - const: Imported
     '@id': stencila:Imported
     description: Evidence imported from an external metadata source, service, graph, or document format.

@@ -8,14 +8,25 @@ $comment: |
   This is an evidence type used in Stencila for graph edges.
 
   It records why an edge exists, how confident the assertion is, and optional
-  structured details about the observation, assertion, or imported metadata.
-  The `details` property is for machine consumers that need source-specific
-  structured data. The `description` property is for concise human-readable
-  explanation and display.
+  provenance details about the observation, assertion, or imported metadata.
+
+  The evidence metadata fields have distinct roles:
+
+  - `codeLocation` is the exact location in source text where the evidence was
+    found, such as a line and column in a code file, manifest, or document.
+  - `source` is the evidence carrier or authority when it is not sufficiently
+    described by `codeLocation.source`, such as an imported graph, attestation,
+    external service, execution record, or user assertion.
+  - `details` is for machine-readable detector-specific context that is not
+    represented by core fields, such as parser rules, path expressions,
+    dependency groups, package identifiers, or confidence inputs.
+  - `description` is an optional human-readable fallback for display when a
+    useful explanation cannot be derived from the structured fields.
 required:
   - kind
 core:
   - confidence
+  - codeLocation
 properties:
   kind:
     '@id': stencila:kind
@@ -25,9 +36,13 @@ properties:
     '@id': stencila:confidence
     description: The confidence in the evidence.
     $ref: GraphEvidenceConfidence
+  codeLocation:
+    '@id': stencila:codeLocation
+    description: The exact location in source text where the evidence was found.
+    $ref: CodeLocation
   source:
     '@id': stencila:source
-    description: The source of the evidence.
+    description: The evidence carrier or authority, when not sufficiently represented by the code location.
     anyOf:
       - $ref: ThingVariant
       - type: string
@@ -38,9 +53,9 @@ properties:
     strip: [timestamps]
   details:
     '@id': stencila:details
-    description: Additional structured details about the evidence for machine consumers.
+    description: Additional machine-readable details about the evidence.
     $ref: Object
   description:
     '@id': schema:description
-    description: A human-readable description of the evidence.
+    description: Optional human-readable explanation of the evidence.
     type: string

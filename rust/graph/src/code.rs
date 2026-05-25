@@ -1047,11 +1047,14 @@ process align {
         );
         super::project::add_code_facts_to_graph(
             &mut builder,
-            &unit_id,
-            scope,
-            language,
+            super::project::CodeGraphSource {
+                unit_id: &unit_id,
+                scope,
+                language,
+                source_text: None,
+                mode,
+            },
             facts,
-            mode,
             None,
         );
         builder.build()

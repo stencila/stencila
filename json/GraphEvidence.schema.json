@@ -9,14 +9,15 @@
   ],
   "category": "flow",
   "description": "Evidence for a graph edge.",
-  "$comment": "This is an evidence type used in Stencila for graph edges.\n\nIt records why an edge exists, how confident the assertion is, and optional\nstructured details about the observation, assertion, or imported metadata.\nThe `details` property is for machine consumers that need source-specific\nstructured data. The `description` property is for concise human-readable\nexplanation and display.\n",
+  "$comment": "This is an evidence type used in Stencila for graph edges.\n\nIt records why an edge exists, how confident the assertion is, and optional\nprovenance details about the observation, assertion, or imported metadata.\n\nThe evidence metadata fields have distinct roles:\n\n- `codeLocation` is the exact location in source text where the evidence was\n  found, such as a line and column in a code file, manifest, or document.\n- `source` is the evidence carrier or authority when it is not sufficiently\n  described by `codeLocation.source`, such as an imported graph, attestation,\n  external service, execution record, or user assertion.\n- `details` is for machine-readable detector-specific context that is not\n  represented by core fields, such as parser rules, path expressions,\n  dependency groups, package identifiers, or confidence inputs.\n- `description` is an optional human-readable fallback for display when a\n  useful explanation cannot be derived from the structured fields.\n",
   "required": [
     "type",
     "kind"
   ],
   "core": [
     "id",
-    "confidence"
+    "confidence",
+    "codeLocation"
   ],
   "properties": {
     "type": {
@@ -50,9 +51,18 @@
       "description": "The confidence in the evidence.",
       "$ref": "GraphEvidenceConfidence.schema.json"
     },
+    "codeLocation": {
+      "@id": "stencila:codeLocation",
+      "description": "The exact location in source text where the evidence was found.",
+      "aliases": [
+        "code-location",
+        "code_location"
+      ],
+      "$ref": "CodeLocation.schema.json"
+    },
     "source": {
       "@id": "stencila:source",
-      "description": "The source of the evidence.",
+      "description": "The evidence carrier or authority, when not sufficiently represented by the code location.",
       "anyOf": [
         {
           "$ref": "ThingVariant.schema.json"
@@ -76,12 +86,12 @@
     },
     "details": {
       "@id": "stencila:details",
-      "description": "Additional structured details about the evidence for machine consumers.",
+      "description": "Additional machine-readable details about the evidence.",
       "$ref": "Object.schema.json"
     },
     "description": {
       "@id": "schema:description",
-      "description": "A human-readable description of the evidence.",
+      "description": "Optional human-readable explanation of the evidence.",
       "type": "string"
     }
   }

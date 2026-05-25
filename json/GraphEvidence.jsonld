@@ -47,10 +47,30 @@
       }
     },
     {
+      "@id": "stencila:codeLocation",
+      "@type": "rdfs:Property",
+      "rdfs:label": "codeLocation",
+      "rdfs:comment": "The exact location in source text where the evidence was found.",
+      "schema:domainIncludes": [
+        {
+          "@id": "stencila:CompilationMessage"
+        },
+        {
+          "@id": "stencila:ExecutionMessage"
+        },
+        {
+          "@id": "stencila:GraphEvidence"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:CodeLocation"
+      }
+    },
+    {
       "@id": "stencila:source",
       "@type": "rdfs:Property",
       "rdfs:label": "source",
-      "rdfs:comment": "The source of the evidence.",
+      "rdfs:comment": "The evidence carrier or authority, when not sufficiently represented by the code location.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Bibliography"
@@ -97,7 +117,7 @@
       "@id": "stencila:details",
       "@type": "rdfs:Property",
       "rdfs:label": "details",
-      "rdfs:comment": "Additional structured details about the evidence for machine consumers.",
+      "rdfs:comment": "Additional machine-readable details about the evidence.",
       "schema:domainIncludes": {
         "@id": "stencila:GraphEvidence"
       },
@@ -109,7 +129,7 @@
       "@id": "schema:description",
       "@type": "rdfs:Property",
       "rdfs:label": "description",
-      "rdfs:comment": "A human-readable description of the evidence.",
+      "rdfs:comment": "Optional human-readable explanation of the evidence.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Thing"

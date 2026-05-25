@@ -284,6 +284,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.R
+          startLine: 7
+          startColumn: 7
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: "../figures/r-counts.png"
+          byteOffset: 151
+          function: ggsave
   - type: GraphEdge
     source: "code:scripts/analysis.py"
     target: "dir:scripts"
@@ -298,6 +310,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 7
+          startColumn: 12
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../figures/python-counts.png"
+          byteOffset: 227
+          function: savefig
+          value: plt
   - type: GraphEdge
     source: "datatable:data/raw/observations.csv"
     target: "dir:data/raw"
@@ -312,6 +337,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.R
+          startLine: 3
+          startColumn: 15
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: "../data/raw/observations.csv"
+          byteOffset: 48
+          function: csv
+          target: df
   - type: GraphEdge
     source: "datatable:data/raw/observations.csv"
     target: "symbol:scripts/analysis.py:python:df"
@@ -319,6 +357,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 3
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../data/raw/observations.csv"
+          byteOffset: 70
+          function: read_csv
+          target: df
   - type: GraphEdge
     source: "datatable:outputs/python-clean.csv"
     target: "dir:outputs"
@@ -417,6 +468,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.R
+          startLine: 3
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.R
+          startLine: 6
+          startColumn: 10
   - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:df"
     target: "datatable:outputs/r-summary.csv"
@@ -424,6 +487,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.R
+          startLine: 6
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: "../outputs/r-summary.csv"
+          byteOffset: 116
+          function: csv
+          value: df
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
     target: "code:scripts/analysis.py"
@@ -431,6 +507,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 4
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 6
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
     target: "datatable:outputs/python-clean.csv"
@@ -438,6 +526,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 6
+          startColumn: 13
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../outputs/python-clean.csv"
+          byteOffset: 184
+          function: to_csv
+          value: clean
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:df"
     target: "code:scripts/analysis.py"
@@ -445,6 +546,25 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 3
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 4
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 5
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:df"
     target: "symbol:scripts/analysis.py:python:clean"
@@ -452,6 +572,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 4
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:df"
     target: "symbol:scripts/analysis.py:python:mean_count"
@@ -459,6 +584,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 5
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:mean_count"
     target: "code:scripts/analysis.py"
@@ -466,3 +596,8 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: scripts/analysis.py
+          startLine: 5
+          startColumn: 0

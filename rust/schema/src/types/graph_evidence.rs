@@ -2,6 +2,7 @@
 
 use crate::prelude::*;
 
+use super::code_location::CodeLocation;
 use super::graph_evidence_confidence::GraphEvidenceConfidence;
 use super::graph_evidence_kind::GraphEvidenceKind;
 use super::object::Object;
@@ -32,6 +33,10 @@ pub struct GraphEvidence {
     /// The confidence in the evidence.
     pub confidence: Option<GraphEvidenceConfidence>,
 
+    /// The exact location in source text where the evidence was found.
+    #[serde(alias = "code-location", alias = "code_location")]
+    pub code_location: Option<CodeLocation>,
+
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
@@ -48,7 +53,7 @@ pub struct GraphEvidence {
 #[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct GraphEvidenceOptions {
-    /// The source of the evidence.
+    /// The evidence carrier or authority, when not sufficiently represented by the code location.
     pub source: Option<ThingVariantOrString>,
 
     /// When this evidence was recorded.
@@ -56,10 +61,10 @@ pub struct GraphEvidenceOptions {
     #[strip(timestamps)]
     pub recorded_at: Option<Timestamp>,
 
-    /// Additional structured details about the evidence for machine consumers.
+    /// Additional machine-readable details about the evidence.
     pub details: Option<Object>,
 
-    /// A human-readable description of the evidence.
+    /// Optional human-readable explanation of the evidence.
     pub description: Option<String>,
 }
 

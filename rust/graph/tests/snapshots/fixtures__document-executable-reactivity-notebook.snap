@@ -185,6 +185,33 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 22
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../data/samples.dat"
+          byteOffset: 52
+          function: read_csv
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 22
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../data/samples.dat"
+          byteOffset: 52
+          function: read_csv
+          target: samples
   - type: GraphEdge
     source: "file:data/samples.dat"
     target: "symbol:docs/notebook.json:python:samples"
@@ -192,6 +219,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 22
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "../data/samples.dat"
+          byteOffset: 52
+          function: read_csv
+          target: samples
   - type: GraphEdge
     source: "file:docs/notebook.json"
     target: "dir:docs"
@@ -265,6 +305,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "node:docs/notebook.json#cdc_setup"
     target: "node:docs/notebook.json#art_"
@@ -279,6 +324,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 0
   - type: GraphEdge
     source: "node:docs/notebook.json#cdc_setup"
     target: "symbol:docs/notebook.json:python:scale"
@@ -286,6 +336,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 1
+          startColumn: 0
   - type: GraphEdge
     source: "node:docs/notebook.json#cde_content-3-content-1"
     target: "node:docs/notebook.json#art_"
@@ -338,6 +393,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:adjusted"
     target: "node:docs/notebook.json#cde_content-3-content-1"
@@ -345,6 +405,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:adjusted"
     target: "node:docs/notebook.json#cde_content-3-content-1"
@@ -352,6 +417,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:mean"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -359,6 +429,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 1
+          startColumn: 15
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:mean"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -366,6 +441,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 1
+          startColumn: 15
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:pd"
     target: "node:docs/notebook.json#cdc_setup"
@@ -373,6 +453,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 10
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:pd"
     target: "node:docs/notebook.json#cdc_setup"
@@ -380,6 +465,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 10
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:read_csv"
     target: "node:docs/notebook.json#cdc_setup"
@@ -387,6 +477,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 13
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:read_csv"
     target: "node:docs/notebook.json#cdc_setup"
@@ -394,6 +489,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 13
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:samples"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -401,6 +501,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 11
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:samples"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -408,6 +513,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 11
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:samples"
     target: "node:docs/notebook.json#cdc_setup"
@@ -415,6 +525,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 2
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:scale"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -422,6 +537,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 30
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:scale"
     target: "node:docs/notebook.json#cdc_analysis"
@@ -429,6 +549,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 0
+          startColumn: 30
   - type: GraphEdge
     source: "symbol:docs/notebook.json:python:scale"
     target: "node:docs/notebook.json#cdc_setup"
@@ -436,3 +561,8 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: docs/notebook.json
+          startLine: 1
+          startColumn: 0

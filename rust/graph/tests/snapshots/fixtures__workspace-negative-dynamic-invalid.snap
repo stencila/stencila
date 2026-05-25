@@ -223,9 +223,19 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
         confidence: Low
+        codeLocation:
+          type: CodeLocation
+          source: dynamic.py
+          startLine: 3
+          startColumn: 20
         details:
+          detector: stencila-code-static-analysis
+          language: python
           pathKind: template
           expression: "data/{sample}.csv"
+          byteOffset: 55
+          function: read_csv
+          target: table
         description: template I/O path detected by static analysis.
   - type: GraphEdge
     source: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
@@ -276,6 +286,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: dynamic.py
+          startLine: 3
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: dynamic.py
+          startLine: 4
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
     target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
@@ -284,7 +306,17 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
         confidence: Low
+        codeLocation:
+          type: CodeLocation
+          source: dynamic.py
+          startLine: 4
+          startColumn: 13
         details:
+          detector: stencila-code-static-analysis
+          language: python
           pathKind: template
           expression: "results/{sample}.csv"
+          byteOffset: 90
+          function: to_csv
+          value: table
         description: template I/O path detected by static analysis.

@@ -542,6 +542,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 4
+          startColumn: 16
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: results/js-summary.tsv
+          byteOffset: 158
+          function: writeFileSync
   - type: GraphEdge
     source: "code:analysis.js"
     target: "dir:."
@@ -556,6 +568,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 4
+          startColumn: 25
+        details:
+          detector: stencila-code-static-analysis
+          language: matlab
+          pathKind: static
+          expression: results/matlab-summary.tsv
+          byteOffset: 103
+          function: writetable
   - type: GraphEdge
     source: "code:analysis.m"
     target: "dir:."
@@ -584,6 +608,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: src/bin/analysis.rs
+          startLine: 11
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: rust
+          pathKind: static
+          expression: "../../results/rust-summary.tsv"
+          byteOffset: 225
+          function: write
   - type: GraphEdge
     source: "code:src/bin/analysis.rs"
     target: "dir:src/bin"
@@ -605,6 +641,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 2
+          startColumn: 18
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 34
+          function: read_tsv
+          target: table
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.jl:julia:table"
@@ -612,6 +661,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.jl
+          startLine: 2
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: julia
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 28
+          function: File
+          target: table
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.js:javascript:summarize:input"
@@ -619,6 +681,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 3
+          startColumn: 29
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 109
+          function: readFileSync
+          target: input
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.m:matlab:tbl"
@@ -626,6 +701,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 2
+          startColumn: 16
+        details:
+          detector: stencila-code-static-analysis
+          language: matlab
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 32
+          function: readtable
+          target: tbl
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.py:python:summarize:table"
@@ -633,6 +721,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 4
+          startColumn: 24
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 63
+          function: read_csv
+          target: table
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:analysis.ts:typescript:table"
@@ -640,6 +741,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.ts
+          startLine: 3
+          startColumn: 27
+        details:
+          detector: stencila-code-static-analysis
+          language: typescript
+          pathKind: static
+          expression: data/raw/samples.tsv
+          byteOffset: 114
+          function: readFileSync
+          target: table
   - type: GraphEdge
     source: "datatable:data/raw/samples.tsv"
     target: "symbol:src/bin/analysis.rs:rust:main:table"
@@ -647,6 +761,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: src/bin/analysis.rs
+          startLine: 9
+          startColumn: 35
+        details:
+          detector: stencila-code-static-analysis
+          language: rust
+          pathKind: static
+          expression: "../../data/raw/samples.tsv"
+          byteOffset: 141
+          function: read_to_string
+          target: table
   - type: GraphEdge
     source: "datatable:results/js-summary.tsv"
     target: "dir:results"
@@ -738,6 +865,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 2
+          startColumn: 0
   - type: GraphEdge
     source: "function:analysis.py:python:summarize"
     target: "code:analysis.py"
@@ -745,6 +877,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 3
+          startColumn: 0
   - type: GraphEdge
     source: "function:src/bin/analysis.rs:rust:main"
     target: "code:src/bin/analysis.rs"
@@ -752,6 +889,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: src/bin/analysis.rs
+          startLine: 8
+          startColumn: 0
   - type: GraphEdge
     source: "package:cargo/serde"
     target: "code:src/bin/analysis.rs"
@@ -815,6 +957,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 2
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 3
+          startColumn: 10
   - type: GraphEdge
     source: "symbol:analysis.R:r:table"
     target: "datatable:results/r-summary.tsv"
@@ -822,6 +976,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 3
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: results/r-summary.tsv
+          byteOffset: 99
+          function: write_tsv
+          value: table
   - type: GraphEdge
     source: "symbol:analysis.jl:julia:table"
     target: "code:analysis.jl"
@@ -829,6 +996,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.jl
+          startLine: 2
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.jl
+          startLine: 3
+          startColumn: 39
   - type: GraphEdge
     source: "symbol:analysis.jl:julia:table"
     target: "datatable:results/julia-summary.tsv"
@@ -836,6 +1015,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.jl
+          startLine: 3
+          startColumn: 10
+        details:
+          detector: stencila-code-static-analysis
+          language: julia
+          pathKind: static
+          expression: results/julia-summary.tsv
+          byteOffset: 62
+          function: write
+          value: table
   - type: GraphEdge
     source: "symbol:analysis.js:javascript:summarize:input"
     target: "function:analysis.js:javascript:summarize"
@@ -843,6 +1035,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 3
+          startColumn: 8
   - type: GraphEdge
     source: "symbol:analysis.m:matlab:count"
     target: "code:analysis.m"
@@ -850,6 +1047,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 3
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:analysis.m:matlab:tbl"
     target: "code:analysis.m"
@@ -857,6 +1059,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 2
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 3
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:analysis.m:matlab:tbl"
     target: "symbol:analysis.m:matlab:count"
@@ -864,6 +1078,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.m
+          startLine: 3
+          startColumn: 0
   - type: GraphEdge
     source: "symbol:analysis.py:python:summarize:table"
     target: "datatable:results/python-summary.tsv"
@@ -871,6 +1090,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 5
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: results/python-summary.tsv
+          byteOffset: 114
+          function: to_csv
+          value: table
   - type: GraphEdge
     source: "symbol:analysis.py:python:summarize:table"
     target: "function:analysis.py:python:summarize"
@@ -878,6 +1110,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 4
+          startColumn: 4
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 5
+          startColumn: 4
   - type: GraphEdge
     source: "symbol:analysis.ts:typescript:table"
     target: "code:analysis.ts"
@@ -885,6 +1129,18 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.ts
+          startLine: 3
+          startColumn: 6
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.ts
+          startLine: 4
+          startColumn: 40
   - type: GraphEdge
     source: "symbol:analysis.ts:typescript:table"
     target: "datatable:results/ts-summary.tsv"
@@ -892,6 +1148,19 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.ts
+          startLine: 4
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: typescript
+          pathKind: static
+          expression: results/ts-summary.tsv
+          byteOffset: 161
+          function: writeFileSync
+          value: table
   - type: GraphEdge
     source: "symbol:src/bin/analysis.rs:rust:main:table"
     target: "function:src/bin/analysis.rs:rust:main"
@@ -899,3 +1168,8 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: src/bin/analysis.rs
+          startLine: 9
+          startColumn: 8

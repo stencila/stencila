@@ -2392,17 +2392,20 @@ class GraphEvidence(Entity):
     confidence: GraphEvidenceConfidence | None = None
     """The confidence in the evidence."""
 
+    code_location: CodeLocation | None = None
+    """The exact location in source text where the evidence was found."""
+
     source: ThingVariant | str | None = None
-    """The source of the evidence."""
+    """The evidence carrier or authority, when not sufficiently represented by the code location."""
 
     recorded_at: Timestamp | None = None
     """When this evidence was recorded."""
 
     details: Object | None = None
-    """Additional structured details about the evidence for machine consumers."""
+    """Additional machine-readable details about the evidence."""
 
     description: str | None = None
-    """A human-readable description of the evidence."""
+    """Optional human-readable explanation of the evidence."""
 
 
 @dataclass(kw_only=True, repr=False)
