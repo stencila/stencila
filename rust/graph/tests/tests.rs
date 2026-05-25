@@ -4,9 +4,9 @@
 //! Prefer extending an existing fixture, or adding a new fixture, before adding
 //! tests here.
 
-use std::fs::write;
+use std::{fs::write, path::Path, process::Command};
 
-use eyre::{OptionExt, Result};
+use eyre::{OptionExt, Result, bail};
 use stencila_codecs::{DecodeOptions, Format};
 use stencila_graph::{
     Graph, GraphBuilder, GraphEdge, GraphEdgeKind, GraphProjectionOptions, GraphProjectionPreset,
@@ -14,7 +14,7 @@ use stencila_graph::{
 };
 use stencila_schema::{
     Article, Block, Citation, CodeChunk, Cord, ExecuteAction, GraphAction, GraphEvidenceKind,
-    Inline, Link, Node, Paragraph, Reference, Text,
+    Inline, Link, Node, Paragraph, Reference, Text, WorktreeStatus,
 };
 use tempfile::tempdir;
 
@@ -48,6 +48,110 @@ async fn decode_options_override_extension() -> Result<()> {
         "node:report#art_",
         GraphEdgeKind::ConvertedInto,
     );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn records_workspace_source_metadata_from_git() -> Result<()> {
+    if !git_available() {
+        return Ok(());
+    }
+
+    let workspace = tempdir()?;
+    run_git(workspace.path(), ["init"])?;
+    run_git(
+        workspace.path(),
+        ["config", "user.email", "test@example.org"],
+    )?;
+    run_git(workspace.path(), ["config", "user.name", "Test User"])?;
+
+    write(workspace.path().join("analysis.py"), "x = 1\n")?;
+    run_git(workspace.path(), ["add", "analysis.py"])?;
+    run_git(workspace.path(), ["commit", "-m", "initial"])?;
+    run_git(
+        workspace.path(),
+        [
+            "remote",
+            "add",
+            "origin",
+            "git@github.com:stencila/example.git",
+        ],
+    )?;
+    let head = run_git(workspace.path(), ["rev-parse", "HEAD"])?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert_eq!(
+        graph.options.repository.as_deref(),
+        Some("https://github.com/stencila/example")
+    );
+    assert_eq!(graph.options.path.as_deref(), Some("."));
+    assert_eq!(graph.options.commit.as_deref(), Some(head.as_str()));
+    assert_eq!(graph.options.worktree_status, Some(WorktreeStatus::Clean));
+
+    write(workspace.path().join("notes.txt"), "not tracked\n")?;
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    assert_eq!(
+        graph.options.worktree_status,
+        Some(WorktreeStatus::Untracked)
+    );
+
+    std::fs::remove_file(workspace.path().join("notes.txt"))?;
+    write(workspace.path().join("analysis.py"), "x = 2\n")?;
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    assert_eq!(graph.options.commit.as_deref(), Some(head.as_str()));
+    assert_eq!(graph.options.worktree_status, Some(WorktreeStatus::Dirty));
+
+    Ok(())
+}
+
+#[test]
+fn graph_from_node_preserves_source_metadata() -> Result<()> {
+    let mut article = Article::new(vec![Block::Paragraph(Paragraph::new(vec![text(
+        "metadata",
+    )]))]);
+    article.options.repository = Some("https://github.com/stencila/example".to_string());
+    article.options.path = Some("docs/report.smd".to_string());
+    article.options.commit = Some("0123456789abcdef0123456789abcdef01234567".to_string());
+    article.options.worktree_status = Some(WorktreeStatus::Dirty);
+
+    let graph = graph_from_node("fixture:source-metadata", &Node::Article(article))?;
+
+    assert_eq!(
+        graph.options.repository.as_deref(),
+        Some("https://github.com/stencila/example")
+    );
+    assert_eq!(graph.options.path.as_deref(), Some("docs/report.smd"));
+    assert_eq!(
+        graph.options.commit.as_deref(),
+        Some("0123456789abcdef0123456789abcdef01234567")
+    );
+    assert_eq!(graph.options.worktree_status, Some(WorktreeStatus::Dirty));
 
     Ok(())
 }
@@ -597,4 +701,25 @@ fn assert_edge_evidence(edge: &GraphEdge, kind: GraphEvidenceKind) {
         edge.target,
         edge.kind
     );
+}
+
+fn git_available() -> bool {
+    Command::new("git")
+        .arg("--version")
+        .output()
+        .is_ok_and(|output| output.status.success())
+}
+
+fn run_git<const N: usize>(repo: &Path, args: [&str; N]) -> Result<String> {
+    let output = Command::new("git")
+        .arg("-C")
+        .arg(repo)
+        .args(args)
+        .output()?;
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        bail!("git command failed: {stderr}");
+    }
+
+    Ok(String::from_utf8(output.stdout)?.trim().to_string())
 }

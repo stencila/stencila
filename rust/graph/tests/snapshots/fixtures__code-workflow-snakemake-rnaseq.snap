@@ -684,3 +684,7 @@ edges:
           language: snakemake
           pathKind: static
           expression: data/trimmed/S1.fastq
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/code-workflow-snakemake-rnaseq
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

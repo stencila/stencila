@@ -21,6 +21,7 @@ use crate::{
     evidence,
     ids::LocalGraphId,
     reference::has_non_local_uri_scheme,
+    source,
 };
 
 /// Build a graph for a single Stencila Schema node tree.
@@ -35,7 +36,9 @@ use crate::{
 pub fn graph_from_node(subject: impl Into<String>, node: &Node) -> Result<Graph> {
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, "document", node, None);
-    builder.build()
+    let mut graph = builder.build()?;
+    source::set_graph_source_metadata_from_node(&mut graph, node);
+    Ok(graph)
 }
 
 /// Add document nodes and relationships to an existing graph builder.

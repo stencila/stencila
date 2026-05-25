@@ -56,6 +56,7 @@ mod ids;
 mod package;
 pub mod project;
 mod reference;
+mod source;
 mod workspace;
 
 pub use builder::GraphBuilder;

@@ -11437,6 +11437,7 @@ dependencies = [
  "serde_json",
  "serde_yaml",
  "sha2 0.11.0",
+ "stencila-codec-utils",
  "stencila-codecs",
  "stencila-node-stabilize",
  "stencila-schema",

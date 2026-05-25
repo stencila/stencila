@@ -1173,3 +1173,7 @@ edges:
           source: src/bin/analysis.rs
           startLine: 9
           startColumn: 8
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/code-polyglot-tools-io
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

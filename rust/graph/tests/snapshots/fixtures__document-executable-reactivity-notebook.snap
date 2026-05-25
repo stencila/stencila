@@ -566,3 +566,7 @@ edges:
           source: docs/notebook.json
           startLine: 1
           startColumn: 0
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/document-executable-reactivity-notebook
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

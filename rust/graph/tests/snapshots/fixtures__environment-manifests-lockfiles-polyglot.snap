@@ -1025,3 +1025,7 @@ edges:
           purl: "pkg:pypi/requests"
           raw: requests>=2.31
           specifier: ">=2.31"
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/environment-manifests-lockfiles-polyglot
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

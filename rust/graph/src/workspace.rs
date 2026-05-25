@@ -26,6 +26,7 @@ use crate::{
         document_relative_workspace_path, is_local_relative_reference, normalize_path_lexically,
         reference_path_candidates,
     },
+    source,
 };
 
 /// Options for building a graph from a workspace directory.
@@ -70,6 +71,13 @@ pub struct WorkspaceOptions {
     /// The default is permissive so one invalid manifest does not prevent a
     /// workspace inventory graph, but stricter callers can opt into failure.
     pub fail_on_environment_error: bool,
+
+    /// Record source repository metadata on the generated graph when available.
+    ///
+    /// When enabled, graph construction records `repository`, `path`, `commit`,
+    /// and `worktreeStatus` from the Git repository containing the workspace
+    /// root. Disable this for deterministic fixture snapshots.
+    pub source_metadata: bool,
 }
 
 impl Default for WorkspaceOptions {
@@ -81,6 +89,7 @@ impl Default for WorkspaceOptions {
             fail_on_decode_error: false,
             analyze_environment: true,
             fail_on_environment_error: false,
+            source_metadata: true,
         }
     }
 }
@@ -326,7 +335,12 @@ pub async fn graph_from_path(
         }
     }
 
-    builder.build()
+    let mut graph = builder.build()?;
+    if options.source_metadata {
+        source::set_graph_source_metadata_from_path(&mut graph, &root)?;
+    }
+
+    Ok(graph)
 }
 
 /// Resolve a local reference to an existing workspace graph id.

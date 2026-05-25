@@ -119,6 +119,7 @@ fn fixture_options(name: &str) -> WorkspaceOptions {
     WorkspaceOptions {
         subject: Some(format!("fixture:{name}")),
         fail_on_decode_error: name.starts_with("document-"),
+        source_metadata: false,
         ..Default::default()
     }
 }

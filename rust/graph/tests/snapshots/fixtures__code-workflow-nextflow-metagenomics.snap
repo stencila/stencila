@@ -500,3 +500,7 @@ edges:
           language: nextflow
           pathKind: static
           expression: results/summary/report.html
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/code-workflow-nextflow-metagenomics
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

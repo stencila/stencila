@@ -44,6 +44,8 @@ async fn fixtures() -> Result<()> {
 
         const DATETIME_PLACEHOLDER: &str = "[datetime]";
         insta::assert_yaml_snapshot!(name, graph, {
+            ".commit" => "[commit]",
+            ".worktreeStatus" => "[worktreeStatus]",
             ".nodes[].node.startTime.value" => DATETIME_PLACEHOLDER,
             ".nodes[].node.endTime.value" => DATETIME_PLACEHOLDER,
             ".nodes[].node.dateCreated.value" => DATETIME_PLACEHOLDER,
@@ -64,6 +66,7 @@ fn fixture_options(name: &str) -> WorkspaceOptions {
     WorkspaceOptions {
         subject: Some(format!("fixture:{name}")),
         fail_on_decode_error: name.starts_with("document-"),
+        source_metadata: true,
         ..Default::default()
     }
 }

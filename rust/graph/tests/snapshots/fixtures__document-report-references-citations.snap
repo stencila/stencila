@@ -210,3 +210,7 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/document-report-references-citations
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

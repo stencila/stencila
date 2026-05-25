@@ -320,3 +320,7 @@ edges:
           function: to_csv
           value: table
         description: template I/O path detected by static analysis.
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/workspace-negative-dynamic-invalid
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

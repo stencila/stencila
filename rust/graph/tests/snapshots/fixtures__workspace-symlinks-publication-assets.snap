@@ -267,3 +267,7 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/workspace-symlinks-publication-assets
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"
