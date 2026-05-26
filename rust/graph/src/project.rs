@@ -12,7 +12,7 @@ use glob::Pattern;
 use percent_encoding::{AsciiSet, CONTROLS, utf8_percent_encode};
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
-use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
+use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode, LabelType, Node};
 
 use crate::document::document_node_seeds_flow_projection;
 
@@ -1717,6 +1717,10 @@ fn node_kind(node: Option<&GraphNode>) -> GraphViewNodeKind {
 }
 
 fn node_label(node: &GraphNode) -> String {
+    if let Some(label) = labelled_document_node_label(node) {
+        return label;
+    }
+
     let value = serde_json::to_value(node.node.as_ref()).unwrap_or(Value::Null);
 
     for key in ["name", "title", "path", "url", "target"] {
@@ -1736,6 +1740,32 @@ fn node_label(node: &GraphNode) -> String {
     }
 
     compact_label(&node.id)
+}
+
+fn labelled_document_node_label(node: &GraphNode) -> Option<String> {
+    match node.node.as_ref() {
+        Node::CodeChunk(chunk) => prefixed_label(
+            chunk.label_type.as_ref().map(label_type_label)?,
+            chunk.label.as_deref(),
+        ),
+        Node::Figure(figure) => prefixed_label("Figure", figure.label.as_deref()),
+        Node::Table(table) => prefixed_label("Table", table.label.as_deref()),
+        _ => None,
+    }
+}
+
+fn prefixed_label(prefix: &str, label: Option<&str>) -> Option<String> {
+    let label = label?.trim();
+    (!label.is_empty()).then(|| format!("{prefix} {label}"))
+}
+
+fn label_type_label(label_type: &LabelType) -> &'static str {
+    match label_type {
+        LabelType::AppendixLabel => "Appendix",
+        LabelType::FigureLabel => "Figure",
+        LabelType::SupplementLabel => "Supplement",
+        LabelType::TableLabel => "Table",
+    }
 }
 
 fn graph_id_namespace(id: &str) -> &str {

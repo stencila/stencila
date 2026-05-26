@@ -2,7 +2,7 @@ use eyre::Result;
 use stencila_schema::{
     Article, CodeChunk, Datatable, DatatableColumn, Directory, Figure, File, Function, Graph,
     GraphEdge, GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode,
-    Node, Reference, SoftwareApplication, SoftwareSourceCode, Table, Variable,
+    LabelType, Node, Reference, SoftwareApplication, SoftwareSourceCode, Table, Variable,
 };
 
 use super::*;
@@ -451,6 +451,64 @@ fn labels_document_roots_from_their_scope() {
     );
 
     assert_eq!(node_label(&node), "report.smd");
+}
+
+#[test]
+fn labels_labeled_document_nodes_from_type_and_label() {
+    let mut table_chunk = CodeChunk::new("summaries".into());
+    table_chunk.label_type = Some(LabelType::TableLabel);
+    table_chunk.label = Some("1".to_string());
+
+    let mut figure_chunk = CodeChunk::new("plot()".into());
+    figure_chunk.label_type = Some(LabelType::FigureLabel);
+    figure_chunk.label = Some("1a".to_string());
+
+    let mut figure = Figure::new(Vec::new());
+    figure.label = Some("1".to_string());
+
+    let mut table = Table::new(Vec::new());
+    table.label = Some("2".to_string());
+
+    assert_eq!(
+        node_label(&graph_node(
+            "node:document#table-code",
+            Node::CodeChunk(table_chunk)
+        )),
+        "Table 1"
+    );
+    assert_eq!(
+        node_label(&graph_node(
+            "node:document#figure-code",
+            Node::CodeChunk(figure_chunk)
+        )),
+        "Figure 1a"
+    );
+    assert_eq!(
+        node_label(&graph_node("node:document#figure", Node::Figure(figure))),
+        "Figure 1"
+    );
+    assert_eq!(
+        node_label(&graph_node("node:document#table", Node::Table(table))),
+        "Table 2"
+    );
+}
+
+#[test]
+fn unlabeled_document_nodes_use_existing_fallbacks() {
+    let mut chunk = CodeChunk::new("setup()".into());
+    chunk.id = Some("setup".to_string());
+
+    assert_eq!(
+        node_label(&graph_node("node:document#chunk", Node::CodeChunk(chunk))),
+        "setup"
+    );
+    assert_eq!(
+        node_label(&graph_node(
+            "node:document#figure",
+            Node::Figure(Figure::new(Vec::new()))
+        )),
+        "figure"
+    );
 }
 
 #[test]
