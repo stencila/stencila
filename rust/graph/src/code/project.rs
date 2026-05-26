@@ -31,6 +31,9 @@ pub(super) enum CodeGraphMode {
     /// Keep only symbols that participate in workspace data-flow.
     Lean,
 
+    /// Keep document data-flow variables without broad lexical uses or calls.
+    Document,
+
     /// Keep generated and used symbols needed for interactive document reactivity.
     Full,
 }
@@ -112,21 +115,26 @@ pub(super) fn add_code_facts_to_graph(
         CodeGraphMode::Lean => {
             add_lean_flow_edges(builder, &context, facts, &read_resources, &write_resources)
         }
+        CodeGraphMode::Document => {
+            add_document_flow_edges(builder, &context, facts, &read_resources, &write_resources)
+        }
         CodeGraphMode::Full => {
             add_full_flow_edges(builder, &context, facts, &read_resources, &write_resources)
         }
     }
 
-    add_workflow_edges(
-        builder,
-        &context,
-        facts,
-        IoResourceSets {
-            reads: &read_resources,
-            writes: &write_resources,
-        },
-        &mut resolver,
-    );
+    if source.mode != CodeGraphMode::Document {
+        add_workflow_edges(
+            builder,
+            &context,
+            facts,
+            IoResourceSets {
+                reads: &read_resources,
+                writes: &write_resources,
+            },
+            &mut resolver,
+        );
+    }
 
     for script in &facts.script_links {
         let Some(script_id) = add_resource_node(
@@ -274,6 +282,40 @@ fn add_full_flow_edges(
     }
 }
 
+fn add_document_flow_edges(
+    builder: &mut GraphBuilder,
+    context: &CodeProjectionContext,
+    facts: &CodeFacts,
+    read_resources: &[IoResourceNode],
+    write_resources: &[IoResourceNode],
+) {
+    let local_variables = local_variables(facts);
+    let precise_read_ids = precise_read_resource_ids(read_resources, &local_variables);
+    let precise_write_ids = precise_write_resource_ids(write_resources, &local_variables, facts);
+
+    for resource in read_resources {
+        if !precise_read_ids.contains(&resource.id) {
+            builder.add_read(
+                &resource.id,
+                context.unit_id,
+                vec![io_path_evidence(&context.evidence, resource)],
+            );
+        }
+    }
+
+    for resource in write_resources {
+        if !precise_write_ids.contains(&resource.id) {
+            builder.add_generation(
+                context.unit_id,
+                &resource.id,
+                vec![io_path_evidence(&context.evidence, resource)],
+            );
+        }
+    }
+
+    add_variable_data_flow_edges(builder, context, facts, read_resources, write_resources);
+}
+
 fn add_workflow_edges(
     builder: &mut GraphBuilder,
     context: &CodeProjectionContext,
@@ -356,6 +398,130 @@ fn add_workflow_edges(
             }
         }
     }
+}
+
+pub(super) fn add_document_symbol_use(
+    builder: &mut GraphBuilder,
+    definition: DocumentSymbolDefinition<'_>,
+    usage: DocumentSymbolUsage<'_>,
+) {
+    let symbol_id = add_document_symbol_definition(builder, definition);
+    let evidence = CodeEvidenceSource {
+        source: usage.scope,
+        source_text: usage.source_text,
+        language: usage.language,
+    }
+    .static_analysis(usage.offset);
+
+    builder.add_edge_with_evidence(
+        symbol_id,
+        usage.unit_id,
+        GraphEdgeKind::UsedBy,
+        vec![evidence],
+    );
+}
+
+pub(super) fn add_document_symbol_derivation(
+    builder: &mut GraphBuilder,
+    definition: DocumentSymbolDefinition<'_>,
+    target: DocumentSymbolUsage<'_>,
+) {
+    let source_id = add_document_symbol_definition(builder, definition);
+    let target_id = add_variable_node(builder, target.scope, target.language, target.symbol);
+    let evidence = CodeEvidenceSource {
+        source: target.scope,
+        source_text: target.source_text,
+        language: target.language,
+    }
+    .static_analysis(target.offset);
+
+    builder.add_containment(&target_id, target.unit_id, vec![evidence.clone()]);
+    builder.add_derivation(source_id, target_id, vec![evidence]);
+}
+
+pub(super) fn add_document_function_use(
+    builder: &mut GraphBuilder,
+    definition: DocumentSymbolDefinition<'_>,
+    usage: DocumentSymbolUsage<'_>,
+) {
+    let function_id = add_document_function_definition(builder, definition);
+    let evidence = CodeEvidenceSource {
+        source: usage.scope,
+        source_text: usage.source_text,
+        language: usage.language,
+    }
+    .static_analysis(usage.offset);
+
+    builder.add_edge_with_evidence(
+        function_id,
+        usage.unit_id,
+        GraphEdgeKind::UsedBy,
+        vec![evidence],
+    );
+}
+
+fn add_document_symbol_definition(
+    builder: &mut GraphBuilder,
+    definition: DocumentSymbolDefinition<'_>,
+) -> String {
+    let symbol_id = add_variable_node(
+        builder,
+        definition.scope,
+        definition.language,
+        definition.symbol,
+    );
+    let evidence = CodeEvidenceSource {
+        source: definition.scope,
+        source_text: definition.source_text,
+        language: definition.language,
+    }
+    .static_analysis(definition.offset);
+
+    builder.add_containment(&symbol_id, definition.unit_id, vec![evidence.clone()]);
+    builder.add_generation(definition.unit_id, &symbol_id, vec![evidence]);
+    symbol_id
+}
+
+fn add_document_function_definition(
+    builder: &mut GraphBuilder,
+    definition: DocumentSymbolDefinition<'_>,
+) -> String {
+    let function_id = add_function_node(
+        builder,
+        definition.scope,
+        definition.language,
+        definition.symbol,
+    );
+    let evidence = CodeEvidenceSource {
+        source: definition.scope,
+        source_text: definition.source_text,
+        language: definition.language,
+    }
+    .static_analysis(definition.offset);
+
+    builder.add_containment(&function_id, definition.unit_id, vec![evidence.clone()]);
+    builder.add_generation(definition.unit_id, &function_id, vec![evidence]);
+    function_id
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(super) struct DocumentSymbolDefinition<'a> {
+    pub(super) scope: &'a str,
+    pub(super) unit_id: &'a str,
+    pub(super) source_text: Option<&'a str>,
+    pub(super) language: CodeLanguage,
+    pub(super) symbol: &'a str,
+    pub(super) offset: Option<usize>,
+}
+
+#[derive(Debug, Clone, Copy)]
+pub(super) struct DocumentSymbolUsage<'a> {
+    pub(super) scope: &'a str,
+    pub(super) unit_id: &'a str,
+    pub(super) source_text: Option<&'a str>,
+    pub(super) language: CodeLanguage,
+    pub(super) symbol: &'a str,
+    pub(super) offset: Option<usize>,
 }
 
 /// Add or reuse a package node for an imported software package.

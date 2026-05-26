@@ -79,6 +79,7 @@ pub(crate) fn add_document_with_reference_resolver<'a>(
     let mut collector = DocumentCollector::new(builder, scope, reference_resolver);
     collector.add_schema_node(node.clone(), Some(root_id.clone()), true, false);
     node.walk(&mut collector);
+    collector.finish();
     root_id
 }
 
@@ -248,7 +249,7 @@ impl<'a> DocumentCollector<'a> {
             struct_stack: Vec::new(),
             parent_stack: Vec::new(),
             reference_resolver,
-            code_index: DocumentCodeIndex,
+            code_index: DocumentCodeIndex::default(),
         }
     }
 
@@ -384,6 +385,11 @@ impl<'a> DocumentCollector<'a> {
             self.code_index
                 .add_unit(self.builder, &self.scope, graph_id, code, language, None);
         }
+    }
+
+    /// Finish relationships that require the complete document-order code view.
+    fn finish(&mut self) {
+        self.code_index.finish(self.builder, &self.scope);
     }
 
     /// Add a dependency edge for a local file reference if the caller can resolve it.

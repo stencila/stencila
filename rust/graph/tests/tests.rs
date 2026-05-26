@@ -444,7 +444,137 @@ fn resolves_read_before_write_document_reactivity() -> Result<()> {
         .ok_or_eyre("symbol x should be present")?;
 
     assert_graph_edge(&graph, setup_id, symbol_id, GraphEdgeKind::Generated);
+    assert_graph_edge(&graph, symbol_id, setup_id, GraphEdgeKind::PartOf);
     assert_graph_edge(&graph, symbol_id, update_id, GraphEdgeKind::UsedBy);
+    assert_no_graph_edge(&graph, symbol_id, update_id, GraphEdgeKind::PartOf);
+
+    Ok(())
+}
+
+#[test]
+fn document_code_graph_keeps_only_assigned_variable_dependencies() -> Result<()> {
+    let mut setup = CodeChunk::new(Cord::from("x = 1\n"));
+    setup.id = Some("setup".to_string());
+    setup.programming_language = Some("python".to_string());
+
+    let mut analysis = CodeChunk::new(Cord::from("y = x + 1\nprint(round(y))\n"));
+    analysis.id = Some("analysis".to_string());
+    analysis.programming_language = Some("python".to_string());
+
+    let node = Node::Article(Article::new(vec![
+        Block::CodeChunk(setup),
+        Block::CodeChunk(analysis),
+    ]));
+    let graph = graph_from_node("fixture:assigned-variable-dependencies", &node)?;
+
+    let setup_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::CodeChunk(chunk) if chunk.id.as_deref() == Some("setup") => {
+                Some(node.id.as_str())
+            }
+            _ => None,
+        })
+        .ok_or_eyre("setup chunk should be present")?;
+    let analysis_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::CodeChunk(chunk) if chunk.id.as_deref() == Some("analysis") => {
+                Some(node.id.as_str())
+            }
+            _ => None,
+        })
+        .ok_or_eyre("analysis chunk should be present")?;
+    let x_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::Variable(variable) if variable.name == "x" => Some(node.id.as_str()),
+            _ => None,
+        })
+        .ok_or_eyre("symbol x should be present")?;
+    let y_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::Variable(variable) if variable.name == "y" => Some(node.id.as_str()),
+            _ => None,
+        })
+        .ok_or_eyre("symbol y should be present")?;
+
+    assert_graph_edge(&graph, setup_id, x_id, GraphEdgeKind::Generated);
+    assert_graph_edge(&graph, x_id, setup_id, GraphEdgeKind::PartOf);
+    assert_graph_edge(&graph, x_id, analysis_id, GraphEdgeKind::UsedBy);
+    assert_no_graph_edge(&graph, x_id, analysis_id, GraphEdgeKind::PartOf);
+    assert_graph_edge(&graph, x_id, y_id, GraphEdgeKind::DerivedInto);
+    assert_graph_edge(&graph, y_id, analysis_id, GraphEdgeKind::PartOf);
+    assert!(graph.nodes.iter().all(|node| {
+        !matches!(
+            node.node.as_ref(),
+            Node::Function(function) if matches!(function.name.as_str(), "print" | "round")
+        ) && !matches!(
+            node.node.as_ref(),
+            Node::Variable(variable) if matches!(variable.name.as_str(), "print" | "round")
+        )
+    }));
+
+    Ok(())
+}
+
+#[test]
+fn document_code_graph_links_prior_function_declarations() -> Result<()> {
+    let mut setup = CodeChunk::new(Cord::from("def double(value):\n    return value * 2\n"));
+    setup.id = Some("setup".to_string());
+    setup.programming_language = Some("python".to_string());
+
+    let mut analysis = CodeChunk::new(Cord::from("result = double(21)\n"));
+    analysis.id = Some("analysis".to_string());
+    analysis.programming_language = Some("python".to_string());
+
+    let node = Node::Article(Article::new(vec![
+        Block::CodeChunk(setup),
+        Block::CodeChunk(analysis),
+    ]));
+    let graph = graph_from_node("fixture:function-declaration-dependencies", &node)?;
+
+    let setup_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::CodeChunk(chunk) if chunk.id.as_deref() == Some("setup") => {
+                Some(node.id.as_str())
+            }
+            _ => None,
+        })
+        .ok_or_eyre("setup chunk should be present")?;
+    let analysis_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::CodeChunk(chunk) if chunk.id.as_deref() == Some("analysis") => {
+                Some(node.id.as_str())
+            }
+            _ => None,
+        })
+        .ok_or_eyre("analysis chunk should be present")?;
+    let function_id = graph
+        .nodes
+        .iter()
+        .find_map(|node| match node.node.as_ref() {
+            Node::Function(function) if function.name == "double" => Some(node.id.as_str()),
+            _ => None,
+        })
+        .ok_or_eyre("function double should be present")?;
+
+    assert_graph_edge(&graph, setup_id, function_id, GraphEdgeKind::Generated);
+    assert_graph_edge(&graph, function_id, setup_id, GraphEdgeKind::PartOf);
+    assert_graph_edge(&graph, function_id, analysis_id, GraphEdgeKind::UsedBy);
+    assert!(graph.nodes.iter().all(|node| !matches!(
+        node.node.as_ref(),
+        Node::Variable(variable) if variable.name == "double"
+    )));
 
     Ok(())
 }

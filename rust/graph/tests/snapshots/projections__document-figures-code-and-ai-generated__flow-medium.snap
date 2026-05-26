@@ -27,8 +27,9 @@ digraph stencila_graph {
   "software:image%3Aai-generated.png#gpt-image" [label="gpt-image", kind="software", shape="box3d", style="filled", fillcolor="#f1f5ff", color="#5261b8"];
 
   "datatable:outcomes.csv" -> "node:article.smd#cdc_content-6" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
-  "node:article.smd#cdc_content-6" -> "node:article.smd#cdc_content-7-content-0" [label="Derived Into", kind="DerivedInto", count="2", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:article.smd#cdc_content-6" -> "node:article.smd#cdc_content-7-content-0" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "node:article.smd#cdc_content-6" -> "datatable:outcome-summaries.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "software:image%3Aai-generated.png#gpt-image" -> "image:ai-generated.png" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="1", low_confidence="false", style="solid", color="#4b5563"];
   "image:ai-generated.png" -> "node:article.smd#fig_content-7-content-1" [label="Linked By", kind="LinkedBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:article.smd#cdc_content-6" -> "node:article.smd#cdc_content-7-content-0" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
 }
