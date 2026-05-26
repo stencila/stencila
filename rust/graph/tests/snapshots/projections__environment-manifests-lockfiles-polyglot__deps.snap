@@ -4,15 +4,16 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="deps"];
   graph [detail="medium"];
 
   subgraph "cluster_dir:." {
-    label="environment-manifests-lockfiles-polyglot/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="environment-manifests-lockfiles-polyglot/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_dir:resources" {
-      label="resources/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="resources/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "file:resources/mpackage.json" [label="mpackage.json", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
     }
     "file:Cargo.lock" [label="Cargo.lock", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];

@@ -4,15 +4,16 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="cite"];
   graph [detail="medium"];
 
   subgraph "cluster_dir:." {
-    label="document-report-references-citations/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="document-report-references-citations/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_dir:manuscript" {
-      label="manuscript/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="manuscript/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "node:manuscript/report.smd#art_" [label="report.smd", kind="document", shape="note", style="filled", fillcolor="#ffffff", color="#647486"];
     }
   }

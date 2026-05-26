@@ -20,6 +20,11 @@ pub fn to_dot(view: &GraphView) -> String {
     push_line(
         &mut dot,
         1,
+        "graph [fontname=\"Arial\", fontsize=\"11\", style=\"solid\"];",
+    );
+    push_line(
+        &mut dot,
+        1,
         "node [fontname=\"Arial\", fontsize=\"10\", margin=\"0.08,0.05\"];",
     );
     push_line(
@@ -101,7 +106,7 @@ fn render_cluster(
         dot,
         indent + 1,
         &format!(
-            "label=\"{}\"; style=\"rounded,dashed\"; color=\"{}\"; bgcolor=\"{}\"; fontname=\"Arial\"; fontsize=\"11\";",
+            "label=\"{}\"; color=\"{}\"; bgcolor=\"{}\";",
             dot_escape(&cluster_label(node)),
             style.color,
             style.background_color
@@ -341,18 +346,20 @@ struct ClusterStyle {
 }
 
 fn cluster_style(kind: GraphViewNodeKind) -> ClusterStyle {
+    // Graphviz accepts RGBA hex colors and renders the alpha channel as opacity.
+    // This lets nested clusters retain a hint of their parent background and borders.
     match kind {
         GraphViewNodeKind::Environment => ClusterStyle {
-            color: "#8fb36f",
-            background_color: "#f6fbf2",
+            color: "#8fb36f99",
+            background_color: "#8fb36f2c",
         },
         GraphViewNodeKind::Document => ClusterStyle {
-            color: "#b8c2cc",
-            background_color: "#fbfcfe",
+            color: "#b8c2cc99",
+            background_color: "#b8c2cc2c",
         },
         _ => ClusterStyle {
-            color: "#c3ccd6",
-            background_color: "#f8fafc",
+            color: "#c3ccd699",
+            background_color: "#c3ccd62c",
         },
     }
 }

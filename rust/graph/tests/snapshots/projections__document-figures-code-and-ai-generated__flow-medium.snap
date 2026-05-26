@@ -4,21 +4,22 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="flow"];
   graph [detail="medium"];
 
   subgraph "cluster_dir:." {
-    label="document-figures-code-and-ai-generated/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="document-figures-code-and-ai-generated/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     "datatable:outcome-summaries.tsv" [label="outcome-summaries.tsv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
     "datatable:outcomes.csv" [label="outcomes.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
     "image:ai-generated.png" [label="ai-generated.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
     subgraph "cluster_node:article.smd#art_" {
-      label="article.smd"; style="rounded,dashed"; color="#b8c2cc"; bgcolor="#fbfcfe"; fontname="Arial"; fontsize="11";
+      label="article.smd"; color="#b8c2cc99"; bgcolor="#b8c2cc2c";
       "node:article.smd#cdc_content-6" [label="Table 1", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
       subgraph "cluster_node:article.smd#fig_content-7" {
-        label="Figure 1"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="Figure 1"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "node:article.smd#cdc_content-7-content-0" [label="Figure 1a", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         "node:article.smd#fig_content-7-content-1" [label="Figure 1b", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
       }

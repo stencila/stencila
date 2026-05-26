@@ -4,24 +4,25 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="react"];
   graph [detail="medium"];
 
   subgraph "cluster_dir:." {
-    label="document-executable-reactivity-notebook/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="document-executable-reactivity-notebook/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_dir:docs" {
-      label="docs/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="docs/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_node:docs/notebook.json#art_" {
-        label="notebook.json"; style="rounded,dashed"; color="#b8c2cc"; bgcolor="#fbfcfe"; fontname="Arial"; fontsize="11";
+        label="notebook.json"; color="#b8c2cc99"; bgcolor="#b8c2cc2c";
         subgraph "cluster_node:docs/notebook.json#cdc_analysis" {
-          label="analysis"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+          label="analysis"; color="#c3ccd699"; bgcolor="#c3ccd62c";
           "node:docs/notebook.json#cdc_analysis" [label="analysis", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
           "symbol:docs/notebook.json:python:adjusted" [label="adjusted", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         }
         subgraph "cluster_node:docs/notebook.json#cdc_setup" {
-          label="setup"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+          label="setup"; color="#c3ccd699"; bgcolor="#c3ccd62c";
           "node:docs/notebook.json#cdc_setup" [label="setup", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
           "symbol:docs/notebook.json:python:samples" [label="samples", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
           "symbol:docs/notebook.json:python:scale" [label="scale", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];

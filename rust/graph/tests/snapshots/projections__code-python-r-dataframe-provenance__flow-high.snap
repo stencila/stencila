@@ -4,39 +4,40 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="flow"];
   graph [detail="high"];
 
   subgraph "cluster_dir:." {
-    label="code-python-r-dataframe-provenance/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="code-python-r-dataframe-provenance/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_dir:data" {
-      label="data/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="data/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_dir:data/raw" {
-        label="raw/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="raw/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "datatable:data/raw/observations.csv" [label="observations.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
       }
     }
     subgraph "cluster_dir:figures" {
-      label="figures/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="figures/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "image:figures/python-counts.png" [label="python-counts.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
       "image:figures/r-counts.png" [label="r-counts.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
     }
     subgraph "cluster_dir:outputs" {
-      label="outputs/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="outputs/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "datatable:outputs/python-clean.csv" [label="python-clean.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
       "datatable:outputs/r-summary.csv" [label="r-summary.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
     }
     subgraph "cluster_dir:scripts" {
-      label="scripts/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="scripts/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_code:scripts/analysis.R" {
-        label="analysis.R"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="analysis.R"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "code:scripts/analysis.R" [label="analysis.R", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         "symbol:scripts/analysis.R:r:df" [label="df", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
       }
       subgraph "cluster_code:scripts/analysis.py" {
-        label="analysis.py"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="analysis.py"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "code:scripts/analysis.py" [label="analysis.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         "symbol:scripts/analysis.py:python:clean" [label="clean", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         "symbol:scripts/analysis.py:python:df" [label="df", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];

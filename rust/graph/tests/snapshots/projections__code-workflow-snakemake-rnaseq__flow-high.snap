@@ -4,15 +4,16 @@ expression: to_dot(&view)
 ---
 digraph stencila_graph {
   graph [rankdir="LR", overlap="false", splines="true"];
+  graph [fontname="Arial", fontsize="11", style="solid"];
   node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
   edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
   graph [preset="flow"];
   graph [detail="high"];
 
   subgraph "cluster_dir:." {
-    label="code-workflow-snakemake-rnaseq/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    label="code-workflow-snakemake-rnaseq/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_code:Snakefile" {
-      label="Snakefile"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="Snakefile"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "function:Snakefile:snakemake:shell" [label="shell", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
       "workflow-unit:Snakefile:align" [label="align", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
       "workflow-unit:Snakefile:counts" [label="counts", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
@@ -21,35 +22,35 @@ digraph stencila_graph {
       "workflow-unit:Snakefile:trim_reads" [label="trim_reads", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
     }
     subgraph "cluster_dir:data" {
-      label="data/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="data/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_dir:data/raw" {
-        label="raw/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="raw/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "file:data/raw/S1.fastq" [label="S1.fastq", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
       }
       subgraph "cluster_dir:data/trimmed" {
-        label="trimmed/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="trimmed/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "file:data/trimmed/S1.fastq" [label="S1.fastq", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
       }
     }
     subgraph "cluster_dir:reports" {
-      label="reports/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="reports/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "file:reports/rnaseq.html" [label="rnaseq.html", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
     }
     subgraph "cluster_dir:results" {
-      label="results/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="results/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_dir:results/alignments" {
-        label="alignments/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="alignments/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "file:results/alignments/S1.bam" [label="S1.bam", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
       }
       subgraph "cluster_dir:results/counts" {
-        label="counts/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="counts/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "datatable:results/counts/gene-counts.tsv" [label="gene-counts.tsv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
       }
     }
     subgraph "cluster_dir:workflow" {
-      label="workflow/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+      label="workflow/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       subgraph "cluster_dir:workflow/scripts" {
-        label="scripts/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        label="scripts/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
         "code:workflow/scripts/counts.py" [label="counts.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
         "code:workflow/scripts/download.py" [label="download.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
       }
