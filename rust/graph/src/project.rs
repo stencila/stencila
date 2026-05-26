@@ -14,6 +14,8 @@ use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
 
+use crate::document::document_node_seeds_flow_projection;
+
 const STRUCTURE_EDGE_KIND: GraphEdgeKind = GraphEdgeKind::PartOf;
 const GRAPH_EDGE_KEY_ENCODE_SET: &AsciiSet = &CONTROLS
     .add(b' ')
@@ -400,6 +402,65 @@ struct ProjectedEdge<'a> {
     target: String,
 }
 
+struct ProjectedEdgeLookup<'a> {
+    graph_edges: &'a [GraphEdge],
+    options: PrimaryGraphProjectionOptions,
+    nodes_by_id: &'a BTreeMap<&'a str, &'a GraphNode>,
+    parent_by_id: &'a BTreeMap<String, String>,
+    workflow_script_flow: &'a WorkflowScriptFlow,
+}
+
+impl ProjectedEdgeLookup<'_> {
+    fn has_edge_of_kind(
+        &self,
+        kind: GraphEdgeKind,
+        projected_source: &str,
+        projected_target: &str,
+    ) -> bool {
+        self.graph_edges.iter().any(|edge| {
+            if edge.kind != kind
+                || (!self.options.include_low_confidence_edges && has_low_confidence(edge))
+                || edge_score(edge, self.options.preset, self.nodes_by_id) == 0
+            {
+                return false;
+            }
+
+            let source = collapse_local_code_internal_endpoint(
+                &edge.source,
+                self.nodes_by_id,
+                self.parent_by_id,
+            );
+            let target = collapse_local_code_internal_endpoint(
+                &edge.target,
+                self.nodes_by_id,
+                self.parent_by_id,
+            );
+            let endpoints_projected = source != edge.source || target != edge.target;
+
+            if (endpoints_projected && source == target)
+                || !self.nodes_by_id.contains_key(source.as_str())
+                || !self.nodes_by_id.contains_key(target.as_str())
+                || self
+                    .workflow_script_flow
+                    .is_redundant_projected_edge(edge.kind, &source, &target)
+            {
+                return false;
+            }
+
+            source == projected_source
+                && target == projected_target
+                && include_edge_for_detail(
+                    edge.kind,
+                    &source,
+                    &target,
+                    self.options.preset,
+                    self.options.detail,
+                    self.nodes_by_id,
+                )
+        })
+    }
+}
+
 #[derive(Debug, Default)]
 struct WorkflowScriptFlow {
     units_by_script: BTreeMap<String, BTreeSet<String>>,
@@ -470,6 +531,7 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
         let Some(projected) = project_primary_edge(
             edge,
             primary_options,
+            &graph.edges,
             &nodes_by_id,
             &parent_by_id,
             &workflow_script_flow,
@@ -494,6 +556,10 @@ pub fn project_graph(graph: &Graph, options: &GraphProjectionOptions) -> GraphVi
             &mut containments,
             resolved.include_low_confidence_edges,
         );
+    }
+
+    if preset == GraphProjectionPreset::Flow {
+        add_flow_document_nodes(&nodes_by_id, &mut node_ids);
     }
 
     if resolved.containment.includes_context() {
@@ -853,6 +919,7 @@ fn resolve_preset(
 fn project_primary_edge<'a>(
     edge: &'a GraphEdge,
     options: PrimaryGraphProjectionOptions,
+    graph_edges: &[GraphEdge],
     nodes_by_id: &BTreeMap<&str, &GraphNode>,
     parent_by_id: &BTreeMap<String, String>,
     workflow_script_flow: &WorkflowScriptFlow,
@@ -911,6 +978,32 @@ fn project_primary_edge<'a>(
         return None;
     }
 
+    let edge_lookup = ProjectedEdgeLookup {
+        graph_edges,
+        options,
+        nodes_by_id,
+        parent_by_id,
+        workflow_script_flow,
+    };
+
+    if options.preset == GraphProjectionPreset::Flow
+        && options.detail != GraphProjectionDetail::High
+        && edge.kind == GraphEdgeKind::Generated
+        && edge_lookup.has_edge_of_kind(GraphEdgeKind::DerivedInto, &source, &target)
+    {
+        return None;
+    }
+
+    if options.preset == GraphProjectionPreset::Flow
+        && options.detail != GraphProjectionDetail::High
+        && edge.kind == GraphEdgeKind::DerivedInto
+        && target != edge.target
+        && node_kind(nodes_by_id.get(target.as_str()).copied()) == GraphViewNodeKind::Code
+        && edge_lookup.has_edge_of_kind(GraphEdgeKind::ReadBy, &source, &target)
+    {
+        return None;
+    }
+
     include_edge_for_detail(
         edge.kind,
         &source,
@@ -940,6 +1033,7 @@ fn preset_score(
             project_primary_edge(
                 edge,
                 options,
+                &graph.edges,
                 nodes_by_id,
                 parent_by_id,
                 workflow_script_flow,
@@ -1349,6 +1443,19 @@ fn add_dependency_memberships(
             },
         );
     }
+}
+
+fn add_flow_document_nodes(
+    nodes_by_id: &BTreeMap<&str, &GraphNode>,
+    node_ids: &mut BTreeSet<String>,
+) {
+    node_ids.extend(
+        nodes_by_id
+            .values()
+            .filter(|node| graph_id_namespace(&node.id) == "node")
+            .filter(|node| document_node_seeds_flow_projection(node.node.as_ref()))
+            .map(|node| node.id.clone()),
+    );
 }
 
 fn add_structure_edges(

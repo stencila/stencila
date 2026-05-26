@@ -119,6 +119,119 @@ plot = df[["site", "count"]]
     }
 
     #[test]
+    fn full_graph_skips_generated_edges_for_derived_assignments() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+df = read_csv("input.csv")
+summary = df
+answer = 1
+"#,
+        );
+        let graph = project_reactive_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        assert!(has_graph_edge(
+            &graph,
+            "file-ref:analysis.py:input.csv",
+            "symbol:analysis.py:python:df",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "symbol:analysis.py:python:df",
+            "symbol:analysis.py:python:summary",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "code:analysis.py",
+            "symbol:analysis.py:python:df",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "code:analysis.py",
+            "symbol:analysis.py:python:summary",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "code:analysis.py",
+            "symbol:analysis.py:python:answer",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn full_graph_suppresses_coarse_io_when_precise_lineage_exists() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+df = read_csv("input.csv")
+df.to_csv("output.csv")
+"#,
+        );
+        let graph = project_reactive_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        assert!(has_graph_edge(
+            &graph,
+            "file-ref:analysis.py:input.csv",
+            "symbol:analysis.py:python:df",
+            stencila_schema::GraphEdgeKind::DerivedInto
+        ));
+        assert!(has_graph_edge(
+            &graph,
+            "symbol:analysis.py:python:df",
+            "file-ref:analysis.py:output.csv",
+            stencila_schema::GraphEdgeKind::WrittenTo
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "file-ref:analysis.py:input.csv",
+            "code:analysis.py",
+            stencila_schema::GraphEdgeKind::ReadBy
+        ));
+        assert!(!has_graph_edge(
+            &graph,
+            "code:analysis.py",
+            "file-ref:analysis.py:output.csv",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+
+        Ok(())
+    }
+
+    #[test]
+    fn full_graph_keeps_coarse_io_when_precise_lineage_is_missing() -> eyre::Result<()> {
+        let facts = CodeFacts {
+            io: std::collections::BTreeSet::from([IoFact {
+                direction: IoDirection::Write,
+                path: IoPath::Static("output.csv".to_string()),
+                operation_offset: None,
+                target: None,
+                target_offset: None,
+                value: None,
+                value_offset: None,
+                function: None,
+                mode: None,
+            }]),
+            ..Default::default()
+        };
+        let graph = project_reactive_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        assert!(has_graph_edge(
+            &graph,
+            "code:analysis.py",
+            "file-ref:analysis.py:output.csv",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+
+        Ok(())
+    }
+
+    #[test]
     fn extracts_scientific_python_io_facts() {
         let facts = analyze_source(
             CodeLanguage::Python,

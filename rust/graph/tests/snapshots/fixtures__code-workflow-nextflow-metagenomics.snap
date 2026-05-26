@@ -41,16 +41,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: sample
-          values:
-            - M1
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: reads
-          values:
-            - reads.fastq
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
@@ -70,16 +68,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: taxon
-          values:
-            - Bacteria
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: count
-          values:
-            - 1
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

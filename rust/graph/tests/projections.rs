@@ -47,7 +47,7 @@ impl ProjectionCase {
     }
 }
 
-fn projection_cases() -> [ProjectionCase; 10] {
+fn projection_cases() -> [ProjectionCase; 11] {
     use GraphProjectionDetail::{High, Low, Medium};
     use GraphProjectionPreset::{Cite, Deps, Flow, React};
 
@@ -93,6 +93,12 @@ fn projection_cases() -> [ProjectionCase; 10] {
             name: "flow-high",
             preset: Flow,
             detail: Some(High),
+        },
+        ProjectionCase {
+            fixture: "document-figures-code-and-ai-generated",
+            name: "flow-medium",
+            preset: Flow,
+            detail: Some(Medium),
         },
         ProjectionCase {
             fixture: "document-report-references-citations",

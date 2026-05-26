@@ -1,8 +1,8 @@
 use eyre::Result;
 use stencila_schema::{
-    Article, Datatable, DatatableColumn, Directory, File, Function, Graph, GraphEdge,
-    GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode, Node,
-    Reference, SoftwareApplication, SoftwareSourceCode, Variable,
+    Article, CodeChunk, Datatable, DatatableColumn, Directory, Figure, File, Function, Graph,
+    GraphEdge, GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence, GraphEvidenceKind, GraphNode,
+    Node, Reference, SoftwareApplication, SoftwareSourceCode, Table, Variable,
 };
 
 use super::*;
@@ -183,6 +183,63 @@ fn uses_clusters_for_focused_containment_by_default() {
 }
 
 #[test]
+fn flow_seeds_document_nodes_from_policy() {
+    let view = project_graph(
+        &document_flow_seed_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+
+    let node_ids = view
+        .nodes
+        .iter()
+        .map(|node| node.id.as_str())
+        .collect::<Vec<_>>();
+    assert!(node_ids.contains(&"node:document#figure"));
+    assert!(node_ids.contains(&"node:document#figure-code"));
+    assert!(node_ids.contains(&"node:document#figure-image"));
+    assert!(node_ids.contains(&"node:document#nested-table"));
+    assert!(node_ids.contains(&"node:document#setup"));
+
+    let containments = view
+        .containments
+        .iter()
+        .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+        .collect::<Vec<_>>();
+    assert!(
+        containments.contains(&"PartOf:node:document#figure-code->node:document#figure".into())
+    );
+    assert!(
+        containments.contains(&"PartOf:node:document#figure-image->node:document#figure".into())
+    );
+    assert!(
+        containments
+            .contains(&"PartOf:node:document#nested-table->node:document#figure-image".into())
+    );
+    assert!(containments.contains(&"PartOf:node:document#setup->node:document#article".into()));
+}
+
+#[test]
+fn flow_does_not_seed_workspace_nodes_from_document_policy() {
+    let view = project_graph(
+        &workspace_datatable_seed_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+
+    let node_ids = view
+        .nodes
+        .iter()
+        .map(|node| node.id.as_str())
+        .collect::<Vec<_>>();
+    assert_eq!(node_ids, vec!["code:analysis.py", "file:data.csv"]);
+}
+
+#[test]
 fn uses_all_preset_structure_defaults_after_auto_resolution() {
     let view = project_graph(&structure_only_graph(), &GraphProjectionOptions::default());
 
@@ -258,6 +315,81 @@ fn flow_detail_defaults_to_medium_without_local_symbols() {
             "ReadBy:file:data.csv->code:analysis.py",
         ]
     );
+}
+
+#[test]
+fn flow_medium_hides_derived_into_edges_collapsed_to_code() {
+    let view = project_graph(
+        &collapsed_derivation_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(
+        view.edges
+            .iter()
+            .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+            .collect::<Vec<_>>(),
+        vec!["ReadBy:datatable:data.csv->code:analysis.py"]
+    );
+}
+
+#[test]
+fn flow_medium_keeps_collapsed_derived_into_without_redundant_read() {
+    let view = project_graph(
+        &collapsed_derivation_only_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(
+        view.edges
+            .iter()
+            .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+            .collect::<Vec<_>>(),
+        vec!["DerivedInto:datatable:data.csv->code:analysis.py"]
+    );
+}
+
+#[test]
+fn flow_medium_prefers_collapsed_derived_into_over_generated() {
+    let view = project_graph(
+        &collapsed_generation_and_derivation_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+
+    assert_eq!(
+        view.edges
+            .iter()
+            .map(|edge| format!("{}:{}->{}", edge.kind, edge.source, edge.target))
+            .collect::<Vec<_>>(),
+        vec!["DerivedInto:code:setup.py->code:plot.py"]
+    );
+}
+
+#[test]
+fn flow_high_keeps_variable_level_derived_into_edges() {
+    let view = project_graph(
+        &collapsed_derivation_graph(),
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            detail: GraphProjectionDetail::High,
+            ..Default::default()
+        },
+    );
+
+    assert!(view.edges.iter().any(|edge| {
+        edge.kind == GraphEdgeKind::DerivedInto
+            && edge.source == "datatable:data.csv"
+            && edge.target == "symbol:analysis.py:r:df"
+    }));
 }
 
 #[test]
@@ -1523,6 +1655,228 @@ fn structure_only_graph() -> Graph {
             "node:document#article".to_string(),
             GraphEdgeKind::PartOf,
         )],
+    )
+}
+
+fn document_flow_seed_graph() -> Graph {
+    Graph::new(
+        "test:document-flow-seeds".to_string(),
+        vec![
+            graph_node(
+                "file:ai-panel.png",
+                Node::File(File::new(
+                    "ai-panel.png".to_string(),
+                    "ai-panel.png".to_string(),
+                )),
+            ),
+            graph_node(
+                "node:document#article",
+                Node::Article(Article::new(Vec::new())),
+            ),
+            graph_node(
+                "node:document#figure",
+                Node::Figure(Figure::new(Vec::new())),
+            ),
+            graph_node(
+                "node:document#figure-code",
+                Node::CodeChunk(CodeChunk::new("plot()".into())),
+            ),
+            graph_node(
+                "node:document#figure-image",
+                Node::Figure(Figure::new(Vec::new())),
+            ),
+            graph_node(
+                "node:document#nested-table",
+                Node::Table(Table::new(Vec::new())),
+            ),
+            graph_node(
+                "node:document#setup",
+                Node::CodeChunk(CodeChunk::new("setup()".into())),
+            ),
+        ],
+        vec![
+            GraphEdge::new(
+                "file:ai-panel.png".to_string(),
+                "node:document#figure-image".to_string(),
+                GraphEdgeKind::LinkedBy,
+            ),
+            GraphEdge::new(
+                "node:document#figure-code".to_string(),
+                "node:document#figure".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                "node:document#figure-image".to_string(),
+                "node:document#figure".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                "node:document#nested-table".to_string(),
+                "node:document#figure-image".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                "node:document#setup".to_string(),
+                "node:document#article".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+            GraphEdge::new(
+                "node:document#figure".to_string(),
+                "node:document#article".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+        ],
+    )
+}
+
+fn workspace_datatable_seed_graph() -> Graph {
+    Graph::new(
+        "test:workspace-datatable-flow-seeds".to_string(),
+        vec![
+            graph_node(
+                "datatable:samplesheet.csv",
+                Node::Datatable(Datatable::new(Vec::new())),
+            ),
+            graph_node(
+                "file:data.csv",
+                Node::File(File::new("data.csv".to_string(), "data.csv".to_string())),
+            ),
+            graph_node(
+                "code:analysis.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "analysis.py".to_string(),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                }),
+            ),
+        ],
+        vec![GraphEdge::new(
+            "file:data.csv".to_string(),
+            "code:analysis.py".to_string(),
+            GraphEdgeKind::ReadBy,
+        )],
+    )
+}
+
+fn collapsed_derivation_graph() -> Graph {
+    Graph::new(
+        "test:collapsed-derivation".to_string(),
+        vec![
+            graph_node(
+                "datatable:data.csv",
+                Node::Datatable(Datatable::new(Vec::new())),
+            ),
+            graph_node(
+                "code:analysis.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "analysis.py".to_string(),
+                    programming_language: "r".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "symbol:analysis.py:r:df",
+                Node::Variable(Variable::new("df".to_string())),
+            ),
+        ],
+        vec![
+            GraphEdge::new(
+                "datatable:data.csv".to_string(),
+                "code:analysis.py".to_string(),
+                GraphEdgeKind::ReadBy,
+            ),
+            GraphEdge::new(
+                "datatable:data.csv".to_string(),
+                "symbol:analysis.py:r:df".to_string(),
+                GraphEdgeKind::DerivedInto,
+            ),
+            GraphEdge::new(
+                "symbol:analysis.py:r:df".to_string(),
+                "code:analysis.py".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+        ],
+    )
+}
+
+fn collapsed_derivation_only_graph() -> Graph {
+    Graph::new(
+        "test:collapsed-derivation-only".to_string(),
+        vec![
+            graph_node(
+                "datatable:data.csv",
+                Node::Datatable(Datatable::new(Vec::new())),
+            ),
+            graph_node(
+                "code:analysis.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "analysis.py".to_string(),
+                    programming_language: "r".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "symbol:analysis.py:r:df",
+                Node::Variable(Variable::new("df".to_string())),
+            ),
+        ],
+        vec![
+            GraphEdge::new(
+                "datatable:data.csv".to_string(),
+                "symbol:analysis.py:r:df".to_string(),
+                GraphEdgeKind::DerivedInto,
+            ),
+            GraphEdge::new(
+                "symbol:analysis.py:r:df".to_string(),
+                "code:analysis.py".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+        ],
+    )
+}
+
+fn collapsed_generation_and_derivation_graph() -> Graph {
+    Graph::new(
+        "test:collapsed-generation-and-derivation".to_string(),
+        vec![
+            graph_node(
+                "code:setup.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "setup.py".to_string(),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "code:plot.py",
+                Node::SoftwareSourceCode(SoftwareSourceCode {
+                    name: "plot.py".to_string(),
+                    programming_language: "python".to_string(),
+                    ..Default::default()
+                }),
+            ),
+            graph_node(
+                "symbol:plot.py:python:summaries",
+                Node::Variable(Variable::new("summaries".to_string())),
+            ),
+        ],
+        vec![
+            GraphEdge::new(
+                "code:setup.py".to_string(),
+                "symbol:plot.py:python:summaries".to_string(),
+                GraphEdgeKind::Generated,
+            ),
+            GraphEdge::new(
+                "code:setup.py".to_string(),
+                "symbol:plot.py:python:summaries".to_string(),
+                GraphEdgeKind::DerivedInto,
+            ),
+            GraphEdge::new(
+                "symbol:plot.py:python:summaries".to_string(),
+                "code:plot.py".to_string(),
+                GraphEdgeKind::PartOf,
+            ),
+        ],
     )
 }
 

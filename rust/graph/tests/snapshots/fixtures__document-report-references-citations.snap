@@ -13,18 +13,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: species
-          values:
-            - kea
-            - tui
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: count
-          values:
-            - 2
-            - 4
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

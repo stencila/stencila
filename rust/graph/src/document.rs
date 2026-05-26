@@ -1,8 +1,7 @@
 //! Document graph extraction.
 //!
 //! This module turns a single Stencila Schema document node tree into graph
-//! nodes and resource-flow relationships while keeping the embedded graph nodes
-//! shallow.
+//! nodes and resource-flow relationships.
 
 use std::collections::HashMap;
 
@@ -12,7 +11,7 @@ use stencila_schema::{
     ActionStatusType, Block, Citation, CitationGroup, CodeChunk, CodeExpression, CreativeWork,
     DateTime as SchemaDateTime, Duration as SchemaDuration, ExecuteAction, ExecutionStatus, Graph,
     GraphAction, GraphEdgeKind, GraphEvidence, Inline, Link, Node, NodeId, NodeType, Reference,
-    StripNode, StripScope, StripTargets, Timestamp, Visitor, WalkControl, WalkNode,
+    Timestamp, Visitor, WalkControl, WalkNode,
 };
 
 use crate::{
@@ -94,6 +93,49 @@ pub(crate) enum DocumentReferenceKind {
 
     /// A link points at an external source or resource.
     Link,
+}
+
+/// How a document node type participates in graph extraction and projection.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum DocumentGraphNodePolicy {
+    /// Do not retain the node as a graph node.
+    Skip,
+
+    /// Retain the node as a graph node when it is discovered.
+    Record,
+
+    /// Retain the node and show it unconditionally in flow projections.
+    RecordAndSeedFlow,
+}
+
+impl DocumentGraphNodePolicy {
+    fn records(self) -> bool {
+        !matches!(self, Self::Skip)
+    }
+
+    pub(crate) fn seeds_flow_projection(self) -> bool {
+        matches!(self, Self::RecordAndSeedFlow)
+    }
+}
+
+/// Return the graph policy for a document node type.
+pub(crate) fn document_graph_node_policy(node_type: NodeType) -> DocumentGraphNodePolicy {
+    match node_type {
+        NodeType::CodeChunk | NodeType::Datatable | NodeType::Figure | NodeType::Table => {
+            DocumentGraphNodePolicy::RecordAndSeedFlow
+        }
+        NodeType::Article
+        | NodeType::CodeExpression
+        | NodeType::File
+        | NodeType::Reference
+        | NodeType::SymbolicLink => DocumentGraphNodePolicy::Record,
+        _ => DocumentGraphNodePolicy::Skip,
+    }
+}
+
+/// Check whether an embedded document node should seed flow projections.
+pub(crate) fn document_node_seeds_flow_projection(node: &Node) -> bool {
+    document_graph_node_policy(node.node_type()).seeds_flow_projection()
 }
 
 /// Callback used to resolve document-local file references into graph edges.
@@ -212,8 +254,8 @@ impl<'a> DocumentCollector<'a> {
 
     /// Add a Schema node when it should appear in the graph.
     ///
-    /// Boundary filtering keeps the graph compact while `force` lets roots and
-    /// execution outputs be represented even when they are not boundary types.
+    /// Policy filtering keeps the graph compact while `force` lets roots and
+    /// execution outputs be represented even when they are not recorded types.
     fn add_schema_node(
         &mut self,
         node: Node,
@@ -222,7 +264,7 @@ impl<'a> DocumentCollector<'a> {
         structural: bool,
     ) -> Option<String> {
         let node_type = node.node_type();
-        if !force && !is_boundary_node_type(node_type) {
+        if !force && !document_graph_node_policy(node_type).records() {
             return None;
         }
 
@@ -236,8 +278,7 @@ impl<'a> DocumentCollector<'a> {
             self.boundaries.insert(node_id.clone(), graph_id.clone());
         }
 
-        let embedded = shallow_node(&node);
-        self.builder.add_schema_node(graph_id.clone(), embedded);
+        self.builder.add_schema_node(graph_id.clone(), node.clone());
 
         if structural && let Some(parent_id) = self.parent_stack.last() {
             self.builder
@@ -641,154 +682,6 @@ fn declared_citation_evidence(citation: &Citation) -> Vec<GraphEvidence> {
     }
 }
 
-/// Check whether a node type is represented as a graph boundary.
-///
-/// The graph intentionally includes coarse document objects and executable
-/// nodes instead of every prose node, keeping relationship graphs inspectable.
-fn is_boundary_node_type(node_type: NodeType) -> bool {
-    matches!(
-        node_type,
-        NodeType::Article
-            | NodeType::CodeChunk
-            | NodeType::CodeExpression
-            | NodeType::Datatable
-            | NodeType::Figure
-            | NodeType::File
-            | NodeType::Reference
-            | NodeType::SymbolicLink
-            | NodeType::Table
-    )
-}
-
-/// Create a shallow graph payload for a Schema node.
-///
-/// Graph nodes should identify and summarize document objects without carrying
-/// large content, generated outputs, or metadata that belongs to other views.
-fn shallow_node(node: &Node) -> Node {
-    macro_rules! redact_media_node {
-        ($media:expr, $variant:ident) => {{
-            let mut media = $media.clone();
-            redact_data_url(&mut media.content_url);
-            Node::$variant(media)
-        }};
-    }
-
-    let mut node = match node {
-        Node::Article(article) => {
-            let mut article = article.clone();
-            article.content = Vec::new();
-            article.options.repository = None;
-            article.options.path = None;
-            article.options.commit = None;
-            Node::Article(article)
-        }
-        Node::Citation(citation) => {
-            let mut citation = citation.clone();
-            citation.options.cites = None;
-            citation.options.content = None;
-            citation.options.compilation_messages = None;
-            Node::Citation(citation)
-        }
-        Node::CitationGroup(group) => {
-            let mut group = group.clone();
-            group.items.clear();
-            group.content = None;
-            Node::CitationGroup(group)
-        }
-        Node::CodeChunk(chunk) => {
-            let mut chunk = chunk.clone();
-            chunk.caption = None;
-            chunk.outputs = None;
-            Node::CodeChunk(chunk)
-        }
-        Node::CodeExpression(expression) => {
-            let mut expression = expression.clone();
-            expression.output = None;
-            Node::CodeExpression(expression)
-        }
-        Node::Datatable(datatable) => {
-            let mut datatable = datatable.clone();
-            datatable.caption = None;
-            datatable.notes = None;
-            for column in &mut datatable.columns {
-                column.values.clear();
-                column.validator = None;
-            }
-            Node::Datatable(datatable)
-        }
-        Node::Figure(figure) => {
-            let mut figure = figure.clone();
-            figure.caption = None;
-            figure.content = Vec::new();
-            Node::Figure(figure)
-        }
-        Node::File(file) => {
-            let mut file = file.clone();
-            file.content = None;
-            Node::File(file)
-        }
-        Node::Heading(heading) => {
-            let mut heading = heading.clone();
-            heading.content = Vec::new();
-            Node::Heading(heading)
-        }
-        Node::ImageObject(image) => redact_media_node!(image, ImageObject),
-        Node::Link(link) => {
-            let mut link = link.clone();
-            link.content = Vec::new();
-            link.compilation_messages = None;
-            Node::Link(link)
-        }
-        Node::AudioObject(audio) => redact_media_node!(audio, AudioObject),
-        Node::MediaObject(media) => redact_media_node!(media, MediaObject),
-        Node::Reference(reference) => {
-            let mut reference = reference.clone();
-            reference.options.content = None;
-            Node::Reference(reference)
-        }
-        Node::VideoObject(video) => redact_media_node!(video, VideoObject),
-        Node::Table(table) => {
-            let mut table = table.clone();
-            table.caption = None;
-            table.notes = None;
-            table.rows.clear();
-            Node::Table(table)
-        }
-        _ => node.clone(),
-    };
-
-    strip_graph_metadata(&mut node);
-    node
-}
-
-/// Strip metadata scopes that are not part of graph identity.
-///
-/// Removing volatile or heavyweight fields keeps graph snapshots stable and
-/// prevents embedded nodes from duplicating provenance already encoded as edges.
-fn strip_graph_metadata(node: &mut Node) {
-    node.strip(&StripTargets::scopes(vec![
-        StripScope::Authors,
-        StripScope::Provenance,
-        StripScope::Archive,
-        StripScope::Compilation,
-        StripScope::Execution,
-        StripScope::Temporary,
-        StripScope::Timestamps,
-    ]));
-}
-
-/// Replace embedded data URL bodies with a placeholder.
-///
-/// Media graph nodes need to retain the URL kind while avoiding large binary
-/// payloads in graph output and snapshot fixtures.
-fn redact_data_url(content_url: &mut String) {
-    if let Some((metadata, ..)) = content_url.split_once(',')
-        && metadata.starts_with("data:")
-    {
-        *content_url = format!("{metadata},<omitted>");
-    }
-}
-
 /// Convert execution status into Schema action status.
 ///
 /// Execution statuses are domain-specific, while action statuses are the common
@@ -832,4 +725,17 @@ fn action_times_from_execution(
             ActionTimes::end(end_time)
         },
     )
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn document_policy_records_symbolic_links_without_flow_seeding() {
+        let policy = document_graph_node_policy(NodeType::SymbolicLink);
+
+        assert!(policy.records());
+        assert!(!policy.seeds_flow_projection());
+    }
 }

@@ -52,6 +52,7 @@ async fn fixtures() -> Result<()> {
             ".nodes[].node.dateModified.value" => DATETIME_PLACEHOLDER,
             ".edges[].actions[].startTime.value" => DATETIME_PLACEHOLDER,
             ".edges[].actions[].endTime.value" => DATETIME_PLACEHOLDER,
+            ".edges[].evidence[].details.reader" => "[c2pa-reader]",
         });
     }
 

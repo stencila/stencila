@@ -55,16 +55,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: gene
-          values:
-            - geneA
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: count
-          values:
-            - 7
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

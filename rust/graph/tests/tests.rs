@@ -17,8 +17,9 @@ use stencila_graph::{
     WorkspaceOptions, graph_from_node, graph_from_path, project_graph,
 };
 use stencila_schema::{
-    Article, Block, Citation, CodeChunk, Cord, ExecuteAction, GraphAction, GraphEvidenceKind,
-    Inline, Link, Node, Paragraph, Reference, Text, WorktreeStatus,
+    Article, Block, Citation, CodeChunk, Cord, ExecuteAction, Figure, GraphAction,
+    GraphEvidenceKind, Inline, Link, Node, Paragraph, Reference, Section, Table, Text,
+    WorktreeStatus,
 };
 use tempfile::tempdir;
 
@@ -277,6 +278,86 @@ fn graph_from_node_preserves_source_metadata() -> Result<()> {
     Ok(())
 }
 
+#[test]
+fn graph_from_node_records_document_policy_nodes_at_any_depth() -> Result<()> {
+    let nested_table = Table::new(Vec::new());
+    let nested_code = CodeChunk::new(Cord::from("plot()\n"));
+    let inner_figure = Figure::new(vec![
+        Block::Table(nested_table),
+        Block::CodeChunk(nested_code),
+    ]);
+    let outer_figure = Figure::new(vec![Block::Figure(inner_figure)]);
+    let section_code = CodeChunk::new(Cord::from("setup()\n"));
+    let section = Section::new(vec![Block::CodeChunk(section_code)]);
+
+    let graph = graph_from_node(
+        "fixture:document-node-policy",
+        &Node::Article(Article::new(vec![
+            Block::Figure(outer_figure),
+            Block::Section(section),
+        ])),
+    )?;
+
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .filter(|node| matches!(node.node.as_ref(), Node::CodeChunk(..)))
+            .count(),
+        2
+    );
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .filter(|node| matches!(node.node.as_ref(), Node::Figure(..)))
+            .count(),
+        2
+    );
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .filter(|node| matches!(node.node.as_ref(), Node::Table(..)))
+            .count(),
+        1
+    );
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .all(|node| !matches!(node.node.as_ref(), Node::Section(..))),
+        "sections are not graph nodes yet"
+    );
+
+    assert!(edge_connects_node_kinds(
+        &graph,
+        GraphEdgeKind::PartOf,
+        |node| matches!(node, Node::Table(..)),
+        |node| matches!(node, Node::Figure(..))
+    ));
+    assert!(edge_connects_node_kinds(
+        &graph,
+        GraphEdgeKind::PartOf,
+        |node| matches!(node, Node::Figure(..)),
+        |node| matches!(node, Node::Figure(..))
+    ));
+    assert!(edge_connects_node_kinds(
+        &graph,
+        GraphEdgeKind::PartOf,
+        |node| matches!(node, Node::CodeChunk(..)),
+        |node| matches!(node, Node::Figure(..))
+    ));
+    assert!(edge_connects_node_kinds(
+        &graph,
+        GraphEdgeKind::PartOf,
+        |node| matches!(node, Node::CodeChunk(..)),
+        |node| matches!(node, Node::Article(..))
+    ));
+
+    Ok(())
+}
+
 #[tokio::test]
 async fn escapes_delimiters_in_document_scopes() -> Result<()> {
     let workspace = tempdir()?;
@@ -520,6 +601,22 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
             .iter()
             .all(|edge| edge.kind != GraphEdgeKind::LinkedBy),
         "local media/link references should stay out of cite projection"
+    );
+
+    let flow_view = project_graph(
+        &graph,
+        &GraphProjectionOptions {
+            preset: GraphProjectionPreset::Flow,
+            ..Default::default()
+        },
+    );
+    assert!(
+        flow_view.edges.iter().any(|edge| {
+            edge.kind == GraphEdgeKind::LinkedBy
+                && edge.source == "image:assets/source.svg"
+                && edge.target == article_id
+        }),
+        "local media/link references should be visible in flow projection"
     );
 
     Ok(())
@@ -809,6 +906,36 @@ fn assert_no_graph_edge(graph: &Graph, source: &str, target: &str, kind: GraphEd
             .all(|edge| !(edge.source == source && edge.target == target && edge.kind == kind)),
         "unexpected edge {source} -> {target} ({kind})"
     );
+}
+
+fn edge_connects_node_kinds(
+    graph: &Graph,
+    kind: GraphEdgeKind,
+    source_matches: impl Fn(&Node) -> bool,
+    target_matches: impl Fn(&Node) -> bool,
+) -> bool {
+    graph.edges.iter().any(|edge| {
+        if edge.kind != kind {
+            return false;
+        }
+
+        let Some(source) = graph_node(graph, &edge.source) else {
+            return false;
+        };
+        let Some(target) = graph_node(graph, &edge.target) else {
+            return false;
+        };
+
+        source_matches(source) && target_matches(target)
+    })
+}
+
+fn graph_node<'a>(graph: &'a Graph, id: &str) -> Option<&'a Node> {
+    graph
+        .nodes
+        .iter()
+        .find(|node| node.id == id)
+        .map(|node| node.node.as_ref())
 }
 
 fn assert_edge_evidence(edge: &GraphEdge, kind: GraphEvidenceKind) {

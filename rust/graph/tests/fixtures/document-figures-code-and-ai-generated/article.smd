@@ -1,0 +1,129 @@
+---
+title: Acute degron-mediated depletion delays mitotic entry and increases apoptosis
+description: Test fixture with a mixed code-generated and AI-generated multi-panel figure
+---
+
+# Introduction
+
+Auxin-inducible degron systems allow rapid depletion of tagged proteins, but the
+timing of downstream cell-cycle outcomes can vary across cellular populations.
+Here we used a live-cell imaging assay to quantify mitotic entry and apoptosis
+after doxycycline-induced perturbation of a tagged target protein. In this fake
+study, perturbation delayed the median time to mitotic entry from 4.6 h in
+control cells to 8.6 h after Dox treatment. At 12 h, perturbed populations showed
+fewer mitotic entries and more apoptotic cells than controls.
+
+# Methods
+
+Cells carrying an endogenous AID degron-tagged target protein were imaged every
+2 h for 12 h after Dox addition. Individual cells were scored for mitotic entry
+or apoptosis using time-lapse morphology. Population outcomes were summarized as
+the percentage of cells entering mitosis or undergoing apoptosis by 12 h. Binned
+single-cell scoring data were stored in `outcomes.csv` and summarized with an
+executable R chunk.
+
+# Results
+
+Control cells entered mitosis rapidly, with approximately half of the population
+reaching mitotic entry by 4.6 h. Dox-treated cells showed a delayed cumulative
+mitotic-entry curve, reaching the same threshold at 8.6 h. By the 12 h endpoint,
+mitotic entry was reduced from about 88% in controls to about 55% after
+perturbation, while apoptosis increased from about 6% to about 31%.
+
+::: table 1
+
+Summary of data.
+
+```r exec
+outcomes <- read.csv("outcomes.csv")
+
+event_totals <- aggregate(
+  cbind(mitotic_entries, apoptotic_cells) ~ treatment,
+  data = outcomes,
+  FUN = sum
+)
+cell_counts <- aggregate(cells_scored ~ treatment, data = outcomes, FUN = max)
+
+summaries <- merge(cell_counts, event_totals, by = "treatment")
+summaries$mitotic_entry_percent <- round(
+  summaries$mitotic_entries / summaries$cells_scored * 100
+)
+summaries$apoptosis_percent <- round(
+  summaries$apoptotic_cells / summaries$cells_scored * 100
+)
+summaries <- summaries[
+  ,
+  c("treatment", "cells_scored", "mitotic_entry_percent", "apoptosis_percent")
+]
+names(summaries) <- c(
+  "Treatment",
+  "Cells scored",
+  "Mitotic entry (%)",
+  "Apoptosis (%)"
+)
+
+write.table(
+  as.data.frame(summaries),
+  "outcome-summaries.tsv",
+  sep = "\t",
+  row.names = FALSE,
+  quote = FALSE
+)
+summaries
+```
+
+:::
+
+::: figure 1 [2]
+
+    ::: figure 1a
+
+    ```r exec
+    outcome_matrix <- t(as.matrix(
+      summaries[, c("Mitotic entry (%)", "Apoptosis (%)")]
+    ))
+    colnames(outcome_matrix) <- summaries$Treatment
+
+    barplot(
+      outcome_matrix,
+      beside = TRUE,
+      ylim = c(0, 100),
+      col = c("#4e79a7", "#e15759"),
+      border = "white",
+      ylab = "Cells at 12 h (%)",
+      legend.text = rownames(outcome_matrix),
+      args.legend = list(x = "topright", bty = "n", inset = 0.02),
+      main = ""
+    )
+    ```
+
+    ```svg overlay
+    <svg viewBox="0 0 600 400" xmlns:s="https://stencila.io/svg">
+      <s:callout x="345" y="70" label="Dox shifts cell fate" to-x="405" to-y="185" curve="quad"/>
+    </svg>
+    ```
+
+    Reproducible R plot with an overlay annotation.
+
+    :::
+
+    ::: figure 1b
+
+    ![](ai-generated.png)
+
+    Static AI-generated image.
+
+    :::
+
+Live-cell analysis of degron-mediated target protein perturbation. Endpoint
+outcomes at 12 h show reduced mitotic entry and increased apoptosis after
+perturbation.
+
+:::
+
+# Conclusion
+
+These fictional data suggest that inducible depletion of the target protein
+slows progression into mitosis and shifts a subset of cells toward apoptosis.
+The assay provides a simple population-level readout for separating timing
+defects from terminal cell-fate changes after acute protein perturbation.

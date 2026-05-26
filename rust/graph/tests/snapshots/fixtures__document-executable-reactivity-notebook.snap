@@ -180,40 +180,6 @@ edges:
         kind: Observed
   - type: GraphEdge
     source: "file:data/samples.dat"
-    target: "node:docs/notebook.json#cdc_setup"
-    kind: ReadBy
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        codeLocation:
-          type: CodeLocation
-          source: docs/notebook.json
-          startLine: 2
-          startColumn: 22
-        details:
-          detector: stencila-code-static-analysis
-          language: python
-          pathKind: static
-          expression: "../data/samples.dat"
-          byteOffset: 52
-          function: read_csv
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        codeLocation:
-          type: CodeLocation
-          source: docs/notebook.json
-          startLine: 2
-          startColumn: 22
-        details:
-          detector: stencila-code-static-analysis
-          language: python
-          pathKind: static
-          expression: "../data/samples.dat"
-          byteOffset: 52
-          function: read_csv
-          target: samples
-  - type: GraphEdge
-    source: "file:data/samples.dat"
     target: "symbol:docs/notebook.json:python:samples"
     kind: DerivedInto
     evidence:
@@ -317,18 +283,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Computed
-  - type: GraphEdge
-    source: "node:docs/notebook.json#cdc_setup"
-    target: "symbol:docs/notebook.json:python:samples"
-    kind: Generated
-    evidence:
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        codeLocation:
-          type: CodeLocation
-          source: docs/notebook.json
-          startLine: 2
-          startColumn: 0
   - type: GraphEdge
     source: "node:docs/notebook.json#cdc_setup"
     target: "symbol:docs/notebook.json:python:scale"

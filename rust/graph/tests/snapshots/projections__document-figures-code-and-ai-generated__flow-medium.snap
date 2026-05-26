@@ -1,0 +1,34 @@
+---
+source: rust/graph/tests/projections.rs
+expression: to_dot(&view)
+---
+digraph stencila_graph {
+  graph [rankdir="LR", overlap="false", splines="true"];
+  node [fontname="Arial", fontsize="10", margin="0.08,0.05"];
+  edge [fontname="Arial", fontsize="9", arrowsize="0.7"];
+  graph [preset="flow"];
+  graph [detail="medium"];
+
+  subgraph "cluster_dir:." {
+    label="document-figures-code-and-ai-generated/"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+    "datatable:outcome-summaries.tsv" [label="outcome-summaries.tsv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+    "datatable:outcomes.csv" [label="outcomes.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
+    "image:ai-generated.png" [label="ai-generated.png", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
+    subgraph "cluster_node:article.smd#art_" {
+      label="article.smd"; style="rounded,dashed"; color="#b8c2cc"; bgcolor="#fbfcfe"; fontname="Arial"; fontsize="11";
+      "node:article.smd#cdc_content-6" [label="cdc_content-6", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      subgraph "cluster_node:article.smd#fig_content-7" {
+        label="fig_content-7"; style="rounded,dashed"; color="#c3ccd6"; bgcolor="#f8fafc"; fontname="Arial"; fontsize="11";
+        "node:article.smd#cdc_content-7-content-0" [label="cdc_content-7-content-0", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+        "node:article.smd#fig_content-7-content-1" [label="fig_content-7-content-1", kind="content", shape="box", style="filled", fillcolor="#f7f4ea", color="#8a6f2a"];
+      }
+    }
+  }
+  "software:image%3Aai-generated.png#gpt-image" [label="gpt-image", kind="software", shape="box3d", style="filled", fillcolor="#f1f5ff", color="#5261b8"];
+
+  "datatable:outcomes.csv" -> "node:article.smd#cdc_content-6" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:article.smd#cdc_content-6" -> "node:article.smd#cdc_content-7-content-0" [label="Derived Into", kind="DerivedInto", count="2", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "node:article.smd#cdc_content-6" -> "datatable:outcome-summaries.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "software:image%3Aai-generated.png#gpt-image" -> "image:ai-generated.png" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="1", low_confidence="false", style="solid", color="#4b5563"];
+  "image:ai-generated.png" -> "node:article.smd#fig_content-7-content-1" [label="Linked By", kind="LinkedBy", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+}

@@ -38,7 +38,6 @@ digraph stencila_graph {
   }
 
   "node:docs/notebook.json#cdc_analysis" -> "symbol:docs/notebook.json:python:adjusted" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
-  "node:docs/notebook.json#cdc_setup" -> "symbol:docs/notebook.json:python:samples" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "node:docs/notebook.json#cdc_setup" -> "symbol:docs/notebook.json:python:scale" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "symbol:docs/notebook.json:python:adjusted" -> "node:docs/notebook.json#cde_content-3-content-1" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "symbol:docs/notebook.json:python:mean" -> "node:docs/notebook.json#cdc_analysis" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];

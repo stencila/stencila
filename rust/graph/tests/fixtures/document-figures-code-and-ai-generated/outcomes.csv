@@ -1,0 +1,7 @@
+treatment,time_h,cells_scored,mitotic_entries,apoptotic_cells
+Control,4,100,46,1
+Control,8,100,32,2
+Control,12,100,10,3
+Dox,4,100,12,5
+Dox,8,100,23,9
+Dox,12,100,20,17

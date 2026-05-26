@@ -41,27 +41,21 @@ nodes:
       columns:
         - type: DatatableColumn
           name: site
-          values:
-            - north
-            - south
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: count
-          values:
-            - 3
-            - 5
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
         - type: DatatableColumn
           name: treatment
-          values:
-            - control
-            - warmed
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

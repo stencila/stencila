@@ -13,16 +13,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: metric
-          values:
-            - accuracy
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: value
-          values:
-            - 0.91
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

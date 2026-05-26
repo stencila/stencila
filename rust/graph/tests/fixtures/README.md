@@ -142,6 +142,30 @@ Expected graph surface:
 - include `IncludedBy` edges attached to retained document containers
 - external resources represented as resource nodes when appropriate
 
+## document-figures-code-and-ai-generated
+
+Purpose: exercise graph extraction for a Stencila Markdown manuscript containing
+a small data analysis, a table generated from a dataframe, a multi-panel figure
+with one code-generated panel, and one linked AI-generated image asset.
+
+The fixture is based on the content credentials fixture
+`figures-code-and-ai-generated.smd`, with the signed AI image kept beside the
+document so workspace graph extraction can show the document link and asset
+provenance together.
+
+Expected graph surface:
+
+- decoded document boundary nodes for the article, executable R analysis chunk,
+  generated table, figure structure, executable R plotting chunk, SVG overlay,
+  and linked image
+- flow edges from raw CSV data through the analysis chunk to the generated
+  summary TSV, and from the chunk's `summaries` dataframe into the plotting
+  chunk
+- local media `LinkedBy` edges from `ai-generated.png` into the decoded document
+- C2PA credential, ingredient, and provenance agent nodes for the signed image
+- flow projection output that makes the mixed generated/AI figure lineage easy
+  to inspect
+
 ## environment-manifests-lockfiles-polyglot
 
 Purpose: exercise declared computational environment extraction across the

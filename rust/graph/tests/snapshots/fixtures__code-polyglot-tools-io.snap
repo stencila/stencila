@@ -111,18 +111,14 @@ nodes:
       columns:
         - type: DatatableColumn
           name: sample
-          values:
-            - a
-            - b
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
         - type: DatatableColumn
           name: value
-          values:
-            - 1
-            - 2
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:
@@ -196,8 +192,7 @@ nodes:
       columns:
         - type: DatatableColumn
           name: count
-          values:
-            - 2
+          values: []
           validator:
             type: ArrayValidator
             itemsValidator:

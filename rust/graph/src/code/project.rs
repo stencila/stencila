@@ -175,13 +175,17 @@ fn add_reactive_symbol_edges(
     context: &CodeProjectionContext,
     facts: &CodeFacts,
 ) {
+    let derived_assignments = derived_assignment_symbols(facts);
+
     for symbol in &facts.assignments {
         let symbol_id = add_variable_node(builder, context.scope, context.language, symbol);
         let evidence = context
             .evidence
             .static_analysis(facts.definition_offsets.get(symbol).copied());
         builder.add_containment(&symbol_id, context.unit_id, vec![evidence.clone()]);
-        builder.add_generation(context.unit_id, symbol_id, vec![evidence]);
+        if !derived_assignments.contains(symbol) {
+            builder.add_generation(context.unit_id, symbol_id, vec![evidence]);
+        }
     }
 
     for declaration in &facts.declarations {
@@ -227,20 +231,28 @@ fn add_full_flow_edges(
     read_resources: &[IoResourceNode],
     write_resources: &[IoResourceNode],
 ) {
+    let local_variables = local_variables(facts);
+    let precise_read_ids = precise_read_resource_ids(read_resources, &local_variables);
+    let precise_write_ids = precise_write_resource_ids(write_resources, &local_variables, facts);
+
     for resource in read_resources {
-        builder.add_read(
-            &resource.id,
-            context.unit_id,
-            vec![io_path_evidence(&context.evidence, resource)],
-        );
+        if !precise_read_ids.contains(&resource.id) {
+            builder.add_read(
+                &resource.id,
+                context.unit_id,
+                vec![io_path_evidence(&context.evidence, resource)],
+            );
+        }
     }
 
     for resource in write_resources {
-        builder.add_generation(
-            context.unit_id,
-            &resource.id,
-            vec![io_path_evidence(&context.evidence, resource)],
-        );
+        if !precise_write_ids.contains(&resource.id) {
+            builder.add_generation(
+                context.unit_id,
+                &resource.id,
+                vec![io_path_evidence(&context.evidence, resource)],
+            );
+        }
     }
     add_variable_data_flow_edges(builder, context, facts, read_resources, write_resources);
 
@@ -568,31 +580,8 @@ fn add_lean_flow_edges(
     write_resources: &[IoResourceNode],
 ) {
     let local_variables = local_variables(facts);
-    let precise_read_ids = read_resources
-        .iter()
-        .filter(|resource| {
-            resource
-                .target
-                .as_deref()
-                .is_some_and(|target| local_variables.contains(target))
-        })
-        .map(|resource| resource.id.clone())
-        .collect::<BTreeSet<_>>();
-    let precise_write_ids = write_resources
-        .iter()
-        .filter(|resource| {
-            let Some(value) = resource
-                .value
-                .as_deref()
-                .filter(|value| local_variables.contains(*value))
-            else {
-                return false;
-            };
-            let value_offset = resource.value_offset.or(resource.operation_offset);
-            value_offset.is_none_or(|offset| variable_available_at(facts, value, offset))
-        })
-        .map(|resource| resource.id.clone())
-        .collect::<BTreeSet<_>>();
+    let precise_read_ids = precise_read_resource_ids(read_resources, &local_variables);
+    let precise_write_ids = precise_write_resource_ids(write_resources, &local_variables, facts);
 
     for resource in read_resources {
         if let Some(target) = resource
@@ -726,6 +715,81 @@ fn local_variables(facts: &CodeFacts) -> BTreeSet<String> {
         .filter(|symbol| !facts.imported_symbols.contains(*symbol))
         .cloned()
         .collect()
+}
+
+/// Assignment symbols whose values are explained by finer-grained lineage.
+fn derived_assignment_symbols(facts: &CodeFacts) -> BTreeSet<String> {
+    let local_variables = local_variables(facts);
+    let mut symbols = facts
+        .io
+        .iter()
+        .filter(|fact| fact.direction.reads())
+        .filter_map(|fact| {
+            fact.target
+                .as_deref()
+                .filter(|target| local_variables.contains(*target))
+        })
+        .map(String::from)
+        .collect::<BTreeSet<_>>();
+
+    symbols.extend(facts.variable_flows.iter().filter_map(|flow| {
+        if local_variables.contains(&flow.source)
+            && local_variables.contains(&flow.target)
+            && variable_available_at(facts, &flow.source, flow.target_offset)
+        {
+            Some(flow.target.clone())
+        } else {
+            None
+        }
+    }));
+
+    symbols
+}
+
+fn precise_read_resource_ids(
+    read_resources: &[IoResourceNode],
+    local_variables: &BTreeSet<String>,
+) -> BTreeSet<String> {
+    read_resources
+        .iter()
+        .filter(|resource| precise_read_resource(resource, local_variables))
+        .map(|resource| resource.id.clone())
+        .collect()
+}
+
+fn precise_read_resource(resource: &IoResourceNode, local_variables: &BTreeSet<String>) -> bool {
+    resource
+        .target
+        .as_deref()
+        .is_some_and(|target| local_variables.contains(target))
+}
+
+fn precise_write_resource_ids(
+    write_resources: &[IoResourceNode],
+    local_variables: &BTreeSet<String>,
+    facts: &CodeFacts,
+) -> BTreeSet<String> {
+    write_resources
+        .iter()
+        .filter(|resource| precise_write_resource(resource, local_variables, facts))
+        .map(|resource| resource.id.clone())
+        .collect()
+}
+
+fn precise_write_resource(
+    resource: &IoResourceNode,
+    local_variables: &BTreeSet<String>,
+    facts: &CodeFacts,
+) -> bool {
+    let Some(value) = resource
+        .value
+        .as_deref()
+        .filter(|value| local_variables.contains(*value))
+    else {
+        return false;
+    };
+    let value_offset = resource.value_offset.or(resource.operation_offset);
+    value_offset.is_none_or(|offset| variable_available_at(facts, value, offset))
 }
 
 /// Add precise data-flow edges that can be inferred through local variables.

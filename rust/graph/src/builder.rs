@@ -7,8 +7,13 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use eyre::{Result, bail};
 use stencila_schema::{
-    Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node,
+    Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node, StripNode,
+    StripScope, StripTargets,
 };
+
+const CODE_PREVIEW_MAX_LINES: usize = 8;
+const CODE_PREVIEW_MAX_CHARS: usize = 600;
+const CODE_PREVIEW_TRUNCATION_MARKER: &str = "\n...";
 
 /// Builder for deterministic Stencila Schema graphs.
 ///
@@ -99,7 +104,7 @@ impl GraphBuilder {
     /// different node, the conflict is recorded and reported by [`Self::build`].
     pub fn add_schema_node(&mut self, id: impl Into<String>, node: Node) {
         let id = id.into();
-        let node = Box::new(node);
+        let node = Box::new(shallow_node(&node));
 
         match self.nodes.entry(id.clone()) {
             std::collections::btree_map::Entry::Vacant(entry) => {
@@ -373,5 +378,397 @@ impl GraphBuilder {
                 })
                 .collect(),
         ))
+    }
+}
+
+/// Create a shallow graph payload for a Schema node.
+///
+/// Graph nodes should identify and summarize objects without carrying large
+/// content, generated outputs, or metadata that belongs to source documents and
+/// files.
+fn shallow_node(node: &Node) -> Node {
+    macro_rules! redact_media_node {
+        ($media:expr, $variant:ident) => {{
+            let mut media = $media.clone();
+            redact_data_url(&mut media.content_url);
+            Node::$variant(media)
+        }};
+    }
+
+    let mut node = match node {
+        Node::Article(article) => {
+            let mut article = article.clone();
+            article.r#abstract = None;
+            article.frontmatter = None;
+            article.references = None;
+            article.content = Vec::new();
+            article.options.repository = None;
+            article.options.path = None;
+            article.options.commit = None;
+            Node::Article(article)
+        }
+        Node::Citation(citation) => {
+            let mut citation = citation.clone();
+            citation.options.cites = None;
+            citation.options.content = None;
+            citation.options.compilation_messages = None;
+            Node::Citation(citation)
+        }
+        Node::CitationGroup(group) => {
+            let mut group = group.clone();
+            group.items.clear();
+            group.content = None;
+            Node::CitationGroup(group)
+        }
+        Node::CodeChunk(chunk) => {
+            let mut chunk = chunk.clone();
+            chunk.execution_mode = None;
+            chunk.code = code_preview(&chunk.code);
+            chunk.execution_bounds = None;
+            chunk.label_automatically = None;
+            chunk.overlay = None;
+            chunk.outputs = None;
+            chunk.is_echoed = None;
+            chunk.is_hidden = None;
+            chunk.options.overlay_compiled = None;
+            Node::CodeChunk(chunk)
+        }
+        Node::CodeExpression(expression) => {
+            let mut expression = expression.clone();
+            expression.execution_mode = None;
+            expression.code = code_preview(&expression.code);
+            expression.execution_bounds = None;
+            expression.output = None;
+            Node::CodeExpression(expression)
+        }
+        Node::Datatable(datatable) => {
+            let mut datatable = datatable.clone();
+            datatable.label_automatically = None;
+            datatable.notes = None;
+            for column in &mut datatable.columns {
+                column.values.clear();
+            }
+            Node::Datatable(datatable)
+        }
+        Node::DatatableColumn(column) => {
+            let mut column = column.clone();
+            column.values.clear();
+            Node::DatatableColumn(column)
+        }
+        Node::Figure(figure) => {
+            let mut figure = figure.clone();
+            figure.label_automatically = None;
+            figure.content = Vec::new();
+            figure.options.layout = None;
+            figure.options.padding = None;
+            figure.options.overlay = None;
+            figure.options.overlay_compiled = None;
+            Node::Figure(figure)
+        }
+        Node::File(file) => {
+            let mut file = file.clone();
+            file.content = None;
+            Node::File(file)
+        }
+        Node::Heading(heading) => {
+            let mut heading = heading.clone();
+            heading.content = Vec::new();
+            Node::Heading(heading)
+        }
+        Node::ImageObject(image) => redact_media_node!(image, ImageObject),
+        Node::Link(link) => {
+            let mut link = link.clone();
+            link.content = Vec::new();
+            link.compilation_messages = None;
+            Node::Link(link)
+        }
+        Node::AudioObject(audio) => redact_media_node!(audio, AudioObject),
+        Node::MediaObject(media) => redact_media_node!(media, MediaObject),
+        Node::Reference(reference) => {
+            let mut reference = reference.clone();
+            reference.options.content = None;
+            Node::Reference(reference)
+        }
+        Node::VideoObject(video) => redact_media_node!(video, VideoObject),
+        Node::Table(table) => {
+            let mut table = table.clone();
+            table.label_automatically = None;
+            table.notes = None;
+            table.rows.clear();
+            Node::Table(table)
+        }
+        _ => node.clone(),
+    };
+
+    strip_graph_metadata(&mut node);
+    node
+}
+
+/// Strip metadata scopes that are not part of graph identity.
+///
+/// Removing volatile or heavyweight fields keeps graph snapshots stable and
+/// prevents embedded nodes from duplicating provenance already encoded as edges.
+fn strip_graph_metadata(node: &mut Node) {
+    node.strip(&StripTargets::scopes(vec![
+        StripScope::Authors,
+        StripScope::Provenance,
+        StripScope::Archive,
+        StripScope::Compilation,
+        StripScope::Execution,
+        StripScope::Temporary,
+        StripScope::Timestamps,
+    ]));
+}
+
+/// Replace embedded data URL bodies with a placeholder.
+///
+/// Media graph nodes need to retain the URL kind while avoiding large binary
+/// payloads in graph output and snapshot fixtures.
+fn redact_data_url(content_url: &mut String) {
+    if let Some((metadata, ..)) = content_url.split_once(',')
+        && metadata.starts_with("data:")
+    {
+        *content_url = format!("{metadata},<omitted>");
+    }
+}
+
+/// Return a bounded code preview for graph display and inspection.
+fn code_preview(code: &Cord) -> Cord {
+    Cord::from(truncate_code_preview(&code.string))
+}
+
+fn truncate_code_preview(code: &str) -> String {
+    let exceeds_chars = code.chars().count() > CODE_PREVIEW_MAX_CHARS;
+    let exceeds_lines = code.lines().nth(CODE_PREVIEW_MAX_LINES).is_some();
+
+    if !exceeds_chars && !exceeds_lines {
+        return code.to_string();
+    }
+
+    let line_limited = if exceeds_lines {
+        code.lines()
+            .take(CODE_PREVIEW_MAX_LINES)
+            .collect::<Vec<_>>()
+            .join("\n")
+    } else {
+        code.to_string()
+    };
+
+    let marker_chars = CODE_PREVIEW_TRUNCATION_MARKER.chars().count();
+    let body_chars = CODE_PREVIEW_MAX_CHARS.saturating_sub(marker_chars);
+    let mut preview = line_limited.chars().take(body_chars).collect::<String>();
+    preview.push_str(CODE_PREVIEW_TRUNCATION_MARKER);
+    preview
+}
+
+#[cfg(test)]
+mod tests {
+    use eyre::{Result, eyre};
+    use stencila_schema::{
+        ArrayValidator, Block, CodeChunk, CodeExpression, Datatable, DatatableColumn, DateTime,
+        Figure, File, ImageObject, Inline, LabelType, Paragraph, Primitive, Table, Text,
+    };
+
+    use super::*;
+
+    #[test]
+    fn add_schema_node_shallows_datatable_columns() -> Result<()> {
+        let mut column = DatatableColumn::new(
+            "count".to_string(),
+            vec![Primitive::Integer(1), Primitive::Integer(2)],
+        );
+        column.validator = Some(ArrayValidator::new());
+        let mut datatable = Datatable::new(vec![column]);
+        datatable.caption = Some(caption("Observed counts"));
+        datatable.options.date_created = Some(DateTime::new("2026-01-01T00:00:00Z".to_string()));
+
+        let mut builder = GraphBuilder::new("test:datatable");
+        builder.add_schema_node("datatable:data.csv", Node::Datatable(datatable));
+
+        let node = only_node(builder.build()?)?;
+        let Node::Datatable(datatable) = node.as_ref() else {
+            return Err(eyre!("expected datatable node"));
+        };
+
+        assert_eq!(datatable.columns.len(), 1);
+        assert!(datatable.columns[0].values.is_empty());
+        assert!(datatable.columns[0].validator.is_some());
+        assert!(datatable.caption.is_some());
+        assert!(datatable.options.date_created.is_some());
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_keeps_short_code_chunk_preview() -> Result<()> {
+        let mut chunk = CodeChunk::new("plot(summaries)".into());
+        chunk.programming_language = Some("r".to_string());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.label = Some("1a".to_string());
+        chunk.caption = Some(caption("Treatment response"));
+        chunk.overlay = Some("<svg/>".to_string());
+
+        let mut builder = GraphBuilder::new("test:code-chunk");
+        builder.add_schema_node("node:article#chunk", Node::CodeChunk(chunk));
+
+        let node = only_node(builder.build()?)?;
+        let Node::CodeChunk(chunk) = node.as_ref() else {
+            return Err(eyre!("expected code chunk node"));
+        };
+
+        assert_eq!(chunk.code.to_string(), "plot(summaries)");
+        assert_eq!(chunk.programming_language.as_deref(), Some("r"));
+        assert_eq!(chunk.label_type, Some(LabelType::FigureLabel));
+        assert_eq!(chunk.label.as_deref(), Some("1a"));
+        assert!(chunk.caption.is_some());
+        assert!(chunk.overlay.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_truncates_long_code_chunk_preview() -> Result<()> {
+        let code = (1..=12)
+            .map(|line| format!("line_{line} <- {line}"))
+            .collect::<Vec<_>>()
+            .join("\n");
+
+        let mut builder = GraphBuilder::new("test:long-code-chunk");
+        builder.add_schema_node(
+            "node:article#chunk",
+            Node::CodeChunk(CodeChunk::new(code.into())),
+        );
+
+        let node = only_node(builder.build()?)?;
+        let Node::CodeChunk(chunk) = node.as_ref() else {
+            return Err(eyre!("expected code chunk node"));
+        };
+
+        let preview = chunk.code.to_string();
+        assert!(preview.contains("line_8 <- 8"));
+        assert!(!preview.contains("line_9 <- 9"));
+        assert!(preview.ends_with(CODE_PREVIEW_TRUNCATION_MARKER));
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_truncates_unicode_code_preview_safely() -> Result<()> {
+        let code = "value <- \"Δ\" # 😀\n".repeat(80);
+
+        let mut builder = GraphBuilder::new("test:unicode-code-chunk");
+        builder.add_schema_node(
+            "node:article#chunk",
+            Node::CodeChunk(CodeChunk::new(code.into())),
+        );
+
+        let node = only_node(builder.build()?)?;
+        let Node::CodeChunk(chunk) = node.as_ref() else {
+            return Err(eyre!("expected code chunk node"));
+        };
+
+        let preview = chunk.code.to_string();
+        assert!(preview.chars().count() <= CODE_PREVIEW_MAX_CHARS);
+        assert!(preview.ends_with(CODE_PREVIEW_TRUNCATION_MARKER));
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_truncates_code_expression_preview() -> Result<()> {
+        let expression = CodeExpression::new("x + y\n".repeat(20).into());
+
+        let mut builder = GraphBuilder::new("test:code-expression");
+        builder.add_schema_node("node:article#expression", Node::CodeExpression(expression));
+
+        let node = only_node(builder.build()?)?;
+        let Node::CodeExpression(expression) = node.as_ref() else {
+            return Err(eyre!("expected code expression node"));
+        };
+
+        let preview = expression.code.to_string();
+        assert!(preview.ends_with(CODE_PREVIEW_TRUNCATION_MARKER));
+        assert!(!preview.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_keeps_figure_and_table_captions() -> Result<()> {
+        let mut figure = Figure::new(Vec::new());
+        figure.caption = Some(caption("Microscopy overview"));
+        let mut table = Table::new(Vec::new());
+        table.caption = Some(caption("Summary statistics"));
+
+        let mut figure_builder = GraphBuilder::new("test:figure");
+        figure_builder.add_schema_node("node:article#figure", Node::Figure(figure));
+        let Node::Figure(figure) = only_node(figure_builder.build()?)?.as_ref().clone() else {
+            return Err(eyre!("expected figure node"));
+        };
+
+        let mut table_builder = GraphBuilder::new("test:table");
+        table_builder.add_schema_node("node:article#table", Node::Table(table));
+        let Node::Table(table) = only_node(table_builder.build()?)?.as_ref().clone() else {
+            return Err(eyre!("expected table node"));
+        };
+
+        assert!(figure.caption.is_some());
+        assert!(figure.content.is_empty());
+        assert!(table.caption.is_some());
+        assert!(table.rows.is_empty());
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_redacts_media_data_urls() -> Result<()> {
+        let image = ImageObject::new("data:image/png;base64,abc123".to_string());
+
+        let mut builder = GraphBuilder::new("test:image");
+        builder.add_schema_node("image:plot.png", Node::ImageObject(image));
+
+        let node = only_node(builder.build()?)?;
+        let Node::ImageObject(image) = node.as_ref() else {
+            return Err(eyre!("expected image node"));
+        };
+
+        assert_eq!(image.content_url, "data:image/png;base64,<omitted>");
+
+        Ok(())
+    }
+
+    #[test]
+    fn add_schema_node_shallows_file_content() -> Result<()> {
+        let mut file = File::new("report.smd".to_string(), "report.smd".to_string());
+        file.content = Some("# Full document".to_string());
+        file.options.date_modified = Some(DateTime::new("2026-01-01T00:00:00Z".to_string()));
+
+        let mut builder = GraphBuilder::new("test:file");
+        builder.add_schema_node("file:report.smd", Node::File(file));
+
+        let node = only_node(builder.build()?)?;
+        let Node::File(file) = node.as_ref() else {
+            return Err(eyre!("expected file node"));
+        };
+
+        assert!(file.content.is_none());
+        assert!(file.options.date_modified.is_some());
+
+        Ok(())
+    }
+
+    fn only_node(graph: Graph) -> Result<Box<Node>> {
+        graph
+            .nodes
+            .into_iter()
+            .next()
+            .map(|node| node.node)
+            .ok_or_else(|| eyre!("missing graph node"))
+    }
+
+    fn caption(value: &str) -> Vec<Block> {
+        vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::new(value.into()),
+        )]))]
     }
 }
