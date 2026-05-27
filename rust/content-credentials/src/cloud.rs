@@ -8,13 +8,14 @@ use std::{fs, path::Path};
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use reqwest::{Client, multipart};
 use serde::{Deserialize, Serialize};
+use stencila_schema::Graph;
 
 use stencila_version::STENCILA_USER_AGENT;
 
 use crate::{
     error::{Error, Result},
+    graph::graph_assertion_payload,
     producer::{SoftBindingAssertion, SoftBindingRegistration},
-    schema::ProvenanceAssertion,
     signer::CredentialCloudSigningConfig,
     snapshot::IngredientSnapshot,
 };
@@ -24,7 +25,7 @@ pub(crate) struct CloudSignRequest<'a> {
     pub input_path: &'a Path,
     pub media_type: &'a str,
     pub title: &'a str,
-    pub assertion: &'a ProvenanceAssertion,
+    pub assertion: &'a Graph,
     pub ingredients: &'a [IngredientSnapshot],
     pub soft_bindings: &'a [SoftBindingAssertion],
     pub embed: bool,
@@ -80,7 +81,7 @@ impl CloudSigningClient {
         let payload = CloudSignPayload {
             media_type: request.media_type,
             title: request.title,
-            assertion: request.assertion,
+            assertion: graph_assertion_payload(request.assertion)?,
             ingredients: request.ingredients,
             soft_bindings: request.soft_bindings,
             manifest: if request.embed {
@@ -140,7 +141,7 @@ impl CloudSigningClient {
 struct CloudSignPayload<'a> {
     media_type: &'a str,
     title: &'a str,
-    assertion: &'a ProvenanceAssertion,
+    assertion: serde_json::Value,
     ingredients: &'a [IngredientSnapshot],
     #[serde(skip_serializing_if = "<[_]>::is_empty")]
     soft_bindings: &'a [SoftBindingAssertion],

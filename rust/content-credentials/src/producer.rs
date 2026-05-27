@@ -10,15 +10,18 @@ use std::{
 use c2pa::{BoxedSigner, Builder, Context, HashRange, Ingredient, Manifest, Reader, Relationship};
 use serde::{Deserialize, Serialize};
 use serde_json::{Value, json};
+use stencila_schema::Graph;
 use tempfile::NamedTempFile;
 
 use crate::{
-    assertion::asset_kind_for_media_type,
     cloud::{CloudSignRequest, CloudSignedAsset, CloudSigningClient},
     error::{Error, Result},
+    graph::{
+        PROVENANCE_LABEL, PROVENANCE_SCHEMA, asset_kind_for_media_type, graph_assertion_payload,
+        graph_from_snapshot, metadata_from_graph,
+    },
     media, pdf,
     policy::{CredentialProfile, ProjectionPolicy},
-    schema::{PROVENANCE_LABEL, ProvenanceAssertion},
     signer::{CredentialSignerConfig, CredentialSigningConfig, CredentialSigningMode},
     snapshot::{
         AssetSnapshot, IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot,
@@ -167,7 +170,7 @@ pub struct PreparedSignAssetRequest {
     pub media_type: String,
     pub output_path: Option<PathBuf>,
     pub title: String,
-    pub assertion: ProvenanceAssertion,
+    pub assertion: Graph,
     pub ingredients: Vec<IngredientSnapshot>,
     pub embed: bool,
     pub soft_bindings: Vec<SoftBindingAssertion>,
@@ -300,7 +303,7 @@ impl CredentialProducer {
             fallback_title,
             &policy,
         );
-        policy.validate_assertion_size(&assertion)?;
+        policy.validate_assertion_size(&graph_assertion_payload(&assertion)?)?;
 
         let media_for_task = media_type.clone();
         let source_digest_for_result = source_digest.clone();
@@ -407,7 +410,7 @@ impl CredentialProducer {
             sidecar_path: result.sidecar_path,
             c2pa,
             assertion_label: PROVENANCE_LABEL,
-            assertion_schema: crate::schema::PROVENANCE_SCHEMA,
+            assertion_schema: PROVENANCE_SCHEMA,
             source_digest: source_digest_for_result,
             signed_asset_digest,
             media_type: media_type_for_result,
@@ -447,7 +450,8 @@ impl CredentialProducer {
         if !input_path.exists() {
             return Err(Error::InputNotFound(input_path));
         }
-        ProjectionPolicy::for_profile(credential_profile).validate_assertion_size(&assertion)?;
+        ProjectionPolicy::for_profile(credential_profile)
+            .validate_assertion_size(&graph_assertion_payload(&assertion)?)?;
 
         if let Some(output_path) = output_path.as_deref() {
             if !embed && media::sidecar_path(output_path) == output_path {
@@ -580,7 +584,7 @@ async fn sign_local(
     output_path: Option<PathBuf>,
     media_type: String,
     title: String,
-    assertion: ProvenanceAssertion,
+    assertion: Graph,
     ingredients: Vec<IngredientSnapshot>,
     embed: bool,
     soft_bindings: Vec<SoftBindingAssertion>,
@@ -623,7 +627,7 @@ async fn sign_cloud(
     output_path: Option<&Path>,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     embed: bool,
     soft_bindings: &[SoftBindingAssertion],
@@ -705,7 +709,7 @@ fn prepare_signing_claim(
     title: Option<String>,
     fallback_title: Option<String>,
     policy: &ProjectionPolicy,
-) -> (ProvenanceAssertion, Vec<IngredientSnapshot>, String) {
+) -> (Graph, Vec<IngredientSnapshot>, String) {
     let snapshot = provenance.map_or_else(
         || {
             ProvenanceSnapshot::for_asset(AssetSnapshot::new(
@@ -727,7 +731,7 @@ fn prepare_signing_claim(
     let ingredients = std::mem::take(&mut snapshot.ingredients);
 
     (
-        ProvenanceAssertion::from_snapshot(snapshot),
+        graph_from_snapshot(&snapshot, &ingredients),
         ingredients,
         title,
     )
@@ -927,7 +931,7 @@ fn sign_embedded(
     output_path: Option<&Path>,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
@@ -990,7 +994,7 @@ fn sign_embedded_pdf(
     output_path: Option<&Path>,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
@@ -1061,7 +1065,7 @@ fn sign_sidecar(
     output_path: Option<&Path>,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     signer_config: &CredentialSignerConfig,
@@ -1154,7 +1158,7 @@ struct PrehashedSidecarRequest<'a> {
     sidecar_dest: &'a Path,
     media_type: &'a str,
     title: &'a str,
-    assertion: &'a ProvenanceAssertion,
+    assertion: &'a Graph,
     ingredients: &'a [IngredientSnapshot],
     soft_bindings: &'a [SoftBindingAssertion],
     permissions: &'a Permissions,
@@ -1265,7 +1269,7 @@ fn persist_with_permissions(
 fn build_builder(
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
@@ -1287,7 +1291,7 @@ fn build_builder(
 fn build_builder_with_signer(
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
@@ -1311,7 +1315,7 @@ fn build_builder_with_context(
     context: Context,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     thumbnail_source: Option<&Path>,
@@ -1327,7 +1331,8 @@ fn build_builder_with_context(
     );
 
     let mut builder = Builder::from_context(context).with_definition(definition.to_string())?;
-    builder.add_assertion(PROVENANCE_LABEL, assertion)?;
+    let assertion_payload = graph_assertion_payload(assertion)?;
+    builder.add_assertion(PROVENANCE_LABEL, &assertion_payload)?;
 
     for (index, ingredient) in ingredients.iter().enumerate() {
         attach_ingredient(&mut builder, ingredient, index)?;
@@ -1341,7 +1346,7 @@ fn build_builder_with_context(
 fn manifest_definition(
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
     claim_generator: &CredentialClaimGeneratorInfo,
@@ -1358,7 +1363,7 @@ fn apply_claim_thumbnail(
     builder: &mut Builder,
     media_type: &str,
     title: &str,
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     asset_path: Option<&Path>,
 ) {
     if let Some(thumbnail_format) = thumbnail_format(media_type) {
@@ -1450,7 +1455,7 @@ fn apply_static_claim_thumbnail(builder: &mut Builder, thumbnail: StaticThumbnai
 }
 
 fn standard_assertions(
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     media_type: &str,
     title: &str,
     ingredients: &[IngredientSnapshot],
@@ -1472,7 +1477,7 @@ fn standard_assertions(
 }
 
 fn actions_assertion(
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     soft_bindings: &[SoftBindingAssertion],
 ) -> Value {
@@ -1561,10 +1566,7 @@ fn soft_binding_assertion(binding: &SoftBindingAssertion) -> Value {
     })
 }
 
-fn opened_action(
-    assertion: &ProvenanceAssertion,
-    ingredients: &[IngredientSnapshot],
-) -> Option<Value> {
+fn opened_action(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Option<Value> {
     let mut parents = ingredients
         .iter()
         .enumerate()
@@ -1593,28 +1595,24 @@ fn opened_action(
     Some(action)
 }
 
-fn executed_action(
-    assertion: &ProvenanceAssertion,
-    ingredients: &[IngredientSnapshot],
-) -> Option<Value> {
-    let execution = assertion.execution.as_ref()?;
-    let node = assertion.executed_node.as_ref()?;
+fn executed_action(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Option<Value> {
+    let metadata = metadata_from_graph(assertion);
+    let execution = metadata.execution.as_ref()?;
+    let node_type = metadata.executed_node_type.as_deref()?;
 
     let mut parameters = json!({});
-    parameters["org.stencila.nodeType"] = json!(node.node_type);
-    if let Some(node_id) = &node.node_id {
+    parameters["org.stencila.nodeType"] = json!(node_type);
+    if let Some(node_id) = &metadata.executed_node_id {
         parameters["org.stencila.nodeId"] = json!(node_id);
     }
-    if let Some(persistent_id) = &node.persistent_id {
+    if let Some(persistent_id) = &metadata.executed_persistent_id {
         parameters["org.stencila.persistentId"] = json!(persistent_id);
     }
-    if let Some(language) = &node.programming_language {
+    if let Some(language) = &metadata.programming_language {
         parameters["org.stencila.programmingLanguage"] = json!(language);
     }
 
-    if let Ok(value) = serde_json::to_value(execution) {
-        parameters["org.stencila.execution"] = value;
-    }
+    parameters["org.stencila.execution"] = execution.clone();
 
     let input_ingredient_ids: Vec<String> = ingredients
         .iter()
@@ -1628,14 +1626,15 @@ fn executed_action(
 
     let mut action = json!({
         "action": "org.stencila.executed",
-        "description": format!("Execute {}", node.node_type),
+        "description": format!("Execute {node_type}"),
         "softwareAgent": software_agent_value(assertion),
         "parameters": parameters,
     });
 
     if let Some(when) = execution
-        .ended_at
-        .clone()
+        .get("endedAt")
+        .and_then(Value::as_str)
+        .map(ToString::to_string)
         .or_else(|| action_timestamp(assertion))
     {
         action["when"] = json!(when);
@@ -1647,8 +1646,8 @@ fn executed_action(
 /// IPTC `DigitalSourceType` URI for the action, when one can be inferred from
 /// the asset role. See <https://cv.iptc.org/newscodes/digitalsourcetype/> for
 /// the controlled vocabulary; the URIs are stable identifiers in C2PA.
-fn digital_source_type(assertion: &ProvenanceAssertion) -> Option<&'static str> {
-    match assertion.asset.role.as_deref() {
+fn digital_source_type(assertion: &Graph) -> Option<&'static str> {
+    match metadata_from_graph(assertion).asset_role.as_deref() {
         Some("computational-output" | "figure" | "table-image") => {
             Some("http://cv.iptc.org/newscodes/digitalsourcetype/dataDrivenMedia")
         }
@@ -1659,12 +1658,12 @@ fn digital_source_type(assertion: &ProvenanceAssertion) -> Option<&'static str> 
     }
 }
 
-fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: &str) -> Value {
-    let label = assertion
-        .asset
-        .title
+fn metadata_assertion(assertion: &Graph, media_type: &str, title: &str) -> Value {
+    let metadata = metadata_from_graph(assertion);
+    let label = metadata
+        .asset_title
         .as_deref()
-        .or(assertion.asset.label.as_deref())
+        .or(metadata.asset_label.as_deref())
         .unwrap_or(title);
 
     // The C2PA spec defines a closed allow-list of fields permitted under
@@ -1702,16 +1701,16 @@ fn metadata_assertion(assertion: &ProvenanceAssertion, media_type: &str, title: 
 /// The DCMI Type vocabulary at <https://www.dublincore.org/specifications/dublin-core/dcmi-terms/#section-7>
 /// is a closed list. Returning `None` here is preferable to emitting an
 /// out-of-vocabulary string under `dc:type`.
-fn dcmi_type_for(assertion: &ProvenanceAssertion) -> Option<&'static str> {
-    match assertion.asset.asset_type.as_str() {
-        "image" | "figure" => Some("StillImage"),
-        "document" => Some("Text"),
-        "dataset" | "table" => Some("Dataset"),
+fn dcmi_type_for(assertion: &Graph) -> Option<&'static str> {
+    match metadata_from_graph(assertion).asset_type.as_deref() {
+        Some("image" | "figure") => Some("StillImage"),
+        Some("document") => Some("Text"),
+        Some("dataset" | "table") => Some("Dataset"),
         _ => None,
     }
 }
 
-fn asset_type_assertion(assertion: &ProvenanceAssertion) -> Value {
+fn asset_type_assertion(assertion: &Graph) -> Value {
     // The C2PA asset-type assertion has no `.v2` form: a previous `.v2` suffix
     // here was silently normalised away by the SDK before being stored. Use the
     // spec label so the wire form matches the code.
@@ -1720,7 +1719,7 @@ fn asset_type_assertion(assertion: &ProvenanceAssertion) -> Value {
         "data": {
             "types": [{
                 "type": standard_asset_type(assertion),
-                "dc:format": assertion.asset.media_type,
+                "dc:format": metadata_from_graph(assertion).media_type.unwrap_or_default(),
             }]
         }
     })
@@ -1735,9 +1734,9 @@ fn asset_type_assertion(assertion: &ProvenanceAssertion) -> Value {
 /// caller has actually verified. The companion Stencila assertion's
 /// `aiDisclosure` record continues to carry Stencila-specific identifiers in
 /// either case.
-fn ai_disclosure_assertion(assertion: &ProvenanceAssertion) -> Option<Value> {
-    let disclosure = assertion.ai_disclosure.as_ref()?;
-    let body_json = disclosure.standard_assertion.as_deref()?.trim();
+fn ai_disclosure_assertion(assertion: &Graph) -> Option<Value> {
+    let metadata = metadata_from_graph(assertion);
+    let body_json = metadata.ai_standard_assertion.as_deref()?.trim();
     if body_json.is_empty() {
         return None;
     }
@@ -2063,48 +2062,43 @@ fn snapshot_relationship(relationship: IngredientRelationship) -> Relationship {
 /// Returned as a `ClaimGeneratorInfo` object (`{name, version}`) rather than a
 /// joined string so the agent is machine-parseable and consistent with
 /// `claim_generator_info` at the manifest level.
-fn software_agent_value(assertion: &ProvenanceAssertion) -> Value {
+fn software_agent_value(assertion: &Graph) -> Value {
+    let metadata = metadata_from_graph(assertion);
     json!({
-        "name": assertion.producer.name,
-        "version": assertion.producer.version,
+        "name": metadata.producer_name.unwrap_or_else(|| "Stencila".to_string()),
+        "version": metadata.producer_version.unwrap_or_else(|| stencila_version::STENCILA_VERSION.to_string()),
     })
 }
 
-fn action_description(assertion: &ProvenanceAssertion) -> String {
-    assertion
-        .activities
-        .iter()
-        .rev()
-        .find_map(|activity| activity.name.clone())
+fn action_description(assertion: &Graph) -> String {
+    metadata_from_graph(assertion)
+        .activity_name
         .unwrap_or_else(|| "Create asset".to_string())
 }
 
-fn action_timestamp(assertion: &ProvenanceAssertion) -> Option<String> {
-    assertion.activities.iter().rev().find_map(|activity| {
-        activity
-            .ended_at
-            .clone()
-            .or_else(|| activity.started_at.clone())
-    })
+fn action_timestamp(assertion: &Graph) -> Option<String> {
+    let metadata = metadata_from_graph(assertion);
+    metadata.activity_ended_at.or(metadata.activity_started_at)
 }
 
 fn action_parameters(
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     ingredients: &[IngredientSnapshot],
     include_parent_ingredients: bool,
 ) -> Value {
+    let metadata = metadata_from_graph(assertion);
     let mut parameters = json!({
-        "org.stencila.assetType": assertion.asset.asset_type,
-        "org.stencila.mediaType": assertion.asset.media_type,
+        "org.stencila.assetType": metadata.asset_type.unwrap_or_else(|| "asset".to_string()),
+        "org.stencila.mediaType": metadata.media_type.unwrap_or_default(),
     });
 
-    if let Some(role) = &assertion.asset.role {
+    if let Some(role) = metadata.asset_role {
         parameters["org.stencila.assetRole"] = json!(role);
     }
-    if let Some(codec) = &assertion.producer.codec {
+    if let Some(codec) = metadata.producer_codec {
         parameters["org.stencila.codec"] = json!(codec);
     }
-    if let Some(renderer) = &assertion.producer.renderer {
+    if let Some(renderer) = metadata.producer_renderer {
         parameters["org.stencila.renderer"] = json!(renderer);
     }
 
@@ -2126,10 +2120,7 @@ fn action_parameters(
     parameters
 }
 
-fn placed_actions(
-    assertion: &ProvenanceAssertion,
-    ingredients: &[IngredientSnapshot],
-) -> Vec<Value> {
+fn placed_actions(assertion: &Graph, ingredients: &[IngredientSnapshot]) -> Vec<Value> {
     ingredients
         .iter()
         .enumerate()
@@ -2167,16 +2158,26 @@ fn ingredient_label(snapshot: &IngredientSnapshot, index: usize) -> String {
         )
 }
 
-fn producer_software_agent(assertion: &ProvenanceAssertion) -> String {
-    format!("{} {}", assertion.producer.name, assertion.producer.version)
+fn producer_software_agent(assertion: &Graph) -> String {
+    let metadata = metadata_from_graph(assertion);
+    format!(
+        "{} {}",
+        metadata
+            .producer_name
+            .unwrap_or_else(|| "Stencila".to_string()),
+        metadata
+            .producer_version
+            .unwrap_or_else(|| stencila_version::STENCILA_VERSION.to_string())
+    )
 }
 
-fn standard_asset_type(assertion: &ProvenanceAssertion) -> String {
-    let stencila_type = assertion
-        .asset
-        .role
+fn standard_asset_type(assertion: &Graph) -> String {
+    let metadata = metadata_from_graph(assertion);
+    let stencila_type = metadata
+        .asset_role
         .as_deref()
-        .unwrap_or(&assertion.asset.asset_type)
+        .or(metadata.asset_type.as_deref())
+        .unwrap_or("asset")
         .trim()
         .replace(|ch: char| !ch.is_ascii_alphanumeric(), "-")
         .trim_matches('-')
@@ -2295,13 +2296,11 @@ mod tests {
     #[tokio::test]
     async fn prepared_signing_validates_assertion_size() -> Result<()> {
         let input = NamedTempFile::new()?;
-        let mut assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot::for_asset(
-            AssetSnapshot::new("image", "image/png", "sha256:test"),
-        ));
-        assertion.extra.insert(
-            "large".to_string(),
-            Value::String("x".repeat(crate::policy::ASSERTION_HARD_SIZE_LIMIT)),
+        let mut assertion = graph_from_snapshot(
+            &ProvenanceSnapshot::for_asset(AssetSnapshot::new("image", "image/png", "sha256:test")),
+            &[],
         );
+        assertion.options.description = Some("x".repeat(crate::policy::ASSERTION_HARD_SIZE_LIMIT));
         let producer = CredentialProducer::from_pem(b"cert".to_vec(), b"key".to_vec(), None);
 
         let result = producer

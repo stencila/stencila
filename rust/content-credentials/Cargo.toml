@@ -14,7 +14,6 @@ export = [
     "dep:stencila-convert",
     "dep:stencila-node-find",
     "dep:stencila-node-media",
-    "dep:stencila-schema",
 ]
 
 [dependencies]
@@ -29,7 +28,6 @@ lopdf = { workspace = true }
 mime_guess = { workspace = true }
 rcgen = { version = "0.14.7", default-features = false, features = ["pem", "ring"] }
 reqwest = { workspace = true }
-schemars = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 serde_with = { workspace = true }
@@ -42,7 +40,7 @@ stencila-convert = { path = "../convert", optional = true }
 stencila-dirs = { path = "../dirs" }
 stencila-node-find = { path = "../node-find", optional = true }
 stencila-node-media = { path = "../node-media", optional = true }
-stencila-schema = { path = "../schema", optional = true }
+stencila-schema = { path = "../schema" }
 stencila-secrets = { path = "../secrets" }
 stencila-version = { path = "../version" }
 tempfile = { workspace = true }

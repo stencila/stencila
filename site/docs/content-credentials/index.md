@@ -61,12 +61,13 @@ The amount of detail depends on the selected [profile](profiles).
 The signing identity depends on the selected [signing backend](signing), such
 as a local self-signed identity or Stencila Cloud signing.
 
-Stencila uses standard C2PA assertions where they apply, including actions,
-ingredients, and AI disclosure. It also adds a Stencila-specific provenance
-assertion for document and execution details that generic C2PA assertions do not
-model directly. Stencila also records `claim_generator_info` so verifiers can
-distinguish locally generated and signed manifests from manifests generated or
-signed by Stencila Cloud.
+Stencila records its detailed provenance as a Stencila Schema `Graph` in the
+`org.stencila.provenance` assertion. The same graph is also projected into
+standard C2PA assertions where they apply, including actions, ingredients, and
+AI disclosure, so generic C2PA tools can still understand the broad provenance
+story. Stencila also records `claim_generator_info` so verifiers can distinguish
+locally generated and signed manifests from manifests generated or signed by
+Stencila Cloud.
 
 ## Reading Order
 
@@ -80,8 +81,16 @@ Start with the everyday workflow:
 - [Trust](trust) explains the difference between an intact signature and a
   signer your verifier recognizes.
 
-If you are integrating with Stencila or need exact JSON fields, use the
-[Provenance Assertion Reference](provenance-assertion).
+If you are integrating with Stencila or need exact JSON fields, inspect the
+`org.stencila.provenance` assertion as a Stencila Schema `Graph`. The payload
+includes standalone JSON metadata:
+
+```text
+$schema: https://stencila.org/v<stencila-version>/Graph.schema.json
+@context: https://stencila.org/v<stencila-version>/context.jsonld
+```
+
+The version segment follows the Stencila release that produced the credential.
 
 > [!tip]
 > For most research users, the main decision is not "how strong should the
@@ -110,46 +119,39 @@ If you only need to sign, verify, or choose a privacy profile, the pages above
 are enough. The rest of this page is for publishers, reviewers, and tool authors
 who need to understand the Stencila-specific payload.
 
-## The Stencila Provenance Assertion
+## The Stencila Provenance Graph
 
-The Stencila provenance assertion is the Stencila-specific part of the
-credential. It connects a C2PA manifest back to the Stencila document and
-execution model.
+The Stencila provenance graph is the Stencila-specific part of the credential.
+It connects a C2PA manifest back to the Stencila document, execution, source,
+and asset model.
 
-It can record the signed asset, root Stencila document node, executed node,
-output node, producing activities, attributions, reproducibility context, AI
-disclosure, and privacy decisions.
+It can record the signed asset, Stencila document nodes, source files,
+executions, output assets, ingredients, producer software, AI models,
+attributions, reproducibility context, C2PA-derived provenance from input
+assets, and privacy decisions.
 
 > [!info]
-> Most users do not need to read the assertion schema. It is mainly for tool
-> authors, publishers, and reviewers who need exact field names or want to
-> integrate Stencila credentials into another system.
+> Most users do not need to read the graph schema. It is mainly for tool
+> authors, publishers, and reviewers who need to integrate Stencila credentials
+> into another system.
 
-The shape deliberately follows a compact entity, activity, agent model. The
-signed asset, root Stencila node, executed Stencila node, and output Stencila
-node are entities, `activities` describe the operations that generated or
-exported them, and `attributions` carry role-bearing Stencila authorship. This
-keeps the assertion aligned with C2PA's workflow focus, Stencila's `AuthorRole`
-model, and general provenance vocabularies such as W3C PROV without forcing
-consumers to understand all of Stencila Schema.
+The payload uses the existing Stencila Schema `Graph` type rather than a
+separate provenance-specific schema. Nodes represent assets, document nodes,
+people, organizations, software, models, and other provenance resources. Edges
+describe relationships such as generated, derived-into, used-by, cited-by,
+imported-by, read-by, written-to, part-of, or attributed-to. Edge evidence
+records the specific activity, execution, source, workflow, environment, C2PA,
+AI-use, reproducibility, and privacy facts that support those relationships.
 
-The generated schema reference starts at
-[Provenance Assertion Reference](provenance-assertion). Use it for the exact
-payload fields, record types, required fields, and JSON Schema documentation
-links.
+This keeps Stencila's detailed provenance in the same schema family as the rest
+of the document model while leaving portable C2PA facts available through
+standard assertions.
 
-## Standard C2PA Assertions
+## Standard C2PA Projections
 
-The Stencila assertion is a **Stencila-specific detail and cross-reference
-layer**. It should not replace standard C2PA assertions when the same fact can
-be represented portably.
-
-Standard assertions let generic C2PA tools understand the broad provenance
-story. The `org.stencila.provenance` assertion records Stencila-specific details
-such as node IDs, execution digests, provenance counts, workspace run IDs,
-definition snapshot hashes, and privacy decisions.
-
-Producers should prefer these standard assertions for ecosystem-visible facts:
+The graph is Stencila's detailed provenance payload, but it should not strand
+portable facts inside a Stencila-only assertion. Stencila projects the graph
+into standard C2PA assertions for ecosystem-visible facts:
 
 - `claim_generator_info` for the software or service that generated the C2PA
   claim. Stencila writes `org.stencila.generated_by` and
@@ -164,70 +166,64 @@ Producers should prefer these standard assertions for ecosystem-visible facts:
 - [`c2pa.ai-disclosure`](https://spec.c2pa.org/specifications/specifications/2.4/specs/C2PA_Specification.html#_ai_disclosure)
   when AI model use is disclosed.
 
-Use this assertion to connect those portable assertions back to Stencila's
-document and execution model. For example:
+For example:
 
-- If a code chunk reads `data.csv` and produces `figure.png`, emit
-  `c2pa.ingredient.v3` for `data.csv` with `relationship = "inputTo"` when the
-  input is disclosed. Also record Stencila-specific dependency context in
-  `execution.dependencies` and `execution.digests`.
-- If an article is exported to PDF, describe the public creation or export
-  action with `c2pa.actions.v2`. Use `rootNode`, `source`, and `producer` to
-  record the root Stencila node type, source revision, codec, and renderer.
-- If an LLM contributes text or code, emit `c2pa.ai-disclosure` when model use
-  is disclosed. Use `aiDisclosure`, `attributions`, and `provenance` to record
-  Stencila author roles and provenance counts.
+- If a code chunk reads `data.csv` and produces `figure.png`, the graph can
+  record both the Stencila execution context and a disclosed ingredient edge.
+  The C2PA projection can then emit `c2pa.ingredient.v3` for `data.csv`.
+- If an article is exported to PDF, graph edges can record the source document,
+  producer software, export activity, and generated asset. The C2PA projection
+  can then emit public creation or export actions.
+- If an LLM contributes text or code, the graph can record model and attribution
+  context. The C2PA projection can then emit `c2pa.ai-disclosure` when the
+  model use is disclosed.
 
 Some overlap is intentional. It becomes a problem only when a fact is stored
-**only** in this custom assertion even though generic C2PA consumers need it. In
-that case, emit the standard assertion and use this payload for the
-Stencila-specific identifiers, digests, and policy context.
+**only** in the graph even though generic C2PA consumers need it. In that case,
+the graph should remain the detailed source of truth and the producer should
+also emit the corresponding standard C2PA assertion.
 
 > [!tip]
-> A good rule of thumb for producers is: put broadly meaningful facts in
-> standard C2PA assertions, and use the Stencila assertion for the Stencila
-> identifiers and execution context needed to trace the asset back to a
-> document.
+> A good rule of thumb for producers is: build the graph first, then project
+> broadly meaningful facts into standard C2PA assertions.
 
 ## Schema Stability
 
-The `org.stencila.provenance` label is stable for the v1 payload family.
+The `org.stencila.provenance` assertion label identifies a Stencila Schema
+`Graph` payload.
 
-The payload declares a versioned schema URL:
+The payload declares versioned JSON Schema and JSON-LD context URLs:
 
 ```text
-https://stencila.org/stencila-provenance-assertion-v1.schema.json
+$schema: https://stencila.org/v<stencila-version>/Graph.schema.json
+@context: https://stencila.org/v<stencila-version>/context.jsonld
 ```
 
-The URL identifies the public v1 contract. Signed manifests can outlive the
-Stencila release that produced them, so fields in the published payload should
-be treated conservatively.
+The version segment follows the Stencila release that produced the credential.
 
-Compatible v1 changes should be additive: adding optional fields, adding
-optional record members, and preserving unknown fields when deserializing and
-serializing. Most record types include an `extra` forward-compatibility slot so
-newer v1 payloads can pass through older tooling without losing unknown fields.
+Signed manifests can outlive the Stencila release that produced them, so graph
+consumers should treat fields conservatively and preserve unknown fields where
+possible. Compatibility follows Stencila Schema compatibility: additive graph
+fields, new optional node details, and new optional evidence details should not
+break older consumers that ignore what they do not understand.
 
-Breaking changes require a new assertion schema URL, such as a future v2
-schema. Examples include removing fields, changing field meanings, changing
-required field types, or changing identifier semantics in a way that older
-consumers would misinterpret.
+## Graph Node Identity
 
-## Node Identity
+Graph node identifiers and Stencila document identifiers have distinct
+meanings:
 
-`nodeId` and `persistentId` have distinct meanings:
+- `GraphNode.id` is a graph-local identifier used by edges in the signed
+  provenance graph.
+- Stencila document node identifiers and persistent identifiers, when present
+  in node details, identify the underlying document structure or author-managed
+  reference.
 
-- `nodeId` is a stabilized structural identifier for the node within the
-  rendered document.
-- `persistentId` is an author-supplied schema-level identifier when one was set
-  on the source node.
-
-Consumers should use `persistentId` for author-managed references and `nodeId`
-for structural provenance within a specific rendered document.
+Consumers should use graph node identifiers for graph traversal and document
+node identifiers for references back into the source Stencila document.
 
 ## Deferred Fields
 
-The v1 schema includes reproducibility and AI disclosure records, but some
+The graph can include reproducibility and AI disclosure evidence, but some
 producer behavior is intentionally deferred. Exact reproducibility checks,
 workflow attribution, and some AI disclosure assertions depend on additional
 runtime context and should not be inferred from field absence.

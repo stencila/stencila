@@ -6,17 +6,16 @@
 //!
 //! The crate exposes the underlying C2PA mechanics — sign, embed-or-sidecar,
 //! verify with a four-status report — and maps Stencila provenance snapshots
-//! into a versioned `org.stencila.provenance` assertion payload.
+//! into a Stencila Schema `Graph` carried by `org.stencila.provenance`.
 
 #![warn(clippy::pedantic)]
 
-pub mod assertion;
 pub mod cloud;
 pub mod error;
+pub mod graph;
 pub mod policy;
 pub mod producer;
 pub mod report;
-pub mod schema;
 pub mod signer;
 pub mod snapshot;
 pub mod trust;
@@ -34,6 +33,7 @@ pub mod export;
 pub mod cli;
 
 pub use error::{Error, Result};
+pub use graph::{PROVENANCE_CONTEXT, PROVENANCE_LABEL, PROVENANCE_SCHEMA};
 pub use policy::{CredentialProfile, ProjectionPolicy};
 pub use producer::{
     CredentialClaimGeneratorInfo, CredentialProducer, ManifestKind, PreparedSignAssetRequest,
@@ -44,7 +44,6 @@ pub use report::{
     AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
     VerificationReport, VerificationSummary,
 };
-pub use schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion};
 pub use signer::{
     CredentialCloudSigningConfig, CredentialSignerConfig, CredentialSignerMaterial,
     CredentialSigningConfig, CredentialSigningMode, init_local_signing_identity,

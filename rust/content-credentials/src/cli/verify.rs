@@ -319,7 +319,8 @@ fn failure_summary(report: &VerificationReport) -> String {
 #[cfg(test)]
 mod tests {
     use crate::{
-        ProvenanceAssertion,
+        AssetSnapshot, ProvenanceSnapshot,
+        graph::graph_from_snapshot,
         report::{
             AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus,
             SignerStatus, VerificationReport, VerificationSummary,
@@ -348,7 +349,14 @@ mod tests {
                 attested: true,
                 schema_url: Some(crate::PROVENANCE_SCHEMA.to_string()),
                 schema_known: true,
-                assertion: Some(ProvenanceAssertion::new_v1("image/png", "sha256:abc")),
+                assertion: Some(graph_from_snapshot(
+                    &ProvenanceSnapshot::for_asset(AssetSnapshot::new(
+                        "image",
+                        "image/png",
+                        "sha256:abc",
+                    )),
+                    &[],
+                )),
                 raw: None,
             },
             reproducibility: ReproducibilityStatus::NotChecked,
@@ -391,5 +399,28 @@ mod tests {
 
         assert!(has_verification_failure(&report));
         assert!(failure_summary(&report).contains("required: signer trusted"));
+    }
+
+    #[test]
+    fn malformed_stencila_assertion_is_a_default_failure() {
+        let mut report = valid_report();
+        report.provenance.assertion = None;
+        report
+            .problems
+            .push("org.stencila.provenance Graph payload malformed".to_string());
+
+        assert!(has_verification_failure(&report));
+        assert!(failure_summary(&report).contains("Stencila provenance assertion malformed"));
+    }
+
+    #[test]
+    fn unknown_stencila_assertion_schema_is_not_a_default_failure() {
+        let mut report = valid_report();
+        report.provenance.schema_url =
+            Some("https://stencila.org/v999.0.0/Graph.schema.json".into());
+        report.provenance.schema_known = false;
+        report.provenance.assertion = None;
+
+        assert!(!has_verification_failure(&report));
     }
 }

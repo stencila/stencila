@@ -2,7 +2,9 @@
 
 use std::path::Path;
 
-use crate::schema::ProvenanceAssertion;
+use stencila_schema::Graph;
+
+use crate::graph::metadata_from_graph;
 #[cfg(feature = "export")]
 use crate::{DocumentSnapshot, IngredientThumbnailSnapshot};
 
@@ -69,33 +71,25 @@ pub(crate) fn ingredient_for_file(
 /// does not carry enough detail to select a variant.
 #[must_use]
 pub(crate) fn claim_for_assertion_with_hints(
-    assertion: &ProvenanceAssertion,
+    assertion: &Graph,
     title_hint: Option<&str>,
     media_type_hint: Option<&str>,
 ) -> StaticThumbnail {
-    let node = if assertion.asset.role.as_deref() == Some("document-export") {
-        &assertion.root_node
-    } else {
-        assertion
-            .output_node
-            .as_ref()
-            .or(assertion.executed_node.as_ref())
-            .unwrap_or(&assertion.root_node)
-    };
+    let metadata = metadata_from_graph(assertion);
+    let node_type = metadata.executed_node_type.as_deref().unwrap_or_else(|| {
+        if metadata.asset_role.as_deref() == Some("document-export") {
+            "Article"
+        } else {
+            "File"
+        }
+    });
 
     for_node(
-        &node.node_type,
-        node.programming_language.as_deref(),
-        node.title
-            .as_deref()
-            .or(assertion.asset.title.as_deref())
-            .or(title_hint),
-        node.content_url.as_deref(),
-        node.media_type
-            .as_deref()
-            .or((!assertion.asset.media_type.is_empty())
-                .then_some(assertion.asset.media_type.as_str()))
-            .or(media_type_hint),
+        node_type,
+        metadata.programming_language.as_deref(),
+        metadata.asset_title.as_deref().or(title_hint),
+        None,
+        metadata.media_type.as_deref().or(media_type_hint),
     )
 }
 
@@ -245,23 +239,26 @@ fn normalize_token(value: Option<&str>) -> Option<String> {
 
 #[cfg(test)]
 mod tests {
-    use crate::{AssetSnapshot, DocumentSnapshot, ProvenanceSnapshot};
+    use crate::{AssetSnapshot, DocumentSnapshot, ProvenanceSnapshot, graph::graph_from_snapshot};
 
     use super::*;
 
     #[test]
     fn article_claim_thumbnail_uses_svg() {
-        let assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot {
-            asset: AssetSnapshot {
-                role: Some("document-export".to_string()),
+        let assertion = graph_from_snapshot(
+            &ProvenanceSnapshot {
+                asset: AssetSnapshot {
+                    role: Some("document-export".to_string()),
+                    ..Default::default()
+                },
+                root_node: DocumentSnapshot {
+                    node_type: "Article".to_string(),
+                    ..Default::default()
+                },
                 ..Default::default()
             },
-            root_node: DocumentSnapshot {
-                node_type: "Article".to_string(),
-                ..Default::default()
-            },
-            ..Default::default()
-        });
+            &[],
+        );
 
         let thumbnail = claim_for_assertion_with_hints(&assertion, None, None);
 
@@ -296,14 +293,17 @@ mod tests {
 
     #[test]
     fn code_chunk_claim_uses_language_variant() {
-        let assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot {
-            executed_node: Some(DocumentSnapshot {
-                node_type: "CodeChunk".to_string(),
-                programming_language: Some("python".to_string()),
+        let assertion = graph_from_snapshot(
+            &ProvenanceSnapshot {
+                executed_node: Some(DocumentSnapshot {
+                    node_type: "CodeChunk".to_string(),
+                    programming_language: Some("python".to_string()),
+                    ..Default::default()
+                }),
                 ..Default::default()
-            }),
-            ..Default::default()
-        });
+            },
+            &[],
+        );
 
         let thumbnail = claim_for_assertion_with_hints(&assertion, None, None);
 
@@ -312,9 +312,10 @@ mod tests {
 
     #[test]
     fn file_claim_uses_title_extension_variant() {
-        let assertion = ProvenanceAssertion::from_snapshot(ProvenanceSnapshot::for_asset(
-            AssetSnapshot::new("Text", "text/smd", "sha256:abc"),
-        ));
+        let assertion = graph_from_snapshot(
+            &ProvenanceSnapshot::for_asset(AssetSnapshot::new("Text", "text/smd", "sha256:abc")),
+            &[],
+        );
 
         let thumbnail = claim_for_assertion_with_hints(&assertion, Some("article.smd"), None);
 

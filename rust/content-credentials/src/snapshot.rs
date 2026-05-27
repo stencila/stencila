@@ -6,10 +6,9 @@
 //! Schema types so callers can project only the facts they want to attest under
 //! the selected privacy profile.
 //!
-//! This module is an internal Stencila Rust API. It is not the C2PA wire format
-//! and is not what [`crate::PROVENANCE_SCHEMA`] describes. Before signing, a
-//! [`ProvenanceSnapshot`] is normalized into a [`crate::ProvenanceAssertion`],
-//! and that assertion is the versioned payload serialized into the
+//! This module is an internal Stencila Rust API. It is not the C2PA wire format.
+//! Before signing, a [`ProvenanceSnapshot`] is projected into a Stencila Schema
+//! [`stencila_schema::Graph`], and that graph is serialized into the
 //! `org.stencila.provenance` C2PA assertion.
 
 use std::path::PathBuf;
@@ -23,11 +22,11 @@ use serde_with::skip_serializing_none;
 /// Other Stencila crates should populate this from document nodes, author roles,
 /// execution state, workflow context, environment probes, export reports, and
 /// privacy policy. The signing layer then converts it to
-/// [`crate::ProvenanceAssertion`].
+/// [`stencila_schema::Graph`].
 ///
 /// This type is intentionally not the stable published assertion schema. It can
 /// evolve as Stencila integration points evolve. Compatibility guarantees belong
-/// to [`crate::ProvenanceAssertion`] and its schema URL.
+/// to Stencila Schema `Graph`.
 #[skip_serializing_none]
 #[derive(Clone, Debug, Default, Serialize, Deserialize, PartialEq)]
 #[serde(default, rename_all = "camelCase")]

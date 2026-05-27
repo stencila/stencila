@@ -74,20 +74,39 @@ async fn sign_then_verify_png() {
     assert!(report.asset_binding.valid, "asset binding valid");
     assert!(!report.signature.trusted, "self-signed must be untrusted");
     assert!(report.provenance.attested, "stencila assertion attested");
-    assert!(report.provenance.schema_known, "v1 schema known");
+    assert!(report.provenance.schema_known, "Graph schema known");
     assert_eq!(
         report.provenance.schema_url.as_deref(),
         Some(stencila_content_credentials::PROVENANCE_SCHEMA)
+    );
+    let raw = report.provenance.raw.as_ref().expect("raw assertion");
+    assert_eq!(
+        raw.get("$schema").and_then(Value::as_str),
+        Some(stencila_content_credentials::PROVENANCE_SCHEMA)
+    );
+    assert_eq!(
+        raw.get("@context").and_then(Value::as_str),
+        Some(stencila_content_credentials::PROVENANCE_CONTEXT)
     );
     let assertion = report
         .provenance
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert_eq!(assertion.asset.content_digest, signed.source_digest);
-    assert_eq!(assertion.asset.asset_type, "image");
-    assert_eq!(assertion.root_node.node_type, "File");
-    assert_eq!(assertion.reproducibility.status, "not-checked");
+    let assertion_json = serde_json::to_value(assertion).expect("serialize graph");
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.contentDigest"),
+        Some(signed.source_digest.as_str())
+    );
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.assetType"),
+        Some("image")
+    );
+    assert_eq!(
+        graph_node_property_str(&assertion_json, "node:root", "org.stencila.nodeType"),
+        Some("File")
+    );
+    assert_eq!(assertion_json["type"], "Graph");
 
     let inspection = verifier
         .inspect_c2pa(InspectC2paRequest {
@@ -175,23 +194,47 @@ async fn sign_with_provenance_snapshot() {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert_eq!(assertion.asset.asset_type, "image");
-    assert_eq!(assertion.asset.role.as_deref(), Some("figure"));
-    assert_eq!(assertion.asset.media_type, "image/png");
-    assert!(assertion.asset.content_digest.starts_with("sha256:"));
-    assert_eq!(assertion.asset.label.as_deref(), Some("fig:example"));
-    assert_eq!(assertion.root_node.node_type, "Article");
-    let node = assertion.executed_node.as_ref().expect("executed node");
-    assert_eq!(node.node_type, "CodeChunk");
-    assert_eq!(node.node_id.as_deref(), Some("chunk-1"));
+    let assertion_json = serde_json::to_value(assertion).expect("serialize graph");
     assert_eq!(
-        assertion
-            .source
-            .as_ref()
-            .and_then(|source| source.commit.as_deref()),
+        graph_property_str(&assertion_json, "org.stencila.assetType"),
+        Some("image")
+    );
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.assetRole"),
+        Some("figure")
+    );
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.mediaType"),
+        Some("image/png")
+    );
+    assert!(
+        graph_property_str(&assertion_json, "org.stencila.contentDigest")
+            .is_some_and(|digest| digest.starts_with("sha256:"))
+    );
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.assetLabel"),
+        Some("fig:example")
+    );
+    assert_eq!(
+        graph_node_property_str(&assertion_json, "node:root", "org.stencila.nodeType"),
+        Some("Article")
+    );
+    assert_eq!(
+        graph_node_prefix_property_str(&assertion_json, "node:executed:", "org.stencila.nodeType"),
+        Some("CodeChunk")
+    );
+    assert_eq!(
+        graph_node_prefix_property_str(&assertion_json, "node:executed:", "org.stencila.nodeId"),
+        Some("chunk-1")
+    );
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.source.commit"),
         Some("0123456789abcdef")
     );
-    assert_eq!(assertion.producer.codec.as_deref(), Some("png"));
+    assert_eq!(
+        graph_property_str(&assertion_json, "org.stencila.producer.codec"),
+        Some("png")
+    );
 }
 
 /// Ensures signed assets include interoperable C2PA assertions alongside Stencila provenance.
@@ -799,18 +842,11 @@ async fn sign_with_public_profile_redacts_private_snapshot_fields() {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
-    assert!(assertion.source.as_ref().is_some_and(|source| {
-        source.repository.is_none() && source.path.is_none() && source.patch_digest.is_none()
-    }));
-    assert!(
-        assertion
-            .privacy
-            .redactions
-            .iter()
-            .any(|redaction| redaction.reason.as_deref() == Some("uri-omitted"))
-    );
-
-    let assertion_json = serde_json::to_string(assertion).expect("serialize assertion");
+    let assertion_value = serde_json::to_value(assertion).expect("serialize assertion");
+    assert!(graph_property_str(&assertion_value, "org.stencila.source.repository").is_none());
+    assert!(graph_property_str(&assertion_value, "org.stencila.source.path").is_none());
+    let assertion_json = serde_json::to_string(&assertion_value).expect("serialize assertion");
+    assert!(assertion_json.contains("uri-omitted"));
     assert!(!assertion_json.contains("git@github.com:private"));
     assert!(!assertion_json.contains(&home_path));
 }
@@ -972,6 +1008,55 @@ fn assertion_data<'a>(assertions: &'a [Value], label: &str) -> &'a Value {
         .find(|assertion| assertion["label"] == label)
         .and_then(|assertion| assertion.get("data"))
         .unwrap_or_else(|| panic!("{label} assertion data"))
+}
+
+fn graph_property_str<'a>(graph: &'a Value, key: &str) -> Option<&'a str> {
+    graph_property_value(graph, key).and_then(Value::as_str)
+}
+
+fn graph_node_property_str<'a>(graph: &'a Value, node_id: &str, key: &str) -> Option<&'a str> {
+    graph
+        .get("nodes")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|node| node.get("id").and_then(Value::as_str) == Some(node_id))
+        .and_then(|node| graph_property_value(node, key))
+        .and_then(Value::as_str)
+}
+
+fn graph_node_prefix_property_str<'a>(
+    graph: &'a Value,
+    node_id_prefix: &str,
+    key: &str,
+) -> Option<&'a str> {
+    graph
+        .get("nodes")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|node| {
+            node.get("id")
+                .and_then(Value::as_str)
+                .is_some_and(|id| id.starts_with(node_id_prefix))
+        })
+        .and_then(|node| graph_property_value(node, key))
+        .and_then(Value::as_str)
+}
+
+fn graph_property_value<'a>(value: &'a Value, key: &str) -> Option<&'a Value> {
+    match value {
+        Value::Object(object) => {
+            if object.get("propertyId").and_then(Value::as_str) == Some(key) {
+                return object.get("value");
+            }
+            object
+                .values()
+                .find_map(|value| graph_property_value(value, key))
+        }
+        Value::Array(values) => values
+            .iter()
+            .find_map(|value| graph_property_value(value, key)),
+        _ => None,
+    }
 }
 
 fn duplicate_cabx_chunk(path: &Path) {

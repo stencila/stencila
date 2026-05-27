@@ -25,15 +25,16 @@ use c2pa::{
 };
 use serde::Serialize;
 use serde_json::Value;
+use stencila_schema::Graph;
 
 use crate::{
     error::{Error, Result},
+    graph::{PROVENANCE_LABEL, PROVENANCE_SCHEMA},
     media,
     report::{
         AssetBindingStatus, ManifestStatus, ProvenanceStatus, ReproducibilityStatus, SignerStatus,
         VerificationReport, VerificationSummary,
     },
-    schema::{PROVENANCE_LABEL, PROVENANCE_SCHEMA, ProvenanceAssertion},
 };
 
 /// Inputs for verifying an asset.
@@ -543,7 +544,7 @@ fn report_from_reader(reader: &Reader, from_sidecar: bool) -> VerificationReport
     let summary = provenance
         .assertion
         .as_ref()
-        .map(VerificationSummary::from_assertion)
+        .map(VerificationSummary::from_graph)
         .unwrap_or_default();
 
     VerificationReport {
@@ -591,19 +592,26 @@ fn parse_provenance(
     let mut problem = None;
 
     if let Some(value) = raw_value {
-        if let Some(schema) = value.get("schema").and_then(Value::as_str) {
-            status.schema_url = Some(schema.to_string());
-            status.schema_known = schema == PROVENANCE_SCHEMA;
+        let schema_url = value
+            .get("$schema")
+            .or_else(|| value.get("schema"))
+            .and_then(Value::as_str)
+            .map(ToString::to_string);
+        status.schema_url.clone_from(&schema_url);
+        let schema_known = schema_url
+            .as_deref()
+            .is_none_or(|schema| schema == PROVENANCE_SCHEMA);
+        status.schema_known = schema_known;
+        if !schema_known {
+            return (status, problem);
         }
-        if value.get("version").and_then(Value::as_u64) == Some(1) {
-            status.schema_known = true;
-        }
-        if status.schema_known {
-            match serde_json::from_value::<ProvenanceAssertion>(value) {
-                Ok(parsed) => status.assertion = Some(parsed),
-                Err(err) => {
-                    problem = Some(format!("{PROVENANCE_LABEL} v1 payload malformed: {err}"));
-                }
+
+        match serde_json::from_value::<Graph>(value) {
+            Ok(parsed) => {
+                status.assertion = Some(parsed);
+            }
+            Err(err) => {
+                problem = Some(format!("{PROVENANCE_LABEL} Graph payload malformed: {err}"));
             }
         }
     }
@@ -795,6 +803,10 @@ fn is_unsupported_media_type(err: &Error) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::{
+        AssetSnapshot, ProvenanceSnapshot,
+        graph::{graph_assertion_payload, graph_from_snapshot},
+    };
     use serde_json::json;
 
     /// Ensures missing Stencila provenance assertions produce an unattested status cleanly.
@@ -810,40 +822,63 @@ mod tests {
         assert!(problem.is_none());
     }
 
-    /// Ensures future-schema assertions remain attested and raw-preserved without v1 parsing.
+    /// Ensures future schema assertions remain attested and raw-preserved.
     #[test]
     fn parse_provenance_unknown_schema_url() {
         let raw = json!({
-            "schema": "https://stencila.org/stencila-provenance-assertion-v999.schema.json",
-            "producer": { "name": "Stencila", "version": "9.9.9" },
-            "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
+            "$schema": "https://stencila.org/v999.0.0/Graph.schema.json",
+            "type": "Graph",
+            "subject": "urn:test",
+            "nodes": [],
+            "edges": [],
         });
         let (status, problem) = parse_provenance(Some(raw.clone()), true, true);
         assert!(status.assertion_present);
         assert!(status.attested);
         assert_eq!(
             status.schema_url.as_deref(),
-            Some("https://stencila.org/stencila-provenance-assertion-v999.schema.json")
+            Some("https://stencila.org/v999.0.0/Graph.schema.json")
         );
         assert!(!status.schema_known);
-        assert!(status.assertion.is_none(), "no v1 parse for unknown schema");
+        assert!(status.assertion.is_none());
         assert_eq!(status.raw, Some(raw));
         assert!(problem.is_none(), "unknown schema is not itself a problem");
     }
 
-    /// Ensures malformed known-schema assertions are reported instead of silently ignored.
+    /// Ensures non-Graph payloads are preserved but not parsed.
     #[test]
-    fn parse_provenance_v1_malformed() {
+    fn parse_provenance_non_graph_payload() {
         let raw = json!({
-            "schema": PROVENANCE_SCHEMA,
-            "asset": { "mediaType": 42, "digest": "sha256:abc" },
+            "$schema": PROVENANCE_SCHEMA,
+            "producer": { "name": "Stencila", "version": "9.9.9" },
+            "asset": { "mediaType": "image/png", "sourceDigest": "sha256:abc" }
+        });
+        let (status, problem) = parse_provenance(Some(raw.clone()), true, true);
+        assert!(status.assertion_present);
+        assert!(status.attested);
+        assert_eq!(status.schema_url.as_deref(), Some(PROVENANCE_SCHEMA));
+        assert!(status.schema_known);
+        assert!(status.assertion.is_none());
+        assert_eq!(status.raw, Some(raw));
+        assert!(problem.is_some());
+    }
+
+    /// Ensures malformed Graph assertions are reported instead of silently ignored.
+    #[test]
+    fn parse_provenance_graph_malformed() {
+        let raw = json!({
+            "$schema": PROVENANCE_SCHEMA,
+            "type": "Graph",
+            "subject": "urn:test",
+            "nodes": "not-an-array",
+            "edges": [],
         });
         let (status, problem) = parse_provenance(Some(raw), true, true);
         assert!(status.assertion_present);
         assert!(status.attested);
         assert!(status.schema_known);
         assert!(status.assertion.is_none());
-        let problem = problem.expect("malformed v1 must surface a problem");
+        let problem = problem.expect("malformed Graph must surface a problem");
         assert!(
             problem.contains(PROVENANCE_LABEL) && problem.contains("malformed"),
             "unexpected problem text: {problem}"
@@ -853,8 +888,7 @@ mod tests {
     /// Ensures an assertion is not reported as attested unless the claim signature is valid.
     #[test]
     fn parse_provenance_requires_valid_signature_for_attestation() {
-        let raw = serde_json::to_value(ProvenanceAssertion::new_v1("image/png", "sha256:abc"))
-            .expect("serialize");
+        let raw = graph_assertion_payload(&valid_graph()).expect("serialize Graph assertion");
         let (status, problem) = parse_provenance(Some(raw), false, true);
 
         assert!(status.assertion_present);
@@ -867,8 +901,7 @@ mod tests {
     /// Ensures an assertion is not reported as attested unless the asset binding is valid.
     #[test]
     fn parse_provenance_requires_valid_asset_binding_for_attestation() {
-        let raw = serde_json::to_value(ProvenanceAssertion::new_v1("image/png", "sha256:abc"))
-            .expect("serialize");
+        let raw = graph_assertion_payload(&valid_graph()).expect("serialize Graph assertion");
         let (status, problem) = parse_provenance(Some(raw), true, false);
 
         assert!(status.assertion_present);
@@ -876,6 +909,13 @@ mod tests {
         assert!(status.schema_known);
         assert!(status.assertion.is_some());
         assert!(problem.is_none());
+    }
+
+    fn valid_graph() -> Graph {
+        graph_from_snapshot(
+            &ProvenanceSnapshot::for_asset(AssetSnapshot::new("image", "image/png", "sha256:abc")),
+            &[],
+        )
     }
 
     /// Ensures verifier settings can be loaded into a reader context.

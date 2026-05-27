@@ -10,6 +10,7 @@ use std::{
 
 use tempfile::TempDir;
 
+use serde_json::Value;
 use stencila_codecs::stencila_schema::{
     Article, Block, CodeChunk, CompilationDigest, Duration, ExecutionMessage, ExecutionStatus,
     Figure, FigureOptions, Heading, ImageObject, Inline, LabelType, MessageLevel, Node, Paragraph,
@@ -59,6 +60,84 @@ fn set_isolated_config_dir() -> ConfigGuard {
         _tmp: tmp,
         _lock: lock,
         prev_xdg,
+    }
+}
+
+fn graph_value(graph: &stencila_codecs::stencila_schema::Graph) -> Value {
+    serde_json::to_value(graph).expect("serialize provenance graph")
+}
+
+fn graph_property_str<'a>(graph: &'a Value, key: &str) -> Option<&'a str> {
+    graph_property_value(graph, key).and_then(Value::as_str)
+}
+
+fn graph_node_property_str<'a>(graph: &'a Value, node_id: &str, key: &str) -> Option<&'a str> {
+    graph
+        .get("nodes")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|node| node.get("id").and_then(Value::as_str) == Some(node_id))
+        .and_then(|node| graph_property_value(node, key))
+        .and_then(Value::as_str)
+}
+
+fn graph_node_field_str<'a>(graph: &'a Value, node_id: &str, field: &str) -> Option<&'a str> {
+    graph
+        .get("nodes")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|node| node.get("id").and_then(Value::as_str) == Some(node_id))
+        .and_then(|node| node.get("node"))
+        .and_then(|node| node.get(field))
+        .and_then(Value::as_str)
+}
+
+fn graph_node_prefix_property_str<'a>(
+    graph: &'a Value,
+    node_id_prefix: &str,
+    key: &str,
+) -> Option<&'a str> {
+    graph
+        .get("nodes")
+        .and_then(Value::as_array)?
+        .iter()
+        .find(|node| {
+            node.get("id")
+                .and_then(Value::as_str)
+                .is_some_and(|id| id.starts_with(node_id_prefix))
+        })
+        .and_then(|node| graph_property_value(node, key))
+        .and_then(Value::as_str)
+}
+
+fn graph_property_value<'a>(value: &'a Value, key: &str) -> Option<&'a Value> {
+    match value {
+        Value::Object(object) => {
+            if object.get("propertyId").and_then(Value::as_str) == Some(key) {
+                return object.get("value");
+            }
+            object
+                .values()
+                .find_map(|value| graph_property_value(value, key))
+        }
+        Value::Array(values) => values
+            .iter()
+            .find_map(|value| graph_property_value(value, key)),
+        _ => None,
+    }
+}
+
+fn graph_detail_value<'a>(value: &'a Value, key: &str) -> Option<&'a Value> {
+    match value {
+        Value::Object(object) => object.get(key).or_else(|| {
+            object
+                .values()
+                .find_map(|value| graph_detail_value(value, key))
+        }),
+        Value::Array(values) => values
+            .iter()
+            .find_map(|value| graph_detail_value(value, key)),
+        _ => None,
     }
 }
 
@@ -219,28 +298,36 @@ async fn credentials_sign_markdown_and_extracted_media() -> Result<()> {
         .assertion
         .as_ref()
         .expect("media assertion");
-    assert_eq!(media_assertion.asset.id.as_deref(), Some("exported-asset"));
-    assert_eq!(media_assertion.asset.role.as_deref(), Some("figure"));
+    let media_assertion = graph_value(media_assertion);
     assert_eq!(
-        media_assertion.asset.title.as_deref(),
+        graph_property_str(&media_assertion, "org.stencila.assetId"),
+        Some("exported-asset")
+    );
+    assert_eq!(
+        graph_property_str(&media_assertion, "org.stencila.assetRole"),
+        Some("figure")
+    );
+    assert_eq!(
+        graph_property_str(&media_assertion, "org.stencila.assetTitle"),
         Some("Figure 1: Generated result.")
     );
     assert_eq!(
-        media_assertion.asset.description.as_deref(),
+        graph_property_str(&media_assertion, "org.stencila.assetDescription"),
         Some("Figure 1: Generated result. Additional caption detail.")
     );
     assert!(
-        media_assertion.executed_node.is_none(),
+        graph_node_prefix_property_str(&media_assertion, "node:executed:", "org.stencila.nodeType")
+            .is_none(),
         "plain figure assets should not be represented as executed nodes"
     );
     assert_eq!(
-        media_assertion
-            .output_node
-            .as_ref()
-            .map(|node| node.node_type.as_str()),
+        graph_node_prefix_property_str(&media_assertion, "node:output:", "org.stencila.nodeType"),
         Some("Figure")
     );
-    assert!(media_assertion.asset.content_digest.starts_with("sha256:"));
+    assert!(
+        graph_property_str(&media_assertion, "org.stencila.contentDigest")
+            .is_some_and(|digest| digest.starts_with("sha256:"))
+    );
 
     Ok(())
 }
@@ -591,7 +678,8 @@ async fn credentials_pdf_embeds_component_ingredients_without_side_assets() -> R
         .find(|assertion| assertion["label"] == "org.stencila.provenance")
         .expect("Stencila provenance assertion");
     assert_eq!(
-        provenance["data"]["rootNode"]["title"], "PDF Report",
+        graph_node_field_str(&provenance["data"], "node:root", "name"),
+        Some("PDF Report"),
         "provenance should capture a top-level heading as the article title"
     );
     let document_ingredients = document_manifest["manifests"][active]["ingredients"]
@@ -741,14 +829,16 @@ async fn credentials_sign_smd_with_stencila_media_type() -> Result<()> {
 
     assert!(report.manifest.from_sidecar);
     assert!(report.provenance.attested);
-    assert_eq!(
+    let assertion = graph_value(
         report
             .provenance
             .assertion
-            .expect("provenance assertion")
-            .asset
-            .media_type,
-        "text/smd"
+            .as_ref()
+            .expect("provenance assertion"),
+    );
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.mediaType"),
+        Some("text/smd")
     );
 
     Ok(())
@@ -852,23 +942,44 @@ async fn credentials_assertion_records_document_and_source() -> Result<()> {
         .assertion
         .as_ref()
         .expect("parsed Stencila assertion");
+    let assertion = graph_value(assertion);
 
-    assert_eq!(assertion.asset.role.as_deref(), Some("document-export"));
-    assert_eq!(assertion.root_node.node_type, "Article");
-    assert_eq!(assertion.root_node.title.as_deref(), Some("My Title"));
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.assetRole"),
+        Some("document-export")
+    );
+    assert_eq!(
+        graph_node_property_str(&assertion, "node:root", "org.stencila.nodeType"),
+        Some("Article")
+    );
+    assert_eq!(
+        graph_node_field_str(&assertion, "node:root", "name"),
+        Some("My Title")
+    );
     // Root nodes do not record a `nodeId`: the stabilized path is empty by
     // definition, and `nodeType` already conveys the kind of node.
-    assert!(assertion.root_node.node_id.is_none());
-    assert_eq!(assertion.producer.codec.as_deref(), Some("markdown"));
-    assert_eq!(assertion.producer.name, "Stencila");
-
-    let source = assertion.source.as_ref().expect("source snapshot recorded");
-    assert_eq!(source.path.as_deref(), Some("article.smd"));
-    assert_eq!(source.dirty, Some(false));
+    assert!(graph_node_property_str(&assertion, "node:root", "org.stencila.nodeId").is_none());
     assert_eq!(
-        source.commit.as_deref().map(str::len),
+        graph_property_str(&assertion, "org.stencila.producer.codec"),
+        Some("markdown")
+    );
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.producer.name"),
+        Some("Stencila")
+    );
+
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.source.path"),
+        Some("article.smd")
+    );
+    assert_eq!(
+        graph_property_value(&assertion, "org.stencila.source.dirty").and_then(Value::as_bool),
+        Some(false)
+    );
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.source.commit").map(str::len),
         Some(40),
-        "expected commit SHA, got {source:?}"
+        "expected commit SHA"
     );
 
     let document_manifest = verifier.inspect_asset(&output, None).await?;
@@ -1031,13 +1142,22 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .assertion
         .as_ref()
         .expect("document assertion");
-    assert_eq!(document.asset.role.as_deref(), Some("document-export"));
-    assert!(document.executed_node.is_none());
-    assert!(document.output_node.is_none());
+    let document = graph_value(document);
+    assert_eq!(
+        graph_property_str(&document, "org.stencila.assetRole"),
+        Some("document-export")
+    );
     assert!(
-        document.execution.is_none(),
-        "document snapshot should not aggregate chunk execution: {:?}",
-        document.execution
+        graph_node_prefix_property_str(&document, "node:executed:", "org.stencila.nodeType")
+            .is_none()
+    );
+    assert!(
+        graph_node_prefix_property_str(&document, "node:output:", "org.stencila.nodeType")
+            .is_none()
+    );
+    assert!(
+        graph_detail_value(&document, "execution").is_none_or(Value::is_null),
+        "document graph should not aggregate chunk execution"
     );
 
     let document_manifest = verifier.inspect_asset(&output, None).await?;
@@ -1097,8 +1217,12 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .find(|assertion| assertion["label"] == "org.stencila.provenance")
         .expect("environment provenance assertion");
     assert_eq!(
-        environment_provenance["data"]["rootNode"]["nodeType"],
-        "EnvironmentRecord"
+        graph_node_property_str(
+            &environment_provenance["data"],
+            "node:root",
+            "org.stencila.nodeType"
+        ),
+        Some("EnvironmentRecord")
     );
     let document_actions = document_manifest["manifests"][document_active]["assertions"]
         .as_array()
@@ -1135,65 +1259,78 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
         .assertion
         .as_ref()
         .expect("figure assertion");
-    assert_eq!(figure.asset.role.as_deref(), Some("computational-output"));
-    assert_eq!(figure.root_node.node_type, "Article");
-    let executed_node = figure.executed_node.as_ref().expect("executed node");
-    assert_eq!(executed_node.node_type, "CodeChunk");
+    let figure = graph_value(figure);
     assert_eq!(
-        executed_node.programming_language.as_deref(),
+        graph_property_str(&figure, "org.stencila.assetRole"),
+        Some("computational-output")
+    );
+    assert_eq!(
+        graph_node_property_str(&figure, "node:root", "org.stencila.nodeType"),
+        Some("Article")
+    );
+    assert_eq!(
+        graph_node_prefix_property_str(&figure, "node:executed:", "org.stencila.nodeType"),
+        Some("CodeChunk")
+    );
+    assert_eq!(
+        graph_node_prefix_property_str(
+            &figure,
+            "node:executed:",
+            "org.stencila.programmingLanguage"
+        ),
         Some("python")
     );
-    let source_range = executed_node
-        .source_range
-        .as_ref()
-        .expect("executed node source range");
-    assert_eq!(source_range.start_line, 3);
-    assert_eq!(source_range.start_column, 1);
-    assert_eq!(source_range.end_line, 6);
-    assert_eq!(source_range.end_column, 1);
-    let output_node = figure.output_node.as_ref().expect("output node");
-    assert_eq!(output_node.node_type, "ImageObject");
+    assert_eq!(
+        graph_node_prefix_property_str(&figure, "node:executed:", "org.stencila.sourceRange"),
+        Some("3:1-6:1")
+    );
+    assert_eq!(
+        graph_node_prefix_property_str(&figure, "node:output:", "org.stencila.nodeType"),
+        Some("ImageObject")
+    );
     assert!(
-        output_node.content_url.is_none(),
+        graph_node_prefix_property_str(&figure, "node:output:", "org.stencila.contentUrl")
+            .is_none(),
         "data URI output content should be represented by the signed asset, not duplicated in the assertion"
     );
-    let figure_json = serde_json::to_string(figure).expect("serialize figure assertion");
+    let figure_json = serde_json::to_string(&figure).expect("serialize figure assertion");
     assert!(
         !figure_json.contains("data:image/"),
         "figure assertion should not embed data URI payloads"
     );
 
-    let execution = figure
-        .execution
-        .as_ref()
-        .expect("figure execution snapshot");
-    assert_eq!(execution.status.as_deref(), Some("succeeded"));
-    assert_eq!(execution.duration_ms, Some(250));
-    assert_eq!(execution.count, Some(3));
+    let execution = graph_detail_value(&figure, "execution").expect("figure execution snapshot");
+    assert_eq!(execution["status"], "succeeded");
+    assert_eq!(execution["durationMs"], 250);
+    assert_eq!(execution["count"], 3);
     assert_eq!(
         execution
-            .digests
-            .as_ref()
-            .and_then(|digests| digests.state.as_deref()),
+            .get("digest")
+            .and_then(|digests| digests.get("stateDigest"))
+            .and_then(Value::as_str),
         Some("stencila:000000000000002a")
     );
     assert_eq!(
         execution
-            .kernel
-            .as_ref()
-            .and_then(|kernel| kernel.name.as_deref()),
+            .get("kernel")
+            .and_then(|kernel| kernel.get("name"))
+            .and_then(Value::as_str),
         Some("python-main")
     );
     assert_eq!(
         execution
-            .kernel
-            .as_ref()
-            .and_then(|kernel| kernel.language.as_deref()),
+            .get("kernel")
+            .and_then(|kernel| kernel.get("language"))
+            .and_then(Value::as_str),
         Some("python")
     );
-    assert_eq!(execution.messages.len(), 1);
     assert_eq!(
-        execution.messages[0].message.as_deref(),
+        execution
+            .get("messages")
+            .and_then(Value::as_array)
+            .and_then(|messages| messages.first())
+            .and_then(|message| message.get("message"))
+            .and_then(Value::as_str),
         Some("cached data was used")
     );
 
@@ -1300,54 +1437,58 @@ async fn credentials_per_asset_snapshots_split_document_and_chunk_execution() ->
     );
 
     // Environment fields hold for both snapshots; assert on the figure's.
-    let environment = figure.environment.as_ref().expect("environment");
-    assert!(environment.os.is_some());
-    assert!(environment.architecture.is_some());
-    assert!(environment.runtimes.iter().any(|runtime| {
-        runtime.name.as_deref() == Some("stencila") && runtime.version.is_some()
+    let environment = graph_detail_value(&figure, "environment").expect("environment");
+    assert!(environment["os"].is_string());
+    assert!(environment["architecture"].is_string());
+    assert!(environment["runtimes"].as_array().is_some_and(|runtimes| {
+        runtimes.iter().any(|runtime| {
+            runtime["name"] == "stencila" && runtime.get("version").is_some_and(Value::is_string)
+        })
     }));
     assert!(
-        environment.manifests.iter().any(|manifest| {
-            manifest
-                .path
-                .as_deref()
-                .is_some_and(|path| path.ends_with("pyproject.toml"))
-                && manifest
-                    .digest
-                    .as_deref()
-                    .is_some_and(|digest| digest.starts_with("sha256:"))
-        }),
+        environment["manifests"]
+            .as_array()
+            .is_some_and(|manifests| {
+                manifests.iter().any(|manifest| {
+                    manifest["path"]
+                        .as_str()
+                        .is_some_and(|path| path.ends_with("pyproject.toml"))
+                        && manifest["digest"]
+                            .as_str()
+                            .is_some_and(|digest| digest.starts_with("sha256:"))
+                })
+            }),
         "manifests: {:?}",
-        environment.manifests
+        environment["manifests"]
     );
     assert!(
-        environment.lockfiles.iter().any(|lockfile| {
-            lockfile
-                .path
-                .as_deref()
-                .is_some_and(|path| path.ends_with("uv.lock"))
-                && lockfile
-                    .digest
-                    .as_deref()
-                    .is_some_and(|digest| digest.starts_with("sha256:"))
-        }),
+        environment["lockfiles"]
+            .as_array()
+            .is_some_and(|lockfiles| {
+                lockfiles.iter().any(|lockfile| {
+                    lockfile["path"]
+                        .as_str()
+                        .is_some_and(|path| path.ends_with("uv.lock"))
+                        && lockfile["digest"]
+                            .as_str()
+                            .is_some_and(|digest| digest.starts_with("sha256:"))
+                })
+            }),
         "lockfiles: {:?}",
-        environment.lockfiles
+        environment["lockfiles"]
     );
     assert_eq!(
-        environment.repository.as_deref(),
+        environment["repository"].as_str(),
         Some("https://github.com/example/repo")
     );
     assert!(
-        environment
-            .commit
-            .as_deref()
+        environment["commit"]
+            .as_str()
             .is_some_and(|commit| commit.len() == 40)
     );
     assert!(
-        environment
-            .informational_uri
-            .as_deref()
+        environment["informationalUri"]
+            .as_str()
             .is_some_and(|uri| uri.starts_with("https://github.com/example/repo/tree/"))
     );
 
@@ -1400,23 +1541,25 @@ async fn credentials_dirty_source_records_patch_digest() -> Result<()> {
             trust_anchors: None,
         })
         .await?;
-    let source = report
+    let assertion = report
         .provenance
         .assertion
         .as_ref()
-        .and_then(|assertion| assertion.source.as_ref())
         .expect("source snapshot");
-    assert_eq!(source.dirty, Some(true));
+    let assertion = graph_value(assertion);
+    assert_eq!(
+        graph_property_value(&assertion, "org.stencila.source.dirty").and_then(Value::as_bool),
+        Some(true)
+    );
     assert!(
-        source
-            .patch_digest
-            .as_deref()
+        graph_detail_value(&assertion, "patchDigest")
+            .and_then(Value::as_str)
             .is_some_and(|digest| digest.starts_with("sha256:"))
     );
     assert_eq!(
-        source.commit.as_deref().map(str::len),
+        graph_property_str(&assertion, "org.stencila.source.commit").map(str::len),
         Some(40),
-        "expected HEAD SHA, got {source:?}"
+        "expected HEAD SHA"
     );
 
     Ok(())
@@ -1478,17 +1621,23 @@ async fn credentials_untracked_source_is_dirty_without_commit() -> Result<()> {
             trust_anchors: None,
         })
         .await?;
-    let source = report
+    let assertion = report
         .provenance
         .assertion
         .as_ref()
-        .and_then(|assertion| assertion.source.as_ref())
         .expect("source snapshot");
+    let assertion = graph_value(assertion);
 
-    assert_eq!(source.path.as_deref(), Some("draft.smd"));
-    assert_eq!(source.dirty, Some(true));
+    assert_eq!(
+        graph_property_str(&assertion, "org.stencila.source.path"),
+        Some("draft.smd")
+    );
+    assert_eq!(
+        graph_property_value(&assertion, "org.stencila.source.dirty").and_then(Value::as_bool),
+        Some(true)
+    );
     assert!(
-        source.commit.is_none(),
+        graph_property_str(&assertion, "org.stencila.source.commit").is_none(),
         "untracked files are not present in HEAD and should not claim a commit"
     );
 
@@ -1546,17 +1695,18 @@ async fn credentials_public_profile_redacts_dirty_patch_digest() -> Result<()> {
         .assertion
         .as_ref()
         .expect("assertion present");
-    let source = assertion.source.as_ref().expect("source");
+    let assertion = graph_value(assertion);
     // Public profile drops both the repository URL and the dirty patch digest.
-    assert!(source.repository.is_none());
-    assert_eq!(source.dirty, Some(true));
-    assert!(source.patch_digest.is_none());
+    assert!(graph_property_str(&assertion, "org.stencila.source.repository").is_none());
+    assert_eq!(
+        graph_property_value(&assertion, "org.stencila.source.dirty").and_then(Value::as_bool),
+        Some(true)
+    );
+    assert!(graph_detail_value(&assertion, "patchDigest").is_none());
+    let assertion_json = serde_json::to_string(&assertion).expect("serialize assertion");
     assert!(
-        assertion
-            .privacy
-            .redactions
-            .iter()
-            .any(|redaction| redaction.field.as_deref() == Some("source.patchDigest"))
+        assertion_json.contains("source.patchDigest"),
+        "redactions should record patch digest removal: {assertion_json}"
     );
 
     Ok(())

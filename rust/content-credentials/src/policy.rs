@@ -15,7 +15,6 @@ use serde_json::{Map, Value};
 
 use crate::{
     error::{Error, Result},
-    schema::ProvenanceAssertion,
     snapshot::{
         ActivitySnapshot, AgentSnapshot, AssetSnapshot, DefinitionSnapshot, DependencySnapshot,
         DocumentSnapshot, EnvironmentSnapshot, ExecutionDigestSnapshot, ExecutionMessageSnapshot,
@@ -178,7 +177,7 @@ impl ProjectionPolicy {
     ///
     /// Returns an error if the assertion cannot be serialized or is larger than
     /// [`ASSERTION_HARD_SIZE_LIMIT`].
-    pub fn validate_assertion_size(&self, assertion: &ProvenanceAssertion) -> Result<usize> {
+    pub fn validate_assertion_size<T: Serialize>(&self, assertion: &T) -> Result<usize> {
         let bytes = serde_json::to_vec(assertion)?;
         let len = bytes.len();
 
@@ -1406,8 +1405,15 @@ mod tests {
     #[test]
     fn assertion_size_is_bounded() {
         let policy = ProjectionPolicy::for_profile(CredentialProfile::Public);
-        let mut assertion = ProvenanceAssertion::new_v1("text/plain", "sha256:abc");
-        assertion.root_node.title = Some("x".repeat(ASSERTION_HARD_SIZE_LIMIT));
+        let mut assertion = crate::graph::graph_from_snapshot(
+            &ProvenanceSnapshot::for_asset(AssetSnapshot::new(
+                "document",
+                "text/plain",
+                "sha256:abc",
+            )),
+            &[],
+        );
+        assertion.options.description = Some("x".repeat(ASSERTION_HARD_SIZE_LIMIT));
 
         assert!(policy.validate_assertion_size(&assertion).is_err());
     }

@@ -22,8 +22,7 @@ use tokio::fs::write;
 use crate::{
     ActivitySnapshot, AssetSnapshot, CredentialProducer, CredentialProfile, DocumentSnapshot,
     EnvironmentSnapshot, IngredientRelationship, IngredientSnapshot, IngredientThumbnailSnapshot,
-    ProjectionPolicy, ProvenanceSnapshot, Result, SignAssetRequest, media,
-    schema::EnvironmentRecord, thumbnails,
+    ProjectionPolicy, ProvenanceSnapshot, Result, SignAssetRequest, media, thumbnails,
 };
 
 use super::source::{
@@ -356,8 +355,7 @@ async fn environment_ingredient(
 
     let description = environment_description(&environment);
     let informational_uri = environment.informational_uri.clone();
-    let record = EnvironmentRecord::from(environment);
-    let bytes = serde_json::to_vec(&record)?;
+    let bytes = serde_json::to_vec(&environment)?;
     if bytes == b"{}" {
         return Ok(None);
     }

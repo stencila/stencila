@@ -1,9 +1,11 @@
 # Stencila Content Credentials
 
 This crate wraps the CAI `c2pa` Rust SDK to sign and verify assets with a
-Stencila custom assertion, `org.stencila.provenance`. It currently exposes the
-manual `stencila credentials ...` CLI path, Rust producer/verifier APIs, and
-export-time signing through codec `EncodeOptions`.
+Stencila provenance assertion, `org.stencila.provenance`. The assertion payload
+is a Stencila Schema `Graph`; standard C2PA assertions such as actions,
+ingredients, and AI disclosure are projected from that graph. The crate exposes
+the manual `stencila credentials ...` CLI path, Rust producer/verifier APIs,
+and export-time signing through codec `EncodeOptions`.
 
 ## Current Scope
 
@@ -14,12 +16,33 @@ export-time signing through codec `EncodeOptions`.
   signer trust, Stencila provenance attestation, and reproducibility status.
 - Sign codec exports and extracted side assets when `EncodeOptions.credentials`
   is set, including source and ingredient provenance where available.
+- Project the Stencila provenance graph into standard C2PA actions,
+  ingredients, asset-type metadata, and AI disclosure where applicable.
 - Generate local self-signed signing credentials that are visibly untrusted
   outside local or internal workflows.
 
 Local signing credentials are useful for interoperability testing, but public
 verifiers should show them as untrusted because they do not chain to a public
 C2PA trust-list identity.
+
+## Provenance Graph Payload
+
+Stencila writes detailed provenance to the `org.stencila.provenance` assertion
+as a Stencila Schema `Graph` with standalone JSON metadata:
+
+```text
+$schema: https://stencila.org/v<stencila-version>/Graph.schema.json
+@context: https://stencila.org/v<stencila-version>/context.jsonld
+```
+
+The version segment follows the Stencila release that produced the credential.
+
+The graph is the detailed Stencila provenance layer. It records signed assets,
+document nodes, source files, executions, producer software, ingredients,
+attributions, AI model use, reproducibility context, C2PA-derived provenance
+from input assets, and privacy decisions where available. C2PA-facing manifest
+fields are then derived from the same graph so generic C2PA tools can still see
+portable actions, ingredients, asset metadata, and AI disclosure.
 
 ## Sidecar Convention
 

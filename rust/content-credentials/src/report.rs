@@ -4,8 +4,9 @@ use std::fmt::{self, Display};
 
 use serde::Serialize;
 use serde_json::Value;
+use stencila_schema::Graph;
 
-use crate::schema::{NodeRecord, ProvenanceAssertion, SourceRangeRecord};
+use crate::graph::metadata_from_graph;
 
 /// Top-level structured verification report.
 #[derive(Debug, Clone, Serialize)]
@@ -115,72 +116,64 @@ impl VerificationSummary {
             && self.redaction_count.is_none()
     }
 
-    /// Project a compact summary from a parsed Stencila assertion.
+    /// Project a compact summary from a parsed Stencila provenance graph.
     #[must_use]
-    pub fn from_assertion(assertion: &ProvenanceAssertion) -> Self {
-        let producer = format_producer(&assertion.producer);
-
-        let asset_kind =
-            (!assertion.asset.asset_type.is_empty()).then(|| assertion.asset.asset_type.clone());
-        let media_type =
-            (!assertion.asset.media_type.is_empty()).then(|| assertion.asset.media_type.clone());
-
-        let source_repository = assertion.source.as_ref().and_then(format_source_repository);
-        let source_file = assertion
-            .source
-            .as_ref()
-            .and_then(|source| source.path.clone());
-        let source_range = source_range_from_assertion(assertion);
-
-        let redaction_count = u32::try_from(assertion.privacy.redactions.len()).ok();
+    pub fn from_graph(graph: &Graph) -> Self {
+        let metadata = metadata_from_graph(graph);
+        let producer = format_producer(
+            metadata.producer_name.as_deref(),
+            metadata.producer_version.as_deref(),
+        );
+        let source_repository = format_source_repository(
+            metadata.source_repository.as_deref(),
+            metadata.source_commit.as_deref(),
+            metadata.source_dirty,
+        );
 
         Self {
             producer,
-            asset_kind,
-            media_type,
+            asset_kind: metadata.asset_type,
+            media_type: metadata.media_type,
             source_repository,
-            source_file,
-            source_range,
-            redaction_count,
+            source_file: metadata.source_path,
+            source_range: metadata.source_range,
+            redaction_count: metadata.redaction_count,
         }
     }
 }
 
-fn format_producer(producer: &crate::schema::ProducerRecord) -> Option<String> {
+fn format_producer(name: Option<&str>, version: Option<&str>) -> Option<String> {
     // `codec` and `renderer` are deliberately omitted: this summary names the
     // signing software, while format facts already appear in the `mediaType`
     // row of the same summary table.
-    if producer.name.is_empty() && producer.version.is_empty() {
+    if name.is_none_or(str::is_empty) && version.is_none_or(str::is_empty) {
         return None;
     }
 
-    let mut summary = if producer.name.is_empty() {
-        String::new()
-    } else {
-        producer.name.clone()
-    };
+    let mut summary = name.unwrap_or_default().to_string();
 
-    if !producer.version.is_empty() {
+    if let Some(version) = version.filter(|version| !version.is_empty()) {
         if !summary.is_empty() {
             summary.push(' ');
         }
-        summary.push_str(&producer.version);
+        summary.push_str(version);
     }
 
     Some(summary)
 }
 
-fn format_source_repository(source: &crate::schema::SourceRecord) -> Option<String> {
+fn format_source_repository(
+    repository: Option<&str>,
+    commit: Option<&str>,
+    dirty: Option<bool>,
+) -> Option<String> {
     // Compose `<repo>@<commit>` and append a worktree status. The path of
     // the source file is reported separately by `format_source_file` so a
     // verifier sees a clean repository identity here even when the file
     // path is sensitive or the repository URL is redacted.
-    let commit_short = source
-        .commit
-        .as_deref()
-        .map(|commit| commit.get(..7).unwrap_or(commit).to_string());
+    let commit_short = commit.map(|commit| commit.get(..7).unwrap_or(commit).to_string());
 
-    let head = match (source.repository.as_deref(), commit_short) {
+    let head = match (repository, commit_short) {
         (Some(repo), Some(commit)) => format!("{repo}@{commit}"),
         (Some(repo), None) => repo.to_string(),
         (None, Some(commit)) => commit,
@@ -190,38 +183,13 @@ fn format_source_repository(source: &crate::schema::SourceRecord) -> Option<Stri
     // Always disclose worktree status when the producer recorded one — a
     // "clean" annotation is as informative as "dirty" because absence
     // otherwise reads as "status unknown".
-    let suffix = match source.dirty {
+    let suffix = match dirty {
         Some(true) => " (dirty)",
         Some(false) => " (clean)",
         None => "",
     };
 
     Some(format!("{head}{suffix}"))
-}
-
-fn source_range_from_assertion(assertion: &ProvenanceAssertion) -> Option<String> {
-    assertion
-        .executed_node
-        .as_ref()
-        .and_then(source_range_for_node)
-        .or_else(|| {
-            assertion
-                .output_node
-                .as_ref()
-                .and_then(source_range_for_node)
-        })
-        .or_else(|| source_range_for_node(&assertion.root_node))
-}
-
-fn source_range_for_node(node: &NodeRecord) -> Option<String> {
-    node.source_range.as_ref().map(format_source_range)
-}
-
-fn format_source_range(range: &SourceRangeRecord) -> String {
-    format!(
-        "{}:{}-{}:{}",
-        range.start_line, range.start_column, range.end_line, range.end_column
-    )
 }
 
 /// C2PA manifest presence and parse state.
@@ -294,7 +262,7 @@ pub struct ProvenanceStatus {
     pub schema_known: bool,
 
     /// Parsed payload when the schema is known.
-    pub assertion: Option<ProvenanceAssertion>,
+    pub assertion: Option<Graph>,
 
     /// Raw payload as JSON, always populated when the assertion is present.
     pub raw: Option<Value>,
@@ -520,38 +488,50 @@ mod tests {
     #[test]
     fn summary_projects_compact_fields_from_assertion() {
         use crate::{
-            schema::{
-                NodeRecord, ProvenanceAssertion, RedactionRecord, SourceRangeRecord, SourceRecord,
+            graph::graph_from_snapshot,
+            snapshot::{
+                AssetSnapshot, DocumentSnapshot, PrivacySnapshot, ProducerSnapshot,
+                RedactionSnapshot, SourceRangeSnapshot, SourceSnapshot,
             },
-            snapshot::ProvenanceSnapshot,
         };
 
-        let mut assertion = ProvenanceAssertion::new_v1("image/png", "sha256:abc");
-        assertion.producer.codec = Some("markdown".to_string());
-        assertion.source = Some(SourceRecord {
-            repository: Some("https://github.com/stencila/example".to_string()),
-            commit: Some("abcdef0123456789abcdef0123456789abcdef01".to_string()),
-            path: Some("article.smd".to_string()),
-            dirty: Some(true),
-            ..Default::default()
-        });
-        assertion.executed_node = Some(NodeRecord {
-            node_type: "CodeChunk".to_string(),
-            source_range: Some(SourceRangeRecord {
-                start_line: 3,
-                start_column: 1,
-                end_line: 6,
-                end_column: 1,
-            }),
-            ..Default::default()
-        });
-        assertion.privacy.redactions.push(RedactionRecord {
-            field: Some("source.repository".to_string()),
-            reason: Some("policy".to_string()),
-            ..Default::default()
-        });
+        let graph = graph_from_snapshot(
+            &crate::ProvenanceSnapshot {
+                asset: AssetSnapshot::new("image", "image/png", "sha256:abc"),
+                producer: Some(ProducerSnapshot {
+                    codec: Some("markdown".to_string()),
+                    ..Default::default()
+                }),
+                source: Some(SourceSnapshot {
+                    repository: Some("https://github.com/stencila/example".to_string()),
+                    commit: Some("abcdef0123456789abcdef0123456789abcdef01".to_string()),
+                    path: Some("article.smd".to_string()),
+                    dirty: Some(true),
+                    ..Default::default()
+                }),
+                executed_node: Some(DocumentSnapshot {
+                    node_type: "CodeChunk".to_string(),
+                    source_range: Some(SourceRangeSnapshot {
+                        start_line: 3,
+                        start_column: 1,
+                        end_line: 6,
+                        end_column: 1,
+                    }),
+                    ..Default::default()
+                }),
+                privacy: Some(PrivacySnapshot {
+                    redactions: vec![RedactionSnapshot {
+                        field: Some("source.repository".to_string()),
+                        reason: Some("policy".to_string()),
+                    }],
+                    ..Default::default()
+                }),
+                ..Default::default()
+            },
+            &[],
+        );
 
-        let summary = VerificationSummary::from_assertion(&assertion);
+        let summary = VerificationSummary::from_graph(&graph);
 
         // Producer names the signing software only — codec belongs to
         // the `mediaType` field of the same summary.
@@ -576,9 +556,6 @@ mod tests {
         assert_eq!(summary.source_file.as_deref(), Some("article.smd"));
         assert_eq!(summary.source_range.as_deref(), Some("3:1-6:1"));
         assert_eq!(summary.redaction_count, Some(1));
-        // Ensure ProvenanceSnapshot import is exercised so trimming doesn't
-        // break the legacy roundtrip in this module.
-        let _ = ProvenanceSnapshot::default();
     }
 
     /// Ensures the summary block is serialized inline at the report root.

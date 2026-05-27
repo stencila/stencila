@@ -210,14 +210,7 @@ fn add_inspection(
         &projected_evidence,
     );
     add_stencila_assertion(builder, &scope, asset_id, inspection, &projected_evidence);
-    add_ai_disclosure(
-        builder,
-        &scope,
-        asset_id,
-        manifest,
-        inspection,
-        &projected_evidence,
-    );
+    add_ai_disclosure(builder, &scope, asset_id, manifest, &projected_evidence);
 
     Ok(())
 }
@@ -378,64 +371,47 @@ fn add_stencila_assertion(
     inspection: &C2paInspection,
     evidence: &GraphEvidence,
 ) {
-    let Some(asset_id) = asset_id else {
-        return;
-    };
-    let Some(assertion) = inspection.report.provenance.assertion.as_ref() else {
+    let Some(graph) = inspection.report.provenance.assertion.as_ref() else {
         return;
     };
 
-    if let Some(executed) = assertion.executed_node.as_ref() {
-        let executed_id = LocalGraphId::credential_ingredient(
-            scope,
-            0,
-            &format!(
-                "stencila-node:{}",
-                executed
-                    .node_id
-                    .as_deref()
-                    .or(executed.persistent_id.as_deref())
-                    .unwrap_or(&executed.node_type)
-            ),
-        );
-        add_stencila_node(
-            builder,
-            &executed_id,
-            &executed.node_type,
-            executed.node_id.as_deref(),
-        );
+    let mut id_map = BTreeMap::new();
+    for (index, graph_node) in graph.nodes.iter().enumerate() {
+        let id = if graph_node.id == "asset:signed" {
+            asset_id
+                .map(ToString::to_string)
+                .unwrap_or_else(|| scoped_stencila_graph_node_id(scope, index, &graph_node.id))
+        } else {
+            scoped_stencila_graph_node_id(scope, index, &graph_node.id)
+        };
+        id_map.insert(graph_node.id.clone(), id.clone());
 
-        let mut action = ExecuteAction::new();
-        action.id = Some(format!("action:c2pa:{scope}:stencila-executed"));
-        action.options.name = Some(format!("Execute {}", executed.node_type));
-        action.options.description = assertion
-            .execution
-            .as_ref()
-            .and_then(|execution| execution.status.clone())
-            .map(|status| format!("Stencila execution status: {status}"));
-
-        builder.add_edge_with_evidence_and_actions(
-            executed_id,
-            asset_id,
-            GraphEdgeKind::Generated,
-            [evidence.clone()],
-            [GraphAction::ExecuteAction(action)],
-        );
+        if Some(id.as_str()) == asset_id {
+            continue;
+        }
+        builder.add_schema_node(id, graph_node.node.as_ref().clone());
     }
 
-    for attribution in &assertion.attributions {
-        let Some(agent_name) = attribution.agent.name.as_deref() else {
-            continue;
-        };
-        let software_id = add_software_agent(
-            builder,
-            scope,
-            attribution.agent.id.as_deref().unwrap_or(agent_name),
-            agent_name,
-            attribution.agent.version.as_deref(),
-            attribution.agent.provider.as_deref(),
+    for edge in &graph.edges {
+        let source = id_map
+            .get(&edge.source)
+            .cloned()
+            .unwrap_or_else(|| scoped_stencila_graph_node_id(scope, 0, &edge.source));
+        let target = id_map
+            .get(&edge.target)
+            .cloned()
+            .unwrap_or_else(|| scoped_stencila_graph_node_id(scope, 0, &edge.target));
+        let actions = edge.options.actions.clone().unwrap_or_default();
+        let mut evidence_items = edge.options.evidence.clone().unwrap_or_default();
+        evidence_items.push(evidence.clone());
+
+        builder.add_edge_with_evidence_and_actions(
+            source,
+            target,
+            edge.kind,
+            evidence_items,
+            actions,
         );
-        builder.add_generation(software_id, asset_id, [evidence.clone()]);
     }
 }
 
@@ -444,29 +420,11 @@ fn add_ai_disclosure(
     scope: &str,
     asset_id: Option<&str>,
     manifest: &Value,
-    inspection: &C2paInspection,
     evidence: &GraphEvidence,
 ) {
     let Some(asset_id) = asset_id else {
         return;
     };
-
-    if let Some(disclosure) = inspection
-        .report
-        .provenance
-        .assertion
-        .as_ref()
-        .and_then(|assertion| assertion.ai_disclosure.as_ref())
-    {
-        let name = disclosure
-            .model_name
-            .as_deref()
-            .or(disclosure.model_identifier.as_deref())
-            .unwrap_or("AI model");
-        let identity = disclosure.model_identifier.as_deref().unwrap_or(name);
-        let software_id = add_software_agent(builder, scope, identity, name, None, None);
-        builder.add_generation(software_id, asset_id, [evidence.clone()]);
-    }
 
     for assertion in manifest
         .get("assertions")
@@ -494,23 +452,8 @@ fn add_ai_disclosure(
     }
 }
 
-fn add_stencila_node(
-    builder: &mut GraphBuilder,
-    node_id: &str,
-    node_type: &str,
-    stencila_node_id: Option<&str>,
-) {
-    if builder.contains_node(node_id) {
-        return;
-    }
-
-    let mut node = CreativeWork::new();
-    node.id = Some(node_id.to_string());
-    node.options.name = stencila_node_id
-        .map(ToString::to_string)
-        .or_else(|| Some(node_type.to_string()));
-    node.options.description = Some(format!("Stencila {node_type} node from C2PA provenance"));
-    builder.add_schema_node(node_id, Node::CreativeWork(node));
+fn scoped_stencila_graph_node_id(scope: &str, index: usize, id: &str) -> String {
+    LocalGraphId::credential_ingredient(scope, index, &format!("stencila-graph:{id}"))
 }
 
 fn add_action_software(builder: &mut GraphBuilder, scope: &str, action: &Value) -> Option<String> {
