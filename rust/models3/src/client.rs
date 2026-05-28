@@ -46,6 +46,53 @@ fn configured_providers() -> Option<Vec<String>> {
     config.models.and_then(|models| models.providers)
 }
 
+/// Load the `[models.ollama]` config section, if any.
+fn configured_ollama() -> Option<stencila_config::OllamaConfig> {
+    let cwd = std::env::current_dir().ok()?;
+    let config = stencila_config::load_and_validate(&cwd).ok()?;
+    config.models.and_then(|models| models.ollama)
+}
+
+/// Default Ollama base URL (matches the constant in `OllamaAdapter`).
+const OLLAMA_DEFAULT_BASE_URL: &str = "http://localhost:11434/v1";
+
+/// Determine whether Ollama should be registered and with what base URL.
+///
+/// Priority:
+/// 1. `[models.ollama].base_url` from stencila.toml
+/// 2. `OLLAMA_BASE_URL` env var
+/// 3. `OLLAMA_HOST` env var (with `/v1` suffix)
+/// 4. Auto-detect a running instance at `localhost:11434` (unless disabled)
+///
+/// Returns `Some(base_url)` when Ollama should be registered, `None` otherwise.
+fn resolve_ollama_base_url() -> Option<String> {
+    let ollama_config = configured_ollama();
+
+    // Config base_url takes highest priority
+    if let Some(ref cfg) = ollama_config {
+        if let Some(ref url) = cfg.base_url {
+            return Some(url.clone());
+        }
+    }
+
+    // Then env vars
+    if std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok() {
+        return Some(OllamaAdapter::base_url_from_env_or_default());
+    }
+
+    // Auto-detect unless disabled
+    let auto_detect = ollama_config
+        .as_ref()
+        .and_then(|c| c.auto_detect)
+        .unwrap_or(true);
+
+    if auto_detect && OllamaAdapter::is_available("localhost:11434") {
+        return Some(OLLAMA_DEFAULT_BASE_URL.to_string());
+    }
+
+    None
+}
+
 fn provider_enabled(configured: Option<&Vec<String>>, provider: &str) -> bool {
     match configured {
         Some(providers) => providers
@@ -143,9 +190,11 @@ impl Client {
     /// When `OPENAI_API_KEY` is absent, Codex CLI OAuth credentials from
     /// `~/.codex/auth.json` are used when available.
     ///
-    /// Ollama is registered when `OLLAMA_BASE_URL` or `OLLAMA_HOST` is set.
-    /// Use [`OllamaAdapter::is_available`] to probe for a running instance
-    /// before registering manually.
+    /// Ollama is registered when any of the following is true:
+    /// - `OLLAMA_BASE_URL` or `OLLAMA_HOST` is set
+    /// - `[models.ollama].base_url` is set in `stencila.toml`
+    /// - A running Ollama instance is auto-detected at `localhost:11434`
+    ///   (unless `[models.ollama].auto_detect = false`)
     ///
     /// # Errors
     ///
@@ -243,13 +292,14 @@ impl Client {
                 .credential_source("deepseek", CredentialSource::EnvApiKey("DEEPSEEK_API_KEY"));
         }
 
-        // Ollama (no API key required — register when explicitly configured)
-        if provider_enabled(configured.as_ref(), "ollama")
-            && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
-        {
-            builder = builder
-                .add_provider(OllamaAdapter::from_env()?)
-                .credential_source("ollama", CredentialSource::AutoDetected);
+        // Ollama (no API key required — auto-detect or use config)
+        if provider_enabled(configured.as_ref(), "ollama") {
+            if let Some(base_url) = resolve_ollama_base_url() {
+                let api_key = get_secret("OLLAMA_API_KEY");
+                builder = builder
+                    .add_provider(OllamaAdapter::new(base_url, api_key)?)
+                    .credential_source("ollama", CredentialSource::AutoDetected);
+            }
         }
 
         builder.build()
@@ -416,16 +466,18 @@ impl Client {
         if provider_enabled(configured.as_ref(), "ollama")
             && let Some(auth) = overrides.get("ollama")
         {
-            let base_url = OllamaAdapter::base_url_from_env_or_default();
+            let base_url = resolve_ollama_base_url()
+                .unwrap_or_else(|| OllamaAdapter::base_url_from_env_or_default());
             builder = builder
                 .add_provider(OllamaAdapter::with_auth(base_url, Some(auth.clone()))?)
                 .credential_source("ollama", CredentialSource::AuthOverride);
-        } else if provider_enabled(configured.as_ref(), "ollama")
-            && (std::env::var("OLLAMA_BASE_URL").is_ok() || std::env::var("OLLAMA_HOST").is_ok())
-        {
-            builder = builder
-                .add_provider(OllamaAdapter::from_env()?)
-                .credential_source("ollama", CredentialSource::AutoDetected);
+        } else if provider_enabled(configured.as_ref(), "ollama") {
+            if let Some(base_url) = resolve_ollama_base_url() {
+                let api_key = get_secret("OLLAMA_API_KEY");
+                builder = builder
+                    .add_provider(OllamaAdapter::new(base_url, api_key)?)
+                    .credential_source("ollama", CredentialSource::AutoDetected);
+            }
         }
 
         builder.build()
@@ -554,6 +606,12 @@ impl Client {
     #[must_use]
     pub fn has_provider(&self, name: &str) -> bool {
         self.providers.contains_key(name)
+    }
+
+    /// Get a reference to a registered provider adapter by name.
+    #[must_use]
+    pub fn get_provider(&self, name: &str) -> Option<&dyn ProviderAdapter> {
+        self.providers.get(name).map(AsRef::as_ref)
     }
 
     /// The credential source for a registered provider, if tracked.
@@ -716,6 +774,21 @@ impl Client {
         // DeepSeek: deepseek-*
         if m.starts_with("deepseek") {
             return Some("deepseek".into());
+        }
+
+        // Ollama: models with a colon tag (e.g. "llama3.1:8b", "codellama:13b")
+        // or well-known local model prefixes
+        if m.contains(':') && !m.starts_with("ft:") {
+            return Some("ollama".into());
+        }
+        if m.starts_with("llama")
+            || m.starts_with("codellama")
+            || m.starts_with("phi")
+            || m.starts_with("qwen")
+            || m.starts_with("starcoder")
+            || m.starts_with("vicuna")
+        {
+            return Some("ollama".into());
         }
 
         None

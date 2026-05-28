@@ -44,6 +44,8 @@ pub fn cli_to_api(provider: &str) -> Option<&'static str> {
 /// Default model alias for each API provider when none is specified.
 ///
 /// Returns the alias that points to the latest model for that provider.
+/// For providers with dynamic model lists (e.g. Ollama), use
+/// [`resolve_default_model`] instead.
 fn default_model(provider: &str) -> Option<&'static str> {
     match provider {
         "anthropic" => Some("claude"),
@@ -54,6 +56,47 @@ fn default_model(provider: &str) -> Option<&'static str> {
     }
 }
 
+/// Resolve the default model for a provider, supporting both static aliases
+/// and dynamic providers like Ollama.
+///
+/// For Ollama, checks (in order):
+/// 1. `[models.ollama].default_model` in `stencila.toml`
+/// 2. The first model in the catalog with `provider == "ollama"`
+///    (populated by live refresh or auto-query)
+///
+/// Falls back to [`default_model`] for all other providers.
+fn resolve_default_model(provider: &str) -> Option<String> {
+    if let Some(alias) = default_model(provider) {
+        return Some(alias.to_string());
+    }
+
+    if provider == "ollama" {
+        // Check config for a user-specified default
+        if let Some(model) = ollama_default_model_from_config() {
+            return Some(model);
+        }
+
+        // Try the catalog (populated by auto-query on detection)
+        if let Ok(models) = stencila_models3::catalog::list_models(Some("ollama")) {
+            if let Some(first) = models.first() {
+                return Some(first.id.clone());
+            }
+        }
+    }
+
+    None
+}
+
+/// Read `[models.ollama].default_model` from stencila.toml config.
+fn ollama_default_model_from_config() -> Option<String> {
+    let cwd = std::env::current_dir().ok()?;
+    let config = stencila_config::load_and_validate(&cwd).ok()?;
+    config
+        .models
+        .and_then(|m| m.ollama)
+        .and_then(|o| o.default_model)
+}
+
 /// Hint for which environment variable to set for a given provider.
 fn api_key_env_hint(provider: &str) -> &'static str {
     match provider {
@@ -62,6 +105,7 @@ fn api_key_env_hint(provider: &str) -> &'static str {
         "gemini" | "google" => "GEMINI_API_KEY",
         "mistral" => "MISTRAL_API_KEY",
         "deepseek" => "DEEPSEEK_API_KEY",
+        "ollama" => "OLLAMA_BASE_URL (or run `ollama serve`)",
         _ => "<PROVIDER>_API_KEY",
     }
 }
@@ -586,11 +630,11 @@ fn route_via_providers_path(
             continue;
         }
 
-        let Some(model) = default_model(provider) else {
+        let Some(model_alias) = resolve_default_model(provider) else {
             continue;
         };
         let (model, fallback_used, fallback_reason) =
-            resolve_auth_compatible_model(provider, model, client)?;
+            resolve_auth_compatible_model(provider, &model_alias, client)?;
 
         return Ok(Some(RoutingDecision {
             route: SessionRoute::Api {
@@ -616,7 +660,7 @@ fn route_via_providers_path(
             return Ok(Some(RoutingDecision {
                 route: SessionRoute::Cli {
                     provider: cli.to_string(),
-                    model: default_model(provider).map(String::from),
+                    model: resolve_default_model(provider),
                 },
                 provider_source: ProviderSource::AgentExplicit,
                 model_source: ModelSource::DefaultAlias,
@@ -784,16 +828,14 @@ pub fn route_direct(
             ModelSource::AgentExplicit,
         ),
         (Some(p), None) => {
-            let m = default_model(p)
-                .ok_or_else(|| {
-                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                        message: format!(
-                            "No default model for provider '{p}'. \
+            let m = resolve_default_model(p).ok_or_else(|| {
+                AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                    message: format!(
+                        "No default model for provider '{p}'. \
                                  Please specify a model explicitly."
-                        ),
-                    })
-                })?
-                .to_string();
+                    ),
+                })
+            })?;
             (
                 p.to_string(),
                 m,
@@ -822,16 +864,14 @@ pub fn route_direct(
         }
         (None, None) => {
             if let Some(p) = client.select_provider() {
-                let m = default_model(p)
-                    .ok_or_else(|| {
-                        AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
-                            message: format!(
-                                "No default model for provider '{p}'. \
+                let m = resolve_default_model(p).ok_or_else(|| {
+                    AgentError::Sdk(stencila_models3::error::SdkError::Configuration {
+                        message: format!(
+                            "No default model for provider '{p}'. \
                                      Please specify a model explicitly."
-                            ),
-                        })
-                    })?
-                    .to_string();
+                        ),
+                    })
+                })?;
                 (
                     p.to_string(),
                     m,
