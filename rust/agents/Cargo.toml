@@ -72,7 +72,7 @@ tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 
 [[bin]]
-name = "generate-docs"
+name = "generate-agents-docs"
 path = "src/bin/generate-docs.rs"
 required-features = []
 

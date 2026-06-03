@@ -149,8 +149,8 @@ generated:
 	cargo run -p stencila-content-credentials --bin generate
 	cargo run -p stencila-cli-gen
 	cargo run -p stencila-skills --bin generate-docs
-	cargo run -p stencila-agents --bin generate-docs
-	cargo run -p stencila-workflows --bin generate-docs
+	cargo run -p stencila-agents --bin generate-agents-docs
+	cargo run -p stencila-workflows --bin generate-workflows-docs
 
 # Clean the ../target dir
 clean:

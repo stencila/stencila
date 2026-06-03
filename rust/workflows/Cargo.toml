@@ -42,5 +42,9 @@ zstd = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
 
+[[bin]]
+name = "generate-workflows-docs"
+path = "src/bin/generate-docs.rs"
+
 [lints]
 workspace = true
