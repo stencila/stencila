@@ -4,7 +4,7 @@ use std::{
     process::{Command, Stdio},
 };
 
-use eyre::{bail, OptionExt, Result};
+use eyre::{OptionExt, Result, bail};
 use reqwest::Url;
 use sha2::{Digest, Sha256};
 
