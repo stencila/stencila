@@ -179,13 +179,46 @@ stencila-figure {
         }
     }
 
-    > [slot] > .figure-content-item {
+    > [slot] > .figure-content-item,
+    figure > .figure-content-area > .figure-content-item {
+        display: grid;
+        align-items: center;
+        align-self: stretch;
         min-width: 0;
     }
 
-    /* Subfigure label badges - positioned over each subfigure panel.
-     * The badge is rendered via a ::before pseudo-element on the
-     * .figure-content-item wrapper that carries a data-sublabel attribute.
+    /* Code chunks used as subfigure panels should fill their grid cell.
+     * The generic work-content breakout rule gives code chunks and image
+     * outputs `fit-content` sizing, which is correct at the top level but can
+     * force a grid track wider than its assigned subfigure column. */
+    > [slot] > .figure-content-item > stencila-code-chunk,
+    figure > .figure-content-area > .figure-content-item > stencila-code-chunk {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        margin: 0;
+
+        > [slot="outputs"] {
+            display: block;
+            width: 100%;
+            max-width: 100%;
+            min-width: 0;
+        }
+
+        > [slot="outputs"] > stencila-image-object,
+        > [slot="outputs"] > .figure-content-area > stencila-image-object {
+            width: 100%;
+            max-width: 100%;
+            margin-top: 0;
+            margin-bottom: 0;
+            --image-block-width: 100%;
+        }
+    }
+
+    /* Subfigure label badges - positioned over each subfigure panel's grid
+     * item, which stretches to fill its assigned grid cell. The panel content
+     * is centered inside that item so labels remain anchored to the cell rather
+     * than to shorter images or plots.
      * Visible by default; themes can hide them by setting
      * --figure-sublabel-display to "none". */
     .figure-content-item[data-sublabel] {
@@ -214,13 +247,10 @@ stencila-figure {
 
     /* Anchor figure-level overlays to the rendered content area, including
      * grid layouts that now live on this wrapper.
-     * Vertically center subfigures within their grid row so that images
-     * with different aspect ratios align at their midpoint instead of
-     * leaving whitespace below shorter panels. Only takes effect when
-     * the element is a grid container (i.e. a layout is specified). */
+     * Subfigure content is vertically centered by .figure-content-item so that
+     * labels remain anchored to the full grid cell. */
     figure > .figure-content-area {
         position: relative;
-        align-items: center;
     }
 
     figure {
