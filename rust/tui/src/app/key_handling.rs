@@ -235,6 +235,10 @@ impl App {
             (KeyModifiers::NONE, KeyCode::Enter) => {
                 if let Some(name) = self.commands_state.accept() {
                     self.input.set_text(&name);
+                    if name.ends_with(' ') {
+                        self.commands_state.update(self.input.text());
+                        return true;
+                    }
                 }
                 // If the command requires positional args, don't submit —
                 // show the usage hint as ghost text instead.
@@ -1441,6 +1445,28 @@ mod tests {
         assert!(app.input.is_empty());
         // Should have executed /help
         assert!(app.messages.len() >= 2);
+    }
+
+    #[tokio::test]
+    async fn autocomplete_enter_on_site_drills_down() {
+        let mut app = App::new_for_test().await;
+        for c in "/si".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
+        }
+        assert!(app.commands_state.is_visible());
+
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
+
+        assert_eq!(app.input.text(), "/site ");
+        assert!(app.commands_state.is_visible());
+        assert!(
+            app.commands_state
+                .candidates()
+                .iter()
+                .any(|candidate| candidate.name() == "/site start")
+        );
     }
 
     #[tokio::test]

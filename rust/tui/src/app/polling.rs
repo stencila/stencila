@@ -11,7 +11,7 @@ use crate::{
 };
 
 use super::{
-    ActiveWorkflowState, App, AppMessage, ExchangeStatus, WorkflowProgressKind,
+    ActiveWorkflowState, App, AppMessage, ExchangeStatus, SitePreviewStatus, WorkflowProgressKind,
     WorkflowStatusState, discover_agents, discover_workflows,
 };
 
@@ -462,9 +462,13 @@ impl App {
                 }
                 PreviewEvent::ServerReady { url, token } => {
                     let url = format!("{url}/~login?sst={token}");
+                    self.site_preview_status = SitePreviewStatus::Running { url: url.clone() };
                     self.messages.push(AppMessage::SitePreviewReady { url });
                 }
                 PreviewEvent::Error(error) => {
+                    self.site_preview_status = SitePreviewStatus::Failed {
+                        error: error.clone(),
+                    };
                     self.messages.push(AppMessage::System {
                         content: format!("Site preview: {error}"),
                     });
@@ -620,7 +624,9 @@ impl App {
 #[cfg(test)]
 #[allow(clippy::unwrap_used)]
 mod tests {
-    use super::super::{App, AppMode};
+    use super::super::{App, AppMessage, AppMode, SitePreviewStatus};
+    use stencila_server::preview::PreviewEvent;
+    use tokio::sync::mpsc;
 
     #[tokio::test]
     async fn interview_event_resumes_workflow_mode() {
@@ -739,5 +745,54 @@ mod tests {
         app.scroll_to_bottom();
         assert!(app.scroll_pinned);
         assert_eq!(app.scroll_offset, 0);
+    }
+
+    #[tokio::test]
+    async fn site_preview_server_ready_updates_status_and_message() {
+        let mut app = App::new_for_test().await;
+        let (tx, rx) = mpsc::unbounded_channel();
+        app.site_preview = Some(crate::site_preview::SitePreviewHandle::new_for_test(rx));
+
+        tx.send(PreviewEvent::ServerReady {
+            url: "http://localhost:9000".to_string(),
+            token: "token".to_string(),
+        })
+        .expect("send preview event");
+
+        app.poll_site_preview();
+
+        assert_eq!(
+            app.site_preview_status,
+            SitePreviewStatus::Running {
+                url: "http://localhost:9000/~login?sst=token".to_string()
+            }
+        );
+        assert!(app.messages.iter().any(|message| matches!(
+            message,
+            AppMessage::SitePreviewReady { url } if url == "http://localhost:9000/~login?sst=token"
+        )));
+    }
+
+    #[tokio::test]
+    async fn site_preview_error_updates_failed_status() {
+        let mut app = App::new_for_test().await;
+        let (tx, rx) = mpsc::unbounded_channel();
+        app.site_preview = Some(crate::site_preview::SitePreviewHandle::new_for_test(rx));
+
+        tx.send(PreviewEvent::Error("boom".to_string()))
+            .expect("send preview event");
+
+        app.poll_site_preview();
+
+        assert_eq!(
+            app.site_preview_status,
+            SitePreviewStatus::Failed {
+                error: "boom".to_string()
+            }
+        );
+        assert!(app.messages.iter().any(|message| matches!(
+            message,
+            AppMessage::System { content } if content.contains("Site preview: boom")
+        )));
     }
 }

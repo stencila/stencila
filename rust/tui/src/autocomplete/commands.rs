@@ -168,6 +168,10 @@ impl CommandsState {
 
     /// Children of a parent CLI command.
     fn children_of(&self, parent: &str) -> Vec<CommandCandidate> {
+        if parent == SlashCommand::Site.to_string() {
+            return site_subcommands();
+        }
+
         let Some(ref tree) = self.cli_tree else {
             return Vec::new();
         };
@@ -227,6 +231,7 @@ impl CommandsState {
 
         // Check if this is a top-level CLI command with children
         let has_children = match candidate {
+            CommandCandidate::Builtin(SlashCommand::Site) => true,
             CommandCandidate::CliCommand { path, .. } if path.len() == 1 => {
                 if let Some(ref tree) = self.cli_tree {
                     tree.iter()
@@ -264,6 +269,23 @@ impl CommandsState {
         self.candidates.clear();
         self.selected = 0;
     }
+}
+
+fn site_subcommands() -> Vec<CommandCandidate> {
+    [
+        ("status", "Show site preview status"),
+        ("start", "Start the site preview"),
+        ("preview", "Start the site preview"),
+        ("stop", "Stop the site preview"),
+        ("restart", "Restart the site preview"),
+        ("open", "Show the site preview URL"),
+    ]
+    .into_iter()
+    .map(|(name, description)| CommandCandidate::CliCommand {
+        path: vec![SlashCommand::Site.to_string(), name.to_string()],
+        description: description.to_string(),
+    })
+    .collect()
 }
 
 #[cfg(test)]
@@ -376,6 +398,21 @@ mod tests {
     }
 
     #[test]
+    fn shows_site_subcommands_on_trailing_space() {
+        let mut state = CommandsState::new();
+        state.update("/site ");
+
+        assert!(state.is_visible());
+        assert!(state.candidates().iter().any(|c| c.name() == "/site start"));
+        assert!(
+            state
+                .candidates()
+                .iter()
+                .any(|c| c.name() == "/site status")
+        );
+    }
+
+    #[test]
     fn filters_children_by_prefix() {
         let mut state = CommandsState::new();
         state.set_cli_tree(make_cli_tree());
@@ -383,6 +420,20 @@ mod tests {
         assert!(state.is_visible());
         assert_eq!(state.candidates().len(), 1);
         assert_eq!(state.candidates()[0].name(), "/skills list");
+    }
+
+    #[test]
+    fn filters_site_subcommands_by_prefix() {
+        let mut state = CommandsState::new();
+        state.update("/site st");
+
+        assert!(state.is_visible());
+        let names = state
+            .candidates()
+            .iter()
+            .map(CommandCandidate::name)
+            .collect::<Vec<_>>();
+        assert_eq!(names, vec!["/site status", "/site start", "/site stop"]);
     }
 
     #[test]
@@ -470,6 +521,17 @@ mod tests {
         // "skills" is the only match and has children
         let name = state.accept();
         assert_eq!(name, Some("/skills ".into()));
+    }
+
+    #[test]
+    fn accept_site_appends_space() {
+        let mut state = CommandsState::new();
+        state.update("/si");
+        assert!(state.is_visible());
+
+        let name = state.accept();
+
+        assert_eq!(name, Some("/site ".into()));
     }
 
     #[test]

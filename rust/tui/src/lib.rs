@@ -27,11 +27,7 @@ use crate::{app::App, event::EventReader};
 
 /// Run interactively
 #[derive(Debug, Default, Clone, Args)]
-pub struct Tui {
-    /// Do not serve a preview of the workspace site
-    #[arg(long, help_heading = "TUI Options")]
-    pub no_preview: bool,
-}
+pub struct Tui;
 
 impl Tui {
     /// Run the interactive TUI application.
@@ -56,17 +52,6 @@ impl Tui {
         let mut guard = terminal::init()?;
         let mut events = EventReader::new();
         let mut app = App::new(log_receiver, upgrade_handle, cli_tree).await;
-
-        if !self.no_preview {
-            match site_preview::spawn_preview() {
-                Ok(handle) => app.site_preview = handle,
-                Err(error) => {
-                    app.messages.push(app::AppMessage::System {
-                        content: format!("Failed to start site preview: {error}"),
-                    });
-                }
-            }
-        }
 
         // Load history from disk (best-effort)
         let history_path = history::history_file_path();
@@ -104,5 +89,21 @@ impl Tui {
         // explicitly here makes the intent clear.
         drop(guard);
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Args;
+
+    use super::*;
+
+    #[test]
+    fn help_does_not_include_no_preview() {
+        let help = Tui::augment_args(clap::Command::new("tui"))
+            .render_long_help()
+            .to_string();
+
+        assert!(!help.contains("--no-preview"));
     }
 }

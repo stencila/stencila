@@ -5,7 +5,7 @@ use stencila_agents::types::{ReasoningEffort, SessionState, Turn};
 use strum::{Display, EnumMessage, EnumString};
 
 use crate::agent::truncate_for_display;
-use crate::app::{App, AppMessage, AppMode};
+use crate::app::{App, AppMessage, AppMode, site_preview_usage_message};
 use crate::autocomplete::agents::{AgentCandidate, AgentCandidateKind, AgentDefinitionInfo};
 use crate::autocomplete::resume::{ResumableKind, ResumeCandidate};
 use crate::autocomplete::workflows::{WorkflowCandidate, WorkflowDefinitionInfo};
@@ -46,6 +46,9 @@ pub enum SlashCommand {
 
     #[strum(message = "Enter shell mode")]
     Shell,
+
+    #[strum(message = "Control the workspace site preview")]
+    Site,
 
     #[strum(message = "Upgrade to the latest version")]
     Upgrade,
@@ -114,8 +117,8 @@ impl SlashCommand {
     pub fn display_order() -> &'static [CommandSlot] {
         use CommandSlot::{Builtin, Cli};
         use SlashCommand::{
-            Agent, Cancel, Clear, Effort, Exit, Help, History, New, Quit, Resume, Shell, Upgrade,
-            Workflow,
+            Agent, Cancel, Clear, Effort, Exit, Help, History, New, Quit, Resume, Shell, Site,
+            Upgrade, Workflow,
         };
         &[
             Builtin(Workflow),
@@ -133,6 +136,7 @@ impl SlashCommand {
             Builtin(New),
             Builtin(History),
             Builtin(Shell),
+            Builtin(Site),
             Cli("kernels"),
             Cli("formats"),
             Cli("linters"),
@@ -214,6 +218,7 @@ impl SlashCommand {
             Self::History => execute_history(app),
             Self::Quit => app.should_quit = true,
             Self::Shell => app.enter_shell_mode(),
+            Self::Site => execute_site(app, args),
             Self::Upgrade => execute_upgrade(app),
             Self::Workflow => execute_workflows(app).await,
         }
@@ -531,6 +536,28 @@ fn execute_cancel(app: &mut App) {
     }
 }
 
+fn execute_site(app: &mut App, args: &str) {
+    let action = args.trim().to_ascii_lowercase();
+    let content = match action.as_str() {
+        "" => format!(
+            "{}\n{}",
+            app.site_preview_status_message(),
+            site_preview_usage_message()
+        ),
+        "status" => app.site_preview_status_message(),
+        "start" | "preview" => app.start_site_preview(),
+        "stop" => app.stop_site_preview(),
+        "restart" => app.restart_site_preview(),
+        "open" => app.site_preview_open_message(),
+        _ => format!(
+            "Unknown site action `{}`.\n{}",
+            args.trim(),
+            site_preview_usage_message()
+        ),
+    };
+    app.messages.push(AppMessage::System { content });
+}
+
 fn execute_help(app: &mut App) {
     let mut help = String::from("Available commands:\n");
 
@@ -635,6 +662,19 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn execute_help_includes_site_command() {
+        let mut app = App::new_for_test().await;
+        let initial_count = app.messages.len();
+
+        SlashCommand::Help.execute(&mut app, "").await;
+
+        assert!(matches!(
+            &app.messages[initial_count],
+            AppMessage::System { content } if content.contains("/site")
+        ));
+    }
+
+    #[tokio::test]
     async fn execute_clear_resets_active_session() {
         let mut app = App::new_for_test().await;
         assert!(!app.messages.is_empty());
@@ -722,6 +762,47 @@ mod tests {
         assert_eq!(app.messages.len(), initial);
         assert!(app.history_state.is_visible());
         assert_eq!(app.history_state.candidates().len(), 2);
+    }
+
+    #[tokio::test]
+    async fn execute_site_without_args_shows_status_and_usage() {
+        let mut app = App::new_for_test().await;
+        let initial = app.messages.len();
+
+        SlashCommand::Site.execute(&mut app, "").await;
+
+        assert!(matches!(
+            &app.messages[initial],
+            AppMessage::System { content }
+                if content.contains("Site preview is stopped") && content.contains("Usage: /site")
+        ));
+    }
+
+    #[tokio::test]
+    async fn execute_site_open_without_url_reports_not_running() {
+        let mut app = App::new_for_test().await;
+        let initial = app.messages.len();
+
+        SlashCommand::Site.execute(&mut app, "open").await;
+
+        assert!(matches!(
+            &app.messages[initial],
+            AppMessage::System { content } if content == "Site preview is not running."
+        ));
+    }
+
+    #[tokio::test]
+    async fn execute_site_unknown_shows_usage() {
+        let mut app = App::new_for_test().await;
+        let initial = app.messages.len();
+
+        SlashCommand::Site.execute(&mut app, "wat").await;
+
+        assert!(matches!(
+            &app.messages[initial],
+            AppMessage::System { content }
+                if content.contains("Unknown site action `wat`") && content.contains("Usage: /site")
+        ));
     }
 
     #[tokio::test(flavor = "multi_thread", worker_threads = 1)]
@@ -813,6 +894,32 @@ mod tests {
             }
             _ => panic!("Expected CliPassthrough"),
         }
+    }
+
+    #[test]
+    fn parse_command_site_with_args_is_builtin() {
+        let tree = test_cli_tree();
+        assert!(matches!(
+            parse_command("/site", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Site, ""))
+        ));
+        assert!(matches!(
+            parse_command("/site start", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Site, "start"))
+        ));
+        assert!(matches!(
+            parse_command("/site unknown", &tree),
+            Some(ParsedCommand::Builtin(SlashCommand::Site, "unknown"))
+        ));
+    }
+
+    #[test]
+    fn site_command_is_in_display_order() {
+        assert!(
+            SlashCommand::display_order()
+                .iter()
+                .any(|slot| matches!(slot, CommandSlot::Builtin(SlashCommand::Site)))
+        );
     }
 
     #[test]

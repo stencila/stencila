@@ -35,6 +35,8 @@ use crate::{
     workflow::WorkflowRunHandle,
 };
 
+use crate::site_preview;
+
 /// The current input mode of the TUI.
 #[derive(Debug, Display, Clone, Copy, PartialEq, Eq, Default)]
 #[strum(serialize_all = "lowercase")]
@@ -43,6 +45,19 @@ pub enum AppMode {
     Agent,
     Shell,
     Workflow,
+}
+
+/// Lifecycle status of the workspace site preview managed by the TUI.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum SitePreviewStatus {
+    /// No preview is running.
+    Stopped,
+    /// A preview task has been spawned and the server-ready event is pending.
+    Starting,
+    /// The preview server is ready and can be opened at the authenticated URL.
+    Running { url: String },
+    /// Preview startup or rendering failed.
+    Failed { error: String },
 }
 
 /// The kind of exchange, determining sidebar color.
@@ -540,7 +555,10 @@ pub struct App {
     pub visible_message_height: u16,
 
     /// Background site preview handle, if site config exists.
-    pub site_preview: Option<crate::site_preview::SitePreviewHandle>,
+    pub site_preview: Option<site_preview::SitePreviewHandle>,
+
+    /// User-visible status for the managed site preview.
+    pub site_preview_status: SitePreviewStatus,
 
     /// Background upgrade check handle, consumed once resolved.
     upgrade_handle: Option<JoinHandle<Option<String>>>,
@@ -621,6 +639,7 @@ impl App {
             total_message_lines: 0,
             visible_message_height: 0,
             site_preview: None,
+            site_preview_status: SitePreviewStatus::Stopped,
             upgrade_handle,
             upgrade_available: None,
             upgrade_msg_index: None,
@@ -680,6 +699,96 @@ impl App {
             && self.input.text().starts_with('!')
             && self.input.text().len() > 1
     }
+
+    /// Start the workspace site preview if it is not already active.
+    pub fn start_site_preview(&mut self) -> String {
+        if self.site_preview.is_some() {
+            return match &self.site_preview_status {
+                SitePreviewStatus::Running { url } => {
+                    format!("Site preview is already running: {url}")
+                }
+                SitePreviewStatus::Failed { error } => {
+                    format!(
+                        "Site preview is active but failed: {error}. Use `/site restart` to try again."
+                    )
+                }
+                _ => "Site preview is already starting.".to_string(),
+            };
+        }
+
+        match site_preview::spawn_preview() {
+            Ok(Some(handle)) => {
+                self.site_preview = Some(handle);
+                self.site_preview_status = SitePreviewStatus::Starting;
+                "Starting site preview…".to_string()
+            }
+            Ok(None) => {
+                self.site_preview_status = SitePreviewStatus::Stopped;
+                "No site configured for this workspace.".to_string()
+            }
+            Err(error) => {
+                let error = error.to_string();
+                self.site_preview_status = SitePreviewStatus::Failed {
+                    error: error.clone(),
+                };
+                format!("Failed to start site preview: {error}")
+            }
+        }
+    }
+
+    /// Stop the workspace site preview if it is running or starting.
+    pub fn stop_site_preview(&mut self) -> String {
+        if self.site_preview.take().is_some() {
+            self.site_preview_status = SitePreviewStatus::Stopped;
+            "Stopped site preview.".to_string()
+        } else {
+            self.site_preview_status = SitePreviewStatus::Stopped;
+            "Site preview is not running.".to_string()
+        }
+    }
+
+    /// Restart the workspace site preview.
+    pub fn restart_site_preview(&mut self) -> String {
+        let was_active = self.site_preview.take().is_some();
+        self.site_preview_status = SitePreviewStatus::Stopped;
+        let start_message = self.start_site_preview();
+        if was_active {
+            format!("Restarted site preview. {start_message}")
+        } else {
+            start_message
+        }
+    }
+
+    /// Human-readable status for the workspace site preview.
+    pub fn site_preview_status_message(&self) -> String {
+        match &self.site_preview_status {
+            SitePreviewStatus::Stopped => "Site preview is stopped.".to_string(),
+            SitePreviewStatus::Starting => "Site preview is starting.".to_string(),
+            SitePreviewStatus::Running { url } => format!("Site preview is running: {url}"),
+            SitePreviewStatus::Failed { error } => format!("Site preview failed: {error}"),
+        }
+    }
+
+    /// Message for accessing the active preview URL.
+    pub fn site_preview_open_message(&self) -> String {
+        match &self.site_preview_status {
+            SitePreviewStatus::Running { url } => {
+                format!("Site preview URL: {url}")
+            }
+            SitePreviewStatus::Starting => {
+                "Site preview is starting; the URL is not ready yet.".to_string()
+            }
+            SitePreviewStatus::Failed { error } => {
+                format!("Site preview failed: {error}")
+            }
+            SitePreviewStatus::Stopped => "Site preview is not running.".to_string(),
+        }
+    }
+}
+
+/// Usage text for the `/site` command.
+pub fn site_preview_usage_message() -> &'static str {
+    "Usage: /site [status|start|preview|stop|restart|open]"
 }
 
 /// Truncate a response to a short preview: first line, max `max_chars` characters.
@@ -702,5 +811,43 @@ impl App {
     pub(crate) async fn new_for_test() -> Self {
         let (_tx, rx) = mpsc::unbounded_channel();
         Self::new(rx, None, None).await
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn site_preview_initial_state_is_stopped() {
+        let app = App::new_for_test().await;
+
+        assert_eq!(app.site_preview_status, SitePreviewStatus::Stopped);
+        assert_eq!(
+            app.site_preview_status_message(),
+            "Site preview is stopped."
+        );
+    }
+
+    #[tokio::test]
+    async fn site_preview_stop_is_idempotent() {
+        let mut app = App::new_for_test().await;
+
+        assert_eq!(app.stop_site_preview(), "Site preview is not running.");
+        assert_eq!(app.site_preview_status, SitePreviewStatus::Stopped);
+    }
+
+    #[tokio::test]
+    async fn site_preview_status_and_open_include_running_url() {
+        let mut app = App::new_for_test().await;
+        app.site_preview_status = SitePreviewStatus::Running {
+            url: "http://localhost:9000/~login?sst=token".to_string(),
+        };
+
+        assert!(
+            app.site_preview_status_message()
+                .contains("http://localhost")
+        );
+        assert!(app.site_preview_open_message().contains("http://localhost"));
     }
 }

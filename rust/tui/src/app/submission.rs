@@ -1,6 +1,6 @@
 use crate::{
     agent::AgentHandle,
-    commands::{ParsedCommand, parse_command},
+    commands::{ParsedCommand, SlashCommand, parse_command},
     interview::{InterviewResult, InterviewStatus},
 };
 
@@ -33,6 +33,15 @@ impl App {
         if let Some(parsed) = parse_command(&text, tree_ref) {
             match parsed {
                 ParsedCommand::Builtin(cmd, args) => {
+                    // Bare built-ins with subcommands (currently `/site`) should
+                    // drill into the autocomplete picker, matching top-level CLI
+                    // commands such as `/mcp` and `/kernels`.
+                    if matches!(cmd, SlashCommand::Site) && args.is_empty() {
+                        self.input.set_text("/site ");
+                        self.commands_state.update(self.input.text());
+                        return;
+                    }
+
                     cmd.execute(self, args).await;
                 }
                 ParsedCommand::CliPassthrough(cmd) => {
@@ -736,6 +745,29 @@ mod tests {
         // Autocomplete should be visible with subcommand candidates
         assert!(app.commands_state.is_visible());
         assert!(app.commands_state.candidates().len() >= 2); // list, show
+    }
+
+    #[tokio::test]
+    async fn bare_site_command_opens_picker() {
+        let mut app = App::new_for_test().await;
+        let initial_msg_count = app.messages.len();
+
+        for c in "/site".chars() {
+            app.handle_event(&key_event(KeyCode::Char(c), KeyModifiers::NONE))
+                .await;
+        }
+        app.handle_event(&key_event(KeyCode::Enter, KeyModifiers::NONE))
+            .await;
+
+        assert_eq!(app.messages.len(), initial_msg_count);
+        assert_eq!(app.input.text(), "/site ");
+        assert!(app.commands_state.is_visible());
+        assert!(
+            app.commands_state
+                .candidates()
+                .iter()
+                .any(|candidate| candidate.name() == "/site start")
+        );
     }
 
     #[tokio::test]

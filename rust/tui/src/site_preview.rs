@@ -17,6 +17,14 @@ impl Drop for SitePreviewHandle {
     }
 }
 
+#[cfg(test)]
+impl SitePreviewHandle {
+    pub(crate) fn new_for_test(event_rx: mpsc::UnboundedReceiver<PreviewEvent>) -> Self {
+        let task = tokio::spawn(async {});
+        Self { event_rx, task }
+    }
+}
+
 /// Attempt to spawn a site preview in the background.
 ///
 /// Returns `None` if the workspace has no site configuration (this is not
