@@ -1,7 +1,7 @@
 use std::{
-    fs::{File, copy, create_dir_all, read_to_string},
+    fs::{copy, create_dir_all, read_to_string},
     hash::{Hash, Hasher},
-    io::{Cursor, Write},
+    io::Cursor,
     path::{Path, PathBuf},
     sync::LazyLock,
 };
@@ -13,7 +13,6 @@ use image::{
     codecs::png::{CompressionType, FilterType, PngEncoder},
     imageops, open,
 };
-use itertools::Itertools;
 use mime_guess::from_path;
 use regex::{Captures, Regex};
 use seahash::SeaHasher;
