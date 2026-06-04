@@ -356,64 +356,6 @@ pub fn path_to_data_uri(path: &Path) -> Result<String> {
     Ok(format!("data:{mime_type};base64,{encoded}"))
 }
 
-/// Convert a data URI into an image file
-///
-/// The image will be converted into an image file with a name
-/// based on the hash of the URI and an extension based on the
-/// type of data URI.
-///
-/// # Arguments
-///
-/// - `data_uri`: the data URI
-/// - `images_dir`: the destination images directory
-///
-/// # Returns
-///
-/// The file name of the image within `images_dir`.
-pub fn data_uri_to_file(data_uri: &str, images_dir: &Path) -> Result<String> {
-    // Parse the data URI
-    let Some((header, data)) = data_uri.split(',').collect_tuple() else {
-        bail!("Invalid data URI format");
-    };
-
-    // Extract the MIME type
-    let mime_type = header
-        .split(';')
-        .next()
-        .and_then(|mime_type| mime_type.strip_prefix("data:"))
-        .ok_or_eyre("Invalid data URI header")?;
-
-    // Determine the file extension based on the MIME type
-    let extension = match mime_type {
-        "image/jpeg" => "jpg",
-        "image/png" => "png",
-        "image/gif" => "gif",
-        "image/webp" => "webp",
-        "image/svg+xml" => "svg",
-        _ => bail!("Unsupported image format: {}", mime_type),
-    };
-
-    // Decode the Base64 data
-    let decoded_data = STANDARD.decode(data.as_bytes())?;
-
-    // Generate a hash of the data URI
-    let mut hash = SeaHasher::new();
-    data_uri.hash(&mut hash);
-    let hash = hash.finish();
-    let image_name = format!("{hash:x}.{extension}");
-
-    // Ensure the images directory exists
-    if !images_dir.exists() {
-        create_dir_all(images_dir)?;
-    }
-
-    // Write the decoded data to the file
-    let mut file = File::create(images_dir.join(&image_name))?;
-    file.write_all(&decoded_data)?;
-
-    Ok(image_name)
-}
-
 /// Convert a file URI to a filesystem path to an image
 ///
 /// The absolute path of the source image will be resolved

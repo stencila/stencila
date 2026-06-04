@@ -5,8 +5,8 @@ use std::{
 
 use base64::{Engine as _, engine::general_purpose::STANDARD};
 use eyre::{OptionExt, Result, bail, eyre};
-use itertools::Itertools;
 use pathdiff::diff_paths;
+use percent_encoding::percent_decode;
 
 use stencila_codec_info::EncodedAsset;
 use stencila_format::Format;
@@ -104,7 +104,7 @@ impl Extractor {
         desired_stem: Option<&str>,
     ) -> Result<(PathBuf, String)> {
         // Parse the data URI
-        let Some((header, data)) = data_uri.split(',').collect_tuple() else {
+        let Some((header, data)) = data_uri.split_once(',') else {
             bail!("Invalid data URI format");
         };
 
@@ -126,8 +126,15 @@ impl Extractor {
             format.extension()
         };
 
-        // Decode the Base64 data
-        let decoded_data = STANDARD.decode(data.as_bytes())?;
+        let decoded_data = if header
+            .split(';')
+            .skip(1)
+            .any(|parameter| parameter.eq_ignore_ascii_case("base64"))
+        {
+            STANDARD.decode(data.as_bytes())?
+        } else {
+            percent_decode(data.as_bytes()).collect()
+        };
 
         let hash = hash_bytes(data_uri.as_bytes());
         let path = self.namer.write_bytes(
@@ -439,7 +446,7 @@ impl VisitorMut for Extractor {
 
 #[cfg(test)]
 mod tests {
-    use std::fs::{read, read_dir, write};
+    use std::fs::{read, read_dir, read_to_string, write};
 
     use eyre::{OptionExt, Result, bail};
     use tempfile::tempdir;
@@ -450,6 +457,8 @@ mod tests {
 
     const DATA_URI_1: &str = "data:image/png;base64,AA==";
     const DATA_URI_2: &str = "data:image/png;base64,AQ==";
+    const SVG_DATA_URI_WITH_COMMAS: &str =
+        "data:image/svg+xml,%3Csvg%3E%3Cpolygon%20points='0%200,10%200,0%2010'%2F%3E%3C%2Fsvg%3E";
 
     #[test]
     fn extracts_figure_media_using_figure_id() -> Result<()> {
@@ -521,6 +530,26 @@ mod tests {
         assert!(second.content_url.ends_with(&second_name));
         assert!(media_dir.path().join("fig-1.png").exists());
         assert!(media_dir.path().join(second_name).exists());
+
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_non_base64_svg_data_uri_with_commas() -> Result<()> {
+        let media_dir = tempdir()?;
+        let mut block = Block::ImageObject(ImageObject::new(SVG_DATA_URI_WITH_COMMAS.to_string()));
+
+        extract_media(&mut block, None, media_dir.path())?;
+
+        let Block::ImageObject(image) = block else {
+            bail!("expected image")
+        };
+        assert!(image.content_url.ends_with(".svg"));
+        let extracted = media_dir.path().join(&image.content_url);
+        assert_eq!(
+            read_to_string(extracted)?,
+            "<svg><polygon points='0 0,10 0,0 10'/></svg>"
+        );
 
         Ok(())
     }
