@@ -143,6 +143,8 @@ fn encode_array(old: Vec<Value>) -> Value {
 /// Recursively decode the keys and values of an object
 fn decode_object(old: Map<String, Value>) -> Value {
     let mut new = serde_json::Map::new();
+    let is_schema_object = old.contains_key("@type");
+
     for (key, value) in old.into_iter() {
         let (key, value) = if key == "@type" {
             let value = if let Some(id) = value.as_str() {
@@ -158,9 +160,9 @@ fn decode_object(old: Map<String, Value>) -> Value {
                 decode_value(value)
             };
             ("type".to_string(), value)
-        } else if key == "@id" {
+        } else if is_schema_object && key == "@id" {
             ("id".to_string(), decode_value(value))
-        } else {
+        } else if is_schema_object {
             let key = if let Some(id) = key.strip_prefix("stencila:") {
                 id.to_string()
             } else if let Some(id) = CONTEXT_MAPS.0.get(&["schema:", &key].concat()) {
@@ -168,6 +170,8 @@ fn decode_object(old: Map<String, Value>) -> Value {
             } else {
                 key
             };
+            (key, decode_value(value))
+        } else {
             (key, decode_value(value))
         };
 
@@ -211,4 +215,65 @@ fn encode_object(old: Map<String, Value>) -> Value {
     }
 
     Value::Object(new)
+}
+
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::decode_value;
+
+    #[test]
+    fn decodes_schema_aliases_on_typed_objects() {
+        let decoded = decode_value(json!({
+            "@type": "CreateAction",
+            "@id": "create-1",
+            "object": []
+        }));
+
+        assert_eq!(
+            decoded,
+            json!({
+                "type": "CreateAction",
+                "id": "create-1",
+                "objects": []
+            })
+        );
+    }
+
+    #[test]
+    fn preserves_schema_terms_on_untyped_objects() {
+        let decoded = decode_value(json!({
+            "object": {},
+            "type": "literal",
+            "array": [
+                {
+                    "object": 1,
+                    "stencila:content": "literal"
+                },
+                {
+                    "@type": "CreateAction",
+                    "object": []
+                }
+            ]
+        }));
+
+        assert_eq!(
+            decoded,
+            json!({
+                "object": {},
+                "type": "literal",
+                "array": [
+                    {
+                        "object": 1,
+                        "stencila:content": "literal"
+                    },
+                    {
+                        "type": "CreateAction",
+                        "objects": []
+                    }
+                ]
+            })
+        );
+    }
 }
