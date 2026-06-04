@@ -24,7 +24,7 @@ Relative paths are resolved from the current document. Includes are useful when 
 
 Includes can also reference remote documents:
 
-```smd demo
+```smd
 ::: include http://example.org/document.md
 ```
 
