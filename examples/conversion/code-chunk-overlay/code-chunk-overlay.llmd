@@ -1,10 +1,10 @@
 Figure-labeled code chunk with overlay:
 
-Figure 1A code-generated figure with an annotation overlay.
+Figure 1: A code-generated figure with an annotation overlay.
 
 Plain SVG code block in caption should not become overlay:
 
-Figure 2```svg
+Figure 2: ```svg
 <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
   <circle cx="5" cy="5" r="4" />
 </svg>

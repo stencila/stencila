@@ -46,7 +46,7 @@ First subfigure.
 
 :::::
 
-Figure Second subfigure.
+Figure: Second subfigure.
 
 A two-panel figure combining a real image with an executable plot.
 
@@ -54,9 +54,9 @@ A two-panel figure combining a real image with an executable plot.
 
 ::: figure [30 70]
 
-Figure A light blue histogram of random normal values generated in R.
+Figure: A light blue histogram of random normal values generated in R.
 
-Figure A pink bar chart generated using Plotly.
+Figure: A pink bar chart generated using Plotly.
 
 ::::: figure
 
