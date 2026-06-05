@@ -60,6 +60,7 @@ stencila-codec-png = { path = "../codec-png" }
 stencila-codec-rnw = { path = "../codec-rnw" }
 stencila-codec-swb = { path = "../codec-swb" }
 stencila-codec-text = { path = "../codec-text" }
+stencila-codec-tiptap = { path = "../codec-tiptap" }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codec-xlsx = { path = "../codec-xlsx" }
 stencila-codec-yaml = { path = "../codec-yaml" }

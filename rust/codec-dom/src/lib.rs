@@ -479,12 +479,16 @@ pub async fn standalone_html(
     }
 
     // Build the view-wrapped content
-    let content = if view != "none" {
+    let content = if view == "none" {
+        node_html
+    } else if view_includes_node_html(view) {
         format!(
             r#"<stencila-{view}-view view={view} doc={doc_id} type={node_type}>{node_html}</stencila-{view}-view>"#
         )
     } else {
-        node_html
+        format!(
+            r#"<stencila-{view}-view view={view} doc={doc_id} type={node_type}></stencila-{view}-view>"#
+        )
     };
 
     // Build the body
@@ -498,6 +502,11 @@ pub async fn standalone_html(
     html.push_str("</html>");
 
     html
+}
+
+/// Whether the view custom element should include the rendered node HTML.
+fn view_includes_node_html(view: &str) -> bool {
+    view != "edit"
 }
 
 /// Indent HTML
@@ -540,4 +549,45 @@ fn normalize_css(css: &str) -> String {
                 .unwrap_or_else(|_| css.to_string())
         })
         .unwrap_or_else(|_| css.to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    async fn standalone_for_view(view: &str) -> String {
+        standalone_html(
+            "doc1".to_string(),
+            NodeType::Article,
+            None,
+            None,
+            None,
+            "<stencila-article root>Test</stencila-article>".to_string(),
+            "/~static".to_string(),
+            false,
+            None,
+            view,
+            None,
+        )
+        .await
+    }
+
+    #[tokio::test]
+    async fn edit_view_does_not_include_rendered_node_html() {
+        let html = standalone_for_view("edit").await;
+
+        assert!(html.contains(
+            r#"<stencila-edit-view view=edit doc=doc1 type=Article></stencila-edit-view>"#
+        ));
+        assert!(!html.contains("<stencila-article"));
+    }
+
+    #[tokio::test]
+    async fn static_view_includes_rendered_node_html() {
+        let html = standalone_for_view("static").await;
+
+        assert!(html.contains(
+            r#"<stencila-static-view view=static doc=doc1 type=Article><stencila-article root>Test</stencila-article></stencila-static-view>"#
+        ));
+    }
 }

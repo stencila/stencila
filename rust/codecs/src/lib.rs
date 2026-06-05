@@ -69,6 +69,7 @@ use stencila_codec_png::PngCodec;
 use stencila_codec_rnw::RnwCodec;
 use stencila_codec_swb::SwbCodec;
 use stencila_codec_text::TextCodec;
+use stencila_codec_tiptap::TiptapCodec;
 use stencila_codec_xlsx::XlsxCodec;
 use stencila_codec_yaml::YamlCodec;
 use stencila_codec_zenodo::ZenodoCodec;
@@ -118,6 +119,7 @@ pub fn list() -> Vec<Box<dyn Codec>> {
         Box::new(PngCodec),
         Box::<SwbCodec>::default(),
         Box::new(TextCodec),
+        Box::new(TiptapCodec),
         Box::new(XlsxCodec),
         Box::new(YamlCodec),
         // arXiv codec supports from HTML but because after all others supporting HTML

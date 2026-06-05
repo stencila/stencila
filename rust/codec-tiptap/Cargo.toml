@@ -1,0 +1,19 @@
+[package]
+name = "stencila-codec-tiptap"
+version = "0.0.0"
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+monostate = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+serde_with = { workspace = true }
+stencila-codec = { path = "../codec" }
+
+[dev-dependencies]
+pretty_assertions = { workspace = true }
+
+[lints]
+workspace = true

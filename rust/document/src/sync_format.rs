@@ -266,11 +266,7 @@ impl Document {
                                 to: None,
                                 insert: Some(insert),
                             }) => {
-                                if current_content.is_empty() {
-                                    current_content.push_str(&insert);
-                                    updated = true;
-                                } else if let Some((from, ..)) =
-                                    current_content.char_indices().nth(from)
+                                if let Some(from) = char_index_to_byte_index(current_content, from)
                                 {
                                     current_content.insert_str(from, &insert);
                                     updated = true;
@@ -283,10 +279,9 @@ impl Document {
                                 to: Some(to),
                                 insert: None,
                             }) => {
-                                if let (Some((from, ..)), Some((to, ..))) = (
-                                    current_content.char_indices().nth(from),
-                                    current_content.char_indices().nth(to),
-                                ) {
+                                if let Some((from, to)) =
+                                    char_range_to_byte_range(current_content, from, to)
+                                {
                                     current_content.replace_range(from..to, "");
                                     updated = true;
                                 }
@@ -298,10 +293,9 @@ impl Document {
                                 to: Some(to),
                                 insert: Some(insert),
                             }) => {
-                                if let (Some((from, ..)), Some((to, ..))) = (
-                                    current_content.char_indices().nth(from),
-                                    current_content.char_indices().nth(to),
-                                ) {
+                                if let Some((from, to)) =
+                                    char_range_to_byte_range(current_content, from, to)
+                                {
                                     current_content.replace_range(from..to, &insert);
                                     updated = true;
                                 }
@@ -340,10 +334,15 @@ impl Document {
                         if let Ok(node) =
                             stencila_codecs::from_str(current_content, decode_options.clone()).await
                         {
-                            // TODO: update `format` should be based on the `path` & `decode_options`
-                            // and `authors` should use the local user
-                            if let Err(error) = update_sender.send((Update::new(node), None)).await
-                            {
+                            // TODO: update `authors` should use the local user
+                            let update = Update {
+                                node,
+                                format: decode_options
+                                    .as_ref()
+                                    .and_then(|options| options.format.clone()),
+                                ..Default::default()
+                            };
+                            if let Err(error) = update_sender.send((update, None)).await {
                                 tracing::error!("While sending root update: {error}");
                             }
                         }
@@ -463,6 +462,29 @@ impl Document {
     }
 }
 
+/// Convert a character index to a byte index.
+///
+/// Unlike `char_indices().nth(index)`, this accepts an index at EOF.
+fn char_index_to_byte_index(content: &str, index: usize) -> Option<usize> {
+    if index == content.chars().count() {
+        Some(content.len())
+    } else {
+        content.char_indices().nth(index).map(|(byte, ..)| byte)
+    }
+}
+
+/// Convert a character range to a byte range.
+fn char_range_to_byte_range(content: &str, from: usize, to: usize) -> Option<(usize, usize)> {
+    if from > to {
+        return None;
+    }
+
+    Some((
+        char_index_to_byte_index(content, from)?,
+        char_index_to_byte_index(content, to)?,
+    ))
+}
+
 /// Extract a character range from a string
 fn extract_chars(content: &str, range: Range<usize>) -> &str {
     let start_byte = content
@@ -492,6 +514,23 @@ mod tests {
     use tokio::sync::mpsc::channel;
 
     use super::*;
+
+    #[test]
+    fn char_indexes_accept_eof_and_unicode() -> Result<()> {
+        let content = "Hi 🌍";
+
+        assert_eq!(char_index_to_byte_index(content, 0), Some(0));
+        assert_eq!(char_index_to_byte_index(content, 3), Some(3));
+        assert_eq!(char_index_to_byte_index(content, 4), Some(content.len()));
+        assert_eq!(char_index_to_byte_index(content, 5), None);
+        assert_eq!(
+            char_range_to_byte_range(content, 3, 4),
+            Some((3, content.len()))
+        );
+        assert_eq!(char_range_to_byte_range(content, 4, 3), None);
+
+        Ok(())
+    }
 
     /// Test receiving patches from a client
     ///
@@ -570,6 +609,36 @@ mod tests {
             .await?;
         watch.changed().await.ok();
         assert_eq!(md().await?, "Hello friend\n");
+
+        // Test whole-document replacement ending at EOF
+        patch_sender
+            .send(FormatPatch {
+                version: 4,
+                ops: vec![FormatOperation::replace_content(0, 12, "Hi 🌍")],
+            })
+            .await?;
+        watch.changed().await.ok();
+        assert_eq!(md().await?, "Hi 🌍\n");
+
+        // Test insertion at EOF with Unicode content
+        patch_sender
+            .send(FormatPatch {
+                version: 5,
+                ops: vec![FormatOperation::insert_content(4, "!")],
+            })
+            .await?;
+        watch.changed().await.ok();
+        assert_eq!(md().await?, "Hi 🌍!\n");
+
+        // Test deletion ending at EOF with Unicode content
+        patch_sender
+            .send(FormatPatch {
+                version: 6,
+                ops: vec![FormatOperation::delete_content(4, 5)],
+            })
+            .await?;
+        watch.changed().await.ok();
+        assert_eq!(md().await?, "Hi 🌍\n");
 
         Ok(())
     }
