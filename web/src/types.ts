@@ -25,7 +25,7 @@ export type DocumentAccess =
  * The type of document view
  *
  * These are ordered in rough order of increasing document access
- * i.e `static` and `print` only require `read` access whereas
- * `visual` requires at least `edit` access.
+ * i.e `static` only requires `read` access whereas `edit`
+ * requires write access to a document format.
  */
-export type DocumentView = 'static' | 'live' | 'interactive' | 'dynamic'
+export type DocumentView = 'static' | 'live' | 'interactive' | 'dynamic' | 'edit'

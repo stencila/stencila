@@ -75,6 +75,7 @@ Several client classes are implemented, each using one or more of the WebSocket 
 | [`NodesClient`](src/clients/nodes.ts)           | `<ACCESS>.nodes`    | A client which forwards in-browser `stencila-node-patch` events (emitted by Web Components) to the server as `NodePatch`s.              |
 | [`DomClient`](src/clients/dom.ts)               | `read.html`         | Read-only client of a document's HTML which updates the browser DOM when it receive `FormatPatch`s from the server.                     |
 | [`CodeMirrorClient`](src/clients/codemirror.ts) | `<ACCESS>.<FORMAT>` | Read-write client of a document (represented in a particular format) which synchronizes content with a CodeMirror editor.               |
+| [`TiptapClient`](src/clients/tiptap.ts)         | `write.tiptap`      | Read-write client of a document represented as Tiptap JSON which synchronizes content with a Tiptap editor.                             |
 
 ## 🪟 Views
 
@@ -84,8 +85,9 @@ There are several views in the [`src/views`](src/views) folder which make use of
 | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------- |
 | `<stencila-static-view>`  | A static view of a document which does not update as the document changes, nor allows changes to it                                | None                                                  |
 | `<stencila-live-view>`    | A live view of a document which updates the browser DOM when the document changes but which does not allow changes to the document | `DomClient`                                           |
-| `<stencila-dynamic-view>` | A live view of the document which also allows the user to make changes to the document via Web Components for nodes                | `DomClient`and `NodesClient`                          |
+| `<stencila-dynamic-view>` | A live view of the document which also allows the user to make changes to the document via Web Components for nodes                | `DomClient` and `NodesClient`                         |
 | `<stencila-source-view>`  | A source code editor for a document                                                                                                | `CodeMirrorClient`                                    |
+| `<stencila-edit-view>`    | A Tiptap visual editor for a document                                                                                              | `TiptapClient`                                        |
 | `<stencila-split-view>`   | A split pane view with a source code editor and a dynamic view                                                                     | `<stencila-split-view>` and `<stencila-dynamic-view>` |
 | `<stencila-visual-view>`  | A visual (WYSIWYG) editor for a document including Web Components for nodes                                                        | `ProseMirrorClient` and `DomClient`                   |
 
@@ -190,7 +192,7 @@ The [`src/themes`](src/themes) folder contains builtin themes. Builtin themes (a
 
 ### Getting started
 
-In a console run Parcel (the bundler we use) in watch mode (so that JavaScript modules are hot loaded when their TypeScript source code changes) from this directory:
+In a console run Vite in watch mode (so that JavaScript modules are rebuilt when their TypeScript source code changes) from this directory:
 
 ```console
 npm start
@@ -250,7 +252,7 @@ npm run lint
 
 ### Testing
 
-At present we don't have comprehensive tests for this package ([coming soon!](https://github.com/stencila/stencila/issues/1781)) so, for now, the `npm test` script just checks the code using Typescript.
+The `npm test` script runs the Vitest unit test suite. Use `npm run typecheck` for a separate TypeScript check.
 
 ```console
 npm test
@@ -271,10 +273,7 @@ make audit lint test
 ```
 
 > [!NOTE]
-> The Parcel config currently uses `parcel/transformer-typescript-tsc` because of this [issue](https://github.com/parcel-bundler/parcel/issues/7425) related to decorators.
-
-> [!NOTE]
-> There is a `.postcssrc` config file even though PostCSS is not a direct dependency of this package. It is used to integrate Tailwind with Parcel (see https://parceljs.org/languages/css/#postcss) which in turn allows us to use Tailwind's @apply directive and utility classes in `./src/themes/*.css` files.
+> There is a `.postcssrc` config file even though PostCSS is not a direct dependency of this package. It is used to integrate Tailwind with Vite which in turn allows us to use Tailwind's @apply directive and utility classes in `./src/themes/*.css` files.
 
 > [!NOTE]
 > Themes are applied to the Shadow DOM of HTML-based document views using [Constructed Stylesheets](https://web.dev/articles/constructable-stylesheets). These do not allow the use of `@import`. Therefore the `postcss-import` plugin is used to inline these statements. This requires some oddities in the file paths used for font file in imported files. See the notes in the CSS file for existing fonts.

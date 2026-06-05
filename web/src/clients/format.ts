@@ -68,6 +68,109 @@ export interface FormatOperation {
 }
 
 /**
+ * Get the number of Unicode code points in a string.
+ */
+export function codePointLength(value: string): number {
+  return Array.from(value).length
+}
+
+/**
+ * Slice a string using Unicode code point indexes.
+ */
+export function codePointSlice(
+  value: string,
+  from: number,
+  to?: number
+): string {
+  return Array.from(value).slice(from, to).join('')
+}
+
+/**
+ * Convert a UTF-16 string index to a Unicode code point index.
+ */
+export function utf16IndexToCodePointIndex(
+  value: string,
+  index: number
+): number {
+  return codePointLength(value.slice(0, index))
+}
+
+/**
+ * Convert a Unicode code point index to a UTF-16 string index.
+ */
+export function codePointIndexToUtf16Index(
+  value: string,
+  index: number
+): number | undefined {
+  if (index < 0) {
+    return undefined
+  }
+
+  let codePoints = 0
+  let utf16Index = 0
+  for (const char of value) {
+    if (codePoints === index) {
+      return utf16Index
+    }
+
+    utf16Index += char.length
+    codePoints += 1
+  }
+
+  return codePoints === index ? value.length : undefined
+}
+
+/**
+ * Apply one content operation using Unicode code point indexes.
+ */
+export function applyContentOperation(
+  state: string,
+  op: FormatOperation
+): string | undefined {
+  const { type, from, to, insert } = op
+  const length = codePointLength(state)
+
+  if (type === 'reset' && insert !== undefined) {
+    return insert
+  }
+
+  if (
+    type === 'insert' &&
+    typeof from === 'number' &&
+    from >= 0 &&
+    from <= length &&
+    insert !== undefined
+  ) {
+    return codePointSlice(state, 0, from) + insert + codePointSlice(state, from)
+  }
+
+  if (
+    type === 'delete' &&
+    typeof from === 'number' &&
+    typeof to === 'number' &&
+    from >= 0 &&
+    from <= to &&
+    to <= length
+  ) {
+    return codePointSlice(state, 0, from) + codePointSlice(state, to)
+  }
+
+  if (
+    type === 'replace' &&
+    typeof from === 'number' &&
+    typeof to === 'number' &&
+    from >= 0 &&
+    from <= to &&
+    to <= length &&
+    insert !== undefined
+  ) {
+    return codePointSlice(state, 0, from) + insert + codePointSlice(state, to)
+  }
+
+  return undefined
+}
+
+/**
  * An entry in the mapping between character positions and nodes and their properties
  *
  * Uses offsets for the start and end positions (rather than absolute values) to reduce
@@ -147,7 +250,7 @@ export abstract class FormatClient extends Client {
    */
   protected sendPatch(ops: FormatOperation[]) {
     const modified = ops.find((op) =>
-      ['reset', 'insert', 'replace', 'delete'].includes(op.type)
+      ['reset', 'insert', 'replace', 'delete'].includes(op.type ?? '')
     )
 
     this.sendMessage({
@@ -167,7 +270,7 @@ export abstract class FormatClient extends Client {
    * local, in-browser, version of the string.
    */
   override receiveMessage(message: Record<string, unknown>) {
-    const { version, ops } = message as unknown as FormatPatch
+    const { version, ops = [] } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
     const isReset = ops.length >= 1 && ops[0].type === 'reset'
@@ -181,32 +284,9 @@ export abstract class FormatClient extends Client {
     // Apply each operation in the patch
     let updated = false
     for (const op of ops) {
-      const { type, from, to, insert } = op
-
-      if (type === 'reset' && insert !== undefined) {
-        this.state = insert
-        updated = true
-      } else if (
-        type === 'insert' &&
-        typeof from === 'number' &&
-        insert !== undefined
-      ) {
-        this.state = this.state.slice(0, from) + insert + this.state.slice(from)
-        updated = true
-      } else if (
-        type === 'delete' &&
-        typeof from === 'number' &&
-        typeof to === 'number'
-      ) {
-        this.state = this.state.slice(0, from) + this.state.slice(to)
-        updated = true
-      } else if (
-        type === 'replace' &&
-        typeof from === 'number' &&
-        typeof to === 'number' &&
-        insert !== undefined
-      ) {
-        this.state = this.state.slice(0, from) + insert + this.state.slice(to)
+      const nextState = applyContentOperation(this.state, op)
+      if (nextState !== undefined) {
+        this.state = nextState
         updated = true
       } else if (op.op !== undefined) {
         if (op.op == 'replace' && op.path === '') {

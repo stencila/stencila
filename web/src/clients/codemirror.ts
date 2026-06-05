@@ -1,9 +1,21 @@
-import { Extension, SelectionRange, TransactionSpec } from '@codemirror/state'
+import {
+  ChangeSpec,
+  Extension,
+  SelectionRange,
+  TransactionSpec,
+} from '@codemirror/state'
 import { EditorView, ViewUpdate } from '@codemirror/view'
 
 import type { DocumentAccess, DocumentId, NodeId } from '../types'
 
-import { FormatClient, FormatOperation, FormatPatch } from './format'
+import {
+  FormatClient,
+  FormatOperation,
+  FormatPatch,
+  codePointIndexToUtf16Index,
+  codePointLength,
+  utf16IndexToCodePointIndex,
+} from './format'
 
 /// The number milliseconds to debounce sending updates
 const SEND_DEBOUNCE = 300
@@ -107,7 +119,10 @@ export class CodeMirrorClient extends FormatClient {
           if (
             prev.type === 'insert' &&
             current.type === 'insert' &&
-            +prev.from + prev.insert.length === current.from
+            typeof prev.from === 'number' &&
+            typeof current.from === 'number' &&
+            prev.insert !== undefined &&
+            +prev.from + codePointLength(prev.insert) === current.from
           ) {
             ops[ops.length - 1] = {
               ...prev,
@@ -150,6 +165,8 @@ export class CodeMirrorClient extends FormatClient {
       }
 
       let newOperations = false
+      const previousState = update.startState.doc.toString()
+      const currentState = update.state.doc.toString()
 
       // Update the selection if necessary
       const selection = update.view.state.selection.main
@@ -167,21 +184,27 @@ export class CodeMirrorClient extends FormatClient {
 
         // Add this one
         const { from, to } = selection
-        this.bufferedOperations.push({ type: 'selection', from, to })
+        this.bufferedOperations.push({
+          type: 'selection',
+          from: utf16IndexToCodePointIndex(currentState, from),
+          to: utf16IndexToCodePointIndex(currentState, to),
+        })
         newOperations = true
       }
 
       // Send changes
       update.changes.iterChanges((from, to, _fromB, _toB, inserted) => {
         const insert = inserted.toJSON().join('\n')
+        const fromIndex = utf16IndexToCodePointIndex(previousState, from)
+        const toIndex = utf16IndexToCodePointIndex(previousState, to)
 
         let op: FormatOperation
         if (from === to && insert) {
-          op = { type: 'insert', from, insert }
+          op = { type: 'insert', from: fromIndex, insert }
         } else if (from !== to && !insert) {
-          op = { type: 'delete', from, to }
+          op = { type: 'delete', from: fromIndex, to: toIndex }
         } else if (from !== to && insert) {
-          op = { type: 'replace', from, to, insert }
+          op = { type: 'replace', from: fromIndex, to: toIndex, insert }
         } else {
           return
         }
@@ -241,7 +264,7 @@ export class CodeMirrorClient extends FormatClient {
    * view instead of updating `this.state`
    */
   override receiveMessage(message: Record<string, unknown>) {
-    const { version, ops } = message as unknown as FormatPatch
+    const { version, ops = [] } = message as unknown as FormatPatch
 
     // Is the patch a reset patch?
     const isReset = ops.length >= 1 && ops[0].type === 'reset'
@@ -264,9 +287,43 @@ export class CodeMirrorClient extends FormatClient {
         selection: this.editor.state.selection,
       })
     } else {
-      const changes = ops.filter((op) => op.type !== undefined) as ({
-        from: number
-      } & FormatOperation)[]
+      const state = this.editor.state.doc.toString()
+      const changes: ChangeSpec[] = []
+      for (const op of ops) {
+        const { type, from, to, insert } = op
+        if (typeof from !== 'number') {
+          continue
+        }
+
+        const fromIndex = codePointIndexToUtf16Index(state, from)
+        if (fromIndex === undefined) {
+          continue
+        }
+
+        if (type === 'insert' && insert !== undefined) {
+          changes.push({ from: fromIndex, insert })
+          continue
+        }
+
+        if (
+          (type === 'delete' || type === 'replace') &&
+          typeof to === 'number'
+        ) {
+          const toIndex = codePointIndexToUtf16Index(state, to)
+          if (toIndex === undefined) {
+            continue
+          }
+
+          if (type === 'delete') {
+            changes.push({ from: fromIndex, to: toIndex })
+            continue
+          }
+
+          if (insert !== undefined) {
+            changes.push({ from: fromIndex, to: toIndex, insert })
+          }
+        }
+      }
       transaction = { changes }
     }
 

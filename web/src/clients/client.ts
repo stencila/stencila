@@ -1,5 +1,7 @@
 import { type DocumentId } from '../types'
 
+const WEBSOCKET_CLOSING_READY_STATE = 2
+
 /**
  * The abstract base class for all clients
  *
@@ -26,6 +28,11 @@ export abstract class Client {
   private ws: WebSocket
 
   /**
+   * Whether the client has been explicitly closed
+   */
+  private closed = false
+
+  /**
    * Status of the websocket connection
    */
   private hasConnected: boolean = false
@@ -39,6 +46,11 @@ export abstract class Client {
    * Current reconnection interval
    */
   private currentReconnectInterval: number = this.initialReconnectInterval
+
+  /**
+   * Pending reconnect timer, if the socket has disconnected
+   */
+  private reconnectTimer?: ReturnType<typeof setTimeout>
 
   /**
    * Construct a new document client
@@ -57,6 +69,10 @@ export abstract class Client {
    * @param subprotocol The WebSocket subprotocol to use
    */
   private connect(id: DocumentId, subprotocol: string) {
+    if (this.closed) {
+      return
+    }
+
     const protocol = window.location.protocol === 'http:' ? 'ws' : 'wss'
     const host = window.location.host
     const url = `${protocol}://${host}/~documents/${id}/websocket`
@@ -80,17 +96,23 @@ export abstract class Client {
         )
       )
 
+      this.handleConnected()
       this.hasConnected = true
     }
 
     this.ws.onclose = () => {
+      if (this.closed) {
+        return
+      }
+
       console.debug(`🔌 ${this.constructor.name} disconnected`)
 
       document.body.classList.add(`${clientType}-disconnected`)
 
       window.dispatchEvent(new CustomEvent(`${clientType}-disconnected`))
 
-      setTimeout(
+      this.handleDisconnected()
+      this.reconnectTimer = setTimeout(
         () => {
           if (this.currentReconnectInterval < 120000) {
             this.currentReconnectInterval *= 1.5
@@ -111,6 +133,29 @@ export abstract class Client {
       this.receiveMessage(message)
     }
   }
+
+  /**
+   * Close the WebSocket connection and stop reconnecting.
+   */
+  public close() {
+    this.closed = true
+    clearTimeout(this.reconnectTimer)
+    this.reconnectTimer = undefined
+
+    if (this.ws.readyState < WEBSOCKET_CLOSING_READY_STATE) {
+      this.ws.close()
+    }
+  }
+
+  /**
+   * Called when the client's WebSocket connects.
+   */
+  protected handleConnected() {}
+
+  /**
+   * Called when the client's WebSocket disconnects.
+   */
+  protected handleDisconnected() {}
 
   /**
    * Receive a message from the server

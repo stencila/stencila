@@ -1,0 +1,404 @@
+/**
+ * Styles for the Tiptap-backed edit view.
+ *
+ * This file exists separately from the base theme because the edit view renders
+ * ProseMirror's generated HTML, not Stencila Web Components. The rules below
+ * bridge those ProseMirror elements to the same design tokens used by document
+ * themes, while also styling editor-only chrome such as sync status and opaque
+ * placeholders for unsupported Stencila nodes.
+ */
+
+/* Host element: make the custom element fill the viewport like other views. */
+stencila-edit-view {
+  display: block;
+  min-height: 100vh;
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #1f2933);
+}
+
+/* View shell: provide page padding around the editable document surface. */
+.stencila-edit-view {
+  min-height: 100vh;
+  padding: var(--space-8, 2rem) var(--space-4, 1rem)
+    var(--space-10, 2.5rem);
+}
+
+/* Sync status: lightweight sticky chrome that does not intercept editor input. */
+.stencila-edit-status {
+  position: sticky;
+  top: var(--space-3, 0.75rem);
+  z-index: 1;
+  display: flex;
+  justify-content: flex-end;
+  max-width: var(--work-content-max-width, var(--content-width, 65ch));
+  height: 1.75rem;
+  margin: 0 auto;
+  pointer-events: none;
+}
+
+/* Status badge: compact label for connection and synchronization state. */
+.stencila-edit-status span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 5.5rem;
+  height: 1.5rem;
+  padding: 0 var(--space-2, 0.5rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(
+    --surface-elevated,
+    color-mix(in srgb, var(--surface-background, #ffffff) 92%, transparent)
+  );
+  color: var(
+    --text-color-secondary,
+    color-mix(in srgb, currentColor 72%, transparent)
+  );
+  font-family: var(--layout-font-family, system-ui, sans-serif);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1;
+}
+
+/* Editor mount: reserve vertical space before ProseMirror initializes. */
+.stencila-tiptap-editor {
+  min-height: calc(100vh - 7rem);
+}
+
+/* ProseMirror root: constrain the editable document to theme content width. */
+.stencila-tiptap-editor .ProseMirror {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: var(--work-content-max-width, var(--content-width, 65ch));
+  min-height: calc(100vh - 7rem);
+  margin: 0 auto;
+  overflow-wrap: break-word;
+  background-color: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #1f2933);
+  font-family: var(--text-font-family, ui-serif, Georgia, serif);
+  font-size: var(--text-font-size, 1rem);
+  line-height: var(--text-line-height, 1.5);
+  letter-spacing: var(--text-letter-spacing, 0);
+  outline: none;
+}
+
+/* Paragraphs: map ProseMirror paragraph elements onto document theme tokens. */
+.stencila-tiptap-editor .ProseMirror p {
+  margin: var(--paragraph-spacing, var(--content-spacing, 1rem)) 0;
+  line-height: var(--paragraph-line-height, var(--text-line-height, 1.5));
+  text-align: var(--paragraph-text-align, left);
+  text-indent: var(--paragraph-text-indent, 0);
+  hyphens: var(--paragraph-hyphens, none);
+  orphans: var(--paragraph-orphans, 3);
+  widows: var(--paragraph-widows, 3);
+  text-wrap: var(--paragraph-text-wrap, pretty);
+}
+
+/* Headings: share typography rules before per-level token overrides. */
+.stencila-tiptap-editor .ProseMirror h1,
+.stencila-tiptap-editor .ProseMirror h2,
+.stencila-tiptap-editor .ProseMirror h3,
+.stencila-tiptap-editor .ProseMirror h4,
+.stencila-tiptap-editor .ProseMirror h5,
+.stencila-tiptap-editor .ProseMirror h6 {
+  margin-top: var(--stencila-heading-spacing-top);
+  margin-bottom: var(--stencila-heading-spacing-bottom);
+  padding: var(--stencila-heading-padding, 0);
+  border-bottom: var(--stencila-heading-border-width, 0)
+    var(--stencila-heading-border-style, solid)
+    var(--stencila-heading-border-color, transparent);
+  overflow-wrap: break-word;
+  opacity: calc(
+    1 - var(--heading-color-opacity-decrement, 0) *
+      var(--stencila-heading-level, 0)
+  );
+  background-color: var(--stencila-heading-background-color, transparent);
+  color: var(--stencila-heading-color, var(--heading-color, currentColor));
+  font-family: var(
+    --heading-font-family,
+    var(--text-font-family, system-ui, sans-serif)
+  );
+  font-size: var(--stencila-heading-font-size, var(--heading-font-size, 2rem));
+  font-style: var(--stencila-heading-font-style, normal);
+  font-variant: var(--stencila-heading-font-variant, normal);
+  font-weight: var(--stencila-heading-font-weight, var(--heading-font-weight, 700));
+  line-height: var(--heading-line-height, 1.2);
+  letter-spacing: var(
+    --stencila-heading-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+/* Heading levels: mirror the base theme's level-specific token cascade. */
+.stencila-tiptap-editor .ProseMirror h1 {
+  --stencila-heading-level: 0;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-1, 1.5rem);
+  --stencila-heading-spacing-bottom: var(--heading-spacing-bottom, 0.75rem);
+  --stencila-heading-padding: var(--heading-h1-padding, 0);
+  --stencila-heading-border-width: var(--heading-h1-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h1-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h1-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h1-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h1-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: var(--heading-font-size, 2rem);
+  --stencila-heading-font-style: var(--heading-h1-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h1-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h1-font-weight,
+    var(--heading-font-weight, 700)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h1-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror h2 {
+  --stencila-heading-level: 1;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-2, 1.25rem);
+  --stencila-heading-spacing-bottom: calc(
+    var(--heading-spacing-bottom, 0.75rem) * var(--heading-spacing-ratio, 0.8)
+  );
+  --stencila-heading-padding: var(--heading-h2-padding, 0);
+  --stencila-heading-border-width: var(--heading-h2-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h2-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h2-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h2-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h2-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: calc(
+    var(--heading-font-size, 2rem) * var(--heading-font-size-ratio, 0.85)
+  );
+  --stencila-heading-font-style: var(--heading-h2-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h2-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h2-font-weight,
+    var(--heading-font-weight, 650)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h2-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror h3 {
+  --stencila-heading-level: 2;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-3, 1rem);
+  --stencila-heading-spacing-bottom: calc(
+    var(--heading-spacing-bottom, 0.75rem) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8)
+  );
+  --stencila-heading-padding: var(--heading-h3-padding, 0);
+  --stencila-heading-border-width: var(--heading-h3-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h3-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h3-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h3-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h3-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: calc(
+    var(--heading-font-size, 2rem) * var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85)
+  );
+  --stencila-heading-font-style: var(--heading-h3-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h3-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h3-font-weight,
+    var(--heading-font-weight, 600)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h3-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror h4 {
+  --stencila-heading-level: 3;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-4, 0.875rem);
+  --stencila-heading-spacing-bottom: calc(
+    var(--heading-spacing-bottom, 0.75rem) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8) * var(--heading-spacing-ratio, 0.8)
+  );
+  --stencila-heading-padding: var(--heading-h4-padding, 0);
+  --stencila-heading-border-width: var(--heading-h4-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h4-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h4-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h4-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h4-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: calc(
+    var(--heading-font-size, 2rem) * var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85)
+  );
+  --stencila-heading-font-style: var(--heading-h4-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h4-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h4-font-weight,
+    var(--heading-font-weight, 550)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h4-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror h5 {
+  --stencila-heading-level: 4;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-5, 0.75rem);
+  --stencila-heading-spacing-bottom: calc(
+    var(--heading-spacing-bottom, 0.75rem) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8)
+  );
+  --stencila-heading-padding: var(--heading-h5-padding, 0);
+  --stencila-heading-border-width: var(--heading-h5-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h5-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h5-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h5-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h5-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: calc(
+    var(--heading-font-size, 2rem) * var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85)
+  );
+  --stencila-heading-font-style: var(--heading-h5-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h5-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h5-font-weight,
+    var(--heading-font-weight, 500)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h5-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror h6 {
+  --stencila-heading-level: 5;
+  --stencila-heading-spacing-top: var(--heading-spacing-top-6, 0.625rem);
+  --stencila-heading-spacing-bottom: calc(
+    var(--heading-spacing-bottom, 0.75rem) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8) * var(--heading-spacing-ratio, 0.8) *
+      var(--heading-spacing-ratio, 0.8) * var(--heading-spacing-ratio, 0.8)
+  );
+  --stencila-heading-padding: var(--heading-h6-padding, 0);
+  --stencila-heading-border-width: var(--heading-h6-border-width, 0);
+  --stencila-heading-border-style: var(--heading-h6-border-style, solid);
+  --stencila-heading-border-color: var(--heading-h6-border-color, transparent);
+  --stencila-heading-background-color: var(
+    --heading-h6-background-color,
+    transparent
+  );
+  --stencila-heading-color: var(
+    --heading-h6-color,
+    var(--heading-color, currentColor)
+  );
+  --stencila-heading-font-size: calc(
+    var(--heading-font-size, 2rem) * var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85) *
+      var(--heading-font-size-ratio, 0.85)
+  );
+  --stencila-heading-font-style: var(--heading-h6-font-style, normal);
+  --stencila-heading-font-variant: var(--heading-h6-font-variant, normal);
+  --stencila-heading-font-weight: var(
+    --heading-h6-font-weight,
+    var(--heading-font-weight, 450)
+  );
+  --stencila-heading-letter-spacing: var(
+    --heading-h6-letter-spacing,
+    var(--heading-letter-spacing, 0)
+  );
+}
+
+/* Adjacent heading spacing: reduce gaps in dense heading sequences. */
+.stencila-tiptap-editor .ProseMirror
+  :is(h1, h2, h3, h4, h5, h6)
+  + :is(h2, h3, h4, h5, h6) {
+  margin-top: calc(
+    var(--stencila-heading-spacing-top) *
+      var(--heading-spacing-adjacent-ratio, 0.5)
+  );
+}
+
+/* Lead paragraphs: apply theme lead styling to paragraphs after headings. */
+.stencila-tiptap-editor .ProseMirror :is(h1, h2, h3, h4, h5, h6) + p {
+  font-size: var(--paragraph-lead-font-size, inherit);
+  font-weight: var(--paragraph-lead-font-weight, inherit);
+  text-indent: var(--paragraph-lead-text-indent, 0);
+}
+
+/* Edge spacing: prevent extra whitespace at the top and bottom of the editor. */
+.stencila-tiptap-editor .ProseMirror > :first-child {
+  margin-top: 0;
+}
+
+.stencila-tiptap-editor .ProseMirror > :last-child {
+  margin-bottom: 0;
+}
+
+/* Opaque placeholders: preserve unsupported Stencila nodes as visible atoms. */
+.stencila-tiptap-opaque {
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-muted, color-mix(in srgb, currentColor 20%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(
+    --surface-sunken,
+    color-mix(in srgb, currentColor 5%, transparent)
+  );
+  color: var(
+    --text-color-secondary,
+    color-mix(in srgb, currentColor 76%, transparent)
+  );
+  font-family: var(
+    --font-family-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace
+  );
+  font-size: calc(var(--text-font-size, 1rem) * 0.85);
+}
+
+/* Block placeholders: give unsupported block nodes document-flow spacing. */
+.stencila-tiptap-opaque-block {
+  display: block;
+  margin: var(--content-spacing, 1rem) 0;
+  padding: calc(var(--content-spacing, 1rem) * 0.5);
+}
+
+/* Inline placeholders: keep unsupported inline nodes aligned with text. */
+.stencila-tiptap-opaque-inline {
+  display: inline-flex;
+  padding: 0 var(--space-1, 0.25rem);
+  vertical-align: baseline;
+}

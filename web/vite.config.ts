@@ -35,6 +35,24 @@ function basePath(): string {
   return `/~static/${version}/`
 }
 
+const ASSET_FILE_NAME_RULES = [
+  ['src/views/dynamic.ts', 'views/dynamic[extname]'],
+  ['src/views/edit.ts', 'views/edit[extname]'],
+  ['src/views/graph.ts', 'views/graph[extname]'],
+  ['src/themes/_base.ts', 'themes/base[extname]'],
+  ['src/themes/_latex.ts', 'themes/latex[extname]'],
+  ['src/themes/_tufte.ts', 'themes/tufte[extname]'],
+] as const
+
+function assetFileName(assetInfo: { originalFileNames?: string[] }): string {
+  const originalFileNames = assetInfo.originalFileNames ?? []
+  const rule = ASSET_FILE_NAME_RULES.find(([sourceFile]) =>
+    originalFileNames.some((fileName) => fileName.endsWith(sourceFile))
+  )
+
+  return rule?.[1] ?? '[name][extname]'
+}
+
 export default defineConfig({
   base: basePath(),
   build: {
@@ -46,6 +64,7 @@ export default defineConfig({
       input: {
         site: resolve(__dirname, 'src/site.ts'),
         'views/dynamic': resolve(__dirname, 'src/views/dynamic.ts'),
+        'views/edit': resolve(__dirname, 'src/views/edit.ts'),
         'views/graph': resolve(__dirname, 'src/views/graph.ts'),
         'views/static': resolve(__dirname, 'src/views/static.ts'),
         'themes/init': resolve(__dirname, 'src/themes/init.js'),
@@ -56,31 +75,7 @@ export default defineConfig({
       output: {
         entryFileNames: '[name].js',
         chunkFileNames: '[name]-[hash].js',
-        assetFileNames: (assetInfo) => {
-          const originalFileNames = assetInfo.originalFileNames ?? []
-
-          if (originalFileNames.some((fileName) => fileName.endsWith('src/views/dynamic.ts'))) {
-            return 'views/dynamic[extname]'
-          }
-
-          if (originalFileNames.some((fileName) => fileName.endsWith('src/views/graph.ts'))) {
-            return 'views/graph[extname]'
-          }
-
-          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_base.ts'))) {
-            return 'themes/base[extname]'
-          }
-
-          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_latex.ts'))) {
-            return 'themes/latex[extname]'
-          }
-
-          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_tufte.ts'))) {
-            return 'themes/tufte[extname]'
-          }
-
-          return '[name][extname]'
-        },
+        assetFileNames: assetFileName,
       },
     },
   },
