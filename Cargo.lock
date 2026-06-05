@@ -12875,6 +12875,7 @@ dependencies = [
  "tracing",
  "tracing-subscriber",
  "unicode-width",
+ "webbrowser",
 ]
 
 [[package]]

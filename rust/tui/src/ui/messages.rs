@@ -55,13 +55,20 @@ pub(super) fn render(frame: &mut Frame, app: &mut App, area: Rect) {
                 lines.push(Line::from(vec![
                     Span::styled(" ● ", Color::Blue),
                     Span::styled(SIDEBAR_CHAR, Color::Blue),
-                    Span::raw(" Site preview ready at: "),
+                    Span::raw(" Site preview ready. Use `/site open` to open it in your browser."),
                 ]));
+                // Do not render the full authenticated URL here: terminals detect
+                // clickable links line-by-line, so Ratatui wrapping can split the
+                // long `sst` token and make the clickable URL invalid. Show only
+                // the short base URL and let `/site open` use the full stored URL.
+                let short_url = url
+                    .split_once("/~login")
+                    .map_or(url.as_str(), |(base, _)| base);
                 lines.push(Line::from(vec![
                     Span::raw("   "),
                     Span::styled(SIDEBAR_CHAR, Color::Blue),
                     Span::raw(" "),
-                    Span::styled(url, Color::Blue),
+                    Span::styled(short_url.to_string(), Color::Blue),
                 ]));
             }
             AppMessage::System { content } => {

@@ -772,9 +772,12 @@ impl App {
     /// Message for accessing the active preview URL.
     pub fn site_preview_open_message(&self) -> String {
         match &self.site_preview_status {
-            SitePreviewStatus::Running { url } => {
-                format!("Site preview URL: {url}")
-            }
+            SitePreviewStatus::Running { url } => match webbrowser::open(url) {
+                Ok(()) => format!("Opened site preview in your browser: {url}"),
+                Err(error) => {
+                    format!("Site preview URL: {url}\nFailed to open browser: {error}")
+                }
+            },
             SitePreviewStatus::Starting => {
                 "Site preview is starting; the URL is not ready yet.".to_string()
             }
