@@ -1006,6 +1006,7 @@ fn formats_supported() -> Result<()> {
         Format::Latex,
         Format::Lexical,
         Format::Koenig,
+        Format::Tiptap,
     ] {
         let mut p1 = p([t("Hello!")]);
         let p2 = p([t("Hello world")]);

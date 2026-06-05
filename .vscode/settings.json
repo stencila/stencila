@@ -172,6 +172,7 @@
         "tempfile",
         "templating",
         "timedelta",
+        "Tiptap",
         "Transactable",
         "transclude",
         "transpiling",

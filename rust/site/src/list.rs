@@ -77,6 +77,7 @@ fn categorize_file(path: &Path) -> FileCategory {
             | Format::Xlsx
             // Other
             | Format::Lexical
+            | Format::Tiptap
             | Format::Directory
             | Format::Swb
             | Format::Meca

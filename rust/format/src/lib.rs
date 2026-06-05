@@ -92,6 +92,7 @@ pub enum Format {
     Yaml,
     Lexical,
     Koenig,
+    Tiptap,
     Oxa,
     Pandoc,
     // Bibliographic data formats
@@ -227,6 +228,7 @@ impl Format {
             Tailwind => "Tailwind",
             Tex => "TeX",
             Text => "Plain text",
+            Tiptap => "Tiptap JSON",
             Toml => "TOML",
             Tsv => "TSV",
             TypeScript => "TypeScript",
@@ -384,6 +386,7 @@ impl Format {
                 | Ipynb
                 | Lexical
                 | Koenig
+                | Tiptap
                 | Cytoscape
                 | Echarts
                 | Plotly
@@ -450,6 +453,7 @@ impl Format {
             "koenig" => Koenig,
             "latex" => Latex,
             "lexical" => Lexical,
+            "tiptap" | "prosemirror" => Tiptap,
             "llmd" | "llmmd" => Llmd,
             "markdown" | "md" => Markdown,
             "matlab" | "m" => Matlab,
@@ -618,6 +622,7 @@ impl Format {
             Json => "application/json".to_string(),
             JsonZip => "application/json+zip".to_string(),
             JsonLd => "application/ld+json".to_string(),
+            Tiptap => "application/json".to_string(),
             Yaml => "application/yaml".to_string(),
             Xlsx => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string(),
             Xls => "application/vnd.ms-excel".to_string(),
@@ -748,6 +753,7 @@ impl Display for Format {
             Tailwind => "tailwind",
             Tex => "tex",
             Text => "text",
+            Tiptap => "tiptap",
             Toml => "toml",
             Tsv => "tsv",
             TypeScript => "ts",

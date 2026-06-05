@@ -154,6 +154,7 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                     Format::Myst => Some(quote!(Format::Myst)),
                     Format::Qmd => Some(quote!(Format::Qmd)),
                     Format::Smd => Some(quote!(Format::Smd)),
+                    Format::Tiptap => Some(quote!(Format::Tiptap)),
                     _ => None
                 } {
                     if !tokens.is_empty() {

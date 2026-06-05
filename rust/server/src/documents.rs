@@ -414,6 +414,7 @@ async fn websocket_for_document(
         Format::Smd,
         Format::Qmd,
         Format::Myst,
+        Format::Tiptap,
         Format::Yaml,
     ] {
         protocols.push(format!("read.{format}.stencila.org"));

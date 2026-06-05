@@ -116,7 +116,8 @@
           "qmd",
           "latex",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "proptest": {
