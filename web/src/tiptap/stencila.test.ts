@@ -2,9 +2,13 @@
  * Unit tests for Stencila-specific Tiptap extensions and their JSON shape.
  */
 import { Editor, type JSONContent, getSchema } from '@tiptap/core'
+import { redoDepth, undoDepth } from '@tiptap/pm/history'
+import { EditorState, type Transaction } from '@tiptap/pm/state'
+import type { EditorView } from '@tiptap/pm/view'
 import { describe, expect, it } from 'vitest'
 
 import { createStencilaTiptapExtensions } from './extensions'
+import { isHistoryPlugin } from './history'
 
 /**
  * Create a Tiptap editor using the same core extensions as the edit view.
@@ -15,6 +19,18 @@ function createEditor(content: JSONContent): Editor {
     extensions: createStencilaTiptapExtensions(),
     content,
   })
+}
+
+function paragraphJson(text: string): JSONContent {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text }],
+      },
+    ],
+  }
 }
 
 /**
@@ -162,6 +178,83 @@ describe('Stencila Tiptap extensions', () => {
           Boolean(plugin.props.handleClick)
         )
       ).toBe(true)
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('registers history commands backed by the history plugin', () => {
+    const editor = createEditor(paragraphJson('hello'))
+    const historyPlugin =
+      editor.extensionManager.plugins.find(isHistoryPlugin)
+    const undo = editor.extensionManager.commands.undo
+    const redo = editor.extensionManager.commands.redo
+
+    expect(historyPlugin).toBeDefined()
+    expect(undo).toBeTypeOf('function')
+    expect(redo).toBeTypeOf('function')
+
+    try {
+      let state = EditorState.create({
+        schema: editor.schema,
+        doc: editor.schema.nodeFromJSON(paragraphJson('hello')),
+        plugins: historyPlugin ? [historyPlugin] : [],
+      })
+      const view = {
+        dispatch(transaction: Transaction) {
+          state = state.apply(transaction)
+        },
+      } as EditorView
+      const commandProps = () =>
+        ({
+          editor: {
+            get state() {
+              return state
+            },
+          },
+          dispatch: (): undefined => undefined,
+          state,
+          tr: state.tr,
+          view,
+        }) as never
+
+      state = state.apply(state.tr.insertText(' world', 6))
+
+      expect(state.doc.textContent).toBe('hello world')
+      expect(undoDepth(state)).toBe(1)
+
+      expect(undo()(commandProps())).toBe(true)
+      expect(state.doc.textContent).toBe('hello')
+      expect(redoDepth(state)).toBe(1)
+
+      expect(redo()(commandProps())).toBe(true)
+      expect(state.doc.textContent).toBe('hello world')
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('registers undo and redo keyboard shortcuts', () => {
+    const editor = createEditor(paragraphJson('hello'))
+    const historyExtension = editor.extensionManager.extensions.find(
+      (extension) => extension.name === 'history'
+    )
+    const shortcuts = historyExtension?.config.addKeyboardShortcuts?.call({
+      editor,
+      extensions: [],
+      name: 'history',
+      options: historyExtension.options,
+      parent: undefined,
+      storage: {},
+      type: undefined,
+    })
+
+    try {
+      expect(Object.keys(shortcuts ?? {}).sort()).toEqual([
+        'Mod-Shift-z',
+        'Mod-y',
+        'Mod-z',
+      ])
     } finally {
       editor.destroy()
     }

@@ -9,6 +9,7 @@ import Italic from '@tiptap/extension-italic'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 
+import { History } from './history'
 import {
   CodeMark,
   LinkMark,
@@ -32,6 +33,7 @@ export function createStencilaTiptapExtensions(): Extensions {
     Paragraph,
     Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
     Text,
+    History,
     Bold,
     Italic,
     CodeMark,

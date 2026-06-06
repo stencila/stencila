@@ -23,16 +23,77 @@ stencila-edit-view {
     var(--space-10, 2.5rem);
 }
 
-/* Sync status: lightweight sticky chrome that does not intercept editor input. */
-.stencila-edit-status {
+/* Editor chrome: compact sticky controls above the document surface. */
+.stencila-edit-chrome {
   position: sticky;
   top: var(--space-3, 0.75rem);
   z-index: 1;
   display: flex;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2, 0.5rem);
   max-width: var(--work-content-max-width, var(--content-width, 65ch));
   height: 1.75rem;
   margin: 0 auto;
+}
+
+/* History toolbar: icon-only editing controls with stable button dimensions. */
+.stencila-edit-toolbar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+}
+
+.stencila-edit-tool {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.75rem;
+  height: 1.75rem;
+  padding: 0;
+  border: var(--border-width-default, 1px) solid transparent;
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: transparent;
+  color: var(
+    --text-color-secondary,
+    color-mix(in srgb, currentColor 72%, transparent)
+  );
+  cursor: pointer;
+}
+
+.stencila-edit-tool:hover:not(:disabled),
+.stencila-edit-tool:focus-visible {
+  border-color: var(
+    --border-color-default,
+    color-mix(in srgb, currentColor 18%, transparent)
+  );
+  background: var(
+    --surface-elevated,
+    color-mix(in srgb, var(--surface-background, #ffffff) 92%, transparent)
+  );
+  color: var(--text-color-primary, #1f2933);
+}
+
+.stencila-edit-tool:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid
+    var(--focus-ring-color, currentColor);
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+.stencila-edit-tool:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.stencila-edit-tool span {
+  width: 1rem;
+  height: 1rem;
+}
+
+/* Sync status: lightweight label for connection and synchronization state. */
+.stencila-edit-status {
+  display: flex;
+  justify-content: flex-end;
   pointer-events: none;
 }
 

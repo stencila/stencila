@@ -47,9 +47,20 @@ export class EditView extends LitElement {
   @state()
   private syncStatus = 'Connecting'
 
+  @state()
+  private canUndo = false
+
+  @state()
+  private canRedo = false
+
   private editor?: Editor
 
   private client?: TiptapClient
+
+  private updateHistoryState = () => {
+    this.canUndo = this.editor?.can().undo() ?? false
+    this.canRedo = this.editor?.can().redo() ?? false
+  }
 
   /**
    * Use Light DOM so document theme styles apply directly to editor content.
@@ -81,12 +92,17 @@ export class EditView extends LitElement {
         },
       },
     })
+    this.editor.on('transaction', this.updateHistoryState)
+    this.updateHistoryState()
 
     this.client = new TiptapClient(this.doc)
     this.client.status = (status) => {
       this.syncStatus = SYNC_STATUS_LABELS[status]
       if (status === 'synced' || status === 'reset') {
-        this.editor?.setEditable(true)
+        if (this.editor && !this.editor.isEditable) {
+          this.editor.setEditable(true, false)
+        }
+        this.updateHistoryState()
       }
     }
     this.client.receivePatches(this.editor)
@@ -95,16 +111,61 @@ export class EditView extends LitElement {
   override disconnectedCallback() {
     this.client?.destroy()
     this.client = undefined
+    this.editor?.off('transaction', this.updateHistoryState)
     this.editor?.destroy()
     this.editor = undefined
     super.disconnectedCallback()
   }
 
+  private keepEditorFocused(event: MouseEvent) {
+    event.preventDefault()
+  }
+
+  private undo() {
+    if (this.editor?.commands.undo()) {
+      this.editor.view.focus()
+      this.updateHistoryState()
+    }
+  }
+
+  private redo() {
+    if (this.editor?.commands.redo()) {
+      this.editor.view.focus()
+      this.updateHistoryState()
+    }
+  }
+
   override render() {
     return html`
       <div class="stencila-edit-view" data-root-type=${this.type}>
-        <div class="stencila-edit-status">
-          <span>${this.syncStatus}</span>
+        <div class="stencila-edit-chrome">
+          <div class="stencila-edit-toolbar" role="toolbar" aria-label="Editor history">
+            <button
+              type="button"
+              class="stencila-edit-tool"
+              aria-label="Undo"
+              title="Undo (Ctrl/Cmd+Z)"
+              ?disabled=${!this.canUndo}
+              @mousedown=${this.keepEditorFocused}
+              @click=${this.undo}
+            >
+              <span class="i-lucide:undo-2" aria-hidden="true"></span>
+            </button>
+            <button
+              type="button"
+              class="stencila-edit-tool"
+              aria-label="Redo"
+              title="Redo (Ctrl/Cmd+Shift+Z)"
+              ?disabled=${!this.canRedo}
+              @mousedown=${this.keepEditorFocused}
+              @click=${this.redo}
+            >
+              <span class="i-lucide:redo-2" aria-hidden="true"></span>
+            </button>
+          </div>
+          <div class="stencila-edit-status">
+            <span>${this.syncStatus}</span>
+          </div>
         </div>
         <div class="stencila-tiptap-editor"></div>
       </div>
