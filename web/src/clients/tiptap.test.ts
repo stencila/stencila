@@ -4,10 +4,18 @@
  * These tests use small browser and editor doubles so the client can be tested
  * without constructing a real WebSocket connection or ProseMirror editor.
  */
+import { Editor as TiptapEditor } from '@tiptap/core'
 import type { Editor } from '@tiptap/core'
+import Document from '@tiptap/extension-document'
+import Paragraph from '@tiptap/extension-paragraph'
+import Text from '@tiptap/extension-text'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { TiptapClient } from './tiptap'
+
+const EditableDocument = Document.extend({
+  content: 'block*',
+})
 
 /**
  * Minimal WebSocket test double that records messages sent by the client.
@@ -105,6 +113,26 @@ function createEditor(initialJson: unknown) {
   }
 }
 
+function paragraphJson(text: string) {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [{ type: 'text', text }],
+      },
+    ],
+  }
+}
+
+function createTiptapEditor(content: unknown) {
+  return new TiptapEditor({
+    element: null,
+    extensions: [EditableDocument, Paragraph, Text],
+    content,
+  })
+}
+
 describe('TiptapClient', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -195,5 +223,67 @@ describe('TiptapClient', () => {
     expect(off).toHaveBeenCalled()
     expect(FakeWebSocket.instances[0].closed).toBe(true)
     expect(FakeWebSocket.instances[0].sent).toEqual([])
+  })
+
+  it('preserves editor selection when replacing content from the server', () => {
+    const json = paragraphJson('hello world')
+    const compactJson = JSON.stringify(json)
+    const prettyJson = JSON.stringify(json, null, 2)
+
+    vi.unstubAllGlobals()
+    const editor = createTiptapEditor(json)
+    installBrowserMocks()
+    const client = new TiptapClient('doc1')
+
+    try {
+      client.receivePatches(editor)
+      client.receiveMessage({
+        version: 1,
+        ops: [{ type: 'reset', insert: compactJson }],
+      })
+
+      editor.commands.setTextSelection({ from: 7, to: 2 })
+
+      client.receiveMessage({
+        version: 2,
+        ops: [{ type: 'reset', insert: prettyJson }],
+      })
+
+      expect(editor.state.selection.from).toBe(2)
+      expect(editor.state.selection.to).toBe(7)
+      expect(editor.state.selection.anchor).toBe(7)
+      expect(editor.state.selection.head).toBe(2)
+    } finally {
+      client.destroy()
+      editor.destroy()
+    }
+  })
+
+  it('collapses initial empty-editor selection after server content loads', () => {
+    const json = paragraphJson('hello world')
+    const compactJson = JSON.stringify(json)
+
+    vi.unstubAllGlobals()
+    const editor = createTiptapEditor({
+      type: 'doc',
+      content: [],
+    })
+    installBrowserMocks()
+    const client = new TiptapClient('doc1')
+
+    try {
+      client.receivePatches(editor)
+      client.receiveMessage({
+        version: 1,
+        ops: [{ type: 'reset', insert: compactJson }],
+      })
+
+      expect(editor.state.selection.empty).toBe(true)
+      expect(editor.state.selection.anchor).toBe(1)
+      expect(editor.state.selection.head).toBe(1)
+    } finally {
+      client.destroy()
+      editor.destroy()
+    }
   })
 })
