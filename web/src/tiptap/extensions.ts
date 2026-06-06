@@ -9,6 +9,14 @@ import Italic from '@tiptap/extension-italic'
 import Paragraph from '@tiptap/extension-paragraph'
 import Text from '@tiptap/extension-text'
 
+import {
+  CodeMark,
+  LinkMark,
+  StrikeoutMark,
+  SubscriptMark,
+  SuperscriptMark,
+  UnderlineMark,
+} from './marks'
 import { StencilaBlock, StencilaInline } from './stencila'
 
 const EditableDocument = Document.extend({
@@ -26,6 +34,12 @@ export function createStencilaTiptapExtensions(): Extensions {
     Text,
     Bold,
     Italic,
+    CodeMark,
+    StrikeoutMark,
+    UnderlineMark,
+    SubscriptMark,
+    SuperscriptMark,
+    LinkMark,
     StencilaBlock,
     StencilaInline,
   ]

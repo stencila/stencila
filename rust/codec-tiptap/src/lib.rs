@@ -1,11 +1,12 @@
 //! Codec for Tiptap / ProseMirror JSON.
 //!
-//! The initial native mapping is intentionally small: document roots, headings,
-//! paragraphs, text, and bold/italic marks. Other Stencila block and inline nodes
-//! are preserved in custom opaque `stencilaBlock` and `stencilaInline` nodes so
-//! they can round-trip through Tiptap without being editable as native Tiptap
-//! structures. Unsupported native Tiptap nodes and marks are decoded with losses
-//! until explicit mappings are added.
+//! The native mapping is intentionally small: document roots, headings,
+//! paragraphs, text, and common inline marks such as bold, italic, links, code,
+//! strikeout, underline, subscript, and superscript. Other Stencila block and
+//! inline nodes are preserved in custom opaque `stencilaBlock` and
+//! `stencilaInline` nodes so they can round-trip through Tiptap without being
+//! editable as native Tiptap structures. Unsupported native Tiptap nodes and
+//! marks are decoded with losses until explicit mappings are added.
 
 use stencila_codec::{
     Codec, DecodeInfo, DecodeOptions, EncodeInfo, EncodeOptions, async_trait, eyre::Result,

@@ -5,6 +5,8 @@
 
 use stencila_codec::Losses;
 
+use crate::tiptap::MarkAttrs;
+
 /// The context for decoding from Tiptap JSON.
 #[derive(Default)]
 pub(super) struct TiptapDecodeContext {
@@ -20,10 +22,22 @@ pub(super) struct TiptapEncodeContext {
 }
 
 /// Text mark state applied while encoding nested Stencila inline nodes.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub(super) enum MarkKind {
     /// Bold text.
     Bold,
+    /// Inline code.
+    Code(MarkAttrs),
     /// Italic text.
     Italic,
+    /// Linked text.
+    Link(MarkAttrs),
+    /// Struck out text.
+    Strikeout,
+    /// Subscripted text.
+    Subscript,
+    /// Superscripted text.
+    Superscript,
+    /// Underlined text.
+    Underline,
 }

@@ -7,7 +7,7 @@
 
 use monostate::MustBe;
 use serde::{Deserialize, Serialize};
-use serde_json::Value;
+use serde_json::{Map, Value};
 
 /// The root Tiptap document node.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -138,6 +138,51 @@ pub(super) enum Mark {
 pub(super) struct KnownMark {
     /// The mark type.
     pub r#type: MarkType,
+
+    /// Mark attributes.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub attrs: Option<MarkAttrs>,
+}
+
+/// Attributes for native Tiptap marks.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct MarkAttrs {
+    /// Link destination URL.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub href: Option<String>,
+
+    /// Advisory link title.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub title: Option<String>,
+
+    /// Relationship between the document and target.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub rel: Option<String>,
+
+    /// Whether a link should show only the internal target label.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label_only: Option<bool>,
+
+    /// Programming language for inline code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub programming_language: Option<String>,
+
+    /// Unsupported mark attributes captured so conversion can report losses.
+    #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
+    pub extra: Map<String, Value>,
+}
+
+impl MarkAttrs {
+    /// Whether this mark has no attributes to serialize.
+    pub fn is_empty(&self) -> bool {
+        self.href.is_none()
+            && self.title.is_none()
+            && self.rel.is_none()
+            && self.label_only.is_none()
+            && self.programming_language.is_none()
+            && self.extra.is_empty()
+    }
 }
 
 /// Native Tiptap mark types supported by this codec.
@@ -146,8 +191,21 @@ pub(super) struct KnownMark {
 pub(super) enum MarkType {
     /// Bold text.
     Bold,
+    /// Inline code.
+    Code,
     /// Italic text.
     Italic,
+    /// Linked text.
+    Link,
+    /// Struck out text.
+    #[serde(rename = "strike")]
+    Strikeout,
+    /// Subscripted text.
+    Subscript,
+    /// Superscripted text.
+    Superscript,
+    /// Underlined text.
+    Underline,
 }
 
 /// Get the Tiptap `type` string for a raw JSON node or mark.

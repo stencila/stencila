@@ -94,6 +94,61 @@ stencila-edit-view {
   text-wrap: var(--paragraph-text-wrap, pretty);
 }
 
+/* Links: apply document link tokens to native ProseMirror anchors. */
+.stencila-tiptap-editor .ProseMirror a[href] {
+  color: var(--link-color, var(--color-accent, #2563eb));
+  text-decoration: var(--link-decoration, underline);
+  text-decoration-thickness: var(--link-decoration-thickness, 1px);
+  text-underline-offset: var(--link-underline-offset, 0.15em);
+  transition: color var(--link-transition-duration, 150ms) ease;
+  cursor: pointer;
+}
+
+.stencila-tiptap-editor .ProseMirror a[href]:visited {
+  color: var(
+    --link-color-visited,
+    var(--link-color, var(--color-purple-700, #7e22ce))
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror a[href]:hover,
+.stencila-tiptap-editor .ProseMirror a[href]:focus {
+  color: var(
+    --link-color-hover,
+    var(--link-color, var(--color-blue-700, #1d4ed8))
+  );
+  text-decoration: var(--link-decoration-hover, underline);
+}
+
+.stencila-tiptap-editor .ProseMirror a[href]:focus-visible {
+  border-radius: var(--link-focus-border-radius, var(--radius-xs, 0.125rem));
+  outline: var(--link-focus-ring-width, var(--focus-ring-width, 2px)) solid
+    var(--link-focus-ring-color, var(--focus-ring-color, currentColor));
+  outline-offset: var(--link-focus-ring-offset, var(--focus-ring-offset, 2px));
+}
+
+/* Inline code: mirror the CodeInline component styles for Tiptap code marks. */
+.stencila-tiptap-editor .ProseMirror :not(pre) > code {
+  font-family: var(
+    --code-font-family,
+    var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace)
+  );
+  font-size: var(--code-font-size-inline, inherit);
+  line-height: var(--code-line-height, 150%);
+  color: var(--code-color-inline, inherit);
+  background: var(
+    --code-background-inline,
+    var(
+      --code-background,
+      color-mix(in srgb, black 5%, var(--surface-background, #ffffff))
+    )
+  );
+  padding: var(--code-padding-inline, 0.05em 0.25em);
+  border-radius: var(--code-border-radius, var(--radius-sm, 0.25rem));
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+}
+
 /* Headings: share typography rules before per-level token overrides. */
 .stencila-tiptap-editor .ProseMirror h1,
 .stencila-tiptap-editor .ProseMirror h2,

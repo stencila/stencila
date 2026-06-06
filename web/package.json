@@ -64,6 +64,7 @@
     "@tiptap/extension-document": "3.25.0",
     "@tiptap/extension-heading": "3.25.0",
     "@tiptap/extension-italic": "3.25.0",
+    "@tiptap/extension-link": "3.25.0",
     "@tiptap/extension-paragraph": "3.25.0",
     "@tiptap/extension-text": "3.25.0",
     "@twind/core": "1.1.3",

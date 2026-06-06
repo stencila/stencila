@@ -1,18 +1,90 @@
 use pretty_assertions::assert_eq;
+use serde_json::{Value, json};
 use stencila_codec::{
-    eyre::{Result, bail},
     Losses,
+    eyre::{Result, bail},
     stencila_schema::{
-        Article, Block, CodeChunk, Emphasis, Heading, Inline, MathInline, Node, Paragraph, Strong,
-        Text,
+        Article, Block, CodeChunk, CodeInline, Emphasis, Heading, Inline, Link, MathInline, Node,
+        Paragraph, Strikeout, Strong, Subscript, Superscript, Text, Underline,
     },
 };
 use stencila_codec_tiptap::{decode, encode};
 
-const SUPPORTED_CANONICAL_JSON: &str = r#"{"type":"doc","content":[{"type":"heading","attrs":{"level":2},"content":[{"type":"text","text":"Title"}]},{"type":"paragraph","content":[{"type":"text","text":"Hello "},{"type":"text","marks":[{"type":"bold"}],"text":"bold"},{"type":"text","text":" and "},{"type":"text","marks":[{"type":"italic"}],"text":"italic"}]}]}"#;
-
 fn losses_json(losses: &Losses) -> Result<serde_json::Value> {
     Ok(serde_json::to_value(losses)?)
+}
+
+fn encoded_json(json: &str) -> Result<Value> {
+    Ok(serde_json::from_str(json)?)
+}
+
+fn supported_inline_marks_json() -> Value {
+    json!({
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {"type": "text", "marks": [{"type": "bold"}], "text": "bold"},
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "italic"}], "text": "italic"},
+                    {"type": "text", "text": " "},
+                    {
+                        "type": "text",
+                        "marks": [{
+                            "type": "link",
+                            "attrs": {
+                                "href": "https://example.com",
+                                "title": "Example",
+                                "rel": "noopener",
+                            },
+                        }],
+                        "text": "link",
+                    },
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "code"}], "text": "code"},
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "strike"}], "text": "strike"},
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "underline"}], "text": "under"},
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "subscript"}], "text": "sub"},
+                    {"type": "text", "text": " "},
+                    {"type": "text", "marks": [{"type": "superscript"}], "text": "sup"},
+                ],
+            },
+        ],
+    })
+}
+
+fn inline_mark_attrs_json() -> Value {
+    json!({
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "marks": [{
+                            "type": "code",
+                            "attrs": {"programmingLanguage": "rust"},
+                        }],
+                        "text": "let x",
+                    },
+                    {"type": "text", "text": " "},
+                    {
+                        "type": "text",
+                        "marks": [{
+                            "type": "link",
+                            "attrs": {"href": "#fig-1", "labelOnly": true},
+                        }],
+                        "text": "Figure 1",
+                    },
+                ],
+            },
+        ],
+    })
 }
 
 #[test]
@@ -82,40 +154,293 @@ fn decode_bold_and_italic_marks() -> Result<()> {
 }
 
 #[test]
-fn encode_supported_content() -> Result<()> {
-    let node = Node::Article(Article {
-        content: vec![
-            Block::Heading(Heading::new(
-                2,
-                vec![Inline::Text(Text::new("Title".into()))],
-            )),
-            Block::Paragraph(Paragraph::new(vec![
-                Inline::Text(Text::new("Hello ".into())),
-                Inline::Strong(Strong::new(vec![Inline::Text(Text::new("bold".into()))])),
-                Inline::Text(Text::new(" and ".into())),
-                Inline::Emphasis(Emphasis::new(vec![Inline::Text(Text::new(
-                    "italic".into(),
-                ))])),
-            ])),
+fn decode_common_inline_marks() -> Result<()> {
+    let fixture = supported_inline_marks_json();
+    let (Node::Article(article), info) = decode(&fixture.to_string(), None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert!(info.losses.is_empty());
+
+    let Block::Paragraph(paragraph) = &article.content[0] else {
+        bail!("expected paragraph")
+    };
+
+    let Inline::Strong(Strong { content, .. }) = &paragraph.content[0] else {
+        bail!("expected strong")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected strong text")
+    };
+    assert_eq!(text.value.to_string(), "bold");
+
+    let Inline::Emphasis(Emphasis { content, .. }) = &paragraph.content[2] else {
+        bail!("expected emphasis")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected emphasis text")
+    };
+    assert_eq!(text.value.to_string(), "italic");
+
+    let Inline::Link(Link {
+        content,
+        target,
+        title,
+        rel,
+        ..
+    }) = &paragraph.content[4]
+    else {
+        bail!("expected link")
+    };
+    assert_eq!(target.to_string(), "https://example.com");
+    assert_eq!(title.as_deref(), Some("Example"));
+    assert_eq!(rel.as_deref(), Some("noopener"));
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected link text")
+    };
+    assert_eq!(text.value.to_string(), "link");
+
+    let Inline::CodeInline(code) = &paragraph.content[6] else {
+        bail!("expected inline code")
+    };
+    assert_eq!(code.code.to_string(), "code");
+
+    let Inline::Strikeout(Strikeout { content, .. }) = &paragraph.content[8] else {
+        bail!("expected strikeout")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected strikeout text")
+    };
+    assert_eq!(text.value.to_string(), "strike");
+
+    let Inline::Underline(Underline { content, .. }) = &paragraph.content[10] else {
+        bail!("expected underline")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected underline text")
+    };
+    assert_eq!(text.value.to_string(), "under");
+
+    let Inline::Subscript(Subscript { content, .. }) = &paragraph.content[12] else {
+        bail!("expected subscript")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected subscript text")
+    };
+    assert_eq!(text.value.to_string(), "sub");
+
+    let Inline::Superscript(Superscript { content, .. }) = &paragraph.content[14] else {
+        bail!("expected superscript")
+    };
+    let Inline::Text(text) = &content[0] else {
+        bail!("expected superscript text")
+    };
+    assert_eq!(text.value.to_string(), "sup");
+
+    Ok(())
+}
+
+#[test]
+fn decode_inline_mark_attrs() -> Result<()> {
+    let fixture = inline_mark_attrs_json();
+    let (Node::Article(article), info) = decode(&fixture.to_string(), None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert!(info.losses.is_empty());
+
+    let Block::Paragraph(paragraph) = &article.content[0] else {
+        bail!("expected paragraph")
+    };
+
+    let Inline::CodeInline(code) = &paragraph.content[0] else {
+        bail!("expected inline code")
+    };
+    assert_eq!(code.code.to_string(), "let x");
+    assert_eq!(code.programming_language.as_deref(), Some("rust"));
+
+    let Inline::Link(link) = &paragraph.content[2] else {
+        bail!("expected link")
+    };
+    assert_eq!(link.target.to_string(), "#fig-1");
+    assert_eq!(link.label_only, Some(true));
+
+    Ok(())
+}
+
+#[test]
+fn records_losses_for_unsupported_known_mark_attrs() -> Result<()> {
+    let fixture = json!({
+        "type": "doc",
+        "content": [
+            {
+                "type": "paragraph",
+                "content": [
+                    {
+                        "type": "text",
+                        "marks": [{
+                            "type": "link",
+                            "attrs": {
+                                "href": "https://example.com",
+                                "target": "_blank",
+                                "class": "external",
+                            },
+                        }],
+                        "text": "external link",
+                    },
+                ],
+            },
         ],
+    });
+
+    let (Node::Article(article), info) = decode(&fixture.to_string(), None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert_eq!(
+        losses_json(&info.losses)?,
+        json!({
+            "Link.class": 1,
+            "Link.target": 1,
+        })
+    );
+
+    let Block::Paragraph(paragraph) = &article.content[0] else {
+        bail!("expected paragraph")
+    };
+    let Inline::Link(link) = &paragraph.content[0] else {
+        bail!("expected link")
+    };
+    assert_eq!(link.target.to_string(), "https://example.com");
+
+    Ok(())
+}
+
+#[test]
+fn encode_heading() -> Result<()> {
+    let node = Node::Article(Article {
+        content: vec![Block::Heading(Heading::new(
+            2,
+            vec![Inline::Text(Text::new("Title".into()))],
+        ))],
         ..Default::default()
     });
 
     let (json, info) = encode(&node, None)?;
 
     assert!(info.losses.is_empty());
-    assert_eq!(json, SUPPORTED_CANONICAL_JSON);
+    assert_eq!(
+        encoded_json(&json)?,
+        json!({
+            "type": "doc",
+            "content": [
+                {
+                    "type": "heading",
+                    "attrs": {"level": 2},
+                    "content": [{"type": "text", "text": "Title"}],
+                },
+            ],
+        })
+    );
 
     Ok(())
 }
 
 #[test]
-fn roundtrip_supported_content() -> Result<()> {
-    let (node, ..) = decode(SUPPORTED_CANONICAL_JSON, None)?;
+fn encode_common_inline_marks() -> Result<()> {
+    let node = Node::Article(Article {
+        content: vec![Block::Paragraph(Paragraph::new(vec![
+            Inline::Strong(Strong::new(vec![Inline::Text(Text::new("bold".into()))])),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Emphasis(Emphasis::new(vec![Inline::Text(Text::new(
+                "italic".into(),
+            ))])),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Link(Link {
+                content: vec![Inline::Text(Text::new("link".into()))],
+                target: "https://example.com".into(),
+                title: Some("Example".into()),
+                rel: Some("noopener".into()),
+                ..Default::default()
+            }),
+            Inline::Text(Text::new(" ".into())),
+            Inline::CodeInline(CodeInline::new("code".into())),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Strikeout(Strikeout::new(vec![Inline::Text(Text::new(
+                "strike".into(),
+            ))])),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Underline(Underline::new(vec![Inline::Text(Text::new(
+                "under".into(),
+            ))])),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Subscript(Subscript::new(vec![Inline::Text(Text::new("sub".into()))])),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Superscript(Superscript::new(vec![Inline::Text(Text::new(
+                "sup".into(),
+            ))])),
+        ]))],
+        ..Default::default()
+    });
+
     let (json, info) = encode(&node, None)?;
 
     assert!(info.losses.is_empty());
-    assert_eq!(json, SUPPORTED_CANONICAL_JSON);
+    assert_eq!(encoded_json(&json)?, supported_inline_marks_json());
+
+    Ok(())
+}
+
+#[test]
+fn encode_inline_mark_attrs() -> Result<()> {
+    let node = Node::Article(Article {
+        content: vec![Block::Paragraph(Paragraph::new(vec![
+            Inline::CodeInline(CodeInline {
+                code: "let x".into(),
+                programming_language: Some("rust".into()),
+                ..Default::default()
+            }),
+            Inline::Text(Text::new(" ".into())),
+            Inline::Link(Link {
+                content: vec![Inline::Text(Text::new("Figure 1".into()))],
+                target: "#fig-1".into(),
+                label_only: Some(true),
+                ..Default::default()
+            }),
+        ]))],
+        ..Default::default()
+    });
+
+    let (json, info) = encode(&node, None)?;
+
+    assert!(info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, inline_mark_attrs_json());
+
+    Ok(())
+}
+
+#[test]
+fn roundtrip_common_inline_marks() -> Result<()> {
+    let fixture = supported_inline_marks_json();
+    let (node, decode_info) = decode(&fixture.to_string(), None)?;
+    let (json, encode_info) = encode(&node, None)?;
+
+    assert!(decode_info.losses.is_empty());
+    assert!(encode_info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, fixture);
+
+    Ok(())
+}
+
+#[test]
+fn roundtrip_inline_mark_attrs() -> Result<()> {
+    let fixture = inline_mark_attrs_json();
+    let (node, decode_info) = decode(&fixture.to_string(), None)?;
+    let (json, encode_info) = encode(&node, None)?;
+
+    assert!(decode_info.losses.is_empty());
+    assert!(encode_info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, fixture);
 
     Ok(())
 }
@@ -180,7 +505,7 @@ fn encode_merges_adjacent_text_with_same_marks() -> Result<()> {
 
 #[test]
 fn records_losses_for_unknown_tiptap_nodes_and_marks() -> Result<()> {
-    let json = r#"{"type":"doc","content":[{"type":"unknownBlock"},{"type":"paragraph","content":[{"type":"text","text":"linked","marks":[{"type":"link","attrs":{"href":"https://example.com"}}]}]}]}"#;
+    let json = r#"{"type":"doc","content":[{"type":"unknownBlock"},{"type":"paragraph","content":[{"type":"text","text":"highlighted","marks":[{"type":"highlight","attrs":{"color":"yellow"}}]}]}]}"#;
 
     let (_, info) = decode(json, None)?;
 
@@ -188,7 +513,7 @@ fn records_losses_for_unknown_tiptap_nodes_and_marks() -> Result<()> {
         losses_json(&info.losses)?,
         serde_json::json!({
             "Unknown (unknownBlock)": 1,
-            "Unknown mark (link)": 1
+            "Unknown mark (highlight)": 1
         })
     );
 
