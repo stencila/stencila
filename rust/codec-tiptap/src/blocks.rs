@@ -19,8 +19,8 @@ use crate::{
         self, BlockNode, BlockquoteNode, BulletListNode, CodeBlockAttrs, CodeBlockNode,
         HeadingAttrs, HeadingNode, HorizontalRuleNode, InlineNode, ListItemNode, OrderedListAttrs,
         OrderedListNode, ParagraphNode, StencilaAttrs, StencilaBlockNode, StencilaInlineNode,
-        TableCell as TiptapTableCell, TableCellAttrs, TableCellNode, TableHeader, TableNode,
-        TableRowNode, TextNode,
+        TableAttrs, TableCell as TiptapTableCell, TableCellAttrs, TableCellNode, TableHeader,
+        TableNode, TableRowNode, TaskItemAttrs, TaskItemNode, TaskListNode, TextNode,
     },
 };
 
@@ -56,6 +56,7 @@ fn block_from_tiptap(block: BlockNode, context: &mut TiptapDecodeContext) -> Blo
         BlockNode::OrderedList(ordered_list) => ordered_list_from_tiptap(ordered_list, context),
         BlockNode::Paragraph(paragraph) => paragraph_from_tiptap(paragraph, context),
         BlockNode::Table(table) => table_from_tiptap(table, context),
+        BlockNode::TaskList(task_list) => task_list_from_tiptap(task_list, context),
         BlockNode::StencilaBlock(stencila_block) => {
             block_from_stencila_block(stencila_block, context)
         }
@@ -149,15 +150,18 @@ fn quote_block_to_tiptap(quote: &QuoteBlock, context: &mut TiptapEncodeContext) 
 }
 
 fn code_block_from_tiptap(code_block: CodeBlockNode, context: &mut TiptapDecodeContext) -> Block {
+    let CodeBlockNode { attrs, content, .. } = code_block;
     let mut code = String::new();
 
-    for inline in code_block.content {
+    for inline in content {
         code_block_inline_from_tiptap(inline, &mut code, context);
     }
 
     Block::CodeBlock(CodeBlock {
+        id: attrs.id,
         code: code.into(),
-        programming_language: code_block.attrs.language,
+        programming_language: attrs.language,
+        is_demo: attrs.is_demo,
         ..Default::default()
     })
 }
@@ -215,6 +219,8 @@ fn code_block_to_tiptap(code_block: &CodeBlock) -> BlockNode {
     BlockNode::CodeBlock(CodeBlockNode {
         attrs: CodeBlockAttrs {
             language: code_block.programming_language.clone(),
+            id: code_block.id.clone(),
+            is_demo: code_block.is_demo,
         },
         content,
         r#type: Default::default(),
@@ -272,6 +278,10 @@ fn list_from_tiptap(
 }
 
 fn list_to_tiptap(list: &List, context: &mut TiptapEncodeContext) -> BlockNode {
+    if list.items.iter().any(|item| item.is_checked.is_some()) {
+        return task_list_to_tiptap(list, context);
+    }
+
     let content = list
         .items
         .iter()
@@ -298,6 +308,38 @@ fn list_to_tiptap(list: &List, context: &mut TiptapEncodeContext) -> BlockNode {
     }
 }
 
+fn task_list_from_tiptap(task_list: TaskListNode, context: &mut TiptapDecodeContext) -> Block {
+    Block::List(List::new(
+        task_list
+            .content
+            .into_iter()
+            .map(|item| task_item_from_tiptap(item, context))
+            .collect(),
+        ListOrder::Unordered,
+    ))
+}
+
+fn task_list_to_tiptap(list: &List, context: &mut TiptapEncodeContext) -> BlockNode {
+    if list.order != ListOrder::Unordered {
+        context.losses.add("List.order");
+    }
+
+    BlockNode::TaskList(TaskListNode {
+        content: list
+            .items
+            .iter()
+            .map(|item| TaskItemNode {
+                attrs: TaskItemAttrs {
+                    checked: item.is_checked.unwrap_or(false),
+                },
+                content: blocks_to_tiptap(&item.content, context),
+                r#type: Default::default(),
+            })
+            .collect(),
+        r#type: Default::default(),
+    })
+}
+
 fn list_item_from_tiptap(
     item: ListItemNode,
     start: Option<u64>,
@@ -319,6 +361,13 @@ fn list_item_from_tiptap(
     }
 
     item
+}
+
+fn task_item_from_tiptap(item: TaskItemNode, context: &mut TiptapDecodeContext) -> ListItem {
+    let mut list_item = ListItem::new(blocks_from_tiptap(item.content, context));
+    list_item.is_checked = Some(item.attrs.checked);
+
+    list_item
 }
 
 fn ordered_list_start(items: &[ListItem]) -> Option<u64> {
@@ -347,17 +396,32 @@ fn ordered_list_start(items: &[ListItem]) -> Option<u64> {
 }
 
 fn table_from_tiptap(table: TableNode, context: &mut TiptapDecodeContext) -> Block {
-    Block::Table(Table::new(
-        table
-            .content
+    let TableNode { attrs, content, .. } = table;
+    let mut table = Table::new(
+        content
             .into_iter()
             .map(|row| table_row_from_tiptap(row, context))
             .collect(),
-    ))
+    );
+
+    table.id = attrs.id;
+    table.label = attrs.label;
+    table.label_automatically = attrs.label_automatically;
+    table.caption = attrs.caption;
+    table.notes = attrs.notes;
+
+    Block::Table(table)
 }
 
 fn table_to_tiptap(table: &Table, context: &mut TiptapEncodeContext) -> BlockNode {
     BlockNode::Table(TableNode {
+        attrs: TableAttrs {
+            id: table.id.clone(),
+            label: table.label.clone(),
+            label_automatically: table.label_automatically,
+            caption: table.caption.clone(),
+            notes: table.notes.clone(),
+        },
         content: table
             .rows
             .iter()

@@ -89,6 +89,20 @@ fn inline_mark_attrs_json() -> Value {
     })
 }
 
+fn stencila_paragraph_json(text: &str) -> Value {
+    json!({
+        "type": "Paragraph",
+        "content": [
+            {
+                "type": "Text",
+                "value": {
+                    "string": text,
+                },
+            },
+        ],
+    })
+}
+
 fn supported_block_nodes_json() -> Value {
     json!({
         "type": "doc",
@@ -145,12 +159,23 @@ fn supported_block_nodes_json() -> Value {
             },
             {
                 "type": "codeBlock",
-                "attrs": {"language": "rust"},
+                "attrs": {
+                    "id": "code-1",
+                    "isDemo": true,
+                    "language": "rust",
+                },
                 "content": [{"type": "text", "text": "fn main() {}"}],
             },
             {"type": "horizontalRule"},
             {
                 "type": "table",
+                "attrs": {
+                    "id": "table-1",
+                    "label": "Table 1",
+                    "labelAutomatically": true,
+                    "caption": [stencila_paragraph_json("Caption")],
+                    "notes": [stencila_paragraph_json("Note")],
+                },
                 "content": [
                     {
                         "type": "tableRow",
@@ -189,6 +214,39 @@ fn supported_block_nodes_json() -> Value {
                                         "content": [{"type": "text", "text": "Data"}],
                                     },
                                 ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    })
+}
+
+fn task_list_json() -> Value {
+    json!({
+        "type": "doc",
+        "content": [
+            {
+                "type": "taskList",
+                "content": [
+                    {
+                        "type": "taskItem",
+                        "attrs": {"checked": true},
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [{"type": "text", "text": "Done"}],
+                            },
+                        ],
+                    },
+                    {
+                        "type": "taskItem",
+                        "attrs": {"checked": false},
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [{"type": "text", "text": "Todo"}],
                             },
                         ],
                     },
@@ -274,8 +332,10 @@ fn decode_common_block_nodes() -> Result<()> {
     let Block::CodeBlock(code_block) = &article.content[3] else {
         bail!("expected code block")
     };
+    assert_eq!(code_block.id.as_deref(), Some("code-1"));
     assert_eq!(code_block.code.to_string(), "fn main() {}");
     assert_eq!(code_block.programming_language.as_deref(), Some("rust"));
+    assert_eq!(code_block.is_demo, Some(true));
 
     let Block::ThematicBreak(..) = &article.content[4] else {
         bail!("expected thematic break")
@@ -284,12 +344,42 @@ fn decode_common_block_nodes() -> Result<()> {
     let Block::Table(table) = &article.content[5] else {
         bail!("expected table")
     };
+    assert_eq!(table.id.as_deref(), Some("table-1"));
+    assert_eq!(table.label.as_deref(), Some("Table 1"));
+    assert_eq!(table.label_automatically, Some(true));
+    assert_eq!(
+        serde_json::to_value(&table.caption)?,
+        json!([stencila_paragraph_json("Caption")])
+    );
+    assert_eq!(
+        serde_json::to_value(&table.notes)?,
+        json!([stencila_paragraph_json("Note")])
+    );
     assert_eq!(table.rows.len(), 2);
     assert_eq!(table.rows[0].row_type, Some(TableRowType::HeaderRow));
     assert_eq!(
         table.rows[0].cells[0].cell_type,
         Some(TableCellType::HeaderCell)
     );
+
+    Ok(())
+}
+
+#[test]
+fn decode_task_list_items() -> Result<()> {
+    let fixture = task_list_json();
+    let (Node::Article(article), info) = decode(&fixture.to_string(), None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert!(info.losses.is_empty());
+
+    let Block::List(list) = &article.content[0] else {
+        bail!("expected task list")
+    };
+    assert_eq!(list.order, ListOrder::Unordered);
+    assert_eq!(list.items[0].is_checked, Some(true));
+    assert_eq!(list.items[1].is_checked, Some(false));
 
     Ok(())
 }
@@ -523,6 +613,34 @@ fn encode_common_block_nodes() -> Result<()> {
         Text::new("Fourth".into()),
     )]))]);
     fourth.position = Some(4);
+    let table = {
+        let mut table = Table::new(vec![
+            TableRow {
+                cells: vec![TableCell {
+                    cell_type: Some(TableCellType::HeaderCell),
+                    content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                        Text::new("Head".into()),
+                    )]))],
+                    ..Default::default()
+                }],
+                row_type: Some(TableRowType::HeaderRow),
+                ..Default::default()
+            },
+            TableRow::new(vec![TableCell::new(vec![Block::Paragraph(
+                Paragraph::new(vec![Inline::Text(Text::new("Data".into()))]),
+            )])]),
+        ]);
+        table.id = Some("table-1".into());
+        table.label = Some("Table 1".into());
+        table.label_automatically = Some(true);
+        table.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::new("Caption".into()),
+        )]))]);
+        table.notes = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::new("Note".into()),
+        )]))]);
+        table
+    };
 
     let node = Node::Article(Article {
         content: vec![
@@ -537,27 +655,14 @@ fn encode_common_block_nodes() -> Result<()> {
             )),
             Block::List(List::new(vec![third, fourth], ListOrder::Ascending)),
             Block::CodeBlock(CodeBlock {
+                id: Some("code-1".into()),
                 code: "fn main() {}".into(),
                 programming_language: Some("rust".into()),
+                is_demo: Some(true),
                 ..Default::default()
             }),
             Block::ThematicBreak(ThematicBreak::new()),
-            Block::Table(Table::new(vec![
-                TableRow {
-                    cells: vec![TableCell {
-                        cell_type: Some(TableCellType::HeaderCell),
-                        content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
-                            Text::new("Head".into()),
-                        )]))],
-                        ..Default::default()
-                    }],
-                    row_type: Some(TableRowType::HeaderRow),
-                    ..Default::default()
-                },
-                TableRow::new(vec![TableCell::new(vec![Block::Paragraph(
-                    Paragraph::new(vec![Inline::Text(Text::new("Data".into()))]),
-                )])]),
-            ])),
+            Block::Table(table),
         ],
         ..Default::default()
     });
@@ -566,6 +671,131 @@ fn encode_common_block_nodes() -> Result<()> {
 
     assert!(info.losses.is_empty());
     assert_eq!(encoded_json(&json)?, supported_block_nodes_json());
+
+    Ok(())
+}
+
+#[test]
+fn encode_task_list_items() -> Result<()> {
+    let checked = {
+        let mut item = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::new("Done".into()),
+        )]))]);
+        item.is_checked = Some(true);
+        item
+    };
+    let unchecked = {
+        let mut item = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+            Text::new("Todo".into()),
+        )]))]);
+        item.is_checked = Some(false);
+        item
+    };
+    let unset = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Maybe".into()),
+    )]))]);
+
+    let node = Node::Article(Article {
+        content: vec![Block::List(List::new(
+            vec![checked, unchecked, unset],
+            ListOrder::Unordered,
+        ))],
+        ..Default::default()
+    });
+
+    let (json, info) = encode(&node, None)?;
+
+    assert!(info.losses.is_empty());
+    assert_eq!(
+        encoded_json(&json)?,
+        json!({
+            "type": "doc",
+            "content": [
+                {
+                    "type": "taskList",
+                    "content": [
+                        {
+                            "type": "taskItem",
+                            "attrs": {"checked": true},
+                            "content": [
+                                {
+                                    "type": "paragraph",
+                                    "content": [{"type": "text", "text": "Done"}],
+                                },
+                            ],
+                        },
+                        {
+                            "type": "taskItem",
+                            "attrs": {"checked": false},
+                            "content": [
+                                {
+                                    "type": "paragraph",
+                                    "content": [{"type": "text", "text": "Todo"}],
+                                },
+                            ],
+                        },
+                        {
+                            "type": "taskItem",
+                            "attrs": {"checked": false},
+                            "content": [
+                                {
+                                    "type": "paragraph",
+                                    "content": [{"type": "text", "text": "Maybe"}],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+    );
+
+    Ok(())
+}
+
+#[test]
+fn encode_ordered_checked_list_records_order_loss() -> Result<()> {
+    let mut item = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Ordered task".into()),
+    )]))]);
+    item.is_checked = Some(true);
+
+    let node = Node::Article(Article {
+        content: vec![Block::List(List::new(vec![item], ListOrder::Ascending))],
+        ..Default::default()
+    });
+
+    let (json, info) = encode(&node, None)?;
+
+    assert_eq!(
+        losses_json(&info.losses)?,
+        serde_json::json!({
+            "List.order": 1
+        })
+    );
+    assert_eq!(
+        encoded_json(&json)?,
+        json!({
+            "type": "doc",
+            "content": [
+                {
+                    "type": "taskList",
+                    "content": [
+                        {
+                            "type": "taskItem",
+                            "attrs": {"checked": true},
+                            "content": [
+                                {
+                                    "type": "paragraph",
+                                    "content": [{"type": "text", "text": "Ordered task"}],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        })
+    );
 
     Ok(())
 }
@@ -657,6 +887,19 @@ fn roundtrip_common_block_nodes() -> Result<()> {
 }
 
 #[test]
+fn roundtrip_task_list_items() -> Result<()> {
+    let fixture = task_list_json();
+    let (node, decode_info) = decode(&fixture.to_string(), None)?;
+    let (json, encode_info) = encode(&node, None)?;
+
+    assert!(decode_info.losses.is_empty());
+    assert!(encode_info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, fixture);
+
+    Ok(())
+}
+
+#[test]
 fn roundtrip_common_inline_marks() -> Result<()> {
     let fixture = supported_inline_marks_json();
     let (node, decode_info) = decode(&fixture.to_string(), None)?;
@@ -683,12 +926,18 @@ fn roundtrip_inline_mark_attrs() -> Result<()> {
 }
 
 #[test]
-fn preserve_table_with_caption_opaque_payload() -> Result<()> {
+fn preserve_table_attrs() -> Result<()> {
     let mut table = Table::new(vec![TableRow::new(vec![TableCell::new(vec![
         Block::Paragraph(Paragraph::new(vec![Inline::Text(Text::new("Cell".into()))])),
     ])])]);
+    table.id = Some("table-1".into());
+    table.label = Some("Table 1".into());
+    table.label_automatically = Some(true);
     table.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
         Text::new("Caption".into()),
+    )]))]);
+    table.notes = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Note".into()),
     )]))]);
     let original = serde_json::to_string(&Block::Table(table.clone()))?;
 
@@ -698,7 +947,9 @@ fn preserve_table_with_caption_opaque_payload() -> Result<()> {
     });
 
     let (json, ..) = encode(&node, None)?;
-    assert!(json.contains(r#""type":"stencilaBlock""#));
+    assert!(json.contains(r#""type":"table""#));
+    assert!(json.contains(r#""caption""#));
+    assert!(json.contains(r#""notes""#));
 
     let (Node::Article(article), ..) = decode(&json, None)? else {
         bail!("Tiptap should decode to an article")

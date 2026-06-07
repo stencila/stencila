@@ -33,6 +33,20 @@ function paragraphJson(text: string): JSONContent {
   }
 }
 
+function stencilaParagraphJson(text: string): Record<string, unknown> {
+  return {
+    type: 'Paragraph',
+    content: [
+      {
+        type: 'Text',
+        value: {
+          string: text,
+        },
+      },
+    ],
+  }
+}
+
 /**
  * Supported native marks plus opaque Stencila extension nodes.
  */
@@ -147,6 +161,31 @@ function supportedTiptapJson(): JSONContent {
         ],
       },
       {
+        type: 'taskList',
+        content: [
+          {
+            type: 'taskItem',
+            attrs: { checked: true },
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'Done' }],
+              },
+            ],
+          },
+          {
+            type: 'taskItem',
+            attrs: { checked: false },
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'Todo' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
         type: 'orderedList',
         attrs: { start: 3, type: null },
         content: [
@@ -172,7 +211,11 @@ function supportedTiptapJson(): JSONContent {
       },
       {
         type: 'codeBlock',
-        attrs: { language: 'typescript' },
+        attrs: {
+          id: 'code-1',
+          isDemo: true,
+          language: 'typescript',
+        },
         content: [{ type: 'text', text: 'const value = 1' }],
       },
       {
@@ -180,6 +223,13 @@ function supportedTiptapJson(): JSONContent {
       },
       {
         type: 'table',
+        attrs: {
+          id: 'table-1',
+          label: 'Table 1',
+          labelAutomatically: true,
+          caption: [stencilaParagraphJson('Caption')],
+          notes: [stencilaParagraphJson('Note')],
+        },
         content: [
           {
             type: 'tableRow',
@@ -243,6 +293,125 @@ describe('Stencila Tiptap extensions', () => {
     } finally {
       editor.destroy()
     }
+  })
+
+  it('preserves code block attrs after editing code text', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        {
+          type: 'codeBlock',
+          attrs: {
+            id: 'code-1',
+            isDemo: true,
+            language: 'typescript',
+          },
+          content: [{ type: 'text', text: 'const value = 1' }],
+        },
+      ],
+    })
+
+    try {
+      const insertAt = editor.state.doc.content.size - 1
+
+      editor.view.dispatch(
+        editor.state.tr.insertText('\nconst next = value + 1', insertAt)
+      )
+
+      const [codeBlock] = editor.getJSON().content ?? []
+
+      expect(codeBlock).toMatchObject({
+        type: 'codeBlock',
+        attrs: {
+          id: 'code-1',
+          isDemo: true,
+          language: 'typescript',
+        },
+      })
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('preserves table attrs after editing cell text', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        {
+          type: 'table',
+          attrs: {
+            id: 'table-1',
+            label: 'Table 1',
+            labelAutomatically: true,
+            caption: [stencilaParagraphJson('Caption')],
+            notes: [stencilaParagraphJson('Note')],
+          },
+          content: [
+            {
+              type: 'tableRow',
+              content: [
+                {
+                  type: 'tableCell',
+                  attrs: {
+                    align: null,
+                    colspan: 1,
+                    rowspan: 1,
+                    colwidth: null,
+                  },
+                  content: [
+                    {
+                      type: 'paragraph',
+                      content: [{ type: 'text', text: 'Data' }],
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    })
+
+    try {
+      let insertAt: number | undefined
+
+      editor.state.doc.descendants((node, position) => {
+        if (node.isText && node.text === 'Data') {
+          insertAt = position + node.nodeSize
+          return false
+        }
+
+        return true
+      })
+
+      if (insertAt === undefined) {
+        throw new Error('Expected table cell text position')
+      }
+
+      editor.view.dispatch(editor.state.tr.insertText(' edited', insertAt))
+
+      const [table] = editor.getJSON().content ?? []
+
+      expect(table).toMatchObject({
+        type: 'table',
+        attrs: {
+          id: 'table-1',
+          label: 'Table 1',
+          labelAutomatically: true,
+          caption: [stencilaParagraphJson('Caption')],
+          notes: [stencilaParagraphJson('Note')],
+        },
+      })
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('registers task list nodes', () => {
+    const schema = getSchema(createStencilaTiptapExtensions())
+
+    expect(schema.nodes.taskList).toBeDefined()
+    expect(schema.nodes.taskItem).toBeDefined()
   })
 
   it('defines link marks as anchor elements', () => {

@@ -10,6 +10,7 @@ import Document from '@tiptap/extension-document'
 import Heading from '@tiptap/extension-heading'
 import HorizontalRule from '@tiptap/extension-horizontal-rule'
 import Italic from '@tiptap/extension-italic'
+import { TaskItem, TaskList } from '@tiptap/extension-list'
 import ListItem from '@tiptap/extension-list-item'
 import OrderedList from '@tiptap/extension-ordered-list'
 import Paragraph from '@tiptap/extension-paragraph'
@@ -34,6 +35,50 @@ const EditableDocument = Document.extend({
   content: 'block*',
 })
 
+const EditableCodeBlock = CodeBlock.extend({
+  addAttributes() {
+    return {
+      ...(this.parent?.() ?? {}),
+      id: {
+        default: null,
+        rendered: false,
+      },
+      isDemo: {
+        default: null,
+        rendered: false,
+      },
+    }
+  },
+})
+
+const EditableTable = Table.extend({
+  addAttributes() {
+    return {
+      ...(this.parent?.() ?? {}),
+      id: {
+        default: null,
+        rendered: false,
+      },
+      label: {
+        default: null,
+        rendered: false,
+      },
+      labelAutomatically: {
+        default: null,
+        rendered: false,
+      },
+      caption: {
+        default: null,
+        rendered: false,
+      },
+      notes: {
+        default: null,
+        rendered: false,
+      },
+    }
+  },
+})
+
 /**
  * Create the Tiptap extensions used to edit Stencila document content.
  */
@@ -46,16 +91,18 @@ export function createStencilaTiptapExtensions(): Extensions {
     Paragraph,
     Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
     Blockquote,
-    CodeBlock,
+    EditableCodeBlock,
     HorizontalRule,
 
     // List structure
     BulletList,
     OrderedList,
     ListItem,
+    TaskList,
+    TaskItem.configure({ nested: true }),
 
     // Table structure
-    Table,
+    EditableTable,
     TableRow,
     TableHeader,
     TableCell,

@@ -8,6 +8,7 @@
 use monostate::MustBe;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use stencila_codec::stencila_schema::Block;
 
 /// The root Tiptap document node.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -40,6 +41,8 @@ pub(super) enum BlockNode {
     Paragraph(ParagraphNode),
     /// A native Tiptap table node.
     Table(TableNode),
+    /// A native Tiptap task list node.
+    TaskList(TaskListNode),
     /// A custom opaque Stencila block node.
     StencilaBlock(StencilaBlockNode),
     /// Any unsupported native block node.
@@ -119,6 +122,40 @@ pub(super) struct ListItemNode {
     pub content: Vec<BlockNode>,
 }
 
+/// A native Tiptap task list node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TaskListNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("taskList"),
+
+    /// Task items.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<TaskItemNode>,
+}
+
+/// A native Tiptap task item node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TaskItemNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("taskItem"),
+
+    /// Task item attributes.
+    #[serde(default)]
+    pub attrs: TaskItemAttrs,
+
+    /// Block content contained by the task item.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<BlockNode>,
+}
+
+/// Attributes for a native Tiptap task item node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TaskItemAttrs {
+    /// Whether the task item is checked.
+    #[serde(default)]
+    pub checked: bool,
+}
+
 /// A native Tiptap code block node.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
 pub(super) struct CodeBlockNode {
@@ -136,9 +173,23 @@ pub(super) struct CodeBlockNode {
 
 /// Attributes for a native Tiptap code block node.
 #[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub(super) struct CodeBlockAttrs {
     /// Programming language for the code.
     pub language: Option<String>,
+
+    /// Stencila node identifier for the code block.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Whether the code block is a demo that should also be rendered.
+    #[serde(
+        default,
+        alias = "is_demo",
+        alias = "is-demo",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub is_demo: Option<bool>,
 }
 
 /// A native Tiptap horizontal rule node.
@@ -186,9 +237,43 @@ pub(super) struct TableNode {
     /// The fixed Tiptap node type.
     pub r#type: MustBe!("table"),
 
+    /// Table attributes.
+    #[serde(default)]
+    pub attrs: TableAttrs,
+
     /// Table rows.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub content: Vec<TableRowNode>,
+}
+
+/// Attributes for a native Tiptap table node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct TableAttrs {
+    /// Stencila node identifier for the table.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Short label for the table.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+
+    /// Whether the label should be automatically updated.
+    #[serde(
+        default,
+        alias = "label_automatically",
+        alias = "label-automatically",
+        skip_serializing_if = "Option::is_none"
+    )]
+    pub label_automatically: Option<bool>,
+
+    /// Stencila block caption for the table.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub caption: Option<Vec<Block>>,
+
+    /// Stencila block notes for the table.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub notes: Option<Vec<Block>>,
 }
 
 /// A native Tiptap table row node.

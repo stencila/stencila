@@ -262,6 +262,67 @@ stencila-edit-view {
   margin: var(--list-item-paragraph-spacing, 0.25rem) 0;
 }
 
+.stencila-tiptap-editor .ProseMirror ul[data-type='taskList'] {
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked]) {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--task-list-item-gap, 0.5rem);
+  list-style: none;
+  padding-inline-start: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked])
+  > label {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  margin-top: var(--task-list-checkbox-margin-top, 0.25rem);
+  user-select: none;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked])
+  > label
+  input[type='checkbox'] {
+  width: var(--task-list-checkbox-size, 1rem);
+  height: var(--task-list-checkbox-size, 1rem);
+  margin: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked])
+  > div {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked])
+  > div
+  > p {
+  margin: 0;
+}
+
+.stencila-tiptap-editor
+  .ProseMirror
+  :is(li[data-type='taskItem'], li[data-checked])
+  > div
+  > p
+  + p {
+  margin-top: var(--list-item-paragraph-spacing, 0.25rem);
+}
+
 /* Block quotes: mirror the QuoteBlock theme for native ProseMirror content. */
 .stencila-tiptap-editor .ProseMirror blockquote {
   margin-top: var(--quote-spacing, var(--content-spacing, 1rem));
