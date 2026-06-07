@@ -43,6 +43,15 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd",
+          "tiptap"
+        ]
+      },
       "html": {
         "attr": "id"
       },

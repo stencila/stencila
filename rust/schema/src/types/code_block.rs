@@ -29,13 +29,14 @@ pub struct CodeBlock {
 
     /// The identifier for this item.
     #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The code.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "lexical", format = "koenig")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "lexical", format = "koenig", format = "tiptap")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"Cord::from("code")"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"r"[a-zA-Z0-9]{1,10}".prop_map(Cord::from)"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"r"[^\p{C}]{1,100}".prop_map(Cord::from)"#))]
@@ -46,7 +47,7 @@ pub struct CodeBlock {
 
     /// The programming language of the code.
     #[serde(alias = "programming-language", alias = "programming_language")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "lexical", format = "koenig")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "lexical", format = "koenig", format = "tiptap")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"(cpp)|(js)|(py)|(r)|(ts)")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]{1,10}")"#))]
@@ -69,7 +70,7 @@ pub struct CodeBlock {
 
     /// Whether the code block is a demo that should also be rendered.
     #[serde(alias = "is-demo", alias = "is_demo")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub is_demo: Option<Boolean>,
 

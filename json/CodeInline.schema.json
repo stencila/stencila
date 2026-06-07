@@ -61,6 +61,15 @@
       "strip": [
         "metadata"
       ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd",
+          "tiptap"
+        ]
+      },
       "html": {
         "attr": "id"
       },
@@ -81,7 +90,8 @@
           "qmd",
           "latex",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "html": {
@@ -126,7 +136,8 @@
           "qmd",
           "latex",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "jats": {

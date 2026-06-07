@@ -44,7 +44,7 @@ properties:
       `programmingLanguage` and rendered as block content below the code display.
     type: boolean
     patch:
-      formats: [md, smd, myst, qmd]
+      formats: [md, smd, myst, qmd, tiptap]
   compilationDigest:
     '@id': stencila:compilationDigest
     description: A digest of the `code` and `programmingLanguage`.

@@ -30,6 +30,7 @@ pub struct Form {
 
     /// The identifier for this item.
     #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[html(attr = "id")]
     #[jats(attr = "id")]
     pub id: Option<String>,

@@ -31,6 +31,7 @@ pub struct CallBlock {
 
     /// The identifier for this item.
     #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
     #[jats(attr = "id")]

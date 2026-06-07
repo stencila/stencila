@@ -35,3 +35,5 @@ properties:
       attr: id
     type: string
     strip: [metadata]
+    patch:
+      formats: [md, smd, myst, qmd, tiptap]
