@@ -14,6 +14,7 @@ import { createStencilaTiptapExtensions } from '../tiptap/extensions'
 import { initUno } from '../unocss'
 
 import './edit.css'
+import './edit/nodes/toolbar'
 
 initUno()
 
@@ -57,7 +58,7 @@ export class EditView extends LitElement {
 
   private client?: TiptapClient
 
-  private updateHistoryState = () => {
+  private handleEditorTransaction = () => {
     this.canUndo = this.editor?.can().undo() ?? false
     this.canRedo = this.editor?.can().redo() ?? false
   }
@@ -92,8 +93,11 @@ export class EditView extends LitElement {
         },
       },
     })
-    this.editor.on('transaction', this.updateHistoryState)
-    this.updateHistoryState()
+    this.editor.on('transaction', this.handleEditorTransaction)
+    this.handleEditorTransaction()
+    // `editor` is a plain (non-reactive) field, so re-render explicitly to pass
+    // the now-created editor to the node toolbar's `.editor` binding.
+    this.requestUpdate()
 
     this.client = new TiptapClient(this.doc)
     this.client.status = (status) => {
@@ -102,7 +106,7 @@ export class EditView extends LitElement {
         if (this.editor && !this.editor.isEditable) {
           this.editor.setEditable(true, false)
         }
-        this.updateHistoryState()
+        this.handleEditorTransaction()
       }
     }
     this.client.receivePatches(this.editor)
@@ -111,7 +115,7 @@ export class EditView extends LitElement {
   override disconnectedCallback() {
     this.client?.destroy()
     this.client = undefined
-    this.editor?.off('transaction', this.updateHistoryState)
+    this.editor?.off('transaction', this.handleEditorTransaction)
     this.editor?.destroy()
     this.editor = undefined
     super.disconnectedCallback()
@@ -124,14 +128,14 @@ export class EditView extends LitElement {
   private undo() {
     if (this.editor?.commands.undo()) {
       this.editor.view.focus()
-      this.updateHistoryState()
+      this.handleEditorTransaction()
     }
   }
 
   private redo() {
     if (this.editor?.commands.redo()) {
       this.editor.view.focus()
-      this.updateHistoryState()
+      this.handleEditorTransaction()
     }
   }
 
@@ -168,6 +172,9 @@ export class EditView extends LitElement {
           </div>
         </div>
         <div class="stencila-tiptap-editor"></div>
+        <stencila-edit-node-toolbar
+          .editor=${this.editor}
+        ></stencila-edit-node-toolbar>
       </div>
     `
   }

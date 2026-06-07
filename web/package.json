@@ -51,6 +51,7 @@
     "@codemirror/lint": "6.9.5",
     "@codemirror/state": "6.6.0",
     "@codemirror/view": "6.41.0",
+    "@floating-ui/dom": "^1.7.6",
     "@iconify-json/bi": "1.2.7",
     "@iconify-json/lucide": "1.2.102",
     "@lezer/highlight": "1.2.3",

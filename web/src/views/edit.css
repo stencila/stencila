@@ -126,6 +126,253 @@ stencila-edit-view {
   min-height: calc(100vh - 7rem);
 }
 
+/* Node inspector: fixed overlay so ProseMirror layout is untouched. Placement
+   (including top/left and collision-aware flip/shift) is driven by floating-ui;
+   the top/left defaults avoid a first-frame flash before it positions. */
+.stencila-edit-node-toolbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 5;
+  width: max-content;
+  font-family: var(--layout-font-family, system-ui, sans-serif);
+}
+
+/* Secondary hover peek: read-only and visually subordinate to the primary
+   inspector, and below it so the primary wins any overlap. */
+.stencila-edit-node-toolbar[data-role='secondary'] {
+  z-index: 4;
+}
+
+.stencila-edit-node-toolbar[data-role='secondary'] .stencila-edit-node-inspector {
+  border-style: dashed;
+  opacity: 0.9;
+}
+
+.stencila-edit-node-properties-popover {
+  display: grid;
+  width: min(22rem, calc(100vw - 2rem));
+  gap: var(--space-2, 0.5rem);
+  padding: var(--space-3, 0.75rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #111827);
+  box-shadow: 0 0.375rem 1rem
+    color-mix(in srgb, var(--text-color-primary, #111827) 12%, transparent);
+}
+
+/* Compact summary bar: type icon + contextual label + id + actions, on one row.
+   The min-height matches the action buttons so the primary bar and the
+   button-less secondary peek render at the same height. */
+.stencila-edit-node-inspector {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  min-height: calc(
+    1.625rem + var(--space-1, 0.25rem) * 2 +
+      var(--border-width-default, 1px) * 2
+  );
+  max-width: min(32rem, calc(100vw - 2rem));
+  padding: var(--space-1, 0.25rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #111827);
+  box-shadow: 0 0.375rem 1rem
+    color-mix(in srgb, var(--text-color-primary, #111827) 12%, transparent);
+  white-space: nowrap;
+}
+
+.stencila-edit-node-inspector-type {
+  flex: 0 0 auto;
+  width: 1rem;
+  height: 1rem;
+  color: var(--text-color-secondary, #4b5563);
+}
+
+/* Primary descriptor beside the type icon: the contextual label (language,
+   caption, or type name). Truncates so a long caption can't push the actions
+   off the bar. */
+.stencila-edit-node-inspector-label {
+  min-width: 0;
+  max-width: 16rem;
+  overflow: hidden;
+  color: var(--text-color-primary, #111827);
+  font-size: var(--font-size-sm, 0.875rem);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Persistent id, shown muted after the label. The leading `#` is literal text. */
+.stencila-edit-node-inspector-id {
+  min-width: 0;
+  max-width: 12rem;
+  overflow: hidden;
+  color: var(--text-color-secondary, #4b5563);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.stencila-edit-node-properties-action {
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-secondary, #4b5563);
+  font: inherit;
+}
+
+/* Borderless icon buttons: visually quiet by default, accent on hover/focus.
+   The edit button starts the action cluster, pushed to the right edge so the
+   icon + label + id group sits left. */
+.stencila-edit-node-inspector-edit,
+.stencila-edit-node-inspector-dismiss {
+  box-sizing: border-box;
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  width: 1.625rem;
+  height: 1.625rem;
+  padding: 0;
+  border: none;
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: transparent;
+  color: var(--text-color-secondary, #4b5563);
+  cursor: pointer;
+  font: inherit;
+}
+
+/* Separate the actions from the property summary with a clear gap (the bar is
+   shrink-to-fit, so this fixed margin is what creates the space). */
+.stencila-edit-node-inspector-edit {
+  margin-left: var(--space-3, 0.75rem);
+}
+
+.stencila-edit-node-inspector-edit:hover,
+.stencila-edit-node-inspector-edit:focus-visible,
+.stencila-edit-node-inspector-dismiss:hover,
+.stencila-edit-node-inspector-dismiss:focus-visible {
+  color: var(--color-accent, #2563eb);
+}
+
+.stencila-edit-node-properties-action:hover:not(:disabled),
+.stencila-edit-node-properties-action:focus-visible {
+  border-color: var(--color-accent, #2563eb);
+  color: var(--text-color-primary, #111827);
+}
+
+.stencila-edit-node-inspector-edit:focus-visible,
+.stencila-edit-node-inspector-dismiss:focus-visible,
+.stencila-edit-node-properties-action:focus-visible,
+.stencila-edit-node-properties-input:focus-visible {
+  outline: var(--focus-ring-width, 2px) solid
+    var(--focus-ring-color, var(--color-accent, #2563eb));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+.stencila-edit-node-inspector-edit span,
+.stencila-edit-node-inspector-dismiss span,
+.stencila-edit-node-properties-action span:first-child {
+  width: 1rem;
+  height: 1rem;
+}
+
+.stencila-edit-node-properties-popover-header {
+  display: flex;
+  align-items: center;
+  min-height: 1.25rem;
+  color: var(--text-color-secondary, #4b5563);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 650;
+  line-height: 1;
+}
+
+.stencila-edit-node-properties-field {
+  display: grid;
+  gap: var(--space-1, 0.25rem);
+  color: var(--text-color-secondary, #4b5563);
+  font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 600;
+}
+
+.stencila-edit-node-properties-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  height: 2rem;
+  padding: 0 var(--space-2, 0.5rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #111827);
+  font-family: var(
+    --font-family-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace
+  );
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.stencila-edit-node-properties-checkbox {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2, 0.5rem);
+  min-height: 1.5rem;
+  color: var(--text-color-primary, #111827);
+  cursor: pointer;
+  font-size: var(--font-size-sm, 0.875rem);
+}
+
+.stencila-edit-node-properties-checkbox input {
+  width: 1rem;
+  height: 1rem;
+  margin: 0;
+}
+
+.stencila-edit-node-properties-error {
+  color: var(--color-danger, #b91c1c);
+  font-size: var(--font-size-xs, 0.75rem);
+  line-height: 1.2;
+}
+
+.stencila-edit-node-properties-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--space-1, 0.25rem);
+}
+
+.stencila-edit-node-properties-action {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1, 0.25rem);
+  min-width: 2rem;
+  height: 2rem;
+  padding: 0 var(--space-2, 0.5rem);
+  cursor: pointer;
+  font-size: var(--font-size-xs, 0.75rem);
+}
+
+.stencila-edit-node-properties-action.primary {
+  border-color: var(--color-accent, #2563eb);
+  background: var(--color-accent, #2563eb);
+  color: var(--surface-background, #ffffff);
+}
+
+.stencila-edit-node-properties-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
 /* ProseMirror root: constrain the editable document to theme content width. */
 .stencila-tiptap-editor .ProseMirror {
   box-sizing: border-box;
