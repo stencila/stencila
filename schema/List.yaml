@@ -54,7 +54,7 @@ properties:
       $ref: ListItem
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig, tiptap]
     jats:
       content: true
     proptest:
@@ -75,7 +75,7 @@ properties:
     description: The ordering of the list.
     $ref: ListOrder
     patch:
-      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, latex, lexical, koenig, tiptap]
     jats:
       attr: list-type
     proptest:

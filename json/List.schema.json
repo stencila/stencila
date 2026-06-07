@@ -99,7 +99,8 @@
           "qmd",
           "latex",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "walk": true,
@@ -141,7 +142,8 @@
           "qmd",
           "latex",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "jats": {

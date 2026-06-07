@@ -75,7 +75,7 @@ properties:
     description: A flag to indicate if this list item is checked.
     type: boolean
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
     jats:
       attr: is-checked
   position:
