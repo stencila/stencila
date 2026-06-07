@@ -4,8 +4,10 @@ use stencila_codec::{
     Losses,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Block, CodeChunk, CodeInline, Emphasis, Heading, Inline, Link, MathInline, Node,
-        Paragraph, Strikeout, Strong, Subscript, Superscript, Text, Underline,
+        Article, Block, CodeBlock, CodeChunk, CodeInline, Emphasis, Heading, Inline, Link, List,
+        ListItem, ListOrder, MathInline, Node, Paragraph, QuoteBlock, Strikeout, Strong, Subscript,
+        Superscript, Table, TableCell, TableCellType, TableRow, TableRowType, Text, ThematicBreak,
+        Underline,
     },
 };
 use stencila_codec_tiptap::{decode, encode};
@@ -87,6 +89,115 @@ fn inline_mark_attrs_json() -> Value {
     })
 }
 
+fn supported_block_nodes_json() -> Value {
+    json!({
+        "type": "doc",
+        "content": [
+            {
+                "type": "blockquote",
+                "content": [
+                    {
+                        "type": "paragraph",
+                        "content": [{"type": "text", "text": "Quoted"}],
+                    },
+                ],
+            },
+            {
+                "type": "bulletList",
+                "content": [
+                    {
+                        "type": "listItem",
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [{"type": "text", "text": "Bullet"}],
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "type": "orderedList",
+                "attrs": {
+                    "start": 3,
+                    "type": null,
+                },
+                "content": [
+                    {
+                        "type": "listItem",
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [{"type": "text", "text": "Third"}],
+                            },
+                        ],
+                    },
+                    {
+                        "type": "listItem",
+                        "content": [
+                            {
+                                "type": "paragraph",
+                                "content": [{"type": "text", "text": "Fourth"}],
+                            },
+                        ],
+                    },
+                ],
+            },
+            {
+                "type": "codeBlock",
+                "attrs": {"language": "rust"},
+                "content": [{"type": "text", "text": "fn main() {}"}],
+            },
+            {"type": "horizontalRule"},
+            {
+                "type": "table",
+                "content": [
+                    {
+                        "type": "tableRow",
+                        "content": [
+                            {
+                                "type": "tableHeader",
+                                "attrs": {
+                                    "align": null,
+                                    "colspan": 1,
+                                    "rowspan": 1,
+                                    "colwidth": null,
+                                },
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [{"type": "text", "text": "Head"}],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                    {
+                        "type": "tableRow",
+                        "content": [
+                            {
+                                "type": "tableCell",
+                                "attrs": {
+                                    "align": null,
+                                    "colspan": 1,
+                                    "rowspan": 1,
+                                    "colwidth": null,
+                                },
+                                "content": [
+                                    {
+                                        "type": "paragraph",
+                                        "content": [{"type": "text", "text": "Data"}],
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
+    })
+}
+
 #[test]
 fn decode_simple_paragraph() -> Result<()> {
     let json = r#"{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Hello"}]}]}"#;
@@ -123,6 +234,62 @@ fn decode_heading_levels() -> Result<()> {
 
         assert_eq!(heading.level, level);
     }
+
+    Ok(())
+}
+
+#[test]
+fn decode_common_block_nodes() -> Result<()> {
+    let fixture = supported_block_nodes_json();
+    let (Node::Article(article), info) = decode(&fixture.to_string(), None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert!(info.losses.is_empty());
+
+    let Block::QuoteBlock(quote) = &article.content[0] else {
+        bail!("expected quote block")
+    };
+    let Block::Paragraph(paragraph) = &quote.content[0] else {
+        bail!("expected quoted paragraph")
+    };
+    let Inline::Text(text) = &paragraph.content[0] else {
+        bail!("expected quoted text")
+    };
+    assert_eq!(text.value.to_string(), "Quoted");
+
+    let Block::List(list) = &article.content[1] else {
+        bail!("expected bullet list")
+    };
+    assert_eq!(list.order, ListOrder::Unordered);
+    assert_eq!(list.items.len(), 1);
+
+    let Block::List(list) = &article.content[2] else {
+        bail!("expected ordered list")
+    };
+    assert_eq!(list.order, ListOrder::Ascending);
+    assert_eq!(list.items[0].position, Some(3));
+    assert_eq!(list.items[1].position, Some(4));
+
+    let Block::CodeBlock(code_block) = &article.content[3] else {
+        bail!("expected code block")
+    };
+    assert_eq!(code_block.code.to_string(), "fn main() {}");
+    assert_eq!(code_block.programming_language.as_deref(), Some("rust"));
+
+    let Block::ThematicBreak(..) = &article.content[4] else {
+        bail!("expected thematic break")
+    };
+
+    let Block::Table(table) = &article.content[5] else {
+        bail!("expected table")
+    };
+    assert_eq!(table.rows.len(), 2);
+    assert_eq!(table.rows[0].row_type, Some(TableRowType::HeaderRow));
+    assert_eq!(
+        table.rows[0].cells[0].cell_type,
+        Some(TableCellType::HeaderCell)
+    );
 
     Ok(())
 }
@@ -347,6 +514,63 @@ fn encode_heading() -> Result<()> {
 }
 
 #[test]
+fn encode_common_block_nodes() -> Result<()> {
+    let mut third = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Third".into()),
+    )]))]);
+    third.position = Some(3);
+    let mut fourth = ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Fourth".into()),
+    )]))]);
+    fourth.position = Some(4);
+
+    let node = Node::Article(Article {
+        content: vec![
+            Block::QuoteBlock(QuoteBlock::new(vec![Block::Paragraph(Paragraph::new(
+                vec![Inline::Text(Text::new("Quoted".into()))],
+            ))])),
+            Block::List(List::new(
+                vec![ListItem::new(vec![Block::Paragraph(Paragraph::new(vec![
+                    Inline::Text(Text::new("Bullet".into())),
+                ]))])],
+                ListOrder::Unordered,
+            )),
+            Block::List(List::new(vec![third, fourth], ListOrder::Ascending)),
+            Block::CodeBlock(CodeBlock {
+                code: "fn main() {}".into(),
+                programming_language: Some("rust".into()),
+                ..Default::default()
+            }),
+            Block::ThematicBreak(ThematicBreak::new()),
+            Block::Table(Table::new(vec![
+                TableRow {
+                    cells: vec![TableCell {
+                        cell_type: Some(TableCellType::HeaderCell),
+                        content: vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                            Text::new("Head".into()),
+                        )]))],
+                        ..Default::default()
+                    }],
+                    row_type: Some(TableRowType::HeaderRow),
+                    ..Default::default()
+                },
+                TableRow::new(vec![TableCell::new(vec![Block::Paragraph(
+                    Paragraph::new(vec![Inline::Text(Text::new("Data".into()))]),
+                )])]),
+            ])),
+        ],
+        ..Default::default()
+    });
+
+    let (json, info) = encode(&node, None)?;
+
+    assert!(info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, supported_block_nodes_json());
+
+    Ok(())
+}
+
+#[test]
 fn encode_common_inline_marks() -> Result<()> {
     let node = Node::Article(Article {
         content: vec![Block::Paragraph(Paragraph::new(vec![
@@ -420,6 +644,19 @@ fn encode_inline_mark_attrs() -> Result<()> {
 }
 
 #[test]
+fn roundtrip_common_block_nodes() -> Result<()> {
+    let fixture = supported_block_nodes_json();
+    let (node, decode_info) = decode(&fixture.to_string(), None)?;
+    let (json, encode_info) = encode(&node, None)?;
+
+    assert!(decode_info.losses.is_empty());
+    assert!(encode_info.losses.is_empty());
+    assert_eq!(encoded_json(&json)?, fixture);
+
+    Ok(())
+}
+
+#[test]
 fn roundtrip_common_inline_marks() -> Result<()> {
     let fixture = supported_inline_marks_json();
     let (node, decode_info) = decode(&fixture.to_string(), None)?;
@@ -441,6 +678,32 @@ fn roundtrip_inline_mark_attrs() -> Result<()> {
     assert!(decode_info.losses.is_empty());
     assert!(encode_info.losses.is_empty());
     assert_eq!(encoded_json(&json)?, fixture);
+
+    Ok(())
+}
+
+#[test]
+fn preserve_table_with_caption_opaque_payload() -> Result<()> {
+    let mut table = Table::new(vec![TableRow::new(vec![TableCell::new(vec![
+        Block::Paragraph(Paragraph::new(vec![Inline::Text(Text::new("Cell".into()))])),
+    ])])]);
+    table.caption = Some(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+        Text::new("Caption".into()),
+    )]))]);
+    let original = serde_json::to_string(&Block::Table(table.clone()))?;
+
+    let node = Node::Article(Article {
+        content: vec![Block::Table(table)],
+        ..Default::default()
+    });
+
+    let (json, ..) = encode(&node, None)?;
+    assert!(json.contains(r#""type":"stencilaBlock""#));
+
+    let (Node::Article(article), ..) = decode(&json, None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+    assert_eq!(serde_json::to_string(&article.content[0])?, original);
 
     Ok(())
 }

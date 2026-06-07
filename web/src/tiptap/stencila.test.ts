@@ -124,6 +124,106 @@ function supportedTiptapJson(): JSONContent {
         ],
       },
       {
+        type: 'blockquote',
+        content: [
+          {
+            type: 'paragraph',
+            content: [{ type: 'text', text: 'Quoted' }],
+          },
+        ],
+      },
+      {
+        type: 'bulletList',
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'Bullet' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'orderedList',
+        attrs: { start: 3, type: null },
+        content: [
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'Third' }],
+              },
+            ],
+          },
+          {
+            type: 'listItem',
+            content: [
+              {
+                type: 'paragraph',
+                content: [{ type: 'text', text: 'Fourth' }],
+              },
+            ],
+          },
+        ],
+      },
+      {
+        type: 'codeBlock',
+        attrs: { language: 'typescript' },
+        content: [{ type: 'text', text: 'const value = 1' }],
+      },
+      {
+        type: 'horizontalRule',
+      },
+      {
+        type: 'table',
+        content: [
+          {
+            type: 'tableRow',
+            content: [
+              {
+                type: 'tableHeader',
+                attrs: {
+                  align: null,
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: null,
+                },
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'Head' }],
+                  },
+                ],
+              },
+            ],
+          },
+          {
+            type: 'tableRow',
+            content: [
+              {
+                type: 'tableCell',
+                attrs: {
+                  align: null,
+                  colspan: 1,
+                  rowspan: 1,
+                  colwidth: null,
+                },
+                content: [
+                  {
+                    type: 'paragraph',
+                    content: [{ type: 'text', text: 'Data' }],
+                  },
+                ],
+              },
+            ],
+          },
+        ],
+      },
+      {
         type: 'stencilaBlock',
         attrs: {
           nodeType: 'CodeChunk',

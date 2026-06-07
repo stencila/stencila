@@ -210,6 +210,152 @@ stencila-edit-view {
   -webkit-box-decoration-break: clone;
 }
 
+/* Lists: match document spacing while keeping nested items compact. */
+.stencila-tiptap-editor .ProseMirror ul,
+.stencila-tiptap-editor .ProseMirror ol {
+  margin: var(--content-spacing, 1rem) 0;
+  padding-inline-start: var(--list-padding-inline-start, 1.5rem);
+  list-style-position: outside;
+}
+
+.stencila-tiptap-editor .ProseMirror ul {
+  list-style-type: disc;
+}
+
+.stencila-tiptap-editor .ProseMirror ol {
+  list-style-type: decimal;
+}
+
+.stencila-tiptap-editor .ProseMirror ul ul {
+  list-style-type: circle;
+}
+
+.stencila-tiptap-editor .ProseMirror ul ul ul {
+  list-style-type: square;
+}
+
+.stencila-tiptap-editor .ProseMirror ol ol {
+  list-style-type: lower-alpha;
+}
+
+.stencila-tiptap-editor .ProseMirror ol ol ol {
+  list-style-type: lower-roman;
+}
+
+.stencila-tiptap-editor .ProseMirror li {
+  display: list-item;
+  margin: var(--list-item-spacing, 0.25rem) 0;
+  padding-inline-start: var(--list-item-padding-inline-start, 0.125rem);
+}
+
+.stencila-tiptap-editor .ProseMirror li::marker {
+  color: var(
+    --list-marker-color,
+    var(
+      --text-color-secondary,
+      color-mix(in srgb, currentColor 76%, transparent)
+    )
+  );
+}
+
+.stencila-tiptap-editor .ProseMirror li > p {
+  margin: var(--list-item-paragraph-spacing, 0.25rem) 0;
+}
+
+/* Block quotes: mirror the QuoteBlock theme for native ProseMirror content. */
+.stencila-tiptap-editor .ProseMirror blockquote {
+  margin-top: var(--quote-spacing, var(--content-spacing, 1rem));
+  margin-right: var(--quote-spacing-horizontal, 0.75rem);
+  margin-bottom: var(--quote-spacing, var(--content-spacing, 1rem));
+  margin-left: var(--quote-spacing-horizontal, 0.75rem);
+  padding: var(--quote-padding, 0.75rem);
+  border-left: var(--quote-border-width, 3px) solid
+    var(--quote-border-color, color-mix(in srgb, currentColor 20%, transparent));
+  border-radius: var(--quote-border-radius, var(--border-radius-default, 0.25rem));
+  background-color: var(
+    --quote-background,
+    var(--surface-sunken, color-mix(in srgb, currentColor 5%, transparent))
+  );
+  font-size: var(--quote-font-size, var(--text-font-size, 1rem));
+  font-style: var(--quote-font-style, italic);
+}
+
+.stencila-tiptap-editor .ProseMirror blockquote > :first-child {
+  margin-top: 0;
+}
+
+.stencila-tiptap-editor .ProseMirror blockquote > :last-child {
+  margin-bottom: 0;
+}
+
+/* Code blocks: preserve whitespace and keep long lines scrollable. */
+.stencila-tiptap-editor .ProseMirror pre {
+  margin: var(--content-spacing, 1rem) 0;
+  padding: var(--code-padding-block, 0.875rem 1rem);
+  overflow-x: auto;
+  border-radius: var(--code-border-radius, var(--radius-sm, 0.25rem));
+  background: var(
+    --code-background,
+    color-mix(in srgb, black 5%, var(--surface-background, #ffffff))
+  );
+  font-family: var(
+    --code-font-family,
+    var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace)
+  );
+  font-size: var(--code-font-size-block, 0.9em);
+  line-height: var(--code-line-height, 1.5);
+  white-space: pre;
+}
+
+.stencila-tiptap-editor .ProseMirror pre code {
+  font: inherit;
+  color: inherit;
+}
+
+/* Thematic breaks: keep separators visible without dominating the page. */
+.stencila-tiptap-editor .ProseMirror hr {
+  margin: calc(var(--content-spacing, 1rem) * 1.5) 0;
+  border: 0;
+  border-top: var(--border-width-default, 1px) solid
+    var(--border-color-muted, color-mix(in srgb, currentColor 18%, transparent));
+}
+
+/* Tables: readable editable tables with wrapped cell content. */
+.stencila-tiptap-editor .ProseMirror table {
+  width: 100%;
+  margin: var(--content-spacing, 1rem) 0;
+  border-collapse: collapse;
+  table-layout: fixed;
+  font-size: var(--table-font-size, 0.95em);
+}
+
+.stencila-tiptap-editor .ProseMirror th,
+.stencila-tiptap-editor .ProseMirror td {
+  min-width: var(--table-cell-min-width, 6rem);
+  padding: var(--table-cell-padding, 0.5rem 0.625rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-muted, color-mix(in srgb, currentColor 18%, transparent));
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.stencila-tiptap-editor .ProseMirror th {
+  background: var(
+    --table-header-background,
+    color-mix(in srgb, currentColor 5%, transparent)
+  );
+  font-weight: var(--table-header-font-weight, 650);
+  text-align: left;
+}
+
+.stencila-tiptap-editor .ProseMirror :is(th, td) > :first-child {
+  margin-top: 0;
+}
+
+.stencila-tiptap-editor .ProseMirror :is(th, td) > :last-child {
+  margin-bottom: 0;
+}
+
 /* Headings: share typography rules before per-level token overrides. */
 .stencila-tiptap-editor .ProseMirror h1,
 .stencila-tiptap-editor .ProseMirror h2,

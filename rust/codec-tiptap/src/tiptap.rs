@@ -24,14 +24,128 @@ pub(super) struct TiptapDoc {
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub(super) enum BlockNode {
+    /// A native Tiptap blockquote node.
+    Blockquote(BlockquoteNode),
+    /// A native Tiptap bullet list node.
+    BulletList(BulletListNode),
+    /// A native Tiptap code block node.
+    CodeBlock(CodeBlockNode),
     /// A native Tiptap heading node.
     Heading(HeadingNode),
+    /// A native Tiptap horizontal rule node.
+    HorizontalRule(HorizontalRuleNode),
+    /// A native Tiptap ordered list node.
+    OrderedList(OrderedListNode),
     /// A native Tiptap paragraph node.
     Paragraph(ParagraphNode),
+    /// A native Tiptap table node.
+    Table(TableNode),
     /// A custom opaque Stencila block node.
     StencilaBlock(StencilaBlockNode),
     /// Any unsupported native block node.
     Unknown(Value),
+}
+
+/// A native Tiptap blockquote node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct BlockquoteNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("blockquote"),
+
+    /// Block content contained by the quote.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<BlockNode>,
+}
+
+/// A native Tiptap bullet list node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct BulletListNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("bulletList"),
+
+    /// List items.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<ListItemNode>,
+}
+
+/// A native Tiptap ordered list node.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct OrderedListNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("orderedList"),
+
+    /// Ordered list attributes.
+    #[serde(default)]
+    pub attrs: OrderedListAttrs,
+
+    /// List items.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<ListItemNode>,
+}
+
+/// Attributes for a native Tiptap ordered list node.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct OrderedListAttrs {
+    /// The first list item number.
+    #[serde(default = "one")]
+    pub start: u64,
+
+    /// Ordered list numbering marker type.
+    pub r#type: Option<String>,
+
+    /// Unsupported ordered list attributes captured for loss reporting.
+    #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
+    pub extra: Map<String, Value>,
+}
+
+impl Default for OrderedListAttrs {
+    fn default() -> Self {
+        Self {
+            start: 1,
+            r#type: None,
+            extra: Map::new(),
+        }
+    }
+}
+
+/// A native Tiptap list item node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct ListItemNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("listItem"),
+
+    /// Block content contained by the list item.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<BlockNode>,
+}
+
+/// A native Tiptap code block node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct CodeBlockNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("codeBlock"),
+
+    /// Code block attributes.
+    #[serde(default)]
+    pub attrs: CodeBlockAttrs,
+
+    /// Plain text content contained by the code block.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<InlineNode>,
+}
+
+/// Attributes for a native Tiptap code block node.
+#[derive(Debug, Default, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub(super) struct CodeBlockAttrs {
+    /// Programming language for the code.
+    pub language: Option<String>,
+}
+
+/// A native Tiptap horizontal rule node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct HorizontalRuleNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("horizontalRule"),
 }
 
 /// A native Tiptap paragraph node.
@@ -64,6 +178,108 @@ pub(super) struct HeadingNode {
 pub(super) struct HeadingAttrs {
     /// The heading level, expected to be between one and six.
     pub level: u8,
+}
+
+/// A native Tiptap table node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TableNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("table"),
+
+    /// Table rows.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<TableRowNode>,
+}
+
+/// A native Tiptap table row node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TableRowNode {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("tableRow"),
+
+    /// Table cells.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<TableCellNode>,
+}
+
+/// A table cell-level Tiptap node supported by this codec.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(untagged)]
+pub(super) enum TableCellNode {
+    /// A native Tiptap table data cell.
+    TableCell(TableCell),
+    /// A native Tiptap table header cell.
+    TableHeader(TableHeader),
+    /// Any unsupported native table cell node.
+    Unknown(Value),
+}
+
+/// A native Tiptap table data cell node.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TableCell {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("tableCell"),
+
+    /// Table cell attributes.
+    #[serde(default)]
+    pub attrs: TableCellAttrs,
+
+    /// Block content contained by the cell.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<BlockNode>,
+}
+
+/// A native Tiptap table header cell node.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TableHeader {
+    /// The fixed Tiptap node type.
+    pub r#type: MustBe!("tableHeader"),
+
+    /// Table cell attributes.
+    #[serde(default)]
+    pub attrs: TableCellAttrs,
+
+    /// Block content contained by the cell.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub content: Vec<BlockNode>,
+}
+
+/// Attributes for a native Tiptap table cell node.
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct TableCellAttrs {
+    /// How many columns the cell spans.
+    #[serde(default = "one")]
+    pub colspan: u64,
+
+    /// How many rows the cell spans.
+    #[serde(default = "one")]
+    pub rowspan: u64,
+
+    /// Unsupported ProseMirror table column widths.
+    pub colwidth: Option<Vec<Option<u64>>>,
+
+    /// Horizontal cell alignment.
+    pub align: Option<String>,
+
+    /// Unsupported table cell attributes captured for loss reporting.
+    #[serde(default, flatten, skip_serializing_if = "Map::is_empty")]
+    pub extra: Map<String, Value>,
+}
+
+fn one() -> u64 {
+    1
+}
+
+impl Default for TableCellAttrs {
+    fn default() -> Self {
+        Self {
+            colspan: 1,
+            rowspan: 1,
+            colwidth: None,
+            align: None,
+            extra: Map::new(),
+        }
+    }
 }
 
 /// A custom block node containing an opaque Stencila block payload.
