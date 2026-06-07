@@ -29,6 +29,7 @@ const EDGE_PRESETS_BY_KIND: Record<
   UsedBy: ['data-flow', 'software-dependencies'],
   ReadBy: ['data-flow'],
   Generated: ['data-flow'],
+  WrittenTo: ['data-flow'],
   DerivedInto: ['data-flow'],
   ConvertedInto: ['data-flow'],
   CalledBy: ['data-flow', 'software-dependencies'],
