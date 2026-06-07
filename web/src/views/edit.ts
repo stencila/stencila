@@ -7,6 +7,7 @@
 import { Editor } from '@tiptap/core'
 import { LitElement, html } from 'lit'
 import { customElement, property, state } from 'lit/decorators'
+import '@fontsource-variable/space-grotesk'
 
 import { TiptapClient, type TiptapClientStatus } from '../clients/tiptap'
 import type { DocumentId } from '../types'

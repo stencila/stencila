@@ -32,18 +32,20 @@ pub fn web_base_cdn_dev() -> String {
 /// During development these are served directly from the folder but are
 /// embedded into the binary on release builds.
 ///
-/// In release builds, only include Brotli-compressed files and images to
-/// minimize binary size (~3 MB vs ~50 MB). In debug builds, also include
-/// uncompressed CSS, JS (and source maps for easier debugging) because only
-/// uncompressed files are served during dev (see note for `STATIC_ENCODINGS` in
-/// rust/server/src/statics.rs).
+/// In release builds, only include Brotli-compressed files, images, and web
+/// fonts to minimize binary size (~3 MB vs ~50 MB). In debug builds, also
+/// include uncompressed CSS, JS (and source maps for easier debugging) because
+/// only uncompressed files are served during dev (see note for
+/// `STATIC_ENCODINGS` in rust/server/src/statics.rs).
 #[derive(RustEmbed)]
 #[folder = "$CARGO_MANIFEST_DIR/../../web/dist"]
 #[exclude = ".gitignore"]
 #[cfg_attr(not(debug_assertions), include = "*.br")]
 #[cfg_attr(not(debug_assertions), include = "*.png")]
+#[cfg_attr(not(debug_assertions), include = "*.woff2")]
 #[cfg_attr(debug_assertions, include = "*.br")]
 #[cfg_attr(debug_assertions, include = "*.png")]
+#[cfg_attr(debug_assertions, include = "*.woff2")]
 #[cfg_attr(debug_assertions, include = "*.css")]
 #[cfg_attr(debug_assertions, include = "*.js")]
 #[cfg_attr(debug_assertions, include = "*.map")]

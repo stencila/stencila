@@ -135,18 +135,52 @@ stencila-edit-view {
   left: 0;
   z-index: 5;
   width: max-content;
-  font-family: var(--layout-font-family, system-ui, sans-serif);
+  --edit-inspector-accent: var(--color-blue-700, #1d4ed8);
+  --edit-inspector-accent-strong: var(--color-blue-800, #1e40af);
+  --edit-inspector-accent-muted: color-mix(
+    in srgb,
+    var(--edit-inspector-accent) 12%,
+    transparent
+  );
+  --edit-inspector-border: color-mix(
+    in srgb,
+    var(--edit-inspector-accent) 46%,
+    transparent
+  );
+  --edit-inspector-background: color-mix(
+    in srgb,
+    var(--surface-background, #ffffff) 88%,
+    var(--color-blue-50, #eff6ff)
+  );
+  --edit-inspector-background-hover: color-mix(
+    in srgb,
+    var(--surface-background, #ffffff) 78%,
+    var(--color-blue-100, #dbeafe)
+  );
+  --edit-inspector-shadow: 0 0.375rem 1rem
+      color-mix(in srgb, var(--edit-inspector-accent) 18%, transparent),
+    0 0 0 1px
+      color-mix(in srgb, var(--edit-inspector-accent) 10%, transparent);
+  color: var(--edit-inspector-accent-strong);
+  font-family: 'Space Grotesk Variable',
+    var(--layout-font-family, system-ui, sans-serif);
+  font-size: var(--font-size-sm, 0.875rem);
+  letter-spacing: 0;
 }
 
-/* Secondary hover peek: read-only and visually subordinate to the primary
-   inspector, and below it so the primary wins any overlap. */
-.stencila-edit-node-toolbar[data-role='secondary'] {
-  z-index: 4;
+/* Under a dark color scheme the surface-derived background goes dark, so remap
+   the accent to lighter blues to keep the inspector text, icons and borders
+   legible. Everything else derives from these two custom properties. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme='light']) .stencila-edit-node-toolbar {
+    --edit-inspector-accent: var(--color-blue-400, #60a5fa);
+    --edit-inspector-accent-strong: var(--color-blue-200, #bfdbfe);
+  }
 }
 
-.stencila-edit-node-toolbar[data-role='secondary'] .stencila-edit-node-inspector {
-  border-style: dashed;
-  opacity: 0.9;
+:root[data-color-scheme='dark'] .stencila-edit-node-toolbar {
+  --edit-inspector-accent: var(--color-blue-400, #60a5fa);
+  --edit-inspector-accent-strong: var(--color-blue-200, #bfdbfe);
 }
 
 .stencila-edit-node-properties-popover {
@@ -155,17 +189,15 @@ stencila-edit-view {
   gap: var(--space-2, 0.5rem);
   padding: var(--space-3, 0.75rem);
   border: var(--border-width-default, 1px) solid
-    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+    var(--edit-inspector-border);
   border-radius: var(--border-radius-default, 0.25rem);
-  background: var(--surface-background, #ffffff);
-  color: var(--text-color-primary, #111827);
-  box-shadow: 0 0.375rem 1rem
-    color-mix(in srgb, var(--text-color-primary, #111827) 12%, transparent);
+  background: var(--edit-inspector-background);
+  color: var(--edit-inspector-accent-strong);
+  box-shadow: var(--edit-inspector-shadow);
 }
 
 /* Compact summary bar: type icon + contextual label + id + actions, on one row.
-   The min-height matches the action buttons so the primary bar and the
-   button-less secondary peek render at the same height. */
+   The min-height matches the action buttons for a stable single-line bar. */
 .stencila-edit-node-inspector {
   display: inline-flex;
   align-items: center;
@@ -177,12 +209,11 @@ stencila-edit-view {
   max-width: min(32rem, calc(100vw - 2rem));
   padding: var(--space-1, 0.25rem);
   border: var(--border-width-default, 1px) solid
-    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+    var(--edit-inspector-border);
   border-radius: var(--border-radius-default, 0.25rem);
-  background: var(--surface-background, #ffffff);
-  color: var(--text-color-primary, #111827);
-  box-shadow: 0 0.375rem 1rem
-    color-mix(in srgb, var(--text-color-primary, #111827) 12%, transparent);
+  background: var(--edit-inspector-background);
+  color: var(--edit-inspector-accent-strong);
+  box-shadow: var(--edit-inspector-shadow);
   white-space: nowrap;
 }
 
@@ -190,7 +221,7 @@ stencila-edit-view {
   flex: 0 0 auto;
   width: 1rem;
   height: 1rem;
-  color: var(--text-color-secondary, #4b5563);
+  color: var(--edit-inspector-accent);
 }
 
 /* Primary descriptor beside the type icon: the contextual label (language,
@@ -200,8 +231,9 @@ stencila-edit-view {
   min-width: 0;
   max-width: 16rem;
   overflow: hidden;
-  color: var(--text-color-primary, #111827);
+  color: var(--edit-inspector-accent-strong);
   font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 560;
   line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -212,8 +244,9 @@ stencila-edit-view {
   min-width: 0;
   max-width: 12rem;
   overflow: hidden;
-  color: var(--text-color-secondary, #4b5563);
+  color: color-mix(in srgb, var(--edit-inspector-accent) 72%, transparent);
   font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 520;
   line-height: 1;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -221,10 +254,10 @@ stencila-edit-view {
 
 .stencila-edit-node-properties-action {
   border: var(--border-width-default, 1px) solid
-    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+    var(--edit-inspector-border);
   border-radius: var(--border-radius-default, 0.25rem);
-  background: var(--surface-background, #ffffff);
-  color: var(--text-color-secondary, #4b5563);
+  background: var(--edit-inspector-background);
+  color: var(--edit-inspector-accent);
   font: inherit;
 }
 
@@ -244,7 +277,7 @@ stencila-edit-view {
   border: none;
   border-radius: var(--border-radius-default, 0.25rem);
   background: transparent;
-  color: var(--text-color-secondary, #4b5563);
+  color: var(--edit-inspector-accent);
   cursor: pointer;
   font: inherit;
 }
@@ -259,13 +292,15 @@ stencila-edit-view {
 .stencila-edit-node-inspector-edit:focus-visible,
 .stencila-edit-node-inspector-dismiss:hover,
 .stencila-edit-node-inspector-dismiss:focus-visible {
-  color: var(--color-accent, #2563eb);
+  background: var(--edit-inspector-accent-muted);
+  color: var(--edit-inspector-accent-strong);
 }
 
 .stencila-edit-node-properties-action:hover:not(:disabled),
 .stencila-edit-node-properties-action:focus-visible {
-  border-color: var(--color-accent, #2563eb);
-  color: var(--text-color-primary, #111827);
+  border-color: var(--edit-inspector-accent);
+  background: var(--edit-inspector-background-hover);
+  color: var(--edit-inspector-accent-strong);
 }
 
 .stencila-edit-node-inspector-edit:focus-visible,
@@ -273,7 +308,7 @@ stencila-edit-view {
 .stencila-edit-node-properties-action:focus-visible,
 .stencila-edit-node-properties-input:focus-visible {
   outline: var(--focus-ring-width, 2px) solid
-    var(--focus-ring-color, var(--color-accent, #2563eb));
+    var(--focus-ring-color, var(--edit-inspector-accent));
   outline-offset: var(--focus-ring-offset, 2px);
 }
 
@@ -288,7 +323,7 @@ stencila-edit-view {
   display: flex;
   align-items: center;
   min-height: 1.25rem;
-  color: var(--text-color-secondary, #4b5563);
+  color: var(--edit-inspector-accent);
   font-size: var(--font-size-xs, 0.75rem);
   font-weight: 650;
   line-height: 1;
@@ -297,7 +332,7 @@ stencila-edit-view {
 .stencila-edit-node-properties-field {
   display: grid;
   gap: var(--space-1, 0.25rem);
-  color: var(--text-color-secondary, #4b5563);
+  color: var(--edit-inspector-accent);
   font-size: var(--font-size-xs, 0.75rem);
   font-weight: 600;
 }
@@ -309,18 +344,17 @@ stencila-edit-view {
   height: 2rem;
   padding: 0 var(--space-2, 0.5rem);
   border: var(--border-width-default, 1px) solid
-    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+    var(--edit-inspector-border);
   border-radius: var(--border-radius-default, 0.25rem);
-  background: var(--surface-background, #ffffff);
-  color: var(--text-color-primary, #111827);
-  font-family: var(
-    --font-family-mono,
-    ui-monospace,
-    SFMono-Regular,
-    Menlo,
-    monospace
+  background: color-mix(
+    in srgb,
+    var(--surface-background, #ffffff) 94%,
+    var(--color-blue-50, #eff6ff)
   );
+  color: var(--edit-inspector-accent-strong);
+  font-family: inherit;
   font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 480;
 }
 
 .stencila-edit-node-properties-checkbox {
@@ -328,15 +362,17 @@ stencila-edit-view {
   align-items: center;
   gap: var(--space-2, 0.5rem);
   min-height: 1.5rem;
-  color: var(--text-color-primary, #111827);
+  color: var(--edit-inspector-accent-strong);
   cursor: pointer;
   font-size: var(--font-size-sm, 0.875rem);
+  font-weight: 500;
 }
 
 .stencila-edit-node-properties-checkbox input {
   width: 1rem;
   height: 1rem;
   margin: 0;
+  accent-color: var(--edit-inspector-accent);
 }
 
 .stencila-edit-node-properties-error {
@@ -360,11 +396,12 @@ stencila-edit-view {
   padding: 0 var(--space-2, 0.5rem);
   cursor: pointer;
   font-size: var(--font-size-xs, 0.75rem);
+  font-weight: 600;
 }
 
 .stencila-edit-node-properties-action.primary {
-  border-color: var(--color-accent, #2563eb);
-  background: var(--color-accent, #2563eb);
+  border-color: var(--edit-inspector-accent);
+  background: var(--edit-inspector-accent);
   color: var(--surface-background, #ffffff);
 }
 

@@ -32,15 +32,7 @@ import './table'
 type PopoverMode = 'summary' | 'edit'
 
 /**
- * The two inspector panels shown at once: the `primary` panel for the
- * selected (or, when nothing is selected, hovered) node, with full controls and
- * the edit form; and a subordinate, read-only `secondary` peek for a *different*
- * hovered node so its properties can be inspected without leaving the primary.
- */
-type InspectorRole = 'primary' | 'secondary'
-
-/**
- * Delay before a *hovered* node's inspector appears.
+ * Delay before a hovered node's inspector appears.
  *
  * Sweeping the pointer across nodes reschedules this timer, so the inspector
  * only shows once the pointer settles, avoiding flicker. Selection shows the
@@ -82,14 +74,10 @@ export class EditNodeToolbar extends LitElement {
   private hoverTimer?: ReturnType<typeof setTimeout>
 
   /**
-   * Active floating-ui `autoUpdate` loops, keyed by panel role. Each entry holds
-   * its teardown and the reference element it is bound to, so a loop is only
-   * rebuilt when that panel's targeted node DOM element actually changes.
+   * Active floating-ui `autoUpdate` loop and the node DOM element it is bound
+   * to, so the loop is only rebuilt when the targeted node actually changes.
    */
-  private floatingBindings = new Map<
-    InspectorRole,
-    { cleanup: () => void; reference: HTMLElement }
-  >()
+  private floatingBinding?: { cleanup: () => void; reference: HTMLElement }
 
   /**
    * Re-evaluate the inspector target.
@@ -161,10 +149,12 @@ export class EditNodeToolbar extends LitElement {
   }
 
   /**
-   * Recompute the selected node target and refresh any hover target position.
+   * Recompute the selected node target, then the hover target.
    *
-   * The selected node takes precedence over a hovered node so the inspector does
-   * not jump away while editing a selected table cell or block.
+   * A selected node takes over the inspector entirely: any hover target (and its
+   * pending show timer) is cleared so the inspector does not jump away while
+   * editing a selected table cell or block. The hover target is only resolved
+   * when nothing is selected.
    */
   private updateTargets() {
     const editor = this.attachedEditor
@@ -182,12 +172,17 @@ export class EditNodeToolbar extends LitElement {
     this.selectedTarget = selectedTarget
       ? this.positionTarget(selectedTarget)
       : undefined
-    const hoverTarget = this.hoverTarget
-      ? findEditNodePropertyTargetAtPosition(editor.state, this.hoverTarget.pos)
-      : undefined
-    this.hoverTarget = hoverTarget
-      ? this.positionTarget(hoverTarget)
-      : undefined
+    if (this.selectedTarget) {
+      this.cancelHoverTimer()
+      this.hoverTarget = undefined
+    } else {
+      const hoverTarget = this.hoverTarget
+        ? findEditNodePropertyTargetAtPosition(editor.state, this.hoverTarget.pos)
+        : undefined
+      this.hoverTarget = hoverTarget
+        ? this.positionTarget(hoverTarget)
+        : undefined
+    }
 
     this.resetModeIfTargetChanged(previousKey)
   }
@@ -215,37 +210,36 @@ export class EditNodeToolbar extends LitElement {
   }
 
   /**
-   * (Re)bind floating-ui for each rendered panel so it stays positioned over its
-   * node. Runs after each render (from `updated`) so the floating elements exist
-   * in the DOM.
+   * (Re)bind floating-ui so the inspector stays positioned over its node. Runs
+   * after each render (from `updated`) so the floating element exists in the
+   * DOM.
    */
   private updateFloating() {
-    const primary = this.dismissed ? undefined : this.activeTarget()
-    this.syncFloating('primary', primary?.referenceElement)
-    this.syncFloating('secondary', this.secondaryTarget()?.referenceElement)
+    const target = this.dismissed ? undefined : this.activeTarget()
+    this.syncFloating(target?.referenceElement)
   }
 
   /**
-   * Bind, rebind, or tear down the floating-ui loop for one panel role.
+   * Bind, rebind, or tear down the floating-ui loop.
    *
-   * The loop is rebuilt only when the panel's reference (node DOM) element
-   * changes; otherwise the existing loop keeps tracking it through scroll, resize
-   * and layout shifts (and the panel resizing, e.g. summary -> edit form).
+   * The loop is rebuilt only when the reference (node DOM) element changes;
+   * otherwise the existing loop keeps tracking it through scroll, resize and
+   * layout shifts (and the inspector resizing, e.g. summary -> edit form).
    * ProseMirror may recreate a node's DOM across transactions, so the reference
    * is compared by element identity.
    *
    * `flip()` moves the panel below the node when there is no room above (top
    * edge) and `shift()` keeps it within the viewport (right/left/bottom edges).
    */
-  private syncFloating(role: InspectorRole, reference: HTMLElement | undefined) {
+  private syncFloating(reference: HTMLElement | undefined) {
     const floating = this.querySelector<HTMLElement>(
-      `.stencila-edit-node-toolbar[data-role="${role}"]`
+      '.stencila-edit-node-toolbar'
     )
-    const existing = this.floatingBindings.get(role)
+    const existing = this.floatingBinding
 
     if (!reference || !floating) {
       existing?.cleanup()
-      this.floatingBindings.delete(role)
+      this.floatingBinding = undefined
       return
     }
 
@@ -263,30 +257,12 @@ export class EditNodeToolbar extends LitElement {
         Object.assign(floating.style, { left: `${x}px`, top: `${y}px` })
       })
     })
-    this.floatingBindings.set(role, { cleanup, reference })
+    this.floatingBinding = { cleanup, reference }
   }
 
   private stopFloating() {
-    for (const { cleanup } of this.floatingBindings.values()) {
-      cleanup()
-    }
-    this.floatingBindings.clear()
-  }
-
-  /**
-   * The subordinate hover peek: a hovered node shown *in addition* to the
-   * selected primary, but only when it is a different node, so you can inspect
-   * another node while one is selected/being edited.
-   */
-  private secondaryTarget(): PositionedEditNodePropertyTarget | undefined {
-    const selected = this.selectedTarget
-    const hover = this.hoverTarget
-    if (!selected || !hover) {
-      return undefined
-    }
-    return this.targetKeyOf(hover) === this.targetKeyOf(selected)
-      ? undefined
-      : hover
+    this.floatingBinding?.cleanup()
+    this.floatingBinding = undefined
   }
 
   private targetKeyOf(
@@ -341,6 +317,11 @@ export class EditNodeToolbar extends LitElement {
       return
     }
 
+    if (this.selectedTarget) {
+      this.clearHoverTarget()
+      return
+    }
+
     const position = editor.view.posAtCoords({
       left: event.clientX,
       top: event.clientY,
@@ -359,14 +340,10 @@ export class EditNodeToolbar extends LitElement {
       return
     }
 
-    // Already showing this node (selected primary or current hover peek): leave
-    // it be, and drop any pending switch to a node the pointer has moved back
-    // from.
+    // Already showing this node: leave it be, and drop any pending switch to a
+    // node the pointer has moved back from.
     const targetKey = editNodePropertyTargetKey(target)
-    if (
-      targetKey === this.targetKeyOf(this.selectedTarget) ||
-      targetKey === this.targetKeyOf(this.hoverTarget)
-    ) {
+    if (targetKey === this.targetKeyOf(this.hoverTarget)) {
       this.cancelHoverTimer()
       return
     }
@@ -467,10 +444,7 @@ export class EditNodeToolbar extends LitElement {
     return this.editPopoverRenderers[target.typeName](target)
   }
 
-  private renderSummary(
-    target: PositionedEditNodePropertyTarget,
-    role: InspectorRole
-  ) {
+  private renderSummary(target: PositionedEditNodePropertyTarget) {
     return html`
       <div
         class="stencila-edit-node-inspector"
@@ -491,53 +465,42 @@ export class EditNodeToolbar extends LitElement {
               >#${target.persistentId}</span
             >`
           : nothing}
-        ${role === 'primary'
-          ? html`
-              <button
-                type="button"
-                class="stencila-edit-node-inspector-edit"
-                aria-label="Edit properties"
-                title="Edit properties"
-                @mousedown=${this.keepEditorFocused}
-                @click=${this.openEditMode}
-              >
-                <span
-                  class="i-lucide:sliders-horizontal"
-                  aria-hidden="true"
-                ></span>
-              </button>
-              <button
-                type="button"
-                class="stencila-edit-node-inspector-dismiss"
-                aria-label="Dismiss"
-                title="Dismiss"
-                @mousedown=${this.keepEditorFocused}
-                @click=${this.dismiss}
-              >
-                <span class="i-lucide:x" aria-hidden="true"></span>
-              </button>
-            `
-          : nothing}
+        <button
+          type="button"
+          class="stencila-edit-node-inspector-edit"
+          aria-label="Edit properties"
+          title="Edit properties"
+          @mousedown=${this.keepEditorFocused}
+          @click=${this.openEditMode}
+        >
+          <span class="i-lucide:sliders-horizontal" aria-hidden="true"></span>
+        </button>
+        <button
+          type="button"
+          class="stencila-edit-node-inspector-dismiss"
+          aria-label="Dismiss"
+          title="Dismiss"
+          @mousedown=${this.keepEditorFocused}
+          @click=${this.dismiss}
+        >
+          <span class="i-lucide:x" aria-hidden="true"></span>
+        </button>
       </div>
     `
   }
 
   /**
-   * Render one floating panel. The primary panel can enter the edit form; the
-   * secondary peek is always the read-only summary.
+   * Render the single floating inspector. It starts as the read-only summary and
+   * can drill into the editable property form for the active node.
    */
-  private renderPanel(
-    target: PositionedEditNodePropertyTarget,
-    role: InspectorRole
-  ) {
+  private renderPanel(target: PositionedEditNodePropertyTarget) {
     const content =
-      role === 'primary' && this.popoverMode === 'edit'
+      this.popoverMode === 'edit'
         ? this.renderEditPopover(target)
-        : this.renderSummary(target, role)
+        : this.renderSummary(target)
     return html`
       <div
         class="stencila-edit-node-toolbar"
-        data-role=${role}
         @pointerleave=${this.handleInspectorPointerLeave}
       >
         ${content}
@@ -546,15 +509,11 @@ export class EditNodeToolbar extends LitElement {
   }
 
   override render() {
-    const primary = this.dismissed ? undefined : this.activeTarget()
-    const secondary = this.secondaryTarget()
-    if (!primary && !secondary) {
+    const target = this.dismissed ? undefined : this.activeTarget()
+    if (!target) {
       return nothing
     }
 
-    return html`
-      ${primary ? this.renderPanel(primary, 'primary') : nothing}
-      ${secondary ? this.renderPanel(secondary, 'secondary') : nothing}
-    `
+    return this.renderPanel(target)
   }
 }
