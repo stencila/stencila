@@ -80,7 +80,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "tiptap"
         ]
       },
       "walk": true,
@@ -123,7 +124,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "tiptap"
         ]
       },
       "$ref": "TableRowType.schema.json"

@@ -53,7 +53,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
     dom:
       elem: caption
     proptest:
@@ -75,7 +75,7 @@ properties:
       $ref: TableRow
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
     dom:
       elem: table
     proptest:
@@ -99,7 +99,7 @@ properties:
       $ref: Block
     walk: true
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
     dom:
       elem: aside
     proptest:
