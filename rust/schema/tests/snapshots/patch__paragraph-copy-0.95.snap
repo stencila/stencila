@@ -168,6 +168,14 @@ ops:
         0:
           - 1
   - - - content
+    - Insert:
+        - - 2
+          - type: Paragraph
+            content:
+              - type: Text
+                value:
+                  string: "..............................................................................................zzzzz"
+  - - - content
       - 1
       - content
       - 0
@@ -177,11 +185,3 @@ ops:
             - start: 96
               end: 99
             - xxx
-  - - - content
-    - Insert:
-        - - 2
-          - type: Paragraph
-            content:
-              - type: Text
-                value:
-                  string: "..............................................................................................zzzzz"

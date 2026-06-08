@@ -15,10 +15,10 @@ use stencila_codec_markdown::MarkdownCodec;
 use stencila_node_strip::{StripScope, StripTargets, strip};
 use stencila_schema::{
     Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
-    Figure, Inline, InstructionBlock, InstructionType, Node, NodePath, NodeProperty, NodeSlot,
-    Paragraph, Patch, PatchNode, PatchOp, PatchValue, Person, Primitive, ProvenanceCategory,
-    ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus, Text,
-    TimeUnit, authorship, diff, merge, patch,
+    Figure, Inline, InstructionBlock, InstructionType, Node, NodeId, NodePath, NodeProperty,
+    NodeSlot, Paragraph, Patch, PatchContext, PatchNode, PatchOp, PatchValue, Person, Primitive,
+    ProvenanceCategory, ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock,
+    SuggestionStatus, Text, TimeUnit, authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
 };
 
@@ -453,9 +453,247 @@ fn vec_move() -> Result<()> {
     let ops = diff_ops(&old, &new)?;
     assert_eq!(
         ops,
-        vec![(NodePath::new(), PatchOp::Move(vec![(0, 2), (0, 1)]))]
+        vec![(NodePath::new(), PatchOp::Move(vec![(0, 2), (1, 0)]))]
     );
     patch_anon(&mut old, ops)?;
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+fn p_id(id: &str, text: &str) -> Block {
+    let mut paragraph = Paragraph::new(vec![t(text)]);
+    paragraph.id = Some(id.to_string());
+    Block::Paragraph(paragraph)
+}
+
+fn id_path(index: usize) -> NodePath {
+    NodePath::from([
+        NodeSlot::Property(NodeProperty::Content),
+        NodeSlot::Index(index),
+        NodeSlot::Property(NodeProperty::Id),
+    ])
+}
+
+fn block_node_id(node: &Node, index: usize) -> Result<Option<NodeId>> {
+    let Node::Article(article) = node else {
+        bail!("Expected article")
+    };
+    Ok(article.content.get(index).and_then(Block::node_id))
+}
+
+#[test]
+fn vec_id_alignment_preserves_idless_exact_match() -> Result<()> {
+    let no_id = Paragraph::new(vec![t("same")]);
+    let same_no_id = Paragraph::new(vec![t("same")]);
+
+    let mut context = PatchContext::default();
+    assert_eq!(no_id.alignment(&same_no_id, &mut context)?, 1.0);
+
+    let mut with_id = Paragraph::new(vec![t("same")]);
+    with_id.id = Some("para-a".to_string());
+
+    let mut context = PatchContext::default();
+    let one_sided = no_id.alignment(&with_id, &mut context)?;
+    assert!(one_sided < no_id.maximum_similarity());
+    assert!(one_sided > no_id.minimum_similarity());
+
+    Ok(())
+}
+
+#[test]
+fn vec_ids() -> Result<()> {
+    let mut old = art([p_id("para-a", "same"), p_id("para-b", "same")]);
+    let new = art([p_id("para-b", "same"), p_id("para-a", "same")]);
+    let ops = diff_ops(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            NodePath::from(NodeProperty::Content),
+            PatchOp::Move(vec![(0, 1)])
+        )]
+    );
+    patch_anon(&mut old, ops)?;
+    let Node::Article(article) = &old else {
+        bail!("Expected article")
+    };
+    let ids = article
+        .content
+        .iter()
+        .map(|block| match block {
+            Block::Paragraph(paragraph) => paragraph.id.as_deref(),
+            _ => None,
+        })
+        .collect_vec();
+    assert_eq!(ids, vec![Some("para-b"), Some("para-a")]);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_added_without_content_change() -> Result<()> {
+    let mut old = art([p([t("same")])]);
+    let new = art([p_id("para-a", "same")]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            id_path(0),
+            PatchOp::Set(PatchValue::String("para-a".to_string()))
+        )]
+    );
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_removed_without_content_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "same")]);
+    let new = art([p([t("same")])]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert_eq!(ops, vec![(id_path(0), PatchOp::Set(PatchValue::None))]);
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_changed_without_content_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "same")]);
+    let new = art([p_id("para-b", "same")]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            id_path(0),
+            PatchOp::Set(PatchValue::String("para-b".to_string()))
+        )]
+    );
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_added_to_duplicate_content() -> Result<()> {
+    let mut old = art([p([t("same")]), p([t("same")])]);
+    let first_node_id = block_node_id(&old, 0)?;
+    let new = art([p_id("para-a", "same"), p([t("same")])]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert_eq!(
+        ops,
+        vec![(
+            id_path(0),
+            PatchOp::Set(PatchValue::String("para-a".to_string()))
+        )]
+    );
+    patch_anon(&mut old, ops)?;
+    assert_eq!(block_node_id(&old, 0)?, first_node_id);
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_match_beats_one_sided_id_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "same"), p_id("para-b", "same")]);
+    let node_a_id = block_node_id(&old, 0)?;
+    let new = art([p([t("same")]), p_id("para-a", "same")]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert!(
+        ops.iter()
+            .any(|(path, op)| path == &NodePath::from(NodeProperty::Content)
+                && matches!(op, PatchOp::Move(..)))
+    );
+    patch_anon(&mut old, ops)?;
+    assert_eq!(block_node_id(&old, 1)?, node_a_id);
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_content_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "old")]);
+    let new = art([p_id("para-a", "new")]);
+
+    let ops = diff_ops(&old, &new)?;
+    assert!(!ops.is_empty());
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_copy_after_insert_with_content_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "old")]);
+    let new = art([
+        p([t("inserted")]),
+        p_id("para-a", "old"),
+        p_id("para-a", "new"),
+    ]);
+
+    let ops = diff_ops(&old, &new)?;
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
+    assert_eq!(old, new);
+
+    Ok(())
+}
+
+#[test]
+fn vec_id_move_and_content_change() -> Result<()> {
+    let mut old = art([p_id("para-a", "same a"), p_id("para-b", "old b")]);
+    let new = art([p_id("para-b", "new b"), p_id("para-a", "same a")]);
+
+    let ops = diff_ops(&old, &new)?;
+    let content_path = NodePath::from(NodeProperty::Content);
+    assert!(
+        ops.iter()
+            .any(|(path, op)| path == &content_path && matches!(op, PatchOp::Move(..)))
+    );
+    patch_anon(&mut old, ops)?;
+    strip(
+        &mut old,
+        StripTargets::scopes(vec![StripScope::Authors, StripScope::Provenance]),
+    );
     assert_eq!(old, new);
 
     Ok(())

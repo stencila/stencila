@@ -755,6 +755,39 @@ pub trait PatchNode: Sized + Serialize + DeserializeOwned {
         Ok(self.minimum_similarity())
     }
 
+    /// Calculate the alignment score between this node and another of the same type
+    ///
+    /// This defaults to [`PatchNode::similarity`]. Implementations may override it
+    /// when vector diffing needs an identity-oriented score that is distinct from
+    /// content similarity.
+    #[allow(unused_variables)]
+    fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        self.similarity(other, context)
+    }
+
+    /// Whether alignment is backed by a durable identity match
+    ///
+    /// Vector diffing uses this to distinguish exact content-only matches from
+    /// exact ID matches. The distinction lets unchanged id-less nodes keep the
+    /// fast exact-match path, while off-position duplicate content is still
+    /// allowed to lose to a same-position ID addition/removal. Implementations
+    /// should return `true` only for a real identity match, not for equal content.
+    #[allow(unused_variables)]
+    fn alignment_is_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        Ok(false)
+    }
+
+    /// Whether this node type can align using a durable identity field
+    ///
+    /// This is intentionally separate from [`PatchNode::alignment_is_identity`]:
+    /// id-less instances of an ID-capable type still need duplicate-content
+    /// handling, while primitive values and other atom-like types should keep
+    /// their exact off-position matches for copy/move detection.
+    #[allow(unused_variables)]
+    fn alignment_has_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        Ok(false)
+    }
+
     /// The minimum similarity for nodes of the same type
     fn minimum_similarity(&self) -> f32 {
         0.00001
@@ -971,6 +1004,18 @@ where
         self.as_ref().similarity(other, context)
     }
 
+    fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        self.as_ref().alignment(other, context)
+    }
+
+    fn alignment_is_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        self.as_ref().alignment_is_identity(other, context)
+    }
+
+    fn alignment_has_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        self.as_ref().alignment_has_identity(other, context)
+    }
+
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         self.as_ref().diff(other, context)
     }
@@ -1024,6 +1069,28 @@ where
             (Some(me), Some(other)) => me.similarity(other, context),
             (None, None) => Ok(1.0),
             _ => Ok(0.0),
+        }
+    }
+
+    fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        match (self, other) {
+            (Some(me), Some(other)) => me.alignment(other, context),
+            (None, None) => Ok(1.0),
+            _ => Ok(0.0),
+        }
+    }
+
+    fn alignment_is_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        match (self, other) {
+            (Some(me), Some(other)) => me.alignment_is_identity(other, context),
+            _ => Ok(false),
+        }
+    }
+
+    fn alignment_has_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+        match (self, other) {
+            (Some(me), Some(other)) => me.alignment_has_identity(other, context),
+            _ => Ok(false),
         }
     }
 
@@ -1136,6 +1203,18 @@ where
         Ok((sum / (num as f32)).max(self.minimum_similarity()))
     }
 
+    fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+        let num = self.len().max(other.len());
+        let mut sum = 0.0;
+        for index in 0..num {
+            if let (Some(me), Some(other)) = (self.get(index), other.get(index)) {
+                sum += me.alignment(other, context)?;
+            }
+        }
+
+        Ok((sum / (num as f32)).max(self.minimum_similarity()))
+    }
+
     fn diff(&self, other: &Self, context: &mut PatchContext) -> Result<()> {
         // Shortcuts if this vector is empty
         if self.is_empty() {
@@ -1191,7 +1270,21 @@ where
                 if !perfect_matches.contains(&other_pos) {
                     let other_item = &other[other_pos];
 
-                    let similarity = self_item.similarity(other_item, context)?;
+                    let mut similarity = self_item.alignment(other_item, context)?;
+                    if similarity == self_item.maximum_similarity()
+                        && self_pos != other_pos
+                        && self_item.alignment_has_identity(other_item, context)?
+                        && !self_item.alignment_is_identity(other_item, context)?
+                    {
+                        // Same-position id-less exact matches are useful because they
+                        // preserve the vector diff's perfect-match pruning for common
+                        // unchanged content. Off-position content-only exact matches
+                        // are demoted slightly so duplicate content does not outrank a
+                        // same-position one-sided ID edit. Real ID matches stay at 1.0.
+                        similarity = (self_item.maximum_similarity()
+                            - self_item.minimum_similarity())
+                        .max(self_item.minimum_similarity());
+                    }
                     candidate_pairs.push(Pair {
                         self_pos,
                         new_pos: self_pos,
@@ -1238,10 +1331,17 @@ where
 
         // Find the pairs with highest similarity
         let mut best_pairs: Vec<Pair> = Vec::with_capacity(self.len().min(other.len()));
-        for candidate in candidate_pairs
-            .iter()
-            .sorted_by(|a, b| a.similarity.total_cmp(&b.similarity).reverse())
-        {
+        for candidate in candidate_pairs.iter().sorted_by(|a, b| {
+            b.similarity
+                .total_cmp(&a.similarity)
+                .then_with(|| {
+                    a.self_pos
+                        .abs_diff(a.other_pos)
+                        .cmp(&b.self_pos.abs_diff(b.other_pos))
+                })
+                .then_with(|| a.self_pos.cmp(&b.self_pos))
+                .then_with(|| a.other_pos.cmp(&b.other_pos))
+        }) {
             if !best_pairs.iter().any(|pair| {
                 pair.self_pos == candidate.self_pos || pair.other_pos == candidate.other_pos
             }) {
@@ -1325,17 +1425,6 @@ where
                         .map(|(from, tos)| (from, tos.into_iter().map(|(to, ..)| to).collect_vec()))
                         .collect();
                     context.op_copy(indices);
-
-                    // Generate other ops for copy destinations that are not exactly the same
-                    for (from, tos) in copy {
-                        for (to, similarity) in tos {
-                            if similarity < 1.0 {
-                                context.within_index(to, |context| {
-                                    self[from].diff(&other[to], context)
-                                })?
-                            }
-                        }
-                    }
                 }
 
                 // Generate insert op
@@ -1346,6 +1435,18 @@ where
                             .map(|index| Ok::<_, Report>((index, other[index].to_value()?)))
                             .try_collect()?,
                     );
+                }
+
+                if !copy.is_empty() {
+                    // Generate other ops for copy destinations. This must happen after
+                    // inserts, because copy targets are expressed as final `other`
+                    // indices and may not exist until earlier insertions are applied.
+                    for (from, tos) in copy {
+                        for (to, _) in tos {
+                            context
+                                .within_index(to, |context| self[from].diff(&other[to], context))?
+                        }
+                    }
                 }
             }
         } else if other.len() < self.len() {
@@ -1420,11 +1521,6 @@ where
             ..
         } in best_pairs
         {
-            // If positions and items are equal then nothing to do
-            if new_pos == other_pos && similarity == 1.0 {
-                continue;
-            }
-
             if similarity == 0.0 {
                 // If the similarity is zero (i.e. different types)
                 // then do a replacement.

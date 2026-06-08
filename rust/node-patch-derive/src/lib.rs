@@ -4,7 +4,7 @@ use darling::{FromDeriveInput, FromField, ast::Data as AstData, util::Ignored};
 use inflector::Inflector;
 use proc_macro2::{Span, TokenStream};
 use quote::quote;
-use syn::{Data, DataEnum, DeriveInput, Fields, Ident, Path, parse_macro_input, parse_str};
+use syn::{Data, DataEnum, DeriveInput, Fields, Ident, Path, Type, parse_macro_input, parse_str};
 
 use stencila_format::Format;
 
@@ -26,6 +26,8 @@ struct TypeAttr {
 #[darling(attributes(patch))]
 struct FieldAttr {
     ident: Option<Ident>,
+
+    ty: Type,
 
     #[darling(multiple, rename = "format")]
     formats: Vec<String>,
@@ -54,6 +56,153 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
     TokenStream::from(tokens)
 }
 
+/// Return true when a field type is syntactically an `Option<T>`.
+///
+/// This keeps generated code for optional `id` fields separate from required
+/// string IDs such as `GraphNode.id`.
+fn is_option(ty: &Type) -> bool {
+    let Type::Path(path) = ty else {
+        return false;
+    };
+
+    path.path
+        .segments
+        .last()
+        .is_some_and(|segment| segment.ident == "Option")
+}
+
+/// Generate similarity scoring for an `id` field.
+///
+/// Matching non-empty IDs receive maximum similarity. Non-empty differing IDs
+/// receive minimum similarity. Missing, default, or one-sided IDs are ignored
+/// so ID additions/removals are treated as ordinary field diffs.
+fn id_similarity(field_name: &Ident, field_diffed: &TokenStream, ty: &Type) -> TokenStream {
+    if is_option(ty) {
+        quote! {
+            if #field_diffed {
+                match (&self.#field_name, &other.#field_name) {
+                    (Some(id), Some(other_id)) if !id.is_empty() && id == other_id => {
+                        return Ok(self.maximum_similarity());
+                    }
+                    (Some(id), Some(other_id)) if !id.is_empty() && !other_id.is_empty() => {
+                        fields.push(self.minimum_similarity());
+                    }
+                    _ => {}
+                }
+            }
+        }
+    } else {
+        quote! {
+            if #field_diffed {
+                if !self.#field_name.is_empty() && self.#field_name == other.#field_name {
+                    return Ok(self.maximum_similarity());
+                }
+                if !self.#field_name.is_empty() && !other.#field_name.is_empty() {
+                    fields.push(self.minimum_similarity());
+                }
+            }
+        }
+    }
+}
+
+/// Generate alignment scoring for an `id` field.
+///
+/// This is similar to `id_similarity`, but uses a near-maximum neutral score
+/// for one-sided real IDs. The score is high enough to let content and position
+/// resolve ordinary ID additions/removals, but below one so an actual matching
+/// ID still wins during vector alignment.
+///
+/// Missing/default IDs on both sides are ignored. That preserves exact `1.0`
+/// alignment for unchanged nodes with no usable IDs, which keeps vector
+/// alignment from scanning every possible candidate pair for common unchanged
+/// id-less nodes.
+fn id_alignment(field_name: &Ident, field_diffed: &TokenStream, ty: &Type) -> TokenStream {
+    if is_option(ty) {
+        quote! {
+            if #field_diffed {
+                match (&self.#field_name, &other.#field_name) {
+                    (Some(id), Some(other_id)) if !id.is_empty() && id == other_id => {
+                        return Ok(self.maximum_similarity());
+                    }
+                    (Some(id), Some(other_id)) if !id.is_empty() && !other_id.is_empty() => {
+                        fields.push(self.minimum_similarity());
+                    }
+                    (Some(id), Some(other_id)) if id.is_empty() && other_id.is_empty() => {}
+                    (None, None) => {}
+                    (Some(id), None) | (None, Some(id)) if id.is_empty() => {}
+                    _ => {
+                        // A one-sided non-empty ID should not make the nodes look
+                        // unrelated, but it must stay below an exact ID match.
+                        fields.push(
+                            (self.maximum_similarity() - self.minimum_similarity())
+                                .max(self.minimum_similarity())
+                        );
+                    }
+                }
+            }
+        }
+    } else {
+        quote! {
+            if #field_diffed {
+                if !self.#field_name.is_empty() && self.#field_name == other.#field_name {
+                    return Ok(self.maximum_similarity());
+                }
+                if !self.#field_name.is_empty() && !other.#field_name.is_empty() {
+                    fields.push(self.minimum_similarity());
+                } else if !self.#field_name.is_empty() || !other.#field_name.is_empty() {
+                    // A one-sided non-empty ID should not make the nodes look
+                    // unrelated, but it must stay below an exact ID match.
+                    fields.push(
+                        (self.maximum_similarity() - self.minimum_similarity())
+                            .max(self.minimum_similarity())
+                    );
+                }
+            }
+        }
+    }
+}
+
+/// Generate durable identity detection for an `id` field.
+///
+/// Only non-empty matching IDs count as identity. Missing/default IDs can still
+/// support content-based alignment, but treating them as identity would make
+/// duplicate id-less content indistinguishable from a deliberate ID match.
+fn id_alignment_is_identity(
+    field_name: &Ident,
+    field_diffed: &TokenStream,
+    ty: &Type,
+) -> TokenStream {
+    if is_option(ty) {
+        quote! {
+            if #field_diffed {
+                if let (Some(id), Some(other_id)) = (&self.#field_name, &other.#field_name) {
+                    if !id.is_empty() && id == other_id {
+                        return Ok(true);
+                    }
+                }
+            }
+        }
+    } else {
+        quote! {
+            if #field_diffed && !self.#field_name.is_empty() && self.#field_name == other.#field_name {
+                return Ok(true);
+            }
+        }
+    }
+}
+
+/// Generate whether an `id` field can participate in alignment.
+///
+/// This gates vector-specific duplicate handling to ID-capable node types, so
+/// primitive vectors keep their existing exact off-position copy/move behavior.
+fn id_alignment_has_identity(field_diffed: &TokenStream) -> TokenStream {
+    quote! {
+        if #field_diffed {
+            return Ok(true);
+        }
+    }
+}
+
 /// Derive the `PatchNode` trait for a `struct`
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
@@ -65,6 +214,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let mut authorship_fields = TokenStream::new();
     let mut provenance_fields = TokenStream::new();
     let mut similarity_fields = TokenStream::new();
+    let mut alignment_fields = TokenStream::new();
+    let mut alignment_identity_fields = TokenStream::new();
+    let mut alignment_has_identity_fields = TokenStream::new();
     let mut diff_fields = TokenStream::new();
     let mut patch_fields = TokenStream::new();
     let mut apply_fields = TokenStream::new();
@@ -175,11 +327,27 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             condition
         };
 
-        similarity_fields.extend(quote! {
-            if #field_diffed {
-                fields.push(self.#field_name.similarity(&other.#field_name, context)?);
-            }
-        });
+        if field_name == "id" {
+            similarity_fields.extend(id_similarity(&field_name, &field_diffed, &field_attr.ty));
+            alignment_fields.extend(id_alignment(&field_name, &field_diffed, &field_attr.ty));
+            alignment_identity_fields.extend(id_alignment_is_identity(
+                &field_name,
+                &field_diffed,
+                &field_attr.ty,
+            ));
+            alignment_has_identity_fields.extend(id_alignment_has_identity(&field_diffed));
+        } else {
+            similarity_fields.extend(quote! {
+                if #field_diffed {
+                    fields.push(self.#field_name.similarity(&other.#field_name, context)?);
+                }
+            });
+            alignment_fields.extend(quote! {
+                if #field_diffed {
+                    fields.push(self.#field_name.alignment(&other.#field_name, context)?);
+                }
+            });
+        }
 
         diff_fields.extend(quote! {
             if #field_diffed {
@@ -304,7 +472,50 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             fn similarity(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
                 let mut fields = Vec::new();
                 #similarity_fields
-                PatchContext::mean_similarity(fields)
+                if fields.is_empty() {
+                    Ok(self.minimum_similarity())
+                } else {
+                    PatchContext::mean_similarity(fields)
+                }
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
+    let alignment = if !alignment_fields.is_empty() {
+        quote! {
+            fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+                let mut fields = Vec::new();
+                #alignment_fields
+                if fields.is_empty() {
+                    Ok(self.minimum_similarity())
+                } else {
+                    PatchContext::mean_similarity(fields)
+                }
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
+    let alignment_is_identity = if !alignment_identity_fields.is_empty() {
+        quote! {
+            fn alignment_is_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+                #alignment_identity_fields
+                Ok(false)
+            }
+        }
+    } else {
+        TokenStream::new()
+    };
+
+    let alignment_has_identity = if !alignment_has_identity_fields.is_empty() {
+        quote! {
+            fn alignment_has_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+                let _ = other;
+                #alignment_has_identity_fields
+                Ok(false)
             }
         }
     } else {
@@ -420,6 +631,9 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
             #authorship
             #provenance
             #similarity
+            #alignment
+            #alignment_is_identity
+            #alignment_has_identity
             #diff
             #patch
             #apply
@@ -436,6 +650,9 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
     let mut authorship_variants = TokenStream::new();
     let mut provenance_variants = TokenStream::new();
     let mut similarity_variants = TokenStream::new();
+    let mut alignment_variants = TokenStream::new();
+    let mut alignment_identity_variants = TokenStream::new();
+    let mut alignment_has_identity_variants = TokenStream::new();
     let mut diff_variants = TokenStream::new();
     let mut patch_variants = TokenStream::new();
     let mut apply_variants = TokenStream::new();
@@ -455,6 +672,15 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 });
                 similarity_variants.extend(quote! {
                     (Self::#variant_name(me), Self::#variant_name(other)) => me.similarity(other, context),
+                });
+                alignment_variants.extend(quote! {
+                    (Self::#variant_name(me), Self::#variant_name(other)) => me.alignment(other, context),
+                });
+                alignment_identity_variants.extend(quote! {
+                    (Self::#variant_name(me), Self::#variant_name(other)) => me.alignment_is_identity(other, context),
+                });
+                alignment_has_identity_variants.extend(quote! {
+                    (Self::#variant_name(me), Self::#variant_name(other)) => me.alignment_has_identity(other, context),
                 });
                 diff_variants.extend(quote! {
                     (Self::#variant_name(me), Self::#variant_name(other)) => me.diff(other, context),
@@ -479,6 +705,15 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                 });
                 similarity_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(1.0),
+                });
+                alignment_variants.extend(quote! {
+                    (Self::#variant_name, Self::#variant_name) => Ok(1.0),
+                });
+                alignment_identity_variants.extend(quote! {
+                    (Self::#variant_name, Self::#variant_name) => Ok(false),
+                });
+                alignment_has_identity_variants.extend(quote! {
+                    (Self::#variant_name, Self::#variant_name) => Ok(false),
                 });
                 diff_variants.extend(quote! {
                     (Self::#variant_name, Self::#variant_name) => Ok(()),
@@ -595,6 +830,33 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
                     #similarity_variants
                     // Different variants: zero similarity
                     _ => Ok(0.0)
+                }
+            }
+
+            fn alignment(&self, other: &Self, context: &mut PatchContext) -> Result<f32> {
+                match (self, other) {
+                    // Same variants
+                    #alignment_variants
+                    // Different variants: zero similarity
+                    _ => Ok(0.0)
+                }
+            }
+
+            fn alignment_is_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+                match (self, other) {
+                    // Same variants
+                    #alignment_identity_variants
+                    // Different variants: no shared identity
+                    _ => Ok(false)
+                }
+            }
+
+            fn alignment_has_identity(&self, other: &Self, context: &mut PatchContext) -> Result<bool> {
+                match (self, other) {
+                    // Same variants
+                    #alignment_has_identity_variants
+                    // Different variants: no shared identity field
+                    _ => Ok(false)
                 }
             }
 
