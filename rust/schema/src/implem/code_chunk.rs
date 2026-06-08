@@ -733,6 +733,7 @@ mod tests {
     fn source_figure_id_is_on_wrapper() {
         let mut chunk = CodeChunk::new("plot()".into());
         chunk.id = Some("fig-plot".to_string());
+        chunk.id_automatically = Some(false);
         chunk.label_type = Some(LabelType::FigureLabel);
         chunk.programming_language = Some("python".to_string());
 
@@ -748,6 +749,7 @@ mod tests {
     fn source_table_id_is_on_wrapper() {
         let mut chunk = CodeChunk::new("summary".into());
         chunk.id = Some("tbl-summary".to_string());
+        chunk.id_automatically = Some(false);
         chunk.label_type = Some(LabelType::TableLabel);
 
         let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Normal);
