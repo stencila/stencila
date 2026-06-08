@@ -13,6 +13,7 @@ nodes:
       name: Snakefile
       path: Snakefile
       programmingLanguage: Snakemake
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -27,6 +28,7 @@ nodes:
       name: counts.py
       path: workflow/scripts/counts.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -41,6 +43,7 @@ nodes:
       name: download.py
       path: workflow/scripts/download.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -67,6 +70,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -152,6 +156,7 @@ nodes:
       name: S1.fastq
       path: data/raw/S1.fastq
       size: 16
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -166,6 +171,7 @@ nodes:
       name: S1.fastq
       path: data/trimmed/S1.fastq
       size: 16
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -180,6 +186,7 @@ nodes:
       name: rnaseq.html
       path: reports/rnaseq.html
       size: 41
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -194,6 +201,7 @@ nodes:
       name: S1.bam
       path: results/alignments/S1.bam
       size: 16
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

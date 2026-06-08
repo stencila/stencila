@@ -13,6 +13,7 @@ nodes:
       name: analysis.jl
       path: analysis.jl
       programmingLanguage: Julia
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -27,6 +28,7 @@ nodes:
       name: bad.py
       path: bad.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -41,6 +43,7 @@ nodes:
       name: dynamic.py
       path: dynamic.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -55,6 +58,7 @@ nodes:
       name: malformed.R
       path: scripts/malformed.R
       programmingLanguage: R
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -104,6 +108,7 @@ nodes:
       name: analysis.sas
       path: analysis.sas
       size: 30
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -118,6 +123,7 @@ nodes:
       name: missing-links.smd
       path: docs/missing-links.smd
       size: 197
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -136,6 +142,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:14b3f36a005f062412df3c2f1b90b55180ace98f87b118b52badc3d2be70a466"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

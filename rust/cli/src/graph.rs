@@ -68,6 +68,10 @@ pub struct Cli {
     #[arg(long)]
     no_c2pa: bool,
 
+    /// Do not include Git commit authors on file-backed workspace graph nodes
+    #[arg(long)]
+    no_git_authors: bool,
+
     /// Filter projected graph exports to nodes connected to matching nodes
     #[arg(long, value_name = "PATTERN")]
     connected_to: Vec<String>,
@@ -154,7 +158,8 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let GraphSource { graph, path } = build_graph(&self.path, self.no_c2pa).await?;
+        let GraphSource { graph, path } =
+            build_graph(&self.path, self.no_c2pa, self.no_git_authors).await?;
 
         match &self.output {
             Some(output) => {
@@ -387,7 +392,7 @@ struct GraphSource {
     path: PathBuf,
 }
 
-async fn build_graph(path: &Path, no_c2pa: bool) -> Result<GraphSource> {
+async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result<GraphSource> {
     let path = path.canonicalize()?;
 
     if path.is_dir() {
@@ -395,6 +400,7 @@ async fn build_graph(path: &Path, no_c2pa: bool) -> Result<GraphSource> {
             &path,
             Some(WorkspaceOptions {
                 include_c2pa: !no_c2pa,
+                git_file_authors: !no_git_authors,
                 ..Default::default()
             }),
         )

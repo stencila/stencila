@@ -48,6 +48,7 @@ async fn fixtures() -> Result<()> {
             ".worktreeStatus" => "[worktreeStatus]",
             ".nodes[].node.startTime.value" => DATETIME_PLACEHOLDER,
             ".nodes[].node.endTime.value" => DATETIME_PLACEHOLDER,
+            ".nodes[].node.authors" => "[authors]",
             ".nodes[].node.dateCreated.value" => DATETIME_PLACEHOLDER,
             ".nodes[].node.dateModified.value" => DATETIME_PLACEHOLDER,
             ".edges[].actions[].startTime.value" => DATETIME_PLACEHOLDER,

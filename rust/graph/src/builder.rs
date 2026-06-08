@@ -7,8 +7,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use eyre::{Result, bail};
 use stencila_schema::{
-    Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node, StripNode,
-    StripScope, StripTargets,
+    Author, Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node,
+    StripNode, StripScope, StripTargets,
 };
 
 const CODE_PREVIEW_MAX_LINES: usize = 8;
@@ -105,7 +105,31 @@ impl GraphBuilder {
     pub fn add_schema_node(&mut self, id: impl Into<String>, node: Node) {
         let id = id.into();
         let node = Box::new(shallow_node(&node));
+        self.add_prepared_schema_node(id, node);
+    }
 
+    /// Add a file-backed graph node while preserving supplied Git authors.
+    ///
+    /// Graph nodes normally strip all author metadata because document-level
+    /// authorship belongs to source documents, not graph identity. Workspace
+    /// file resources are different: Git authorship is filesystem source
+    /// metadata collected by the workspace graph itself, so this path restores
+    /// only those supplied authors after shallowing.
+    pub(crate) fn add_file_schema_node(
+        &mut self,
+        id: impl Into<String>,
+        node: Node,
+        authors: Option<&[Author]>,
+    ) {
+        let id = id.into();
+        let mut node = shallow_node(&node);
+        if let Some(authors) = authors.filter(|authors| !authors.is_empty()) {
+            set_file_backed_authors(&mut node, authors.to_vec());
+        }
+        self.add_prepared_schema_node(id, Box::new(node));
+    }
+
+    fn add_prepared_schema_node(&mut self, id: String, node: Box<Node>) {
         match self.nodes.entry(id.clone()) {
             std::collections::btree_map::Entry::Vacant(entry) => {
                 entry.insert(GraphNode::new(id, node));
@@ -518,6 +542,18 @@ fn strip_graph_metadata(node: &mut Node) {
         StripScope::Temporary,
         StripScope::Timestamps,
     ]));
+}
+
+fn set_file_backed_authors(node: &mut Node, authors: Vec<Author>) {
+    match node {
+        Node::AudioObject(node) => node.options.authors = Some(authors),
+        Node::Datatable(node) => node.options.authors = Some(authors),
+        Node::File(node) => node.options.authors = Some(authors),
+        Node::ImageObject(node) => node.options.authors = Some(authors),
+        Node::SoftwareSourceCode(node) => node.options.authors = Some(authors),
+        Node::VideoObject(node) => node.options.authors = Some(authors),
+        _ => {}
+    }
 }
 
 /// Replace embedded data URL bodies with a placeholder.

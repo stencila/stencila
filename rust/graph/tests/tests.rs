@@ -17,7 +17,7 @@ use stencila_graph::{
     WorkspaceOptions, graph_from_node, graph_from_path, project_graph,
 };
 use stencila_schema::{
-    Article, Block, Citation, CodeChunk, Cord, ExecuteAction, Figure, GraphAction,
+    Article, Author, Block, Citation, CodeChunk, Cord, ExecuteAction, Figure, GraphAction,
     GraphEvidenceKind, Inline, Link, Node, Paragraph, Reference, Section, Table, Text,
     WorktreeStatus,
 };
@@ -248,6 +248,126 @@ async fn records_workspace_source_metadata_from_git() -> Result<()> {
     .await?;
     assert_eq!(graph.options.commit.as_deref(), Some(head.as_str()));
     assert_eq!(graph.options.worktree_status, Some(WorktreeStatus::Dirty));
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn records_file_git_authors_from_workspace_history() -> Result<()> {
+    if !git_available() {
+        return Ok(());
+    }
+
+    let workspace = tempdir()?;
+    run_git(workspace.path(), ["init"])?;
+    run_git(
+        workspace.path(),
+        ["config", "user.email", "committer@example.org"],
+    )?;
+    run_git(workspace.path(), ["config", "user.name", "Committer"])?;
+
+    write(workspace.path().join("analysis.py"), "x = 1\n")?;
+    write(workspace.path().join("data.csv"), "x\n1\n")?;
+    write(workspace.path().join("notes.txt"), "first\n")?;
+    write(workspace.path().join("plot.png"), b"")?;
+    run_git(workspace.path(), ["add", "--", "."])?;
+    run_git(
+        workspace.path(),
+        [
+            "commit",
+            "--author",
+            "Alice Example <alice@example.org>",
+            "-m",
+            "add workspace files",
+        ],
+    )?;
+
+    write(workspace.path().join("analysis.py"), "x = 2\n")?;
+    write(workspace.path().join("notes.txt"), "second\n")?;
+    run_git(workspace.path(), ["add", "--", "analysis.py", "notes.txt"])?;
+    run_git(
+        workspace.path(),
+        [
+            "commit",
+            "--author",
+            "Bob Example <bob@example.org>",
+            "-m",
+            "update text files",
+        ],
+    )?;
+
+    write(workspace.path().join("draft.txt"), "untracked\n")?;
+    let head = run_git(workspace.path(), ["rev-parse", "HEAD"])?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            include_c2pa: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    assert_eq!(
+        graph_node_author_names(&graph, "file:notes.txt")?,
+        vec!["Bob Example".to_string(), "Alice Example".to_string()]
+    );
+    assert_eq!(
+        graph_node_author_emails(&graph, "file:notes.txt")?,
+        vec![
+            "bob@example.org".to_string(),
+            "alice@example.org".to_string()
+        ]
+    );
+    assert_eq!(
+        graph_node_author_names(&graph, "code:analysis.py")?,
+        vec!["Bob Example".to_string(), "Alice Example".to_string()]
+    );
+    assert_eq!(
+        graph_node_author_names(&graph, "datatable:data.csv")?,
+        vec!["Alice Example".to_string()]
+    );
+    assert_eq!(
+        graph_node_author_names(&graph, "image:plot.png")?,
+        vec!["Alice Example".to_string()]
+    );
+    assert!(graph_node_author_names(&graph, "file:draft.txt")?.is_empty());
+
+    let graph_without_source_metadata = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            include_c2pa: false,
+            source_metadata: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    assert!(graph_without_source_metadata.options.commit.is_none());
+    assert_eq!(
+        graph_node_author_names(&graph_without_source_metadata, "file:notes.txt")?,
+        vec!["Bob Example".to_string(), "Alice Example".to_string()]
+    );
+
+    let graph_without_authors = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            decode: false,
+            analyze_environment: false,
+            include_c2pa: false,
+            git_file_authors: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    assert_eq!(
+        graph_without_authors.options.commit.as_deref(),
+        Some(head.as_str())
+    );
+    assert!(graph_node_author_names(&graph_without_authors, "file:notes.txt")?.is_empty());
 
     Ok(())
 }
@@ -1066,6 +1186,36 @@ fn graph_node<'a>(graph: &'a Graph, id: &str) -> Option<&'a Node> {
         .iter()
         .find(|node| node.id == id)
         .map(|node| node.node.as_ref())
+}
+
+fn graph_node_author_names(graph: &Graph, id: &str) -> Result<Vec<String>> {
+    graph_node_authors(graph, id).map(|authors| authors.iter().map(Author::name).collect())
+}
+
+fn graph_node_author_emails(graph: &Graph, id: &str) -> Result<Vec<String>> {
+    graph_node_authors(graph, id).map(|authors| {
+        authors
+            .iter()
+            .filter_map(|author| match author {
+                Author::Person(person) => person.options.emails.as_ref()?.first().cloned(),
+                _ => None,
+            })
+            .collect()
+    })
+}
+
+fn graph_node_authors<'a>(graph: &'a Graph, id: &str) -> Result<&'a [Author]> {
+    let node = graph_node(graph, id).ok_or_else(|| eyre::eyre!("missing graph node {id}"))?;
+    Ok(match node {
+        Node::AudioObject(node) => node.options.authors.as_deref(),
+        Node::Datatable(node) => node.options.authors.as_deref(),
+        Node::File(node) => node.options.authors.as_deref(),
+        Node::ImageObject(node) => node.options.authors.as_deref(),
+        Node::SoftwareSourceCode(node) => node.options.authors.as_deref(),
+        Node::VideoObject(node) => node.options.authors.as_deref(),
+        _ => None,
+    }
+    .unwrap_or(&[]))
 }
 
 fn assert_edge_evidence(edge: &GraphEdge, kind: GraphEvidenceKind) {

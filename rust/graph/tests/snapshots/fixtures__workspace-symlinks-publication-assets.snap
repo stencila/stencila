@@ -25,6 +25,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: NumberValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -75,6 +76,7 @@ nodes:
       name: manuscript.smd
       path: docs/manuscript.smd
       size: 135
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -89,6 +91,7 @@ nodes:
       contentUrl: figures/model-v1.png
       mediaType: image/png
       name: model-v1.png
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -103,6 +106,7 @@ nodes:
       contentUrl: figures/model-v2.png
       mediaType: image/png
       name: model-v2.png
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

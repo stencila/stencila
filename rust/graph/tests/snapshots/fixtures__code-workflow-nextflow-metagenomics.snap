@@ -13,6 +13,7 @@ nodes:
       name: main.nf
       path: main.nf
       programmingLanguage: Nextflow
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -27,6 +28,7 @@ nodes:
       name: nextflow.config
       path: nextflow.config
       programmingLanguage: Nextflow
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -53,6 +55,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -80,6 +83,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -137,6 +141,7 @@ nodes:
       name: reads.fastq
       path: data/reads.fastq
       size: 16
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -151,6 +156,7 @@ nodes:
       name: M1-qc.txt
       path: results/qc/M1-qc.txt
       size: 8
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -165,6 +171,7 @@ nodes:
       name: report.html
       path: results/summary/report.html
       size: 46
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

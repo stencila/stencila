@@ -34,6 +34,7 @@ nodes:
       name: samples.dat
       path: data/samples.dat
       size: 27
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -48,6 +49,7 @@ nodes:
       name: notebook.json
       path: docs/notebook.json
       size: 1601
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

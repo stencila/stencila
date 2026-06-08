@@ -25,6 +25,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -68,6 +69,7 @@ nodes:
       name: report.smd
       path: manuscript/report.smd
       size: 368
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -82,6 +84,7 @@ nodes:
       contentUrl: media/figure.svg
       mediaType: image/svg
       name: figure.svg
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

@@ -46,6 +46,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -94,6 +95,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -116,6 +118,7 @@ nodes:
       name: article.smd
       path: article.smd
       size: 3816
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -130,6 +133,7 @@ nodes:
       contentUrl: ai-generated.png
       mediaType: image/png
       name: ai-generated.png
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -153,8 +157,8 @@ nodes:
       code:
         string: "outcomes <- read.csv(\"outcomes.csv\")\n\nevent_totals <- aggregate(\n  cbind(mitotic_entries, apoptotic_cells) ~ treatment,\n  data = outcomes,\n  FUN = sum\n)\ncell_counts <- aggregate(cells_scored ~ treatment, data = outcomes, FUN = max)\n..."
       programmingLanguage: r
-      labelType: TableLabel
       label: "1"
+      labelType: TableLabel
       caption:
         - type: Paragraph
           content:
@@ -168,8 +172,8 @@ nodes:
       code:
         string: "outcome_matrix <- t(as.matrix(\n  summaries[, c(\"Mitotic entry (%)\", \"Apoptosis (%)\")]\n))\ncolnames(outcome_matrix) <- summaries$Treatment\n\nbarplot(\n  outcome_matrix,\n  beside = TRUE,\n..."
       programmingLanguage: r
-      labelType: FigureLabel
       label: 1a
+      labelType: FigureLabel
       caption:
         - type: Paragraph
           content:

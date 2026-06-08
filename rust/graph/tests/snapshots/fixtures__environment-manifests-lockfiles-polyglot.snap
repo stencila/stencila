@@ -94,6 +94,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:1b2f5a617caa3d070390c8c9f1acd3b2d8cc198ed4d2c0069ee8397ad12d4231"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -112,6 +113,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:fbb3cd52c7ebbfc3f9ad6863b7b86cc9d56ffa9a5d960f37cd682a361da54035"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -130,6 +132,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:fe66c34077cb0c57a3cc727c9b15ac708e56c9e9a34ee4637f094c5908310086"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -148,6 +151,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:4b1e9b100239b83991532345f5eff930dd80a6b0402c17df1b132ac1b39698f6"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -166,6 +170,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:2eebf12e6ea103c128ab42812c48fbb7a43dd86f02d3d047eb6d98c4f69b009f"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -184,6 +189,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:25133279b57543cbe3b79d81534c6b79c0a0eeaa7c82e13c2b92aeb943698d41"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -202,6 +208,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:13eb8dd48f83337fab686c0999469207ec38a782d613008fa811b4114e50ecbf"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -220,6 +227,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:53edd0a32745761ad6a6e88df286858a03afbb4663134e40d8290c809136c08c"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -238,6 +246,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:0770aaa1a9af718f3f248af1cfcb98fdb5f011122d5e5d509effe987d1cce7e1"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -256,6 +265,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:b5b3e99e21260a83b38960b606e9af4971c548a63d17c3ad9cd68daa87418e61"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -274,6 +284,7 @@ nodes:
         - type: PropertyValue
           propertyId: sha256
           value: "sha256:c0b8db057b9b36718982fea80396ba000fd75dd36ff2262bbbca881af07e341e"
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

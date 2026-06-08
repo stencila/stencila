@@ -13,8 +13,8 @@ use eyre::{Result, WrapErr, ensure};
 use ignore::WalkBuilder;
 use stencila_codecs::{CodecDirection, DecodeOptions, Format, node_type_from_path};
 use stencila_schema::{
-    AudioObject, Datatable, DateTime as SchemaDateTime, Directory, File, Graph, GraphEdgeKind,
-    ImageObject, Node, NodeType, SymbolicLink, VideoObject,
+    AudioObject, Author, Datatable, DateTime as SchemaDateTime, Directory, File, Graph,
+    GraphEdgeKind, ImageObject, Node, NodeType, SymbolicLink, VideoObject,
 };
 
 use crate::{
@@ -85,12 +85,18 @@ pub struct WorkspaceOptions {
     /// prevent a workspace graph, but stricter callers can opt into failure.
     pub fail_on_c2pa_error: bool,
 
-    /// Record source repository metadata on the generated graph when available.
+    /// Record source repository metadata when available.
     ///
     /// When enabled, graph construction records `repository`, `path`, `commit`,
     /// and `worktreeStatus` from the Git repository containing the workspace
     /// root. Disable this for deterministic fixture snapshots.
     pub source_metadata: bool,
+
+    /// Record Git commit authors on file-backed graph nodes when available.
+    ///
+    /// When enabled, graph construction inspects Git history for the workspace
+    /// subtree and records unique commit authors on file-backed nodes.
+    pub git_file_authors: bool,
 }
 
 impl Default for WorkspaceOptions {
@@ -105,6 +111,7 @@ impl Default for WorkspaceOptions {
             include_c2pa: true,
             fail_on_c2pa_error: false,
             source_metadata: true,
+            git_file_authors: true,
         }
     }
 }
@@ -155,6 +162,11 @@ pub async fn graph_from_path(
         .filter(|&entry| (entry.kind == WorkspaceEntryKind::File))
         .map(|entry| (entry.rel.clone(), workspace_file_node_type(&entry.path)))
         .collect::<BTreeMap<_, _>>();
+    let git_authors_by_path = if options.git_file_authors {
+        source::git_authors_by_workspace_path(&root)
+    } else {
+        BTreeMap::new()
+    };
 
     for entry in &entries {
         match entry.kind {
@@ -169,6 +181,10 @@ pub async fn graph_from_path(
                 }
             }
             WorkspaceEntryKind::File => {
+                let git_authors = git_authors_by_path
+                    .get(entry.rel.as_str())
+                    .map(Vec::as_slice);
+
                 if options.analyze_environment {
                     let file_id_for_rel = |rel: &WorkspaceRelPath| {
                         workspace_resource_id(
@@ -230,6 +246,7 @@ pub async fn graph_from_path(
                                 parent_id,
                                 date_created: file_created_time(&entry.metadata),
                                 date_modified: file_modified_time(&entry.metadata),
+                                authors: git_authors,
                             },
                             resolver,
                         );
@@ -242,7 +259,11 @@ pub async fn graph_from_path(
                             .id
                             .clone()
                             .unwrap_or_else(|| LocalGraphId::datatable(&entry.rel));
-                        builder.add_schema_node(datatable_id.clone(), Node::Datatable(datatable));
+                        builder.add_file_schema_node(
+                            datatable_id.clone(),
+                            Node::Datatable(datatable),
+                            git_authors,
+                        );
                         if let Some(parent) = entry.rel.parent() {
                             builder.add_containment(
                                 &datatable_id,
@@ -258,6 +279,7 @@ pub async fn graph_from_path(
                             &entry.rel,
                             &entry.metadata,
                             node_type,
+                            git_authors,
                         );
                         if let Some(parent) = entry.rel.parent() {
                             builder.add_containment(
@@ -268,8 +290,13 @@ pub async fn graph_from_path(
                         }
                     }
                     _ => {
-                        let file_id =
-                            add_file(&mut builder, &entry.path, &entry.rel, &entry.metadata);
+                        let file_id = add_file(
+                            &mut builder,
+                            &entry.path,
+                            &entry.rel,
+                            &entry.metadata,
+                            git_authors,
+                        );
                         if let Some(parent) = entry.rel.parent() {
                             builder.add_containment(
                                 &file_id,
@@ -658,6 +685,7 @@ fn add_media_object(
     rel: &WorkspaceRelPath,
     metadata: &Metadata,
     node_type: NodeType,
+    authors: Option<&[Author]>,
 ) -> String {
     let format = Format::from_path(path);
     let media_type = Some(format.media_type());
@@ -678,7 +706,7 @@ fn add_media_object(
             image.options.date_created = date_created;
             image.options.date_modified = date_modified;
             image.options.identifiers = identifiers;
-            builder.add_schema_node(id.clone(), Node::ImageObject(image));
+            builder.add_file_schema_node(id.clone(), Node::ImageObject(image), authors);
             id
         }
         NodeType::AudioObject => {
@@ -690,7 +718,7 @@ fn add_media_object(
             audio.options.date_created = date_created;
             audio.options.date_modified = date_modified;
             audio.options.identifiers = identifiers;
-            builder.add_schema_node(id.clone(), Node::AudioObject(audio));
+            builder.add_file_schema_node(id.clone(), Node::AudioObject(audio), authors);
             id
         }
         NodeType::VideoObject => {
@@ -702,7 +730,7 @@ fn add_media_object(
             video.options.date_created = date_created;
             video.options.date_modified = date_modified;
             video.options.identifiers = identifiers;
-            builder.add_schema_node(id.clone(), Node::VideoObject(video));
+            builder.add_file_schema_node(id.clone(), Node::VideoObject(video), authors);
             id
         }
         _ => unreachable!("media object node type should be image, audio, or video"),
@@ -718,6 +746,7 @@ fn add_file(
     path: &Path,
     rel: &WorkspaceRelPath,
     metadata: &Metadata,
+    authors: Option<&[Author]>,
 ) -> String {
     let id = LocalGraphId::file(rel);
     let name = path_name(path, "");
@@ -732,7 +761,7 @@ fn add_file(
         file.options.identifiers = Some(vec![identifier]);
     }
 
-    builder.add_schema_node(id.clone(), Node::File(file));
+    builder.add_file_schema_node(id.clone(), Node::File(file), authors);
     id
 }
 

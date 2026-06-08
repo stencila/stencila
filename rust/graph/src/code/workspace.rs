@@ -1,5 +1,5 @@
 use stencila_codecs::Format;
-use stencila_schema::{DateTime, Node, SoftwareSourceCode};
+use stencila_schema::{Author, DateTime, Node, SoftwareSourceCode};
 
 use crate::{GraphBuilder, evidence, ids::WorkspaceRelPath};
 
@@ -19,6 +19,7 @@ pub(crate) struct WorkspaceCode<'a> {
     pub(crate) parent_id: Option<String>,
     pub(crate) date_created: Option<DateTime>,
     pub(crate) date_modified: Option<DateTime>,
+    pub(crate) authors: Option<&'a [Author]>,
 }
 
 /// Add static code graph facts for a workspace source file.
@@ -48,7 +49,11 @@ pub(crate) fn add_workspace_code(
     node.path = Some(source.rel.as_str().to_string());
     node.options.date_created = source.date_created;
     node.options.date_modified = source.date_modified;
-    builder.add_schema_node(source.unit_id, Node::SoftwareSourceCode(node));
+    builder.add_file_schema_node(
+        source.unit_id,
+        Node::SoftwareSourceCode(node),
+        source.authors,
+    );
     if let Some(parent_id) = source.parent_id {
         builder.add_containment(source.unit_id, parent_id, vec![evidence::observed()]);
     }

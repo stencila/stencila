@@ -13,6 +13,7 @@ nodes:
       name: analysis.R
       path: analysis.R
       programmingLanguage: R
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -27,6 +28,7 @@ nodes:
       name: analysis.jl
       path: analysis.jl
       programmingLanguage: Julia
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -41,6 +43,7 @@ nodes:
       name: analysis.js
       path: analysis.js
       programmingLanguage: JavaScript
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -55,6 +58,7 @@ nodes:
       name: analysis.m
       path: analysis.m
       programmingLanguage: MATLAB
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -69,6 +73,7 @@ nodes:
       name: analysis.py
       path: analysis.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -83,6 +88,7 @@ nodes:
       name: analysis.ts
       path: analysis.ts
       programmingLanguage: TypeScript
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -97,6 +103,7 @@ nodes:
       name: analysis.rs
       path: src/bin/analysis.rs
       programmingLanguage: Rust
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -123,6 +130,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -150,6 +158,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -177,6 +186,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -197,6 +207,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -224,6 +235,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -251,6 +263,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -278,6 +291,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -305,6 +319,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

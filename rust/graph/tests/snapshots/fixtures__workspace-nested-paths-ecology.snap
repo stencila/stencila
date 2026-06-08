@@ -62,6 +62,7 @@ nodes:
       name: field notes.txt
       path: analysis/field notes.txt
       size: 47
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -76,6 +77,7 @@ nodes:
       name: model-summary.dat
       path: data/derived/model-summary.dat
       size: 39
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -90,6 +92,7 @@ nodes:
       name: plot 1% cover.dat
       path: data/raw/plot 1% cover.dat
       size: 39
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -104,6 +107,7 @@ nodes:
       name: "site#alpha:survey.dat"
       path: "data/raw/site#alpha:survey.dat"
       size: 29
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -118,6 +122,7 @@ nodes:
       name: site summary.mdwn
       path: docs/site summary.mdwn
       size: 27
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -132,6 +137,7 @@ nodes:
       contentUrl: figures/richness%trend.svg
       mediaType: image/svg
       name: richness%trend.svg
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

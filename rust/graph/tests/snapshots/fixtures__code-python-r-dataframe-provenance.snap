@@ -13,6 +13,7 @@ nodes:
       name: analysis.R
       path: scripts/analysis.R
       programmingLanguage: R
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -27,6 +28,7 @@ nodes:
       name: analysis.py
       path: scripts/analysis.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -60,6 +62,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -87,6 +90,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -114,6 +118,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: StringValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -171,6 +176,7 @@ nodes:
       contentUrl: figures/python-counts.png
       mediaType: image/png
       name: python-counts.png
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -185,6 +191,7 @@ nodes:
       contentUrl: figures/r-counts.png
       mediaType: image/png
       name: r-counts.png
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
