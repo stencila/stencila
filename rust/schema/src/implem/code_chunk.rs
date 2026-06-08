@@ -559,6 +559,12 @@ impl MarkdownCodec for CodeChunk {
                         context.push_str(" chunk");
                     }
 
+                    if self.label_type.is_some()
+                        && let Some(id) = &self.id
+                    {
+                        context.push_str(" #").push_prop_str(NodeProperty::Id, id);
+                    }
+
                     if !self.label_automatically.unwrap_or(true)
                         && let Some(label) = &self.label
                     {
@@ -601,7 +607,9 @@ impl MarkdownCodec for CodeChunk {
 
                 context.push_str("exec");
 
-                if let Some(id) = &self.id {
+                if !(wrapped && self.label_type.is_some())
+                    && let Some(id) = &self.id
+                {
                     context.push_str(" #").push_prop_str(NodeProperty::Id, id);
                 }
 
@@ -714,6 +722,35 @@ mod tests {
     };
 
     use super::*;
+
+    #[test]
+    fn source_figure_id_is_on_wrapper() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.id = Some("fig-plot".to_string());
+        chunk.label_type = Some(LabelType::FigureLabel);
+        chunk.programming_language = Some("python".to_string());
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Normal);
+
+        assert_eq!(
+            markdown,
+            "::: figure #fig-plot\n\n```python exec\nplot()\n```\n\n:::"
+        );
+    }
+
+    #[test]
+    fn source_table_id_is_on_wrapper() {
+        let mut chunk = CodeChunk::new("summary".into());
+        chunk.id = Some("tbl-summary".to_string());
+        chunk.label_type = Some(LabelType::TableLabel);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Normal);
+
+        assert_eq!(
+            markdown,
+            "::: table #tbl-summary\n\n```exec\nsummary\n```\n\n:::"
+        );
+    }
 
     #[test]
     fn render_figure_caption_separates_label() {
