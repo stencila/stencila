@@ -14,19 +14,24 @@ export class Supplement extends Entity {
   type: "Supplement";
 
   /**
-   * The `CreativeWork` type of the supplement.
+   * Whether the identifier should be automatically updated.
    */
-  workType?: CreativeWorkType;
+  idAutomatically?: boolean;
 
   /**
-   * A short identifier or title for the supplement (e.g., "S1").
+   * A short label for the node.
    */
   label?: string;
 
   /**
-   * Whether the supplement label should be automatically generated and updated.
+   * Whether the label should be automatically updated.
    */
   labelAutomatically?: boolean;
+
+  /**
+   * The `CreativeWork` type of the supplement.
+   */
+  workType?: CreativeWorkType;
 
   /**
    * A brief caption or description for the supplement.

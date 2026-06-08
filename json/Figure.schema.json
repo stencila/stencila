@@ -4,7 +4,8 @@
   "@id": "stencila:Figure",
   "title": "Figure",
   "extends": [
-    "CreativeWork"
+    "CreativeWork",
+    "Labelled"
   ],
   "category": "works",
   "description": "A figure.",
@@ -48,6 +49,7 @@
     "id",
     "workType",
     "doi",
+    "idAutomatically",
     "label",
     "labelAutomatically",
     "caption",
@@ -722,16 +724,39 @@
         }
       ]
     },
-    "label": {
-      "@id": "stencila:label",
-      "description": "A short label for the figure.",
+    "idAutomatically": {
+      "@id": "stencila:idAutomatically",
+      "description": "Whether the identifier should be automatically updated.",
+      "$comment": "When true, the `id` has been generated from the node's label or other\ndocument context and should not be encoded to author-facing source formats\nas a persistent identifier.\n",
+      "aliases": [
+        "id-automatically",
+        "id_automatically"
+      ],
       "patch": {
         "formats": [
           "md",
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "type": "boolean"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the node.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "jats": {
@@ -766,7 +791,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "type": "boolean"

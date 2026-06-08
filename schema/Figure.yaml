@@ -1,6 +1,6 @@
 title: Figure
 '@id': stencila:Figure
-extends: CreativeWork
+extends: [CreativeWork, Labelled]
 category: works
 description: A figure.
 $comment: |
@@ -37,36 +37,10 @@ proptest: {}
 required:
   - content
 core:
-  - label
-  - labelAutomatically
   - caption
   - authors
   - provenance
 properties:
-  label:
-    '@id': stencila:label
-    description: A short label for the figure.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      elem: label
-    proptest:
-      min:
-        description: No label
-        value: None
-      low:
-        description: Generate a simple label
-        strategy: option::of(r"[a-zA-Z0-9]+")
-      max:
-        description: Generate an arbitrary string
-        strategy: option::of(String::arbitrary())
-  labelAutomatically:
-    '@id': stencila:labelAutomatically
-    description: Whether the label should be automatically updated.
-    type: boolean
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   caption:
     '@id': schema:caption
     description: A caption for the figure.

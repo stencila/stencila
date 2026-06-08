@@ -357,6 +357,10 @@ impl DomCodec for Datatable {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(id_automatically) = &self.id_automatically {
+            context.push_attr("id-automatically", &id_automatically.to_string());
+        }
+
         if let Some(id) = &self.id {
             context
                 .enter_slot("div", "id")
@@ -485,9 +489,10 @@ impl MarkdownCodec for Datatable {
                 context.push_prop_str(NodeProperty::Label, label);
             }
 
-            if let Some(id) = &self.id {
-                context.push_str(" #");
-                context.push_prop_str(NodeProperty::Id, id);
+            if !self.id_automatically.unwrap_or(true)
+                && let Some(id) = &self.id
+            {
+                context.push_str(" #").push_prop_str(NodeProperty::Id, id);
             }
 
             context.push_str("\n\n");

@@ -28,19 +28,24 @@ pub struct Supplement {
     #[jats(attr = "id")]
     pub id: Option<String>,
 
-    /// The `CreativeWork` type of the supplement.
-    #[serde(alias = "work-type", alias = "work_type")]
-    pub work_type: Option<CreativeWorkType>,
+    /// Whether the identifier should be automatically updated.
+    #[serde(alias = "id-automatically", alias = "id_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    pub id_automatically: Option<Boolean>,
 
-    /// A short identifier or title for the supplement (e.g., "S1").
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    /// A short label for the node.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     #[jats(elem = "label")]
     pub label: Option<String>,
 
-    /// Whether the supplement label should be automatically generated and updated.
+    /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     pub label_automatically: Option<Boolean>,
+
+    /// The `CreativeWork` type of the supplement.
+    #[serde(alias = "work-type", alias = "work_type")]
+    pub work_type: Option<CreativeWorkType>,
 
     /// A brief caption or description for the supplement.
     #[serde(default, deserialize_with = "option_one_or_many")]

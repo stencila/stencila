@@ -5,7 +5,8 @@
   "title": "MathBlock",
   "nick": "mtb",
   "extends": [
-    "Math"
+    "Math",
+    "Labelled"
   ],
   "category": "math",
   "description": "A block of math, e.g an equation, to be treated as block content.",
@@ -48,6 +49,7 @@
     "mathLanguage",
     "authors",
     "provenance",
+    "idAutomatically",
     "label",
     "labelAutomatically"
   ],
@@ -246,9 +248,58 @@
         "$ref": "ImageObject.schema.json"
       }
     },
+    "idAutomatically": {
+      "@id": "stencila:idAutomatically",
+      "description": "Whether the identifier should be automatically updated.",
+      "$comment": "When true, the `id` has been generated from the node's label or other\ndocument context and should not be encoded to author-facing source formats\nas a persistent identifier.\n",
+      "aliases": [
+        "id-automatically",
+        "id_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "type": "boolean"
+    },
     "label": {
       "@id": "stencila:label",
-      "description": "A short label for the math block.",
+      "description": "A short label for the node.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "jats": {
+        "elem": "label"
+      },
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a simple label",
+          "strategy": "option::of(r\"[a-zA-Z0-9]+\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
       "type": "string"
     },
     "labelAutomatically": {
@@ -264,7 +315,9 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "type": "boolean"

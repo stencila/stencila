@@ -111,6 +111,10 @@ impl DomCodec for Table {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(id_automatically) = &self.id_automatically {
+            context.push_attr("id-automatically", &id_automatically.to_string());
+        }
+
         if let Some(authors) = &self.authors {
             context.push_slot_fn("div", "authors", |context| authors.to_dom(context));
         }
@@ -217,7 +221,7 @@ impl MarkdownCodec for Table {
             context.exit_node().newline();
         } else {
             let wrapped = if (self.label.is_some() && !self.label_automatically.unwrap_or(true))
-                || self.id.is_some()
+                || (self.id.is_some() && !self.id_automatically.unwrap_or(true))
                 || self.caption.is_some()
                 || self.notes.is_some()
             {
@@ -230,9 +234,10 @@ impl MarkdownCodec for Table {
                     context.push_prop_str(NodeProperty::Label, label);
                 }
 
-                if let Some(id) = &self.id {
-                    context.push_str(" #");
-                    context.push_prop_str(NodeProperty::Id, id);
+                if !self.id_automatically.unwrap_or(true)
+                    && let Some(id) = &self.id
+                {
+                    context.push_str(" #").push_prop_str(NodeProperty::Id, id);
                 }
 
                 context.push_str("\n\n");

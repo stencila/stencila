@@ -1,7 +1,7 @@
 title: Datatable
 '@id': stencila:Datatable
 nick: dtb
-extends: CreativeWork
+extends: [CreativeWork, Labelled]
 category: data
 description: A table of data.
 $comment: |
@@ -29,19 +29,9 @@ markdown:
 required:
   - columns
 core:
-  - label
-  - labelAutomatically
   - caption
   - notes
 properties:
-  label:
-    '@id': stencila:label
-    description: A short label for the datatable.
-    type: string
-  labelAutomatically:
-    '@id': stencila:labelAutomatically
-    description: Whether the datatable label should be automatically updated.
-    type: boolean
   caption:
     '@id': schema:caption
     description: A caption for the datatable.

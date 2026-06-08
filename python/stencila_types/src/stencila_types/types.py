@@ -1018,6 +1018,24 @@ class Instruction(Executable):
 
 
 @dataclass(kw_only=True, repr=False)
+class Labelled():
+    """
+    Abstract base for document nodes with labels.
+    """
+
+    type: Literal["Labelled"] = "Labelled"
+
+    id_automatically: bool | None = None
+    """Whether the identifier should be automatically updated."""
+
+    label: str | None = None
+    """A short label for the node."""
+
+    label_automatically: bool | None = None
+    """Whether the label should be automatically updated."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Mark(Entity):
     """
     An abstract base type for marked inline content.
@@ -1702,7 +1720,7 @@ class CodeBlock(CodeStatic):
 
 
 @dataclass(kw_only=True, repr=False)
-class CodeChunk(CodeExecutable):
+class CodeChunk(CodeExecutable, Labelled):
     """
     An executable code chunk.
     """
@@ -1711,12 +1729,6 @@ class CodeChunk(CodeExecutable):
 
     label_type: LabelType | None = None
     """The type of the label for the chunk."""
-
-    label: str | None = None
-    """A short label for the chunk."""
-
-    label_automatically: bool | None = None
-    """Whether the label should be automatically updated."""
 
     caption: list[Block] | None = None
     """A caption for the chunk."""
@@ -1924,18 +1936,12 @@ class CreateAction(Action):
 
 
 @dataclass(kw_only=True, repr=False)
-class Datatable(CreativeWork):
+class Datatable(CreativeWork, Labelled):
     """
     A table of data.
     """
 
     type: Literal["Datatable"] = "Datatable"
-
-    label: str | None = None
-    """A short label for the datatable."""
-
-    label_automatically: bool | None = None
-    """Whether the datatable label should be automatically updated."""
 
     caption: list[Block] | None = None
     """A caption for the datatable."""
@@ -2224,18 +2230,12 @@ class ExecutionTag(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Figure(CreativeWork):
+class Figure(CreativeWork, Labelled):
     """
     A figure.
     """
 
     type: Literal["Figure"] = "Figure"
-
-    label: str | None = None
-    """A short label for the figure."""
-
-    label_automatically: bool | None = None
-    """Whether the label should be automatically updated."""
 
     caption: list[Block] | None = None
     """A caption for the figure."""
@@ -2602,7 +2602,7 @@ class IntegerValidator(NumberValidator):
 
 
 @dataclass(kw_only=True, repr=False)
-class Island(Entity):
+class Island(Entity, Labelled):
     """
     An island of content in a document.
     """
@@ -2620,12 +2620,6 @@ class Island(Entity):
 
     label_type: LabelType | None = None
     """The type of the label for the island."""
-
-    label: str | None = None
-    """A short label for the chunk."""
-
-    label_automatically: bool | None = None
-    """Whether the label should be automatically updated."""
 
     other_ids: list[str] | None = None
     """Other IDs for the island, in addition to the primary `id`."""
@@ -2704,18 +2698,12 @@ class ListItem(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
-class MathBlock(Math):
+class MathBlock(Math, Labelled):
     """
     A block of math, e.g an equation, to be treated as block content.
     """
 
     type: Literal["MathBlock"] = "MathBlock"
-
-    label: str | None = None
-    """A short label for the math block."""
-
-    label_automatically: bool | None = None
-    """Whether the label should be automatically updated."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3472,7 +3460,7 @@ class Superscript(Mark):
 
 
 @dataclass(kw_only=True, repr=False)
-class Supplement(Entity):
+class Supplement(Entity, Labelled):
     """
     A supplementary creative work associated with a document.
     """
@@ -3481,12 +3469,6 @@ class Supplement(Entity):
 
     work_type: CreativeWorkType | None = None
     """The `CreativeWork` type of the supplement."""
-
-    label: str | None = None
-    """A short identifier or title for the supplement (e.g., "S1")."""
-
-    label_automatically: bool | None = None
-    """Whether the supplement label should be automatically generated and updated."""
 
     caption: list[Block] | None = None
     """A brief caption or description for the supplement."""
@@ -3520,18 +3502,12 @@ class SymbolicLink(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Table(CreativeWork):
+class Table(CreativeWork, Labelled):
     """
     A table.
     """
 
     type: Literal["Table"] = "Table"
-
-    label: str | None = None
-    """A short label for the table."""
-
-    label_automatically: bool | None = None
-    """Whether the label should be automatically updated."""
 
     caption: list[Block] | None = None
     """A caption for the table."""
@@ -4265,6 +4241,7 @@ TYPES = [
     Grant,
     IncludeBlock,
     Instruction,
+    Labelled,
     Mark,
     Math,
     MediaObject,

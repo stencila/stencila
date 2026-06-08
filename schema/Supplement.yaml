@@ -1,7 +1,7 @@
 title: Supplement
 '@id': stencila:Supplement
 nick: spl
-extends: Entity
+extends: [Entity, Labelled]
 category: works
 description: A supplementary creative work associated with a document.
 $comment: |
@@ -26,8 +26,6 @@ markdown:
   derive: false
 core:
   - workType
-  - label
-  - labelAutomatically
   - caption
   - target
 properties:
@@ -35,20 +33,6 @@ properties:
     "@id": stencila:workType
     description: The `CreativeWork` type of the supplement.
     $ref: CreativeWorkType
-  label:
-    '@id': stencila:label
-    description: A short identifier or title for the supplement (e.g., "S1").
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      elem: label
-  labelAutomatically:
-    '@id': stencila:labelAutomatically
-    description: Whether the supplement label should be automatically generated and updated.
-    type: boolean
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   caption:
     '@id': schema:caption
     description: A brief caption or description for the supplement.

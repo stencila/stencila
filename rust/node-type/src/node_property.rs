@@ -147,6 +147,7 @@ pub enum NodeProperty {
     HorizontalAlignment,
     HorizontalAlignmentCharacter,
     Id,
+    IdAutomatically,
     Identifiers,
     Images,
     InstructionType,

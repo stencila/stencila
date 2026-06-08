@@ -13,7 +13,12 @@ export class Figure extends CreativeWork {
   type: "Figure";
 
   /**
-   * A short label for the figure.
+   * Whether the identifier should be automatically updated.
+   */
+  idAutomatically?: boolean;
+
+  /**
+   * A short label for the node.
    */
   label?: string;
 

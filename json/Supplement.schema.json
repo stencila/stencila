@@ -5,7 +5,8 @@
   "title": "Supplement",
   "nick": "spl",
   "extends": [
-    "Entity"
+    "Entity",
+    "Labelled"
   ],
   "category": "works",
   "description": "A supplementary creative work associated with a document.",
@@ -29,9 +30,10 @@
   ],
   "core": [
     "id",
-    "workType",
+    "idAutomatically",
     "label",
     "labelAutomatically",
+    "workType",
     "caption",
     "target"
   ],
@@ -66,35 +68,63 @@
       },
       "type": "string"
     },
-    "workType": {
-      "@id": "stencila:workType",
-      "description": "The `CreativeWork` type of the supplement.",
+    "idAutomatically": {
+      "@id": "stencila:idAutomatically",
+      "description": "Whether the identifier should be automatically updated.",
+      "$comment": "When true, the `id` has been generated from the node's label or other\ndocument context and should not be encoded to author-facing source formats\nas a persistent identifier.\n",
       "aliases": [
-        "work-type",
-        "work_type"
+        "id-automatically",
+        "id_automatically"
       ],
-      "$ref": "CreativeWorkType.schema.json"
-    },
-    "label": {
-      "@id": "stencila:label",
-      "description": "A short identifier or title for the supplement (e.g., \"S1\").",
       "patch": {
         "formats": [
           "md",
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "type": "boolean"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the node.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "jats": {
         "elem": "label"
       },
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a simple label",
+          "strategy": "option::of(r\"[a-zA-Z0-9]+\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
       "type": "string"
     },
     "labelAutomatically": {
       "@id": "stencila:labelAutomatically",
-      "description": "Whether the supplement label should be automatically generated and updated.",
+      "description": "Whether the label should be automatically updated.",
       "aliases": [
         "label-automatically",
         "label_automatically"
@@ -105,10 +135,21 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "type": "boolean"
+    },
+    "workType": {
+      "@id": "stencila:workType",
+      "description": "The `CreativeWork` type of the supplement.",
+      "aliases": [
+        "work-type",
+        "work_type"
+      ],
+      "$ref": "CreativeWorkType.schema.json"
     },
     "caption": {
       "@id": "schema:caption",

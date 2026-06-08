@@ -12,7 +12,12 @@ export class Table extends CreativeWork {
   type: "Table";
 
   /**
-   * A short label for the table.
+   * Whether the identifier should be automatically updated.
+   */
+  idAutomatically?: boolean;
+
+  /**
+   * A short label for the node.
    */
   label?: string;
 

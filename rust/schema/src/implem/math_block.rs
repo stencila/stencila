@@ -73,6 +73,10 @@ impl DomCodec for MathBlock {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(id_automatically) = &self.id_automatically {
+            context.push_attr("id-automatically", &id_automatically.to_string());
+        }
+
         if let Some(id) = &self.id {
             context
                 .enter_slot("div", "id")

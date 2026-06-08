@@ -29,11 +29,19 @@ impl Executable for Figure {
 
         // Auto-generate an id from the label if the figure doesn't already
         // have a user-supplied id
-        if let Some(label) = &self.label
+        if !matches!(self.id_automatically, Some(false))
+            && let Some(label) = &self.label
             && let Some(id) = Executor::auto_id(&LabelType::FigureLabel, label, &self.id)
         {
             self.id = Some(id.clone());
-            executor.patch(&node_id, [set(NodeProperty::Id, id)]);
+            self.id_automatically = Some(true);
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::Id, id),
+                    set(NodeProperty::IdAutomatically, true),
+                ],
+            );
         }
 
         // If have id and label then register as a link target

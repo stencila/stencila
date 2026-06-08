@@ -1000,8 +1000,10 @@ fn figure(input: &mut Located<&str>) -> ModalResult<Block> {
     )
     .map(|props| {
         let mut fields = collect_fence_fields(props);
+        let id_automatically = fields.id.is_some().then_some(false);
         Block::Figure(Figure {
             id: fields.id,
+            id_automatically,
             label: fields.label.clone(),
             label_automatically: fields.label.is_some().then_some(false),
             options: Box::new(FigureOptions {
@@ -1346,8 +1348,10 @@ fn table(input: &mut Located<&str>) -> ModalResult<Block> {
     preceded((Caseless("table"), multispace0), table_properties)
         .map(|props| {
             let fields = collect_fence_fields(props);
+            let id_automatically = fields.id.is_some().then_some(false);
             Block::Table(Table {
                 id: fields.id,
+                id_automatically,
                 label: fields.label.clone(),
                 label_automatically: fields.label.is_some().then_some(false),
                 ..Default::default()
@@ -1364,8 +1368,10 @@ fn datatable(input: &mut Located<&str>) -> ModalResult<Block> {
     )
     .map(|props| {
         let fields = collect_fence_fields(props);
+        let id_automatically = fields.id.is_some().then_some(false);
         Block::Datatable(Datatable {
             id: fields.id,
+            id_automatically,
             label: fields.label.clone(),
             label_automatically: fields.label.is_some().then_some(false),
             ..Default::default()
@@ -1500,6 +1506,8 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                 unreachable!("checked above")
             };
 
+            chunk.id = figure.id.clone();
+            chunk.id_automatically = figure.id_automatically;
             chunk.label_type = Some(LabelType::FigureLabel);
             chunk.label = figure.label.clone();
             chunk.label_automatically = figure.label_automatically;
@@ -1584,6 +1592,8 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
                 unreachable!("checked above")
             };
 
+            chunk.id = table.id.clone();
+            chunk.id_automatically = table.id_automatically;
             chunk.label_type = Some(LabelType::TableLabel);
             chunk.label = table.label.clone();
             chunk.label_automatically = table.label_automatically;
@@ -1630,6 +1640,7 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
             if let Block::Table(table) = child {
                 let mut converted = Datatable::from(&table);
                 converted.id = datatable.id.clone();
+                converted.id_automatically = datatable.id_automatically;
                 converted.label = datatable.label.clone();
                 converted.label_automatically = datatable.label_automatically;
                 converted.caption = datatable.caption.take();
@@ -2240,8 +2251,11 @@ fn code_to_block(code: mdast::Code, context: &mut Context) -> Block {
             }
         }
 
+        let id_automatically = code_id.is_some().then_some(false);
+
         Block::CodeChunk(CodeChunk {
             id: code_id,
+            id_automatically,
             code: value.into(),
             programming_language: if lang.as_deref() == Some("exec") {
                 None
@@ -2736,10 +2750,12 @@ A two-panel figure combining an executable plot with a real image.
     #[test]
     fn test_decode_single_chunk_figure_overlay_to_code_chunk() {
         let blocks = decode_smd(
-            "::: figure 1\n\n```r exec\nplot(y~x)\n```\n\n```svg overlay\n<svg>chunk</svg>\n```\n\nCaption\n\n:::\n",
+            "::: figure 1 #custom-figure\n\n```r exec\nplot(y~x)\n```\n\n```svg overlay\n<svg>chunk</svg>\n```\n\nCaption\n\n:::\n",
         );
 
         let Some(Block::CodeChunk(CodeChunk {
+            id,
+            id_automatically,
             label_type,
             overlay,
             caption,
@@ -2749,6 +2765,8 @@ A two-panel figure combining an executable plot with a real image.
             panic!("expected code chunk")
         };
 
+        assert_eq!(id.as_deref(), Some("custom-figure"));
+        assert_eq!(id_automatically, &Some(false));
         assert_eq!(label_type, &Some(LabelType::FigureLabel));
         assert_eq!(overlay.as_deref(), Some("<svg>chunk</svg>"));
         assert!(

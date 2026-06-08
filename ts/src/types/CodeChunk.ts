@@ -16,12 +16,12 @@ export class CodeChunk extends CodeExecutable {
   type: "CodeChunk";
 
   /**
-   * The type of the label for the chunk.
+   * Whether the identifier should be automatically updated.
    */
-  labelType?: LabelType;
+  idAutomatically?: boolean;
 
   /**
-   * A short label for the chunk.
+   * A short label for the node.
    */
   label?: string;
 
@@ -29,6 +29,11 @@ export class CodeChunk extends CodeExecutable {
    * Whether the label should be automatically updated.
    */
   labelAutomatically?: boolean;
+
+  /**
+   * The type of the label for the chunk.
+   */
+  labelType?: LabelType;
 
   /**
    * A caption for the chunk.

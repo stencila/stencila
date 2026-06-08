@@ -68,6 +68,10 @@ impl DomCodec for CodeChunk {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(id_automatically) = &self.id_automatically {
+            context.push_attr("id-automatically", &id_automatically.to_string());
+        }
+
         if let Some(is_echoed) = &self.is_echoed {
             context.push_attr("is-echoed", &is_echoed.to_string());
         }
@@ -560,6 +564,7 @@ impl MarkdownCodec for CodeChunk {
                     }
 
                     if self.label_type.is_some()
+                        && !self.id_automatically.unwrap_or(true)
                         && let Some(id) = &self.id
                     {
                         context.push_str(" #").push_prop_str(NodeProperty::Id, id);
@@ -608,6 +613,7 @@ impl MarkdownCodec for CodeChunk {
                 context.push_str("exec");
 
                 if !(wrapped && self.label_type.is_some())
+                    && !self.id_automatically.unwrap_or(true)
                     && let Some(id) = &self.id
                 {
                     context.push_str(" #").push_prop_str(NodeProperty::Id, id);
@@ -750,6 +756,30 @@ mod tests {
             markdown,
             "::: table #tbl-summary\n\n```exec\nsummary\n```\n\n:::"
         );
+    }
+
+    #[test]
+    fn source_automatic_figure_id_is_not_encoded() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.id = Some("fig-1".to_string());
+        chunk.id_automatically = Some(true);
+        chunk.label_type = Some(LabelType::FigureLabel);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Normal);
+
+        assert_eq!(markdown, "::: figure\n\n```exec\nplot()\n```\n\n:::");
+    }
+
+    #[test]
+    fn source_explicit_figure_id_is_encoded() {
+        let mut chunk = CodeChunk::new("plot()".into());
+        chunk.id = Some("fig-1".to_string());
+        chunk.id_automatically = Some(false);
+        chunk.label_type = Some(LabelType::FigureLabel);
+
+        let markdown = to_markdown_with(&chunk, Format::Markdown, MarkdownEncodeMode::Normal);
+
+        assert_eq!(markdown, "::: figure #fig-1\n\n```exec\nplot()\n```\n\n:::");
     }
 
     #[test]

@@ -1,0 +1,48 @@
+title: Labelled
+'@id': stencila:Labelled
+abstract: true
+category: other
+description: Abstract base for document nodes with labels.
+$comment: |
+  This is a mixin-style base type for document nodes that participate in
+  author-facing numbering, captions, and cross-references. It centralizes the
+  common label metadata and whether an identifier was generated automatically.
+core:
+  - idAutomatically
+  - label
+  - labelAutomatically
+properties:
+  idAutomatically:
+    '@id': stencila:idAutomatically
+    description: Whether the identifier should be automatically updated.
+    $comment: |
+      When true, the `id` has been generated from the node's label or other
+      document context and should not be encoded to author-facing source formats
+      as a persistent identifier.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex, tiptap]
+  label:
+    '@id': stencila:label
+    description: A short label for the node.
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex, tiptap]
+    jats:
+      elem: label
+    proptest:
+      min:
+        description: No label
+        value: None
+      low:
+        description: Generate a simple label
+        strategy: option::of(r"[a-zA-Z0-9]+")
+      max:
+        description: Generate an arbitrary string
+        strategy: option::of(String::arbitrary())
+  labelAutomatically:
+    '@id': stencila:labelAutomatically
+    description: Whether the label should be automatically updated.
+    type: boolean
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, latex, tiptap]

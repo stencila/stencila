@@ -52,11 +52,19 @@ pub struct Datatable {
     /// The work's Digital Object Identifier (https://doi.org/).
     pub doi: Option<String>,
 
-    /// A short label for the datatable.
+    /// Whether the identifier should be automatically updated.
+    #[serde(alias = "id-automatically", alias = "id_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    pub id_automatically: Option<Boolean>,
+
+    /// A short label for the node.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
-    /// Whether the datatable label should be automatically updated.
+    /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     pub label_automatically: Option<Boolean>,
 
     /// A caption for the datatable.

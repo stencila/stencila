@@ -20,6 +20,10 @@ impl DomCodec for Supplement {
             context.push_attr("label-automatically", &label_automatically.to_string());
         }
 
+        if let Some(id_automatically) = &self.id_automatically {
+            context.push_attr("id-automatically", &id_automatically.to_string());
+        }
+
         if let Some(target) = &self.target {
             context.push_attr("target", target);
         }

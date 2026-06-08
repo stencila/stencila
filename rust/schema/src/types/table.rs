@@ -72,14 +72,24 @@ pub struct Table {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// A short label for the table.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    /// Whether the identifier should be automatically updated.
+    #[serde(alias = "id-automatically", alias = "id_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub id_automatically: Option<Boolean>,
+
+    /// A short label for the node.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(elem = "label")]
     pub label: Option<String>,
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_automatically: Option<Boolean>,
 

@@ -93,18 +93,14 @@ pub struct CodeChunk {
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// The type of the label for the chunk.
-    #[serde(alias = "label-type", alias = "label_type")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "ipynb")]
-    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
-    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
-    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
-    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
-    #[jats(attr = "label-type")]
-    pub label_type: Option<LabelType>,
+    /// Whether the identifier should be automatically updated.
+    #[serde(alias = "id-automatically", alias = "id_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub id_automatically: Option<Boolean>,
 
-    /// A short label for the chunk.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "ipynb")]
+    /// A short label for the node.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
     #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
     #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
@@ -114,9 +110,19 @@ pub struct CodeChunk {
 
     /// Whether the label should be automatically updated.
     #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_automatically: Option<Boolean>,
+
+    /// The type of the label for the chunk.
+    #[serde(alias = "label-type", alias = "label_type")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "ipynb")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"#))]
+    #[jats(attr = "label-type")]
+    pub label_type: Option<LabelType>,
 
     /// A caption for the chunk.
     #[serde(default, deserialize_with = "option_one_or_many")]

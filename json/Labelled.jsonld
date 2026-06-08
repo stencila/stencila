@@ -1,0 +1,71 @@
+{
+  "@id": "https://stencila.org/Labelled",
+  "name": "Labelled",
+  "license": "https://creativecommons.org/publicdomain/zero/1.0/",
+  "@context": {
+    "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
+    "schema": "https://schema.org/",
+    "stencila": "https://stencila.org/"
+  },
+  "@graph": [
+    {
+      "@id": "stencila:Labelled",
+      "@type": "rdfs:Class",
+      "rdfs:label": "Labelled",
+      "rdfs:comment": "Abstract base for document nodes with labels."
+    },
+    {
+      "@id": "stencila:idAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "idAutomatically",
+      "rdfs:comment": "Whether the identifier should be automatically updated.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Labelled"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
+      "@id": "stencila:label",
+      "@type": "rdfs:Property",
+      "rdfs:label": "label",
+      "rdfs:comment": "A short label for the node.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Claim"
+        },
+        {
+          "@id": "stencila:Button"
+        },
+        {
+          "@id": "stencila:Heading"
+        },
+        {
+          "@id": "stencila:Icon"
+        },
+        {
+          "@id": "stencila:Labelled"
+        },
+        {
+          "@id": "stencila:Parameter"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "schema:Text"
+      }
+    },
+    {
+      "@id": "stencila:labelAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "labelAutomatically",
+      "rdfs:comment": "Whether the label should be automatically updated.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Labelled"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    }
+  ]
+}

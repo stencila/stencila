@@ -5,7 +5,8 @@
   "title": "CodeChunk",
   "nick": "cdc",
   "extends": [
-    "CodeExecutable"
+    "CodeExecutable",
+    "Labelled"
   ],
   "category": "code",
   "description": "An executable code chunk.",
@@ -51,9 +52,10 @@
     "executionBounds",
     "authors",
     "provenance",
-    "labelType",
+    "idAutomatically",
     "label",
     "labelAutomatically",
+    "labelType",
     "caption",
     "overlay",
     "outputs",
@@ -440,13 +442,13 @@
         "$ref": "ProvenanceCount.schema.json"
       }
     },
-    "labelType": {
-      "@id": "stencila:labelType",
-      "description": "The type of the label for the chunk.",
-      "$comment": "Used during automatic sequential numbering of figures and tables within the document.\nWithout this property it is not possible to know if the chunk should be in the\nseries of figures, or in the series of tables.\n",
+    "idAutomatically": {
+      "@id": "stencila:idAutomatically",
+      "description": "Whether the identifier should be automatically updated.",
+      "$comment": "When true, the `id` has been generated from the node's label or other\ndocument context and should not be encoded to author-facing source formats\nas a persistent identifier.\n",
       "aliases": [
-        "label-type",
-        "label_type"
+        "id-automatically",
+        "id_automatically"
       ],
       "patch": {
         "formats": [
@@ -455,27 +457,15 @@
           "myst",
           "ipynb",
           "qmd",
-          "ipynb"
+          "latex",
+          "tiptap"
         ]
       },
-      "jats": {
-        "attr": "label-type"
-      },
-      "proptest": {
-        "min": {
-          "description": "No label type",
-          "value": "None"
-        },
-        "low": {
-          "description": "Generate either FigureLabel or TableLabel",
-          "strategy": "option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"
-        }
-      },
-      "$ref": "LabelType.schema.json"
+      "type": "boolean"
     },
     "label": {
       "@id": "stencila:label",
-      "description": "A short label for the chunk.",
+      "description": "A short label for the node.",
       "patch": {
         "formats": [
           "md",
@@ -483,7 +473,8 @@
           "myst",
           "ipynb",
           "qmd",
-          "ipynb"
+          "latex",
+          "tiptap"
         ]
       },
       "jats": {
@@ -518,10 +509,45 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "latex",
+          "tiptap"
         ]
       },
       "type": "boolean"
+    },
+    "labelType": {
+      "@id": "stencila:labelType",
+      "description": "The type of the label for the chunk.",
+      "$comment": "Used during automatic sequential numbering of figures and tables within the document.\nWithout this property it is not possible to know if the chunk should be in the\nseries of figures, or in the series of tables.\n",
+      "aliases": [
+        "label-type",
+        "label_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "ipynb"
+        ]
+      },
+      "jats": {
+        "attr": "label-type"
+      },
+      "proptest": {
+        "min": {
+          "description": "No label type",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate either FigureLabel or TableLabel",
+          "strategy": "option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])"
+        }
+      },
+      "$ref": "LabelType.schema.json"
     },
     "caption": {
       "@id": "schema:caption",

@@ -28,6 +28,27 @@ pub struct Island {
     #[jats(attr = "id")]
     pub id: Option<String>,
 
+    /// Whether the identifier should be automatically updated.
+    #[serde(alias = "id-automatically", alias = "id_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub id_automatically: Option<Boolean>,
+
+    /// A short label for the node.
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[cfg_attr(feature = "proptest-min", proptest(value = r#"None"#))]
+    #[cfg_attr(feature = "proptest-low", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-high", proptest(strategy = r#"option::of(r"[a-zA-Z0-9]+")"#))]
+    #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"option::of(String::arbitrary())"#))]
+    #[jats(elem = "label")]
+    pub label: Option<String>,
+
+    /// Whether the label should be automatically updated.
+    #[serde(alias = "label-automatically", alias = "label_automatically")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex", format = "tiptap")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub label_automatically: Option<Boolean>,
+
     /// The content within the section.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
@@ -53,17 +74,6 @@ pub struct Island {
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub label_type: Option<LabelType>,
-
-    /// A short label for the chunk.
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub label: Option<String>,
-
-    /// Whether the label should be automatically updated.
-    #[serde(alias = "label-automatically", alias = "label_automatically")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "latex")]
-    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
-    pub label_automatically: Option<Boolean>,
 
     /// Other IDs for the island, in addition to the primary `id`.
     #[serde(alias = "other-ids", alias = "other_ids", alias = "otherId", alias = "other-id", alias = "other_id")]

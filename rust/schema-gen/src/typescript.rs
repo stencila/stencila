@@ -377,8 +377,12 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
         let mut props = Vec::new();
         let mut required_props = Vec::new();
         let mut super_args = Vec::new();
-        for (name, property) in schema.properties.iter() {
-            let name = name.to_camel_case();
+        for (property_name, property) in schema.properties.iter() {
+            let name = property_name.to_camel_case();
+            let inherited_from_base = base
+                .as_ref()
+                .and_then(|base| self.schemas.get(base))
+                .is_some_and(|parent| parent.properties.contains_key(property_name));
 
             if name == "type" {
                 props.push(format!("  // @ts-expect-error 'not assignable to the same property in base type'\n  type: \"{title}\";"));
@@ -394,7 +398,7 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
             // Determine Typescript type of the property
             let (mut prop_type, is_array, ..) = Self::typescript_type(dest, property).await?;
 
-            if !property.is_inherited || property.is_required {
+            if !property.is_inherited || property.is_required || !inherited_from_base {
                 used_types.insert(prop_type.clone());
             }
 
@@ -444,9 +448,12 @@ export const provenanceCategories: {{ [Property in ProvenanceCategory]: string }
                 }
             }
 
-            // Skip following for inherited props unless they are required on this
-            // type but optional in the parent type
+            // Skip following for props inherited from the base class unless they
+            // are required on this type but optional in the parent type. Props
+            // inherited from additional mixin parents must be emitted because
+            // TypeScript classes can only extend one base class.
             if property.is_inherited
+                && inherited_from_base
                 && !(property.is_required
                     && self
                         .schemas

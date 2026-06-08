@@ -1,7 +1,7 @@
 title: CodeChunk
 "@id": stencila:CodeChunk
 nick: cdc
-extends: CodeExecutable
+extends: [CodeExecutable, Labelled]
 category: code
 description: An executable code chunk.
 $comment: |
@@ -37,8 +37,6 @@ text:
 proptest: {}
 core:
   - labelType
-  - label
-  - labelAutomatically
   - caption
   - overlay
   - outputs
@@ -64,30 +62,6 @@ properties:
       low:
         description: Generate either FigureLabel or TableLabel
         strategy: option::of(prop_oneof![Just(LabelType::FigureLabel), Just(LabelType::TableLabel)])
-  label:
-    "@id": stencila:label
-    description: A short label for the chunk.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd, ipynb]
-    jats:
-      elem: label
-    proptest:
-      min:
-        description: No label
-        value: None
-      low:
-        description: Generate a simple label
-        strategy: option::of(r"[a-zA-Z0-9]+")
-      max:
-        description: Generate an arbitrary string
-        strategy: option::of(String::arbitrary())
-  labelAutomatically:
-    "@id": stencila:labelAutomatically
-    description: Whether the label should be automatically updated.
-    type: boolean
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   caption:
     "@id": schema:caption
     description: A caption for the chunk.

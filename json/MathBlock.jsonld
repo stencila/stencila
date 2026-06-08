@@ -267,28 +267,28 @@
       }
     },
     {
+      "@id": "stencila:idAutomatically",
+      "@type": "rdfs:Property",
+      "rdfs:label": "idAutomatically",
+      "rdfs:comment": "Whether the identifier should be automatically updated.",
+      "schema:domainIncludes": {
+        "@id": "stencila:Labelled"
+      },
+      "schema:rangeIncludes": {
+        "@id": "schema:Boolean"
+      }
+    },
+    {
       "@id": "stencila:label",
       "@type": "rdfs:Property",
       "rdfs:label": "label",
-      "rdfs:comment": "A short label for the math block.",
+      "rdfs:comment": "A short label for the node.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Claim"
         },
         {
-          "@id": "schema:Table"
-        },
-        {
           "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Datatable"
-        },
-        {
-          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:Heading"
@@ -297,16 +297,10 @@
           "@id": "stencila:Icon"
         },
         {
-          "@id": "stencila:Island"
-        },
-        {
-          "@id": "stencila:MathBlock"
+          "@id": "stencila:Labelled"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {
@@ -318,29 +312,9 @@
       "@type": "rdfs:Property",
       "rdfs:label": "labelAutomatically",
       "rdfs:comment": "Whether the label should be automatically updated.",
-      "schema:domainIncludes": [
-        {
-          "@id": "schema:Table"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Datatable"
-        },
-        {
-          "@id": "stencila:Figure"
-        },
-        {
-          "@id": "stencila:Island"
-        },
-        {
-          "@id": "stencila:MathBlock"
-        },
-        {
-          "@id": "stencila:Supplement"
-        }
-      ],
+      "schema:domainIncludes": {
+        "@id": "stencila:Labelled"
+      },
       "schema:rangeIncludes": {
         "@id": "schema:Boolean"
       }

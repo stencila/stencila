@@ -487,19 +487,7 @@
           "@id": "schema:Claim"
         },
         {
-          "@id": "schema:Table"
-        },
-        {
           "@id": "stencila:Button"
-        },
-        {
-          "@id": "stencila:CodeChunk"
-        },
-        {
-          "@id": "stencila:Datatable"
-        },
-        {
-          "@id": "stencila:Figure"
         },
         {
           "@id": "stencila:Heading"
@@ -508,16 +496,10 @@
           "@id": "stencila:Icon"
         },
         {
-          "@id": "stencila:Island"
-        },
-        {
-          "@id": "stencila:MathBlock"
+          "@id": "stencila:Labelled"
         },
         {
           "@id": "stencila:Parameter"
-        },
-        {
-          "@id": "stencila:Supplement"
         }
       ],
       "schema:rangeIncludes": {

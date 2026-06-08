@@ -11,7 +11,12 @@ export class MathBlock extends Math {
   type: "MathBlock";
 
   /**
-   * A short label for the math block.
+   * Whether the identifier should be automatically updated.
+   */
+  idAutomatically?: boolean;
+
+  /**
+   * A short label for the node.
    */
   label?: string;
 

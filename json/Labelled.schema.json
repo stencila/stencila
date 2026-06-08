@@ -1,0 +1,90 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/Labelled.schema.json",
+  "@id": "stencila:Labelled",
+  "title": "Labelled",
+  "abstract": true,
+  "description": "Abstract base for document nodes with labels.",
+  "$comment": "This is a mixin-style base type for document nodes that participate in\nauthor-facing numbering, captions, and cross-references. It centralizes the\ncommon label metadata and whether an identifier was generated automatically.\n",
+  "core": [
+    "idAutomatically",
+    "label",
+    "labelAutomatically"
+  ],
+  "properties": {
+    "idAutomatically": {
+      "@id": "stencila:idAutomatically",
+      "description": "Whether the identifier should be automatically updated.",
+      "$comment": "When true, the `id` has been generated from the node's label or other\ndocument context and should not be encoded to author-facing source formats\nas a persistent identifier.\n",
+      "aliases": [
+        "id-automatically",
+        "id_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "type": "boolean"
+    },
+    "label": {
+      "@id": "stencila:label",
+      "description": "A short label for the node.",
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "jats": {
+        "elem": "label"
+      },
+      "proptest": {
+        "min": {
+          "description": "No label",
+          "value": "None"
+        },
+        "low": {
+          "description": "Generate a simple label",
+          "strategy": "option::of(r\"[a-zA-Z0-9]+\")"
+        },
+        "max": {
+          "description": "Generate an arbitrary string",
+          "strategy": "option::of(String::arbitrary())"
+        }
+      },
+      "type": "string"
+    },
+    "labelAutomatically": {
+      "@id": "stencila:labelAutomatically",
+      "description": "Whether the label should be automatically updated.",
+      "aliases": [
+        "label-automatically",
+        "label_automatically"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "latex",
+          "tiptap"
+        ]
+      },
+      "type": "boolean"
+    }
+  }
+}

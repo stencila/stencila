@@ -12,12 +12,17 @@ export class Datatable extends CreativeWork {
   type: "Datatable";
 
   /**
-   * A short label for the datatable.
+   * Whether the identifier should be automatically updated.
+   */
+  idAutomatically?: boolean;
+
+  /**
+   * A short label for the node.
    */
   label?: string;
 
   /**
-   * Whether the datatable label should be automatically updated.
+   * Whether the label should be automatically updated.
    */
   labelAutomatically?: boolean;
 

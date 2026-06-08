@@ -16,11 +16,19 @@ impl Executable for MathBlock {
             executor.patch(&node_id, [set(NodeProperty::Label, label)]);
         }
 
-        if let Some(label) = &self.label
+        if !matches!(self.id_automatically, Some(false))
+            && let Some(label) = &self.label
             && let Some(id) = Executor::equation_auto_id(label, &self.id)
         {
             self.id = Some(id.clone());
-            executor.patch(&node_id, [set(NodeProperty::Id, id)]);
+            self.id_automatically = Some(true);
+            executor.patch(
+                &node_id,
+                [
+                    set(NodeProperty::Id, id),
+                    set(NodeProperty::IdAutomatically, true),
+                ],
+            );
         }
 
         if let (Some(id), Some(label)) = (&self.id, &self.label) {

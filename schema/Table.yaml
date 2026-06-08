@@ -1,7 +1,7 @@
 title: Table
 '@id': schema:Table
 nick: tbl
-extends: CreativeWork
+extends: [CreativeWork, Labelled]
 category: works
 description: A table.
 $comment: |
@@ -40,25 +40,11 @@ proptest: {}
 required:
   - rows
 core:
-  - label
-  - labelAutomatically
   - caption
   - notes
   - authors
   - provenance
 properties:
-  label:
-    '@id': stencila:label
-    description: A short label for the table.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-  labelAutomatically:
-    '@id': stencila:labelAutomatically
-    description: Whether the label should be automatically updated.
-    type: boolean
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
   caption:
     '@id': schema:caption
     description: A caption for the table.

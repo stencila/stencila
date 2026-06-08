@@ -12,6 +12,21 @@ export class Island extends Entity {
   type: "Island";
 
   /**
+   * Whether the identifier should be automatically updated.
+   */
+  idAutomatically?: boolean;
+
+  /**
+   * A short label for the node.
+   */
+  label?: string;
+
+  /**
+   * Whether the label should be automatically updated.
+   */
+  labelAutomatically?: boolean;
+
+  /**
    * The content within the section.
    */
   content: Block[];
@@ -30,16 +45,6 @@ export class Island extends Entity {
    * The type of the label for the island.
    */
   labelType?: LabelType;
-
-  /**
-   * A short label for the chunk.
-   */
-  label?: string;
-
-  /**
-   * Whether the label should be automatically updated.
-   */
-  labelAutomatically?: boolean;
 
   /**
    * Other IDs for the island, in addition to the primary `id`.

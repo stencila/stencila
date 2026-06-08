@@ -1,6 +1,6 @@
 title: Island
 "@id": stencila:Island
-extends: Entity
+extends: [Entity, Labelled]
 category: other
 description: An island of content in a document.
 $comment: |
@@ -22,8 +22,6 @@ core:
   - isAutomatic
   - isContinuation
   - labelType
-  - label
-  - labelAutomatically
   - otherIds
   - style
 properties:
@@ -62,18 +60,6 @@ properties:
     $comment: |
       Used during automatic sequential numbering of figures and tables within the document.
     $ref: LabelType
-    patch:
-      formats: [md, smd, myst, ipynb, qmd, latex]
-  label:
-    "@id": stencila:label
-    description: A short label for the chunk.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd, latex]
-  labelAutomatically:
-    "@id": stencila:labelAutomatically
-    description: Whether the label should be automatically updated.
-    type: boolean
     patch:
       formats: [md, smd, myst, ipynb, qmd, latex]
   otherIds:
