@@ -79,7 +79,8 @@
           "ipynb",
           "qmd",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "dom": {
@@ -120,7 +121,8 @@
           "ipynb",
           "qmd",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "html": {
@@ -144,7 +146,8 @@
           "ipynb",
           "qmd",
           "lexical",
-          "koenig"
+          "koenig",
+          "tiptap"
         ]
       },
       "html": {

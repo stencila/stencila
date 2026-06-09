@@ -41,7 +41,7 @@ properties:
     items:
       $ref: Inline
     patch:
-      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, lexical, koenig, tiptap]
     dom:
       elem: span
     proptest:
@@ -70,7 +70,7 @@ properties:
     # used here because it allows for intra-doc links using a #fragment only.
     format: uri-reference
     patch:
-      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, lexical, koenig, tiptap]
     html:
       attr: href
     jats:
@@ -83,7 +83,7 @@ properties:
       represents ["advisory information related to the element"](https://developer.mozilla.org/en-US/docs/Web/HTML/Global_attributes/title)
     type: string
     patch:
-      formats: [md, smd, myst, ipynb, qmd, lexical, koenig]
+      formats: [md, smd, myst, ipynb, qmd, lexical, koenig, tiptap]
     html:
       attr: title
     jats:
