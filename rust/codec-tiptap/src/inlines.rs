@@ -7,14 +7,16 @@
 
 use serde_json::Value;
 use stencila_codec::stencila_schema::{
-    CodeInline, Emphasis, Inline, Link, Strikeout, Strong, Subscript, Superscript, Text, Underline,
+    CodeInline, Emphasis, Inline, Link, MathInline, MathInlineOptions, Strikeout, Strong,
+    Subscript, Superscript, Text, Underline,
 };
 
 use crate::{
+    math::{math_attrs_from_inline, math_code_from_tiptap},
     shared::{MarkKind, TiptapDecodeContext, TiptapEncodeContext},
     tiptap::{
-        self, InlineNode, KnownMark, Mark, MarkAttrs, MarkType, StencilaAttrs, StencilaInlineNode,
-        TextNode,
+        self, InlineNode, KnownMark, Mark, MarkAttrs, MarkType, MathInlineNode, StencilaAttrs,
+        StencilaInlineNode, TextNode,
     },
 };
 
@@ -70,6 +72,8 @@ fn inline_from_tiptap(inline: InlineNode, context: &mut TiptapDecodeContext) -> 
     match inline {
         InlineNode::Text(TextNode { text, marks, .. }) => text_from_tiptap(text, marks, context),
 
+        InlineNode::MathInline(math_inline) => math_inline_from_tiptap(math_inline, context),
+
         InlineNode::StencilaInline(StencilaInlineNode { attrs, .. }) => {
             inline_from_stencila_attrs(attrs, context)
         }
@@ -110,6 +114,8 @@ fn inline_to_tiptap(
             let marks = add_mark(marks, link_mark(link));
             inlines_to_tiptap_with_marks(&link.content, &marks, context)
         }
+
+        Inline::MathInline(math_inline) => vec![math_inline_to_tiptap(math_inline)],
 
         Inline::Strikeout(Strikeout { content, .. }) => {
             let marks = add_mark(marks, MarkKind::Strikeout);
@@ -347,6 +353,44 @@ fn link_mark(link: &Link) -> MarkKind {
         rel: link.rel.clone(),
         label_only: link.label_only,
         ..Default::default()
+    })
+}
+
+/// Decode a native Tiptap math inline into a Stencila math inline.
+///
+/// Inline math is represented as an atom in ProseMirror so rendered equations
+/// can be selected and edited as a unit. Decoding from attrs preserves the
+/// editor-relevant fields that are exposed in native Tiptap math JSON.
+fn math_inline_from_tiptap(
+    math_inline: MathInlineNode,
+    context: &mut TiptapDecodeContext,
+) -> Inline {
+    let MathInlineNode { attrs, .. } = math_inline;
+    let code = math_code_from_tiptap(&attrs, "MathInline", context);
+
+    Inline::MathInline(MathInline {
+        id: attrs.id,
+        code: code.into(),
+        math_language: attrs.math_language,
+        options: Box::new(MathInlineOptions {
+            compilation_digest: None,
+            compilation_messages: attrs.compilation_messages,
+            mathml: attrs.mathml,
+            images: attrs.images,
+        }),
+        ..Default::default()
+    })
+}
+
+/// Encode a Stencila math inline as a native Tiptap atom node.
+///
+/// Math inlines are now directly editable in the browser, so the codec emits
+/// the native node shape instead of the generic opaque `stencilaInline`
+/// wrapper while retaining source and display-output fields as attrs.
+fn math_inline_to_tiptap(math_inline: &MathInline) -> InlineNode {
+    InlineNode::MathInline(MathInlineNode {
+        attrs: math_attrs_from_inline(math_inline),
+        r#type: Default::default(),
     })
 }
 

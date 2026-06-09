@@ -56,6 +56,25 @@ function dispatchCodeBlockProperties(
   editor.view.dispatch(transaction)
 }
 
+function dispatchMathProperties(
+  editor: Editor,
+  mathLanguage: string | null
+) {
+  const target = findEditNodePropertyTarget(editor.state)
+  if (!target) {
+    throw new Error('Expected editable node property target')
+  }
+
+  const transaction = setEditNodePropertiesTransaction(editor.state, target, {
+    mathLanguage,
+  })
+  if (!transaction) {
+    throw new Error('Expected math properties transaction')
+  }
+
+  editor.view.dispatch(transaction)
+}
+
 function selectText(editor: Editor, text: string) {
   let textPos: number | undefined
 
@@ -196,6 +215,106 @@ describe('edit node property helpers', () => {
         attrs: {
           language: null,
           isDemo: null,
+        },
+      })
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('updates math block ids and math language attrs', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        {
+          type: 'mathBlock',
+          attrs: {
+            code: 'x + y',
+            mathLanguage: 'tex',
+            mathml: '<math><mi>x</mi></math>',
+            images: [{ contentUrl: 'old.png' }],
+            compilationMessages: [{ level: 'Warning' }],
+          },
+        },
+      ],
+    })
+
+    try {
+      const target = findEditNodePropertyTarget(editor.state)
+      expect(target?.typeName).toBe('mathBlock')
+      expect(target?.displayName).toBe('Math Block')
+      expect(target?.mathLanguage).toBe('tex')
+
+      dispatchPersistentId(editor, 'eq-1')
+      dispatchMathProperties(editor, 'asciimath')
+
+      expect(editor.getJSON().content?.[0]).toMatchObject({
+        type: 'mathBlock',
+        attrs: {
+          id: 'eq-1',
+          code: 'x + y',
+          mathLanguage: 'asciimath',
+          mathml: null,
+          images: null,
+          compilationMessages: null,
+        },
+      })
+    } finally {
+      editor.destroy()
+    }
+  })
+
+  it('updates inline math properties when selected directly', () => {
+    const editor = createEditor({
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'Let ' },
+            {
+              type: 'mathInline',
+              attrs: {
+                code: 'x',
+                mathLanguage: 'tex',
+              },
+            },
+          ],
+        },
+      ],
+    })
+
+    try {
+      let mathPos: number | undefined
+      editor.state.doc.descendants((node, pos) => {
+        if (node.type.name === 'mathInline') {
+          mathPos = pos
+          return false
+        }
+
+        return true
+      })
+
+      if (mathPos === undefined) {
+        throw new Error('Expected inline math position')
+      }
+
+      editor.view.dispatch(
+        editor.state.tr.setSelection(NodeSelection.create(editor.state.doc, mathPos))
+      )
+
+      const target = findEditNodePropertyTarget(editor.state)
+      expect(target?.typeName).toBe('mathInline')
+      expect(target?.mathLanguage).toBe('tex')
+
+      dispatchMathProperties(editor, null)
+
+      const paragraph = editor.getJSON().content?.[0]
+      expect(paragraph?.content?.[1]).toMatchObject({
+        type: 'mathInline',
+        attrs: {
+          code: 'x',
+          mathLanguage: null,
         },
       })
     } finally {

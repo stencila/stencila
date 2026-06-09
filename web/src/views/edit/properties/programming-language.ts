@@ -1,5 +1,5 @@
 /**
- * Text input for a node's programming language.
+ * Text input for a node's programming or math language.
  */
 import { LitElement, html } from 'lit'
 import { customElement, property } from 'lit/decorators'
@@ -10,6 +10,12 @@ import { EDIT_PROPERTY_VALUE_CHANGE_EVENT } from './events'
 export class EditProgrammingLanguageProperty extends LitElement {
   @property()
   value = ''
+
+  @property()
+  label = 'Programming language'
+
+  @property()
+  placeholder = 'python'
 
   protected override createRenderRoot() {
     return this
@@ -30,14 +36,14 @@ export class EditProgrammingLanguageProperty extends LitElement {
   override render() {
     return html`
       <label class="stencila-edit-node-properties-field">
-        <span>Programming language</span>
+        <span>${this.label}</span>
         <input
           class="stencila-edit-node-properties-input"
           .value=${this.value}
           autocomplete="off"
           autocapitalize="off"
           spellcheck="false"
-          placeholder="python"
+          placeholder=${this.placeholder}
           @input=${this.updateValue}
         />
       </label>

@@ -20,6 +20,8 @@ import { type EditorState, NodeSelection, type Transaction } from '@tiptap/pm/st
  */
 export const EDIT_NODE_PROPERTY_NODE_TYPES = [
   'codeBlock',
+  'mathBlock',
+  'mathInline',
   'table',
   'stencilaBlock',
 ] as const
@@ -41,6 +43,7 @@ export interface EditNodePropertyTarget {
   summaryLabel: string
   persistentId?: string
   programmingLanguage?: string
+  mathLanguage?: string
   isDemo?: boolean
 }
 
@@ -54,6 +57,7 @@ export interface EditNodePropertyTarget {
 export interface EditNodePropertyPatch {
   persistentId?: string | null
   programmingLanguage?: string | null
+  mathLanguage?: string | null
   isDemo?: boolean | null
 }
 
@@ -184,6 +188,18 @@ function readProgrammingLanguage(node: ProseMirrorNode): string | undefined {
 }
 
 /**
+ * Read a node's math language.
+ *
+ * Native math nodes store the Stencila `mathLanguage` attr directly. Keeping
+ * this separate from programming-language logic avoids treating math source
+ * formats as code languages while still letting the shared property toolbar
+ * expose the field consistently for block and inline math.
+ */
+function readMathLanguage(node: ProseMirrorNode): string | undefined {
+  return readPropertyString(node, 'mathLanguage')
+}
+
+/**
  * Icons representing a node's type, shown in the compact inspector bar.
  *
  * Keyed by the same `displayType` used for `displayName` (the native Tiptap type
@@ -193,6 +209,8 @@ function readProgrammingLanguage(node: ProseMirrorNode): string | undefined {
  */
 const NODE_TYPE_ICONS: Record<string, string> = {
   codeBlock: 'i-lucide:square-code',
+  mathBlock: 'i-lucide:sigma',
+  mathInline: 'i-lucide:sigma',
   table: 'i-lucide:table',
   CodeChunk: 'i-lucide:square-terminal',
   MathBlock: 'i-lucide:sigma',
@@ -270,6 +288,7 @@ function targetFromNode(
     summaryLabel: summaryLabel(node, displayName),
     persistentId: readPersistentId(node),
     programmingLanguage: readProgrammingLanguage(node),
+    mathLanguage: readMathLanguage(node),
     isDemo: readPropertyBoolean(node, 'isDemo'),
   }
 }
@@ -440,6 +459,16 @@ function attrsWithPropertyPatch(
       if (patch.isDemo !== undefined) {
         attrs.isDemo = patch.isDemo
       }
+    }
+
+    if (
+      (typeName === 'mathBlock' || typeName === 'mathInline') &&
+      patch.mathLanguage !== undefined
+    ) {
+      attrs.mathLanguage = patch.mathLanguage
+      attrs.compilationMessages = null
+      attrs.mathml = null
+      attrs.images = null
     }
 
     return attrs

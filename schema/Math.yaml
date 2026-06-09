@@ -34,7 +34,7 @@ properties:
     $ref: Cord
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd, latex]
+      formats: [md, smd, myst, ipynb, qmd, latex, tiptap]
     proptest:
       min:
         description: Generate a simple fixed string of math.
@@ -58,7 +58,7 @@ properties:
     type: string
     strip: [code]
     patch:
-      formats: [md, smd, myst, ipynb, qmd]
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
     proptest:
       min:
         description: Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)

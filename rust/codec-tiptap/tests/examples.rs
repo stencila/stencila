@@ -4,10 +4,10 @@ use stencila_codec::{
     Losses,
     eyre::{Result, bail},
     stencila_schema::{
-        Article, Block, CodeBlock, CodeChunk, CodeInline, Emphasis, Heading, Inline, Link, List,
-        ListItem, ListOrder, MathInline, Node, Paragraph, QuoteBlock, Strikeout, Strong, Subscript,
-        Superscript, Table, TableCell, TableCellType, TableRow, TableRowType, Text, ThematicBreak,
-        Underline,
+        Article, Block, CodeBlock, CodeChunk, CodeInline, Emphasis, Heading, Icon, Inline, Link,
+        List, ListItem, ListOrder, MathBlock, MathInline, Node, Paragraph, QuoteBlock, Strikeout,
+        Strong, Subscript, Superscript, Table, TableCell, TableCellType, TableRow, TableRowType,
+        Text, ThematicBreak, Underline,
     },
 };
 use stencila_codec_tiptap::{decode, encode};
@@ -960,6 +960,58 @@ fn preserve_table_attrs() -> Result<()> {
 }
 
 #[test]
+fn preserve_math_attrs() -> Result<()> {
+    let mut math_block = MathBlock::new("x + y".into());
+    math_block.id = Some("eq-1".into());
+    math_block.math_language = Some("tex".into());
+    math_block.label = Some("1".into());
+    math_block.label_automatically = Some(true);
+    math_block.options.mathml = Some("<math><mi>x</mi></math>".into());
+
+    let mut math_inline = MathInline::new("z".into());
+    math_inline.id = Some("m-1".into());
+    math_inline.math_language = Some("tex".into());
+    math_inline.options.mathml = Some("<math><mi>z</mi></math>".into());
+
+    let original_block = serde_json::to_string(&Block::MathBlock(math_block.clone()))?;
+    let original_inline = serde_json::to_string(&Inline::MathInline(math_inline.clone()))?;
+
+    let node = Node::Article(Article {
+        content: vec![
+            Block::MathBlock(math_block),
+            Block::Paragraph(Paragraph::new(vec![
+                Inline::Text(Text::new("where ".into())),
+                Inline::MathInline(math_inline),
+            ])),
+        ],
+        ..Default::default()
+    });
+
+    let (json, info) = encode(&node, None)?;
+
+    assert!(info.losses.is_empty());
+    assert!(json.contains(r#""type":"mathBlock""#));
+    assert!(json.contains(r#""type":"mathInline""#));
+
+    let (Node::Article(article), info) = decode(&json, None)? else {
+        bail!("Tiptap should decode to an article")
+    };
+
+    assert!(info.losses.is_empty());
+    assert_eq!(serde_json::to_string(&article.content[0])?, original_block);
+
+    let Block::Paragraph(paragraph) = &article.content[1] else {
+        bail!("expected paragraph")
+    };
+    assert_eq!(
+        serde_json::to_string(&paragraph.content[1])?,
+        original_inline
+    );
+
+    Ok(())
+}
+
+#[test]
 fn encode_empty_parent_like_tiptap() -> Result<()> {
     let node = Node::Article(Article {
         content: vec![Block::Paragraph(Paragraph::default())],
@@ -1101,20 +1153,20 @@ fn records_loss_for_stencila_block_node_type_mismatch() -> Result<()> {
 
 #[test]
 fn records_loss_for_stencila_inline_node_type_mismatch() -> Result<()> {
-    let math = Inline::MathInline(MathInline::new("x + y".into()));
+    let icon = Inline::Icon(Icon::new("clock".into()));
     let node = Node::Article(Article {
-        content: vec![Block::Paragraph(Paragraph::new(vec![math]))],
+        content: vec![Block::Paragraph(Paragraph::new(vec![icon]))],
         ..Default::default()
     });
 
     let (json, ..) = encode(&node, None)?;
-    let json = json.replace(r#""nodeType":"MathInline""#, r#""nodeType":"Text""#);
+    let json = json.replace(r#""nodeType":"Icon""#, r#""nodeType":"Text""#);
     let (_, info) = decode(&json, None)?;
 
     assert_eq!(
         losses_json(&info.losses)?,
         serde_json::json!({
-            "StencilaInline.nodeType (expected Text, got MathInline)": 1
+            "StencilaInline.nodeType (expected Text, got Icon)": 1
         })
     );
 
@@ -1123,13 +1175,13 @@ fn records_loss_for_stencila_inline_node_type_mismatch() -> Result<()> {
 
 #[test]
 fn preserve_unsupported_inline_opaque_payload() -> Result<()> {
-    let math = Inline::MathInline(MathInline::new("x + y".into()));
-    let original = serde_json::to_string(&math)?;
+    let icon = Inline::Icon(Icon::new("clock".into()));
+    let original = serde_json::to_string(&icon)?;
 
     let node = Node::Article(Article {
         content: vec![Block::Paragraph(Paragraph::new(vec![
             Inline::Text(Text::new("before ".into())),
-            math,
+            icon,
             Inline::Text(Text::new(" after".into())),
         ]))],
         ..Default::default()

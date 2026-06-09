@@ -8,7 +8,7 @@
 use monostate::MustBe;
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
-use stencila_codec::stencila_schema::Block;
+use stencila_codec::stencila_schema::{Block, CompilationMessage, ImageObject};
 
 /// The root Tiptap document node.
 #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
@@ -35,6 +35,8 @@ pub(super) enum BlockNode {
     Heading(HeadingNode),
     /// A native Tiptap horizontal rule node.
     HorizontalRule(HorizontalRuleNode),
+    /// A native Stencila math block node.
+    MathBlock(MathBlockNode),
     /// A native Tiptap ordered list node.
     OrderedList(OrderedListNode),
     /// A native Tiptap paragraph node.
@@ -190,6 +192,67 @@ pub(super) struct CodeBlockAttrs {
         skip_serializing_if = "Option::is_none"
     )]
     pub is_demo: Option<bool>,
+}
+
+/// A native Stencila math block node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct MathBlockNode {
+    /// The fixed custom Tiptap node type.
+    pub r#type: MustBe!("mathBlock"),
+
+    /// Math block attributes.
+    #[serde(default)]
+    pub attrs: MathBlockAttrs,
+}
+
+/// Attributes for a native Stencila math block node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct MathBlockAttrs {
+    /// Fields shared by block and inline math nodes.
+    #[serde(flatten)]
+    pub math: MathAttrs,
+
+    /// Whether the Stencila node id should be automatically updated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id_automatically: Option<bool>,
+
+    /// Short label for the math block.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label: Option<String>,
+
+    /// Whether the math block label should be automatically updated.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub label_automatically: Option<bool>,
+}
+
+/// Attributes shared by native Stencila math block and inline nodes.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub(super) struct MathAttrs {
+    /// Stencila node identifier for the math.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub id: Option<String>,
+
+    /// Source code for the math.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub code: Option<String>,
+
+    /// Source language for the math.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub math_language: Option<String>,
+
+    /// Messages generated while compiling the math.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub compilation_messages: Option<Vec<CompilationMessage>>,
+
+    /// MathML generated from the source code.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub mathml: Option<String>,
+
+    /// Images generated for the math.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub images: Option<Vec<ImageObject>>,
 }
 
 /// A native Tiptap horizontal rule node.
@@ -404,6 +467,8 @@ pub(super) struct StencilaAttrs {
 pub(super) enum InlineNode {
     /// A native Tiptap text node.
     Text(TextNode),
+    /// A native Stencila math inline node.
+    MathInline(MathInlineNode),
     /// A custom opaque Stencila inline node.
     StencilaInline(StencilaInlineNode),
     /// Any unsupported native inline node.
@@ -422,6 +487,17 @@ pub(super) struct TextNode {
 
     /// The text content.
     pub text: String,
+}
+
+/// A native Stencila math inline node.
+#[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+pub(super) struct MathInlineNode {
+    /// The fixed custom Tiptap node type.
+    pub r#type: MustBe!("mathInline"),
+
+    /// Math inline attributes.
+    #[serde(default)]
+    pub attrs: MathAttrs,
 }
 
 /// A Tiptap mark supported by this codec or held as raw JSON.

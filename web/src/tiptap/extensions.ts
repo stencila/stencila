@@ -21,6 +21,7 @@ import TableRow from '@tiptap/extension-table-row'
 import Text from '@tiptap/extension-text'
 
 import { History } from './history'
+import { MathBlock, MathInline } from './math'
 import {
   CodeMark,
   LinkMark,
@@ -92,6 +93,7 @@ export function createStencilaTiptapExtensions(): Extensions {
     Heading.configure({ levels: [1, 2, 3, 4, 5, 6] }),
     Blockquote,
     EditableCodeBlock,
+    MathBlock,
     HorizontalRule,
 
     // List structure
@@ -117,6 +119,7 @@ export function createStencilaTiptapExtensions(): Extensions {
     SubscriptMark,
     SuperscriptMark,
     LinkMark,
+    MathInline,
 
     // Opaque Stencila nodes
     StencilaBlock,

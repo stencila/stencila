@@ -93,7 +93,8 @@
           "myst",
           "ipynb",
           "qmd",
-          "latex"
+          "latex",
+          "tiptap"
         ]
       },
       "proptest": {
@@ -133,7 +134,8 @@
           "smd",
           "myst",
           "ipynb",
-          "qmd"
+          "qmd",
+          "tiptap"
         ]
       },
       "proptest": {

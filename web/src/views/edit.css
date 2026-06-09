@@ -1009,3 +1009,66 @@ stencila-edit-view {
   padding: 0 var(--space-1, 0.25rem);
   vertical-align: baseline;
 }
+
+/* Math atoms: rendered, selectable math nodes with in-place source editing. */
+.stencila-tiptap-math {
+  border-radius: var(--border-radius-default, 0.25rem);
+  cursor: pointer;
+}
+
+.stencila-tiptap-math.ProseMirror-selectednode {
+  outline: var(--focus-ring-width, 2px) solid
+    var(--focus-ring-color, var(--color-accent, #2563eb));
+  outline-offset: var(--focus-ring-offset, 2px);
+}
+
+.stencila-tiptap-math-block {
+  display: block;
+  margin: var(--content-spacing, 1rem) 0;
+  padding: var(--space-2, 0.5rem);
+  text-align: center;
+}
+
+.stencila-tiptap-math-inline {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 0 var(--space-1, 0.25rem);
+  vertical-align: baseline;
+}
+
+.stencila-tiptap-math-render code {
+  font-family: var(
+    --font-family-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace
+  );
+  font-size: 0.9em;
+}
+
+.stencila-tiptap-math-source {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: min(20rem, calc(100vw - 3rem));
+  padding: var(--space-2, 0.5rem);
+  border: var(--border-width-default, 1px) solid
+    var(--border-color-default, color-mix(in srgb, currentColor 18%, transparent));
+  border-radius: var(--border-radius-default, 0.25rem);
+  background: var(--surface-background, #ffffff);
+  color: var(--text-color-primary, #1f2933);
+  font-family: var(
+    --font-family-mono,
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    monospace
+  );
+  font-size: var(--font-size-sm, 0.875rem);
+  line-height: 1.4;
+}
+
+textarea.stencila-tiptap-math-source {
+  min-height: 5rem;
+  resize: vertical;
+}

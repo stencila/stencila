@@ -16,6 +16,7 @@ import { describe, expect, it } from 'vitest'
 
 import { createStencilaTiptapExtensions } from './extensions'
 import { isHistoryPlugin } from './history'
+import { attrsWithUpdatedMathSource } from './math'
 
 /**
  * Create a Tiptap editor using the same core extensions as the edit view.
@@ -119,7 +120,8 @@ function inputRulesFor(editor: Editor, extensionName: string): InputRule[] {
       options: extension.options,
       parent: undefined,
       storage: {},
-      type: editor.schema.marks[extensionName],
+      type:
+        editor.schema.marks[extensionName] ?? editor.schema.nodes[extensionName],
     } as never) ?? []
   )
 }
@@ -263,10 +265,14 @@ function supportedTiptapJson(): JSONContent {
           },
           { type: 'text', text: ' ' },
           {
-            type: 'stencilaInline',
+            type: 'mathInline',
             attrs: {
-              nodeType: 'MathInline',
-              node: { type: 'MathInline', code: 'x + y' },
+              id: null,
+              code: 'x + y',
+              mathLanguage: 'tex',
+              compilationMessages: null,
+              mathml: null,
+              images: null,
             },
           },
         ],
@@ -353,6 +359,20 @@ function supportedTiptapJson(): JSONContent {
         content: [{ type: 'text', text: 'const value = 1' }],
       },
       {
+        type: 'mathBlock',
+        attrs: {
+          id: 'eq-1',
+          code: 'x + y',
+          mathLanguage: 'tex',
+          compilationMessages: null,
+          mathml: null,
+          images: null,
+          idAutomatically: null,
+          label: '1',
+          labelAutomatically: true,
+        },
+      },
+      {
         type: 'horizontalRule',
       },
       {
@@ -427,6 +447,77 @@ describe('Stencila Tiptap extensions', () => {
     } finally {
       editor.destroy()
     }
+  })
+
+  it('registers math nodes', () => {
+    const schema = getSchema(createStencilaTiptapExtensions())
+
+    expect(schema.nodes.mathBlock).toBeDefined()
+    expect(schema.nodes.mathInline).toBeDefined()
+  })
+
+  it('creates inline math from dollar shortcuts', () => {
+    expect(applyInputRuleShortcut('$x + y$', 'mathInline')).toMatchObject({
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            {
+              type: 'mathInline',
+              attrs: {
+                code: 'x + y',
+                mathLanguage: 'tex',
+              },
+            },
+          ],
+        },
+      ],
+    })
+  })
+
+  it('creates block math from double-dollar shortcuts', () => {
+    expect(applyInputRuleShortcut('$$x + y$$', 'mathBlock')).toMatchObject({
+      type: 'doc',
+      content: [
+        {
+          type: 'mathBlock',
+          attrs: {
+            code: 'x + y',
+            mathLanguage: 'tex',
+          },
+        },
+      ],
+    })
+  })
+
+  it('does not create inline math inside double-dollar shortcuts', () => {
+    expect(applyInputRuleShortcut('$$x + y$$', 'mathInline')).toEqual(
+      paragraphJson('$$x + y$$')
+    )
+  })
+
+  it('clears stale math output after editing source attrs', () => {
+    expect(
+      attrsWithUpdatedMathSource(
+        {
+          id: 'eq-1',
+          code: 'x',
+          mathLanguage: 'tex',
+          compilationMessages: [{ level: 'Warning' }],
+          mathml: '<math><mi>x</mi></math>',
+          images: [{ contentUrl: 'old.png' }],
+        },
+        'x + y'
+      )
+    ).toEqual({
+      id: 'eq-1',
+      code: 'x + y',
+      mathLanguage: 'tex',
+      compilationMessages: null,
+      mathml: null,
+      images: null,
+    })
   })
 
   it('preserves code block attrs after editing code text', () => {

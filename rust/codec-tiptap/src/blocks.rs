@@ -7,20 +7,23 @@
 
 use serde_json::Value;
 use stencila_codec::stencila_schema::{
-    Block, CodeBlock, Heading, HorizontalAlignment, List, ListItem, ListOrder, Paragraph,
-    QuoteBlock, Table, TableCell, TableCellType, TableRow, TableRowType, ThematicBreak,
+    Block, CodeBlock, Heading, HorizontalAlignment, List, ListItem, ListOrder, MathBlock,
+    MathBlockOptions, Paragraph, QuoteBlock, Table, TableCell, TableCellType, TableRow,
+    TableRowType, ThematicBreak,
 };
 
 use crate::{
     inlines::{inlines_from_tiptap, inlines_to_tiptap},
+    math::{math_attrs_from_block, math_code_from_tiptap},
     shared::TiptapDecodeContext,
     shared::TiptapEncodeContext,
     tiptap::{
         self, BlockNode, BlockquoteNode, BulletListNode, CodeBlockAttrs, CodeBlockNode,
-        HeadingAttrs, HeadingNode, HorizontalRuleNode, InlineNode, ListItemNode, OrderedListAttrs,
-        OrderedListNode, ParagraphNode, StencilaAttrs, StencilaBlockNode, StencilaInlineNode,
-        TableAttrs, TableCell as TiptapTableCell, TableCellAttrs, TableCellNode, TableHeader,
-        TableNode, TableRowNode, TaskItemAttrs, TaskItemNode, TaskListNode, TextNode,
+        HeadingAttrs, HeadingNode, HorizontalRuleNode, InlineNode, ListItemNode, MathBlockAttrs,
+        MathBlockNode, OrderedListAttrs, OrderedListNode, ParagraphNode, StencilaAttrs,
+        StencilaBlockNode, StencilaInlineNode, TableAttrs, TableCell as TiptapTableCell,
+        TableCellAttrs, TableCellNode, TableHeader, TableNode, TableRowNode, TaskItemAttrs,
+        TaskItemNode, TaskListNode, TextNode,
     },
 };
 
@@ -53,6 +56,7 @@ fn block_from_tiptap(block: BlockNode, context: &mut TiptapDecodeContext) -> Blo
         BlockNode::CodeBlock(code_block) => code_block_from_tiptap(code_block, context),
         BlockNode::Heading(heading) => heading_from_tiptap(heading, context),
         BlockNode::HorizontalRule(horizontal_rule) => thematic_break_from_tiptap(horizontal_rule),
+        BlockNode::MathBlock(math_block) => math_block_from_tiptap(math_block, context),
         BlockNode::OrderedList(ordered_list) => ordered_list_from_tiptap(ordered_list, context),
         BlockNode::Paragraph(paragraph) => paragraph_from_tiptap(paragraph, context),
         BlockNode::Table(table) => table_from_tiptap(table, context),
@@ -69,6 +73,7 @@ fn block_to_tiptap(block: &Block, context: &mut TiptapEncodeContext) -> BlockNod
         Block::CodeBlock(code_block) => code_block_to_tiptap(code_block),
         Block::Heading(heading) => heading_to_tiptap(heading, context),
         Block::List(list) => list_to_tiptap(list, context),
+        Block::MathBlock(math_block) => math_block_to_tiptap(math_block),
         Block::Paragraph(paragraph) => paragraph_to_tiptap(paragraph, context),
         Block::QuoteBlock(quote) => quote_block_to_tiptap(quote, context),
         Block::Table(table) => table_to_tiptap(table, context),
@@ -173,6 +178,7 @@ fn code_block_inline_from_tiptap(
 ) {
     match inline {
         InlineNode::Text(text) => code_block_text_from_tiptap(text, code, context),
+        InlineNode::MathInline(..) => context.losses.add("CodeBlock.mathInline"),
         InlineNode::StencilaInline(stencila_inline) => {
             code_block_stencila_inline_from_tiptap(stencila_inline, context)
         }
@@ -223,6 +229,56 @@ fn code_block_to_tiptap(code_block: &CodeBlock) -> BlockNode {
             is_demo: code_block.is_demo,
         },
         content,
+        r#type: Default::default(),
+    })
+}
+
+/// Decode a native Tiptap math block into a Stencila math block.
+///
+/// The editor stores math source and preserved metadata as atom attributes,
+/// rather than as nested ProseMirror content. Reconstructing the schema node in
+/// one place keeps field preservation explicit and allows missing required
+/// source code to be recorded as a conversion loss.
+fn math_block_from_tiptap(math_block: MathBlockNode, context: &mut TiptapDecodeContext) -> Block {
+    let MathBlockNode { attrs, .. } = math_block;
+    let MathBlockAttrs {
+        math,
+        id_automatically,
+        label,
+        label_automatically,
+    } = attrs;
+    let code = math_code_from_tiptap(&math, "MathBlock", context);
+
+    Block::MathBlock(MathBlock {
+        id: math.id,
+        code: code.into(),
+        math_language: math.math_language,
+        id_automatically,
+        label,
+        label_automatically,
+        options: Box::new(MathBlockOptions {
+            compilation_messages: math.compilation_messages,
+            mathml: math.mathml,
+            images: math.images,
+            ..Default::default()
+        }),
+        ..Default::default()
+    })
+}
+
+/// Encode a Stencila math block as a native Tiptap atom node.
+///
+/// Math blocks used to pass through the editor as opaque Stencila payloads.
+/// The native node exposes source editing and shortcuts, so editor-relevant
+/// fields are copied into attrs instead.
+fn math_block_to_tiptap(math_block: &MathBlock) -> BlockNode {
+    BlockNode::MathBlock(MathBlockNode {
+        attrs: MathBlockAttrs {
+            math: math_attrs_from_block(math_block),
+            id_automatically: math_block.id_automatically,
+            label: math_block.label.clone(),
+            label_automatically: math_block.label_automatically,
+        },
         r#type: Default::default(),
     })
 }

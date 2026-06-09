@@ -18,6 +18,7 @@ use tiptap::TiptapDoc;
 
 mod blocks;
 mod inlines;
+mod math;
 mod nodes;
 mod shared;
 mod tiptap;
