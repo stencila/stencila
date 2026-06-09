@@ -1,9 +1,16 @@
 /**
  * Unit tests for Stencila-specific Tiptap extensions and their JSON shape.
  */
-import { Editor, type JSONContent, getSchema } from '@tiptap/core'
+import {
+  Editor,
+  type InputRule,
+  type InputRuleFinder,
+  type JSONContent,
+  createChainableState,
+  getSchema,
+} from '@tiptap/core'
 import { redoDepth, undoDepth } from '@tiptap/pm/history'
-import { EditorState, type Transaction } from '@tiptap/pm/state'
+import { EditorState, TextSelection, type Transaction } from '@tiptap/pm/state'
 import type { EditorView } from '@tiptap/pm/view'
 import { describe, expect, it } from 'vitest'
 
@@ -33,6 +40,27 @@ function paragraphJson(text: string): JSONContent {
   }
 }
 
+function markedParagraphJson(
+  text: string,
+  marks: JSONContent['marks']
+): JSONContent {
+  return {
+    type: 'doc',
+    content: [
+      {
+        type: 'paragraph',
+        content: [
+          {
+            type: 'text',
+            marks,
+            text,
+          },
+        ],
+      },
+    ],
+  }
+}
+
 function stencilaParagraphJson(text: string): Record<string, unknown> {
   return {
     type: 'Paragraph',
@@ -44,6 +72,112 @@ function stencilaParagraphJson(text: string): Record<string, unknown> {
         },
       },
     ],
+  }
+}
+
+type InputRuleMatch = RegExpMatchArray & {
+  data?: Record<string, unknown>
+}
+
+function matchInputRule(
+  find: InputRuleFinder,
+  text: string
+): InputRuleMatch | null {
+  if (find instanceof RegExp) {
+    return find.exec(text) as InputRuleMatch | null
+  }
+
+  const result = find(text)
+
+  if (!result) {
+    return null
+  }
+
+  const match = [result.text] as unknown as InputRuleMatch
+
+  match.index = result.index
+  match.input = text
+  match.data = result.data
+
+  if (result.replaceWith) {
+    match.push(result.replaceWith)
+  }
+
+  return match
+}
+
+function inputRulesFor(editor: Editor, extensionName: string): InputRule[] {
+  const extension = editor.extensionManager.extensions.find(
+    ({ name }) => name === extensionName
+  )
+
+  return (
+    extension?.config.addInputRules?.call({
+      editor,
+      extensions: [],
+      name: extension.name,
+      options: extension.options,
+      parent: undefined,
+      storage: {},
+      type: editor.schema.marks[extensionName],
+    } as never) ?? []
+  )
+}
+
+function applyInputRuleShortcut(
+  shortcut: string,
+  extensionName: string
+): JSONContent {
+  const finalText = shortcut.slice(-1)
+
+  if (!finalText) {
+    return paragraphJson(shortcut)
+  }
+
+  const initialText = shortcut.slice(0, -1)
+  const editor = createEditor(paragraphJson(initialText))
+
+  try {
+    const ruleMatch = inputRulesFor(editor, extensionName)
+      .map((rule) => ({ match: matchInputRule(rule.find, shortcut), rule }))
+      .find(({ match }) => match)
+
+    if (!ruleMatch?.match) {
+      return paragraphJson(shortcut)
+    }
+
+    let state = EditorState.create({
+      schema: editor.schema,
+      doc: editor.schema.nodeFromJSON(paragraphJson(initialText)),
+    })
+    const cursor = state.doc.content.size - 1
+
+    state = state.apply(
+      state.tr.setSelection(TextSelection.create(state.doc, cursor))
+    )
+
+    const transaction = state.tr
+    const range = {
+      from: state.selection.from - (ruleMatch.match[0].length - finalText.length),
+      to: state.selection.to,
+    }
+
+    ruleMatch.rule.handler({
+      can: (() => ({})) as never,
+      chain: (() => ({})) as never,
+      commands: {} as never,
+      match: ruleMatch.match,
+      range,
+      state: createChainableState({ state, transaction }),
+    })
+
+    if (transaction.steps.length === 0) {
+      return paragraphJson(shortcut)
+    }
+
+    return state.apply(transaction).doc.toJSON() as JSONContent
+  } finally {
+    editor.destroy()
   }
 }
 
@@ -433,6 +567,91 @@ describe('Stencila Tiptap extensions', () => {
       },
       0,
     ])
+  })
+
+  it('converts inline Markdown shortcuts to custom marks', () => {
+    expect(applyInputRuleShortcut('`code`', 'code')).toEqual(
+      markedParagraphJson('code', [
+        { type: 'code', attrs: { programmingLanguage: null } },
+      ])
+    )
+    expect(applyInputRuleShortcut('~~strike~~', 'strike')).toEqual(
+      markedParagraphJson('strike', [{ type: 'strike' }])
+    )
+    expect(applyInputRuleShortcut('H~2~', 'subscript')).toEqual({
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'H' },
+            {
+              type: 'text',
+              marks: [{ type: 'subscript' }],
+              text: '2',
+            },
+          ],
+        },
+      ],
+    })
+    expect(applyInputRuleShortcut('CO^2^', 'superscript')).toEqual({
+      type: 'doc',
+      content: [
+        {
+          type: 'paragraph',
+          content: [
+            { type: 'text', text: 'CO' },
+            {
+              type: 'text',
+              marks: [{ type: 'superscript' }],
+              text: '2',
+            },
+          ],
+        },
+      ],
+    })
+    expect(
+      applyInputRuleShortcut('[Stencila](https://stencila.io)', 'link')
+    ).toEqual(
+      markedParagraphJson('Stencila', [
+        {
+          type: 'link',
+          attrs: {
+            href: 'https://stencila.io',
+            labelOnly: null,
+            rel: null,
+            title: null,
+          },
+        },
+      ])
+    )
+    expect(
+      applyInputRuleShortcut('[Stencila](https://stencila.io "Home")', 'link')
+    ).toEqual(
+      markedParagraphJson('Stencila', [
+        {
+          type: 'link',
+          attrs: {
+            href: 'https://stencila.io',
+            labelOnly: null,
+            rel: null,
+            title: 'Home',
+          },
+        },
+      ])
+    )
+  })
+
+  it('keeps unsupported inline Markdown shortcuts as text', () => {
+    expect(applyInputRuleShortcut('[Stencila]()', 'link')).toEqual(
+      paragraphJson('[Stencila]()')
+    )
+    expect(applyInputRuleShortcut('H~2 3~', 'subscript')).toEqual(
+      paragraphJson('H~2 3~')
+    )
+    expect(applyInputRuleShortcut('~~strike~', 'subscript')).toEqual(
+      paragraphJson('~~strike~')
+    )
   })
 
   it('registers the link click handler', () => {
