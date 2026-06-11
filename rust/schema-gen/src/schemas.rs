@@ -149,7 +149,7 @@ impl Schemas {
                         .any(|extend| is_descendent(schemas, base, &schemas[extend]))
                 }
 
-                if is_descendent(&self.schemas, base, schema) {
+                if !schema.r#abstract && is_descendent(&self.schemas, base, schema) {
                     any_of.push(Schema {
                         r#ref: Some(name.to_string()),
                         ..Default::default()
