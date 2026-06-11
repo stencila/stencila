@@ -1,0 +1,17 @@
+title: Request
+'@id': stencila:Request
+nick: rqs
+extends: ResearchObject
+category: works
+description: A request for research work, evidence, protocol execution, or another contribution.
+$comment: |
+  This is a block-level research request node.
+
+  It is used for authored requests that can be related to questions, claims,
+  protocols, evidence, or other research objects in a graph.
+analogues:
+  - id: mira:Request
+    notes: MIRA request node.
+markdown:
+  derive: false
+proptest: {}

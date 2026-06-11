@@ -5,7 +5,9 @@
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.org/"
+    "stencila": "https://stencila.org/",
+    "cito": "http://purl.org/spar/cito/",
+    "mira": "http://purl.org/mira-science/mira#"
   },
   "@graph": [
     {
@@ -802,9 +804,6 @@
           "@id": "schema:Article"
         },
         {
-          "@id": "schema:Claim"
-        },
-        {
           "@id": "schema:Comment"
         },
         {
@@ -896,6 +895,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:ResearchObject"
         },
         {
           "@id": "stencila:Section"

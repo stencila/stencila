@@ -14,11 +14,13 @@ use super::date_time::DateTime;
 use super::grant_or_monetary_grant::GrantOrMonetaryGrant;
 use super::image_object::ImageObject;
 use super::inline::Inline;
+use super::object::Object;
 use super::person::Person;
 use super::person_or_organization::PersonOrOrganization;
 use super::property_value_or_string::PropertyValueOrString;
 use super::provenance_count::ProvenanceCount;
 use super::reference::Reference;
+use super::research_object_relation::ResearchObjectRelation;
 use super::string::String;
 use super::string_or_number::StringOrNumber;
 use super::text::Text;
@@ -72,20 +74,13 @@ pub struct Claim {
     #[dom(elem = "div")]
     pub provenance: Option<Vec<ProvenanceCount>>,
 
-    /// The type of the claim.
-    #[serde(alias = "claim-type", alias = "claim_type")]
-    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
-    #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
-    #[jats(attr = "content-type")]
-    pub claim_type: ClaimType,
-
-    /// A short label for the claim.
+    /// A short label for the research object.
     #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[jats(elem = "label")]
     pub label: Option<String>,
 
-    /// Content of the claim, usually a single paragraph.
+    /// Content of the research object.
     #[serde(deserialize_with = "one_or_many")]
     #[walk]
     #[patch(format = "all")]
@@ -95,6 +90,21 @@ pub struct Claim {
     #[cfg_attr(feature = "proptest-max", proptest(strategy = r#"vec_blocks_non_recursive(4)"#))]
     #[dom(elem = "aside")]
     pub content: Vec<Block>,
+
+    /// Relations from this research object to other research objects.
+    #[serde(alias = "relation")]
+    #[serde(default, deserialize_with = "option_one_or_many")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd", format = "tiptap")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub relations: Option<Vec<ResearchObjectRelation>>,
+
+    /// The type of the claim.
+    #[serde(alias = "claim-type", alias = "claim_type")]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    #[jats(attr = "content-type")]
+    pub claim_type: Option<ClaimType>,
 
     /// Non-core optional fields
     #[serde(flatten)]
@@ -350,6 +360,13 @@ pub struct ClaimOptions {
     #[strip(metadata)]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     pub version: Option<StringOrNumber>,
+
+    /// Additional metadata for the research object.
+    #[serde(flatten, deserialize_with = "empty_object_is_none")]
+    #[strip(metadata)]
+    #[patch(format = "md", format = "smd", format = "myst", format = "ipynb", format = "qmd")]
+    #[cfg_attr(feature = "proptest", proptest(value = "None"))]
+    pub extra: Option<Object>,
 }
 
 impl Claim {
@@ -363,9 +380,8 @@ impl Claim {
         NodeId::new(&Self::NICK, &self.uid)
     }
     
-    pub fn new(claim_type: ClaimType, content: Vec<Block>) -> Self {
+    pub fn new(content: Vec<Block>) -> Self {
         Self {
-            claim_type,
             content,
             ..Default::default()
         }

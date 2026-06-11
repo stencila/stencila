@@ -16,6 +16,7 @@ export type CreativeWorkType =
   'Dataset' |
   'Datatable' |
   'Drawing' |
+  'Evidence' |
   'Figure' |
   'File' |
   'Graph' |
@@ -29,9 +30,12 @@ export type CreativeWorkType =
   'Poster' |
   'Presentation' |
   'Prompt' |
+  'Protocol' |
   'PublicationIssue' |
   'PublicationVolume' |
+  'Question' |
   'Report' |
+  'Request' |
   'Review' |
   'Skill' |
   'SoftwareApplication' |

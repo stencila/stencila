@@ -166,7 +166,9 @@ pub fn arg<S: Into<String>, C: Into<Cord>>(name: S, code: C) -> CallArgument {
 
 /// Create a [`Block::Claim`] node
 pub fn clm<B: Into<Vec<Block>>>(claim_type: ClaimType, content: B) -> Block {
-    Block::Claim(Claim::new(claim_type, content.into()))
+    let mut claim = Claim::new(content.into());
+    claim.claim_type = Some(claim_type);
+    Block::Claim(claim)
 }
 
 /// Create an [`Block::CodeBlock`] node

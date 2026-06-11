@@ -75,10 +75,12 @@ includes the full set of properties and constraints.
 - [`ClaimType`](./claim-type.md) - A category of claim.
 - [`Collection`](./collection.md) - A collection of creative works or other artifacts.
 - [`Comment`](./comment.md) - A comment on an item.
+- [`ContainerImage`](./container-image.md) - A container image used by a computational action.
 - [`CreativeWork`](./creative-work.md) - A creative work.
 - [`CreativeWorkType`](./creative-work-type.md) - A category of creative work.
 - [`CreativeWorkVariant`](./creative-work-variant.md) - Union type for all types that are descended from `CreativeWork`
 - [`Directory`](./directory.md) - A directory on a file system.
+- [`Evidence`](./evidence.md) - Evidence supporting, opposing, or otherwise informing a research claim.
 - [`Figure`](./figure.md) - A figure.
 - [`File`](./file.md) - A file on the file system.
 - [`HorizontalAlignment`](./horizontal-alignment.md) - The horizontal alignment of content.
@@ -88,14 +90,21 @@ includes the full set of properties and constraints.
 - [`MediaObject`](./media-object.md) - A media object.
 - [`Periodical`](./periodical.md) - A periodical publication.
 - [`Prompt`](./prompt.md) - A prompt for creating or editing document content.
+- [`Protocol`](./protocol.md) - A research protocol or method description.
 - [`PublicationIssue`](./publication-issue.md) - A publication issue.
 - [`PublicationVolume`](./publication-volume.md) - A publication volume.
+- [`Question`](./question.md) - A question or research prompt.
 - [`Reference`](./reference.md) - A reference to a creative work, including books, movies, photographs, software programs, etc.
+- [`Request`](./request.md) - A request for research work, evidence, protocol execution, or another contribution.
+- [`ResearchObject`](./research-object.md) - An abstract base type for research objects represented as block content.
+- [`ResearchObjectRelation`](./research-object-relation.md) - A relation from one research object to another.
+- [`ResearchObjectRelationKind`](./research-object-relation-kind.md) - The kind of relation from one research object to another.
 - [`Review`](./review.md) - A review of an item, e.g of an `Article` or `SoftwareApplication`.
 - [`Skill`](./skill.md) - An agent skill providing instructions for AI agents.
 - [`SoftwareApplication`](./software-application.md) - A software application.
 - [`SoftwareSourceCode`](./software-source-code.md) - Source code for software.
 - [`Supplement`](./supplement.md) - A supplementary creative work associated with a document.
+- [`SymbolicLink`](./symbolic-link.md) - A symbolic link on a file system.
 - [`Table`](./table.md) - A table.
 - [`TableCell`](./table-cell.md) - A cell within a `Table`.
 - [`TableCellType`](./table-cell-type.md) - The structural role of a table cell.
@@ -104,6 +113,7 @@ includes the full set of properties and constraints.
 - [`VerticalAlignment`](./vertical-alignment.md) - The vertical alignment of content.
 - [`VideoObject`](./video-object.md) - A video file.
 - [`Workflow`](./workflow.md) - An AI workflow definition.
+- [`WorktreeStatus`](./worktree-status.md) - The status of a source worktree relative to a commit.
 
 # Prose
 
@@ -205,17 +215,19 @@ includes the full set of properties and constraints.
 
 # Flow
 
+- [`Action`](./action.md) - An action performed by an agent.
+- [`ActionAgent`](./action-agent.md) - A human, organization, software application, or Stencila AI agent that performs, provides, or participates in an action.
+- [`ActionStatusType`](./action-status-type.md) - The status of an action.
 - [`Button`](./button.md) - An interactive button.
 - [`CallArgument`](./call-argument.md) - An argument used when calling a document.
 - [`CallBlock`](./call-block.md) - Call another document, optionally with arguments, and include its executed content.
 - [`CodeLocation`](./code-location.md) - A location within source code.
 - [`CompilationDigest`](./compilation-digest.md) - A digest of an executable node and its dependencies.
+- [`ConvertAction`](./convert-action.md) - An action that converts a resource from one representation or format to another.
+- [`CreateAction`](./create-action.md) - An action that creates a result.
 - [`Executable`](./executable.md) - An abstract base type for executable nodes.
+- [`ExecuteAction`](./execute-action.md) - An action that executes code, a prompt, a workflow, or another executable node.
 - [`ExecutionBounds`](./execution-bounds.md) - A boundary for node execution.
-- [`ExecutionDependant`](./execution-dependant.md) - A downstream execution dependant of a node.
-- [`ExecutionDependantRelation`](./execution-dependant-relation.md) - A downstream execution relation between nodes.
-- [`ExecutionDependency`](./execution-dependency.md) - An upstream execution dependency of a node.
-- [`ExecutionDependencyRelation`](./execution-dependency-relation.md) - An upstream execution relation between nodes.
 - [`ExecutionMode`](./execution-mode.md) - The circumstances under which a node should be executed.
 - [`ExecutionRequired`](./execution-required.md) - A reason why a node does or does not require execution.
 - [`ExecutionStatus`](./execution-status.md) - The status of a node's most recent execution.
@@ -224,6 +236,14 @@ includes the full set of properties and constraints.
 - [`Form`](./form.md) - A form for batched updates to document parameters.
 - [`FormDeriveAction`](./form-derive-action.md) - An action for applying a derived form value.
 - [`Function`](./function.md) - A function signature.
+- [`Graph`](./graph.md) - A directed graph relating Stencila nodes, used for provenance, reactivity, and similar relationship graphs.
+- [`GraphAction`](./graph-action.md) - An action associated with a graph edge.
+- [`GraphEdge`](./graph-edge.md) - A directed edge in a graph.
+- [`GraphEdgeKind`](./graph-edge-kind.md) - The kind of directed relationship represented by a graph edge.
+- [`GraphEvidence`](./graph-evidence.md) - Evidence for a graph edge.
+- [`GraphEvidenceConfidence`](./graph-evidence-confidence.md) - The confidence level for graph evidence.
+- [`GraphEvidenceKind`](./graph-evidence-kind.md) - The kind of evidence supporting a graph edge.
+- [`GraphNode`](./graph-node.md) - A node in a graph.
 - [`IfBlock`](./if-block.md) - A block that conditionally shows and executes alternative content.
 - [`IfBlockClause`](./if-block-clause.md) - A clause within an `IfBlock` node.
 - [`IncludeBlock`](./include-block.md) - A block that includes content from an external source.
@@ -262,6 +282,7 @@ includes the full set of properties and constraints.
 - [`Excerpt`](./excerpt.md) - An excerpt from a `CreativeWork`.
 - [`Grant`](./grant.md) - A grant, typically financial or otherwise quantifiable, of resources.
 - [`Island`](./island.md) - An island of content in a document.
+- [`Labelled`](./labelled.md) - Abstract base for document nodes with labels.
 - [`MessageLevel`](./message-level.md) - A severity level for a message.
 - [`MessageRole`](./message-role.md) - A role in a message exchange.
 - [`ModelParameters`](./model-parameters.md) - Model selection and inference parameters for generative AI models.

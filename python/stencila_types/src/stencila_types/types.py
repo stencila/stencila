@@ -238,6 +238,7 @@ class CreativeWorkType(StrEnum):
     Dataset = "Dataset"
     Datatable = "Datatable"
     Drawing = "Drawing"
+    Evidence = "Evidence"
     Figure = "Figure"
     File = "File"
     Graph = "Graph"
@@ -251,9 +252,12 @@ class CreativeWorkType(StrEnum):
     Poster = "Poster"
     Presentation = "Presentation"
     Prompt = "Prompt"
+    Protocol = "Protocol"
     PublicationIssue = "PublicationIssue"
     PublicationVolume = "PublicationVolume"
+    Question = "Question"
     Report = "Report"
+    Request = "Request"
     Review = "Review"
     Skill = "Skill"
     SoftwareApplication = "SoftwareApplication"
@@ -358,6 +362,17 @@ class GraphEdgeKind(StrEnum):
     Configures = "Configures"
     RequiredBy = "RequiredBy"
     Pins = "Pins"
+    Supports = "Supports"
+    SupportedBy = "SupportedBy"
+    Opposes = "Opposes"
+    OpposedBy = "OpposedBy"
+    Addresses = "Addresses"
+    AddressedBy = "AddressedBy"
+    Follows = "Follows"
+    Grounds = "Grounds"
+    IsGroundedIn = "IsGroundedIn"
+    RequestFor = "RequestFor"
+    RequestTarget = "RequestTarget"
 
 
 class GraphEvidenceConfidence(StrEnum):
@@ -497,6 +512,24 @@ class RelativePosition(StrEnum):
 
     Previous = "Previous"
     Next = "Next"
+
+
+class ResearchObjectRelationKind(StrEnum):
+    """
+    The kind of relation from one research object to another.
+    """
+
+    Supports = "Supports"
+    SupportedBy = "SupportedBy"
+    Opposes = "Opposes"
+    OpposedBy = "OpposedBy"
+    Addresses = "Addresses"
+    AddressedBy = "AddressedBy"
+    Follows = "Follows"
+    Grounds = "Grounds"
+    IsGroundedIn = "IsGroundedIn"
+    RequestFor = "RequestFor"
+    RequestTarget = "RequestTarget"
 
 
 class SectionType(StrEnum):
@@ -1156,6 +1189,27 @@ class Parameter(Executable):
 
 
 @dataclass(kw_only=True, repr=False)
+class ResearchObject(CreativeWork):
+    """
+    An abstract base type for research objects represented as block content.
+    """
+
+    type: Literal["ResearchObject"] = "ResearchObject"
+
+    label: str | None = None
+    """A short label for the research object."""
+
+    content: list[Block]
+    """Content of the research object."""
+
+    relations: list[ResearchObjectRelation] | None = None
+    """Relations from this research object to other research objects."""
+
+    extra: Object | None = None
+    """Additional metadata for the research object."""
+
+
+@dataclass(kw_only=True, repr=False)
 class Role(Entity):
     """
     Represents additional information about a relationship or property.
@@ -1681,21 +1735,15 @@ class CitationGroup(Entity):
 
 
 @dataclass(kw_only=True, repr=False)
-class Claim(CreativeWork):
+class Claim(ResearchObject):
     """
     A reviewable claim or statement.
     """
 
     type: Literal["Claim"] = "Claim"
 
-    claim_type: ClaimType
+    claim_type: ClaimType | None = None
     """The type of the claim."""
-
-    label: str | None = None
-    """A short label for the claim."""
-
-    content: list[Block]
-    """Content of the claim, usually a single paragraph."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -2158,6 +2206,15 @@ class Enumeration(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class Evidence(ResearchObject):
+    """
+    Evidence supporting, opposing, or otherwise informing a research claim.
+    """
+
+    type: Literal["Evidence"] = "Evidence"
+
+
+@dataclass(kw_only=True, repr=False)
 class Excerpt(Entity):
     """
     An excerpt from a `CreativeWork`.
@@ -2376,13 +2433,13 @@ class GraphEdge(Entity):
     type: Literal["GraphEdge"] = "GraphEdge"
 
     source: str
-    """The id of the upstream dependency graph node."""
+    """The id of the source graph node."""
 
     target: str
-    """The id of the downstream dependant graph node."""
+    """The id of the target graph node."""
 
     kind: GraphEdgeKind
-    """The kind of dependency relationship represented by this edge."""
+    """The kind of relationship represented by this edge."""
 
     evidence: list[GraphEvidence] | None = None
     """Evidence supporting the edge."""
@@ -3052,6 +3109,15 @@ class PropertyValue(Thing):
 
 
 @dataclass(kw_only=True, repr=False)
+class Protocol(ResearchObject):
+    """
+    A research protocol or method description.
+    """
+
+    type: Literal["Protocol"] = "Protocol"
+
+
+@dataclass(kw_only=True, repr=False)
 class ProvenanceCount(Entity):
     """
     The count of the number of characters in a `ProvenanceCategory` within an entity.
@@ -3109,6 +3175,15 @@ class PublicationVolume(CreativeWork):
 
     volume_number: int | str | None = None
     """Identifies the volume of publication or multi-part work; for example, "iii" or "2"."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Question(ResearchObject):
+    """
+    A question or research prompt.
+    """
+
+    type: Literal["Question"] = "Question"
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3235,6 +3310,30 @@ class Reference(Entity):
 
     content: list[Inline] | None = None
     """A rendering of the reference using the citation style of the document."""
+
+
+@dataclass(kw_only=True, repr=False)
+class Request(ResearchObject):
+    """
+    A request for research work, evidence, protocol execution, or another contribution.
+    """
+
+    type: Literal["Request"] = "Request"
+
+
+@dataclass(kw_only=True, repr=False)
+class ResearchObjectRelation(Entity):
+    """
+    A relation from one research object to another.
+    """
+
+    type: Literal["ResearchObjectRelation"] = "ResearchObjectRelation"
+
+    kind: ResearchObjectRelationKind
+    """The kind of relation."""
+
+    target: str
+    """The target research object or external resource."""
 
 
 @dataclass(kw_only=True, repr=False)
@@ -3852,6 +3951,7 @@ Block = Union[
     CodeChunk,
     Datatable,
     Excerpt,
+    Evidence,
     Figure,
     File,
     ForBlock,
@@ -3868,8 +3968,11 @@ Block = Union[
     Page,
     Paragraph,
     PromptBlock,
+    Protocol,
+    Question,
     QuoteBlock,
     RawBlock,
+    Request,
     Section,
     StyledBlock,
     SuggestionBlock,
@@ -3893,6 +3996,7 @@ CreativeWorkVariant = Union[
     Collection,
     Comment,
     Datatable,
+    Evidence,
     Figure,
     File,
     Graph,
@@ -3900,8 +4004,11 @@ CreativeWorkVariant = Union[
     MediaObject,
     Periodical,
     Prompt,
+    Protocol,
     PublicationIssue,
     PublicationVolume,
+    Question,
+    Request,
     Review,
     Skill,
     SoftwareApplication,
@@ -4060,6 +4167,7 @@ Node = Union[
     Emphasis,
     EnumValidator,
     Enumeration,
+    Evidence,
     Excerpt,
     ExecuteAction,
     ExecutionMessage,
@@ -4108,13 +4216,17 @@ Node = Union[
     Prompt,
     PromptBlock,
     PropertyValue,
+    Protocol,
     ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
+    Question,
     QuoteBlock,
     QuoteInline,
     RawBlock,
     Reference,
+    Request,
+    ResearchObjectRelation,
     Review,
     Section,
     Sentence,
@@ -4177,6 +4289,7 @@ ThingVariant = Union[
     Datatable,
     DefinedTerm,
     Enumeration,
+    Evidence,
     ExecuteAction,
     Figure,
     File,
@@ -4193,8 +4306,11 @@ ThingVariant = Union[
     Product,
     Prompt,
     PropertyValue,
+    Protocol,
     PublicationIssue,
     PublicationVolume,
+    Question,
+    Request,
     Review,
     Skill,
     SoftwareApplication,
@@ -4247,6 +4363,7 @@ TYPES = [
     MediaObject,
     NumberValidator,
     Parameter,
+    ResearchObject,
     Role,
     StyledBlock,
     Suggestion,
@@ -4300,6 +4417,7 @@ TYPES = [
     Emphasis,
     EnumValidator,
     Enumeration,
+    Evidence,
     Excerpt,
     ExecuteAction,
     ExecutionMessage,
@@ -4343,13 +4461,17 @@ TYPES = [
     Prompt,
     PromptBlock,
     PropertyValue,
+    Protocol,
     ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
+    Question,
     QuoteBlock,
     QuoteInline,
     RawBlock,
     Reference,
+    Request,
+    ResearchObjectRelation,
     Review,
     Section,
     Sentence,

@@ -54,6 +54,9 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "Evidence.schema.json"
+    },
+    {
       "$ref": "ExecuteAction.schema.json"
     },
     {
@@ -102,10 +105,19 @@
       "$ref": "PropertyValue.schema.json"
     },
     {
+      "$ref": "Protocol.schema.json"
+    },
+    {
       "$ref": "PublicationIssue.schema.json"
     },
     {
       "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Question.schema.json"
+    },
+    {
+      "$ref": "Request.schema.json"
     },
     {
       "$ref": "Review.schema.json"

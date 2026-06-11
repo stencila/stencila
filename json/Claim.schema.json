@@ -5,11 +5,11 @@
   "title": "Claim",
   "nick": "clm",
   "extends": [
-    "CreativeWork"
+    "ResearchObject"
   ],
   "category": "works",
   "description": "A reviewable claim or statement.",
-  "$comment": "This is an implementation of schema.org [`Claim`](https://schema.org/Claim),\nadapted in Stencila Schema for block-level document content.\n\nIt is used for claim-like units that authors, reviewers, and readers may want\nto identify, label, or assess explicitly, such as assertions, theorems,\npropositions, or proofs. Unlike a plain paragraph, a claim can carry a claim\ntype, structured block content, and document-oriented labeling metadata.\n\nKey properties include `claimType`, `label`, and `content`.\n",
+  "$comment": "This is an implementation of schema.org [`Claim`](https://schema.org/Claim),\nadapted in Stencila Schema for block-level document content.\n\nIt is used for claim-like units that authors, reviewers, and readers may want\nto identify, label, or assess explicitly, such as assertions, theorems,\npropositions, or proofs. Unlike a plain paragraph, a claim can carry a claim\ntype, structured block content, and document-oriented labeling metadata.\n\nKey properties include `claimType`, `label`, and `content`. The `claimType`\nis intentionally optional: claims are often authored generically (e.g. a\nplain `claim` block) and a more specific type such as `Statement` or\n`Theorem` added only when known.\n",
   "analogues": [
     {
       "id": "schema:Claim",
@@ -33,16 +33,18 @@
   "proptest": {},
   "required": [
     "type",
-    "claimType",
     "content"
   ],
   "core": [
     "id",
     "workType",
     "doi",
-    "label",
     "authors",
-    "provenance"
+    "provenance",
+    "label",
+    "content",
+    "relations",
+    "claimType"
   ],
   "properties": {
     "type": {
@@ -712,30 +714,10 @@
         }
       ]
     },
-    "claimType": {
-      "@id": "stencila:claimType",
-      "description": "The type of the claim.",
-      "aliases": [
-        "claim-type",
-        "claim_type"
-      ],
-      "patch": {
-        "formats": [
-          "md",
-          "smd",
-          "myst",
-          "ipynb",
-          "qmd"
-        ]
-      },
-      "jats": {
-        "attr": "content-type"
-      },
-      "$ref": "ClaimType.schema.json"
-    },
     "label": {
       "@id": "stencila:label",
-      "description": "A short label for the claim.",
+      "description": "A short label for the research object.",
+      "$comment": "Used for numbering and cross-referencing, e.g. \"Claim 1\" or \"Question 2\".\n",
       "patch": {
         "formats": [
           "md",
@@ -752,8 +734,8 @@
     },
     "content": {
       "@id": "stencila:content",
-      "description": "Content of the claim, usually a single paragraph.",
-      "$comment": "Most claims will have a single paragraph but could have multiple\nparagraphs, tables and even figures.\n",
+      "description": "Content of the research object.",
+      "$comment": "Most research objects will have a single paragraph but could have\nmultiple paragraphs, tables, figures, or other block content.\n",
       "dom": {
         "elem": "aside"
       },
@@ -775,6 +757,74 @@
       "items": {
         "$ref": "Block.schema.json"
       }
+    },
+    "relations": {
+      "@id": "stencila:relations",
+      "description": "Relations from this research object to other research objects.",
+      "$comment": "Relations are source-local: the source is this research object, and each\nrelation carries only a relation kind and target reference. During graph\nconstruction these relations are resolved to `GraphEdge` values using the\ncorresponding `GraphEdgeKind`.\n",
+      "aliases": [
+        "relation"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd",
+          "tiptap"
+        ]
+      },
+      "type": "array",
+      "items": {
+        "$ref": "ResearchObjectRelation.schema.json"
+      }
+    },
+    "extra": {
+      "@id": "stencila:extra",
+      "description": "Additional metadata for the research object.",
+      "$comment": "A catch-all for object properties of research objects that are not in the\nStencila schema. This is useful for preserving authored interoperability\nmetadata, such as external graph relation declarations, without adding\nvocabulary-specific properties to the core schema.\n",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "serde": {
+        "flatten": true,
+        "deserializeWith": "empty_object_is_none"
+      },
+      "$ref": "Object.schema.json"
+    },
+    "claimType": {
+      "@id": "stencila:claimType",
+      "description": "The type of the claim.",
+      "aliases": [
+        "claim-type",
+        "claim_type"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "jats": {
+        "attr": "content-type"
+      },
+      "$ref": "ClaimType.schema.json"
     }
   }
 }

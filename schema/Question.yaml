@@ -1,0 +1,22 @@
+title: Question
+'@id': schema:Question
+nick: qsn
+extends: ResearchObject
+category: works
+description: A question or research prompt.
+$comment: |
+  This is a block-level implementation of schema.org `Question`, adapted for
+  research documents and discourse graphs.
+
+  It is used for explicit research questions that authors may want to identify,
+  cite, relate to claims and evidence, or export to graph-oriented interchange
+  formats. Like `Claim`, it carries structured block content so authors can use
+  normal document markup inside the question.
+analogues:
+  - id: schema:Question
+    notes: Direct schema.org source type, adapted in Stencila to carry block content.
+  - id: mira:Question
+    notes: MIRA modular research question node.
+markdown:
+  derive: false
+proptest: {}

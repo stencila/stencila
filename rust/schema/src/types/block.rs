@@ -13,6 +13,7 @@ use super::claim::Claim;
 use super::code_block::CodeBlock;
 use super::code_chunk::CodeChunk;
 use super::datatable::Datatable;
+use super::evidence::Evidence;
 use super::excerpt::Excerpt;
 use super::figure::Figure;
 use super::file::File;
@@ -30,8 +31,11 @@ use super::math_block::MathBlock;
 use super::page::Page;
 use super::paragraph::Paragraph;
 use super::prompt_block::PromptBlock;
+use super::protocol::Protocol;
+use super::question::Question;
 use super::quote_block::QuoteBlock;
 use super::raw_block::RawBlock;
+use super::request::Request;
 use super::section::Section;
 use super::styled_block::StyledBlock;
 use super::suggestion_block::SuggestionBlock;
@@ -103,6 +107,9 @@ pub enum Block {
     Excerpt(Excerpt),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    Evidence(Evidence),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Figure(Figure),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
@@ -171,9 +178,18 @@ pub enum Block {
     #[cfg_attr(feature = "proptest-max", proptest(skip))]
     PromptBlock(PromptBlock),
 
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    Protocol(Protocol),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    Question(Question),
+
     QuoteBlock(QuoteBlock),
 
     RawBlock(RawBlock),
+
+    #[cfg_attr(feature = "proptest-min", proptest(skip))]
+    Request(Request),
 
     #[cfg_attr(feature = "proptest-min", proptest(skip))]
     Section(Section),

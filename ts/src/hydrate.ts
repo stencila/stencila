@@ -147,6 +147,8 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.EnumValidator.prototype);
     case "Enumeration":
       return Object.setPrototypeOf(value, types.Enumeration.prototype);
+    case "Evidence":
+      return Object.setPrototypeOf(value, types.Evidence.prototype);
     case "Excerpt":
       return Object.setPrototypeOf(value, types.Excerpt.prototype);
     case "Executable":
@@ -253,12 +255,16 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.PromptBlock.prototype);
     case "PropertyValue":
       return Object.setPrototypeOf(value, types.PropertyValue.prototype);
+    case "Protocol":
+      return Object.setPrototypeOf(value, types.Protocol.prototype);
     case "ProvenanceCount":
       return Object.setPrototypeOf(value, types.ProvenanceCount.prototype);
     case "PublicationIssue":
       return Object.setPrototypeOf(value, types.PublicationIssue.prototype);
     case "PublicationVolume":
       return Object.setPrototypeOf(value, types.PublicationVolume.prototype);
+    case "Question":
+      return Object.setPrototypeOf(value, types.Question.prototype);
     case "QuoteBlock":
       return Object.setPrototypeOf(value, types.QuoteBlock.prototype);
     case "QuoteInline":
@@ -267,6 +273,12 @@ export function hydrate(value: types.Node): types.Node {
       return Object.setPrototypeOf(value, types.RawBlock.prototype);
     case "Reference":
       return Object.setPrototypeOf(value, types.Reference.prototype);
+    case "Request":
+      return Object.setPrototypeOf(value, types.Request.prototype);
+    case "ResearchObject":
+      return Object.setPrototypeOf(value, types.ResearchObject.prototype);
+    case "ResearchObjectRelation":
+      return Object.setPrototypeOf(value, types.ResearchObjectRelation.prototype);
     case "Review":
       return Object.setPrototypeOf(value, types.Review.prototype);
     case "Role":

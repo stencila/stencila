@@ -1,0 +1,84 @@
+title: ResearchObject
+'@id': stencila:ResearchObject
+nick: rob
+extends: CreativeWork
+category: works
+abstract: true
+description: An abstract base type for research objects represented as block content.
+$comment: |
+  This is an abstract base type used in Stencila Schema for authored research
+  objects that can be identified, cited, related in research discourse graphs,
+  and represented directly as block-level document content.
+
+  It provides shared `label`, `content`, `relations`, and `extra` properties
+  for concrete research object nodes such as `Claim`, `Question`, `Request`,
+  `Protocol`, and `Evidence`.
+required:
+  - content
+core:
+  - authors
+  - provenance
+  - label
+  - content
+  - relations
+properties:
+  label:
+    '@id': stencila:label
+    description: A short label for the research object.
+    $comment: |
+      Used for numbering and cross-referencing, e.g. "Claim 1" or "Question 2".
+    type: string
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]
+    jats:
+      elem: label
+  content:
+    '@id': stencila:content
+    description: Content of the research object.
+    $comment: |
+      Most research objects will have a single paragraph but could have
+      multiple paragraphs, tables, figures, or other block content.
+    type: array
+    items:
+      $ref: Block
+    dom:
+      elem: aside
+    proptest:
+      min:
+        description: Generate a single arbitrary paragraph.
+        strategy: vec_paragraphs(1)
+      low:
+        description: Generate up to two arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(2)
+      max:
+        description: Generate up to four arbitrary, non-recursive, block nodes.
+        strategy: vec_blocks_non_recursive(4)
+  relations:
+    '@id': stencila:relations
+    description: Relations from this research object to other research objects.
+    $comment: |
+      Relations are source-local: the source is this research object, and each
+      relation carries only a relation kind and target reference. During graph
+      construction these relations are resolved to `GraphEdge` values using the
+      corresponding `GraphEdgeKind`.
+    type: array
+    items:
+      $ref: ResearchObjectRelation
+    strip: [metadata]
+    patch:
+      formats: [md, smd, myst, ipynb, qmd, tiptap]
+  extra:
+    '@id': stencila:extra
+    description: Additional metadata for the research object.
+    $comment: |
+      A catch-all for object properties of research objects that are not in the
+      Stencila schema. This is useful for preserving authored interoperability
+      metadata, such as external graph relation declarations, without adding
+      vocabulary-specific properties to the core schema.
+    $ref: Object
+    strip: [metadata]
+    serde:
+      flatten: true
+      deserializeWith: empty_object_is_none
+    patch:
+      formats: [md, smd, myst, ipynb, qmd]

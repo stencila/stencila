@@ -27,25 +27,26 @@ The following external types, elements, or nodes are similar to a `MathBlock`:
 
 The `MathBlock` type has these properties:
 
-| Name                  | Description                                                         | Type                                              | Inherited from          |
-| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | ----------------------- |
-| `label`               | A short label for the math block.                                   | [`String`](./string.md)                           | -                       |
-| `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](./boolean.md)                         | -                       |
-| `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | [`Math`](./math.md)     |
-| `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | [`Math`](./math.md)     |
-| `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | [`Math`](./math.md)     |
-| `provenance`          | A summary of the provenance of the math.                            | [`ProvenanceCount`](./provenance-count.md)*       | [`Math`](./math.md)     |
-| `compilationDigest`   | A digest of the `code` and `mathLanguage`.                          | [`CompilationDigest`](./compilation-digest.md)    | [`Math`](./math.md)     |
-| `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | [`Math`](./math.md)     |
-| `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | [`Math`](./math.md)     |
-| `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | [`Math`](./math.md)     |
-| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md) |
+| Name                  | Description                                                         | Type                                              | Inherited from              |
+| --------------------- | ------------------------------------------------------------------- | ------------------------------------------------- | --------------------------- |
+| `code`                | The code of the equation in the `mathLanguage`.                     | [`Cord`](./cord.md)                               | [`Math`](./math.md)         |
+| `mathLanguage`        | The language used for the equation e.g tex, mathml, asciimath.      | [`String`](./string.md)                           | [`Math`](./math.md)         |
+| `authors`             | The authors of the math.                                            | [`Author`](./author.md)*                          | [`Math`](./math.md)         |
+| `provenance`          | A summary of the provenance of the math.                            | [`ProvenanceCount`](./provenance-count.md)*       | [`Math`](./math.md)         |
+| `compilationDigest`   | A digest of the `code` and `mathLanguage`.                          | [`CompilationDigest`](./compilation-digest.md)    | [`Math`](./math.md)         |
+| `compilationMessages` | Messages generated while parsing and compiling the math expression. | [`CompilationMessage`](./compilation-message.md)* | [`Math`](./math.md)         |
+| `mathml`              | The MathML transpiled from the `code`.                              | [`String`](./string.md)                           | [`Math`](./math.md)         |
+| `images`              | Images of the math.                                                 | [`ImageObject`](./image-object.md)*               | [`Math`](./math.md)         |
+| `idAutomatically`     | Whether the identifier should be automatically updated.             | [`Boolean`](./boolean.md)                         | [`Labelled`](./labelled.md) |
+| `label`               | A short label for the node.                                         | [`String`](./string.md)                           | [`Labelled`](./labelled.md) |
+| `labelAutomatically`  | Whether the label should be automatically updated.                  | [`Boolean`](./boolean.md)                         | [`Labelled`](./labelled.md) |
+| `id`                  | The identifier for this item.                                       | [`String`](./string.md)                           | [`Entity`](./entity.md)     |
 
 # Related
 
 The `MathBlock` type is related to these types:
 
-- Parents: [`Math`](./math.md)
+- Parents: [`Math`](./math.md)[`Labelled`](./labelled.md)
 - Children: none
 
 # Bindings
@@ -73,6 +74,9 @@ During property-based (a.k.a generative) testing, the properties of the `MathBlo
 | `mathLanguage` | Min+       | Fixed as TeX (for testing with Markdown which uses dollars to delimit TeX by default)                                                                | `Some(String::from("tex"))`                 |
 |                | High+      | Generate a random string of up to 10 alphanumeric characters.                                                                                        | `option::of(r"[a-zA-Z0-9]{1,10}")`          |
 |                | Max        | Generate an arbitrary string.                                                                                                                        | `option::of(String::arbitrary())`           |
+| `label`        | Min+       | No label                                                                                                                                             | `None`                                      |
+|                | Low+       | Generate a simple label                                                                                                                              | `option::of(r"[a-zA-Z0-9]+")`               |
+|                | Max        | Generate an arbitrary string                                                                                                                         | `option::of(String::arbitrary())`           |
 
 See the `proptest` [book](https://proptest-rs.github.io/proptest/) and Stencila Schema's [`proptest.rs`](https://github.com/stencila/stencila/blob/main/rust/schema/src/proptests.rs) module for details on proptest generation strategies listed.
 

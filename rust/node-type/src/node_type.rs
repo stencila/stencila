@@ -68,6 +68,7 @@ pub enum NodeType {
     Emphasis,
     EnumValidator,
     Enumeration,
+    Evidence,
     Excerpt,
     ExecuteAction,
     ExecutionMessage,
@@ -116,13 +117,17 @@ pub enum NodeType {
     Prompt,
     PromptBlock,
     PropertyValue,
+    Protocol,
     ProvenanceCount,
     PublicationIssue,
     PublicationVolume,
+    Question,
     QuoteBlock,
     QuoteInline,
     RawBlock,
     Reference,
+    Request,
+    ResearchObjectRelation,
     Review,
     Section,
     Sentence,
@@ -170,13 +175,13 @@ impl NodeType {
     /// Is the node type a creative work type?
     pub fn is_creative_work(&self) -> bool {
         use NodeType::*;
-        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Figure|File|Graph|ImageObject|MediaObject|Periodical|Prompt|PublicationIssue|PublicationVolume|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject|Workflow)
+        matches!(self, Agent|Article|AudioObject|Chat|Claim|Collection|Comment|Datatable|Evidence|Figure|File|Graph|ImageObject|MediaObject|Periodical|Prompt|Protocol|PublicationIssue|PublicationVolume|Question|Request|Review|Skill|SoftwareApplication|SoftwareSourceCode|Table|VideoObject|Workflow)
     }
 
     /// Is the node type a block content type?
     pub fn is_block(&self) -> bool {
         use NodeType::*;
-        matches!(self, Admonition|AppendixBreak|AudioObject|CallBlock|Chat|ChatMessage|ChatMessageGroup|Claim|CodeBlock|CodeChunk|Datatable|Excerpt|Figure|File|ForBlock|Form|Heading|IfBlock|ImageObject|IncludeBlock|InlinesBlock|InstructionBlock|Island|List|MathBlock|Page|Paragraph|PromptBlock|QuoteBlock|RawBlock|Section|StyledBlock|SuggestionBlock|Supplement|Table|ThematicBreak|VideoObject|Walkthrough)
+        matches!(self, Admonition|AppendixBreak|AudioObject|CallBlock|Chat|ChatMessage|ChatMessageGroup|Claim|CodeBlock|CodeChunk|Datatable|Excerpt|Evidence|Figure|File|ForBlock|Form|Heading|IfBlock|ImageObject|IncludeBlock|InlinesBlock|InstructionBlock|Island|List|MathBlock|Page|Paragraph|PromptBlock|Protocol|Question|QuoteBlock|RawBlock|Request|Section|StyledBlock|SuggestionBlock|Supplement|Table|ThematicBreak|VideoObject|Walkthrough)
     }
 
     /// Is the node type an inline content type?
@@ -255,6 +260,7 @@ impl TryFrom<&NodeId> for NodeType {
             "emp" => Emphasis,
             "env" => EnumValidator,
             "enu" => Enumeration,
+            "evd" => Evidence,
             "exc" => Excerpt,
             "exa" => ExecuteAction,
             "eme" => ExecutionMessage,
@@ -307,13 +313,17 @@ impl TryFrom<&NodeId> for NodeType {
             "pro" => Prompt,
             "prb" => PromptBlock,
             "prv" => PropertyValue,
+            "ptc" => Protocol,
             "prc" => ProvenanceCount,
             "pbi" => PublicationIssue,
             "pbv" => PublicationVolume,
+            "qsn" => Question,
             "qtb" => QuoteBlock,
             "qti" => QuoteInline,
             "raw" => RawBlock,
             "ref" => Reference,
+            "rqs" => Request,
+            "ror" => ResearchObjectRelation,
             "rev" => Review,
             "sec" => Section,
             "sen" => Sentence,

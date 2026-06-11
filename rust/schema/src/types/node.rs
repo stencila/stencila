@@ -58,6 +58,7 @@ use super::duration_validator::DurationValidator;
 use super::emphasis::Emphasis;
 use super::enum_validator::EnumValidator;
 use super::enumeration::Enumeration;
+use super::evidence::Evidence;
 use super::excerpt::Excerpt;
 use super::execute_action::ExecuteAction;
 use super::execution_message::ExecutionMessage;
@@ -110,13 +111,17 @@ use super::product::Product;
 use super::prompt::Prompt;
 use super::prompt_block::PromptBlock;
 use super::property_value::PropertyValue;
+use super::protocol::Protocol;
 use super::provenance_count::ProvenanceCount;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
+use super::question::Question;
 use super::quote_block::QuoteBlock;
 use super::quote_inline::QuoteInline;
 use super::raw_block::RawBlock;
 use super::reference::Reference;
+use super::request::Request;
+use super::research_object_relation::ResearchObjectRelation;
 use super::review::Review;
 use super::section::Section;
 use super::sentence::Sentence;
@@ -281,6 +286,8 @@ pub enum Node {
 
     Enumeration(Enumeration),
 
+    Evidence(Evidence),
+
     Excerpt(Excerpt),
 
     ExecuteAction(ExecuteAction),
@@ -377,11 +384,15 @@ pub enum Node {
 
     PropertyValue(PropertyValue),
 
+    Protocol(Protocol),
+
     ProvenanceCount(ProvenanceCount),
 
     PublicationIssue(PublicationIssue),
 
     PublicationVolume(PublicationVolume),
+
+    Question(Question),
 
     QuoteBlock(QuoteBlock),
 
@@ -390,6 +401,10 @@ pub enum Node {
     RawBlock(RawBlock),
 
     Reference(Reference),
+
+    Request(Request),
+
+    ResearchObjectRelation(ResearchObjectRelation),
 
     Review(Review),
 

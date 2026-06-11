@@ -183,6 +183,9 @@
       "$ref": "Enumeration.schema.json"
     },
     {
+      "$ref": "Evidence.schema.json"
+    },
+    {
       "$ref": "Excerpt.schema.json"
     },
     {
@@ -327,6 +330,9 @@
       "$ref": "PropertyValue.schema.json"
     },
     {
+      "$ref": "Protocol.schema.json"
+    },
+    {
       "$ref": "ProvenanceCount.schema.json"
     },
     {
@@ -334,6 +340,9 @@
     },
     {
       "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Question.schema.json"
     },
     {
       "$ref": "QuoteBlock.schema.json"
@@ -346,6 +355,12 @@
     },
     {
       "$ref": "Reference.schema.json"
+    },
+    {
+      "$ref": "Request.schema.json"
+    },
+    {
+      "$ref": "ResearchObjectRelation.schema.json"
     },
     {
       "$ref": "Review.schema.json"

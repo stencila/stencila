@@ -20,31 +20,29 @@ This type is marked as experimental and is likely to change.
 
 The `CallArgument` type has these properties:
 
-| Name                    | Description                                                                                            | Type                                                | Inherited from                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------- | ------------------------------- |
-| `value`                 | The current value of the argument.                                                                     | [`Node`](./node.md)                                 | -                               |
-| `code`                  | The code to be evaluated for the parameter.                                                            | [`Cord`](./cord.md)                                 | -                               |
-| `programmingLanguage`   | The programming language of the code.                                                                  | [`String`](./string.md)                             | -                               |
-| `name`                  | The name of the parameter.                                                                             | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `label`                 | A short label for the parameter.                                                                       | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `default`               | The default value of the parameter.                                                                    | [`Node`](./node.md)                                 | [`Parameter`](./parameter.md)   |
-| `validator`             | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                       | [`Parameter`](./parameter.md)   |
-| `derivedFrom`           | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                             | [`Parameter`](./parameter.md)   |
-| `executionMode`         | Under which circumstances the node should be executed.                                                 | [`ExecutionMode`](./execution-mode.md)              | [`Executable`](./executable.md) |
-| `compilationDigest`     | A digest of the content, semantics and dependencies of the node.                                       | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
-| `compilationMessages`   | Messages generated while compiling the code.                                                           | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md) |
-| `executionDigest`       | The `compilationDigest` of the node when it was last executed.                                         | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md) |
-| `executionDependencies` | The upstream dependencies of this node.                                                                | [`ExecutionDependency`](./execution-dependency.md)* | [`Executable`](./executable.md) |
-| `executionDependants`   | The downstream dependants of this node.                                                                | [`ExecutionDependant`](./execution-dependant.md)*   | [`Executable`](./executable.md) |
-| `executionTags`         | Tags in the code which affect its execution.                                                           | [`ExecutionTag`](./execution-tag.md)*               | [`Executable`](./executable.md) |
-| `executionCount`        | A count of the number of times that the node has been executed.                                        | [`Integer`](./integer.md)                           | [`Executable`](./executable.md) |
-| `executionRequired`     | Whether, and why, the code requires execution or re-execution.                                         | [`ExecutionRequired`](./execution-required.md)      | [`Executable`](./executable.md) |
-| `executionStatus`       | Status of the most recent, including any current, execution.                                           | [`ExecutionStatus`](./execution-status.md)          | [`Executable`](./executable.md) |
-| `executionInstance`     | The id of the kernel instance that performed the last execution.                                       | [`String`](./string.md)                             | [`Executable`](./executable.md) |
-| `executionEnded`        | The timestamp when the last execution ended.                                                           | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md) |
-| `executionDuration`     | Duration of the last execution.                                                                        | [`Duration`](./duration.md)                         | [`Executable`](./executable.md) |
-| `executionMessages`     | Messages emitted while executing the node.                                                             | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md) |
-| `id`                    | The identifier for this item.                                                                          | [`String`](./string.md)                             | [`Entity`](./entity.md)         |
+| Name                  | Description                                                                                            | Type                                              | Inherited from                  |
+| --------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------------------------- | ------------------------------- |
+| `value`               | The current value of the argument.                                                                     | [`Node`](./node.md)                               | -                               |
+| `code`                | The code to be evaluated for the parameter.                                                            | [`Cord`](./cord.md)                               | -                               |
+| `programmingLanguage` | The programming language of the code.                                                                  | [`String`](./string.md)                           | -                               |
+| `name`                | The name of the parameter.                                                                             | [`String`](./string.md)                           | [`Parameter`](./parameter.md)   |
+| `label`               | A short label for the parameter.                                                                       | [`String`](./string.md)                           | [`Parameter`](./parameter.md)   |
+| `default`             | The default value of the parameter.                                                                    | [`Node`](./node.md)                               | [`Parameter`](./parameter.md)   |
+| `validator`           | The validator that the value is validated against.                                                     | [`Validator`](./validator.md)                     | [`Parameter`](./parameter.md)   |
+| `derivedFrom`         | The dotted path to the object (e.g. a database table column) that the parameter should be derived from | [`String`](./string.md)                           | [`Parameter`](./parameter.md)   |
+| `executionMode`       | Under which circumstances the node should be executed.                                                 | [`ExecutionMode`](./execution-mode.md)            | [`Executable`](./executable.md) |
+| `compilationDigest`   | A digest of the content, semantics and dependencies of the node.                                       | [`CompilationDigest`](./compilation-digest.md)    | [`Executable`](./executable.md) |
+| `compilationMessages` | Messages generated while compiling the code.                                                           | [`CompilationMessage`](./compilation-message.md)* | [`Executable`](./executable.md) |
+| `executionDigest`     | The `compilationDigest` of the node when it was last executed.                                         | [`CompilationDigest`](./compilation-digest.md)    | [`Executable`](./executable.md) |
+| `executionTags`       | Tags in the code which affect its execution.                                                           | [`ExecutionTag`](./execution-tag.md)*             | [`Executable`](./executable.md) |
+| `executionCount`      | A count of the number of times that the node has been executed.                                        | [`Integer`](./integer.md)                         | [`Executable`](./executable.md) |
+| `executionRequired`   | Whether, and why, the code requires execution or re-execution.                                         | [`ExecutionRequired`](./execution-required.md)    | [`Executable`](./executable.md) |
+| `executionStatus`     | Status of the most recent, including any current, execution.                                           | [`ExecutionStatus`](./execution-status.md)        | [`Executable`](./executable.md) |
+| `executionInstance`   | The id of the kernel instance that performed the last execution.                                       | [`String`](./string.md)                           | [`Executable`](./executable.md) |
+| `executionEnded`      | The timestamp when the last execution ended.                                                           | [`Timestamp`](./timestamp.md)                     | [`Executable`](./executable.md) |
+| `executionDuration`   | Duration of the last execution.                                                                        | [`Duration`](./duration.md)                       | [`Executable`](./executable.md) |
+| `executionMessages`   | Messages emitted while executing the node.                                                             | [`ExecutionMessage`](./execution-message.md)*     | [`Executable`](./executable.md) |
+| `id`                  | The identifier for this item.                                                                          | [`String`](./string.md)                           | [`Entity`](./entity.md)         |
 
 # Related
 

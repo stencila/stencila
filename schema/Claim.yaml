@@ -1,7 +1,7 @@
 title: Claim
 '@id': schema:Claim
 nick: clm
-extends: CreativeWork
+extends: ResearchObject
 category: works
 description: A reviewable claim or statement.
 $comment: |
@@ -13,7 +13,10 @@ $comment: |
   propositions, or proofs. Unlike a plain paragraph, a claim can carry a claim
   type, structured block content, and document-oriented labeling metadata.
 
-  Key properties include `claimType`, `label`, and `content`.
+  Key properties include `claimType`, `label`, and `content`. The `claimType`
+  is intentionally optional: claims are often authored generically (e.g. a
+  plain `claim` block) and a more specific type such as `Statement` or
+  `Theorem` added only when known.
 analogues:
   - id: schema:Claim
     notes: Direct schema.org source type, adapted in Stencila to carry block content and document labeling.
@@ -26,13 +29,8 @@ jats:
 markdown:
   derive: false
 proptest: {}
-required:
-  - claimType
-  - content
 core:
-  - label
-  - authors
-  - provenance
+  - claimType
 properties:
   claimType:
     '@id': stencila:claimType
@@ -42,32 +40,3 @@ properties:
       formats: [md, smd, myst, ipynb, qmd]
     jats:
       attr: content-type
-  label:
-    '@id': stencila:label
-    description: A short label for the claim.
-    type: string
-    patch:
-      formats: [md, smd, myst, ipynb, qmd]
-    jats:
-      elem: label
-  content:
-    '@id': stencila:content
-    description: Content of the claim, usually a single paragraph.
-    $comment: |
-      Most claims will have a single paragraph but could have multiple
-      paragraphs, tables and even figures.
-    type: array
-    items:
-      $ref: Block
-    dom:
-      elem: aside
-    proptest:
-      min:
-        description: Generate a single arbitrary paragraph.
-        strategy: vec_paragraphs(1)
-      low:
-        description: Generate up to two arbitrary, non-recursive, block nodes.
-        strategy: vec_blocks_non_recursive(2)
-      max:
-        description: Generate up to four arbitrary, non-recursive, block nodes.
-        strategy: vec_blocks_non_recursive(4)

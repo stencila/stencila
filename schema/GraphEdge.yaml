@@ -8,9 +8,10 @@ $comment: |
   This is a graph edge type used in Stencila for representing provenance,
   reactivity and other graphs.
 
-  Edge direction is always from `source` upstream dependency to `target`
-  downstream dependant.
-  Both endpoints reference `GraphNode.id` values.
+  Edge direction is always from `source` to `target`. For resource-flow edges,
+  this is usually from upstream dependency to downstream dependant. For
+  discourse edges, this is the authored relation direction. Both endpoints
+  reference `GraphNode.id` values.
 required:
   - source
   - target
@@ -22,15 +23,15 @@ core:
 properties:
   source:
     '@id': stencila:source
-    description: The id of the upstream dependency graph node.
+    description: The id of the source graph node.
     type: string
   target:
     '@id': schema:target
-    description: The id of the downstream dependant graph node.
+    description: The id of the target graph node.
     type: string
   kind:
     '@id': stencila:kind
-    description: The kind of dependency relationship represented by this edge.
+    description: The kind of relationship represented by this edge.
     $ref: GraphEdgeKind
   evidence:
     '@id': stencila:evidence

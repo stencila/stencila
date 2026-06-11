@@ -13,6 +13,7 @@ import { type Claim } from "./Claim.js";
 import { type CodeBlock } from "./CodeBlock.js";
 import { type CodeChunk } from "./CodeChunk.js";
 import { type Datatable } from "./Datatable.js";
+import { type Evidence } from "./Evidence.js";
 import { type Excerpt } from "./Excerpt.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -30,8 +31,11 @@ import { type MathBlock } from "./MathBlock.js";
 import { type Page } from "./Page.js";
 import { type Paragraph } from "./Paragraph.js";
 import { type PromptBlock } from "./PromptBlock.js";
+import { type Protocol } from "./Protocol.js";
+import { type Question } from "./Question.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type RawBlock } from "./RawBlock.js";
+import { type Request } from "./Request.js";
 import { type Section } from "./Section.js";
 import { type StyledBlock } from "./StyledBlock.js";
 import { type SuggestionBlock } from "./SuggestionBlock.js";
@@ -57,6 +61,7 @@ export type Block =
   CodeChunk |
   Datatable |
   Excerpt |
+  Evidence |
   Figure |
   File |
   ForBlock |
@@ -73,8 +78,11 @@ export type Block =
   Page |
   Paragraph |
   PromptBlock |
+  Protocol |
+  Question |
   QuoteBlock |
   RawBlock |
+  Request |
   Section |
   StyledBlock |
   SuggestionBlock |
@@ -101,6 +109,7 @@ export function block(other: Block): Block {
     case "CodeChunk":
     case "Datatable":
     case "Excerpt":
+    case "Evidence":
     case "Figure":
     case "File":
     case "ForBlock":
@@ -117,8 +126,11 @@ export function block(other: Block): Block {
     case "Page":
     case "Paragraph":
     case "PromptBlock":
+    case "Protocol":
+    case "Question":
     case "QuoteBlock":
     case "RawBlock":
+    case "Request":
     case "Section":
     case "StyledBlock":
     case "SuggestionBlock":

@@ -136,6 +136,18 @@
     {
       "proptest": {
         "min": {
+          "description": "Do not generate `Evidence` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Evidence` nodes in block content."
+        }
+      },
+      "$ref": "Evidence.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
           "description": "Do not generate `Figure` nodes in block content.",
           "skip": true
         },
@@ -266,10 +278,46 @@
       "$ref": "PromptBlock.schema.json"
     },
     {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Protocol` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Protocol` nodes in block content."
+        }
+      },
+      "$ref": "Protocol.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Question` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Question` nodes in block content."
+        }
+      },
+      "$ref": "Question.schema.json"
+    },
+    {
       "$ref": "QuoteBlock.schema.json"
     },
     {
       "$ref": "RawBlock.schema.json"
+    },
+    {
+      "proptest": {
+        "min": {
+          "description": "Do not generate `Request` nodes in block content.",
+          "skip": true
+        },
+        "low": {
+          "description": "Generate `Request` nodes in block content."
+        }
+      },
+      "$ref": "Request.schema.json"
     },
     {
       "proptest": {

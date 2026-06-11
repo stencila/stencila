@@ -13,6 +13,7 @@ export type BlockType =
   | "CodeChunk"
   | "Datatable"
   | "Excerpt"
+  | "Evidence"
   | "Figure"
   | "File"
   | "ForBlock"
@@ -29,8 +30,11 @@ export type BlockType =
   | "Page"
   | "Paragraph"
   | "PromptBlock"
+  | "Protocol"
+  | "Question"
   | "QuoteBlock"
   | "RawBlock"
+  | "Request"
   | "Section"
   | "StyledBlock"
   | "SuggestionBlock"
@@ -53,6 +57,7 @@ export const BlockTypeList = [
   "CodeChunk",
   "Datatable",
   "Excerpt",
+  "Evidence",
   "Figure",
   "File",
   "ForBlock",
@@ -69,8 +74,11 @@ export const BlockTypeList = [
   "Page",
   "Paragraph",
   "PromptBlock",
+  "Protocol",
+  "Question",
   "QuoteBlock",
   "RawBlock",
+  "Request",
   "Section",
   "StyledBlock",
   "SuggestionBlock",

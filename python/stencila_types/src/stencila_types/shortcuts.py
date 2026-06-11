@@ -163,7 +163,10 @@ def arg(name: str, code: str) -> T.CallArgument:
 
 
 @beartype
-def clm(claim_type: T.ClaimType, content: ConvertibleToBlocks) -> T.Claim:
+def clm(
+    content: ConvertibleToBlocks,
+    claim_type: T.ClaimType | None = None,
+) -> T.Claim:
     return T.Claim(
         claim_type=claim_type,
         content=convert_to_blocks(content),

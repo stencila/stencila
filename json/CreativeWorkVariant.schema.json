@@ -28,6 +28,9 @@
       "$ref": "Datatable.schema.json"
     },
     {
+      "$ref": "Evidence.schema.json"
+    },
+    {
       "$ref": "Figure.schema.json"
     },
     {
@@ -49,10 +52,19 @@
       "$ref": "Prompt.schema.json"
     },
     {
+      "$ref": "Protocol.schema.json"
+    },
+    {
       "$ref": "PublicationIssue.schema.json"
     },
     {
       "$ref": "PublicationVolume.schema.json"
+    },
+    {
+      "$ref": "Question.schema.json"
+    },
+    {
+      "$ref": "Request.schema.json"
     },
     {
       "$ref": "Review.schema.json"

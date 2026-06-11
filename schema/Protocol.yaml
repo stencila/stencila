@@ -1,0 +1,18 @@
+title: Protocol
+'@id': stencila:Protocol
+nick: ptc
+extends: ResearchObject
+category: works
+description: A research protocol or method description.
+$comment: |
+  This is a block-level research protocol node.
+
+  It is used for authored protocols, methods, or planned procedures that can be
+  identified, cited, related to claims or evidence, and exported to
+  graph-oriented interchange formats.
+analogues:
+  - id: mira:Protocol
+    notes: MIRA protocol node.
+markdown:
+  derive: false
+proptest: {}

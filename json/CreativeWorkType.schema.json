@@ -192,6 +192,10 @@
       "const": "Drawing"
     },
     {
+      "@id": "stencila:EvidenceCreativeWorkType",
+      "const": "Evidence"
+    },
+    {
       "@id": "stencila:FigureCreativeWorkType",
       "const": "Figure"
     },
@@ -244,6 +248,10 @@
       "const": "Prompt"
     },
     {
+      "@id": "stencila:ProtocolCreativeWorkType",
+      "const": "Protocol"
+    },
+    {
       "@id": "stencila:PublicationIssueCreativeWorkType",
       "const": "PublicationIssue"
     },
@@ -252,8 +260,16 @@
       "const": "PublicationVolume"
     },
     {
+      "@id": "stencila:QuestionCreativeWorkType",
+      "const": "Question"
+    },
+    {
       "@id": "stencila:ReportCreativeWorkType",
       "const": "Report"
+    },
+    {
+      "@id": "stencila:RequestCreativeWorkType",
+      "const": "Request"
     },
     {
       "@id": "stencila:ReviewCreativeWorkType",

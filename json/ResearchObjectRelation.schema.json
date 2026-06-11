@@ -1,0 +1,65 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ResearchObjectRelation.schema.json",
+  "@id": "stencila:ResearchObjectRelation",
+  "title": "ResearchObjectRelation",
+  "nick": "ror",
+  "extends": [
+    "Entity"
+  ],
+  "category": "works",
+  "description": "A relation from one research object to another.",
+  "$comment": "This type is used on `ResearchObject.relations` for authored, source-local\nrelations between concrete research objects in a document.\n\nThe source is the research object that owns the relation. The target is a\nstring reference to another research object or external resource, such as\n`#claim-1`, `evidence-1`, a graph node id, or an absolute URI.\n\nTargets are resolved during graph construction as follows: a leading `#` is\noptional and stripped, so `#claim-1` and `claim-1` are equivalent; the\nreference is resolved first against declared research object ids, then\nagainst existing graph node ids; otherwise, a value with a URI scheme (e.g.\n`https://...`) is resolved to an external resource node. Unresolvable\ntargets do not produce graph edges.\n",
+  "required": [
+    "type",
+    "kind",
+    "target"
+  ],
+  "core": [
+    "id",
+    "kind",
+    "target"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd",
+          "tiptap"
+        ]
+      },
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "kind": {
+      "@id": "stencila:kind",
+      "description": "The kind of relation.",
+      "$ref": "ResearchObjectRelationKind.schema.json"
+    },
+    "target": {
+      "@id": "schema:target",
+      "description": "The target research object or external resource.",
+      "type": "string"
+    }
+  }
+}

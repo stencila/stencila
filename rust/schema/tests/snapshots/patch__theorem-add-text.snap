@@ -1,5 +1,6 @@
 ---
 source: rust/schema/tests/patch.rs
+assertion_line: 121
 expression: "Fixture { old, new, ops: patch.ops, merged }"
 ---
 old:
@@ -30,7 +31,6 @@ old:
           provenanceCategory: Hw
           characterCount: 32
           characterPercent: 100
-      claimType: Theorem
       content:
         - type: Paragraph
           content:
@@ -75,11 +75,11 @@ old:
               provenanceCategory: Hw
               characterCount: 9
               characterPercent: 100
+      claimType: Theorem
 new:
   type: Article
   content:
     - type: Claim
-      claimType: Theorem
       content:
         - type: Paragraph
           content:
@@ -95,6 +95,7 @@ new:
             - type: Text
               value:
                 string: May be true.
+      claimType: Theorem
 merged:
   type: Article
   authors:
@@ -135,7 +136,6 @@ merged:
           provenanceCategory: Hw
           characterCount: 44
           characterPercent: 100
-      claimType: Theorem
       content:
         - type: Paragraph
           content:
@@ -202,6 +202,7 @@ merged:
               provenanceCategory: Hw
               characterCount: 12
               characterPercent: 100
+      claimType: Theorem
 ops:
   - - - content
       - 0

@@ -5,7 +5,9 @@
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.org/"
+    "stencila": "https://stencila.org/",
+    "cito": "http://purl.org/spar/cito/",
+    "mira": "http://purl.org/mira-science/mira#"
   },
   "@graph": [
     {
@@ -14,7 +16,7 @@
       "rdfs:label": "Claim",
       "rdfs:comment": "A reviewable claim or statement.",
       "rdfs:subClassOf": {
-        "@id": "schema:CreativeWork"
+        "@id": "stencila:ResearchObject"
       }
     },
     {
@@ -733,26 +735,11 @@
       ]
     },
     {
-      "@id": "stencila:claimType",
-      "@type": "rdfs:Property",
-      "rdfs:label": "claimType",
-      "rdfs:comment": "The type of the claim.",
-      "schema:domainIncludes": {
-        "@id": "schema:Claim"
-      },
-      "schema:rangeIncludes": {
-        "@id": "stencila:ClaimType"
-      }
-    },
-    {
       "@id": "stencila:label",
       "@type": "rdfs:Property",
       "rdfs:label": "label",
-      "rdfs:comment": "A short label for the claim.",
+      "rdfs:comment": "A short label for the research object.",
       "schema:domainIncludes": [
-        {
-          "@id": "schema:Claim"
-        },
         {
           "@id": "stencila:Button"
         },
@@ -767,6 +754,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:ResearchObject"
         }
       ],
       "schema:rangeIncludes": {
@@ -777,13 +767,10 @@
       "@id": "stencila:content",
       "@type": "rdfs:Property",
       "rdfs:label": "content",
-      "rdfs:comment": "Content of the claim, usually a single paragraph.",
+      "rdfs:comment": "Content of the research object.",
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:Claim"
         },
         {
           "@id": "schema:Comment"
@@ -879,6 +866,9 @@
           "@id": "stencila:Reference"
         },
         {
+          "@id": "stencila:ResearchObject"
+        },
+        {
           "@id": "stencila:Section"
         },
         {
@@ -911,6 +901,47 @@
       ],
       "schema:rangeIncludes": {
         "@id": "stencila:Block"
+      }
+    },
+    {
+      "@id": "stencila:relations",
+      "@type": "rdfs:Property",
+      "rdfs:label": "relations",
+      "rdfs:comment": "Relations from this research object to other research objects.",
+      "schema:domainIncludes": {
+        "@id": "stencila:ResearchObject"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ResearchObjectRelation"
+      }
+    },
+    {
+      "@id": "stencila:extra",
+      "@type": "rdfs:Property",
+      "rdfs:label": "extra",
+      "rdfs:comment": "Additional metadata for the research object.",
+      "schema:domainIncludes": [
+        {
+          "@id": "schema:Article"
+        },
+        {
+          "@id": "stencila:ResearchObject"
+        }
+      ],
+      "schema:rangeIncludes": {
+        "@id": "stencila:Object"
+      }
+    },
+    {
+      "@id": "stencila:claimType",
+      "@type": "rdfs:Property",
+      "rdfs:label": "claimType",
+      "rdfs:comment": "The type of the claim.",
+      "schema:domainIncludes": {
+        "@id": "schema:Claim"
+      },
+      "schema:rangeIncludes": {
+        "@id": "stencila:ClaimType"
       }
     }
   ]

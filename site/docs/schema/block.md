@@ -39,6 +39,7 @@ The `Block` type has these members:
 - [`CodeChunk`](./code-chunk.md)
 - [`Datatable`](./datatable.md)
 - [`Excerpt`](./excerpt.md)
+- [`Evidence`](./evidence.md)
 - [`Figure`](./figure.md)
 - [`File`](./file.md)
 - [`ForBlock`](./for-block.md)
@@ -55,8 +56,11 @@ The `Block` type has these members:
 - [`Page`](./page.md)
 - [`Paragraph`](./paragraph.md)
 - [`PromptBlock`](./prompt-block.md)
+- [`Protocol`](./protocol.md)
+- [`Question`](./question.md)
 - [`QuoteBlock`](./quote-block.md)
 - [`RawBlock`](./raw-block.md)
+- [`Request`](./request.md)
 - [`Section`](./section.md)
 - [`StyledBlock`](./styled-block.md)
 - [`SuggestionBlock`](./suggestion-block.md)
@@ -99,6 +103,8 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 |                    | Low+       | Generate `CodeChunk` nodes in block content.               | Default for level |
 | `Datatable`        | Min+       | Do not generate `Datatable` nodes in block content.        | -                 |
 | `Excerpt`          | Min+       | Do not generate `Excerpt` nodes in block content.          | -                 |
+| `Evidence`         | Min+       | Do not generate `Evidence` nodes in block content.         | -                 |
+|                    | Low+       | Generate `Evidence` nodes in block content.                | Default for level |
 | `Figure`           | Min+       | Do not generate `Figure` nodes in block content.           | -                 |
 |                    | Low+       | Generate `Figure` nodes in block content.                  | Default for level |
 | `File`             | Min+       | Do not generate `File` nodes in block content.             | -                 |
@@ -115,6 +121,12 @@ During property-based (a.k.a generative) testing, the variants of the `Block` ty
 | `Island`           | Min+       | Do not generate `Island` nodes in block content.           | -                 |
 | `Page`             | Min+       | Do not generate `Page` nodes in block content.             | -                 |
 | `PromptBlock`      | Min+       | Do not generate `PromptBlock` nodes in block content.      | -                 |
+| `Protocol`         | Min+       | Do not generate `Protocol` nodes in block content.         | -                 |
+|                    | Low+       | Generate `Protocol` nodes in block content.                | Default for level |
+| `Question`         | Min+       | Do not generate `Question` nodes in block content.         | -                 |
+|                    | Low+       | Generate `Question` nodes in block content.                | Default for level |
+| `Request`          | Min+       | Do not generate `Request` nodes in block content.          | -                 |
+|                    | Low+       | Generate `Request` nodes in block content.                 | Default for level |
 | `Section`          | Min+       | Do not generate `Section` nodes in block content.          | -                 |
 |                    | Low+       | Generate `Section` nodes in block content.                 | Default for level |
 | `SuggestionBlock`  | Min+       | Do not generate `SuggestionBlock` nodes in block content.  | -                 |

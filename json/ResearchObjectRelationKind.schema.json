@@ -1,0 +1,198 @@
+{
+  "$schema": "https://stencila.org/meta.schema.json",
+  "$id": "https://stencila.org/ResearchObjectRelationKind.schema.json",
+  "@id": "stencila:ResearchObjectRelationKind",
+  "title": "ResearchObjectRelationKind",
+  "extends": [
+    "Enumeration"
+  ],
+  "category": "works",
+  "description": "The kind of relation from one research object to another.",
+  "$comment": "This enumeration defines the constrained vocabulary for authored relations\nbetween Stencila research objects. It is based on\n[MIRA](https://github.com/MIRA-science/schema), a discourse graph vocabulary\nfor modular research objects with JSON-LD context published at\n`https://purl.org/mira-science/mira.jsonld`.\n\nVariant `@id`s mirror the published MIRA term identifiers verbatim, which is\nwhy some are camelCase (`mira:supportedBy`) and others snake_case\n(`mira:is_grounded_in`).\n\nMost relations come in directional pairs declared as `owl:inverseOf` each\nother in MIRA (e.g. `Supports`/`SupportedBy`). Both directions are\nauthorable so that a relation can be declared on whichever research object\nis most convenient to edit; the direction is always semantically\nsignificant. `Follows` has no inverse in MIRA. `RequestFor` and\n`RequestTarget` are not inverses of each other: both have a request as\ntheir source and a request may declare both.\n\nUse this narrower vocabulary on `ResearchObjectRelation`. Values map\none-to-one by name to the corresponding discourse-oriented variants in\n`GraphEdgeKind` when document graphs are built. Variant descriptions are\nduplicated in `GraphEdgeKind` and must be kept in sync.\n",
+  "required": [
+    "type"
+  ],
+  "core": [
+    "id"
+  ],
+  "properties": {
+    "type": {
+      "@id": "schema:type",
+      "description": "The type of this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@type` keyword.\n",
+      "type": "string"
+    },
+    "id": {
+      "@id": "schema:id",
+      "description": "The identifier for this item.",
+      "$comment": "This is a special property analogous to JSON-LD's `@id` keyword.\n",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "qmd",
+          "tiptap"
+        ]
+      },
+      "html": {
+        "attr": "id"
+      },
+      "jats": {
+        "attr": "id"
+      },
+      "type": "string"
+    },
+    "alternateNames": {
+      "@id": "schema:alternateName",
+      "description": "Alternate names (aliases) for the item.",
+      "aliases": [
+        "alternate-names",
+        "alternate_names",
+        "alternateName",
+        "alternate-name",
+        "alternate_name"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "serde": {
+        "deserializeWith": "option_csv_or_array"
+      },
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "@id": "schema:description",
+      "description": "A description of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "patch": {
+        "formats": [
+          "md",
+          "smd",
+          "myst",
+          "ipynb",
+          "qmd"
+        ]
+      },
+      "type": "string"
+    },
+    "identifiers": {
+      "@id": "schema:identifier",
+      "description": "Any kind of identifier for any kind of Thing.",
+      "$comment": "Some identifiers have specific properties e.g the `issn` property for\nthe `Periodical` type. These should be used in preference to this\nproperty which is intended for identifiers that do not yet have a\nspecific property. Identifiers can be represented as strings, but\nusing a `PropertyValue` will usually be better because it allows\nfor `propertyID` (i.e. the type of identifier).\n",
+      "aliases": [
+        "identifier"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "PropertyValue.schema.json"
+          },
+          {
+            "type": "string"
+          }
+        ]
+      }
+    },
+    "images": {
+      "@id": "schema:image",
+      "description": "Images of the item.",
+      "aliases": [
+        "image"
+      ],
+      "strip": [
+        "metadata"
+      ],
+      "type": "array",
+      "items": {
+        "$ref": "ImageObject.schema.json"
+      }
+    },
+    "name": {
+      "@id": "schema:name",
+      "description": "The name of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string"
+    },
+    "url": {
+      "@id": "schema:url",
+      "description": "The URL of the item.",
+      "strip": [
+        "metadata"
+      ],
+      "type": "string",
+      "format": "uri"
+    }
+  },
+  "anyOf": [
+    {
+      "@id": "mira:supports",
+      "description": "The source research object, typically evidence or a claim, supports the target claim.",
+      "const": "Supports"
+    },
+    {
+      "@id": "mira:supportedBy",
+      "description": "The source claim is supported by the target research object, typically evidence or another claim. Inverse of `Supports`.",
+      "const": "SupportedBy"
+    },
+    {
+      "@id": "mira:opposes",
+      "description": "The source research object, typically evidence or a claim, opposes the target claim.",
+      "const": "Opposes"
+    },
+    {
+      "@id": "mira:opposedBy",
+      "description": "The source claim is opposed by the target research object, typically evidence or another claim. Inverse of `Opposes`.",
+      "const": "OpposedBy"
+    },
+    {
+      "@id": "mira:addresses",
+      "description": "The source claim addresses the target research question.",
+      "const": "Addresses"
+    },
+    {
+      "@id": "mira:addressedBy",
+      "description": "The source research question is addressed by the target claim. Inverse of `Addresses`.",
+      "const": "AddressedBy"
+    },
+    {
+      "@id": "mira:follows",
+      "description": "The source research object, typically a study or other research activity, was conducted following the target protocol.",
+      "const": "Follows"
+    },
+    {
+      "@id": "mira:grounds",
+      "description": "The source research object, typically a study or other research activity, produced and grounds the target evidence.",
+      "const": "Grounds"
+    },
+    {
+      "@id": "mira:is_grounded_in",
+      "description": "The source evidence is grounded in the target study or other research activity that produced it. Inverse of `Grounds`.",
+      "const": "IsGroundedIn"
+    },
+    {
+      "@id": "mira:request_for",
+      "description": "The source request asks for the target work, such as a study or protocol execution, to be carried out. Not the inverse of `RequestTarget`.",
+      "const": "RequestFor"
+    },
+    {
+      "@id": "mira:request_target",
+      "description": "The source request concerns the target claim that the requested work may elucidate. Not the inverse of `RequestFor`.",
+      "const": "RequestTarget"
+    }
+  ]
+}

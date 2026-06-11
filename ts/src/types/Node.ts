@@ -57,6 +57,7 @@ import { type DurationValidator } from "./DurationValidator.js";
 import { type Emphasis } from "./Emphasis.js";
 import { type EnumValidator } from "./EnumValidator.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type Evidence } from "./Evidence.js";
 import { type Excerpt } from "./Excerpt.js";
 import { type ExecuteAction } from "./ExecuteAction.js";
 import { type ExecutionMessage } from "./ExecutionMessage.js";
@@ -107,13 +108,17 @@ import { type Product } from "./Product.js";
 import { type Prompt } from "./Prompt.js";
 import { type PromptBlock } from "./PromptBlock.js";
 import { type PropertyValue } from "./PropertyValue.js";
+import { type Protocol } from "./Protocol.js";
 import { type ProvenanceCount } from "./ProvenanceCount.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
+import { type Question } from "./Question.js";
 import { type QuoteBlock } from "./QuoteBlock.js";
 import { type QuoteInline } from "./QuoteInline.js";
 import { type RawBlock } from "./RawBlock.js";
 import { type Reference } from "./Reference.js";
+import { type Request } from "./Request.js";
+import { type ResearchObjectRelation } from "./ResearchObjectRelation.js";
 import { type Review } from "./Review.js";
 import { type Section } from "./Section.js";
 import { type Sentence } from "./Sentence.js";
@@ -216,6 +221,7 @@ export type Node =
   Emphasis |
   EnumValidator |
   Enumeration |
+  Evidence |
   Excerpt |
   ExecuteAction |
   ExecutionMessage |
@@ -264,13 +270,17 @@ export type Node =
   Prompt |
   PromptBlock |
   PropertyValue |
+  Protocol |
   ProvenanceCount |
   PublicationIssue |
   PublicationVolume |
+  Question |
   QuoteBlock |
   QuoteInline |
   RawBlock |
   Reference |
+  Request |
+  ResearchObjectRelation |
   Review |
   Section |
   Sentence |
@@ -371,6 +381,7 @@ export function node(other: Node): Node {
     case "Emphasis":
     case "EnumValidator":
     case "Enumeration":
+    case "Evidence":
     case "Excerpt":
     case "ExecuteAction":
     case "ExecutionMessage":
@@ -419,13 +430,17 @@ export function node(other: Node): Node {
     case "Prompt":
     case "PromptBlock":
     case "PropertyValue":
+    case "Protocol":
     case "ProvenanceCount":
     case "PublicationIssue":
     case "PublicationVolume":
+    case "Question":
     case "QuoteBlock":
     case "QuoteInline":
     case "RawBlock":
     case "Reference":
+    case "Request":
+    case "ResearchObjectRelation":
     case "Review":
     case "Section":
     case "Sentence":

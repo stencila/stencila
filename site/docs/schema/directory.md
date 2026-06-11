@@ -19,12 +19,12 @@ publishable content.
 
 The `Directory` type has these properties:
 
-| Name    | Description                                                     | Type                                                    | Inherited from          |
-| ------- | --------------------------------------------------------------- | ------------------------------------------------------- | ----------------------- |
-| `name`  | The name of the directory.                                      | [`String`](./string.md)                                 | -                       |
-| `path`  | The path (absolute or relative) of the file on the file system. | [`String`](./string.md)                                 | -                       |
-| `parts` | The files and other directories within this directory.          | ([`File`](./file.md) \| [`Directory`](./directory.md))* | -                       |
-| `id`    | The identifier for this item.                                   | [`String`](./string.md)                                 | [`Entity`](./entity.md) |
+| Name    | Description                                                             | Type                                                                                            | Inherited from          |
+| ------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------- | ----------------------- |
+| `name`  | The name of the directory.                                              | [`String`](./string.md)                                                                         | -                       |
+| `path`  | The path (absolute or relative) of the file on the file system.         | [`String`](./string.md)                                                                         | -                       |
+| `parts` | The files, symbolic links, and other directories within this directory. | ([`File`](./file.md) \| [`SymbolicLink`](./symbolic-link.md) \| [`Directory`](./directory.md))* | -                       |
+| `id`    | The identifier for this item.                                           | [`String`](./string.md)                                                                         | [`Entity`](./entity.md) |
 
 # Related
 

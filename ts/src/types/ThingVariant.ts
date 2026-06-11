@@ -16,6 +16,7 @@ import { type CreativeWork } from "./CreativeWork.js";
 import { type Datatable } from "./Datatable.js";
 import { type DefinedTerm } from "./DefinedTerm.js";
 import { type Enumeration } from "./Enumeration.js";
+import { type Evidence } from "./Evidence.js";
 import { type ExecuteAction } from "./ExecuteAction.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
@@ -32,8 +33,11 @@ import { type PostalAddress } from "./PostalAddress.js";
 import { type Product } from "./Product.js";
 import { type Prompt } from "./Prompt.js";
 import { type PropertyValue } from "./PropertyValue.js";
+import { type Protocol } from "./Protocol.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
+import { type Question } from "./Question.js";
+import { type Request } from "./Request.js";
 import { type Review } from "./Review.js";
 import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
@@ -63,6 +67,7 @@ export type ThingVariant =
   Datatable |
   DefinedTerm |
   Enumeration |
+  Evidence |
   ExecuteAction |
   Figure |
   File |
@@ -79,8 +84,11 @@ export type ThingVariant =
   Product |
   Prompt |
   PropertyValue |
+  Protocol |
   PublicationIssue |
   PublicationVolume |
+  Question |
+  Request |
   Review |
   Skill |
   SoftwareApplication |

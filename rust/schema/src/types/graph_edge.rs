@@ -25,13 +25,13 @@ pub struct GraphEdge {
     #[jats(attr = "id")]
     pub id: Option<String>,
 
-    /// The id of the upstream dependency graph node.
+    /// The id of the source graph node.
     pub source: String,
 
-    /// The id of the downstream dependant graph node.
+    /// The id of the target graph node.
     pub target: String,
 
-    /// The kind of dependency relationship represented by this edge.
+    /// The kind of relationship represented by this edge.
     pub kind: GraphEdgeKind,
 
     /// Non-core optional fields

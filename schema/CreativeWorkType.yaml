@@ -42,6 +42,8 @@ anyOf:
     "@id": stencila:DatatableCreativeWorkType
   - const: Drawing
     "@id": stencila:DrawingCreativeWorkType
+  - const: Evidence
+    "@id": stencila:EvidenceCreativeWorkType
   - const: Figure
     "@id": stencila:FigureCreativeWorkType
   - const: File
@@ -68,12 +70,18 @@ anyOf:
     "@id": stencila:PresentationCreativeWorkType
   - const: Prompt
     "@id": stencila:PromptCreativeWorkType
+  - const: Protocol
+    "@id": stencila:ProtocolCreativeWorkType
   - const: PublicationIssue
     "@id": stencila:PublicationIssueCreativeWorkType
   - const: PublicationVolume
     "@id": stencila:PublicationVolumeCreativeWorkType
+  - const: Question
+    "@id": stencila:QuestionCreativeWorkType
   - const: Report
     "@id": stencila:ReportCreativeWorkType
+  - const: Request
+    "@id": stencila:RequestCreativeWorkType
   - const: Review
     "@id": stencila:ReviewCreativeWorkType
   - const: Skill

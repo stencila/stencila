@@ -13,17 +13,17 @@ export class GraphEdge extends Entity {
   type: "GraphEdge";
 
   /**
-   * The id of the upstream dependency graph node.
+   * The id of the source graph node.
    */
   source: string;
 
   /**
-   * The id of the downstream dependant graph node.
+   * The id of the target graph node.
    */
   target: string;
 
   /**
-   * The kind of dependency relationship represented by this edge.
+   * The kind of relationship represented by this edge.
    */
   kind: GraphEdgeKind;
 

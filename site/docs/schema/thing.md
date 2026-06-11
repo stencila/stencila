@@ -34,7 +34,7 @@ The `Thing` type has these properties:
 The `Thing` type is related to these types:
 
 - Parents: [`Entity`](./entity.md)
-- Children: [`Brand`](./brand.md), [`ContactPoint`](./contact-point.md), [`CreativeWork`](./creative-work.md), [`DefinedTerm`](./defined-term.md), [`Enumeration`](./enumeration.md), [`Grant`](./grant.md), [`ListItem`](./list-item.md), [`Organization`](./organization.md), [`Person`](./person.md), [`Product`](./product.md), [`PropertyValue`](./property-value.md)
+- Children: [`Action`](./action.md), [`Brand`](./brand.md), [`ContactPoint`](./contact-point.md), [`ContainerImage`](./container-image.md), [`CreativeWork`](./creative-work.md), [`DefinedTerm`](./defined-term.md), [`Enumeration`](./enumeration.md), [`Grant`](./grant.md), [`ListItem`](./list-item.md), [`Organization`](./organization.md), [`Person`](./person.md), [`Product`](./product.md), [`PropertyValue`](./property-value.md)
 
 # Bindings
 

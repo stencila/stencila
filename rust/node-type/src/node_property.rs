@@ -275,6 +275,7 @@ pub enum NodeProperty {
     References,
     Registry,
     Rel,
+    Relations,
     RelativePosition,
     Replicates,
     Repository,

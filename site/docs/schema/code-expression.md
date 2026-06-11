@@ -18,30 +18,28 @@ The following external types, elements, or nodes are similar to a `CodeExpressio
 
 The `CodeExpression` type has these properties:
 
-| Name                    | Description                                                      | Type                                                | Inherited from                           |
-| ----------------------- | ---------------------------------------------------------------- | --------------------------------------------------- | ---------------------------------------- |
-| `executionMode`         | Under which circumstances the code should be executed.           | [`ExecutionMode`](./execution-mode.md)              | -                                        |
-| `programmingLanguage`   | The programming language of the code.                            | [`String`](./string.md)                             | -                                        |
-| `output`                | The value of the expression when it was last evaluated.          | [`Node`](./node.md)                                 | -                                        |
-| `code`                  | The code.                                                        | [`Cord`](./cord.md)                                 | [`CodeExecutable`](./code-executable.md) |
-| `executionBounds`       | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `executionBounded`      | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)          | [`CodeExecutable`](./code-executable.md) |
-| `authors`               | The authors of the executable code.                              | [`Author`](./author.md)*                            | [`CodeExecutable`](./code-executable.md) |
-| `provenance`            | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*         | [`CodeExecutable`](./code-executable.md) |
-| `compilationDigest`     | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
-| `compilationMessages`   | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)*   | [`Executable`](./executable.md)          |
-| `executionDigest`       | The `compilationDigest` of the node when it was last executed.   | [`CompilationDigest`](./compilation-digest.md)      | [`Executable`](./executable.md)          |
-| `executionDependencies` | The upstream dependencies of this node.                          | [`ExecutionDependency`](./execution-dependency.md)* | [`Executable`](./executable.md)          |
-| `executionDependants`   | The downstream dependants of this node.                          | [`ExecutionDependant`](./execution-dependant.md)*   | [`Executable`](./executable.md)          |
-| `executionTags`         | Tags in the code which affect its execution.                     | [`ExecutionTag`](./execution-tag.md)*               | [`Executable`](./executable.md)          |
-| `executionCount`        | A count of the number of times that the node has been executed.  | [`Integer`](./integer.md)                           | [`Executable`](./executable.md)          |
-| `executionRequired`     | Whether, and why, the code requires execution or re-execution.   | [`ExecutionRequired`](./execution-required.md)      | [`Executable`](./executable.md)          |
-| `executionStatus`       | Status of the most recent, including any current, execution.     | [`ExecutionStatus`](./execution-status.md)          | [`Executable`](./executable.md)          |
-| `executionInstance`     | The id of the kernel instance that performed the last execution. | [`String`](./string.md)                             | [`Executable`](./executable.md)          |
-| `executionEnded`        | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                       | [`Executable`](./executable.md)          |
-| `executionDuration`     | Duration of the last execution.                                  | [`Duration`](./duration.md)                         | [`Executable`](./executable.md)          |
-| `executionMessages`     | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*       | [`Executable`](./executable.md)          |
-| `id`                    | The identifier for this item.                                    | [`String`](./string.md)                             | [`Entity`](./entity.md)                  |
+| Name                  | Description                                                      | Type                                              | Inherited from                           |
+| --------------------- | ---------------------------------------------------------------- | ------------------------------------------------- | ---------------------------------------- |
+| `executionMode`       | Under which circumstances the code should be executed.           | [`ExecutionMode`](./execution-mode.md)            | -                                        |
+| `programmingLanguage` | The programming language of the code.                            | [`String`](./string.md)                           | -                                        |
+| `output`              | The value of the expression when it was last evaluated.          | [`Node`](./node.md)                               | -                                        |
+| `code`                | The code.                                                        | [`Cord`](./cord.md)                               | [`CodeExecutable`](./code-executable.md) |
+| `executionBounds`     | The environment in which code should be executed.                | [`ExecutionBounds`](./execution-bounds.md)        | [`CodeExecutable`](./code-executable.md) |
+| `executionBounded`    | The execution bounds, if any, on the last execution.             | [`ExecutionBounds`](./execution-bounds.md)        | [`CodeExecutable`](./code-executable.md) |
+| `authors`             | The authors of the executable code.                              | [`Author`](./author.md)*                          | [`CodeExecutable`](./code-executable.md) |
+| `provenance`          | A summary of the provenance of the code.                         | [`ProvenanceCount`](./provenance-count.md)*       | [`CodeExecutable`](./code-executable.md) |
+| `compilationDigest`   | A digest of the content, semantics and dependencies of the node. | [`CompilationDigest`](./compilation-digest.md)    | [`Executable`](./executable.md)          |
+| `compilationMessages` | Messages generated while compiling the code.                     | [`CompilationMessage`](./compilation-message.md)* | [`Executable`](./executable.md)          |
+| `executionDigest`     | The `compilationDigest` of the node when it was last executed.   | [`CompilationDigest`](./compilation-digest.md)    | [`Executable`](./executable.md)          |
+| `executionTags`       | Tags in the code which affect its execution.                     | [`ExecutionTag`](./execution-tag.md)*             | [`Executable`](./executable.md)          |
+| `executionCount`      | A count of the number of times that the node has been executed.  | [`Integer`](./integer.md)                         | [`Executable`](./executable.md)          |
+| `executionRequired`   | Whether, and why, the code requires execution or re-execution.   | [`ExecutionRequired`](./execution-required.md)    | [`Executable`](./executable.md)          |
+| `executionStatus`     | Status of the most recent, including any current, execution.     | [`ExecutionStatus`](./execution-status.md)        | [`Executable`](./executable.md)          |
+| `executionInstance`   | The id of the kernel instance that performed the last execution. | [`String`](./string.md)                           | [`Executable`](./executable.md)          |
+| `executionEnded`      | The timestamp when the last execution ended.                     | [`Timestamp`](./timestamp.md)                     | [`Executable`](./executable.md)          |
+| `executionDuration`   | Duration of the last execution.                                  | [`Duration`](./duration.md)                       | [`Executable`](./executable.md)          |
+| `executionMessages`   | Messages emitted while executing the node.                       | [`ExecutionMessage`](./execution-message.md)*     | [`Executable`](./executable.md)          |
+| `id`                  | The identifier for this item.                                    | [`String`](./string.md)                           | [`Entity`](./entity.md)                  |
 
 # Related
 

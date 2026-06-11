@@ -26,22 +26,23 @@ The following external types, elements, or nodes are similar to a `Supplement`:
 
 The `Supplement` type has these properties:
 
-| Name                  | Description                                                                 | Type                                                | Inherited from          |
-| --------------------- | --------------------------------------------------------------------------- | --------------------------------------------------- | ----------------------- |
-| `workType`            | The `CreativeWork` type of the supplement.                                  | [`CreativeWorkType`](./creative-work-type.md)       | -                       |
-| `label`               | A short identifier or title for the supplement (e.g., "S1").                | [`String`](./string.md)                             | -                       |
-| `labelAutomatically`  | Whether the supplement label should be automatically generated and updated. | [`Boolean`](./boolean.md)                           | -                       |
-| `caption`             | A brief caption or description for the supplement.                          | [`Block`](./block.md)*                              | -                       |
-| `target`              | A reference to the supplement.                                              | [`String`](./string.md)                             | -                       |
-| `compilationMessages` | Any messages generated while embedding the supplement.                      | [`CompilationMessage`](./compilation-message.md)*   | -                       |
-| `work`                | The `CreativeWork` that constitutes the supplement.                         | [`CreativeWorkVariant`](./creative-work-variant.md) | -                       |
-| `id`                  | The identifier for this item.                                               | [`String`](./string.md)                             | [`Entity`](./entity.md) |
+| Name                  | Description                                             | Type                                                | Inherited from              |
+| --------------------- | ------------------------------------------------------- | --------------------------------------------------- | --------------------------- |
+| `workType`            | The `CreativeWork` type of the supplement.              | [`CreativeWorkType`](./creative-work-type.md)       | -                           |
+| `caption`             | A brief caption or description for the supplement.      | [`Block`](./block.md)*                              | -                           |
+| `target`              | A reference to the supplement.                          | [`String`](./string.md)                             | -                           |
+| `compilationMessages` | Any messages generated while embedding the supplement.  | [`CompilationMessage`](./compilation-message.md)*   | -                           |
+| `work`                | The `CreativeWork` that constitutes the supplement.     | [`CreativeWorkVariant`](./creative-work-variant.md) | -                           |
+| `id`                  | The identifier for this item.                           | [`String`](./string.md)                             | [`Entity`](./entity.md)     |
+| `idAutomatically`     | Whether the identifier should be automatically updated. | [`Boolean`](./boolean.md)                           | [`Labelled`](./labelled.md) |
+| `label`               | A short label for the node.                             | [`String`](./string.md)                             | [`Labelled`](./labelled.md) |
+| `labelAutomatically`  | Whether the label should be automatically updated.      | [`Boolean`](./boolean.md)                           | [`Labelled`](./labelled.md) |
 
 # Related
 
 The `Supplement` type is related to these types:
 
-- Parents: [`Entity`](./entity.md)
+- Parents: [`Entity`](./entity.md)[`Labelled`](./labelled.md)
 - Children: none
 
 # Bindings

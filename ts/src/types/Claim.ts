@@ -2,35 +2,24 @@
 
 import { Block } from "./Block.js";
 import { ClaimType } from "./ClaimType.js";
-import { CreativeWork } from "./CreativeWork.js";
+import { ResearchObject } from "./ResearchObject.js";
 
 /**
  * A reviewable claim or statement.
  */
-export class Claim extends CreativeWork {
+export class Claim extends ResearchObject {
   // @ts-expect-error 'not assignable to the same property in base type'
   type: "Claim";
 
   /**
    * The type of the claim.
    */
-  claimType: ClaimType;
+  claimType?: ClaimType;
 
-  /**
-   * A short label for the claim.
-   */
-  label?: string;
-
-  /**
-   * Content of the claim, usually a single paragraph.
-   */
-  content: Block[];
-
-  constructor(claimType: ClaimType, content: Block[], options?: Partial<Claim>) {
-    super();
+  constructor(content: Block[], options?: Partial<Claim>) {
+    super(content);
     this.type = "Claim";
     if (options) Object.assign(this, options);
-    this.claimType = claimType;
     this.content = content;
   }
 }
@@ -38,6 +27,6 @@ export class Claim extends CreativeWork {
 /**
 * Create a new `Claim`
 */
-export function claim(claimType: ClaimType, content: Block[], options?: Partial<Claim>): Claim {
-  return new Claim(claimType, content, options);
+export function claim(content: Block[], options?: Partial<Claim>): Claim {
+  return new Claim(content, options);
 }

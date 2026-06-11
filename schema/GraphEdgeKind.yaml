@@ -5,19 +5,28 @@ category: flow
 description: The kind of directed relationship represented by a graph edge.
 $comment: |
   This enumeration is used by `GraphEdge` for describing the relation between
-  nodes in a `Graph`. Edge direction is always from upstream dependency,
-  source, or component to downstream dependant, result, or containing node.
+  nodes in a `Graph`. Edge direction is always from `GraphEdge.source` to
+  `GraphEdge.target`. For resource-flow relationships this is usually from
+  upstream dependency, source, or component to downstream dependant, result, or
+  containing node. For discourse relationships this is the authored relation
+  direction.
 
-  Variant names should be read in graph direction as "upstream <kind>
-  downstream". Some names use passive phrasing (`UsedBy`, `ReadBy`) and others
-  use established relation phrases (`PartOf`, `Generated`, `Declares`), but
-  their direction is always defined by `GraphEdge.source` to `GraphEdge.target`.
+  Resource-flow variant names should be read in graph direction as "upstream
+  <kind> downstream". Some names use passive phrasing (`UsedBy`, `ReadBy`) and
+  others use established relation phrases (`PartOf`, `Generated`, `Declares`),
+  but their direction is always defined by `GraphEdge.source` to
+  `GraphEdge.target`. Discourse variant names should be read as "source <kind>
+  target".
 
   Variant descriptions document related W3C PROV-O predicates where applicable.
   These mappings are guidance only: Stencila graph edges keep a consistent
   dependency direction, while several PROV-O predicates use the opposite RDF
   subject/object direction or apply only approximately. The PROV-O namespace is
   `http://www.w3.org/ns/prov#`.
+
+  The discourse variants (`Supports` through `RequestTarget`) mirror
+  `ResearchObjectRelationKind`, which is the source of truth for their
+  semantics and MIRA-based `@id`s; the two enumerations must be kept in sync.
 anyOf:
   - const: UsedBy
     '@id': stencila:UsedBy
@@ -67,3 +76,36 @@ anyOf:
   - const: Pins
     '@id': stencila:Pins
     description: The upstream lockfile, digest, or exact version pin constrains the downstream environment or dependency.
+  - const: Supports
+    '@id': mira:supports
+    description: The source research object, typically evidence or a claim, supports the target claim.
+  - const: SupportedBy
+    '@id': mira:supportedBy
+    description: The source claim is supported by the target research object, typically evidence or another claim. Inverse of `Supports`.
+  - const: Opposes
+    '@id': mira:opposes
+    description: The source research object, typically evidence or a claim, opposes the target claim.
+  - const: OpposedBy
+    '@id': mira:opposedBy
+    description: The source claim is opposed by the target research object, typically evidence or another claim. Inverse of `Opposes`.
+  - const: Addresses
+    '@id': mira:addresses
+    description: The source claim addresses the target research question.
+  - const: AddressedBy
+    '@id': mira:addressedBy
+    description: The source research question is addressed by the target claim. Inverse of `Addresses`.
+  - const: Follows
+    '@id': mira:follows
+    description: The source research object, typically a study or other research activity, was conducted following the target protocol.
+  - const: Grounds
+    '@id': mira:grounds
+    description: The source research object, typically a study or other research activity, produced and grounds the target evidence.
+  - const: IsGroundedIn
+    '@id': mira:is_grounded_in
+    description: The source evidence is grounded in the target study or other research activity that produced it. Inverse of `Grounds`.
+  - const: RequestFor
+    '@id': mira:request_for
+    description: The source request asks for the target work, such as a study or protocol execution, to be carried out. Not the inverse of `RequestTarget`.
+  - const: RequestTarget
+    '@id': mira:request_target
+    description: The source request concerns the target claim that the requested work may elucidate. Not the inverse of `RequestFor`.

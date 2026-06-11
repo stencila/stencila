@@ -1,0 +1,19 @@
+title: Evidence
+'@id': stencila:Evidence
+nick: evd
+extends: ResearchObject
+category: works
+description: Evidence supporting, opposing, or otherwise informing a research claim.
+$comment: |
+  This is a block-level research evidence node.
+
+  It represents authored evidence as document content, distinct from
+  `GraphEvidence`, which records why a graph edge exists. This node is intended
+  for evidence statements, observations, excerpts, or summaries that participate
+  as nodes in a research discourse graph.
+analogues:
+  - id: mira:Evidence
+    notes: MIRA evidence node.
+markdown:
+  derive: false
+proptest: {}

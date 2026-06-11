@@ -79,6 +79,8 @@ mod provenance_count;
 mod quote_block;
 mod raw_block;
 mod reference;
+mod research_block;
+mod research_object_relation_kind;
 mod section;
 mod section_type;
 mod skill;

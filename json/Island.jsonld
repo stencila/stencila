@@ -5,7 +5,9 @@
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.org/"
+    "stencila": "https://stencila.org/",
+    "cito": "http://purl.org/spar/cito/",
+    "mira": "http://purl.org/mira-science/mira#"
   },
   "@graph": [
     {
@@ -36,9 +38,6 @@
       "rdfs:comment": "A short label for the node.",
       "schema:domainIncludes": [
         {
-          "@id": "schema:Claim"
-        },
-        {
           "@id": "stencila:Button"
         },
         {
@@ -52,6 +51,9 @@
         },
         {
           "@id": "stencila:Parameter"
+        },
+        {
+          "@id": "stencila:ResearchObject"
         }
       ],
       "schema:rangeIncludes": {
@@ -78,9 +80,6 @@
       "schema:domainIncludes": [
         {
           "@id": "schema:Article"
-        },
-        {
-          "@id": "schema:Claim"
         },
         {
           "@id": "schema:Comment"
@@ -174,6 +173,9 @@
         },
         {
           "@id": "stencila:Reference"
+        },
+        {
+          "@id": "stencila:ResearchObject"
         },
         {
           "@id": "stencila:Section"

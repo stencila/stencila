@@ -10,6 +10,7 @@ use super::claim::Claim;
 use super::collection::Collection;
 use super::comment::Comment;
 use super::datatable::Datatable;
+use super::evidence::Evidence;
 use super::figure::Figure;
 use super::file::File;
 use super::graph::Graph;
@@ -17,8 +18,11 @@ use super::image_object::ImageObject;
 use super::media_object::MediaObject;
 use super::periodical::Periodical;
 use super::prompt::Prompt;
+use super::protocol::Protocol;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
+use super::question::Question;
+use super::request::Request;
 use super::review::Review;
 use super::skill::Skill;
 use super::software_application::SoftwareApplication;
@@ -48,6 +52,8 @@ pub enum CreativeWorkVariant {
 
     Datatable(Datatable),
 
+    Evidence(Evidence),
+
     Figure(Figure),
 
     File(File),
@@ -62,9 +68,15 @@ pub enum CreativeWorkVariant {
 
     Prompt(Prompt),
 
+    Protocol(Protocol),
+
     PublicationIssue(PublicationIssue),
 
     PublicationVolume(PublicationVolume),
+
+    Question(Question),
+
+    Request(Request),
 
     Review(Review),
 

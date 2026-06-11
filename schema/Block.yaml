@@ -103,6 +103,15 @@ anyOf:
         description: Do not generate `Excerpt` nodes in block content.
         skip: true
 
+  - $ref: Evidence
+    proptest:
+      min:
+        description: Do not generate `Evidence` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Evidence` nodes in block content.
+        skip: false
+
   - $ref: Figure
     proptest:
       min:
@@ -195,9 +204,36 @@ anyOf:
         description: Do not generate `PromptBlock` nodes in block content.
         skip: true
 
+  - $ref: Protocol
+    proptest:
+      min:
+        description: Do not generate `Protocol` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Protocol` nodes in block content.
+        skip: false
+
+  - $ref: Question
+    proptest:
+      min:
+        description: Do not generate `Question` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Question` nodes in block content.
+        skip: false
+
   - $ref: QuoteBlock
 
   - $ref: RawBlock
+
+  - $ref: Request
+    proptest:
+      min:
+        description: Do not generate `Request` nodes in block content.
+        skip: true
+      low:
+        description: Generate `Request` nodes in block content.
+        skip: false
 
   - $ref: Section
     proptest:

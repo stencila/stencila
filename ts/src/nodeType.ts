@@ -61,6 +61,7 @@ export type NodeType =
   | "Emphasis"
   | "EnumValidator"
   | "Enumeration"
+  | "Evidence"
   | "Excerpt"
   | "ExecuteAction"
   | "ExecutionMessage"
@@ -109,13 +110,17 @@ export type NodeType =
   | "Prompt"
   | "PromptBlock"
   | "PropertyValue"
+  | "Protocol"
   | "ProvenanceCount"
   | "PublicationIssue"
   | "PublicationVolume"
+  | "Question"
   | "QuoteBlock"
   | "QuoteInline"
   | "RawBlock"
   | "Reference"
+  | "Request"
+  | "ResearchObjectRelation"
   | "Review"
   | "Section"
   | "Sentence"
@@ -216,6 +221,7 @@ export const NodeTypeList = [
   "Emphasis",
   "EnumValidator",
   "Enumeration",
+  "Evidence",
   "Excerpt",
   "ExecuteAction",
   "ExecutionMessage",
@@ -264,13 +270,17 @@ export const NodeTypeList = [
   "Prompt",
   "PromptBlock",
   "PropertyValue",
+  "Protocol",
   "ProvenanceCount",
   "PublicationIssue",
   "PublicationVolume",
+  "Question",
   "QuoteBlock",
   "QuoteInline",
   "RawBlock",
   "Reference",
+  "Request",
+  "ResearchObjectRelation",
   "Review",
   "Section",
   "Sentence",

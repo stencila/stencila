@@ -19,6 +19,7 @@ use super::creative_work::CreativeWork;
 use super::datatable::Datatable;
 use super::defined_term::DefinedTerm;
 use super::enumeration::Enumeration;
+use super::evidence::Evidence;
 use super::execute_action::ExecuteAction;
 use super::figure::Figure;
 use super::file::File;
@@ -35,8 +36,11 @@ use super::postal_address::PostalAddress;
 use super::product::Product;
 use super::prompt::Prompt;
 use super::property_value::PropertyValue;
+use super::protocol::Protocol;
 use super::publication_issue::PublicationIssue;
 use super::publication_volume::PublicationVolume;
+use super::question::Question;
+use super::request::Request;
 use super::review::Review;
 use super::skill::Skill;
 use super::software_application::SoftwareApplication;
@@ -84,6 +88,8 @@ pub enum ThingVariant {
 
     Enumeration(Enumeration),
 
+    Evidence(Evidence),
+
     ExecuteAction(ExecuteAction),
 
     Figure(Figure),
@@ -116,9 +122,15 @@ pub enum ThingVariant {
 
     PropertyValue(PropertyValue),
 
+    Protocol(Protocol),
+
     PublicationIssue(PublicationIssue),
 
     PublicationVolume(PublicationVolume),
+
+    Question(Question),
+
+    Request(Request),
 
     Review(Review),
 

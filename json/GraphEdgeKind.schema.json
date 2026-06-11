@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "The kind of directed relationship represented by a graph edge.",
-  "$comment": "This enumeration is used by `GraphEdge` for describing the relation between\nnodes in a `Graph`. Edge direction is always from upstream dependency,\nsource, or component to downstream dependant, result, or containing node.\n\nVariant names should be read in graph direction as \"upstream <kind>\ndownstream\". Some names use passive phrasing (`UsedBy`, `ReadBy`) and others\nuse established relation phrases (`PartOf`, `Generated`, `Declares`), but\ntheir direction is always defined by `GraphEdge.source` to `GraphEdge.target`.\n\nVariant descriptions document related W3C PROV-O predicates where applicable.\nThese mappings are guidance only: Stencila graph edges keep a consistent\ndependency direction, while several PROV-O predicates use the opposite RDF\nsubject/object direction or apply only approximately. The PROV-O namespace is\n`http://www.w3.org/ns/prov#`.\n",
+  "$comment": "This enumeration is used by `GraphEdge` for describing the relation between\nnodes in a `Graph`. Edge direction is always from `GraphEdge.source` to\n`GraphEdge.target`. For resource-flow relationships this is usually from\nupstream dependency, source, or component to downstream dependant, result, or\ncontaining node. For discourse relationships this is the authored relation\ndirection.\n\nResource-flow variant names should be read in graph direction as \"upstream\n<kind> downstream\". Some names use passive phrasing (`UsedBy`, `ReadBy`) and\nothers use established relation phrases (`PartOf`, `Generated`, `Declares`),\nbut their direction is always defined by `GraphEdge.source` to\n`GraphEdge.target`. Discourse variant names should be read as \"source <kind>\ntarget\".\n\nVariant descriptions document related W3C PROV-O predicates where applicable.\nThese mappings are guidance only: Stencila graph edges keep a consistent\ndependency direction, while several PROV-O predicates use the opposite RDF\nsubject/object direction or apply only approximately. The PROV-O namespace is\n`http://www.w3.org/ns/prov#`.\n\nThe discourse variants (`Supports` through `RequestTarget`) mirror\n`ResearchObjectRelationKind`, which is the source of truth for their\nsemantics and MIRA-based `@id`s; the two enumerations must be kept in sync.\n",
   "required": [
     "type"
   ],
@@ -218,6 +218,61 @@
       "@id": "stencila:Pins",
       "description": "The upstream lockfile, digest, or exact version pin constrains the downstream environment or dependency.",
       "const": "Pins"
+    },
+    {
+      "@id": "mira:supports",
+      "description": "The source research object, typically evidence or a claim, supports the target claim.",
+      "const": "Supports"
+    },
+    {
+      "@id": "mira:supportedBy",
+      "description": "The source claim is supported by the target research object, typically evidence or another claim. Inverse of `Supports`.",
+      "const": "SupportedBy"
+    },
+    {
+      "@id": "mira:opposes",
+      "description": "The source research object, typically evidence or a claim, opposes the target claim.",
+      "const": "Opposes"
+    },
+    {
+      "@id": "mira:opposedBy",
+      "description": "The source claim is opposed by the target research object, typically evidence or another claim. Inverse of `Opposes`.",
+      "const": "OpposedBy"
+    },
+    {
+      "@id": "mira:addresses",
+      "description": "The source claim addresses the target research question.",
+      "const": "Addresses"
+    },
+    {
+      "@id": "mira:addressedBy",
+      "description": "The source research question is addressed by the target claim. Inverse of `Addresses`.",
+      "const": "AddressedBy"
+    },
+    {
+      "@id": "mira:follows",
+      "description": "The source research object, typically a study or other research activity, was conducted following the target protocol.",
+      "const": "Follows"
+    },
+    {
+      "@id": "mira:grounds",
+      "description": "The source research object, typically a study or other research activity, produced and grounds the target evidence.",
+      "const": "Grounds"
+    },
+    {
+      "@id": "mira:is_grounded_in",
+      "description": "The source evidence is grounded in the target study or other research activity that produced it. Inverse of `Grounds`.",
+      "const": "IsGroundedIn"
+    },
+    {
+      "@id": "mira:request_for",
+      "description": "The source request asks for the target work, such as a study or protocol execution, to be carried out. Not the inverse of `RequestTarget`.",
+      "const": "RequestFor"
+    },
+    {
+      "@id": "mira:request_target",
+      "description": "The source request concerns the target claim that the requested work may elucidate. Not the inverse of `RequestFor`.",
+      "const": "RequestTarget"
     }
   ]
 }

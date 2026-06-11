@@ -14,11 +14,12 @@ use stencila_codec::{Codec, DecodeOptions, stencila_format::Format};
 use stencila_codec_markdown::MarkdownCodec;
 use stencila_node_strip::{StripScope, StripTargets, strip};
 use stencila_schema::{
-    Article, Author, AuthorRole, AuthorRoleName, Block, CodeChunk, Cord, CordAuthorship, CordOp,
-    Figure, Inline, InstructionBlock, InstructionType, Node, NodeId, NodePath, NodeProperty,
-    NodeSlot, Paragraph, Patch, PatchContext, PatchNode, PatchOp, PatchValue, Person, Primitive,
-    ProvenanceCategory, ProvenanceCount, SoftwareApplication, Strong, SuggestionBlock,
-    SuggestionStatus, Text, TimeUnit, authorship, diff, merge, patch,
+    Article, Author, AuthorRole, AuthorRoleName, Block, Claim, CodeChunk, Cord, CordAuthorship,
+    CordOp, Figure, Inline, InstructionBlock, InstructionType, Node, NodeId, NodePath,
+    NodeProperty, NodeSlot, Paragraph, Patch, PatchContext, PatchNode, PatchOp, PatchValue,
+    Person, Primitive, ProvenanceCategory, ProvenanceCount, ResearchObjectRelation,
+    ResearchObjectRelationKind, SoftwareApplication, Strong, SuggestionBlock, SuggestionStatus,
+    Text, TimeUnit, authorship, diff, merge, patch,
     shortcuts::{art, p, sec, t},
 };
 
@@ -1257,6 +1258,35 @@ fn formats_supported() -> Result<()> {
 
         assert_eq!(p1, p2, "Failed for format: {}", format);
     }
+
+    Ok(())
+}
+
+/// Test that `ResearchObject.relations` is patchable from the formats that
+/// can author relations (including Tiptap) but not from other formats
+#[test]
+fn relations_format_gating() -> Result<()> {
+    let old = || Claim::new(vec![p([t("Claim text.")])]);
+
+    let mut new = old();
+    new.relations = Some(vec![ResearchObjectRelation::new(
+        ResearchObjectRelationKind::SupportedBy,
+        "#e1".to_string(),
+    )]);
+
+    for format in [Format::Tiptap, Format::Qmd, Format::Smd, Format::Myst] {
+        let mut merged = old();
+        merge(&mut merged, &new, Some(format.clone()), None)?;
+        assert_eq!(
+            merged.relations, new.relations,
+            "expected relations merged for format: {format}"
+        );
+    }
+
+    // A format from which relations are not patchable should leave them unchanged
+    let mut merged = old();
+    merge(&mut merged, &new, Some(Format::Koenig), None)?;
+    assert_eq!(merged.relations, None);
 
     Ok(())
 }

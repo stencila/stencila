@@ -9,7 +9,7 @@
   ],
   "category": "flow",
   "description": "A directed edge in a graph.",
-  "$comment": "This is a graph edge type used in Stencila for representing provenance,\nreactivity and other graphs.\n\nEdge direction is always from `source` upstream dependency to `target`\ndownstream dependant.\nBoth endpoints reference `GraphNode.id` values.\n",
+  "$comment": "This is a graph edge type used in Stencila for representing provenance,\nreactivity and other graphs.\n\nEdge direction is always from `source` to `target`. For resource-flow edges,\nthis is usually from upstream dependency to downstream dependant. For\ndiscourse edges, this is the authored relation direction. Both endpoints\nreference `GraphNode.id` values.\n",
   "required": [
     "type",
     "source",
@@ -55,17 +55,17 @@
     },
     "source": {
       "@id": "stencila:source",
-      "description": "The id of the upstream dependency graph node.",
+      "description": "The id of the source graph node.",
       "type": "string"
     },
     "target": {
       "@id": "schema:target",
-      "description": "The id of the downstream dependant graph node.",
+      "description": "The id of the target graph node.",
       "type": "string"
     },
     "kind": {
       "@id": "stencila:kind",
-      "description": "The kind of dependency relationship represented by this edge.",
+      "description": "The kind of relationship represented by this edge.",
       "$ref": "GraphEdgeKind.schema.json"
     },
     "evidence": {

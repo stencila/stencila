@@ -60,6 +60,7 @@ The `CreativeWork` type has these properties:
 | `repository`     | URL of the repository where the un-compiled, human readable source of the work is located.                              | [`String`](./string.md)                                                           | -                       |
 | `path`           | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | -                       |
 | `commit`         | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | -                       |
+| `worktreeStatus` | The status of the source worktree relative to the commit.                                                               | [`WorktreeStatus`](./worktree-status.md)                                          | -                       |
 | `version`        | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | -                       |
 | `alternateNames` | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)   |
 | `description`    | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)   |
@@ -74,7 +75,7 @@ The `CreativeWork` type has these properties:
 The `CreativeWork` type is related to these types:
 
 - Parents: [`Thing`](./thing.md)
-- Children: [`Agent`](./agent.md), [`Article`](./article.md), [`Chat`](./chat.md), [`Claim`](./claim.md), [`Collection`](./collection.md), [`Comment`](./comment.md), [`Datatable`](./datatable.md), [`Figure`](./figure.md), [`File`](./file.md), [`MediaObject`](./media-object.md), [`Periodical`](./periodical.md), [`Prompt`](./prompt.md), [`PublicationIssue`](./publication-issue.md), [`PublicationVolume`](./publication-volume.md), [`Review`](./review.md), [`Skill`](./skill.md), [`SoftwareApplication`](./software-application.md), [`SoftwareSourceCode`](./software-source-code.md), [`Table`](./table.md), [`Workflow`](./workflow.md)
+- Children: [`Agent`](./agent.md), [`Article`](./article.md), [`Chat`](./chat.md), [`Collection`](./collection.md), [`Comment`](./comment.md), [`Datatable`](./datatable.md), [`Figure`](./figure.md), [`File`](./file.md), [`Graph`](./graph.md), [`MediaObject`](./media-object.md), [`Periodical`](./periodical.md), [`Prompt`](./prompt.md), [`PublicationIssue`](./publication-issue.md), [`PublicationVolume`](./publication-volume.md), [`ResearchObject`](./research-object.md), [`Review`](./review.md), [`Skill`](./skill.md), [`SoftwareApplication`](./software-application.md), [`SoftwareSourceCode`](./software-source-code.md), [`Table`](./table.md), [`Workflow`](./workflow.md)
 
 # Bindings
 

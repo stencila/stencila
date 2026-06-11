@@ -10,6 +10,7 @@ import { type Claim } from "./Claim.js";
 import { type Collection } from "./Collection.js";
 import { type Comment } from "./Comment.js";
 import { type Datatable } from "./Datatable.js";
+import { type Evidence } from "./Evidence.js";
 import { type Figure } from "./Figure.js";
 import { type File } from "./File.js";
 import { type Graph } from "./Graph.js";
@@ -17,8 +18,11 @@ import { type ImageObject } from "./ImageObject.js";
 import { type MediaObject } from "./MediaObject.js";
 import { type Periodical } from "./Periodical.js";
 import { type Prompt } from "./Prompt.js";
+import { type Protocol } from "./Protocol.js";
 import { type PublicationIssue } from "./PublicationIssue.js";
 import { type PublicationVolume } from "./PublicationVolume.js";
+import { type Question } from "./Question.js";
+import { type Request } from "./Request.js";
 import { type Review } from "./Review.js";
 import { type Skill } from "./Skill.js";
 import { type SoftwareApplication } from "./SoftwareApplication.js";
@@ -39,6 +43,7 @@ export type CreativeWorkVariant =
   Collection |
   Comment |
   Datatable |
+  Evidence |
   Figure |
   File |
   Graph |
@@ -46,8 +51,11 @@ export type CreativeWorkVariant =
   MediaObject |
   Periodical |
   Prompt |
+  Protocol |
   PublicationIssue |
   PublicationVolume |
+  Question |
+  Request |
   Review |
   Skill |
   SoftwareApplication |
@@ -69,6 +77,7 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "Collection":
     case "Comment":
     case "Datatable":
+    case "Evidence":
     case "Figure":
     case "File":
     case "Graph":
@@ -76,8 +85,11 @@ export function creativeWorkVariant(other: CreativeWorkVariant): CreativeWorkVar
     case "MediaObject":
     case "Periodical":
     case "Prompt":
+    case "Protocol":
     case "PublicationIssue":
     case "PublicationVolume":
+    case "Question":
+    case "Request":
     case "Review":
     case "Skill":
     case "SoftwareApplication":

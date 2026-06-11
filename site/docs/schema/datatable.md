@@ -28,8 +28,6 @@ The `Datatable` type has these properties:
 
 | Name                 | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `label`              | A short label for the datatable.                                                                                        | [`String`](./string.md)                                                           | -                                    |
-| `labelAutomatically` | Whether the datatable label should be automatically updated.                                                            | [`Boolean`](./boolean.md)                                                         | -                                    |
 | `caption`            | A caption for the datatable.                                                                                            | [`Block`](./block.md)*                                                            | -                                    |
 | `columns`            | The columns of data.                                                                                                    | [`DatatableColumn`](./datatable-column.md)*                                       | -                                    |
 | `notes`              | Notes for the datatable.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
@@ -63,7 +61,11 @@ The `Datatable` type has these properties:
 | `repository`         | URL of the repository where the un-compiled, human readable source of the work is located.                              | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `path`               | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`             | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
+| `worktreeStatus`     | The status of the source worktree relative to the commit.                                                               | [`WorktreeStatus`](./worktree-status.md)                                          | [`CreativeWork`](./creative-work.md) |
 | `version`            | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
+| `idAutomatically`    | Whether the identifier should be automatically updated.                                                                 | [`Boolean`](./boolean.md)                                                         | [`Labelled`](./labelled.md)          |
+| `label`              | A short label for the node.                                                                                             | [`String`](./string.md)                                                           | [`Labelled`](./labelled.md)          |
+| `labelAutomatically` | Whether the label should be automatically updated.                                                                      | [`Boolean`](./boolean.md)                                                         | [`Labelled`](./labelled.md)          |
 | `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
 | `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 | `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
@@ -76,7 +78,7 @@ The `Datatable` type has these properties:
 
 The `Datatable` type is related to these types:
 
-- Parents: [`CreativeWork`](./creative-work.md)
+- Parents: [`CreativeWork`](./creative-work.md)[`Labelled`](./labelled.md)
 - Children: none
 
 # Bindings

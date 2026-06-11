@@ -18,6 +18,17 @@ export type GraphEdgeKind =
   'Declares' |
   'Configures' |
   'RequiredBy' |
-  'Pins';
+  'Pins' |
+  'Supports' |
+  'SupportedBy' |
+  'Opposes' |
+  'OpposedBy' |
+  'Addresses' |
+  'AddressedBy' |
+  'Follows' |
+  'Grounds' |
+  'IsGroundedIn' |
+  'RequestFor' |
+  'RequestTarget';
 
 

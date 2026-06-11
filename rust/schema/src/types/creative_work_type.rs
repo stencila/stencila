@@ -33,6 +33,8 @@ pub enum CreativeWorkType {
 
     Drawing,
 
+    Evidence,
+
     Figure,
 
     File,
@@ -59,11 +61,17 @@ pub enum CreativeWorkType {
 
     Prompt,
 
+    Protocol,
+
     PublicationIssue,
 
     PublicationVolume,
 
+    Question,
+
     Report,
+
+    Request,
 
     Review,
 

@@ -32,8 +32,6 @@ The `Table` type has these properties:
 
 | Name                 | Description                                                                                                             | Type                                                                              | Inherited from                       |
 | -------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- | ------------------------------------ |
-| `label`              | A short label for the table.                                                                                            | [`String`](./string.md)                                                           | -                                    |
-| `labelAutomatically` | Whether the label should be automatically updated.                                                                      | [`Boolean`](./boolean.md)                                                         | -                                    |
 | `caption`            | A caption for the table.                                                                                                | [`Block`](./block.md)*                                                            | -                                    |
 | `rows`               | Rows of cells in the table.                                                                                             | [`TableRow`](./table-row.md)*                                                     | -                                    |
 | `notes`              | Notes for the table.                                                                                                    | [`Block`](./block.md)*                                                            | -                                    |
@@ -67,7 +65,11 @@ The `Table` type has these properties:
 | `repository`         | URL of the repository where the un-compiled, human readable source of the work is located.                              | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `path`               | The file system path of the source of the work.                                                                         | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
 | `commit`             | The commit hash (or similar) of the source of the work.                                                                 | [`String`](./string.md)                                                           | [`CreativeWork`](./creative-work.md) |
+| `worktreeStatus`     | The status of the source worktree relative to the commit.                                                               | [`WorktreeStatus`](./worktree-status.md)                                          | [`CreativeWork`](./creative-work.md) |
 | `version`            | The version of the creative work.                                                                                       | [`String`](./string.md) \| [`Number`](./number.md)                                | [`CreativeWork`](./creative-work.md) |
+| `idAutomatically`    | Whether the identifier should be automatically updated.                                                                 | [`Boolean`](./boolean.md)                                                         | [`Labelled`](./labelled.md)          |
+| `label`              | A short label for the node.                                                                                             | [`String`](./string.md)                                                           | [`Labelled`](./labelled.md)          |
+| `labelAutomatically` | Whether the label should be automatically updated.                                                                      | [`Boolean`](./boolean.md)                                                         | [`Labelled`](./labelled.md)          |
 | `alternateNames`     | Alternate names (aliases) for the item.                                                                                 | [`String`](./string.md)*                                                          | [`Thing`](./thing.md)                |
 | `description`        | A description of the item.                                                                                              | [`String`](./string.md)                                                           | [`Thing`](./thing.md)                |
 | `identifiers`        | Any kind of identifier for any kind of Thing.                                                                           | ([`PropertyValue`](./property-value.md) \| [`String`](./string.md))*              | [`Thing`](./thing.md)                |
@@ -80,7 +82,7 @@ The `Table` type has these properties:
 
 The `Table` type is related to these types:
 
-- Parents: [`CreativeWork`](./creative-work.md)
+- Parents: [`CreativeWork`](./creative-work.md)[`Labelled`](./labelled.md)
 - Children: none
 
 # Bindings
@@ -101,6 +103,9 @@ During property-based (a.k.a generative) testing, the properties of the `Table` 
 
 | Property  | Complexity | Description                                                 | Strategy                                        |
 | --------- | ---------- | ----------------------------------------------------------- | ----------------------------------------------- |
+| `label`   | Min+       | No label                                                    | `None`                                          |
+|           | Low+       | Generate a simple label                                     | `option::of(r"[a-zA-Z0-9]+")`                   |
+|           | Max        | Generate an arbitrary string                                | `option::of(String::arbitrary())`               |
 | `caption` | Min+       | No caption.                                                 | `None`                                          |
 |           | Low+       | Generate up to two arbitrary paragraphs.                    | `option::of(vec_paragraphs(2))`                 |
 |           | Max        | Generate up to three arbitrary, non-recursive, block nodes. | `option::of(vec_blocks_non_recursive(3))`       |

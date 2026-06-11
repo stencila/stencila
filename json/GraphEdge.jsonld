@@ -5,7 +5,9 @@
   "@context": {
     "rdfs": "http://www.w3.org/2000/01/rdf-schema#",
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.org/"
+    "stencila": "https://stencila.org/",
+    "cito": "http://purl.org/spar/cito/",
+    "mira": "http://purl.org/mira-science/mira#"
   },
   "@graph": [
     {
@@ -21,7 +23,7 @@
       "@id": "stencila:source",
       "@type": "rdfs:Property",
       "rdfs:label": "source",
-      "rdfs:comment": "The id of the upstream dependency graph node.",
+      "rdfs:comment": "The id of the source graph node.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Bibliography"
@@ -56,7 +58,7 @@
       "@id": "schema:target",
       "@type": "rdfs:Property",
       "rdfs:label": "target",
-      "rdfs:comment": "The id of the downstream dependant graph node.",
+      "rdfs:comment": "The id of the target graph node.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:Citation"
@@ -69,6 +71,9 @@
         },
         {
           "@id": "stencila:PromptBlock"
+        },
+        {
+          "@id": "stencila:ResearchObjectRelation"
         },
         {
           "@id": "stencila:Supplement"
@@ -85,13 +90,16 @@
       "@id": "stencila:kind",
       "@type": "rdfs:Property",
       "rdfs:label": "kind",
-      "rdfs:comment": "The kind of dependency relationship represented by this edge.",
+      "rdfs:comment": "The kind of relationship represented by this edge.",
       "schema:domainIncludes": [
         {
           "@id": "stencila:GraphEdge"
         },
         {
           "@id": "stencila:GraphEvidence"
+        },
+        {
+          "@id": "stencila:ResearchObjectRelation"
         }
       ],
       "schema:rangeIncludes": {

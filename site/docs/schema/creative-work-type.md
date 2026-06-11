@@ -34,8 +34,10 @@ The `CreativeWorkType` type has these members:
 | `Dataset`             | -           |
 | `Datatable`           | -           |
 | `Drawing`             | -           |
+| `Evidence`            | -           |
 | `Figure`              | -           |
 | `File`                | -           |
+| `Graph`               | -           |
 | `ImageObject`         | -           |
 | `Legislation`         | -           |
 | `Manuscript`          | -           |
@@ -46,9 +48,12 @@ The `CreativeWorkType` type has these members:
 | `Poster`              | -           |
 | `Presentation`        | -           |
 | `Prompt`              | -           |
+| `Protocol`            | -           |
 | `PublicationIssue`    | -           |
 | `PublicationVolume`   | -           |
+| `Question`            | -           |
 | `Report`              | -           |
+| `Request`             | -           |
 | `Review`              | -           |
 | `Skill`               | -           |
 | `SoftwareApplication` | -           |
