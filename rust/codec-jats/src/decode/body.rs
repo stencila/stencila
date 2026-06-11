@@ -250,8 +250,7 @@ fn decode_title(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Bloc
 fn decode_statement(path: &str, node: &Node, losses: &mut Losses, depth: u8) -> Block {
     let claim_type = node
         .attribute("content-type")
-        .map(|statement| ClaimType::from_str(statement).unwrap_or_default())
-        .unwrap_or_default();
+        .and_then(|statement| ClaimType::from_str(statement).ok());
 
     let label = node
         .children()

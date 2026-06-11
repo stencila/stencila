@@ -952,7 +952,10 @@ fn math_block_from_pandoc(
 }
 
 fn claim_to_pandoc(claim: &Claim, context: &mut PandocEncodeContext) -> pandoc::Block {
-    let class = ["claim-", &claim.claim_type.to_string().to_lowercase()].concat();
+    let class = claim
+        .claim_type
+        .map(|claim_type| ["claim-", &claim_type.to_string().to_lowercase()].concat())
+        .unwrap_or_else(|| "claim".to_string());
 
     let mut attributes = Vec::new();
     if let Some(label) = &claim.label {
@@ -1705,12 +1708,15 @@ fn div_from_pandoc(
         });
     };
 
-    if let Some(claim_type) = attrs
-        .classes
-        .iter()
-        .find_map(|class| class.strip_prefix("claim-"))
-        && let Ok(claim_type) = ClaimType::from_str(claim_type)
-    {
+    if let Some(claim_type) = attrs.classes.iter().find_map(|class| {
+        if class == "claim" {
+            Some(None)
+        } else {
+            class
+                .strip_prefix("claim-")
+                .and_then(|claim_type| ClaimType::from_str(claim_type).ok().map(Some))
+        }
+    }) {
         let label = attrs
             .attributes
             .into_iter()

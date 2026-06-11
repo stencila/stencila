@@ -978,7 +978,7 @@ pub fn decode_theorem_or_proof(
     let (label, content) = extract_theorem_label_and_content(parser, tag, context);
 
     Block::Claim(Claim {
-        claim_type,
+        claim_type: Some(claim_type),
         label,
         content,
         ..Default::default()

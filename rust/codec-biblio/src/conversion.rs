@@ -686,14 +686,18 @@ fn work_type_to_entry_type(work_type: &CreativeWorkType) -> EntryType {
         | CreativeWorkType::Claim
         | CreativeWorkType::Dataset
         | CreativeWorkType::Datatable
+        | CreativeWorkType::Evidence
         | CreativeWorkType::Figure
         | CreativeWorkType::Agent
         | CreativeWorkType::File
         | CreativeWorkType::Graph
         | CreativeWorkType::MediaObject
         | CreativeWorkType::Prompt
+        | CreativeWorkType::Protocol
         | CreativeWorkType::PublicationIssue
         | CreativeWorkType::PublicationVolume
+        | CreativeWorkType::Question
+        | CreativeWorkType::Request
         | CreativeWorkType::Skill
         | CreativeWorkType::Table
         | CreativeWorkType::Workflow => EntryType::Misc,
