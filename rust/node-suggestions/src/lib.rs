@@ -2,7 +2,11 @@
 
 use std::collections::HashMap;
 
-use schema::{Block, Inline, Node, NodeId, SuggestionBlock, SuggestionInline, SuggestionType};
+use schema::{
+    Block, Chat, ChatMessage, Claim, Evidence, Excerpt, Form, Heading, Inline, Island, Node,
+    NodeId, Page, Paragraph, Protocol, Question, QuoteBlock, Request, Section, StyledBlock,
+    SuggestionBlock, SuggestionInline, SuggestionType,
+};
 
 mod ensure_ids;
 pub mod review;
@@ -180,21 +184,37 @@ fn resolve_suggestion_inline(mut si: SuggestionInline, action: &SuggestionAction
 impl ResolveSuggestions for Block {
     fn resolve_suggestions(&mut self, action: &SuggestionAction) {
         match self {
+            Block::Chat(Chat { content, .. })
+            | Block::ChatMessage(ChatMessage { content, .. })
+            | Block::Claim(Claim { content, .. })
+            | Block::Evidence(Evidence { content, .. })
+            | Block::Excerpt(Excerpt { content, .. })
+            | Block::Form(Form { content, .. })
+            | Block::Island(Island { content, .. })
+            | Block::Page(Page { content, .. })
+            | Block::Protocol(Protocol { content, .. })
+            | Block::Question(Question { content, .. })
+            | Block::QuoteBlock(QuoteBlock { content, .. })
+            | Block::Request(Request { content, .. })
+            | Block::Section(Section { content, .. })
+            | Block::StyledBlock(StyledBlock { content, .. }) => {
+                content.resolve_suggestions(action)
+            }
+
+            Block::Heading(Heading { content, .. })
+            | Block::Paragraph(Paragraph { content, .. }) => content.resolve_suggestions(action),
+
             Block::Admonition(n) => {
                 if let Some(title) = &mut n.title {
                     title.resolve_suggestions(action);
                 }
                 n.content.resolve_suggestions(action);
             }
-            Block::Chat(n) => n.content.resolve_suggestions(action),
-            Block::ChatMessage(n) => n.content.resolve_suggestions(action),
             Block::ChatMessageGroup(n) => {
                 for msg in &mut n.messages {
                     msg.content.resolve_suggestions(action);
                 }
             }
-            Block::Claim(n) => n.content.resolve_suggestions(action),
-            Block::Excerpt(n) => n.content.resolve_suggestions(action),
             Block::Figure(n) => {
                 if let Some(caption) = &mut n.caption {
                     caption.resolve_suggestions(action);
@@ -207,24 +227,16 @@ impl ResolveSuggestions for Block {
                     otherwise.resolve_suggestions(action);
                 }
             }
-            Block::Form(n) => n.content.resolve_suggestions(action),
-            Block::Heading(n) => n.content.resolve_suggestions(action),
             Block::IfBlock(n) => {
                 for clause in &mut n.clauses {
                     clause.content.resolve_suggestions(action);
                 }
             }
-            Block::Island(n) => n.content.resolve_suggestions(action),
             Block::List(n) => {
                 for item in &mut n.items {
                     item.content.resolve_suggestions(action);
                 }
             }
-            Block::Page(n) => n.content.resolve_suggestions(action),
-            Block::Paragraph(n) => n.content.resolve_suggestions(action),
-            Block::QuoteBlock(n) => n.content.resolve_suggestions(action),
-            Block::Section(n) => n.content.resolve_suggestions(action),
-            Block::StyledBlock(n) => n.content.resolve_suggestions(action),
             Block::SuggestionBlock(n) => {
                 // Recurse into nested content (the flatmap in Vec<Block> handles the suggestion itself)
                 if let Some(original) = &mut n.original {

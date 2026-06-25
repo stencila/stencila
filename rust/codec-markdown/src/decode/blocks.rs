@@ -747,10 +747,17 @@ fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
         ),
         opt(take_while(1.., |_| true)),
     )
-        .map(|(claim_type, label): (&str, Option<&str>)| {
+        .map(|(claim_type, header): (&str, Option<&str>)| {
+            let (id, label) = parse_fence_header(header);
+            let claim_type = if claim_type.eq_ignore_ascii_case("claim") {
+                None
+            } else {
+                claim_type.parse().ok()
+            };
             Block::Claim(Claim {
-                claim_type: claim_type.parse().unwrap_or_default(),
-                label: label.map(String::from),
+                id,
+                claim_type,
+                label,
                 ..Default::default()
             })
         })
@@ -1422,6 +1429,27 @@ enum Divider {
     End,
 }
 
+fn parse_fence_header(header: Option<&str>) -> (Option<String>, Option<String>) {
+    let Some(header) = header.map(str::trim).filter(|header| !header.is_empty()) else {
+        return (None, None);
+    };
+
+    let mut id = None;
+    let mut label = Vec::new();
+
+    for part in header.split_whitespace() {
+        if id.is_none() && part.starts_with('#') && part.len() > 1 {
+            id = Some(part[1..].to_string());
+        } else {
+            label.push(part);
+        }
+    }
+
+    let label = (!label.is_empty()).then(|| label.join(" "));
+
+    (id, label)
+}
+
 /// Finalize a block by assigning children etc
 fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context) {
     if let Block::SuggestionBlock(suggestion) = parent {
@@ -1878,7 +1906,7 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
 
     if let Some(claim_type) = name.strip_prefix("prf:") {
         return Some(Block::Claim(Claim {
-            claim_type: claim_type.parse().unwrap_or_default(),
+            claim_type: claim_type.parse().ok(),
             label: options.get("label").map(|label| label.to_string()),
             content: decode_blocks(&value, context),
             ..Default::default()
@@ -3115,7 +3143,7 @@ A two-panel figure combining an executable plot with a real image.
         assert_eq!(
             claim(&mut Located::new("hypothesis")).unwrap(),
             Block::Claim(Claim {
-                claim_type: ClaimType::Hypothesis,
+                claim_type: Some(ClaimType::Hypothesis),
                 ..Default::default()
             })
         );
@@ -3123,7 +3151,7 @@ A two-panel figure combining an executable plot with a real image.
         assert_eq!(
             claim(&mut Located::new("lemma Lemma 1")).unwrap(),
             Block::Claim(Claim {
-                claim_type: ClaimType::Lemma,
+                claim_type: Some(ClaimType::Lemma),
                 label: Some(String::from("Lemma 1")),
                 ..Default::default()
             })

@@ -189,6 +189,7 @@ pub enum GraphEdgeFamily {
     Software,
     Citation,
     Reference,
+    Discourse
 }
 
 /// Classify a graph edge kind into the user-facing question it helps answer.
@@ -210,6 +211,17 @@ pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
         GraphEdgeKind::UsedBy | GraphEdgeKind::LinkedBy | GraphEdgeKind::IncludedBy => {
             GraphEdgeFamily::Reference
         }
+        GraphEdgeKind::Supports
+        | GraphEdgeKind::SupportedBy
+        | GraphEdgeKind::Opposes
+        | GraphEdgeKind::OpposedBy
+        | GraphEdgeKind::Addresses
+        | GraphEdgeKind::AddressedBy
+        | GraphEdgeKind::Follows
+        | GraphEdgeKind::Grounds
+        | GraphEdgeKind::IsGroundedIn
+        | GraphEdgeKind::RequestFor
+        | GraphEdgeKind::RequestTarget => GraphEdgeFamily::Discourse,
     }
 }
 
@@ -1358,6 +1370,23 @@ fn edge_score(
         GraphEdgeKind::Configures => {
             if preset == GraphProjectionPreset::Deps || preset == GraphProjectionPreset::Flow {
                 3
+            } else {
+                0
+            }
+        }
+        GraphEdgeKind::Supports
+        | GraphEdgeKind::SupportedBy
+        | GraphEdgeKind::Opposes
+        | GraphEdgeKind::OpposedBy
+        | GraphEdgeKind::Addresses
+        | GraphEdgeKind::AddressedBy
+        | GraphEdgeKind::Follows
+        | GraphEdgeKind::Grounds
+        | GraphEdgeKind::IsGroundedIn
+        | GraphEdgeKind::RequestFor
+        | GraphEdgeKind::RequestTarget => {
+            if preset == GraphProjectionPreset::Flow {
+                4
             } else {
                 0
             }
