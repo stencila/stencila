@@ -159,7 +159,7 @@ pub async fn graph_from_path(
         .collect::<BTreeMap<_, _>>();
     let file_node_types = entries
         .iter()
-        .filter(|&entry| (entry.kind == WorkspaceEntryKind::File))
+        .filter(|&entry| entry.kind == WorkspaceEntryKind::File)
         .map(|entry| (entry.rel.clone(), workspace_file_node_type(&entry.path)))
         .collect::<BTreeMap<_, _>>();
     let git_authors_by_path = if options.git_file_authors {

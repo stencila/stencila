@@ -9,6 +9,7 @@ use crate::{
 ///
 /// See https://docs.openalex.org/how-to-use-the-api/get-single-entities
 #[derive(Deserialize)]
+#[allow(dead_code)]
 pub struct SingleResponse<T> {
     #[serde(flatten)]
     #[allow(dead_code)]
