@@ -62,12 +62,12 @@ async fn convert_roundtrip_simple_article_via_files() -> Result<()> {
 
     let dir = tempfile::tempdir()?;
     let json_input = dir.path().join("input.json");
-    let oxa_file = dir.path().join("intermediate.oxa");
+    let oxa_file = dir.path().join("intermediate.oxa.json");
     let json_output = dir.path().join("output.json");
 
     tokio::fs::write(&json_input, &json_str).await?;
 
-    // Convert JSON → OXA (like: stencila convert input.json intermediate.oxa)
+    // Convert JSON → OXA (like: stencila convert input.json intermediate.oxa.json)
     stencila_codecs::convert(
         Some(json_input.as_path()),
         Some(oxa_file.as_path()),
@@ -84,7 +84,7 @@ async fn convert_roundtrip_simple_article_via_files() -> Result<()> {
         "OXA output should have type 'Document'"
     );
 
-    // Convert OXA → JSON (like: stencila convert intermediate.oxa output.json)
+    // Convert OXA → JSON (like: stencila convert intermediate.oxa.json output.json)
     stencila_codecs::convert(
         Some(oxa_file.as_path()),
         Some(json_output.as_path()),
@@ -136,7 +136,7 @@ async fn convert_roundtrip_all_inline_types_via_files() -> Result<()> {
 
     let dir = tempfile::tempdir()?;
     let json_input = dir.path().join("input.json");
-    let oxa_file = dir.path().join("intermediate.oxa");
+    let oxa_file = dir.path().join("intermediate.oxa.json");
     let json_output = dir.path().join("output.json");
 
     tokio::fs::write(&json_input, &json_str).await?;

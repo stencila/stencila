@@ -529,6 +529,7 @@ impl Format {
             (".email.html", Email),
             (".jats.xml", Jats),
             (".json.zip", JsonZip),
+            (".oxa.json", Oxa),
         ] {
             if path_string.ends_with(end) {
                 return format;
@@ -799,6 +800,7 @@ mod test {
         assert_eq!(Format::from_url("file.avi"), Format::Avi);
 
         assert_eq!(Format::from_url("https://example.org/cat.mp4"), Format::Mp4);
+        assert_eq!(Format::from_url("document.oxa.json"), Format::Oxa);
 
         assert_eq!(
             Format::from_url("file.foo"),

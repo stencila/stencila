@@ -25,6 +25,17 @@ fn format_oxa_from_file_extension() {
     );
 }
 
+/// Format::Oxa can be resolved from a `.oxa.json` file extension
+#[test]
+fn format_oxa_from_double_file_extension() {
+    let format = Format::from_path(std::path::Path::new("document.oxa.json"));
+    assert_eq!(
+        format,
+        Format::Oxa,
+        "'.oxa.json' extension should resolve to Format::Oxa"
+    );
+}
+
 /// A codec supporting Format::Oxa can be found via stencila_codecs::get()
 #[test]
 fn codec_dispatch_by_format() -> Result<()> {
