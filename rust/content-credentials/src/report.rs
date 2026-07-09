@@ -272,8 +272,10 @@ pub struct ProvenanceStatus {
 #[derive(Debug, Clone, Copy, Serialize)]
 #[serde(rename_all = "kebab-case")]
 #[non_exhaustive]
+#[derive(Default)]
 pub enum ReproducibilityStatus {
     /// No reproducibility check was attempted.
+    #[default]
     NotChecked,
     /// Re-running the source produced byte-identical output.
     Exact,
@@ -288,11 +290,6 @@ pub enum ReproducibilityStatus {
     Unavailable,
 }
 
-impl Default for ReproducibilityStatus {
-    fn default() -> Self {
-        Self::NotChecked
-    }
-}
 
 impl Display for ReproducibilityStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

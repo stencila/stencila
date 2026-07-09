@@ -34,12 +34,12 @@ pub(super) fn commands(frame: &mut Frame, app: &App, input_area: Rect) {
             if i == selected {
                 Line::from(vec![
                     Span::styled(padded_name, selected_style()),
-                    Span::styled(desc.to_string(), selected_secondary_style()),
+                    Span::styled(desc, selected_secondary_style()),
                 ])
             } else {
                 Line::from(vec![
                     Span::styled(padded_name, unselected_style()),
-                    Span::styled(desc.to_string(), dim()),
+                    Span::styled(desc, dim()),
                 ])
             }
         })
@@ -473,7 +473,7 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
                     Span::styled(name_col, selected_style()),
                     Span::styled(status_col, Style::new().fg(status_color)),
                     Span::styled(time_col, selected_secondary_style()),
-                    Span::styled(desc.to_string(), selected_secondary_style()),
+                    Span::styled(desc.clone(), selected_secondary_style()),
                 ])
             } else {
                 Line::from(vec![
@@ -481,7 +481,7 @@ pub(super) fn resume(frame: &mut Frame, app: &App, input_area: Rect) {
                     Span::styled(name_col, unselected_style()),
                     Span::styled(status_col, Style::new().fg(status_color)),
                     Span::styled(time_col, dim()),
-                    Span::styled(desc.to_string(), dim()),
+                    Span::styled(desc.clone(), dim()),
                 ])
             }
         })

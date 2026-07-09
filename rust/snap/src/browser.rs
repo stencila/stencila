@@ -18,38 +18,32 @@ use crate::{
 /// Wait condition for page load events
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 #[serde(rename_all = "kebab-case")]
+#[derive(Default)]
 pub enum WaitUntil {
     /// Wait for 'load' event
     Load,
     /// Wait for 'DOMContentLoaded' event
     DomContentLoaded,
     /// Wait for network idle (default)
+    #[default]
     NetworkIdle,
 }
 
-impl Default for WaitUntil {
-    fn default() -> Self {
-        Self::NetworkIdle
-    }
-}
 
 /// Color scheme preference for rendering
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 #[serde(rename_all = "kebab-case")]
+#[derive(Default)]
 pub enum ColorScheme {
     /// Light color scheme
     Light,
     /// Dark color scheme
     Dark,
     /// System default (no override)
+    #[default]
     System,
 }
 
-impl Default for ColorScheme {
-    fn default() -> Self {
-        Self::System
-    }
-}
 
 /// Wait configuration
 #[derive(Debug, Clone, Default)]

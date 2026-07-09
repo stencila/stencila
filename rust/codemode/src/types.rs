@@ -175,20 +175,17 @@ pub struct ToolTraceEntry {
 /// The level of detail to include in discovery results.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
+#[derive(Default)]
 pub enum DetailLevel {
     /// Only `toolName` and `exportName`.
     Name,
     /// Adds `description` and `annotations`.
+    #[default]
     Description,
     /// Adds `inputSchema` and `outputSchema`.
     Full,
 }
 
-impl Default for DetailLevel {
-    fn default() -> Self {
-        Self::Description
-    }
-}
 
 /// Basic information about a connected MCP server.
 #[derive(Debug, Clone, Serialize, Deserialize)]

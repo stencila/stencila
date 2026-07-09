@@ -12,8 +12,10 @@ type CallToolHandler =
     Arc<dyn Fn(&str, serde_json::Value) -> Result<McpToolResult, McpError> + Send + Sync>;
 
 /// Controls how `MockServer::call_tool()` responds.
+#[derive(Default)]
 pub enum MockCallResponse {
     /// Echo the tool name as text (default behavior).
+    #[default]
     Echo,
     /// Return structured content with the given JSON value.
     StructuredContent(serde_json::Value),
@@ -25,11 +27,6 @@ pub enum MockCallResponse {
     Custom(CallToolHandler),
 }
 
-impl Default for MockCallResponse {
-    fn default() -> Self {
-        Self::Echo
-    }
-}
 
 /// A mock MCP server for testing.
 ///

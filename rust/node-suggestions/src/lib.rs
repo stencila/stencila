@@ -198,7 +198,7 @@ impl ResolveSuggestions for Block {
             | Block::Request(Request { content, .. })
             | Block::Section(Section { content, .. })
             | Block::StyledBlock(StyledBlock { content, .. }) => {
-                content.resolve_suggestions(action)
+                content.resolve_suggestions(action);
             }
 
             Block::Heading(Heading { content, .. })

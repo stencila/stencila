@@ -113,7 +113,7 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 impl Cli {
     pub async fn run(self) -> Result<()> {
         // Validate --watch is not used with batch pull mode
-        if self.path == PathBuf::from("-") && self.watch {
+        if self.path == std::path::Path::new("-") && self.watch {
             bail!("Cannot use --watch with batch pull mode");
         }
 
@@ -123,7 +123,7 @@ impl Cli {
         }
 
         // Check for batch pull mode (path is "-")
-        if self.path == PathBuf::from("-") {
+        if self.path == std::path::Path::new("-") {
             return self.run_batch_pull().await;
         }
 

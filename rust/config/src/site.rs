@@ -50,18 +50,15 @@ pub enum SitemapFormat {
 /// including restricted routes and the specimen page.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema)]
 #[serde(rename_all = "kebab-case")]
+#[derive(Default)]
 pub enum SitemapVisibility {
     /// Include only public routes and exclude the specimen page
+    #[default]
     PublicOnly,
     /// Include all routes, including restricted routes and the specimen page
     All,
 }
 
-impl Default for SitemapVisibility {
-    fn default() -> Self {
-        Self::PublicOnly
-    }
-}
 
 /// Logo configuration - simple string or responsive object
 ///

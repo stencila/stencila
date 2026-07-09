@@ -74,7 +74,7 @@ pub(super) fn inlines_to_lexical(
             }
             Inline::CodeInline(CodeInline { code, .. }) => formatted_to_lexical(
                 TextFormat::CODE,
-                &vec![Inline::Text(Text::new(code.clone()))],
+                &[Inline::Text(Text::new(code.clone()))],
                 context,
             ),
             _ => vec![inline_to_lexical(inline, context)],

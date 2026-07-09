@@ -153,7 +153,7 @@ impl Cli {
                 let tool = tool.clone();
                 let tool_args = tool_args.clone();
 
-                if output == PathBuf::from("-") {
+                if output == std::path::Path::new("-") {
                     stencila_codecs::to_stdout(
                         &node,
                         Some(

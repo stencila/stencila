@@ -323,13 +323,14 @@ impl Outcome {
 ///
 /// The colon-separated variants (`summary:low`, `summary:medium`, `summary:high`)
 /// use custom serde to handle the non-standard naming.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum FidelityMode {
     /// Include the full value without modification.
     Full,
     /// Truncate long values to a length limit.
     Truncate,
     /// Use a compact representation.
+    #[default]
     Compact,
     /// Low-detail summary.
     SummaryLow,
@@ -337,12 +338,6 @@ pub enum FidelityMode {
     SummaryMedium,
     /// High-detail summary.
     SummaryHigh,
-}
-
-impl Default for FidelityMode {
-    fn default() -> Self {
-        Self::Compact
-    }
 }
 
 impl fmt::Display for FidelityMode {
@@ -391,7 +386,7 @@ impl<'de> Deserialize<'de> for FidelityMode {
 }
 
 /// Controls the reasoning effort level for LLM calls.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ReasoningEffort {
     /// Minimal reasoning.
@@ -399,15 +394,10 @@ pub enum ReasoningEffort {
     /// Balanced reasoning.
     Medium,
     /// Maximum reasoning depth.
+    #[default]
     High,
     /// Extra-high reasoning depth.
     Xhigh,
-}
-
-impl Default for ReasoningEffort {
-    fn default() -> Self {
-        Self::High
-    }
 }
 
 impl ReasoningEffort {

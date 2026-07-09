@@ -45,7 +45,7 @@ pub fn detect_loop(signatures: &[String], window_size: usize) -> Option<String> 
     let window = &signatures[signatures.len() - window_size..];
 
     for pattern_len in 1..=3 {
-        if window_size % pattern_len != 0 {
+        if !window_size.is_multiple_of(pattern_len) {
             continue;
         }
 

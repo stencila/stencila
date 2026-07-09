@@ -12,13 +12,10 @@ impl MarkdownCodec for CallArgument {
             .push_prop_str(NodeProperty::Name, &self.name)
             .push_str("=");
 
-        if self.code.is_empty() && self.value.is_some() {
-            let json5 = self
-                .value
-                .as_ref()
-                .expect("should be some")
-                .to_json5()
-                .unwrap_or_default();
+        if self.code.is_empty()
+            && let Some(value) = &self.value
+        {
+            let json5 = value.to_json5().unwrap_or_default();
             context.push_prop_str(NodeProperty::Value, &json5);
         } else {
             context

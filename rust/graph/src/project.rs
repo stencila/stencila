@@ -98,22 +98,17 @@ pub enum GraphProjectionPreset {
 }
 
 /// Amount of detail to include in focused graph projections.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 pub enum GraphProjectionDetail {
     /// Show only the main resource, code, output, and environment relationships.
     Low,
 
     /// Show useful data-level detail while hiding local symbol and function internals.
+    #[default]
     Medium,
 
     /// Show all relationships selected by the preset.
     High,
-}
-
-impl Default for GraphProjectionDetail {
-    fn default() -> Self {
-        Self::Medium
-    }
 }
 
 impl GraphProjectionDetail {
@@ -189,7 +184,7 @@ pub enum GraphEdgeFamily {
     Software,
     Citation,
     Reference,
-    Discourse
+    Discourse,
 }
 
 /// Classify a graph edge kind into the user-facing question it helps answer.
@@ -359,22 +354,17 @@ pub struct GraphView {
 }
 
 /// How a connected-node filter should traverse projected graph edges.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 pub enum GraphConnectedMode {
     /// Include upstream dependencies and downstream dependents of matched nodes.
     ///
     /// Traversal does not switch direction at intermediate nodes, so shared
     /// inputs do not pull in sibling consumers.
+    #[default]
     Directed,
 
     /// Include the full undirected component containing matched nodes.
     Undirected,
-}
-
-impl Default for GraphConnectedMode {
-    fn default() -> Self {
-        Self::Directed
-    }
 }
 
 /// Filter a projected graph view to nodes connected to matched seed nodes.

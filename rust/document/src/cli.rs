@@ -75,7 +75,7 @@ pub static UNTRACK_AFTER_LONG_HELP: &str = cstr!(
 impl Untrack {
     #[tracing::instrument]
     pub async fn run(self) -> Result<()> {
-        if self.file == PathBuf::from("all") {
+        if self.file == std::path::Path::new("all") {
             Document::untrack_all(&current_dir()?).await?;
             eprintln!("🟥 Stopped tracking all tracked files");
         } else {

@@ -273,7 +273,7 @@ pub fn web(input: &mut &str) -> Result<Reference> {
     )
         .map(|(author, title, _, url, _date, _terminator)| Reference {
             work_type: Some(CreativeWorkType::WebPage),
-            id: Some(generate_id(&vec![author.clone()], &None)),
+            id: Some(generate_id(std::slice::from_ref(&author), &None)),
             authors: Some(vec![author]),
             title: Some(title),
             url,

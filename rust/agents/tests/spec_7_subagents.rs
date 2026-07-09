@@ -1459,9 +1459,9 @@ async fn parallel_spawn_three_agents() -> AgentResult<()> {
     );
 
     // First 3: spawn results (running)
-    for i in 0..3 {
-        assert!(!tool_results[0][i].is_error, "spawn {i} should succeed");
-        let content = tool_results[0][i].content.as_str().unwrap_or("");
+    for (i, result) in tool_results[0].iter().enumerate().take(3) {
+        assert!(!result.is_error, "spawn {i} should succeed");
+        let content = result.content.as_str().unwrap_or("");
         assert!(
             content.contains("running"),
             "spawn {i} should return running: {content}"
@@ -1469,13 +1469,9 @@ async fn parallel_spawn_three_agents() -> AgentResult<()> {
     }
 
     // Last 3: wait results (completed)
-    for i in 3..6 {
-        assert!(
-            !tool_results[0][i].is_error,
-            "wait {} should succeed",
-            i - 3
-        );
-        let content = tool_results[0][i].content.as_str().unwrap_or("");
+    for (i, result) in tool_results[0].iter().enumerate().take(6).skip(3) {
+        assert!(!result.is_error, "wait {} should succeed", i - 3);
+        let content = result.content.as_str().unwrap_or("");
         assert!(
             content.contains("completed"),
             "wait {} should return completed: {content}",

@@ -263,7 +263,7 @@ impl Cli {
         let arguments = self.arguments()?;
 
         let input_path = input.clone().unwrap_or_else(|| PathBuf::from("-"));
-        let input_is_stdin = input_path == PathBuf::from("-");
+        let input_is_stdin = input_path == std::path::Path::new("-");
         let input_display = if input_is_stdin {
             "stdin".to_string()
         } else {

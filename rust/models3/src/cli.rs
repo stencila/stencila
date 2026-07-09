@@ -329,13 +329,13 @@ fn context_cell(tokens: u64) -> Cell {
         clippy::cast_sign_loss
     )]
     let label = if tokens >= 1_000_000 {
-        if tokens % 1_000_000 == 0 {
+        if tokens.is_multiple_of(1_000_000) {
             format!("{}M", tokens / 1_000_000)
         } else {
             format!("{:.1}M", tokens as f64 / 1_000_000.0)
         }
     } else if tokens >= 1_000 {
-        if tokens % 1_000 == 0 {
+        if tokens.is_multiple_of(1_000) {
             format!("{}K", tokens / 1_000)
         } else {
             format!("{:.1}K", tokens as f64 / 1_000.0)

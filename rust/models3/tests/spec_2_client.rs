@@ -11,7 +11,7 @@ mod common;
 
 use std::sync::{Arc, Mutex, OnceLock};
 
-use futures::StreamExt;
+use futures::{StreamExt, TryStreamExt};
 
 use stencila_auth::{AuthOptions, AuthOverrides, StaticKey};
 use stencila_models3::api::default_client;
@@ -763,13 +763,10 @@ impl Middleware for RecordingMiddleware {
             let stream = next(request).await?;
             let log2 = log.clone();
             let name2 = name.clone();
-            let wrapped = stream.map(move |event| {
-                if let Ok(ref evt) = event
-                    && let Ok(mut guard) = log2.lock()
-                {
+            let wrapped = stream.inspect_ok(move |evt| {
+                if let Ok(mut guard) = log2.lock() {
                     guard.push(format!("{name2}:event:{:?}", evt.event_type));
                 }
-                event
             });
             if let Ok(mut guard) = log.lock() {
                 guard.push(format!("{name}:stream_opened"));
@@ -995,13 +992,10 @@ impl Middleware for StreamObservingMiddleware {
         let count = self.event_count.clone();
         Box::pin(async move {
             let stream = next(request).await?;
-            let wrapped = stream.map(move |event| {
-                if event.is_ok()
-                    && let Ok(mut c) = count.lock()
-                {
+            let wrapped = stream.inspect_ok(move |_| {
+                if let Ok(mut c) = count.lock() {
                     *c += 1;
                 }
-                event
             });
             Ok(Box::pin(wrapped) as BoxStream<'a, SdkResult<StreamEvent>>)
         })

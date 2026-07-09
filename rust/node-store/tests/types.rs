@@ -1,8 +1,6 @@
 use std::collections::HashMap;
 
 use eyre::Result;
-use serde_json::json;
-
 use pretty_assertions::assert_eq;
 
 use stencila_schema::{

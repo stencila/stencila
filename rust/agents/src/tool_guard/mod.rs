@@ -23,17 +23,12 @@ pub mod web;
 /// - `Low`: shell is default-deny; file and web rules apply strictest verdicts.
 /// - `Medium` (default): default-allow with destructive behavior blocking.
 /// - `High`: default-allow with relaxed blocking.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Default, PartialEq, Eq, Hash)]
 pub enum TrustLevel {
     Low,
+    #[default]
     Medium,
     High,
-}
-
-impl Default for TrustLevel {
-    fn default() -> Self {
-        Self::Medium
-    }
 }
 
 impl TrustLevel {

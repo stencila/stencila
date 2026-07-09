@@ -1170,7 +1170,7 @@ impl Push {
         use stencila_site::PushProgress;
 
         // Resolve the provided path
-        let is_default_path = self.path == PathBuf::from(".");
+        let is_default_path = self.path == std::path::Path::new(".");
         let mut path = if is_default_path {
             current_dir()?
         } else {

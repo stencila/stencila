@@ -1080,7 +1080,7 @@ fn interview_lines(
             }
         };
         let header_spans = vec![
-            Span::styled(gutter_text.to_string(), gutter_style),
+            Span::styled(gutter_text.clone(), gutter_style),
             Span::styled(SIDEBAR_CHAR, sidebar_style),
             Span::raw(" "),
             Span::styled(

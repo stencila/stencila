@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 use pyo3::prelude::*;
 
 mod convert;

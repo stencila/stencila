@@ -1,3 +1,5 @@
+#![recursion_limit = "256"]
+
 use std::{
     path::{Path, PathBuf},
     process::{Command, Stdio},
@@ -807,7 +809,7 @@ pub async fn convert(
 ) -> Result<String> {
     let node = match input {
         Some(input) => {
-            if input == PathBuf::from("-") {
+            if input == Path::new("-") {
                 from_stdin(decode_options).await?
             } else {
                 from_path(input, decode_options).await?
@@ -818,7 +820,7 @@ pub async fn convert(
 
     match output {
         Some(output) => {
-            if output == PathBuf::from("-") {
+            if output == Path::new("-") {
                 to_string(&node, encode_options).await
             } else {
                 to_path(&node, output, encode_options).await?;

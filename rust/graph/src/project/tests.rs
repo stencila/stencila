@@ -1175,7 +1175,7 @@ fn graph() -> Graph {
             ),
         ],
     );
-    graph.nodes[3].node = Box::new(Node::Citation(Default::default()));
+    *graph.nodes[3].node = Node::Citation(Default::default());
     graph
 }
 
