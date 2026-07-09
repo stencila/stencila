@@ -9,6 +9,7 @@ use std::{path::Path, str::FromStr, sync::LazyLock};
 use regex::Regex;
 use tl::{HTMLTag, Parser, ParserOptions, parse};
 use tokio::fs::read_to_string;
+use url::Url;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions, Losses,
@@ -70,7 +71,7 @@ pub async fn decode_arxiv_html(
         .and_then(|node| get_attr(node, "href"));
 
     // Decode article
-    let mut context = ArxivDecodeContext::new(base_href);
+    let mut context = ArxivDecodeContext::new(arxiv_id, base_href);
     let mut article = decode_article(parser, article, &mut context);
 
     // Set DOI, and other metadata
@@ -92,15 +93,17 @@ pub async fn decode_arxiv_html(
 pub struct ArxivDecodeContext {
     losses: Losses,
     pub appendix_started: bool,
-    pub base_href: Option<String>,
+    pub arxiv_id: String,
+    pub base_url: Option<Url>,
 }
 
 impl ArxivDecodeContext {
-    pub fn new(base_href: Option<String>) -> Self {
+    pub fn new(arxiv_id: &str, base_href: Option<String>) -> Self {
         Self {
             losses: Losses::none(),
             appendix_started: false,
-            base_href,
+            arxiv_id: arxiv_id.to_string(),
+            base_url: base_url(arxiv_id, base_href),
         }
     }
 
@@ -115,13 +118,23 @@ impl ArxivDecodeContext {
             return url.to_string();
         }
 
-        // Resolve relative URLs using base href from document <base> tag
-        if let Some(base_href) = &self.base_href {
-            // Clean up base path by removing leading/trailing slashes
-            let base = base_href.trim_start_matches('/').trim_end_matches('/');
-            let relative_url = url.trim_start_matches('/');
+        // Resolve relative URLs using the document <base> tag, or a fallback
+        // derived from the arXiv ID for pages that omit <base>.
+        if let Some(base_url) = &self.base_url {
+            let url = if self.arxiv_id.is_empty() {
+                url
+            } else {
+                url.strip_prefix(&format!("{}/", self.arxiv_id))
+                    .unwrap_or(url)
+            };
 
-            format!("https://export.arxiv.org/{base}/{relative_url}")
+            match base_url.join(url) {
+                Ok(url) => url.to_string(),
+                Err(error) => {
+                    tracing::warn!("Unable to resolve relative URL `{url}`: {error}");
+                    url.to_string()
+                }
+            }
         } else {
             // No base available - this might indicate a parsing issue but handle gracefully
             tracing::warn!("No base href available for resolving relative URL: {}", url);
@@ -140,6 +153,22 @@ impl ArxivDecodeContext {
 
         self.losses.add(format!("<{tag_name}{class}>",))
     }
+}
+
+fn base_url(arxiv_id: &str, base_href: Option<String>) -> Option<Url> {
+    let root = Url::parse("https://export.arxiv.org").ok()?;
+
+    if let Some(base_href) = base_href {
+        return if base_href.starts_with("http://") || base_href.starts_with("https://") {
+            Url::parse(&base_href).ok()
+        } else {
+            root.join(&base_href).ok()
+        };
+    }
+
+    (!arxiv_id.is_empty())
+        .then(|| root.join(&format!("/html/{arxiv_id}/")).ok())
+        .flatten()
 }
 
 // Helper functions for common HTML attribute extraction patterns
@@ -1045,5 +1074,48 @@ fn decode_reference(parser: &Parser, tag: &HTMLTag) -> Reference {
     Reference {
         id,
         ..text_to_reference(&reference)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn resolve_url_with_base_href() {
+        let context = ArxivDecodeContext::new("2509.15338v1", Some("/html/2509.15338v1/".into()));
+
+        assert_eq!(
+            context.resolve_url("x1.png"),
+            "https://export.arxiv.org/html/2509.15338v1/x1.png"
+        );
+    }
+
+    #[test]
+    fn resolve_url_without_base_href() {
+        let context = ArxivDecodeContext::new("2607.06732v1", None);
+
+        assert_eq!(
+            context.resolve_url("x1.png"),
+            "https://export.arxiv.org/html/2607.06732v1/x1.png"
+        );
+        assert_eq!(
+            context.resolve_url("2607.06732v1/x1.png"),
+            "https://export.arxiv.org/html/2607.06732v1/x1.png"
+        );
+    }
+
+    #[test]
+    fn resolve_url_preserves_absolute_and_data_urls() {
+        let context = ArxivDecodeContext::new("2607.06732v1", None);
+
+        assert_eq!(
+            context.resolve_url("https://example.org/x1.png"),
+            "https://example.org/x1.png"
+        );
+        assert_eq!(
+            context.resolve_url("data:image/png;base64,abc"),
+            "data:image/png;base64,abc"
+        );
     }
 }
