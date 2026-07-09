@@ -20,11 +20,22 @@ use super::decode_html::decode_arxiv_html;
 use super::decode_pdf::decode_arxiv_pdf;
 use super::decode_src::decode_arxiv_src;
 
+const MODERN_ARXIV_ID_REGEX: &str = r"[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?";
+const LEGACY_ARXIV_ID_REGEX: &str = r"(?:acc-phys|adap-org|alg-geom|ao-sci|astro-ph|atom-ph|bayes-an|chao-dyn|chem-ph|cmp-lg|comp-gas|cond-mat|cs|dg-ga|econ|eess|funct-an|gr-qc|hep-ex|hep-lat|hep-ph|hep-th|math|math-ph|mtrl-th|nlin|nucl-ex|nucl-th|patt-sol|physics|plasm-ph|q-bio|q-fin|quant-ph|solv-int|stat|supr-con)/[0-9]{7}(?:v[0-9]+)?";
+
+fn arxiv_id_regex() -> String {
+    format!("(?:{MODERN_ARXIV_ID_REGEX}|{LEGACY_ARXIV_ID_REGEX})")
+}
+
+fn arxiv_id_to_file_stem(arxiv_id: &str) -> String {
+    arxiv_id.replace('/', "_")
+}
+
 /// Extract an arXiv id from an identifier
 ///
 /// Extracts the id (e.g 2507.11254) from:
 ///
-/// - a bare arXiv id e.g. arXiv:2507.11254
+/// - a bare arXiv id e.g. arXiv:2507.11254 or arXiv:hep-th/9901001
 ///
 /// - an arXiv URL e.g. https://arxiv.org/abs/2507.11254 (abs, pdf, src, html,
 ///   format & export.arxiv.org subdomain)
@@ -36,25 +47,27 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
     let identifier = identifier.trim().to_lowercase();
 
     static ARXIV_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^/(?:(?:abs|pdf|src|html|format)/)?([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
-            .expect("invalid regex")
+        Regex::new(&format!(
+            r"^/(?:(?:abs|pdf|src|html|format)/)?({})(?:\.pdf)?$",
+            arxiv_id_regex()
+        ))
+        .expect("invalid regex")
     });
 
     static DOI_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^/10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$")
-            .expect("invalid regex")
+        Regex::new(&format!(r"^/10\.48550/arxiv\.({})$", arxiv_id_regex())).expect("invalid regex")
     });
 
     static ARXIV_ID_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^arxiv:([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
+        Regex::new(&format!(r"^arxiv:({})$", arxiv_id_regex())).expect("invalid regex")
     });
 
     static DOI_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^10\.48550/arxiv\.([0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?)$").expect("invalid regex")
+        Regex::new(&format!(r"^10\.48550/arxiv\.({})$", arxiv_id_regex())).expect("invalid regex")
     });
 
     static BARE_ID_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?$").expect("invalid regex"));
+        LazyLock::new(|| Regex::new(&format!("^{}$", arxiv_id_regex())).expect("invalid regex"));
 
     // Try to parse as URL first
     if let Ok(url) = Url::parse(&identifier) {
@@ -97,8 +110,12 @@ pub(super) fn extract_arxiv_id(identifier: &str) -> Option<String> {
 ///
 /// Strips any version suffix and adds the arXiv DOI prefix.
 pub fn arxiv_id_to_doi(arxiv_id: &str) -> String {
-    // Strip version suffix (e.g., v1, v2) from the ID
-    let id_without_version = if let Some(pos) = arxiv_id.find('v') {
+    // Strip version suffix (e.g., v1, v2) from the ID.
+    let id_without_version = if let Some(pos) = arxiv_id.rfind('v')
+        && arxiv_id[pos + 1..]
+            .chars()
+            .all(|char| char.is_ascii_digit())
+    {
         &arxiv_id[..pos]
     } else {
         arxiv_id
@@ -200,9 +217,10 @@ pub(super) async fn decode_arxiv_id(
         .and_then(|opts| opts.no_artifacts)
         .unwrap_or_default();
 
-    let html_filename = format!("{arxiv_id}.html");
-    let src_filename = format!("{arxiv_id}.tar.gz");
-    let pdf_filename = format!("{arxiv_id}.pdf");
+    let file_stem = arxiv_id_to_file_stem(arxiv_id);
+    let html_filename = format!("{file_stem}.html");
+    let src_filename = format!("{file_stem}.tar.gz");
+    let pdf_filename = format!("{file_stem}.pdf");
 
     // Create temporary directory (must be kept alive for entire function)
     let temp_dir = tempdir()?;
@@ -216,7 +234,7 @@ pub(super) async fn decode_arxiv_id(
             temp_dir.path().join(&pdf_filename),
         )
     } else {
-        let artifacts_key = format!("arxiv-{arxiv_id}");
+        let artifacts_key = format!("arxiv-{file_stem}");
         let artifacts_dir = closest_artifacts_for(&current_dir()?, &artifacts_key).await?;
         (
             artifacts_dir.join(&html_filename),
@@ -290,6 +308,10 @@ mod tests {
             Some("2507.11254".to_string())
         );
         assert_eq!(
+            extract_arxiv_id("https://arxiv.org/pdf/2507.11254.pdf"),
+            Some("2507.11254".to_string())
+        );
+        assert_eq!(
             extract_arxiv_id("https://arxiv.org/src/2507.11254"),
             Some("2507.11254".to_string())
         );
@@ -344,6 +366,20 @@ mod tests {
             extract_arxiv_id("https://export.arxiv.org/2507.11254v1"),
             Some("2507.11254v1".to_string())
         );
+
+        // Test old-style arXiv URLs
+        assert_eq!(
+            extract_arxiv_id("https://arxiv.org/abs/hep-th/9901001"),
+            Some("hep-th/9901001".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("https://arxiv.org/pdf/hep-th/9901001.pdf"),
+            Some("hep-th/9901001".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("https://export.arxiv.org/src/solv-int/9709001v2"),
+            Some("solv-int/9709001v2".to_string())
+        );
     }
 
     #[test]
@@ -356,6 +392,10 @@ mod tests {
         assert_eq!(
             extract_arxiv_id("https://doi.org/10.48550/arXiv.2507.11254v1"),
             Some("2507.11254v1".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("https://doi.org/10.48550/arXiv.hep-th/9901001"),
+            Some("hep-th/9901001".to_string())
         );
     }
 
@@ -374,6 +414,14 @@ mod tests {
             extract_arxiv_id("arXiv:2507.11254v10"),
             Some("2507.11254v10".to_string())
         );
+        assert_eq!(
+            extract_arxiv_id("arXiv:hep-th/9901001"),
+            Some("hep-th/9901001".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("arXiv:solv-int/9709001v2"),
+            Some("solv-int/9709001v2".to_string())
+        );
     }
 
     #[test]
@@ -386,6 +434,10 @@ mod tests {
         assert_eq!(
             extract_arxiv_id("10.48550/arXiv.2507.11254v1"),
             Some("2507.11254v1".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("10.48550/arXiv.hep-th/9901001"),
+            Some("hep-th/9901001".to_string())
         );
     }
 
@@ -404,6 +456,27 @@ mod tests {
         assert_eq!(
             extract_arxiv_id("1234.56789"),
             Some("1234.56789".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("hep-th/9901001"),
+            Some("hep-th/9901001".to_string())
+        );
+        assert_eq!(
+            extract_arxiv_id("solv-int/9709001v2"),
+            Some("solv-int/9709001v2".to_string())
+        );
+    }
+
+    #[test]
+    fn test_arxiv_id_to_doi() {
+        assert_eq!(arxiv_id_to_doi("2507.11254v2"), "10.48550/arxiv.2507.11254");
+        assert_eq!(
+            arxiv_id_to_doi("hep-th/9901001v3"),
+            "10.48550/arxiv.hep-th/9901001"
+        );
+        assert_eq!(
+            arxiv_id_to_doi("solv-int/9709001"),
+            "10.48550/arxiv.solv-int/9709001"
         );
     }
 
@@ -433,6 +506,9 @@ mod tests {
         assert_eq!(extract_arxiv_id("https://arxiv.org/abs/"), None); // no ID
         assert_eq!(extract_arxiv_id("https://doi.org/10.48550/"), None); // incomplete DOI
         assert_eq!(extract_arxiv_id("10.48550/arXiv."), None); // incomplete DOI
+        assert_eq!(extract_arxiv_id("not-an-archive/1234567"), None); // unknown legacy archive
+        assert_eq!(extract_arxiv_id("hep-th/990100"), None); // legacy id too short
+        assert_eq!(extract_arxiv_id("hep-th/99010012"), None); // legacy id too long
 
         assert_eq!(extract_arxiv_id("2507.112"), None); // 3 digits after dot - too short
         assert_eq!(extract_arxiv_id("2507.112540"), None); // 6 digits after dot - too long
