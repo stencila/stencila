@@ -1,5 +1,6 @@
 # Patterns ignored throughout this repo
 .DS_Store
+.codex
 .envrc
 .idea
 .parcel-cache
