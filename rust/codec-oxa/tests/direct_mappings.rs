@@ -8,7 +8,7 @@ use stencila_codec::{
     eyre::{self, OptionExt, Result},
     stencila_schema::{
         Article, Inline, Node,
-        shortcuts::{art, cb, ci, em, h, p, stg, sub, sup, t, tb},
+        shortcuts::{art, cb, ci, em, h, lnk, p, stg, sub, sup, t, tb},
     },
 };
 use stencila_codec_oxa::OxaCodec;
@@ -196,6 +196,25 @@ async fn encode_superscript() -> Result<()> {
     assert_eq!(inline["type"], "Superscript");
     assert_eq!(inline["children"][0]["type"], "Text");
     assert_eq!(inline["children"][0]["value"], "n");
+
+    Ok(())
+}
+
+/// Encode link text with a plain OXA Text.value string
+#[tokio::test]
+async fn encode_link_text_value() -> Result<()> {
+    let codec = OxaCodec;
+    let doc = art([p([lnk([t("3")], "#fig-3")])]);
+
+    let (json_str, _info) = codec.to_string(&doc, None).await?;
+    let value: Value = serde_json::from_str(&json_str)?;
+
+    let link = &value["children"][0]["children"][0];
+    assert_eq!(link["type"], "Link");
+    assert_eq!(link["children"][0]["type"], "Text");
+    assert_eq!(link["children"][0]["value"], "3");
+    assert!(link["children"][0]["value"].is_string());
+    assert_eq!(link["data"]["target"], "#fig-3");
 
     Ok(())
 }

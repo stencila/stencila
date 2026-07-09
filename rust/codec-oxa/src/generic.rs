@@ -5,12 +5,12 @@ use serde_json::{Map, Value};
 use stencila_codec::{
     Losses, NodeType,
     stencila_schema::{
-        Admonition, Block, CodeChunk, Figure, ForBlock, IfBlock, IfBlockClause, Inline, List,
-        ListItem, Node, QuoteBlock, Section, Table, TableCell, TableCellType, TableRow,
+        Admonition, Block, Claim, CodeChunk, Figure, ForBlock, IfBlock, IfBlockClause, Inline,
+        List, ListItem, Node, QuoteBlock, Section, Table, TableCell, TableCellType, TableRow,
     },
 };
 
-use crate::blocks::encode_block;
+use crate::{blocks::encode_block, inlines::encode_inline};
 
 /// Returns the child property names (camelCase) that require recursive encoding
 /// for a given Stencila node type.
@@ -128,8 +128,8 @@ pub fn encode_block_generic(block: &Block, losses: &mut Losses) -> Value {
 pub fn encode_inline_generic(inline: &Inline, losses: &mut Losses) -> Value {
     losses.add("generic");
     let raw = to_value(inline);
-    encode_generic_value(inline.node_type(), &raw, |_prop_name, raw_value| {
-        raw_value.clone()
+    encode_generic_value(inline.node_type(), &raw, |prop_name, raw_value| {
+        encode_walked_inline_property(prop_name, raw_value, inline, losses)
     })
 }
 
@@ -247,7 +247,7 @@ fn encode_walked_block_property(
     losses: &mut Losses,
 ) -> Value {
     if !raw_value.is_array() {
-        return raw_value.clone();
+        return normalize_value(raw_value);
     }
 
     let items = get_block_child_items(prop_name, block);
@@ -267,9 +267,44 @@ fn encode_walked_block_property(
         ChildItems::TableRows(rows) => {
             Value::Array(rows.iter().map(|r| encode_table_row(r, losses)).collect())
         }
-        ChildItems::Nodes(nodes) => Value::Array(nodes.iter().map(to_value).collect()),
-        ChildItems::None => raw_value.clone(),
+        ChildItems::Nodes(nodes) => Value::Array(
+            nodes
+                .iter()
+                .map(|node| normalize_value(&to_value(node)))
+                .collect(),
+        ),
+        ChildItems::None => normalize_value(raw_value),
     }
+}
+
+fn encode_walked_inline_property(
+    prop_name: &str,
+    raw_value: &Value,
+    inline: &Inline,
+    losses: &mut Losses,
+) -> Value {
+    if !raw_value.is_array() {
+        return normalize_value(raw_value);
+    }
+
+    let content = match inline {
+        Inline::Emphasis(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::Link(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::QuoteInline(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::Sentence(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::Strong(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::StyledInline(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::Subscript(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        Inline::SuggestionInline(inline) if prop_name == "content" => {
+            Some(inline.content.as_slice())
+        }
+        Inline::Superscript(inline) if prop_name == "content" => Some(inline.content.as_slice()),
+        _ => None,
+    };
+
+    content
+        .map(|content| Value::Array(content.iter().map(|i| encode_inline(i, losses)).collect()))
+        .unwrap_or_else(|| normalize_value(raw_value))
 }
 
 fn get_block_child_items<'a>(prop_name: &str, block: &'a Block) -> ChildItems<'a> {
@@ -311,6 +346,9 @@ fn get_block_child_items<'a>(prop_name: &str, block: &'a Block) -> ChildItems<'a
             ChildItems::Blocks(content)
         }
         Block::QuoteBlock(QuoteBlock { content, .. }) if prop_name == "content" => {
+            ChildItems::Blocks(content)
+        }
+        Block::Claim(Claim { content, .. }) if prop_name == "content" => {
             ChildItems::Blocks(content)
         }
         Block::Admonition(Admonition { content, .. }) if prop_name == "content" => {
