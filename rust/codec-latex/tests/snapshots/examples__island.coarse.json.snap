@@ -106,6 +106,8 @@ expression: article
     },
     {
       "type": "Island",
+      "label": "7",
+      "labelAutomatically": false,
       "content": [
         {
           "type": "RawBlock",
@@ -116,8 +118,6 @@ expression: article
         }
       ],
       "labelType": "TableLabel",
-      "label": "7",
-      "labelAutomatically": false,
       "style": "some-style"
     },
     {

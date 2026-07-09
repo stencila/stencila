@@ -4706,7 +4706,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "2.1",
       "content": [
         {
@@ -4954,11 +4953,11 @@ expression: article
           "mathLanguage": "latex",
           "mathml": "redacted"
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "2.2",
       "content": [
         {
@@ -5199,11 +5198,11 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "2.3",
       "content": [
         {
@@ -5347,7 +5346,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -5516,7 +5516,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "2.4",
       "content": [
         {
@@ -5704,7 +5703,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -5947,7 +5947,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "3.1",
       "content": [
         {
@@ -6094,11 +6093,11 @@ expression: article
           "mathLanguage": "latex",
           "mathml": "redacted"
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "3.2",
       "content": [
         {
@@ -6196,7 +6195,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -6263,7 +6263,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "3.3",
       "content": [
         {
@@ -6377,7 +6376,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -6710,7 +6710,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Proposition",
       "label": "3.4",
       "content": [
         {
@@ -6794,7 +6793,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Proposition"
     },
     {
       "type": "Paragraph",
@@ -7163,7 +7163,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Theorem",
           "label": "4.1",
           "content": [
             {
@@ -7363,7 +7362,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Theorem"
         },
         {
           "type": "Paragraph",
@@ -7397,7 +7397,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Theorem",
           "label": "4.2",
           "content": [
             {
@@ -7458,7 +7457,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Theorem"
         },
         {
           "type": "Paragraph",
@@ -8187,7 +8187,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Theorem",
           "label": "4.3",
           "content": [
             {
@@ -8424,7 +8423,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Theorem"
         },
         {
           "type": "Paragraph",
@@ -8496,7 +8496,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Theorem",
           "label": "4.4",
           "content": [
             {
@@ -8557,7 +8556,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Theorem"
         },
         {
           "type": "Paragraph",
@@ -8874,7 +8874,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Theorem",
           "label": "4.5",
           "content": [
             {
@@ -8977,7 +8976,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Theorem"
         },
         {
           "type": "Paragraph",
@@ -9719,7 +9719,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.1",
       "content": [
         {
@@ -10134,11 +10133,11 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.2",
       "content": [
         {
@@ -10264,11 +10263,11 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.3",
       "content": [
         {
@@ -10535,11 +10534,11 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.4",
       "content": [
         {
@@ -10659,7 +10658,8 @@ expression: article
             }
           ]
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -10708,7 +10708,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.5",
       "content": [
         {
@@ -10861,7 +10860,8 @@ expression: article
           "mathLanguage": "latex",
           "mathml": "redacted"
         }
-      ]
+      ],
+      "claimType": "Theorem"
     },
     {
       "type": "Paragraph",
@@ -10904,7 +10904,6 @@ expression: article
     },
     {
       "type": "Claim",
-      "claimType": "Theorem",
       "label": "A.6",
       "content": [
         {
@@ -11065,7 +11064,8 @@ expression: article
           "mathLanguage": "latex",
           "mathml": "redacted"
         }
-      ]
+      ],
+      "claimType": "Theorem"
     }
   ],
   "repository": "https://arxiv.org",

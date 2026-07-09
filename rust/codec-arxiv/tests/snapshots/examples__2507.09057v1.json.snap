@@ -5419,7 +5419,6 @@ expression: article
         },
         {
           "type": "Claim",
-          "claimType": "Proposition",
           "label": "2.1",
           "content": [
             {
@@ -5466,11 +5465,11 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Proposition"
         },
         {
           "type": "Claim",
-          "claimType": "Proposition",
           "label": "2.2",
           "content": [
             {
@@ -5545,7 +5544,8 @@ expression: article
                 }
               ]
             }
-          ]
+          ],
+          "claimType": "Proposition"
         }
       ]
     },
