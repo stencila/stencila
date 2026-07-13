@@ -7,7 +7,6 @@
 !.stencila/skills
 !.stencila/workflows
 !Cargo.*
-!package*.json
 !prompts
 !json/context.jsonld
 !node/Cargo.toml
@@ -16,5 +15,6 @@
 !python/stencila/src
 !rust
 !rust-toolchain.toml
-!ts
 !web
+web/dist/*
+!web/dist/.gitignore

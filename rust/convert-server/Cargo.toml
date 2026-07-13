@@ -1,0 +1,31 @@
+[package]
+name = "stencila-convert-server"
+version = "0.0.0"
+edition = "2024"
+license.workspace = true
+repository.workspace = true
+
+[dependencies]
+axum = { version = "0.8.8", features = ["multipart"] }
+bytes = { workspace = true }
+eyre = { workspace = true }
+mime_guess = { workspace = true }
+serde = { workspace = true }
+serde_json = { workspace = true }
+stencila-codec-arxiv = { path = "../codec-arxiv" }
+stencila-codec-openrxiv = { path = "../codec-openrxiv" }
+stencila-codec-pmc = { path = "../codec-pmc" }
+stencila-codecs = { path = "../codecs" }
+stencila-version = { path = "../version" }
+strum = { workspace = true }
+tempfile = { workspace = true }
+tokio = { workspace = true }
+tracing = { workspace = true }
+tracing-subscriber = { workspace = true }
+zip = { workspace = true }
+
+[dev-dependencies]
+tower = "0.5.3"
+
+[lints]
+workspace = true

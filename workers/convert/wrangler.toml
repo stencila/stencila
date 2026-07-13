@@ -1,0 +1,40 @@
+name = "convert"
+main = "worker.ts"
+compatibility_date = "2026-07-09"
+
+routes = [{ pattern = "convert.stencila.dev/*", zone_name = "stencila.dev" }]
+
+observability = { enabled = true }
+send_metrics = false
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+[[containers]]
+class_name = "ConvertBackend"
+image = "../../Dockerfile.convert"
+max_instances = 3
+instance_type = "standard-1"
+
+[[durable_objects.bindings]]
+class_name = "ConvertBackend"
+name = "CONVERT_BACKEND"
+
+[[durable_objects.bindings]]
+class_name = "ConvertRateLimitShard"
+name = "RATE_LIMITER"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["ConvertBackend", "ConvertRateLimiter"]
+
+[[migrations]]
+tag = "v2"
+new_sqlite_classes = ["ConvertRateLimitShard"]
+deleted_classes = ["ConvertRateLimiter"]
+
+[[secrets_store_secrets]]
+binding = "STENCILA_API_KEY_SECRET"
+store_id = "16ab751279f34243945e79ab15842bc2"
+secret_name = "CONVERT_STENCILA_API_KEY"

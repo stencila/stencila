@@ -1,0 +1,32 @@
+# syntax=docker/dockerfile:1
+
+# Build the converter backend.
+FROM rust:1.94 AS convert
+
+WORKDIR /build
+COPY . /build
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends cmake libclang-dev mold \
+  && rm -rf /var/lib/apt/lists/*
+
+ENV RUSTFLAGS="-C link-arg=-fuse-ld=mold"
+
+RUN --mount=type=cache,id=stencila-convert-cargo-registry,target=/usr/local/cargo/registry,sharing=locked \
+  --mount=type=cache,id=stencila-convert-cargo-git,target=/usr/local/cargo/git,sharing=locked \
+  --mount=type=cache,id=stencila-convert-target,target=/build/target,sharing=locked \
+  cargo build --bin stencila-convert-server --release \
+  && cp target/release/stencila-convert-server /usr/local/bin/stencila-convert-server
+
+# Use Ubuntu version compatible with the main CLI image.
+FROM ubuntu:24.04
+
+RUN apt-get update \
+  && apt-get install -y --no-install-recommends ca-certificates pandoc \
+  && rm -rf /var/lib/apt/lists/*
+
+COPY --from=convert /usr/local/bin/stencila-convert-server /usr/local/bin/stencila-convert-server
+
+EXPOSE 8080
+
+ENTRYPOINT ["stencila-convert-server"]

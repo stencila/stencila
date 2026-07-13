@@ -554,6 +554,7 @@ dependencies = [
  "matchit",
  "memchr",
  "mime",
+ "multer",
  "percent-encoding",
  "pin-project-lite",
  "serde_core",
@@ -6462,6 +6463,23 @@ dependencies = [
 ]
 
 [[package]]
+name = "multer"
+version = "3.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "83e87776546dc87511aa5ee218730c92b666d7264ab6ed41f9d215af9cd5224b"
+dependencies = [
+ "bytes",
+ "encoding_rs",
+ "futures-util",
+ "http",
+ "httparse",
+ "memchr",
+ "mime",
+ "spin 0.9.8",
+ "version_check",
+]
+
+[[package]]
 name = "naga"
 version = "26.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -10920,6 +10938,7 @@ dependencies = [
  "pretty_assertions",
  "serde",
  "serde_json",
+ "serde_yaml",
  "stencila-codec",
  "tokio",
 ]
@@ -11316,6 +11335,30 @@ dependencies = [
  "test-log",
  "tokio",
  "tracing",
+]
+
+[[package]]
+name = "stencila-convert-server"
+version = "0.0.0"
+dependencies = [
+ "axum",
+ "bytes",
+ "eyre",
+ "mime_guess",
+ "serde",
+ "serde_json",
+ "stencila-codec-arxiv",
+ "stencila-codec-openrxiv",
+ "stencila-codec-pmc",
+ "stencila-codecs",
+ "stencila-version",
+ "strum 0.28.0",
+ "tempfile",
+ "tokio",
+ "tower",
+ "tracing",
+ "tracing-subscriber",
+ "zip 8.6.0",
 ]
 
 [[package]]

@@ -3,7 +3,8 @@
   "workspaces": [
     "node",
     "ts",
-    "web"
+    "web",
+    "workers/convert"
   ],
   "scripts": {
     "audit": "better-npm-audit audit"
