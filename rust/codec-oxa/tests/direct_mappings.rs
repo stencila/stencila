@@ -4,8 +4,9 @@
 use pretty_assertions::assert_eq;
 use serde_json::Value;
 use stencila_codec::{
-    Codec,
+    Codec, EncodeOptions,
     eyre::{self, OptionExt, Result},
+    stencila_format::Format,
     stencila_schema::{
         Article, Inline, Node,
         shortcuts::{art, cb, ci, em, h, lnk, p, stg, sub, sup, t, tb},
@@ -24,25 +25,47 @@ fn codec_name() {
     assert_eq!(codec.name(), "oxa");
 }
 
-/// OxaCodec supports encoding to the OXA format
+/// OxaCodec supports encoding to the OXA JSON format
 #[test]
-fn codec_supports_to_oxa_format() {
+fn codec_supports_to_oxa_json_format() {
     let codec = OxaCodec;
-    let format = stencila_codec::stencila_format::Format::from_name("oxa");
+    let format = stencila_codec::stencila_format::Format::from_name("oxa.json");
     assert!(
         codec.supports_to_format(&format),
-        "OxaCodec should support encoding to the OXA format"
+        "OxaCodec should support encoding to the OXA JSON format"
     );
 }
 
-/// OxaCodec supports decoding from the OXA format
+/// OxaCodec supports encoding to the OXA YAML format
 #[test]
-fn codec_supports_from_oxa_format() {
+fn codec_supports_to_oxa_yaml_format() {
     let codec = OxaCodec;
-    let format = stencila_codec::stencila_format::Format::from_name("oxa");
+    let format = stencila_codec::stencila_format::Format::from_name("oxa.yaml");
+    assert!(
+        codec.supports_to_format(&format),
+        "OxaCodec should support encoding to the OXA YAML format"
+    );
+}
+
+/// OxaCodec supports decoding from the OXA JSON format
+#[test]
+fn codec_supports_from_oxa_json_format() {
+    let codec = OxaCodec;
+    let format = stencila_codec::stencila_format::Format::from_name("oxa.json");
     assert!(
         codec.supports_from_format(&format),
-        "OxaCodec should support decoding from the OXA format"
+        "OxaCodec should support decoding from the OXA JSON format"
+    );
+}
+
+/// OxaCodec supports decoding from the OXA YAML format
+#[test]
+fn codec_supports_from_oxa_yaml_format() {
+    let codec = OxaCodec;
+    let format = stencila_codec::stencila_format::Format::from_name("oxa.yaml");
+    assert!(
+        codec.supports_from_format(&format),
+        "OxaCodec should support decoding from the OXA YAML format"
     );
 }
 
@@ -77,6 +100,30 @@ async fn encode_article_with_paragraph() -> Result<()> {
     assert_eq!(value["children"][0]["type"], "Paragraph");
     assert_eq!(value["children"][0]["children"][0]["type"], "Text");
     assert_eq!(value["children"][0]["children"][0]["value"], "Hello world");
+
+    Ok(())
+}
+
+/// Encode a simple article as OXA YAML
+#[tokio::test]
+async fn encode_article_as_yaml() -> Result<()> {
+    let codec = OxaCodec;
+    let doc = art([p([t("Hello world")])]);
+
+    let (yaml_str, _info) = codec
+        .to_string(
+            &doc,
+            Some(EncodeOptions {
+                format: Some(Format::OxaYaml),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    let value: Value = serde_yaml::from_str(&yaml_str)?;
+
+    assert!(yaml_str.contains("type: Document"));
+    assert_eq!(value["type"], "Document");
+    assert_eq!(value["children"][0]["type"], "Paragraph");
 
     Ok(())
 }

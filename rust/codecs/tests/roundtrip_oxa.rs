@@ -171,6 +171,66 @@ async fn convert_roundtrip_all_inline_types_via_files() -> Result<()> {
     Ok(())
 }
 
+/// Round-trip a simple article through an `.oxa.yaml` intermediate file.
+#[tokio::test]
+async fn convert_roundtrip_simple_article_via_yaml_file() -> Result<()> {
+    let original = art([h(1, [t("Title")]), p([t("A paragraph.")])]);
+
+    let json_str = stencila_codecs::to_string(
+        &original,
+        Some(EncodeOptions {
+            format: Some(Format::Json),
+            compact: Some(false),
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let dir = tempfile::tempdir()?;
+    let json_input = dir.path().join("input.json");
+    let oxa_file = dir.path().join("intermediate.oxa.yaml");
+    let json_output = dir.path().join("output.json");
+
+    tokio::fs::write(&json_input, &json_str).await?;
+
+    stencila_codecs::convert(
+        Some(json_input.as_path()),
+        Some(oxa_file.as_path()),
+        Some(decode_options(None)),
+        None,
+    )
+    .await?;
+
+    let oxa_content = tokio::fs::read_to_string(&oxa_file).await?;
+    let oxa_value: serde_json::Value = serde_yaml::from_str(&oxa_content)?;
+    assert!(oxa_content.contains("type: Document"));
+    assert_eq!(
+        oxa_value["type"], "Document",
+        "OXA YAML output should have type 'Document'"
+    );
+
+    stencila_codecs::convert(
+        Some(oxa_file.as_path()),
+        Some(json_output.as_path()),
+        Some(decode_options(None)),
+        None,
+    )
+    .await?;
+
+    let round_tripped = stencila_codecs::from_path(
+        json_output.as_path(),
+        Some(decode_options(Some(Format::Json))),
+    )
+    .await?;
+
+    assert_eq!(
+        round_tripped, original,
+        "Article should survive JSON → OXA YAML → JSON round-trip"
+    );
+
+    Ok(())
+}
+
 // ===========================================================================
 // String-based round-trip via codecs-level dispatch (format-based)
 // ===========================================================================
@@ -192,7 +252,7 @@ async fn convert_roundtrip_via_codecs_dispatch() -> Result<()> {
     let oxa_str = stencila_codecs::to_string(
         &original,
         Some(EncodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )
@@ -202,7 +262,7 @@ async fn convert_roundtrip_via_codecs_dispatch() -> Result<()> {
     let decoded = stencila_codecs::from_str(
         &oxa_str,
         Some(DecodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )
@@ -243,7 +303,7 @@ async fn convert_roundtrip_mixed_direct_and_generic_types() -> Result<()> {
     let oxa_str = stencila_codecs::to_string(
         &original,
         Some(EncodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )
@@ -252,7 +312,7 @@ async fn convert_roundtrip_mixed_direct_and_generic_types() -> Result<()> {
     let decoded = stencila_codecs::from_str(
         &oxa_str,
         Some(DecodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )
@@ -304,7 +364,7 @@ async fn convert_encode_losses_propagated() -> Result<()> {
     let (_oxa_str, encode_info) = stencila_codecs::to_string_with_info(
         &doc,
         Some(EncodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )
@@ -349,7 +409,7 @@ async fn convert_decode_losses_propagated() -> Result<()> {
     let (_node, decode_info) = stencila_codecs::from_str_with_info(
         oxa_json,
         Some(DecodeOptions {
-            format: Some(Format::Oxa),
+            format: Some(Format::OxaJson),
             ..Default::default()
         }),
     )

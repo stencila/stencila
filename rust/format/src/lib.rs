@@ -93,7 +93,8 @@ pub enum Format {
     Lexical,
     Koenig,
     Tiptap,
-    Oxa,
+    OxaJson,
+    OxaYaml,
     Pandoc,
     // Bibliographic data formats
     Csl,
@@ -204,7 +205,8 @@ impl Format {
             Nextflow => "Nextflow",
             Ods => "OpenDocument Spreadsheet",
             Odt => "OpenDocument Text",
-            Oxa => "OXA JSON",
+            OxaJson => "OXA JSON",
+            OxaYaml => "OXA YAML",
             Ogg => "Ogg Vorbis",
             Ogv => "Ogg Vorbis Video",
             Pandoc => "Pandoc AST",
@@ -469,7 +471,8 @@ impl Format {
             "ods" => Ods,
             "odt" => Odt,
             "ogg" => Ogg,
-            "oxa" => Oxa,
+            "oxa" | "oxa.json" | "oxajson" => OxaJson,
+            "oxa.yaml" | "oxa.yml" | "oxayaml" => OxaYaml,
             "ogv" => Ogv,
             "pandoc" => Pandoc,
             "parquet" => Parquet,
@@ -529,7 +532,9 @@ impl Format {
             (".email.html", Email),
             (".jats.xml", Jats),
             (".json.zip", JsonZip),
-            (".oxa.json", Oxa),
+            (".oxa.json", OxaJson),
+            (".oxa.yaml", OxaYaml),
+            (".oxa.yml", OxaYaml),
         ] {
             if path_string.ends_with(end) {
                 return format;
@@ -567,6 +572,8 @@ impl Format {
             "application/cbor+zstd" => Ok(CborZstd),
             "application/json+zip" => Ok(JsonZip),
             "application/ld+json" => Ok(JsonLd),
+            "application/vnd.oxa+json" => Ok(OxaJson),
+            "application/vnd.oxa+yaml" => Ok(OxaYaml),
             "application/vnd.citationstyles.csl+json" => Ok(Csl),
             "application/vnd.ms-excel" => Ok(Xls),
             "application/vnd.oasis.opendocument.spreadsheet" => Ok(Ods),
@@ -623,6 +630,8 @@ impl Format {
             Json => "application/json".to_string(),
             JsonZip => "application/json+zip".to_string(),
             JsonLd => "application/ld+json".to_string(),
+            OxaJson => "application/vnd.oxa+json".to_string(),
+            OxaYaml => "application/vnd.oxa+yaml".to_string(),
             Tiptap => "application/json".to_string(),
             Yaml => "application/yaml".to_string(),
             Xlsx => "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet".to_string(),
@@ -659,6 +668,8 @@ impl Format {
         use Format::*;
         match self {
             Jats => "jats.xml".to_string(),
+            OxaJson => "oxa.json".to_string(),
+            OxaYaml => "oxa.yaml".to_string(),
             _ => self.to_string(),
         }
     }
@@ -731,7 +742,8 @@ impl Display for Format {
             Ods => "ods",
             Odt => "odt",
             Ogg => "ogg",
-            Oxa => "oxa",
+            OxaJson => "oxa",
+            OxaYaml => "oxa.yaml",
             Ogv => "ogv",
             Pandoc => "pandoc",
             Parquet => "parquet",
@@ -800,7 +812,9 @@ mod test {
         assert_eq!(Format::from_url("file.avi"), Format::Avi);
 
         assert_eq!(Format::from_url("https://example.org/cat.mp4"), Format::Mp4);
-        assert_eq!(Format::from_url("document.oxa.json"), Format::Oxa);
+        assert_eq!(Format::from_url("document.oxa.json"), Format::OxaJson);
+        assert_eq!(Format::from_url("document.oxa.yaml"), Format::OxaYaml);
+        assert_eq!(Format::from_url("document.oxa.yml"), Format::OxaYaml);
 
         assert_eq!(
             Format::from_url("file.foo"),
@@ -875,6 +889,8 @@ mod test {
             ("application/cbor+zstd", Format::CborZstd),
             ("application/json+zip", Format::JsonZip),
             ("application/ld+json", Format::JsonLd),
+            ("application/vnd.oxa+json", Format::OxaJson),
+            ("application/vnd.oxa+yaml", Format::OxaYaml),
             ("application/vnd.citationstyles.csl+json", Format::Csl),
             ("application/vnd.ms-excel", Format::Xls),
             (

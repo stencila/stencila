@@ -11,7 +11,7 @@ mod helpers;
 mod inlines;
 mod nodes;
 
-/// A codec for OXA JSON
+/// A codec for OXA JSON and OXA YAML
 pub struct OxaCodec;
 
 #[async_trait]
@@ -21,11 +21,11 @@ impl Codec for OxaCodec {
     }
 
     fn supports_from_format(&self, format: &Format) -> bool {
-        matches!(format, Format::Oxa)
+        matches!(format, Format::OxaJson | Format::OxaYaml)
     }
 
     fn supports_to_format(&self, format: &Format) -> bool {
-        matches!(format, Format::Oxa)
+        matches!(format, Format::OxaJson | Format::OxaYaml)
     }
 
     async fn from_str(
@@ -46,11 +46,12 @@ impl Codec for OxaCodec {
 }
 
 pub fn decode(content: &str, _options: Option<DecodeOptions>) -> Result<(Node, DecodeInfo)> {
-    let value: serde_json::Value = serde_json::from_str(content)?;
+    let value: serde_json::Value =
+        serde_json::from_str(content).or_else(|_| serde_yaml::from_str(content))?;
 
     let obj = value
         .as_object()
-        .ok_or_else(|| eyre::eyre!("Expected a JSON object at the root, got a non-object type"))?;
+        .ok_or_else(|| eyre::eyre!("Expected an OXA object at the root, got a non-object type"))?;
 
     let type_str = obj
         .get("type")
@@ -76,14 +77,24 @@ pub fn decode(content: &str, _options: Option<DecodeOptions>) -> Result<(Node, D
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
     let mut losses = Losses::none();
     let value = nodes::encode_document(node, &mut losses)?;
+    let options = options.unwrap_or_default();
 
-    let json = match options.and_then(|options| options.compact) {
-        Some(true) => serde_json::to_string(&value)?,
-        Some(false) | None => serde_json::to_string_pretty(&value)?,
+    let output = if matches!(options.format, Some(Format::OxaYaml))
+        || options
+            .to_path
+            .as_ref()
+            .is_some_and(|path| Format::from_path(path) == Format::OxaYaml)
+    {
+        serde_yaml::to_string(&value)?
+    } else {
+        match options.compact {
+            Some(true) => serde_json::to_string(&value)?,
+            Some(false) | None => serde_json::to_string_pretty(&value)?,
+        }
     };
 
     Ok((
-        json,
+        output,
         EncodeInfo {
             losses,
             ..EncodeInfo::none()

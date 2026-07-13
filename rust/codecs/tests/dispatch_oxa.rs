@@ -31,8 +31,19 @@ fn format_oxa_from_double_file_extension() {
     let format = Format::from_path(std::path::Path::new("document.oxa.json"));
     assert_eq!(
         format,
-        Format::Oxa,
+        Format::OxaJson,
         "'.oxa.json' extension should resolve to Format::Oxa"
+    );
+}
+
+/// Format::OxaYaml can be resolved from a `.oxa.yaml` file extension
+#[test]
+fn format_oxa_yaml_from_double_file_extension() {
+    let format = Format::from_path(std::path::Path::new("document.oxa.yaml"));
+    assert_eq!(
+        format,
+        Format::OxaYaml,
+        "'.oxa.yaml' extension should resolve to Format::OxaYaml"
     );
 }
 
@@ -46,6 +57,21 @@ fn codec_dispatch_by_format() -> Result<()> {
         codec.name(),
         "oxa",
         "Codec dispatched for Format::Oxa should be named 'oxa'"
+    );
+
+    Ok(())
+}
+
+/// A codec supporting Format::OxaYaml can be found via stencila_codecs::get()
+#[test]
+fn codec_dispatch_by_yaml_format() -> Result<()> {
+    let format = Format::from_name("oxa.yaml");
+    let codec = stencila_codecs::get(None, Some(&format), None)?;
+
+    assert_eq!(
+        codec.name(),
+        "oxa",
+        "Codec dispatched for Format::OxaYaml should be named 'oxa'"
     );
 
     Ok(())
