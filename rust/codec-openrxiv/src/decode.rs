@@ -19,14 +19,14 @@ use stencila_version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
 const MEDRXIV: &str = "medrxiv.org";
-const DOI_PREFIX: &str = "10.1101";
+const DOI_PREFIX_PATTERN: &str = r"10\.(?:1101|64898)";
 
 /// Extract an openRxiv id from an identifier
 ///
 /// Extracts the id (e.g 2025.07.15.664907v1) from:
 ///
-/// - a bioRxiv or medRxiv URL e.g. https://www.biorxiv.org/content/10.1101/2025.07.15.664907v1
-///   (including suffixes such as `.full.pdf`)
+/// - a bioRxiv or medRxiv URL e.g. https://www.biorxiv.org/content/10.64898/2026.07.07.736512v1
+///   (including the legacy `10.1101` DOI prefix and suffixes such as `.full.pdf`)
 ///
 /// - an openRxiv DOI URL e.g. https://doi.org/10.1101/2025.07.15.664907
 ///
@@ -35,19 +35,24 @@ const DOI_PREFIX: &str = "10.1101";
 /// Note that early openRxiv ids did not have a date at the start of the suffix
 /// e.g. 809020
 ///
-/// Returns the id, and, if possible, the server (biorxiv.org or medrxiv.org).
-pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, Option<String>)> {
+/// Returns the DOI prefix, id, and, if possible, the server (biorxiv.org or medrxiv.org).
+pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, String, Option<String>)> {
     let identifier = identifier.trim().to_lowercase();
 
     static OPENRXIV_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
-        Regex::new(r"^/content/10\.1101/(.*?)(?:\.full\.pdf)?$").expect("invalid regex")
+        Regex::new(&format!(
+            r"^/content/({DOI_PREFIX_PATTERN})/(.*?)(?:\.full\.pdf)?$"
+        ))
+        .expect("invalid regex")
     });
 
-    static DOI_URL_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^/10\.1101/(.*)$").expect("invalid regex"));
+    static DOI_URL_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(&format!(r"^/({DOI_PREFIX_PATTERN})/(.*)$")).expect("invalid regex")
+    });
 
-    static DOI_REGEX: LazyLock<Regex> =
-        LazyLock::new(|| Regex::new(r"^10\.1101/(.*)$").expect("invalid regex"));
+    static DOI_REGEX: LazyLock<Regex> = LazyLock::new(|| {
+        Regex::new(&format!(r"^({DOI_PREFIX_PATTERN})/(.*)$")).expect("invalid regex")
+    });
 
     // Try to parse as URL first
     if let Ok(url) = Url::parse(&identifier) {
@@ -57,6 +62,7 @@ pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, Option<St
                 if let Some(captures) = OPENRXIV_URL_REGEX.captures(path) {
                     return Some((
                         captures.get(1)?.as_str().to_string(),
+                        captures.get(2)?.as_str().to_string(),
                         url.host_str()
                             .map(|host| host.trim_start_matches("www.").to_string()),
                     ));
@@ -65,7 +71,11 @@ pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, Option<St
             Some("doi.org") | Some("dx.doi.org") => {
                 let path = url.path();
                 if let Some(captures) = DOI_URL_REGEX.captures(path) {
-                    return Some((captures.get(1)?.as_str().to_string(), None));
+                    return Some((
+                        captures.get(1)?.as_str().to_string(),
+                        captures.get(2)?.as_str().to_string(),
+                        None,
+                    ));
                 }
             }
             _ => {}
@@ -74,16 +84,20 @@ pub(super) fn extract_openrxiv_id(identifier: &str) -> Option<(String, Option<St
 
     // Try to match DOI
     if let Some(captures) = DOI_REGEX.captures(&identifier) {
-        return Some((captures.get(1)?.as_str().to_string(), None));
+        return Some((
+            captures.get(1)?.as_str().to_string(),
+            captures.get(2)?.as_str().to_string(),
+            None,
+        ));
     }
 
     None
 }
 
-/// Convert an openRxiv id to a DOI
+/// Convert an openRxiv DOI prefix and id to a DOI
 ///
 /// Strips any version suffix and adds the openRxiv DOI prefix.
-pub fn openrxiv_id_to_doi(openrxiv_id: &str) -> String {
+pub fn openrxiv_id_to_doi(doi_prefix: &str, openrxiv_id: &str) -> String {
     // Strip version suffix (e.g., v1, v2) from the ID
     let id_without_version = if let Some(pos) = openrxiv_id.find('v') {
         &openrxiv_id[..pos]
@@ -91,7 +105,7 @@ pub fn openrxiv_id_to_doi(openrxiv_id: &str) -> String {
         openrxiv_id
     };
 
-    [DOI_PREFIX, "/", id_without_version].concat()
+    [doi_prefix, "/", id_without_version].concat()
 }
 
 /// Decode an openRxiv id to a Stencila [`Node`]
@@ -110,6 +124,7 @@ pub fn openrxiv_id_to_doi(openrxiv_id: &str) -> String {
 /// MECA, which falls back to a PDF response if a MECA is not available yet.
 #[tracing::instrument(skip(options))]
 pub(super) async fn decode_openrxiv_id(
+    doi_prefix: &str,
     openrxiv_id: &str,
     server: Option<&str>,
     options: Option<DecodeOptions>,
@@ -129,17 +144,23 @@ pub(super) async fn decode_openrxiv_id(
         ),
         (
             Format::Pdf,
-            format!("https://www.{first}/content/{DOI_PREFIX}/{openrxiv_id}.full.pdf"),
+            format!("https://www.{first}/content/{doi_prefix}/{openrxiv_id}.full.pdf"),
         ),
         (
             Format::Pdf,
-            format!("https://www.{second}/content/{DOI_PREFIX}/{openrxiv_id}.full.pdf"),
+            format!("https://www.{second}/content/{doi_prefix}/{openrxiv_id}.full.pdf"),
         ),
     ] {
         tracing::debug!("Trying `{format}` format: {url}");
 
         let client = if url.contains("stencila.cloud") {
-            stencila_cloud::client().await?
+            match stencila_cloud::client().await {
+                Ok(client) => client,
+                Err(error) => {
+                    tracing::debug!("Unable to use Stencila Cloud for `{openrxiv_id}`: {error}");
+                    continue;
+                }
+            }
         } else {
             Client::builder().user_agent(STENCILA_USER_AGENT).build()?
         };
@@ -147,7 +168,9 @@ pub(super) async fn decode_openrxiv_id(
         match client.get(&url).send().await {
             Ok(response) if response.status().is_success() => {
                 tracing::debug!("Successfully fetched `{format}` for `{openrxiv_id}`",);
-                match decode_preprint(openrxiv_id, server, response, options.clone()).await {
+                match decode_preprint(doi_prefix, openrxiv_id, server, response, options.clone())
+                    .await
+                {
                     Ok((node, info)) => return Ok((node, info, format)),
                     Err(error) => {
                         tracing::warn!("Failed to decode `{format}`: {error}");
@@ -164,13 +187,14 @@ pub(super) async fn decode_openrxiv_id(
     }
 
     bail!(
-        "Failed to decode openRxiv `{openrxiv_id}`, no format was available or successfully decoded",
+        "Failed to decode openRxiv `{openrxiv_id}`: no compatible format was available and successfully converted for this preprint.",
     )
 }
 
 /// Decode a preprint to a Stencila [`Node`]
 #[tracing::instrument(skip(options, response))]
 pub(super) async fn decode_preprint(
+    doi_prefix: &str,
     openrxiv_id: &str,
     server: Option<&str>,
     response: Response,
@@ -235,7 +259,7 @@ pub(super) async fn decode_preprint(
 
     // Set DOI, and other metadata
     if let Node::Article(article) = &mut node {
-        let doi = openrxiv_id_to_doi(openrxiv_id);
+        let doi = openrxiv_id_to_doi(doi_prefix, openrxiv_id);
         article.doi = Some(doi.clone());
         if let Some(server) = server {
             article.options.repository = Some(format!("https://{server}"));
@@ -255,48 +279,79 @@ mod tests {
         // Test bioRxiv URLs
         assert_eq!(
             extract_openrxiv_id("https://www.biorxiv.org/content/10.1101/2025.07.15.664907v1"),
-            Some(("2025.07.15.664907v1".into(), Some(BIORXIV.into())))
+            Some((
+                "10.1101".into(),
+                "2025.07.15.664907v1".into(),
+                Some(BIORXIV.into())
+            ))
         );
 
         assert_eq!(
             extract_openrxiv_id(
                 "https://www.biorxiv.org/content/10.1101/2025.07.15.664907v1.full.pdf"
             ),
-            Some(("2025.07.15.664907v1".into(), Some(BIORXIV.into())))
+            Some((
+                "10.1101".into(),
+                "2025.07.15.664907v1".into(),
+                Some(BIORXIV.into())
+            ))
+        );
+
+        assert_eq!(
+            extract_openrxiv_id("https://www.biorxiv.org/content/10.64898/2026.07.07.736512v1"),
+            Some((
+                "10.64898".into(),
+                "2026.07.07.736512v1".into(),
+                Some(BIORXIV.into())
+            ))
         );
 
         // Test medRxiv URLs
         assert_eq!(
             extract_openrxiv_id("https://www.medrxiv.org/content/10.1101/2024.12.01.24318123v2"),
-            Some(("2024.12.01.24318123v2".into(), Some(MEDRXIV.into())))
+            Some((
+                "10.1101".into(),
+                "2024.12.01.24318123v2".into(),
+                Some(MEDRXIV.into())
+            ))
         );
 
         // Test early format (numeric only)
         assert_eq!(
             extract_openrxiv_id("https://www.biorxiv.org/content/10.1101/809020"),
-            Some(("809020".into(), Some(BIORXIV.into())))
+            Some(("10.1101".into(), "809020".into(), Some(BIORXIV.into())))
         );
 
         // Test DOI URLs
         assert_eq!(
             extract_openrxiv_id("https://doi.org/10.1101/2025.07.15.664907"),
-            Some(("2025.07.15.664907".into(), None))
+            Some(("10.1101".into(), "2025.07.15.664907".into(), None))
         );
 
         assert_eq!(
             extract_openrxiv_id("https://doi.org/10.1101/809020v1"),
-            Some(("809020v1".into(), None))
+            Some(("10.1101".into(), "809020v1".into(), None))
+        );
+
+        assert_eq!(
+            extract_openrxiv_id("https://doi.org/10.64898/2026.07.07.736512"),
+            Some(("10.64898".into(), "2026.07.07.736512".into(), None))
         );
 
         // Test plain DOIs
         assert_eq!(
             extract_openrxiv_id("10.1101/2025.07.15.664907"),
-            Some(("2025.07.15.664907".into(), None))
+            Some(("10.1101".into(), "2025.07.15.664907".into(), None))
         );
 
         assert_eq!(
             extract_openrxiv_id("10.1101/809020"),
-            Some(("809020".into(), None))
+            Some(("10.1101".into(), "809020".into(), None))
+        );
+
+        assert_eq!(
+            extract_openrxiv_id("10.64898/2026.07.07.736512"),
+            Some(("10.64898".into(), "2026.07.07.736512".into(), None))
         );
 
         // Test invalid inputs
@@ -312,7 +367,11 @@ mod tests {
         // Test case insensitivity
         assert_eq!(
             extract_openrxiv_id("HTTPS://WWW.BIORXIV.ORG/CONTENT/10.1101/2025.07.15.664907V1"),
-            Some(("2025.07.15.664907v1".into(), Some(BIORXIV.into())))
+            Some((
+                "10.1101".into(),
+                "2025.07.15.664907v1".into(),
+                Some(BIORXIV.into())
+            ))
         );
     }
 
@@ -320,19 +379,24 @@ mod tests {
     fn test_openrxiv_id_to_doi() {
         // Test with version suffix
         assert_eq!(
-            openrxiv_id_to_doi("2025.07.15.664907v1"),
+            openrxiv_id_to_doi("10.1101", "2025.07.15.664907v1"),
             "10.1101/2025.07.15.664907"
         );
 
         // Test without version suffix
         assert_eq!(
-            openrxiv_id_to_doi("2025.07.15.664907"),
+            openrxiv_id_to_doi("10.1101", "2025.07.15.664907"),
             "10.1101/2025.07.15.664907"
         );
 
-        // Test early format
-        assert_eq!(openrxiv_id_to_doi("809020"), "10.1101/809020");
+        assert_eq!(
+            openrxiv_id_to_doi("10.64898", "2026.07.07.736512v1"),
+            "10.64898/2026.07.07.736512"
+        );
 
-        assert_eq!(openrxiv_id_to_doi("809020v2"), "10.1101/809020");
+        // Test early format
+        assert_eq!(openrxiv_id_to_doi("10.1101", "809020"), "10.1101/809020");
+
+        assert_eq!(openrxiv_id_to_doi("10.1101", "809020v2"), "10.1101/809020");
     }
 }

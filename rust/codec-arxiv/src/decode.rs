@@ -289,7 +289,7 @@ pub(super) async fn decode_arxiv_id(
         }
     }
 
-    bail!("Failed to decode arXiv `{arxiv_id}`, no format was available or successfully decoded")
+    bail!("Failed to decode arXiv `{arxiv_id}`: no compatible format was available and successfully converted for this preprint.")
 }
 
 #[cfg(test)]

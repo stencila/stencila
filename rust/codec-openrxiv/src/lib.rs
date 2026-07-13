@@ -42,12 +42,14 @@ impl OpenRxivCodec {
         identifier: &str,
         options: Option<DecodeOptions>,
     ) -> Result<(Node, DecodeInfo, StructuringOptions)> {
-        let Some((openrxiv_id, server)) = decode::extract_openrxiv_id(identifier) else {
-            bail!("Not a recognized arXiv id")
+        let Some((doi_prefix, openrxiv_id, server)) = decode::extract_openrxiv_id(identifier)
+        else {
+            bail!("Not a recognized openRxiv id")
         };
 
         let (node, info, format) =
-            decode::decode_openrxiv_id(&openrxiv_id, server.as_deref(), options).await?;
+            decode::decode_openrxiv_id(&doi_prefix, &openrxiv_id, server.as_deref(), options)
+                .await?;
         let structuring_options = Self.structuring_options(&format);
 
         Ok((node, info, structuring_options))
