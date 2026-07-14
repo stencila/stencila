@@ -4,6 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Stencila Convert</title>
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        document.documentElement.classList.toggle(
+          "embedded",
+          params.get("embed") === "1",
+        );
+      })();
+    </script>
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/prismjs@1.30.0/themes/prism-solarizedlight.min.css"
@@ -43,7 +52,13 @@
     <main class="app-shell">
       <header class="topbar">
         <div class="brand">
-          <img class="brand-logo" src="/stencila.png" alt="Stencila" />
+          <a
+            class="brand-link"
+            href="https://stencila.io"
+            aria-label="Visit Stencila"
+          >
+            <img class="brand-logo" src="/stencila.png" alt="Stencila" />
+          </a>
           <span class="product-name">Convert</span>
         </div>
         <div class="topbar-actions">
@@ -67,102 +82,107 @@
 
       <section class="workspace">
         <form id="convert-form" class="panel input-panel">
-          <div class="source-tabs" role="tablist" aria-label="Input source">
-            <button type="button" class="tab active" data-source="file">
-              File
+          <div class="panel-head input-head">
+            <p class="eyebrow">Input</p>
+            <div class="source-tabs" role="tablist" aria-label="Input source">
+              <button type="button" class="tab active" data-source="file">
+                File
+              </button>
+              <button type="button" class="tab" data-source="url">URL</button>
+            </div>
+          </div>
+
+          <div class="input-body">
+            <label id="drop-zone" class="drop-zone">
+              <input id="file-input" name="file" type="file" />
+              <span class="drop-title" id="drop-title">Select file</span>
+              <span class="drop-meta" id="drop-meta">25 MiB maximum</span>
+            </label>
+
+            <label class="field hidden" id="url-field">
+              <span>Repository URL</span>
+              <input
+                id="url-input"
+                type="text"
+                inputmode="url"
+                placeholder="arXiv, bioRxiv, medRxiv, or PMC URL"
+              />
+            </label>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>From</span>
+                <select id="from-select">
+                  <option value="">Auto</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>To</span>
+                <select id="to-select" required></select>
+              </label>
+            </div>
+
+            <div class="toggles">
+              <label
+                title="Minimize whitespace in formats that support compact output"
+              >
+                <input id="compact" type="checkbox" />
+                <span>Compact</span>
+              </label>
+              <label
+                title="Embed images and other media when the format supports it"
+              >
+                <input id="embed-media" type="checkbox" />
+                <span>Embed media</span>
+              </label>
+            </div>
+
+            <button class="primary" id="convert-button" type="submit">
+              Convert
             </button>
-            <button type="button" class="tab" data-source="url">
-              ID / URL
-            </button>
+
+            <footer class="embed-attribution">
+              <span>Powered by</span>
+              <a
+                href="https://convert.stencila.dev"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Powered by Stencila Convert"
+              >
+                <img src="/stencila.png" alt="Stencila" />
+              </a>
+            </footer>
           </div>
-
-          <label id="drop-zone" class="drop-zone">
-            <input id="file-input" name="file" type="file" />
-            <span class="drop-title" id="drop-title">Select file</span>
-            <span class="drop-meta" id="drop-meta">25 MiB maximum</span>
-          </label>
-
-          <label class="field hidden" id="url-field">
-            <span>Repository identifier or URL</span>
-            <input
-              id="url-input"
-              type="text"
-              inputmode="url"
-              placeholder="arXiv, bioRxiv, medRxiv, or PMC"
-            />
-          </label>
-
-          <div class="field-grid">
-            <label class="field">
-              <span>From</span>
-              <select id="from-select">
-                <option value="">Auto</option>
-              </select>
-            </label>
-
-            <label class="field">
-              <span>To</span>
-              <select id="to-select" required></select>
-            </label>
-          </div>
-
-          <div class="segmented" aria-label="Response mode">
-            <label>
-              <input type="radio" name="mode" value="inline" checked />
-              <span>Preview</span>
-            </label>
-            <label>
-              <input type="radio" name="mode" value="download" />
-              <span>Download</span>
-            </label>
-          </div>
-
-          <div class="toggles">
-            <label
-              title="Minimize whitespace in formats that support compact output"
-            >
-              <input id="compact" type="checkbox" />
-              <span>Compact</span>
-            </label>
-            <label
-              title="Create a complete standalone document rather than a fragment"
-            >
-              <input id="standalone" type="checkbox" />
-              <span>Standalone</span>
-            </label>
-            <label
-              title="Embed images and other media when the format supports it"
-            >
-              <input id="embed-media" type="checkbox" />
-              <span>Embed media</span>
-            </label>
-          </div>
-
-          <button class="primary" id="convert-button" type="submit">
-            Convert
-          </button>
         </form>
 
         <section class="panel result-panel">
-          <div class="result-head">
+          <div class="panel-head result-head">
             <div>
               <div class="output-label">
                 <p class="eyebrow">Output</p>
-                <span
-                  class="status"
-                  id="status"
-                  role="status"
-                  aria-live="polite"
-                  aria-label="Status: Ready"
-                  title="Status: Ready"
-                >
-                  <span class="status-dot" aria-hidden="true"></span>
-                  <span class="visually-hidden" id="status-text">Ready</span>
-                </span>
               </div>
               <h2 class="output-name" id="output-name" aria-live="polite"></h2>
             </div>
             <div class="actions">
+              <div class="output-tabs" role="tablist" aria-label="Output view">
+                <button
+                  type="button"
+                  class="tab active"
+                  data-output-tab="source"
+                >
+                  Source
+                </button>
+                <button
+                  type="button"
+                  class="tab"
+                  id="tree-tab"
+                  data-output-tab="tree"
+                  disabled
+                >
+                  Tree
+                </button>
+              </div>
               <span class="action-tooltip" title="Copy output">
                 <button
                   class="icon-button"
@@ -196,20 +216,6 @@
               </span>
             </div>
           </div>
-          <div class="output-tabs" role="tablist" aria-label="Output view">
-            <button type="button" class="tab active" data-output-tab="source">
-              Source
-            </button>
-            <button
-              type="button"
-              class="tab"
-              id="tree-tab"
-              data-output-tab="tree"
-              disabled
-            >
-              Tree
-            </button>
-          </div>
           <pre
             id="preview"
             class="preview output-pane"
@@ -220,6 +226,39 @@
             class="tree-view output-pane hidden"
             data-output-pane="tree"
           ></div>
+          <div
+            id="output-status"
+            class="output-status hidden"
+            role="status"
+            aria-live="polite"
+          >
+            <span class="output-spinner" aria-hidden="true"></span>
+            <svg
+              class="output-error-icon"
+              viewBox="0 0 24 24"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 7v6" />
+              <path d="M12 17h.01" />
+            </svg>
+            <div class="output-download-prompt">
+              <button
+                class="icon-button"
+                type="button"
+                id="output-download-button"
+                aria-label="Download output"
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                  <path d="m7 10 5 5 5-5" />
+                  <path d="M12 15V3" />
+                </svg>
+              </button>
+              <span>Download</span>
+            </div>
+            <span id="output-status-text"></span>
+          </div>
         </section>
 
         <section class="panel faq-panel" aria-labelledby="faq-title">
@@ -259,7 +298,7 @@
             <summary>Are files kept after conversion?</summary>
             <p>
               Files are kept only for the duration of a request. Uploads and
-              download-mode outputs use request-local temporary directories, and
+              file-based outputs use request-local temporary directories, and
               inline text outputs are returned from memory.
             </p>
           </details>

@@ -1,7 +1,9 @@
 # syntax=docker/dockerfile:1
 
+ARG CONVERT_SERVER_PROFILE=release
+
 # Build the converter backend.
-FROM rust:1.94 AS convert
+FROM rust:1.94 AS release
 
 WORKDIR /build
 COPY . /build
@@ -18,6 +20,17 @@ RUN --mount=type=cache,id=stencila-convert-cargo-registry,target=/usr/local/carg
   cargo build --bin stencila-convert-server --release \
   && cp target/release/stencila-convert-server /usr/local/bin/stencila-convert-server
 
+# Reuse a locally compiled binary for faster development deployments. Build it
+# first with `cargo build --bin stencila-convert-server`, then set
+# `CONVERT_SERVER_PROFILE` to `debug` in the convert worker's Wrangler config.
+FROM rust:1.94 AS debug
+
+COPY target/debug/stencila-convert-server /usr/local/bin/stencila-convert-server
+RUN strip /usr/local/bin/stencila-convert-server
+
+# Select the release builder by default, or the local debug binary when asked.
+FROM ${CONVERT_SERVER_PROFILE} AS convert-server
+
 # Use Ubuntu version compatible with the main CLI image.
 FROM ubuntu:24.04
 
@@ -25,7 +38,9 @@ RUN apt-get update \
   && apt-get install -y --no-install-recommends ca-certificates pandoc \
   && rm -rf /var/lib/apt/lists/*
 
-COPY --from=convert /usr/local/bin/stencila-convert-server /usr/local/bin/stencila-convert-server
+ENV SSL_CERT_FILE=/etc/ssl/certs/ca-certificates.crt
+
+COPY --from=convert-server /usr/local/bin/stencila-convert-server /usr/local/bin/stencila-convert-server
 
 EXPOSE 8080
 

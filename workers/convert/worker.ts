@@ -10,6 +10,11 @@ const MAX_UPLOAD_BYTES = 25 * 1024 * 1024;
 const MAX_REQUEST_BYTES = MAX_UPLOAD_BYTES + 1024 * 1024;
 const MINUTE_LIMIT = 5;
 const DAY_LIMIT = 50;
+const BACKEND_ROUTES = new Set([
+  "GET /api/formats",
+  "GET /api/health",
+  "POST /api/convert",
+]);
 
 export interface Env {
   ASSETS: Fetcher;
@@ -34,6 +39,16 @@ export class ConvertBackend extends Container {
   defaultPort = 8080;
   sleepAfter = "10m";
   enableInternet = false;
+  interceptHttps = true;
+  entrypoint = [
+    "sh",
+    "-lc",
+    [
+      "cp /etc/cloudflare/certs/cloudflare-containers-ca.crt /usr/local/share/ca-certificates/cloudflare-containers-ca.crt",
+      "update-ca-certificates",
+      "exec stencila-convert-server",
+    ].join(" && "),
+  ];
   allowedHosts = [
     "export.arxiv.org",
     "arxiv.org",
@@ -162,8 +177,21 @@ export async function handleRequest(
   selectBackend: SelectBackend = defaultSelectBackend,
 ): Promise<Response> {
   const url = new URL(request.url);
+  const isApiPath = url.pathname === "/api" || url.pathname.startsWith("/api/");
 
-  if (url.pathname.startsWith("/api/")) {
+  if (isApiPath) {
+    if (!BACKEND_ROUTES.has(`${request.method} ${url.pathname}`)) {
+      return json(
+        {
+          error: {
+            code: "not_found",
+            message: "The requested API endpoint was not found",
+          },
+        },
+        404,
+      );
+    }
+
     if (request.method === "POST" && url.pathname === "/api/convert") {
       const bodyLimit = checkContentLength(request);
       if (bodyLimit) {

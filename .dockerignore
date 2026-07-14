@@ -15,6 +15,13 @@
 !python/stencila/src
 !rust
 !rust-toolchain.toml
+# Allow development converter images to reuse only the locally built server
+# binary without adding the rest of the Rust target directory to the context.
+!target
+target/*
+!target/debug
+target/debug/*
+!target/debug/stencila-convert-server
 !web
 web/dist/*
 !web/dist/.gitignore

@@ -18,8 +18,8 @@ const JSON_FORMATS = new Set([
 const YAML_FORMATS = new Set(["oxa.yaml", "yaml"]);
 
 const form = document.querySelector("#convert-form");
-const statusEl = document.querySelector("#status");
-const statusTextEl = document.querySelector("#status-text");
+const outputStatus = document.querySelector("#output-status");
+const outputStatusText = document.querySelector("#output-status-text");
 const dropZone = document.querySelector("#drop-zone");
 const dropTitle = document.querySelector("#drop-title");
 const dropMeta = document.querySelector("#drop-meta");
@@ -30,6 +30,7 @@ const fromSelect = document.querySelector("#from-select");
 const toSelect = document.querySelector("#to-select");
 const copyButton = document.querySelector("#copy-button");
 const downloadButton = document.querySelector("#download-button");
+const outputDownloadButton = document.querySelector("#output-download-button");
 const previewCode = document.querySelector("#preview-code");
 const treeView = document.querySelector("#tree-view");
 const treeTab = document.querySelector("#tree-tab");
@@ -107,7 +108,10 @@ copyButton.addEventListener("click", async () => {
   setStatus("Copied");
 });
 
-downloadButton.addEventListener("click", () => {
+downloadButton.addEventListener("click", downloadOutput);
+outputDownloadButton.addEventListener("click", downloadOutput);
+
+function downloadOutput() {
   if (!currentBlob) {
     return;
   }
@@ -116,7 +120,7 @@ downloadButton.addEventListener("click", () => {
   link.download = currentFilename;
   link.click();
   URL.revokeObjectURL(link.href);
-});
+}
 
 async function loadFormats() {
   try {
@@ -192,11 +196,8 @@ async function convert() {
     if (fromSelect.value) {
       body.append("from", fromSelect.value);
     }
-    body.append("mode", form.elements.mode.value);
-
     for (const [id, field] of [
       ["compact", "compact"],
-      ["standalone", "standalone"],
       ["embed-media", "embedMedia"],
     ]) {
       if (document.getElementById(id).checked) {
@@ -224,16 +225,19 @@ async function convert() {
     currentText = output.text;
 
     outputName.textContent = currentFilename;
-    renderSource(output.text || "Download ready", output.language);
+    renderSource(output.text, output.language);
     renderTree(output.tree);
     copyButton.disabled = !currentText;
     downloadButton.disabled = false;
-    setStatus("Complete");
+    if (output.previewable) {
+      setStatus("Complete");
+    } else {
+      showDownloadPrompt();
+    }
   } catch (error) {
     const message = error.message || "Conversion failed";
     outputName.textContent = "";
     setStatus(message, true);
-    renderSource(message, "language-none");
     renderTree(undefined);
   } finally {
     setBusy(false);
@@ -253,6 +257,7 @@ async function outputPreview(blob, headers, format) {
       text: "",
       language: "language-none",
       tree: undefined,
+      previewable: false,
     };
   }
 
@@ -262,6 +267,7 @@ async function outputPreview(blob, headers, format) {
     text: rawText,
     language: prismLanguage(format, contentType),
     tree: parseStructuredOutput(rawText, format, contentType),
+    previewable: true,
   };
 }
 
@@ -369,6 +375,7 @@ function renderTree(value) {
 
   treeTab.disabled = false;
   treeView.append(treeNode("root", value));
+  setActiveOutputTab("tree");
 }
 
 function treeNode(label, value) {
@@ -476,16 +483,16 @@ function setBusy(busy) {
 }
 
 function setStatus(message, isError = false) {
-  const label = `Status: ${message}`;
-  statusTextEl.textContent = message;
-  statusEl.setAttribute("aria-label", label);
-  statusEl.title = label;
-  statusEl.dataset.state = isError
-    ? "error"
-    : message === "Converting"
-      ? "busy"
-      : "ready";
-  statusEl.classList.toggle("error", isError);
+  const state = isError ? "error" : message === "Converting" ? "busy" : "ready";
+  outputStatus.dataset.state = state;
+  outputStatusText.textContent = isError ? message : "";
+  outputStatus.classList.toggle("hidden", state === "ready");
+}
+
+function showDownloadPrompt() {
+  outputStatus.dataset.state = "download";
+  outputStatusText.textContent = "";
+  outputStatus.classList.remove("hidden");
 }
 
 function formatSize(size) {

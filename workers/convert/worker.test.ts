@@ -146,6 +146,35 @@ describe("handleRequest", () => {
     expect(await response.text()).toBe("proxied");
   });
 
+  it.each([
+    ["GET", "/api"],
+    ["GET", "/api/unknown"],
+    ["POST", "/api/health"],
+    ["GET", "/api/convert"],
+  ])(
+    "returns api 404 for %s %s without selecting a backend",
+    async (method, path) => {
+      const selectBackend = vi.fn(async () => ({
+        fetch: async () => new Response("should not proxy"),
+      }));
+
+      const response = await handleRequest(
+        new Request(`https://convert.stencila.dev${path}`, { method }),
+        fakeEnv({}),
+        selectBackend,
+      );
+
+      expect(response.status).toBe(404);
+      expect(await response.json()).toEqual({
+        error: {
+          code: "not_found",
+          message: "The requested API endpoint was not found",
+        },
+      });
+      expect(selectBackend).not.toHaveBeenCalled();
+    },
+  );
+
   it("allows multipart overhead above the upload limit", async () => {
     const response = await handleRequest(
       new Request("https://convert.stencila.dev/api/convert", {

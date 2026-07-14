@@ -1,11 +1,12 @@
 name = "convert"
-main = "worker.ts"
 compatibility_date = "2026-07-09"
 
-routes = [{ pattern = "convert.stencila.dev/*", zone_name = "stencila.dev" }]
+routes = [{ pattern = "convert.stencila.dev", custom_domain = true }]
 
 observability = { enabled = true }
 send_metrics = false
+
+main = "worker.ts"
 
 [assets]
 directory = "./public"
@@ -14,6 +15,9 @@ binding = "ASSETS"
 [[containers]]
 class_name = "ConvertBackend"
 image = "../../Dockerfile.convert"
+# Use "debug" after running `cargo build --bin stencila-convert-server` to
+# copy the local debug binary into the image instead of compiling a release.
+# image_vars = { CONVERT_SERVER_PROFILE = "debug" }
 max_instances = 3
 instance_type = "standard-1"
 
