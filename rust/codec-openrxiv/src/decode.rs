@@ -1,12 +1,13 @@
-use std::{env::current_dir, sync::LazyLock};
+use std::{env::current_dir, sync::LazyLock, time::Duration};
 
 use url::Url;
 
-use eyre::{Result, bail};
+use eyre::{OptionExt, Result, bail};
 use futures::StreamExt;
 use regex::Regex;
 use reqwest::{Client, Response};
 use tempfile::tempdir;
+use tokio::time::timeout;
 use tokio::{fs::File, io::AsyncWriteExt};
 
 use stencila_codec::{
@@ -14,12 +15,15 @@ use stencila_codec::{
 };
 use stencila_codec_meca::MecaCodec;
 use stencila_codec_pdf::PdfCodec;
+use stencila_codec_utils::temp_file_for_atomic_write;
 use stencila_dirs::closest_artifacts_for;
 use stencila_version::STENCILA_USER_AGENT;
 
 const BIORXIV: &str = "biorxiv.org";
 const MEDRXIV: &str = "medrxiv.org";
 const DOI_PREFIX_PATTERN: &str = r"10\.(?:1101|64898)";
+const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
+const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Extract an openRxiv id from an identifier
 ///
@@ -165,8 +169,8 @@ pub(super) async fn decode_openrxiv_id(
             Client::builder().user_agent(STENCILA_USER_AGENT).build()?
         };
 
-        match client.get(&url).send().await {
-            Ok(response) if response.status().is_success() => {
+        match timeout(RESPONSE_TIMEOUT, client.get(&url).send()).await {
+            Ok(Ok(response)) if response.status().is_success() => {
                 tracing::debug!("Successfully fetched `{format}` for `{openrxiv_id}`",);
                 match decode_preprint(doi_prefix, openrxiv_id, server, response, options.clone())
                     .await
@@ -177,12 +181,13 @@ pub(super) async fn decode_openrxiv_id(
                     }
                 }
             }
-            Ok(response) => {
+            Ok(Ok(response)) => {
                 tracing::debug!("`{format}` not available: HTTP {}", response.status());
             }
-            Err(error) => {
+            Ok(Err(error)) => {
                 tracing::debug!("Failed to fetch `{format}`: {error}");
             }
+            Err(error) => tracing::debug!("Timed out fetching `{format}`: {error}"),
         }
     }
 
@@ -241,14 +246,20 @@ pub(super) async fn decode_preprint(
     let should_download = !file_path.exists() || ignore_artifacts;
     if should_download {
         tracing::info!("Downloading {filename}");
-        let mut file = File::create(&file_path).await?;
+        let parent = file_path
+            .parent()
+            .ok_or_eyre("Download path has no parent")?;
+        tokio::fs::create_dir_all(parent).await?;
+        let temp_path = temp_file_for_atomic_write(&file_path)?.into_temp_path();
+        let mut file = File::create(&temp_path).await?;
         let mut stream = response.bytes_stream();
-        while let Some(chunk_result) = stream.next().await {
+        while let Some(chunk_result) = timeout(DOWNLOAD_IDLE_TIMEOUT, stream.next()).await? {
             let chunk = chunk_result?;
             file.write_all(&chunk).await?;
         }
-        file.flush().await?;
+        file.sync_all().await?;
         drop(file);
+        temp_path.persist(&file_path)?;
     }
 
     let (mut node, .., info) = match format {

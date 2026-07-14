@@ -1,18 +1,20 @@
-use std::{env::current_dir, path::Path, sync::LazyLock};
+use std::{env::current_dir, path::Path, sync::LazyLock, time::Duration};
 
 use futures::StreamExt;
 use regex::Regex;
 use reqwest::{Client, header::USER_AGENT};
 use tempfile::tempdir;
+use tokio::time::timeout;
 use tokio::{fs::File, io::AsyncWriteExt};
 use url::Url;
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
-    eyre::{Result, bail},
+    eyre::{OptionExt, Result, bail},
     stencila_format::Format,
     stencila_schema::Node,
 };
+use stencila_codec_utils::temp_file_for_atomic_write;
 use stencila_dirs::closest_artifacts_for;
 use stencila_version::STENCILA_USER_AGENT;
 
@@ -22,6 +24,8 @@ use super::decode_src::decode_arxiv_src;
 
 const MODERN_ARXIV_ID_REGEX: &str = r"[0-9]{4}\.[0-9]{4,5}(?:v[0-9]+)?";
 const LEGACY_ARXIV_ID_REGEX: &str = r"(?:acc-phys|adap-org|alg-geom|ao-sci|astro-ph|atom-ph|bayes-an|chao-dyn|chem-ph|cmp-lg|comp-gas|cond-mat|cs|dg-ga|econ|eess|funct-an|gr-qc|hep-ex|hep-lat|hep-ph|hep-th|math|math-ph|mtrl-th|nlin|nucl-ex|nucl-th|patt-sol|physics|plasm-ph|q-bio|q-fin|quant-ph|solv-int|stat|supr-con)/[0-9]{7}(?:v[0-9]+)?";
+const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
+const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 fn arxiv_id_regex() -> String {
     format!("(?:{MODERN_ARXIV_ID_REGEX}|{LEGACY_ARXIV_ID_REGEX})")
@@ -135,11 +139,14 @@ async fn download_arxiv_file(arxiv_id: &str, format: &Format, to_path: &Path) ->
 
     tracing::debug!("Downloading {format} for {arxiv_id} from {url}");
 
-    let response = Client::new()
-        .get(&url)
-        .header(USER_AGENT, STENCILA_USER_AGENT)
-        .send()
-        .await?;
+    let response = timeout(
+        RESPONSE_TIMEOUT,
+        Client::new()
+            .get(&url)
+            .header(USER_AGENT, STENCILA_USER_AGENT)
+            .send(),
+    )
+    .await??;
 
     if !response.status().is_success() {
         bail!(
@@ -148,17 +155,19 @@ async fn download_arxiv_file(arxiv_id: &str, format: &Format, to_path: &Path) ->
         );
     }
 
-    if let Some(parent) = to_path.parent() {
-        tokio::fs::create_dir_all(parent).await?;
-    }
+    let parent = to_path.parent().ok_or_eyre("Download path has no parent")?;
+    tokio::fs::create_dir_all(parent).await?;
 
-    let mut file = File::create(to_path).await?;
+    let temp_path = temp_file_for_atomic_write(to_path)?.into_temp_path();
+    let mut file = File::create(&temp_path).await?;
     let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
+    while let Some(chunk_result) = timeout(DOWNLOAD_IDLE_TIMEOUT, stream.next()).await? {
         let chunk = chunk_result?;
         file.write_all(&chunk).await?;
     }
     file.sync_all().await?;
+    drop(file);
+    temp_path.persist(to_path)?;
 
     tracing::debug!(
         "Successfully downloaded {format} for {arxiv_id} to {}",
@@ -289,7 +298,9 @@ pub(super) async fn decode_arxiv_id(
         }
     }
 
-    bail!("Failed to decode arXiv `{arxiv_id}`: no compatible format was available and successfully converted for this preprint.")
+    bail!(
+        "Failed to decode arXiv `{arxiv_id}`: no compatible format was available and successfully converted for this preprint."
+    )
 }
 
 #[cfg(test)]

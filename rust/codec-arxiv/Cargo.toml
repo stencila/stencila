@@ -15,6 +15,7 @@ stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-pandoc = { path = "../codec-pandoc" }
 stencila-codec-pdf = { path = "../codec-pdf" }
+stencila-codec-utils = { path = "../codec-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-node-media = { path = "../node-media" }
 stencila-version = { path = "../version" }

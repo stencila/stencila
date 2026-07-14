@@ -1,4 +1,4 @@
-use std::path::Path;
+use std::{path::Path, time::Duration};
 
 use flate2::read::GzDecoder;
 use futures::StreamExt;
@@ -8,6 +8,7 @@ use reqwest::{Client, header::USER_AGENT};
 use stencila_node_supplements::embed_supplements;
 use tar::Archive;
 use tempfile::tempdir;
+use tokio::time::timeout;
 use tokio::{fs::File, io::AsyncWriteExt};
 
 use stencila_codec::{
@@ -16,8 +17,12 @@ use stencila_codec::{
     stencila_schema::Node,
 };
 use stencila_codec_jats::JatsCodec;
+use stencila_codec_utils::temp_file_for_atomic_write;
 use stencila_node_media::embed_media;
 use stencila_version::STENCILA_USER_AGENT;
+
+const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
+const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Download the PMC OA Package for a PMCID
 ///
@@ -28,6 +33,7 @@ pub(super) async fn download_tar(pmcid: &str, to_path: &Path) -> Result<()> {
     let xml = Client::new()
         .get(&url)
         .header(USER_AGENT, STENCILA_USER_AGENT)
+        .timeout(RESPONSE_TIMEOUT)
         .send()
         .await?
         .error_for_status()?
@@ -55,19 +61,22 @@ pub(super) async fn download_tar(pmcid: &str, to_path: &Path) -> Result<()> {
     let https_url = ftp_url.replacen("ftp://", "https://", 1);
 
     tracing::debug!("Downloading {https_url}");
-    let response = Client::new()
-        .get(&https_url)
-        .send()
-        .await?
+    let response = timeout(RESPONSE_TIMEOUT, Client::new().get(&https_url).send())
+        .await??
         .error_for_status()?;
 
-    let mut file = File::create(&to_path).await?;
+    let parent = to_path.parent().ok_or_eyre("Download path has no parent")?;
+    tokio::fs::create_dir_all(parent).await?;
+    let temp_path = temp_file_for_atomic_write(to_path)?.into_temp_path();
+    let mut file = File::create(&temp_path).await?;
     let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
+    while let Some(chunk_result) = timeout(DOWNLOAD_IDLE_TIMEOUT, stream.next()).await? {
         let chunk = chunk_result?;
         file.write_all(&chunk).await?;
     }
-    file.flush().await?;
+    file.sync_all().await?;
+    drop(file);
+    temp_path.persist(to_path)?;
 
     Ok(())
 }

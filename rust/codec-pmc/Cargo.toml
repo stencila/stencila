@@ -14,6 +14,7 @@ reqwest = { workspace = true }
 stencila-codec = { path = "../codec" }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-jats = { path = "../codec-jats" }
+stencila-codec-utils = { path = "../codec-utils" }
 stencila-dirs = { path = "../dirs" }
 stencila-node-media = { path = "../node-media" }
 stencila-node-supplements = { path = "../node-supplements" }

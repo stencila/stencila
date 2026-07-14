@@ -4,16 +4,17 @@
 //! into Stencila document structures. PMC HTML pages contain semantic markup
 //! that can be parsed to extract article metadata and content.
 
-use std::{fs::read_to_string, path::Path};
+use std::{fs::read_to_string, path::Path, time::Duration};
 
 use futures::StreamExt;
 use reqwest::{Client, header::USER_AGENT};
 use tl::{HTMLTag, Parser, ParserOptions, parse};
+use tokio::time::timeout;
 use tokio::{fs::File, io::AsyncWriteExt};
 
 use stencila_codec::{
     DecodeInfo, DecodeOptions,
-    eyre::{Result, bail},
+    eyre::{OptionExt, Result, bail},
     stencila_schema::{
         Article, Author, Block, CreativeWorkVariant, DateTime, Figure, ImageObject, Inline,
         IntegerOrString, List, ListItem, ListOrder, Node, Organization, Paragraph, Periodical,
@@ -24,7 +25,11 @@ use stencila_codec::{
     },
 };
 use stencila_codec_biblio::decode::{text_to_author, text_to_reference};
+use stencila_codec_utils::temp_file_for_atomic_write;
 use stencila_version::STENCILA_USER_AGENT;
+
+const RESPONSE_TIMEOUT: Duration = Duration::from_secs(30);
+const DOWNLOAD_IDLE_TIMEOUT: Duration = Duration::from_secs(30);
 
 /// Download HTML for a PMCID from PMC website
 pub(super) async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
@@ -34,20 +39,28 @@ pub(super) async fn download_html(pmcid: &str, to_path: &Path) -> Result<()> {
     let url = format!("https://pmc.ncbi.nlm.nih.gov/articles/PMC{pmcid_number}/");
 
     tracing::debug!("Downloading HTML from {url}");
-    let response = Client::new()
-        .get(&url)
-        .header(USER_AGENT, STENCILA_USER_AGENT)
-        .send()
-        .await?
-        .error_for_status()?;
+    let response = timeout(
+        RESPONSE_TIMEOUT,
+        Client::new()
+            .get(&url)
+            .header(USER_AGENT, STENCILA_USER_AGENT)
+            .send(),
+    )
+    .await??
+    .error_for_status()?;
 
-    let mut file = File::create(&to_path).await?;
+    let parent = to_path.parent().ok_or_eyre("Download path has no parent")?;
+    tokio::fs::create_dir_all(parent).await?;
+    let temp_path = temp_file_for_atomic_write(to_path)?.into_temp_path();
+    let mut file = File::create(&temp_path).await?;
     let mut stream = response.bytes_stream();
-    while let Some(chunk_result) = stream.next().await {
+    while let Some(chunk_result) = timeout(DOWNLOAD_IDLE_TIMEOUT, stream.next()).await? {
         let chunk = chunk_result?;
         file.write_all(&chunk).await?;
     }
-    file.flush().await?;
+    file.sync_all().await?;
+    drop(file);
+    temp_path.persist(to_path)?;
 
     Ok(())
 }
