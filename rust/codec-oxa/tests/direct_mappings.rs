@@ -375,6 +375,61 @@ async fn encode_article_with_title() -> Result<()> {
     Ok(())
 }
 
+/// Encode and decode article metadata through Document.metadata
+#[tokio::test]
+async fn roundtrip_article_metadata() -> Result<()> {
+    let codec = OxaCodec;
+    let article: Article = serde_json::from_value(serde_json::json!({
+        "type": "Article",
+        "doi": "10.1234/example",
+        "abstract": [{
+            "type": "Paragraph",
+            "content": [{"type": "Text", "value": "A short abstract"}]
+        }],
+        "authors": [{
+            "type": "Person",
+            "givenNames": ["Ada"],
+            "familyNames": ["Lovelace"]
+        }],
+        "references": [{
+            "type": "Reference",
+            "doi": "10.5678/reference",
+            "title": [{"type": "Text", "value": "A reference"}]
+        }],
+        "keywords": ["computing", "history"],
+        "title": [{"type": "Text", "value": "Research Paper"}],
+        "content": [{
+            "type": "Paragraph",
+            "content": [{"type": "Text", "value": "Body"}]
+        }]
+    }))?;
+    let expected = serde_json::to_value(&article)?;
+
+    let (oxa, _info) = codec.to_string(&Node::Article(article), None).await?;
+    let encoded: Value = serde_json::from_str(&oxa)?;
+
+    assert_eq!(
+        encoded
+            .as_object()
+            .ok_or_eyre("encoded Document should be an object")?
+            .keys()
+            .map(String::as_str)
+            .collect::<Vec<_>>(),
+        ["type", "title", "metadata", "children"]
+    );
+    assert_eq!(encoded["metadata"]["doi"], "10.1234/example");
+    assert_eq!(encoded["metadata"]["authors"][0]["type"], "Person");
+    assert_eq!(encoded["metadata"]["abstract"][0]["type"], "Paragraph");
+    assert_eq!(encoded["metadata"]["references"][0]["type"], "Reference");
+    assert!(encoded["metadata"].get("title").is_none());
+    assert!(encoded["metadata"].get("content").is_none());
+
+    let (decoded, _info) = codec.from_str(&oxa, None).await?;
+    assert_eq!(serde_json::to_value(decoded)?, expected);
+
+    Ok(())
+}
+
 // ---------------------------------------------------------------------------
 // Decode tests: OXA JSON → Stencila
 // ---------------------------------------------------------------------------

@@ -1,4 +1,4 @@
-use serde_json::{Map, Value, json};
+use serde_json::{Map, Value};
 use stencila_codec::{
     Losses,
     eyre::{Result, bail},
@@ -21,16 +21,34 @@ pub fn encode_document(node: &Node, losses: &mut Losses) -> Result<Value> {
         .map(|b| encode_block(b, losses))
         .collect();
 
-    let mut doc = json!({
-        "type": "Document",
-        "children": children,
-    });
+    let mut doc = Map::new();
+    doc.insert("type".into(), Value::String("Document".into()));
 
     if let Some(title) = &article.title {
-        doc["title"] = encode_inline_children(title, losses);
+        doc.insert("title".into(), encode_inline_children(title, losses));
     }
 
-    Ok(doc)
+    if let Some(metadata) = encode_metadata(article)? {
+        doc.insert("metadata".into(), metadata);
+    }
+
+    doc.insert("children".into(), Value::Array(children));
+
+    Ok(Value::Object(doc))
+}
+
+fn encode_metadata(article: &Article) -> Result<Option<Value>> {
+    let Value::Object(mut metadata) = serde_json::to_value(article)? else {
+        return Ok(None);
+    };
+
+    // These properties have dedicated OXA Document fields (or are its type
+    // discriminator); everything else belongs in the arbitrary metadata object.
+    for property in ["type", "title", "content"] {
+        metadata.remove(property);
+    }
+
+    Ok((!metadata.is_empty()).then_some(Value::Object(metadata)))
 }
 
 pub fn decode_document(obj: &Map<String, Value>, losses: &mut Losses) -> Result<Node> {
@@ -45,13 +63,10 @@ pub fn decode_document(obj: &Map<String, Value>, losses: &mut Losses) -> Result<
         })
         .unwrap_or_else(|| Ok(Vec::new()))?;
 
-    let mut article = Article {
-        content,
-        ..Default::default()
-    };
+    let mut article = decode_metadata(obj)?;
+    article.content = content;
 
     decode_title(obj, &mut article, losses)?;
-    decode_metadata(obj, &mut article);
 
     Ok(Node::Article(article))
 }
@@ -85,22 +100,18 @@ fn decode_title(
     Ok(())
 }
 
-fn decode_metadata(obj: &Map<String, Value>, article: &mut Article) {
-    let Some(metadata) = obj.get("metadata").and_then(|v| v.as_object()) else {
-        return;
-    };
+fn decode_metadata(obj: &Map<String, Value>) -> Result<Article> {
+    let mut article = obj
+        .get("metadata")
+        .and_then(Value::as_object)
+        .cloned()
+        .unwrap_or_default();
 
-    if let Some(doi) = metadata.get("doi").and_then(|v| v.as_str()) {
-        article.doi = Some(doi.to_string());
-    }
+    // Supply the structural properties required to deserialize an Article,
+    // while preventing arbitrary OXA metadata from overriding them.
+    article.insert("type".into(), Value::String("Article".into()));
+    article.insert("content".into(), Value::Array(Vec::new()));
+    article.remove("title");
 
-    if let Some(keywords) = metadata.get("keywords").and_then(|v| v.as_array()) {
-        let kws: Vec<String> = keywords
-            .iter()
-            .filter_map(|v| v.as_str().map(String::from))
-            .collect();
-        if !kws.is_empty() {
-            article.options.keywords = Some(kws);
-        }
-    }
+    Ok(serde_json::from_value(Value::Object(article))?)
 }
