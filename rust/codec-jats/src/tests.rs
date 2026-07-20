@@ -1,5 +1,8 @@
 use pretty_assertions::assert_eq;
-use stencila_codec::stencila_schema::shortcuts::{art, aud, img, p, sti, vid};
+use stencila_codec::stencila_schema::{
+    Author, Node,
+    shortcuts::{art, aud, img, p, sti, vid},
+};
 
 use super::*;
 
@@ -60,6 +63,43 @@ async fn spans() -> Result<()> {
 
     let (doc2, ..) = codec.from_str(&jats, None).await?;
     assert_eq!(doc2, doc1);
+
+    Ok(())
+}
+
+/// Correspondence notes referenced from a contributor should be retained on the person.
+#[tokio::test]
+async fn contributor_correspondence_email() -> Result<()> {
+    let jats = r#"
+        <article>
+          <front>
+            <article-meta>
+              <contrib-group>
+                <contrib contrib-type="author" corresp="yes">
+                  <name><surname>Doe</surname><given-names>Jane</given-names></name>
+                  <xref ref-type="corresp" rid="cor1">*</xref>
+                </contrib>
+              </contrib-group>
+              <author-notes>
+                <corresp id="cor1">Correspondence: <email>jane@example.org</email></corresp>
+              </author-notes>
+            </article-meta>
+          </front>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(jats, None).await?;
+    let Node::Article(article) = node else {
+        return Err(stencila_codec::eyre::eyre!("expected an article"));
+    };
+    let Some(Author::Person(person)) = article
+        .authors
+        .and_then(|authors| authors.into_iter().next())
+    else {
+        return Err(stencila_codec::eyre::eyre!("expected a person author"));
+    };
+
+    assert_eq!(person.options.emails, Some(vec!["jane@example.org".into()]));
 
     Ok(())
 }

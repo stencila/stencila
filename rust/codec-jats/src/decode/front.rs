@@ -1,3 +1,5 @@
+use std::collections::BTreeMap;
+
 use roxmltree::Node;
 use stencila_codec_text_trait::to_text;
 
@@ -108,6 +110,8 @@ fn decode_publisher(path: &str, node: &Node, article: &mut Article, losses: &mut
 
 /// Decode an `<article-meta>` tag to properties on an [`Article`]
 fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+    let correspondence_emails = correspondence_emails(node);
+
     for child in node.children() {
         let tag = child.tag_name().name();
         let child_path = extend_path(path, tag);
@@ -123,12 +127,40 @@ fn decode_article_meta(path: &str, node: &Node, article: &mut Article, losses: &
             "fpage" => decode_fpage(&child_path, &child, article, losses),
             "lpage" => decode_lpage(&child_path, &child, article, losses),
             "funding-group" => decode_funding_group(&child_path, &child, article, losses),
-            "contrib-group" => decode_contrib_group(&child_path, &child, article, losses),
+            "contrib-group" => {
+                decode_contrib_group(&child_path, &child, &correspondence_emails, article, losses)
+            }
+            // Correspondence email addresses are associated with contributors
+            // in the pre-pass above. Retain the loss for the surrounding notes
+            // because labels, prose, and non-correspondence notes are not decoded.
+            "author-notes" => record_node_lost(path, &child, losses),
             "title-group" => decode_title_group(&child_path, &child, article, losses),
             "kwd-group" => decode_kwd_group(&child_path, &child, article, losses),
             _ => record_node_lost(path, &child, losses),
         };
     }
+}
+
+/// Collect correspondence email addresses by the id referenced from contributors.
+fn correspondence_emails(node: &Node) -> BTreeMap<String, Vec<String>> {
+    node.children()
+        .find(|child| child.has_tag_name("author-notes"))
+        .into_iter()
+        .flat_map(|notes| {
+            notes
+                .children()
+                .filter(|child| child.has_tag_name("corresp"))
+        })
+        .filter_map(|correspondence| {
+            let id = correspondence.attribute("id")?.to_string();
+            let emails = correspondence
+                .descendants()
+                .filter(|child| child.has_tag_name("email"))
+                .filter_map(|child| child.text().map(str::to_string))
+                .collect::<Vec<_>>();
+            (!emails.is_empty()).then_some((id, emails))
+        })
+        .collect()
 }
 
 /// Decode an `<abstract>` element
@@ -485,7 +517,13 @@ fn decode_funding_source(
 }
 
 /// Decode a `<contrib-group>` element
-fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: &mut Losses) {
+fn decode_contrib_group(
+    path: &str,
+    node: &Node,
+    correspondence_emails: &BTreeMap<String, Vec<String>>,
+    article: &mut Article,
+    losses: &mut Losses,
+) {
     record_attrs_lost(path, node, [], losses);
 
     let mut authors = Vec::new();
@@ -494,7 +532,8 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
         .children()
         .filter(|child| child.tag_name().name() == "contrib")
     {
-        let (contrib_type, contributor) = decode_contrib(path, &child, losses);
+        let (contrib_type, contributor) =
+            decode_contrib(path, &child, correspondence_emails, losses);
         if contrib_type.contains("author") {
             let author = match contributor {
                 PersonOrOrganization::Person(person) => Author::Person(person),
@@ -525,12 +564,17 @@ fn decode_contrib_group(path: &str, node: &Node, article: &mut Article, losses: 
 }
 
 /// Decode a `<contrib>` element
-fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> (String, PersonOrOrganization) {
+fn decode_contrib(
+    path: &str,
+    node: &Node,
+    correspondence_emails: &BTreeMap<String, Vec<String>>,
+    losses: &mut Losses,
+) -> (String, PersonOrOrganization) {
     let contrib_type = node
         .attribute("contrib-type")
         .map_or_else(|| "author".to_string(), |ct| ct.to_lowercase().to_string());
 
-    record_attrs_lost(path, node, ["contrib-type"], losses);
+    record_attrs_lost(path, node, ["contrib-type", "corresp"], losses);
 
     let mut family_names = Vec::new();
     let mut given_names = Vec::new();
@@ -594,6 +638,12 @@ fn decode_contrib(path: &str, node: &Node, losses: &mut Losses) -> (String, Pers
 
                 ancestor = ancestor_node.parent();
             }
+        } else if tag == "xref"
+            && matches!(child.attribute("ref-type"), Some("corresp"))
+            && let Some(id) = child.attribute("rid")
+            && let Some(correspondence) = correspondence_emails.get(id)
+        {
+            emails.extend(correspondence.iter().cloned());
         } else {
             record_node_lost(path, &child, losses);
         }

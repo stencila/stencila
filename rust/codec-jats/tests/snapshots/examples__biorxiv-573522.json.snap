@@ -114,6 +114,10 @@ expression: article
       ],
       "givenNames": [
         "Tamar"
+      ],
+      "emails": [
+        "tamarli@ekmd.huji.ac.il",
+        "dan.rokni@mail.huji.ac.il"
       ]
     },
     {
@@ -131,6 +135,10 @@ expression: article
       ],
       "givenNames": [
         "Dan"
+      ],
+      "emails": [
+        "tamarli@ekmd.huji.ac.il",
+        "dan.rokni@mail.huji.ac.il"
       ]
     }
   ],

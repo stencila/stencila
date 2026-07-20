@@ -34,6 +34,10 @@ expression: article
       ],
       "givenNames": [
         "Ankita"
+      ],
+      "emails": [
+        "ankita.13jha@gmail.com",
+        "watermancm@nhlbi.nih.gov"
       ]
     },
     {
@@ -125,6 +129,10 @@ expression: article
       "givenNames": [
         "Clare",
         "M"
+      ],
+      "emails": [
+        "ankita.13jha@gmail.com",
+        "watermancm@nhlbi.nih.gov"
       ]
     }
   ],
