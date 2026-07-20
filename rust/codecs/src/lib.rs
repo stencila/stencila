@@ -244,7 +244,14 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
     if path.exists() {
         let format = Format::from_path(&path);
         get(None, Some(&format), Some(CodecDirection::Decode)).ok()
-    } else if ArxivCodec::supports_identifier(identifier) {
+    } else {
+        codec_for_non_path_identifier(normalize_doi_identifier(identifier))
+    }
+}
+
+/// Get the codec that supports a non-path identifier.
+fn codec_for_non_path_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
+    if ArxivCodec::supports_identifier(identifier) {
         Some(Box::new(ArxivCodec))
     } else if OpenRxivCodec::supports_identifier(identifier) {
         Some(Box::new(OpenRxivCodec))
@@ -252,8 +259,24 @@ pub fn codec_for_identifier(identifier: &str) -> Option<Box<dyn Codec>> {
         Some(Box::new(PmcCodec))
     } else if GithubCodec::supports_identifier(identifier) {
         Some(Box::new(GithubCodec))
+    } else if ZenodoCodec::supports_identifier(identifier) {
+        Some(Box::new(ZenodoCodec))
     } else {
         None
+    }
+}
+
+/// Normalize the optional label commonly used in front of a DOI.
+fn normalize_doi_identifier(identifier: &str) -> &str {
+    let identifier = identifier.trim();
+
+    if identifier
+        .get(..4)
+        .is_some_and(|prefix| prefix.eq_ignore_ascii_case("doi:"))
+    {
+        identifier.get(4..).unwrap_or_default().trim_start()
+    } else {
+        identifier
     }
 }
 
@@ -270,6 +293,8 @@ pub async fn from_identifier(identifier: &str, options: Option<DecodeOptions>) -
     if path.exists() {
         return from_path(&path, options).await;
     }
+
+    let identifier = normalize_doi_identifier(identifier);
 
     // Try codecs that supports identifiers (including specific URLs)
     if let Some((mut node, .., codec_structuring_options)) =
@@ -1344,5 +1369,31 @@ impl VisitorAsync for Recurser {
         }
 
         Ok(WalkControl::Continue)
+    }
+}
+
+#[cfg(test)]
+mod identifier_tests {
+    use super::*;
+
+    #[test]
+    fn maps_repository_dois_to_codecs() -> Result<()> {
+        let cases = [
+            ("10.64898/2026.05.08.723863", "openrxiv"),
+            ("doi:10.64898/2026.05.08.723863", "openrxiv"),
+            ("DOI: 10.1101/2025.07.15.664907", "openrxiv"),
+            ("10.48550/arXiv.2507.11254", "arxiv"),
+            ("doi:10.48550/arXiv.2507.11254", "arxiv"),
+            ("10.5281/zenodo.12345678", "zenodo"),
+            ("doi:10.5281/zenodo.12345678", "zenodo"),
+        ];
+
+        for (identifier, expected) in cases {
+            let codec = codec_for_identifier(identifier)
+                .ok_or_eyre(format!("No codec found for `{identifier}`"))?;
+            assert_eq!(codec.name(), expected);
+        }
+
+        Ok(())
     }
 }
