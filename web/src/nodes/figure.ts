@@ -37,19 +37,31 @@ export class Figure extends Entity {
     marginRight: string
   }> = new Map()
 
+  /**
+   * Resolve a CSS length token (e.g. `var(--page-content-height)`) to pixels
+   *
+   * Unregistered custom properties are not computed lengths: `getPropertyValue`
+   * returns the substituted token stream (e.g. `calc(297mm - 1.5cm - ...)`),
+   * which `parseFloat` cannot parse. So instead attach a probe element that
+   * has the token as its height and let the browser do the resolution.
+   */
+  private resolveLength(value: string, fallback: number): number {
+    const probe = document.createElement('div')
+    probe.style.cssText = `position:absolute;visibility:hidden;height:${value}`
+    document.body.appendChild(probe)
+    const pixels = probe.getBoundingClientRect().height
+    document.body.removeChild(probe)
+
+    return pixels > 0 ? pixels : fallback
+  }
+
   private onBeforePrint = () => {
     // If necessary, scale images within the figure so that the figure,
     // including images and caption fits on a page
-
-    // Maximum page height for print (in pixels)
-    // Read from CSS variable --page-content-height, which accounts for page size,
-    // margins, and padding. Falls back to 1000 if not defined.
-    const pageContentHeight = getComputedStyle(document.documentElement)
-      .getPropertyValue('--page-content-height')
-      .trim()
-    const maxFigureHeight = pageContentHeight
-      ? parseFloat(pageContentHeight)
-      : 1000
+    const maxFigureHeight = this.resolveLength(
+      'var(--page-content-height)',
+      1000
+    )
 
     // Query light DOM for slotted figure element
     const figure = this.querySelector('figure[slot="content"]') as HTMLElement
@@ -89,9 +101,19 @@ export class Figure extends Entity {
       return
     }
 
-    // Measure heights with print styles active
+    // Measure heights with print styles active.
+    //
+    // Measure the host rather than the slotted `figure` because themes put
+    // vertical padding and margins on `stencila-figure` itself (e.g. the space
+    // above a figure that starts a page). That space consumes page height too,
+    // so excluding it would let the figure overflow by exactly that amount.
+    const hostStyles = getComputedStyle(this)
+    const figureHeight =
+      this.offsetHeight +
+      parseFloat(hostStyles.marginTop) +
+      parseFloat(hostStyles.marginBottom)
+
     // Use wrapper heights to get accurate space occupied including margins/padding
-    const figureHeight = figure.offsetHeight
     const imagesHeight = imageObjects.length > 0
       ? imageObjects.reduce((sum, wrapper) => sum + wrapper.offsetHeight, 0)
       : imgs.reduce((sum, img) => sum + img.offsetHeight, 0)
@@ -110,11 +132,18 @@ export class Figure extends Entity {
     */
 
     // If figure exceeds max height, scale the images
-    if (figureHeight > maxFigureHeight) {
+    if (figureHeight > maxFigureHeight && imagesHeight > 0) {
       // Calculate scale factor accounting for caption and spacing staying constant
       // newFigureHeight = (imagesHeight × scaleFactor) + captionHeight + extraSpacing
       // Solving for scaleFactor when newFigureHeight = maxFigureHeight:
       const scaleFactor = (maxFigureHeight - figureHeight + imagesHeight) / imagesHeight
+
+      // A non-positive factor means the caption alone exceeds the page, so no
+      // amount of image scaling will make the figure fit; leave it untouched
+      // rather than collapsing the images to nothing.
+      if (scaleFactor <= 0) {
+        return
+      }
 
       //console.log(`Figure ${figureLabel} - Scaling images:`, { scaleFactor })
 

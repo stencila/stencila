@@ -23,7 +23,8 @@
     --page-padding-bottom: var(--page-padding);
 
     /* Available content dimensions for a page
-     * JavaScript reads these computed values (in pixels) to scale content to fit pages. */
+     * JavaScript resolves these to pixels (via a probe element, since custom
+     * properties are not computed lengths) to scale content to fit pages. */
     --page-content-height: calc(var(--page-height) - var(--page-margin-top) - var(--page-margin-bottom) - var(--page-padding-top) - var(--page-padding-bottom));
     --page-content-width: calc(var(--page-width) - var(--page-margin-left) - var(--page-margin-right));
 

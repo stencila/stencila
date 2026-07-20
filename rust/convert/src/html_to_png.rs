@@ -1293,6 +1293,14 @@ fn try_pdf(html: &str, console_error_handling: ConsoleErrorHandling) -> Result<V
         tracing::warn!("Rendering completion detection failed: {error}. Generating PDF anyway.");
     }
 
+    // Dispatch `beforeprint` so components can adjust themselves for paged
+    // output (e.g. `stencila-figure` scales oversized images down to fit a
+    // page). `Page.printToPDF` does not fire this event itself - unlike
+    // `window.print()` - so without this the handlers never run.
+    if let Err(error) = tab.evaluate("window.dispatchEvent(new Event('beforeprint'))", true) {
+        tracing::warn!("Failed to dispatch `beforeprint` event: {error}. Generating PDF anyway.");
+    }
+
     // Generate PDF
     let pdf_bytes = tab
         .print_to_pdf(Some(PrintToPdfOptions {
