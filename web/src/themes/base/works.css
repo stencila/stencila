@@ -15,7 +15,19 @@
  *     <section slot=authors>
  *         ...
  *     </section>
+ *     <section slot=affiliations>
+ *         ...
+ *     </section>
+ *     <section slot=contacts>
+ *         ...
+ *     </section>
+ *     <section slot=correspondence>
+ *         ...
+ *     </section>
  *     <section slot=abstract>
+ *         ...
+ *     </section>
+ *     <section slot=keywords>
  *         ...
  *     </section>
  *     <section slot=content>
@@ -41,7 +53,11 @@
  * - content: Required section containing all work content blocks
  * - title: Optional work title
  * - authors: Optional author information
+ * - affiliations: Optional structured author affiliations
+ * - contacts: Optional author contact information
+ * - correspondence: Optional explicitly identified correspondence details
  * - abstract: Optional work abstract
+ * - keywords: Optional work keywords
  * - references: Optional work references
  *
  * Notes:
@@ -84,6 +100,12 @@
     --work-authors-text-align: left;
     --work-authors-margin-bottom: var(--space-6);
 
+    /* Work Author Metadata */
+    --work-affiliations-font-size: calc(var(--work-authors-font-size) * 0.9);
+    --work-affiliations-margin-top: var(--space-2);
+    --work-contacts-font-size: calc(var(--work-authors-font-size) * 0.9);
+    --work-contacts-margin-top: var(--space-3);
+
     /* Work Abstract */
     --work-abstract-font-size: var(--text-font-size);
     --work-abstract-color: var(--text-color-primary);
@@ -91,6 +113,11 @@
     --work-abstract-text-align: left;
     --work-abstract-max-width: var(--work-content-max-width);
     --work-abstract-margin-bottom: var(--space-6);
+
+    /* Work Keywords */
+    --work-keywords-font-size: var(--text-font-size);
+    --work-keywords-color: var(--text-color-primary);
+    --work-keywords-margin-bottom: var(--space-6);
 
     /* Work Table of Contents */
     /* Values: none (default), true (enable with depth 3), or 1-6 (specific depth) */
@@ -107,7 +134,11 @@ stencila-workflow {
     /* Non-content slots get constrained width */
     >[slot="title"],
     >[slot="authors"],
+    >[slot="affiliations"],
+    >[slot="contacts"],
+    >[slot="correspondence"],
     >[slot="abstract"],
+    >[slot="keywords"],
     >[slot="references"] {
         max-width: var(--work-content-max-width);
         margin-left: auto;
@@ -142,6 +173,61 @@ stencila-workflow {
         color: var(--work-authors-color);
         text-align: var(--work-authors-text-align);
         margin-bottom: var(--work-authors-margin-bottom);
+
+        .author-affiliation-mark {
+            color: inherit;
+            text-decoration: none;
+        }
+    }
+
+    >[slot="authors"]:has(
+            ~ [slot="affiliations"],
+            ~ [slot="contacts"],
+            ~ [slot="correspondence"]
+        ) {
+        margin-bottom: 0;
+    }
+
+    >[slot="affiliations"] {
+        margin-top: var(--work-affiliations-margin-top);
+        margin-bottom: var(--work-authors-margin-bottom);
+        font-size: var(--work-affiliations-font-size);
+        color: var(--work-authors-color);
+
+        .author-affiliation-label {
+            margin-right: 0.18em;
+        }
+
+        .author-affiliation-ror {
+            display: none;
+        }
+    }
+
+    >[slot="affiliations"]:has(
+            ~ [slot="contacts"],
+            ~ [slot="correspondence"]
+        ),
+    >[slot="contacts"]:has(~ [slot="correspondence"]) {
+        margin-bottom: 0;
+    }
+
+    >[slot="contacts"],
+    >[slot="correspondence"] {
+        margin-top: var(--work-contacts-margin-top);
+        margin-bottom: var(--work-authors-margin-bottom);
+        font-size: var(--work-contacts-font-size);
+        color: var(--work-authors-color);
+
+        .author-contact-label {
+            font-weight: var(--font-weight-bold);
+        }
+
+        /* The author association remains in the DOM for themes that want to
+         * present contacts per author, while the compact default shows only
+         * the addresses. */
+        .author-contact-name {
+            display: none;
+        }
     }
 
     >[slot="abstract"] {
@@ -155,6 +241,16 @@ stencila-workflow {
         stencila-heading h1,
         stencila-paragraph p {
             text-align: var(--work-abstract-text-align);
+        }
+    }
+
+    >[slot="keywords"] {
+        font-size: var(--work-keywords-font-size);
+        color: var(--work-keywords-color);
+        margin-bottom: var(--work-keywords-margin-bottom);
+
+        .article-keywords-label {
+            font-weight: var(--font-weight-bold);
         }
     }
 

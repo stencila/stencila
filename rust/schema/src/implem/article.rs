@@ -1,14 +1,247 @@
 use std::collections::BTreeMap;
 
-use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
-use stencila_codec_text_trait::to_text;
-
 use crate::{
-    Article, Block, CreativeWorkType, Heading, Inline, RawBlock, Reference, Text,
+    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, Heading, Inline, Organization,
+    Person, PostalAddressOrString, RawBlock, Reference, Text,
     prelude::*,
     replicate,
     shortcuts::{h1, t},
 };
+use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
+use stencila_codec_text_trait::to_text;
+
+/// Get the person represented by an author, including authors wrapped in a role.
+fn author_person(author: &Author) -> Option<&Person> {
+    match author {
+        Author::Person(person) => Some(person),
+        Author::AuthorRole(role) => match &role.author {
+            AuthorRoleAuthor::Person(person) => Some(person),
+            _ => None,
+        },
+        _ => None,
+    }
+}
+
+/// Get the displayable parts of a postal address.
+fn address_parts(address: &PostalAddressOrString) -> Vec<String> {
+    match address {
+        PostalAddressOrString::String(address) => {
+            let address = address.trim();
+            (!address.is_empty())
+                .then(|| address.to_string())
+                .into_iter()
+                .collect()
+        }
+        PostalAddressOrString::PostalAddress(address) => [
+            address.street_address.clone(),
+            address
+                .options
+                .post_office_box_number
+                .as_ref()
+                .map(|number| format!("PO Box {number}")),
+            address.address_locality.clone(),
+            address.address_region.clone(),
+            address.postal_code.clone(),
+            address.address_country.clone(),
+        ]
+        .into_iter()
+        .flatten()
+        .filter(|part| !part.trim().is_empty())
+        .collect(),
+    }
+}
+
+/// Generate an identity key for an affiliation.
+///
+/// Prefer canonical identifiers. When those are unavailable, use all serialized
+/// organization metadata rather than the rendered label, so organizations that
+/// happen to have the same display name are not incorrectly merged.
+fn affiliation_key(organization: &Organization) -> String {
+    if let Some(ror) = organization.ror.as_deref().filter(|ror| !ror.is_empty()) {
+        return format!(
+            "ror:{}",
+            ror.trim_start_matches("https://ror.org/")
+                .trim_end_matches('/')
+        );
+    }
+    if let Some(id) = organization.id.as_deref().filter(|id| !id.is_empty()) {
+        return format!("id:{id}");
+    }
+
+    match serde_json::to_string(organization) {
+        Ok(json) => format!("organization:{json}"),
+        Err(error) => format!("unserialized:{error}:{organization:p}"),
+    }
+}
+
+/// Whether an affiliation has enough information to display.
+fn affiliation_is_displayable(organization: &Organization) -> bool {
+    organization
+        .name
+        .as_deref()
+        .or(organization.options.legal_name.as_deref())
+        .is_some_and(|name| !name.trim().is_empty())
+        || organization
+            .options
+            .address
+            .as_ref()
+            .is_some_and(|address| !address_parts(address).is_empty())
+        || organization
+            .ror
+            .as_deref()
+            .is_some_and(|ror| !ror.is_empty())
+}
+
+/// Collect unique affiliations in author order.
+fn article_affiliations(authors: &[Author]) -> Vec<&Organization> {
+    let mut affiliations = Vec::new();
+    let mut keys = Vec::new();
+
+    for author in authors {
+        if let Some(person) = author_person(author)
+            && let Some(organizations) = &person.affiliations
+        {
+            for organization in organizations {
+                let key = affiliation_key(organization);
+                if affiliation_is_displayable(organization) && !keys.contains(&key) {
+                    keys.push(key);
+                    affiliations.push(organization);
+                }
+            }
+        }
+    }
+
+    affiliations
+}
+
+/// Get explicit correspondence emails for a person.
+///
+/// Unlike `Person.emails`, emails on a structured postal address are defined as
+/// correspondence addresses in the schema.
+fn correspondence_emails(person: &Person) -> Option<&[String]> {
+    match person.options.address.as_ref() {
+        Some(PostalAddressOrString::PostalAddress(address)) => address.emails.as_deref(),
+        _ => None,
+    }
+}
+
+#[derive(Clone, Copy)]
+enum ArticleContactKind {
+    Contact,
+    Correspondence,
+}
+
+struct ArticleContact<'a> {
+    author_index: usize,
+    author_name: String,
+    emails: Vec<&'a str>,
+}
+
+/// Collect author contact details while preserving which author they belong to.
+fn article_contacts(authors: &[Author], kind: ArticleContactKind) -> Vec<ArticleContact<'_>> {
+    authors
+        .iter()
+        .enumerate()
+        .filter_map(|(index, author)| {
+            let person = author_person(author)?;
+            let correspondence = correspondence_emails(person).unwrap_or_default();
+            let emails = match kind {
+                ArticleContactKind::Contact => person
+                    .options
+                    .emails
+                    .iter()
+                    .flatten()
+                    .filter(|email| !correspondence.contains(email))
+                    .collect_vec(),
+                ArticleContactKind::Correspondence => correspondence.iter().collect_vec(),
+            };
+            let emails = emails
+                .into_iter()
+                .map(String::as_str)
+                .filter(|email| !email.is_empty())
+                .unique()
+                .collect_vec();
+
+            (!emails.is_empty()).then(|| ArticleContact {
+                author_index: index + 1,
+                author_name: person.name(),
+                emails,
+            })
+        })
+        .collect()
+}
+
+/// Render a list of author contacts with individually addressable details.
+fn contacts_to_dom(contacts: &[ArticleContact<'_>], label: &str, context: &mut DomEncodeContext) {
+    context
+        .enter_elem_attrs("span", [("class", "author-contact-label")])
+        .push_text(label)
+        .exit_elem();
+    context.push_text(" ");
+
+    for (contact_index, contact) in contacts.iter().enumerate() {
+        if contact_index > 0 {
+            context
+                .enter_elem_attrs("span", [("class", "author-contact-separator")])
+                .push_text(", ")
+                .exit_elem();
+        }
+
+        let author_index = contact.author_index.to_string();
+        context
+            .enter_elem_attrs(
+                "span",
+                [
+                    ("class", "author-contact"),
+                    ("data-author-index", &author_index),
+                ],
+            )
+            .enter_elem_attrs("span", [("class", "author-contact-name")])
+            .push_text(&contact.author_name)
+            .push_text(": ")
+            .exit_elem();
+
+        for (email_index, email) in contact.emails.iter().enumerate() {
+            if email_index > 0 {
+                context
+                    .enter_elem_attrs("span", [("class", "author-email-separator")])
+                    .push_text(", ")
+                    .exit_elem();
+            }
+            context
+                .enter_elem_attrs("a", [("class", "author-email")])
+                .push_attr("href", &format!("mailto:{email}"))
+                .push_text(email)
+                .exit_elem();
+        }
+        context.exit_elem();
+    }
+}
+
+/// Convert a DOI, including common URL and label forms, to its canonical URL.
+fn doi_url(doi: &str) -> String {
+    let doi = doi.trim();
+    let lowercase = doi.to_ascii_lowercase();
+    let prefixes = [
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "https://www.doi.org/",
+        "http://www.doi.org/",
+        "doi:",
+    ];
+    let identifier = prefixes
+        .iter()
+        .find_map(|prefix| {
+            lowercase
+                .strip_prefix(prefix)
+                .map(|_| doi[prefix.len()..].trim())
+        })
+        .unwrap_or(doi);
+
+    format!("https://doi.org/{identifier}")
+}
 
 impl Article {
     /// Does the article appear to be have been decoded from the format using the `--coarse` option
@@ -112,6 +345,10 @@ impl Article {
             vars.insert(
                 "document-doi".to_string(),
                 format!("DOI: {}", doi.replace("\"", "'")),
+            );
+            vars.insert(
+                "document-doi-url".to_string(),
+                doi_url(doi).replace("\"", "'"),
             );
         }
 
@@ -217,19 +454,249 @@ impl DomCodec for Article {
             }
 
             if let Some(authors) = &self.authors {
+                let affiliations = article_affiliations(authors);
+                let affiliation_keys = affiliations
+                    .iter()
+                    .map(|organization| affiliation_key(organization))
+                    .collect_vec();
+                let contacts = article_contacts(authors, ArticleContactKind::Contact);
+                let correspondence = article_contacts(authors, ArticleContactKind::Correspondence);
+
                 context.push_slot_fn("section", "authors", |context| {
                     for (index, author) in authors.iter().enumerate() {
                         if index > 0 {
-                            context.push_html(", ");
+                            let (kind, separator) = if index + 1 == authors.len() {
+                                ("last", " and ")
+                            } else {
+                                ("middle", ", ")
+                            };
+                            context
+                                .enter_elem_attrs(
+                                    "span",
+                                    [
+                                        ("class", "article-author-separator"),
+                                        ("data-position", kind),
+                                    ],
+                                )
+                                .push_text(separator)
+                                .exit_elem();
                         }
                         context
                             .enter_node(author.node_type(), author.node_id())
+                            .push_attr("data-author-index", &(index + 1).to_string())
                             .push_slot_fn("span", "name", |context| {
-                                context.push_text(&author.name());
+                                context
+                                    .enter_elem_attrs("span", [("class", "article-author-name")])
+                                    .push_text(&author.name())
+                                    .exit_elem();
+
+                                if let Some(person) = author_person(author) {
+                                    let affiliation_numbers = person
+                                        .affiliations
+                                        .iter()
+                                        .flatten()
+                                        .filter_map(|organization| {
+                                            let key = affiliation_key(organization);
+                                            affiliation_keys
+                                                .iter()
+                                                .position(|item| item == &key)
+                                                .map(|position| position + 1)
+                                        })
+                                        .unique()
+                                        .collect_vec();
+                                    let corresponding =
+                                        correspondence_emails(person).is_some_and(|emails| {
+                                            emails.iter().any(|email| !email.is_empty())
+                                        });
+
+                                    if !affiliation_numbers.is_empty() || corresponding {
+                                        context.enter_elem_attrs(
+                                            "sup",
+                                            [("class", "author-affiliation-marks")],
+                                        );
+                                        for (mark_index, number) in
+                                            affiliation_numbers.iter().enumerate()
+                                        {
+                                            if mark_index > 0 {
+                                                context
+                                                    .enter_elem_attrs(
+                                                        "span",
+                                                        [(
+                                                            "class",
+                                                            "author-affiliation-mark-separator",
+                                                        )],
+                                                    )
+                                                    .push_text(",")
+                                                    .exit_elem();
+                                            }
+
+                                            let number = number.to_string();
+                                            context
+                                                .enter_elem_attrs(
+                                                    "a",
+                                                    [
+                                                        ("class", "author-affiliation-mark"),
+                                                        ("data-affiliation-index", &number),
+                                                    ],
+                                                )
+                                                .push_attr(
+                                                    "href",
+                                                    &format!("#article-affiliation-{number}"),
+                                                )
+                                                .push_text(&number)
+                                                .exit_elem();
+                                        }
+                                        if corresponding {
+                                            if !affiliation_numbers.is_empty() {
+                                                context
+                                                    .enter_elem_attrs(
+                                                        "span",
+                                                        [(
+                                                            "class",
+                                                            "author-affiliation-mark-separator",
+                                                        )],
+                                                    )
+                                                    .push_text(",")
+                                                    .exit_elem();
+                                            }
+                                            context
+                                                .enter_elem_attrs(
+                                                    "span",
+                                                    [("class", "author-correspondence-mark")],
+                                                )
+                                                .push_text("*")
+                                                .exit_elem();
+                                        }
+                                        context.exit_elem();
+                                    }
+                                }
                             })
                             .exit_node();
                     }
                 });
+
+                if !affiliations.is_empty() {
+                    context.push_slot_fn("section", "affiliations", |context| {
+                        context.push_attr("class", "author-affiliations");
+                        for (index, organization) in affiliations.iter().enumerate() {
+                            let number = (index + 1).to_string();
+                            context.enter_elem_attrs(
+                                "div",
+                                [
+                                    ("class", "author-affiliation"),
+                                    ("id", &format!("article-affiliation-{number}")),
+                                ],
+                            );
+                            context.push_attr("data-affiliation-index", &number);
+                            if let Some(id) = &organization.id {
+                                context.push_attr("data-organization-id", id);
+                            }
+                            if let Some(ror) = &organization.ror {
+                                context.push_attr("data-ror", ror);
+                            }
+
+                            context
+                                .enter_elem_attrs("sup", [("class", "author-affiliation-label")])
+                                .push_text(&number)
+                                .exit_elem();
+
+                            let address = organization
+                                .options
+                                .address
+                                .as_ref()
+                                .map(address_parts)
+                                .unwrap_or_default();
+                            let name = organization
+                                .name
+                                .as_ref()
+                                .or(organization.options.legal_name.as_ref());
+                            if let Some(name) = name {
+                                context
+                                    .enter_elem_attrs(
+                                        "span",
+                                        [("class", "author-affiliation-name")],
+                                    )
+                                    .push_text(name)
+                                    .exit_elem();
+                            } else if address.is_empty()
+                                && let Some(ror) = &organization.ror
+                            {
+                                context
+                                    .enter_elem_attrs(
+                                        "span",
+                                        [("class", "author-affiliation-name")],
+                                    )
+                                    .push_text(ror.trim_start_matches("https://ror.org/"))
+                                    .exit_elem();
+                            }
+
+                            if !address.is_empty() {
+                                if name.is_some() {
+                                    context
+                                        .enter_elem_attrs(
+                                            "span",
+                                            [("class", "author-affiliation-separator")],
+                                        )
+                                        .push_text(", ")
+                                        .exit_elem();
+                                }
+                                context.enter_elem_attrs(
+                                    "span",
+                                    [("class", "author-affiliation-address")],
+                                );
+                                for (part_index, part) in address.iter().enumerate() {
+                                    if part_index > 0 {
+                                        context
+                                            .enter_elem_attrs(
+                                                "span",
+                                                [("class", "author-address-part-separator")],
+                                            )
+                                            .push_text(", ")
+                                            .exit_elem();
+                                    }
+                                    context
+                                        .enter_elem_attrs(
+                                            "span",
+                                            [("class", "author-address-part")],
+                                        )
+                                        .push_text(part)
+                                        .exit_elem();
+                                }
+                                context.exit_elem();
+                            }
+
+                            if let Some(ror) = &organization.ror {
+                                let url =
+                                    if ror.starts_with("http://") || ror.starts_with("https://") {
+                                        ror.clone()
+                                    } else {
+                                        format!("https://ror.org/{ror}")
+                                    };
+                                context
+                                    .enter_elem_attrs("a", [("class", "author-affiliation-ror")])
+                                    .push_attr("href", &url)
+                                    .push_text("ROR")
+                                    .exit_elem();
+                            }
+
+                            context.exit_elem();
+                        }
+                    });
+                }
+
+                if !contacts.is_empty() {
+                    context.push_slot_fn("section", "contacts", |context| {
+                        context.push_attr("class", "author-contacts");
+                        contacts_to_dom(&contacts, "Contact:", context)
+                    });
+                }
+
+                if !correspondence.is_empty() {
+                    context.push_slot_fn("section", "correspondence", |context| {
+                        context.push_attr("class", "author-correspondence");
+                        contacts_to_dom(&correspondence, "*Correspondence:", context)
+                    });
+                }
             }
         } else {
             // If this article is not the root (e.g. an article output from a
@@ -263,6 +730,33 @@ impl DomCodec for Article {
                         r#abstract.to_dom(context)
                     })
                     .exit_node();
+            });
+        }
+
+        if context.is_root()
+            && let Some(keywords) = &self.options.keywords
+            && !keywords.is_empty()
+        {
+            context.push_slot_fn("section", "keywords", |context| {
+                context
+                    .enter_elem_attrs("span", [("class", "article-keywords-label")])
+                    .push_text("Keywords:")
+                    .exit_elem();
+                context.push_text(" ");
+                context.enter_elem_attrs("span", [("class", "article-keywords")]);
+                for (index, keyword) in keywords.iter().enumerate() {
+                    if index > 0 {
+                        context
+                            .enter_elem_attrs("span", [("class", "article-keyword-separator")])
+                            .push_text(", ")
+                            .exit_elem();
+                    }
+                    context
+                        .enter_elem_attrs("span", [("class", "article-keyword")])
+                        .push_text(keyword)
+                        .exit_elem();
+                }
+                context.exit_elem();
             });
         }
 
@@ -520,7 +1014,11 @@ impl MarkdownCodec for Article {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use crate::{Author, DateTime, Person};
+    use crate::{
+        Author, DateTime, OrganizationOptions, Person, PersonOptions, PostalAddress,
+        PostalAddressOptions,
+    };
+    use stencila_codec_dom_trait::to_dom;
 
     #[test]
     fn test_document_variables_empty() {
@@ -647,6 +1145,30 @@ mod tests {
             vars.get("document-doi"),
             Some(&"DOI: 10.1234/test.2025".to_string())
         );
+        assert_eq!(
+            vars.get("document-doi-url"),
+            Some(&"https://doi.org/10.1234/test.2025".to_string())
+        );
+    }
+
+    #[test]
+    fn test_document_variables_doi_url_normalization() {
+        for doi in [
+            "https://doi.org/10.1234/test",
+            "http://doi.org/10.1234/test",
+            "https://dx.doi.org/10.1234/test",
+            "DOI: 10.1234/test",
+        ] {
+            let article = Article {
+                doi: Some(doi.to_string()),
+                ..Default::default()
+            };
+
+            assert_eq!(
+                article.document_variables().get("document-doi-url"),
+                Some(&"https://doi.org/10.1234/test".to_string())
+            );
+        }
     }
 
     #[test]
@@ -666,10 +1188,129 @@ mod tests {
             ..Default::default()
         };
         let vars = article.document_variables();
-        assert_eq!(vars.len(), 4);
+        assert_eq!(vars.len(), 5);
         assert!(vars.contains_key("document-title"));
         assert!(vars.contains_key("document-authors"));
         assert!(vars.contains_key("document-date"));
         assert!(vars.contains_key("document-doi"));
+        assert_eq!(
+            vars.get("document-doi-url"),
+            Some(&"https://doi.org/10.1234/test".to_string())
+        );
+    }
+
+    #[test]
+    fn article_dom_preserves_structured_affiliations() {
+        let article = Article {
+            authors: Some(vec![Author::Person(Person {
+                given_names: Some(vec!["Jane".to_string()]),
+                family_names: Some(vec!["Doe".to_string()]),
+                affiliations: Some(vec![Organization {
+                    name: Some("Example University".to_string()),
+                    ror: Some("012345678".to_string()),
+                    options: Box::new(OrganizationOptions {
+                        address: Some(PostalAddressOrString::PostalAddress(PostalAddress {
+                            street_address: Some("1 Research Way".to_string()),
+                            address_locality: Some("Wellington".to_string()),
+                            address_country: Some("New Zealand".to_string()),
+                            options: Box::new(PostalAddressOptions::default()),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }]),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        let dom = to_dom(&article);
+        assert!(dom.contains("slot=affiliations"));
+        assert!(dom.contains("data-ror=012345678"));
+        assert!(dom.contains("Example University"));
+        assert!(dom.contains("1 Research Way"));
+        assert!(dom.contains("Wellington"));
+        assert!(dom.contains("New Zealand"));
+        assert!(dom.contains("href=#article-affiliation-1"));
+    }
+
+    #[test]
+    fn article_dom_does_not_merge_affiliations_by_display_text() {
+        let affiliations = ["012345678", "876543210"]
+            .into_iter()
+            .map(|ror| Organization {
+                name: Some("Shared University Name".to_string()),
+                ror: Some(ror.to_string()),
+                ..Default::default()
+            })
+            .collect();
+        let article = Article {
+            authors: Some(vec![Author::Person(Person {
+                affiliations: Some(affiliations),
+                ..Default::default()
+            })]),
+            ..Default::default()
+        };
+
+        let dom = to_dom(&article);
+        assert_eq!(dom.matches("class=author-affiliation id=").count(), 2);
+        assert!(dom.contains("data-affiliation-index=1"));
+        assert!(dom.contains("data-affiliation-index=2"));
+    }
+
+    #[test]
+    fn article_dom_distinguishes_contact_from_correspondence() {
+        let article = Article {
+            authors: Some(vec![
+                Author::Person(Person {
+                    given_names: Some(vec!["Contact".to_string()]),
+                    family_names: Some(vec!["Author".to_string()]),
+                    options: Box::new(PersonOptions {
+                        emails: Some(vec!["contact@example.org".to_string()]),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
+                Author::Person(Person {
+                    given_names: Some(vec!["Corresponding".to_string()]),
+                    family_names: Some(vec!["Author".to_string()]),
+                    options: Box::new(PersonOptions {
+                        address: Some(PostalAddressOrString::PostalAddress(PostalAddress {
+                            emails: Some(vec!["corresponding@example.org".to_string()]),
+                            ..Default::default()
+                        })),
+                        ..Default::default()
+                    }),
+                    ..Default::default()
+                }),
+            ]),
+            ..Default::default()
+        };
+
+        let dom = to_dom(&article);
+        assert!(dom.contains("slot=contacts"));
+        assert!(dom.contains("Contact:"));
+        assert!(dom.contains("contact@example.org"));
+        assert!(dom.contains("slot=correspondence"));
+        assert!(dom.contains("*Correspondence:"));
+        assert!(dom.contains("corresponding@example.org"));
+        assert_eq!(dom.matches("class=author-correspondence-mark").count(), 1);
+    }
+
+    #[test]
+    fn article_dom_keeps_keywords_individually_addressable() {
+        let article = Article {
+            options: Box::new(crate::ArticleOptions {
+                keywords: Some(vec!["one".to_string(), "two".to_string()]),
+                ..Default::default()
+            }),
+            ..Default::default()
+        };
+
+        let dom = to_dom(&article);
+        assert!(dom.contains("slot=keywords"));
+        assert_eq!(dom.matches("class=article-keyword>").count(), 2);
+        assert!(dom.contains("class=article-keyword-separator"));
     }
 }

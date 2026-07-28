@@ -41,7 +41,11 @@ export class Article extends Entity {
     return html`
       <slot name="title"></slot>
       <slot name="authors"></slot>
+      <slot name="affiliations"></slot>
+      <slot name="contacts"></slot>
+      <slot name="correspondence"></slot>
       <slot name="abstract"></slot>
+      <slot name="keywords"></slot>
       <slot name="content"></slot>
 
       <stencila-ui-article-references>

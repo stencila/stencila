@@ -6,13 +6,31 @@
     </p>
   </header>
   <section slot=authors>
-    <stencila-person id=xxx depth=1 ancestors=Article>
-      <span slot=name>Anne Anderson</span>
-    </stencila-person>,<stencila-organization id=xxx depth=1 ancestors=Article>
-      <span slot=name>Acme Inc</span>
-    </stencila-organization>,<stencila-person id=xxx depth=1 ancestors=Article>
-      <span slot=name>Andrews</span>
+    <stencila-person id=xxx depth=1 ancestors=Article data-author-index=1>
+      <span slot=name>
+        <span class=article-author-name>Anne Anderson</span>
+      </span>
     </stencila-person>
+    <span class=article-author-separator data-position=middle>,</span>
+    <stencila-organization id=xxx depth=1 ancestors=Article data-author-index=2>
+      <span slot=name>
+        <span class=article-author-name>Acme Inc</span>
+      </span>
+    </stencila-organization>
+    <span class=article-author-separator data-position=last>and</span>
+    <stencila-person id=xxx depth=1 ancestors=Article data-author-index=3>
+      <span slot=name>
+        <span class=article-author-name>Andrews</span>
+      </span>
+    </stencila-person>
+  </section>
+  <section slot=keywords>
+    <span class=article-keywords-label>Keywords:</span>
+    <span class=article-keywords>
+      <span class=article-keyword>keyword</span>
+      <span class=article-keyword-separator>,</span>
+      <span class=article-keyword>test</span>
+    </span>
   </section>
   <section slot=content>
     <stencila-paragraph id=xxx depth=1 ancestors=Article>
