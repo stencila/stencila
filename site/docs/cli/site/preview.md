@@ -28,6 +28,9 @@ stencila site preview --port 8080
 
 # Preview without file watching
 stencila site preview --no-watch
+
+# Preview with Content Credentials enabled in stencila.toml
+stencila site preview
 ```
 
 # Arguments

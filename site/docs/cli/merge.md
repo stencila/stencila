@@ -35,43 +35,48 @@ stencila merge edited.docx --original document.md --workdir ./merge-work
 
 # Options
 
-| Name                    | Description                                                                                                     |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `--original`            | The original source of the document.                                                                            |
-| `--unedited`            | The unedited version of the document.                                                                           |
-| `--commit`              | The commit at which the edited document was generated from the original.                                        |
-| `--no-rebase`           | Do not rebase edits using the unedited version of the document. Possible values: `true`, `false`.               |
-| `-f, --from`            | The format of the input/s.                                                                                      |
-| `--fine`                | Use fine decoding if available for input format. Possible values: `true`, `false`.                              |
-| `--coarse`              | Use coarse decoding if available for input format. Possible values: `true`, `false`.                            |
-| `--pages`               | Pages to include when decoding multi-page documents.                                                            |
-| `--exclude-pages`       | Pages to exclude when decoding multi-page documents.                                                            |
-| `--ignore-artifacts`    | Ignore cached artifacts and force re-processing. Possible values: `true`, `false`.                              |
-| `--no-artifacts`        | Prevent creating artifacts during decoding. Possible values: `true`, `false`.                                   |
-| `--island-wrap`         | Wrap specified environments in Island nodes during decoding. Default value: `figure,table,longtable,landscape`. |
-| `--no-island-wrap`      | Disable automatic Island wrapping of environments. Possible values: `true`, `false`.                            |
-| `--island-style`        | Style to apply to auto-created Island nodes.                                                                    |
-| `--input-losses`        | Action when there are losses decoding from input files. Default value: `debug`.                                 |
-| `--include-structuring` | Structuring operations to include (comma-separated).                                                            |
-| `--exclude-structuring` | Structuring operations to exclude (comma-separated).                                                            |
-| `--citation-style`      | The citation style to assume for text-to-citation structuring.                                                  |
-| `-t, --to`              | The format of the output/s.                                                                                     |
-| `--template`            | The template document to use.                                                                                   |
-| `--reproducible`        | Encode executable nodes so that they are reproducible. Possible values: `true`, `false`.                        |
-| `--highlight`           | Highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                           |
-| `--no-highlight`        | Do not highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                    |
-| `--standalone`          | Encode as a standalone document. Possible values: `true`, `false`.                                              |
-| `--not-standalone`      | Do not encode as a standalone document when writing to file. Possible values: `true`, `false`.                  |
-| `--theme`               | The CSS theme to use when encoding to HTML and HTML-derived formats.                                            |
-| `--view`                | The document view to use when encoding to HTML and HTML-derived formats.                                        |
-| `--embed-media`         | Embed media files as data URIs. Possible values: `true`, `false`.                                               |
-| `--extract-media`       | Extract embedded media to a folder.                                                                             |
-| `--embed-supplements`   | Embed supplemental files directly into the document. Possible values: `true`, `false`.                          |
-| `--extract-supplements` | Extract embedded supplemental content to separate files.                                                        |
-| `--recursive`           | Recursively encode the content of `IncludeBlock`s to their source file. Possible values: `true`, `false`.       |
-| `--compact`             | Use a compact form of encoding if available. Possible values: `true`, `false`.                                  |
-| `--pretty`              | Use a "pretty" form of encoding if available. Possible values: `true`, `false`.                                 |
-| `--output-losses`       | Action when there are losses encoding to output files. Default value: `debug`.                                  |
+| Name                            | Description                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--original`                    | The original source of the document.                                                                            |
+| `--unedited`                    | The unedited version of the document.                                                                           |
+| `--commit`                      | The commit at which the edited document was generated from the original.                                        |
+| `--no-rebase`                   | Do not rebase edits using the unedited version of the document. Possible values: `true`, `false`.               |
+| `-f, --from`                    | The format of the input/s.                                                                                      |
+| `--fine`                        | Use fine decoding if available for input format. Possible values: `true`, `false`.                              |
+| `--coarse`                      | Use coarse decoding if available for input format. Possible values: `true`, `false`.                            |
+| `--pages`                       | Pages to include when decoding multi-page documents.                                                            |
+| `--exclude-pages`               | Pages to exclude when decoding multi-page documents.                                                            |
+| `--ignore-artifacts`            | Ignore cached artifacts and force re-processing. Possible values: `true`, `false`.                              |
+| `--no-artifacts`                | Prevent creating artifacts during decoding. Possible values: `true`, `false`.                                   |
+| `--island-wrap`                 | Wrap specified environments in Island nodes during decoding. Default value: `figure,table,longtable,landscape`. |
+| `--no-island-wrap`              | Disable automatic Island wrapping of environments. Possible values: `true`, `false`.                            |
+| `--island-style`                | Style to apply to auto-created Island nodes.                                                                    |
+| `--input-losses`                | Action when there are losses decoding from input files. Default value: `debug`.                                 |
+| `--include-structuring`         | Structuring operations to include (comma-separated).                                                            |
+| `--exclude-structuring`         | Structuring operations to exclude (comma-separated).                                                            |
+| `--citation-style`              | The citation style to assume for text-to-citation structuring.                                                  |
+| `-t, --to`                      | The format of the output/s.                                                                                     |
+| `--template`                    | The template document to use.                                                                                   |
+| `--reproducible`                | Encode executable nodes so that they are reproducible. Possible values: `true`, `false`.                        |
+| `--credentials`                 | Sign encoded outputs with C2PA Content Credentials.                                                             |
+| `--credentials-profile`         | Sign encoded outputs with the selected C2PA Content Credentials profile.                                        |
+| `--credentials-signer`          | Signing backend to use for C2PA Content Credentials.                                                            |
+| `--credentials-soft-binding`    | Register Stencila Cloud soft bindings for signed assets. Possible values: `true`, `false`.                      |
+| `--credentials-no-soft-binding` | Do not register Stencila Cloud soft bindings for signed assets. Possible values: `true`, `false`.               |
+| `--highlight`                   | Highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                           |
+| `--no-highlight`                | Do not highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                    |
+| `--standalone`                  | Encode as a standalone document. Possible values: `true`, `false`.                                              |
+| `--not-standalone`              | Do not encode as a standalone document when writing to file. Possible values: `true`, `false`.                  |
+| `--theme`                       | The CSS theme to use when encoding to HTML and HTML-derived formats.                                            |
+| `--view`                        | The document view to use when encoding to HTML and HTML-derived formats.                                        |
+| `--embed-media`                 | Embed media files as data URIs. Possible values: `true`, `false`.                                               |
+| `--extract-media`               | Extract embedded media to a folder.                                                                             |
+| `--embed-supplements`           | Embed supplemental files directly into the document. Possible values: `true`, `false`.                          |
+| `--extract-supplements`         | Extract embedded supplemental content to separate files.                                                        |
+| `--recursive`                   | Recursively encode the content of `IncludeBlock`s to their source file. Possible values: `true`, `false`.       |
+| `--compact`                     | Use a compact form of encoding if available. Possible values: `true`, `false`.                                  |
+| `--pretty`                      | Use a "pretty" form of encoding if available. Possible values: `true`, `false`.                                 |
+| `--output-losses`               | Action when there are losses encoding to output files. Default value: `debug`.                                  |
 
 **Possible values of `--citation-style`**
 
@@ -81,6 +86,14 @@ stencila merge edited.docx --original document.md --workdir ./merge-work
 | `bracketed-numeric`     | Bracketed numeric citations like [1]     |
 | `parenthetic-numeric`   | Parenthetic numeric citations like (1)   |
 | `superscripted-numeric` | Superscripted numeric citations like ¹   |
+
+**Possible values of `--credentials-signer`**
+
+| Value   | Description                                                            |
+| ------- | ---------------------------------------------------------------------- |
+| `auto`  | Use Cloud signing when available, otherwise fall back to local signing |
+| `cloud` | Use Stencila Cloud's signing service                                   |
+| `local` | Use a local self-signed signing identity                               |
 
 **Possible values of `--include-structuring`, `--exclude-structuring`**
 
@@ -121,3 +134,11 @@ stencila merge edited.docx --original document.md --workdir ./merge-work
 | `remove-empty-lists`            | Remove empty lists                                                  |
 | `remove-empty-paragraphs`       | Remove empty paragraphs                                             |
 | `remove-empty-text`             | Remove empty text                                                   |
+
+**Possible values of `--credentials`, `--credentials-profile`**
+
+| Value     | Description                               |
+| --------- | ----------------------------------------- |
+| `public`  | Public-safe credential metadata           |
+| `private` | More local detail for internal sharing    |
+| `full`    | Full local detail for controlled archives |

@@ -27,6 +27,6 @@ stencila login
 
 # Options
 
-| Name           | Description                                                                            |
-| -------------- | -------------------------------------------------------------------------------------- |
+| Name           | Description                                                                       |
+| -------------- | --------------------------------------------------------------------------------- |
 | `-m, --manual` | Signin by manually entering a Stencila API key. Possible values: `true`, `false`. |

@@ -55,58 +55,63 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 
 # Options
 
-| Name                    | Description                                                                                                     |
-| ----------------------- | --------------------------------------------------------------------------------------------------------------- |
-| `--spread`              | Enable multi-variant (spread) execution mode.                                                                   |
-| `--spread-max`          | Maximum number of runs allowed in spread mode (default: 100). Default value: `100`.                             |
-| `--case`                | Explicit parameter sets for cases mode.                                                                         |
-| `--cache`               | Cache the document after rendering it. Possible values: `true`, `false`.                                        |
-| `--ignore-errors`       | Ignore any errors while executing document. Possible values: `true`, `false`.                                   |
-| `--force-all`           | Re-execute all node types regardless of current state. Possible values: `true`, `false`.                        |
-| `--skip-code`           | Skip executing code. Possible values: `true`, `false`.                                                          |
-| `--skip-instructions`   | Skip executing instructions. Possible values: `true`, `false`.                                                  |
-| `--retain-suggestions`  | Retain existing suggestions for instructions. Possible values: `true`, `false`.                                 |
-| `--force-unreviewed`    | Re-execute instructions with suggestions that have not yet been reviewed. Possible values: `true`, `false`.     |
-| `--force-accepted`      | Re-execute instructions with suggestions that have been accepted. Possible values: `true`, `false`.             |
-| `--skip-rejected`       | Skip re-executing instructions with suggestions that have been rejected. Possible values: `true`, `false`.      |
-| `--dry-run`             | Prepare, but do not actually perform, execution tasks. Possible values: `true`, `false`.                        |
-| `-f, --from`            | The format of the input/s.                                                                                      |
-| `--fine`                | Use fine decoding if available for input format. Possible values: `true`, `false`.                              |
-| `--coarse`              | Use coarse decoding if available for input format. Possible values: `true`, `false`.                            |
-| `--pages`               | Pages to include when decoding multi-page documents.                                                            |
-| `--exclude-pages`       | Pages to exclude when decoding multi-page documents.                                                            |
-| `--ignore-artifacts`    | Ignore cached artifacts and force re-processing. Possible values: `true`, `false`.                              |
-| `--no-artifacts`        | Prevent creating artifacts during decoding. Possible values: `true`, `false`.                                   |
-| `--island-wrap`         | Wrap specified environments in Island nodes during decoding. Default value: `figure,table,longtable,landscape`. |
-| `--no-island-wrap`      | Disable automatic Island wrapping of environments. Possible values: `true`, `false`.                            |
-| `--island-style`        | Style to apply to auto-created Island nodes.                                                                    |
-| `--input-losses`        | Action when there are losses decoding from input files. Default value: `debug`.                                 |
-| `--include-structuring` | Structuring operations to include (comma-separated).                                                            |
-| `--exclude-structuring` | Structuring operations to exclude (comma-separated).                                                            |
-| `--citation-style`      | The citation style to assume for text-to-citation structuring.                                                  |
-| `-t, --to`              | The format of the output/s.                                                                                     |
-| `--template`            | The template document to use.                                                                                   |
-| `--reproducible`        | Encode executable nodes so that they are reproducible. Possible values: `true`, `false`.                        |
-| `--highlight`           | Highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                           |
-| `--no-highlight`        | Do not highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                    |
-| `--standalone`          | Encode as a standalone document. Possible values: `true`, `false`.                                              |
-| `--not-standalone`      | Do not encode as a standalone document when writing to file. Possible values: `true`, `false`.                  |
-| `--theme`               | The CSS theme to use when encoding to HTML and HTML-derived formats.                                            |
-| `--view`                | The document view to use when encoding to HTML and HTML-derived formats.                                        |
-| `--embed-media`         | Embed media files as data URIs. Possible values: `true`, `false`.                                               |
-| `--extract-media`       | Extract embedded media to a folder.                                                                             |
-| `--embed-supplements`   | Embed supplemental files directly into the document. Possible values: `true`, `false`.                          |
-| `--extract-supplements` | Extract embedded supplemental content to separate files.                                                        |
-| `--recursive`           | Recursively encode the content of `IncludeBlock`s to their source file. Possible values: `true`, `false`.       |
-| `--compact`             | Use a compact form of encoding if available. Possible values: `true`, `false`.                                  |
-| `--pretty`              | Use a "pretty" form of encoding if available. Possible values: `true`, `false`.                                 |
-| `--output-losses`       | Action when there are losses encoding to output files. Default value: `debug`.                                  |
-| `--strip-scopes`        | Scopes defining which properties of nodes should be stripped.                                                   |
-| `--strip-types`         | A list of node types to strip.                                                                                  |
-| `--strip-props`         | A list of node properties to strip.                                                                             |
-| `--accept-suggestions`  | Accept all suggestions (insertions are kept, deletions are removed). Possible values: `true`, `false`.          |
-| `--reject-suggestions`  | Reject all suggestions (insertions are removed, deletions are kept). Possible values: `true`, `false`.          |
-| `--review-suggestions`  | Interactively review each suggestion. Possible values: `true`, `false`.                                         |
+| Name                            | Description                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| `--spread`                      | Enable multi-variant (spread) execution mode.                                                                   |
+| `--spread-max`                  | Maximum number of runs allowed in spread mode (default: 100). Default value: `100`.                             |
+| `--case`                        | Explicit parameter sets for cases mode.                                                                         |
+| `--cache`                       | Cache the document after rendering it. Possible values: `true`, `false`.                                        |
+| `--ignore-errors`               | Ignore any errors while executing document. Possible values: `true`, `false`.                                   |
+| `--force-all`                   | Re-execute all node types regardless of current state. Possible values: `true`, `false`.                        |
+| `--skip-code`                   | Skip executing code. Possible values: `true`, `false`.                                                          |
+| `--skip-instructions`           | Skip executing instructions. Possible values: `true`, `false`.                                                  |
+| `--retain-suggestions`          | Retain existing suggestions for instructions. Possible values: `true`, `false`.                                 |
+| `--force-unreviewed`            | Re-execute instructions with suggestions that have not yet been reviewed. Possible values: `true`, `false`.     |
+| `--force-accepted`              | Re-execute instructions with suggestions that have been accepted. Possible values: `true`, `false`.             |
+| `--skip-rejected`               | Skip re-executing instructions with suggestions that have been rejected. Possible values: `true`, `false`.      |
+| `--dry-run`                     | Prepare, but do not actually perform, execution tasks. Possible values: `true`, `false`.                        |
+| `-f, --from`                    | The format of the input/s.                                                                                      |
+| `--fine`                        | Use fine decoding if available for input format. Possible values: `true`, `false`.                              |
+| `--coarse`                      | Use coarse decoding if available for input format. Possible values: `true`, `false`.                            |
+| `--pages`                       | Pages to include when decoding multi-page documents.                                                            |
+| `--exclude-pages`               | Pages to exclude when decoding multi-page documents.                                                            |
+| `--ignore-artifacts`            | Ignore cached artifacts and force re-processing. Possible values: `true`, `false`.                              |
+| `--no-artifacts`                | Prevent creating artifacts during decoding. Possible values: `true`, `false`.                                   |
+| `--island-wrap`                 | Wrap specified environments in Island nodes during decoding. Default value: `figure,table,longtable,landscape`. |
+| `--no-island-wrap`              | Disable automatic Island wrapping of environments. Possible values: `true`, `false`.                            |
+| `--island-style`                | Style to apply to auto-created Island nodes.                                                                    |
+| `--input-losses`                | Action when there are losses decoding from input files. Default value: `debug`.                                 |
+| `--include-structuring`         | Structuring operations to include (comma-separated).                                                            |
+| `--exclude-structuring`         | Structuring operations to exclude (comma-separated).                                                            |
+| `--citation-style`              | The citation style to assume for text-to-citation structuring.                                                  |
+| `-t, --to`                      | The format of the output/s.                                                                                     |
+| `--template`                    | The template document to use.                                                                                   |
+| `--reproducible`                | Encode executable nodes so that they are reproducible. Possible values: `true`, `false`.                        |
+| `--credentials`                 | Sign encoded outputs with C2PA Content Credentials.                                                             |
+| `--credentials-profile`         | Sign encoded outputs with the selected C2PA Content Credentials profile.                                        |
+| `--credentials-signer`          | Signing backend to use for C2PA Content Credentials.                                                            |
+| `--credentials-soft-binding`    | Register Stencila Cloud soft bindings for signed assets. Possible values: `true`, `false`.                      |
+| `--credentials-no-soft-binding` | Do not register Stencila Cloud soft bindings for signed assets. Possible values: `true`, `false`.               |
+| `--highlight`                   | Highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                           |
+| `--no-highlight`                | Do not highlight the rendered outputs of executable nodes. Possible values: `true`, `false`.                    |
+| `--standalone`                  | Encode as a standalone document. Possible values: `true`, `false`.                                              |
+| `--not-standalone`              | Do not encode as a standalone document when writing to file. Possible values: `true`, `false`.                  |
+| `--theme`                       | The CSS theme to use when encoding to HTML and HTML-derived formats.                                            |
+| `--view`                        | The document view to use when encoding to HTML and HTML-derived formats.                                        |
+| `--embed-media`                 | Embed media files as data URIs. Possible values: `true`, `false`.                                               |
+| `--extract-media`               | Extract embedded media to a folder.                                                                             |
+| `--embed-supplements`           | Embed supplemental files directly into the document. Possible values: `true`, `false`.                          |
+| `--extract-supplements`         | Extract embedded supplemental content to separate files.                                                        |
+| `--recursive`                   | Recursively encode the content of `IncludeBlock`s to their source file. Possible values: `true`, `false`.       |
+| `--compact`                     | Use a compact form of encoding if available. Possible values: `true`, `false`.                                  |
+| `--pretty`                      | Use a "pretty" form of encoding if available. Possible values: `true`, `false`.                                 |
+| `--output-losses`               | Action when there are losses encoding to output files. Default value: `debug`.                                  |
+| `--strip-scopes`                | Scopes defining which properties of nodes should be stripped.                                                   |
+| `--strip-types`                 | A list of node types to strip.                                                                                  |
+| `--strip-props`                 | A list of node properties to strip.                                                                             |
+| `--accept-suggestions`          | Accept all suggestions (insertions are kept, deletions are removed). Possible values: `true`, `false`.          |
+| `--reject-suggestions`          | Reject all suggestions (insertions are removed, deletions are kept). Possible values: `true`, `false`.          |
+| `--review-suggestions`          | Interactively review each suggestion. Possible values: `true`, `false`.                                         |
 
 **Possible values of `--citation-style`**
 
@@ -132,6 +137,14 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 | `execution`   | Strip execution related properties of executable nodes   |
 | `output`      | Strip output properties of executable nodes              |
 | `timestamps`  | Strip timestamp properties                               |
+
+**Possible values of `--credentials-signer`**
+
+| Value   | Description                                                            |
+| ------- | ---------------------------------------------------------------------- |
+| `auto`  | Use Cloud signing when available, otherwise fall back to local signing |
+| `cloud` | Use Stencila Cloud's signing service                                   |
+| `local` | Use a local self-signed signing identity                               |
 
 **Possible values of `--spread`**
 
@@ -180,3 +193,11 @@ stencila render report.md 'report-{i}.pdf' --spread=cases --case="region=north s
 | `remove-empty-lists`            | Remove empty lists                                                  |
 | `remove-empty-paragraphs`       | Remove empty paragraphs                                             |
 | `remove-empty-text`             | Remove empty text                                                   |
+
+**Possible values of `--credentials`, `--credentials-profile`**
+
+| Value     | Description                               |
+| --------- | ----------------------------------------- |
+| `public`  | Public-safe credential metadata           |
+| `private` | More local detail for internal sharing    |
+| `full`    | Full local detail for controlled archives |

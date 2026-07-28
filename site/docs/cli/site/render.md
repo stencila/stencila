@@ -22,6 +22,9 @@ stencila site render ./dist --route /docs/
 
 # Render from a specific source
 stencila site render ./dist --source ./content
+
+# Render with Content Credentials enabled in stencila.toml
+stencila site render ./dist
 ```
 
 # Arguments
