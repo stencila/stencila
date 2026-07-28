@@ -59,7 +59,6 @@ pub enum SitemapVisibility {
     All,
 }
 
-
 /// Logo configuration - simple string or responsive object
 ///
 /// Supports both simple usage with a single logo path and advanced usage

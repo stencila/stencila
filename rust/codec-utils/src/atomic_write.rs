@@ -79,7 +79,7 @@ mod tests {
         let dir = tempfile::tempdir()?;
         let destination = dir.path().join("destination");
         File::create(&destination)?;
-        destination.set_permissions(std::fs::Permissions::from_mode(0o640))?;
+        std::fs::set_permissions(&destination, std::fs::Permissions::from_mode(0o640))?;
 
         let temp_file = temp_file_for_atomic_write(&destination)?;
 

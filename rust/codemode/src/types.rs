@@ -186,7 +186,6 @@ pub enum DetailLevel {
     Full,
 }
 
-
 /// Basic information about a connected MCP server.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]

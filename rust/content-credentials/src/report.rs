@@ -290,7 +290,6 @@ pub enum ReproducibilityStatus {
     Unavailable,
 }
 
-
 impl Display for ReproducibilityStatus {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         let s = match self {

@@ -29,7 +29,6 @@ pub enum WaitUntil {
     NetworkIdle,
 }
 
-
 /// Color scheme preference for rendering
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, ValueEnum)]
 #[serde(rename_all = "kebab-case")]
@@ -43,7 +42,6 @@ pub enum ColorScheme {
     #[default]
     System,
 }
-
 
 /// Wait configuration
 #[derive(Debug, Clone, Default)]

@@ -27,7 +27,6 @@ pub enum MockCallResponse {
     Custom(CallToolHandler),
 }
 
-
 /// A mock MCP server for testing.
 ///
 /// Provides configurable server metadata and a fixed set of tools.
