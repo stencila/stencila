@@ -38,7 +38,17 @@ use base64::{Engine as _, engine::general_purpose::STANDARD as BASE64};
 use eyre::{Result, bail, eyre};
 use headless_chrome::{
     Browser, LaunchOptionsBuilder, Tab,
-    protocol::cdp::{Page, Runtime, types::Event},
+    browser::{
+        tab::RequestPausedDecision,
+        transport::{SessionId, Transport},
+    },
+    protocol::cdp::{
+        Fetch::{
+            FulfillRequest, HeaderEntry, RequestPattern, RequestStage, events::RequestPausedEvent,
+        },
+        Page, Runtime,
+        types::Event,
+    },
     types::PrintToPdfOptions,
 };
 use itertools::Itertools;
@@ -57,6 +67,70 @@ const BROWSER_OPEN_SECS: u64 = 0;
 /// Set `STENCILA_DEV_LOCALHOST=1` to enable (requires running `cargo run --bin stencila serve --cors permissive`).
 fn use_localhost() -> bool {
     std::env::var("STENCILA_DEV_LOCALHOST").is_ok()
+}
+
+/// Extract the embedded asset path from a Stencila web CDN URL.
+fn embedded_web_asset_path(url: &str) -> Option<&str> {
+    let path = url
+        .strip_prefix("https://stencila.dev/web/")?
+        .split(['?', '#'])
+        .next()?;
+
+    path.split_once('/').map(|(_version, asset)| asset)
+}
+
+/// Serve Stencila web assets directly from the binary during browser capture.
+///
+/// Standalone DOM HTML uses versioned CDN URLs so that it remains portable.
+/// During capture, serving those URLs from the embedded distribution keeps the
+/// HTML unchanged while ensuring local and not-yet-published themes are
+/// available and the rendered output matches the running binary.
+fn enable_embedded_web_assets(tab: &Arc<Tab>) -> Result<()> {
+    let patterns = [RequestPattern {
+        url_pattern: Some("https://stencila.dev/web/*".to_string()),
+        resource_Type: None,
+        request_stage: Some(RequestStage::Request),
+    }];
+
+    tab.enable_fetch(Some(&patterns), None)
+        .map_err(|error| eyre!("Failed to enable web asset interception: {error}"))?;
+
+    tab.enable_request_interception(Arc::new(
+        |_transport: Arc<Transport>, _session_id: SessionId, intercepted: RequestPausedEvent| {
+            let url = &intercepted.params.request.url;
+            let Some(asset_path) = embedded_web_asset_path(url) else {
+                return RequestPausedDecision::Continue(None);
+            };
+            let Some(file) = Web::get(asset_path) else {
+                return RequestPausedDecision::Continue(None);
+            };
+
+            let content_type = mime_guess::from_path(asset_path)
+                .first_or_octet_stream()
+                .essence_str()
+                .to_string();
+            let headers = vec![
+                HeaderEntry {
+                    name: "Content-Type".to_string(),
+                    value: content_type,
+                },
+                HeaderEntry {
+                    name: "Access-Control-Allow-Origin".to_string(),
+                    value: "*".to_string(),
+                },
+            ];
+
+            RequestPausedDecision::Fulfill(FulfillRequest {
+                request_id: intercepted.params.request_id,
+                response_code: 200,
+                response_headers: Some(headers),
+                binary_response_headers: None,
+                body: Some(BASE64.encode(file.data)),
+                response_phrase: None,
+            })
+        },
+    ))
+    .map_err(|error| eyre!("Failed to configure web asset interception: {error}"))
 }
 
 /// Converts HTML to PNG and returns as data URI
@@ -363,6 +437,8 @@ fn ensure_browser_available() -> Result<()> {
     let new_tab = new_browser
         .new_tab()
         .map_err(|error| eyre!("Failed to create initial tab: {error}"))?;
+
+    enable_embedded_web_assets(&new_tab)?;
 
     // Pre-warm the tab with a minimal document (for optimal first-call performance)
     let frame_tree = new_tab
@@ -1596,6 +1672,57 @@ mod tests {
     };
 
     use super::*;
+
+    #[test]
+    fn test_embedded_web_asset_path() {
+        assert_eq!(
+            embedded_web_asset_path(
+                "https://stencila.dev/web/v2.15.0/themes/hhmi.css?cache=ignored"
+            ),
+            Some("themes/hhmi.css")
+        );
+        assert_eq!(
+            embedded_web_asset_path("https://stencila.dev/web/dev/views/static.js"),
+            Some("views/static.js")
+        );
+        assert_eq!(
+            embedded_web_asset_path("https://fonts.googleapis.com/css2?family=Inter"),
+            None
+        );
+    }
+
+    #[ignore = "requires Chrome/Chromium and a built web distribution"]
+    #[test]
+    fn test_embedded_web_asset_interception() -> Result<()> {
+        shutdown()?;
+        ensure_browser_available()?;
+
+        let html = r#"
+            <html>
+                <head>
+                    <link rel="stylesheet" href="https://stencila.dev/web/v0.0.0/themes/hhmi.css">
+                </head>
+                <body></body>
+            </html>
+        "#;
+        let (mut manager, tab) = setup_tab_for_capture(html)?;
+
+        ScreenshotWaiter::new(WaitConfig::default()).wait_for_ready(&tab)?;
+        let value = tab
+            .evaluate(
+                "getComputedStyle(document.documentElement).getPropertyValue('--hhmi-blue').trim()",
+                true,
+            )
+            .map_err(|error| eyre!("Failed to read computed HHMI theme value: {error}"))?;
+
+        assert_eq!(
+            value.value.as_ref().and_then(serde_json::Value::as_str),
+            Some("#34768c")
+        );
+
+        manager.cleanup();
+        Ok(())
+    }
 
     #[test]
     fn test_browser_manager_drop() {

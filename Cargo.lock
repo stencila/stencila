@@ -11324,6 +11324,7 @@ dependencies = [
  "headless_chrome",
  "insta",
  "itertools 0.14.0",
+ "mime_guess",
  "rand 0.10.1",
  "regex",
  "reqwest 0.13.3",

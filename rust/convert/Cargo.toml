@@ -11,6 +11,7 @@ eyre = { workspace = true }
 glob = { workspace = true }
 headless_chrome = { workspace = true}
 itertools = { workspace = true }
+mime_guess = { workspace = true }
 rand = { workspace = true }
 regex = { workspace = true }
 reqwest = { workspace = true, features = ["blocking"] }
