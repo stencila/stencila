@@ -40,6 +40,7 @@ const ASSET_FILE_NAME_RULES = [
   ['src/views/edit.ts', 'views/edit[extname]'],
   ['src/views/graph.ts', 'views/graph[extname]'],
   ['src/themes/_base.ts', 'themes/base[extname]'],
+  ['src/themes/_hhmi.ts', 'themes/hhmi[extname]'],
   ['src/themes/_latex.ts', 'themes/latex[extname]'],
   ['src/themes/_tufte.ts', 'themes/tufte[extname]'],
 ] as const
@@ -69,6 +70,7 @@ export default defineConfig({
         'views/static': resolve(__dirname, 'src/views/static.ts'),
         'themes/init': resolve(__dirname, 'src/themes/init.js'),
         'themes/base': resolve(__dirname, 'src/themes/_base.ts'),
+        'themes/hhmi': resolve(__dirname, 'src/themes/_hhmi.ts'),
         'themes/latex': resolve(__dirname, 'src/themes/_latex.ts'),
         'themes/tufte': resolve(__dirname, 'src/themes/_tufte.ts'),
       },

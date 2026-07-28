@@ -35,6 +35,7 @@ export function finalizeBuildArtifacts(outDir: string): Plugin {
   const distDir = resolve(dirname(fileURLToPath(import.meta.url)), outDir)
   const themeStubEntries = new Set([
     'themes/base.js',
+    'themes/hhmi.js',
     'themes/latex.js',
     'themes/tufte.js',
   ])

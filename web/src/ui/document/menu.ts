@@ -283,6 +283,15 @@ export class DocumentMenu extends LitElement {
         </sl-menu-item>
         <sl-menu-item
           type="checkbox"
+          ?checked=${this.theme === 'hhmi'}
+          @click=${() => this.changeTheme('hhmi')}
+          class="ml-2"
+        >
+          <stencila-ui-icon name="building" slot="prefix"></stencila-ui-icon>
+          <span class="text-sm">HHMI</span>
+        </sl-menu-item>
+        <sl-menu-item
+          type="checkbox"
           ?checked=${this.theme === 'tufte'}
           @click=${() => this.changeTheme('tufte')}
           class="ml-2"

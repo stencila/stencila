@@ -1,0 +1,412 @@
+/*
+ * HHMI Theme
+ *
+ * A scientific-preprint theme based on the publication design used by the
+ * Howard Hughes Medical Institute. It combines compact journal typography
+ * with HHMI's blue-green palette and a distinctive first-page color rail.
+ */
+
+:root {
+    --hhmi-blue: #34768c;
+    --hhmi-teal: #009ca6;
+    --hhmi-green: #00ad68;
+    --hhmi-lime: #72bf44;
+    --hhmi-pale-blue: #eaf2f7;
+
+    --font-family-serif: 'Times New Roman', Times, 'Liberation Serif', serif;
+    --font-family-sans: Arial, Helvetica, 'Liberation Sans', sans-serif;
+
+    --text-font-size: 1rem;
+    --text-line-height: 1.35;
+    --text-letter-spacing: 0;
+    --content-width: 82ch;
+    --content-spacing: 0.65rem;
+
+    --color-accent: var(--hhmi-blue);
+    --citation-color: var(--hhmi-blue);
+
+    --work-title-font-family: var(--font-family-sans);
+    --work-title-font-size: calc(var(--text-font-size) * 1.55);
+    --work-title-font-weight: 700;
+    --work-title-line-height: 1.35;
+    --work-title-letter-spacing: 0;
+    --work-title-color: var(--hhmi-blue);
+    --work-title-text-align: left;
+    --work-title-max-width: var(--work-content-max-width);
+    --work-title-margin-bottom: 0.8rem;
+
+    --work-authors-font-size: calc(var(--text-font-size) * 0.88);
+    --work-authors-margin-bottom: 1rem;
+
+    --work-abstract-font-size: calc(var(--text-font-size) * 0.9);
+    --work-abstract-background: var(--hhmi-pale-blue);
+    --work-abstract-max-width: var(--work-content-max-width);
+    --work-abstract-margin-bottom: 1rem;
+
+    --work-keywords-font-size: calc(var(--text-font-size) * 0.9);
+    --work-keywords-margin-bottom: 2.2rem;
+
+    --heading-font-family: var(--font-family-sans);
+    --heading-font-size: calc(var(--text-font-size) * 1.35);
+    --heading-font-size-ratio: 0.86;
+    --heading-font-weight: 700;
+    --heading-font-weight-decrement: 0;
+    --heading-letter-spacing: 0;
+    --heading-color: var(--hhmi-blue);
+    --heading-spacing-top: calc(var(--content-spacing) * 1.4);
+    --heading-spacing-bottom: calc(var(--content-spacing) * 0.35);
+
+    --paragraph-spacing: calc(var(--content-spacing) * 0.35);
+    --paragraph-text-align: justify;
+    --paragraph-hyphens: auto;
+    --paragraph-text-wrap: auto;
+
+    --caption-font-family: var(--font-family-sans);
+    --caption-font-size: calc(var(--text-font-size) * 0.76);
+    --caption-line-height: 1.2;
+    --caption-align: justify;
+    --caption-spacing: calc(var(--content-spacing) * 0.35);
+
+    --figure-spacing-top: var(--content-spacing);
+    --figure-spacing-bottom: var(--content-spacing);
+    --figure-border-width: 0;
+    --figure-background: transparent;
+    --figure-label-color: var(--hhmi-blue);
+    --figure-label-font-weight: 700;
+
+    --link-color: var(--hhmi-blue);
+    --link-color-visited: var(--hhmi-blue);
+    --link-decoration: none;
+
+    --reference-font-size: calc(var(--text-font-size) * 0.82);
+    --reference-line-height: 1.2;
+    --reference-spacing: calc(var(--content-spacing) * 0.25);
+}
+
+stencila-article > [slot='authors'] {
+    font-family: var(--font-family-sans);
+    line-height: 1.25;
+}
+
+stencila-article > [slot='authors'] .author-affiliation-marks {
+    margin-left: 0.08em;
+    font-size: 0.72em;
+}
+
+stencila-article > [slot='authors'] .author-affiliation-mark {
+    color: inherit;
+    text-decoration: none;
+}
+
+stencila-article > [slot='affiliations'] {
+    margin-top: 0.35rem;
+    font-size: calc(var(--work-authors-font-size) * 0.82);
+    font-family: var(--font-family-sans);
+    line-height: 1.25;
+}
+
+stencila-article > [slot='affiliations'] .author-affiliation-label {
+    margin-right: 0.18em;
+}
+
+stencila-article > [slot='affiliations'] .author-affiliation-ror {
+    display: none;
+}
+
+stencila-article > [slot='contacts'],
+stencila-article > [slot='correspondence'] {
+    margin-top: 0.9rem;
+    font-size: calc(var(--work-authors-font-size) * 0.82);
+    font-family: var(--font-family-sans);
+    line-height: 1.25;
+}
+
+stencila-article > [slot='contacts'] .author-contact-label,
+stencila-article > [slot='correspondence'] .author-contact-label {
+    font-weight: inherit;
+}
+
+stencila-article > [slot='contacts'] .author-contact-name,
+stencila-article > [slot='correspondence'] .author-contact-name {
+    display: none;
+}
+
+stencila-article > [slot='abstract'] {
+    box-sizing: border-box;
+    padding: 1rem 1.2rem;
+}
+
+stencila-article > [slot='abstract'] stencila-heading {
+    margin-top: 0;
+}
+
+stencila-article > [slot='abstract'] stencila-heading h1,
+stencila-article > [slot='abstract'] stencila-heading h2 {
+    margin-bottom: 0.3rem;
+    font-family: var(--font-family-sans);
+    font-size: 0.9em;
+    line-height: 1.2;
+    text-transform: uppercase;
+    color: var(--hhmi-blue);
+}
+
+stencila-article > [slot='abstract'] stencila-paragraph {
+    margin: 0 0 0.75rem;
+}
+
+stencila-article > [slot='abstract'] stencila-paragraph:last-child {
+    margin-bottom: 0;
+}
+
+stencila-article > [slot='keywords'] {
+    font-family: var(--font-family-sans);
+}
+
+stencila-article > [slot='content'] > stencila-section > [slot='content'] > stencila-heading[level='1'] h1 {
+    text-transform: uppercase;
+}
+
+@media print {
+    :root {
+        --text-font-size-print: 8.4pt;
+        --text-line-height-print: 1.22;
+        --content-spacing-print: 3pt;
+        --text-font-size: var(--text-font-size-print);
+        --text-line-height: var(--text-line-height-print);
+        --paragraph-line-height: 1.53;
+        --content-spacing: var(--content-spacing-print);
+        --content-width: 100%;
+        --content-width-print: 100%;
+        --work-content-max-width: 100%;
+        --content-breakout-width: 100%;
+
+        --page-margin-top: 15mm;
+        --page-margin-right: 25mm;
+        --page-margin-bottom: 14mm;
+        /* Left margin is 0 (not 25mm) so that the first-page color rail
+         * (below) can bleed to the physical page edge: Chrome's print-to-PDF
+         * clips anything positioned outside the @page content box, so the
+         * usual negative-offset bleed trick does not work. The 25mm inset is
+         * instead applied as padding on stencila-article[root], which (unlike
+         * page margins) is available for content to escape via absolute
+         * positioning relative to the padding edge. */
+        --page-margin-left: 0;
+        --page-padding-top: 0;
+        --page-padding-bottom: 0;
+        --page-content-width: 160mm;
+
+        --page-margin-font-family: var(--font-family-serif);
+        --page-margin-font-size: 7pt;
+        --page-margin-color: #333;
+        --page-top-left-content: '';
+        --page-top-center-content: '';
+        --page-top-right-content: '';
+        --page-bottom-left-content: 'Cite as doi: ' var(--document-doi-url);
+        --page-bottom-center-content: '';
+        --page-bottom-right-content: counter(page);
+
+        --page1-bottom-left-content: var(--page-bottom-left-content);
+        --page1-bottom-right-content: counter(page);
+
+        --page-border-wide: 0;
+        --page1-border-wide: 0;
+
+        --work-title-font-size-print: 10.5pt;
+        --work-title-font-size: var(--work-title-font-size-print);
+        --work-title-line-height: 1.7;
+        --work-authors-margin-bottom: 4.5mm;
+        --heading-font-size-print: 10pt;
+        --heading-font-size: var(--heading-font-size-print);
+        --figure-max-width-print: 100%;
+    }
+
+    /* The bottom-left margin box is positioned using the page's own (now 0)
+     * margin-left, so it needs the same 25mm compensating inset applied
+     * directly to body content via stencila-article[root]'s padding above. */
+    @page {
+        @bottom-left {
+            padding-left: 25mm;
+        }
+    }
+
+    /* padding-top compensates for the first page's removed top margin (see
+     * @page :first below); padding-left compensates for the removed page
+     * margin-left on every page (unlike padding-top, padding-left repeats on
+     * every page fragment of the flowing content, so this alone keeps body
+     * text at the same 25mm inset throughout the document). */
+    stencila-article[root] {
+        display: block;
+        position: relative;
+        padding-top: 15mm;
+        padding-left: 25mm;
+    }
+
+    /* The first page has no top page margin (see @page :first below) so that
+     * the color rail can bleed to the physical top edge; every other page
+     * keeps the normal 15mm top margin. */
+    @page :first {
+        margin-top: 0;
+    }
+
+    stencila-article[root]::before {
+        content: '';
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: 10.5mm;
+        height: 275mm;
+        pointer-events: none;
+        background: linear-gradient(
+            to bottom,
+            var(--hhmi-teal) 0 34mm,
+            var(--hhmi-green) 34mm 41mm,
+            var(--hhmi-lime) 41mm 47mm,
+            #a8cf45 47mm 50mm,
+            var(--hhmi-teal) 50mm 275mm
+        );
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-article > [slot='title'] {
+        margin-top: 0;
+        margin-bottom: 3.5mm;
+        padding-top: 19mm;
+    }
+
+    stencila-article > [slot='authors'] {
+        font-size: 9.5pt;
+    }
+
+    stencila-article > [slot='affiliations'] {
+        margin-top: 1.2mm;
+        font-size: 6.8pt;
+        line-height: 1.18;
+    }
+
+    stencila-article > [slot='contacts'],
+    stencila-article > [slot='correspondence'] {
+        margin-top: 8mm;
+        font-size: 6.8pt;
+    }
+
+    stencila-article > [slot='abstract'] {
+        break-inside: avoid;
+        margin-bottom: 4.5mm;
+        padding: 3.5mm 4.5mm 3mm;
+        font-family: var(--font-family-sans);
+        font-size: 7.8pt;
+        line-height: 1.35;
+        --paragraph-line-height: 1.54;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-article > [slot='abstract'] stencila-heading h1,
+    stencila-article > [slot='abstract'] stencila-heading h2 {
+        font-size: 7.4pt;
+    }
+
+    stencila-article > [slot='abstract'] stencila-paragraph {
+        margin-bottom: 4.6mm;
+    }
+
+    stencila-article > [slot='keywords'] {
+        margin-bottom: 16.5mm;
+        font-size: 7.5pt;
+    }
+
+    stencila-heading[level='1'] {
+        margin-top: 3.5mm;
+    }
+
+    stencila-heading[level='2'] {
+        margin-top: 2.2mm;
+    }
+
+    stencila-heading h1 {
+        font-size: 10pt;
+    }
+
+    stencila-article
+        > [slot='content']
+        stencila-heading[level='1']
+        h1 {
+        display: inline-block;
+        padding-top: 0.6mm;
+        border-top: 0.25pt solid var(--hhmi-blue);
+    }
+
+    stencila-heading h2 {
+        font-size: 8.4pt;
+    }
+
+    stencila-heading h3,
+    stencila-heading h4,
+    stencila-heading h5,
+    stencila-heading h6 {
+        font-size: 8.2pt;
+    }
+
+    stencila-paragraph {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    stencila-paragraph p {
+        text-indent: 3mm;
+    }
+
+    stencila-heading + stencila-paragraph p,
+    stencila-figure + stencila-paragraph p,
+    stencila-section > [slot='content'] > stencila-paragraph:first-of-type p {
+        text-indent: 0;
+    }
+
+    /* Figures are not forced onto their own page: that guarantees a ragged gap
+     * at the foot of the preceding page. Let them flow, keep them intact, and
+     * rely on the fit-to-page scaling in `figure.ts` to stop a figure being so
+     * tall that it can never share a page with text. */
+    stencila-figure {
+        break-inside: avoid;
+        margin-top: 4mm;
+        margin-bottom: 2mm;
+    }
+
+    stencila-figure figcaption {
+        box-sizing: border-box;
+        padding: 1.5mm 2mm;
+        background: var(--hhmi-pale-blue);
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-figure figcaption stencila-paragraph p {
+        font-size: 7.8pt;
+        line-height: 1.18;
+        text-indent: 0;
+    }
+
+    stencila-reference p {
+        font-size: 6.8pt;
+    }
+
+    stencila-math-block {
+        margin-block: 1.5mm;
+        font-size: 8pt;
+        line-height: 1.15;
+    }
+
+    stencila-math-block [slot='mathml'] math {
+        font-size: 8pt;
+    }
+
+    /* Some math is decoded as a rendered image (e.g. from OCR) rather than
+     * MathML, so font-size above has no effect on it; constrain its height
+     * directly instead. */
+    stencila-math-block [slot='images'] img {
+        max-height: 8mm;
+        width: auto;
+    }
+}

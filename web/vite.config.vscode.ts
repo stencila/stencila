@@ -15,6 +15,7 @@ export default defineConfig({
       input: {
         'views/vscode': resolve(__dirname, 'src/views/vscode.ts'),
         'themes/base': resolve(__dirname, 'src/themes/_base.ts'),
+        'themes/hhmi': resolve(__dirname, 'src/themes/_hhmi.ts'),
         'themes/latex': resolve(__dirname, 'src/themes/_latex.ts'),
         'themes/tufte': resolve(__dirname, 'src/themes/_tufte.ts'),
       },
@@ -30,6 +31,10 @@ export default defineConfig({
 
           if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_base.ts'))) {
             return 'themes/base[extname]'
+          }
+
+          if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_hhmi.ts'))) {
+            return 'themes/hhmi[extname]'
           }
 
           if (originalFileNames.some((fileName) => fileName.endsWith('src/themes/_latex.ts'))) {

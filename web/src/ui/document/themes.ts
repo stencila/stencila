@@ -1,7 +1,7 @@
 /**
  * Available CSS themes for the document
  */
-export type Theme = 'base' | 'tufte' | 'latex' | 'workspace' | 'user'
+export type Theme = 'base' | 'hhmi' | 'tufte' | 'latex' | 'workspace' | 'user'
 
 /**
  * Utility functions for theme management
@@ -11,7 +11,7 @@ export class ThemeManager {
     try {
       // First check if there's a saved preference
       const saved = localStorage.getItem('stencila-theme-preference') as Theme
-      if (saved && ['base', 'tufte', 'latex', 'workspace', 'user'].includes(saved)) {
+      if (saved && ['base', 'hhmi', 'tufte', 'latex', 'workspace', 'user'].includes(saved)) {
         return saved
       }
 
@@ -25,7 +25,7 @@ export class ThemeManager {
       } else if (initialThemeType === 'builtin') {
         // For builtin themes, get the actual theme name
         const themeName = document.querySelector('meta[name="stencila-initial-theme-name"]')?.getAttribute('content')
-        if (themeName && ['base', 'tufte', 'latex'].includes(themeName)) {
+        if (themeName && ['base', 'hhmi', 'tufte', 'latex'].includes(themeName)) {
           return themeName as Theme
         }
       }
