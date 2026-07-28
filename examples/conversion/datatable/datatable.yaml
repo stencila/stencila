@@ -2,6 +2,7 @@ type: Article
 content:
 - type: Datatable
   id: tab-example-data
+  idAutomatically: false
   label: '1'
   labelAutomatically: false
   caption:

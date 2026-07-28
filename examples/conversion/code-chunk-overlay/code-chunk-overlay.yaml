@@ -9,9 +9,9 @@ content:
   code:
     string: plot(data)
   programmingLanguage: python
-  labelType: FigureLabel
   label: '1'
   labelAutomatically: false
+  labelType: FigureLabel
   caption:
   - type: Paragraph
     content:
@@ -32,9 +32,9 @@ content:
   code:
     string: plot(other_data)
   programmingLanguage: python
-  labelType: FigureLabel
   label: '2'
   labelAutomatically: false
+  labelType: FigureLabel
   caption:
   - type: CodeBlock
     code:

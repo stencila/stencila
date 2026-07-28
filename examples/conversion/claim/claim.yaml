@@ -1,15 +1,14 @@
 type: Article
 content:
 - type: Claim
-  claimType: Theorem
   content:
   - type: Paragraph
     content:
     - type: Text
       value:
         string: A theorem
+  claimType: Theorem
 - type: Claim
-  claimType: Proposition
   label: Proposition 1
   content:
   - type: Paragraph
@@ -17,3 +16,4 @@ content:
     - type: Text
       value:
         string: A proposition with a label
+  claimType: Proposition

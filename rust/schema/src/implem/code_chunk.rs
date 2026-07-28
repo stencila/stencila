@@ -564,7 +564,7 @@ impl MarkdownCodec for CodeChunk {
                     }
 
                     if self.label_type.is_some()
-                        && !self.id_automatically.unwrap_or(true)
+                        && !self.id_automatically.unwrap_or(false)
                         && let Some(id) = &self.id
                     {
                         context.push_str(" #").push_prop_str(NodeProperty::Id, id);
@@ -612,7 +612,7 @@ impl MarkdownCodec for CodeChunk {
 
                 context.push_str("exec");
 
-                if !(self.id_automatically.unwrap_or(true) || wrapped && self.label_type.is_some())
+                if !(self.id_automatically.unwrap_or(false) || wrapped && self.label_type.is_some())
                     && let Some(id) = &self.id
                 {
                     context.push_str(" #").push_prop_str(NodeProperty::Id, id);

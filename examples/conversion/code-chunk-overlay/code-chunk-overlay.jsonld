@@ -22,9 +22,9 @@
         "string": "plot(data)"
       },
       "programmingLanguage": "python",
-      "stencila:labelType": "FigureLabel",
       "stencila:label": "1",
       "stencila:labelAutomatically": false,
+      "stencila:labelType": "FigureLabel",
       "caption": [
         {
           "@type": "stencila:Paragraph",
@@ -57,9 +57,9 @@
         "string": "plot(other_data)"
       },
       "programmingLanguage": "python",
-      "stencila:labelType": "FigureLabel",
       "stencila:label": "2",
       "stencila:labelAutomatically": false,
+      "stencila:labelType": "FigureLabel",
       "caption": [
         {
           "@type": "stencila:CodeBlock",

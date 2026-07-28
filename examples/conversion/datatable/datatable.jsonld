@@ -8,6 +8,7 @@
     {
       "@type": "stencila:Datatable",
       "@id": "tab-example-data",
+      "stencila:idAutomatically": false,
       "stencila:label": "1",
       "stencila:labelAutomatically": false,
       "caption": [

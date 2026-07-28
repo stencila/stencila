@@ -7,7 +7,6 @@
   "stencila:content": [
     {
       "@type": "Claim",
-      "stencila:claimType": "Theorem",
       "stencila:content": [
         {
           "@type": "stencila:Paragraph",
@@ -20,11 +19,11 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:claimType": "Theorem"
     },
     {
       "@type": "Claim",
-      "stencila:claimType": "Proposition",
       "stencila:label": "Proposition 1",
       "stencila:content": [
         {
@@ -38,7 +37,8 @@
             }
           ]
         }
-      ]
+      ],
+      "stencila:claimType": "Proposition"
     }
   ]
 }

@@ -221,7 +221,7 @@ impl MarkdownCodec for Table {
             context.exit_node().newline();
         } else {
             let wrapped = if (self.label.is_some() && !self.label_automatically.unwrap_or(true))
-                || (self.id.is_some() && !self.id_automatically.unwrap_or(true))
+                || (self.id.is_some() && !self.id_automatically.unwrap_or(false))
                 || self.caption.is_some()
                 || self.notes.is_some()
             {
@@ -234,7 +234,7 @@ impl MarkdownCodec for Table {
                     context.push_prop_str(NodeProperty::Label, label);
                 }
 
-                if !self.id_automatically.unwrap_or(true)
+                if !self.id_automatically.unwrap_or(false)
                     && let Some(id) = &self.id
                 {
                     context.push_str(" #").push_prop_str(NodeProperty::Id, id);

@@ -532,7 +532,7 @@ impl MarkdownCodec for Figure {
                 context.push_prop_str(NodeProperty::Label, label);
             }
 
-            if !self.id_automatically.unwrap_or(true)
+            if !self.id_automatically.unwrap_or(false)
                 && let Some(id) = &self.id
             {
                 context.push_str(" #").push_prop_str(NodeProperty::Id, id);

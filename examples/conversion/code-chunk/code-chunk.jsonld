@@ -95,9 +95,9 @@
         "string": "plot(y~x)"
       },
       "programmingLanguage": "r",
-      "stencila:labelType": "FigureLabel",
       "stencila:label": "1",
       "stencila:labelAutomatically": false,
+      "stencila:labelType": "FigureLabel",
       "caption": [
         {
           "@type": "stencila:Paragraph",
@@ -129,9 +129,9 @@
         "string": "head(mtcars)"
       },
       "programmingLanguage": "r",
-      "stencila:labelType": "TableLabel",
       "stencila:label": "1",
       "stencila:labelAutomatically": false,
+      "stencila:labelType": "TableLabel",
       "caption": [
         {
           "@type": "stencila:Paragraph",

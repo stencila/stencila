@@ -10,7 +10,7 @@ use serde_json::json;
 use winnow::{
     LocatingSlice as Located, ModalResult, Parser,
     ascii::{Caseless, multispace0, multispace1, space0},
-    combinator::{alt, delimited, eof, opt, preceded, repeat, separated, terminated},
+    combinator::{alt, delimited, eof, opt, peek, preceded, repeat, separated, terminated},
     stream::AsChar,
     token::{take, take_till, take_until, take_while},
 };
@@ -23,7 +23,8 @@ use stencila_codec::{
         CodeExpression, Datatable, ExecutionBounds, ExecutionMode, Figure, FigureOptions, ForBlock,
         Heading, HorizontalAlignment, IfBlock, IfBlockClause, ImageObject, IncludeBlock, Inline,
         InstructionBlock, InstructionMessage, LabelType, List, ListItem, ListOrder, MathBlock,
-        Node, Page, Paragraph, PromptBlock, QuoteBlock, RawBlock, Section, SoftwareApplication,
+        Node, Object, Page, Paragraph, Primitive, PromptBlock, QuoteBlock, RawBlock,
+        ResearchObjectRelation, ResearchObjectRelationKind, Section, SoftwareApplication,
         StyledBlock, SuggestionBlock, SuggestionStatus, SuggestionType, Table, TableCell,
         TableCellOptions, TableCellType, TableRow, TableRowType, Text, ThematicBreak, Walkthrough,
         WalkthroughStep,
@@ -542,7 +543,7 @@ fn block(input: &mut Located<&str>) -> ModalResult<Block> {
             alt((
                 alt((
                     admonition_qmd,
-                    styled_block_qmd,
+                    alt((claim_qmd, styled_block_qmd)),
                     appendix_break,
                     call_block,
                     include_block,
@@ -762,6 +763,99 @@ fn claim(input: &mut Located<&str>) -> ModalResult<Block> {
             })
         })
         .parse_next(input)
+}
+
+/// Parse a [`Claim`] node from QMD format (e.g. `::: {.theorem}`)
+fn claim_qmd(input: &mut Located<&str>) -> ModalResult<Block> {
+    delimited(
+        ('{', multispace0, '.'),
+        (
+            terminated(
+                alt((
+                    Caseless("claim"),
+                    Caseless("corollary"),
+                    Caseless("hypothesis"),
+                    Caseless("lemma"),
+                    Caseless("postulate"),
+                    Caseless("proof"),
+                    Caseless("proposition"),
+                    Caseless("statement"),
+                    Caseless("theorem"),
+                )),
+                alt((multispace1, peek('}').take())),
+            ),
+            opt(terminated(
+                preceded(
+                    '#',
+                    take_while(1.., |char: char| !char.is_whitespace() && char != '}'),
+                ),
+                multispace0,
+            )),
+            attrs_list,
+        ),
+        (multispace0, '}'),
+    )
+    .map(|(claim_type, id, attrs): (&str, Option<&str>, Attrs)| {
+        let mut label = None;
+        let mut relations = Vec::new();
+        let mut extra = Object::new();
+
+        for (name, value) in attrs {
+            if name == "label" {
+                label = value.map(node_to_string);
+            } else if let Some(kind) = ResearchObjectRelationKind::from_authored_key(name) {
+                if let Some(value) = value {
+                    relations.extend(
+                        node_to_string(value)
+                            .split(|char: char| char.is_whitespace() || char == ',')
+                            .filter(|target| !target.is_empty())
+                            .map(|target| ResearchObjectRelation::new(kind, target.to_string())),
+                    );
+                }
+            } else {
+                extra.insert(
+                    name.to_string(),
+                    value
+                        .map(node_to_primitive)
+                        .unwrap_or(Primitive::Boolean(true)),
+                );
+            }
+        }
+
+        let claim_type = if claim_type.eq_ignore_ascii_case("claim") {
+            None
+        } else {
+            claim_type.parse().ok()
+        };
+
+        Block::Claim(Claim {
+            id: id.map(String::from),
+            claim_type,
+            label,
+            relations: (!relations.is_empty()).then_some(relations),
+            options: Box::new(stencila_codec::stencila_schema::ClaimOptions {
+                extra: (!extra.is_empty()).then_some(extra),
+                ..Default::default()
+            }),
+            ..Default::default()
+        })
+    })
+    .parse_next(input)
+}
+
+/// Convert a primitive [`Node`] parsed from an attribute value into a [`Primitive`].
+fn node_to_primitive(node: Node) -> Primitive {
+    match node {
+        Node::Null(value) => Primitive::Null(value),
+        Node::Boolean(value) => Primitive::Boolean(value),
+        Node::Integer(value) => Primitive::Integer(value),
+        Node::UnsignedInteger(value) => Primitive::UnsignedInteger(value),
+        Node::Number(value) => Primitive::Number(value),
+        Node::String(value) => Primitive::String(value),
+        Node::Array(value) => Primitive::Array(value),
+        Node::Object(value) => Primitive::Object(value),
+        _ => Primitive::String(node_to_string(node)),
+    }
 }
 
 /// Parse a [`CodeChunk`] node with a label and/or caption
@@ -1458,8 +1552,17 @@ fn finalize(parent: &mut Block, mut children: Vec<Block>, context: &mut Context)
         } else {
             suggestion.content = children;
         }
+    } else if let Block::Claim(claim) = parent {
+        if matches!(context.format, Format::Qmd)
+            && let Some(Block::Heading(Heading {
+                level: 2, content, ..
+            })) = children.first()
+        {
+            claim.options.title = Some(content.clone());
+            children.remove(0);
+        }
+        claim.content = children;
     } else if let Block::ChatMessage(ChatMessage { content, .. })
-    | Block::Claim(Claim { content, .. })
     | Block::Page(Page { content, .. })
     | Block::Section(Section { content, .. })
     | Block::StyledBlock(StyledBlock { content, .. }) = parent
@@ -2579,6 +2682,23 @@ mod tests {
         article.content
     }
 
+    fn decode_qmd(md: &str) -> Vec<Block> {
+        let (node, _) = decode(
+            md,
+            Some(DecodeOptions {
+                format: Some(Format::Qmd),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+
+        let Node::Article(article) = node else {
+            panic!("expected article")
+        };
+
+        article.content
+    }
+
     #[test]
     fn test_call_arg() {
         call_arg(&mut Located::new("arg=1")).unwrap();
@@ -3156,6 +3276,80 @@ A two-panel figure combining an executable plot with a real image.
                 ..Default::default()
             })
         );
+    }
+
+    #[test]
+    fn test_claim_qmd() {
+        assert_eq!(
+            claim_qmd(&mut Located::new("{.theorem}")).unwrap(),
+            Block::Claim(Claim {
+                claim_type: Some(ClaimType::Theorem),
+                ..Default::default()
+            })
+        );
+
+        assert_eq!(
+            claim_qmd(&mut Located::new(
+                "{.proposition #prop-1 label=\"Proposition 1\"}"
+            ))
+            .unwrap(),
+            Block::Claim(Claim {
+                id: Some("prop-1".to_string()),
+                claim_type: Some(ClaimType::Proposition),
+                label: Some("Proposition 1".to_string()),
+                ..Default::default()
+            })
+        );
+
+        assert!(claim_qmd(&mut Located::new("{.theorem-note}")).is_err());
+        assert!(claim_qmd(&mut Located::new("{.proofreading}")).is_err());
+    }
+
+    #[test]
+    fn test_claim_qmd_metadata_and_title() {
+        let blocks = decode_qmd(
+            r##"::: {.statement #c1 label="Claim 1" supported-by="#e1, #e2" custom="value"}
+
+## Core claim
+
+Claim text.
+
+:::"##,
+        );
+
+        let [Block::Claim(claim)] = blocks.as_slice() else {
+            panic!("expected one claim")
+        };
+
+        assert_eq!(claim.id.as_deref(), Some("c1"));
+        assert_eq!(claim.claim_type, Some(ClaimType::Statement));
+        assert_eq!(claim.label.as_deref(), Some("Claim 1"));
+        assert_eq!(
+            claim.options.title,
+            Some(vec![Inline::Text(Text::from("Core claim"))])
+        );
+        assert_eq!(
+            claim.relations,
+            Some(vec![
+                ResearchObjectRelation::new(
+                    ResearchObjectRelationKind::SupportedBy,
+                    "#e1".to_string()
+                ),
+                ResearchObjectRelation::new(
+                    ResearchObjectRelationKind::SupportedBy,
+                    "#e2".to_string()
+                ),
+            ])
+        );
+        assert_eq!(
+            claim
+                .options
+                .extra
+                .as_ref()
+                .and_then(|extra| extra.get("custom")),
+            Some(&Primitive::String("value".to_string()))
+        );
+        assert_eq!(claim.content.len(), 1);
     }
 
     #[test]

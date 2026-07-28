@@ -1,6 +1,6 @@
 start     end        offsets   node_type+property                   authorship
-    13     22       (13, 22)   Paragraph
-     0     27       (-13, 5)   Claim
-    60     86       (60, 59)   Paragraph
-    29     91       (-31, 5)   Claim
-     0     92       (-29, 1)   Article
+    16     25       (16, 25)   Paragraph
+     0     30       (-16, 5)   Claim
+    74    100       (74, 70)   Paragraph
+    32    105       (-42, 5)   Claim
+     0    106       (-32, 1)   Article

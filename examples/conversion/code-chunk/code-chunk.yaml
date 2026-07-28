@@ -48,9 +48,9 @@ content:
   code:
     string: plot(y~x)
   programmingLanguage: r
-  labelType: FigureLabel
   label: '1'
   labelAutomatically: false
+  labelType: FigureLabel
   caption:
   - type: Paragraph
     content:
@@ -66,9 +66,9 @@ content:
   code:
     string: head(mtcars)
   programmingLanguage: r
-  labelType: TableLabel
   label: '1'
   labelAutomatically: false
+  labelType: TableLabel
   caption:
   - type: Paragraph
     content:
