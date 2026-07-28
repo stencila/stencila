@@ -434,6 +434,7 @@ fn needs_view(html: &str) -> bool {
 ///
 /// - **Network Idle**: Waits until no network requests for 500ms (like
 ///   Puppeteer's networkidle0)
+/// - **Stylesheets**: Waits for every enabled linked stylesheet to load or fail
 /// - **Animation Frame**: Uses double requestAnimationFrame to ensure
 ///   animations settle
 /// - **Web Components**: Waits for custom elements and shadow DOM to initialize  
@@ -497,6 +498,8 @@ impl ScreenshotWaiter {
             self.wait_network_idle(tab)?;
         }
 
+        self.wait_stylesheets_loaded(tab)?;
+
         if self.config.images_and_fonts {
             self.wait_images_and_fonts(tab)?;
         }
@@ -558,6 +561,43 @@ impl ScreenshotWaiter {
 
         if let Err(error) = tab.evaluate(network_idle_check, true) {
             tracing::warn!("Network idle evaluation failed: {error}");
+        }
+
+        Ok(())
+    }
+
+    /// Wait for every enabled linked stylesheet to finish loading.
+    ///
+    /// The load event includes any nested `@import` requests. Failed stylesheets
+    /// are reported in the browser console, while a bounded timeout prevents an
+    /// unavailable remote asset from blocking capture indefinitely.
+    fn wait_stylesheets_loaded(&self, tab: &Arc<Tab>) -> Result<()> {
+        let stylesheet_script = r#"
+            Promise.race([
+                Promise.all(
+                    Array.from(document.querySelectorAll('link[rel~="stylesheet"]'))
+                        .filter(link => !link.disabled)
+                        .map(link => {
+                            if (link.sheet) return Promise.resolve();
+
+                            return new Promise(resolve => {
+                                const loaded = () => resolve();
+                                const failed = () => {
+                                    console.warn(`Stylesheet failed to load: ${link.href}`);
+                                    resolve();
+                                };
+
+                                link.addEventListener('load', loaded, { once: true });
+                                link.addEventListener('error', failed, { once: true });
+                            });
+                        })
+                ),
+                new Promise(resolve => setTimeout(resolve, 5000))
+            ])
+        "#;
+
+        if let Err(error) = tab.evaluate(stylesheet_script, true) {
+            tracing::warn!("Stylesheet wait failed: {error}");
         }
 
         Ok(())
