@@ -120,6 +120,9 @@ expression: article
       "givenNames": [
         "A",
         "G"
+      ],
+      "emails": [
+        "avidal@ilstu.edu"
       ]
     }
   ],

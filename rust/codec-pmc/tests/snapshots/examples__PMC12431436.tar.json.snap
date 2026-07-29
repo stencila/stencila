@@ -88,6 +88,10 @@ expression: article
       ],
       "givenNames": [
         "Hiroka"
+      ],
+      "emails": [
+        "aonuma@jikei.ac.jp",
+        "kanuka@jikei.ac.jp"
       ]
     },
     {
@@ -318,6 +322,10 @@ expression: article
       ],
       "givenNames": [
         "Hirotaka"
+      ],
+      "emails": [
+        "aonuma@jikei.ac.jp",
+        "kanuka@jikei.ac.jp"
       ]
     }
   ],

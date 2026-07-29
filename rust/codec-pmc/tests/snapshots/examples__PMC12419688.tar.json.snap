@@ -25,6 +25,9 @@ expression: article
       ],
       "givenNames": [
         "Andrea"
+      ],
+      "emails": [
+        "angomezf@iu.edu"
       ]
     }
   ],

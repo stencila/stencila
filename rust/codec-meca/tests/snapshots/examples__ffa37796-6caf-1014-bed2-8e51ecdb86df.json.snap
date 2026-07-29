@@ -56,6 +56,9 @@ expression: article
       ],
       "givenNames": [
         "Davide"
+      ],
+      "emails": [
+        "davide.cirillo@bsc.es"
       ]
     },
     {

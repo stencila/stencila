@@ -210,6 +210,9 @@ expression: article
       "givenNames": [
         "Karen",
         "I"
+      ],
+      "emails": [
+        "karen.lange@ucd.ie"
       ]
     }
   ],
