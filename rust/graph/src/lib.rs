@@ -46,6 +46,7 @@
 //! }
 //! ```
 
+mod asset;
 mod builder;
 mod c2pa;
 pub mod code;
@@ -60,6 +61,7 @@ mod reference;
 mod source;
 mod workspace;
 
+pub use asset::{AssetCredentialGraph, AssetGraphOptions, credential_graph_for_asset};
 pub use builder::GraphBuilder;
 pub(crate) use document::{DocumentReferenceKind, add_document_with_reference_resolver};
 pub use document::{add_document, graph_from_node};

@@ -12,8 +12,49 @@ This package provides Python classes for types in the [Stencila Schema](https://
 
 The primary intended audience is developers who want to develop their own tools on top of Stencila's core functionality. For example, with this package you could construct Stencila documents programmatically using Python and write them to multiple formats (e.g. Markdown, JATS XML, PDF).
 
-> [!IMPORTANT]
-> At present, there are only bindings to functions for format conversion, but future versions will expand this scope to include document management (e.g branching and merging) and execution.
+In addition to format conversion, the package exposes provenance graphs and
+Content Credentials for existing assets and live plots.
+
+```python
+import matplotlib.pyplot as plt
+from stencila import credentials
+
+fig, ax = plt.subplots()
+ax.plot([1, 2, 3])
+
+credentials.init()
+signed = credentials.sign(fig, "figures/example.png")
+report = credentials.verify(signed.path, require_stencila_assertion=True)
+```
+
+Matplotlib Figure, Axes, and `pyplot` objects are supported without making
+Matplotlib a package dependency. Other plotting systems can use
+`credentials.register_renderer(type, renderer)`. The `public` privacy profile
+is the default; `private` and `full` retain progressively more local context.
+Use `provenance="required"` when a source-linked graph is mandatory.
+Plotnine, Plotly, Altair, Bokeh, non-Matplotlib Seaborn objects, HoloViews, and
+hvPlot are extension targets rather than built-in adapters in this release.
+
+Existing assets can be inspected or signed in place, and notebooks can provide
+explicit source context:
+
+```python
+import stencila
+from stencila import credentials
+
+graph = stencila.graph("figure.png", workspace=".")
+signed = credentials.sign(
+    "figure.png",
+    source="analysis.py",
+    workspace=".",
+    provenance="required",
+)
+details = credentials.inspect(signed.path)
+```
+
+The identity created by `credentials.init()` is self-signed: its signatures
+can be cryptographically valid while remaining untrusted until a verifier is
+configured with an appropriate trust anchor.
 
 ## 📦 Install
 

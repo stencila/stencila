@@ -3,7 +3,7 @@
 use std::collections::BTreeSet;
 
 use serde::Serialize;
-use serde_json::{Value, json};
+use serde_json::Value;
 use stencila_schema::{
     ActionAgent, Array, CreateAction, CreativeWork, DateTime, ExecuteAction, File, Graph,
     GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphEvidenceConfidence,
@@ -36,18 +36,25 @@ pub const PROVENANCE_CONTEXT: &str = concat!(
     "/context.jsonld"
 );
 
-const ASSET_ID: &str = "asset:signed";
+/// Graph-local identifier reserved for the asset whose bytes are signed.
+pub const ASSET_ID: &str = "asset:signed";
 const PRODUCER_ID: &str = "software:producer";
 const ROOT_ID: &str = "node:root";
 
-const PROP_ASSET_TYPE: &str = "org.stencila.assetType";
-const PROP_ASSET_ID: &str = "org.stencila.assetId";
-const PROP_ASSET_ROLE: &str = "org.stencila.assetRole";
-const PROP_ASSET_TITLE: &str = "org.stencila.assetTitle";
+/// Identifier key used to preserve the asset's broad semantic kind.
+pub const PROP_ASSET_TYPE: &str = "org.stencila.assetType";
+/// Identifier key used to relate projections to the signed asset node.
+pub const PROP_ASSET_ID: &str = "org.stencila.assetId";
+/// Identifier key used to distinguish output assets from their inputs.
+pub const PROP_ASSET_ROLE: &str = "org.stencila.assetRole";
+/// Identifier key used to preserve a human-readable asset title.
+pub const PROP_ASSET_TITLE: &str = "org.stencila.assetTitle";
 const PROP_ASSET_LABEL: &str = "org.stencila.assetLabel";
 const PROP_ASSET_DESCRIPTION: &str = "org.stencila.assetDescription";
-const PROP_MEDIA_TYPE: &str = "org.stencila.mediaType";
-const PROP_CONTENT_DIGEST: &str = "org.stencila.contentDigest";
+/// Identifier key used to preserve the asset's concrete media type.
+pub const PROP_MEDIA_TYPE: &str = "org.stencila.mediaType";
+/// Identifier key used to bind provenance to the asset's source bytes.
+pub const PROP_CONTENT_DIGEST: &str = "org.stencila.contentDigest";
 const PROP_PRODUCER_NAME: &str = "org.stencila.producer.name";
 const PROP_PRODUCER_VERSION: &str = "org.stencila.producer.version";
 const PROP_PRODUCER_CODEC: &str = "org.stencila.producer.codec";
@@ -368,9 +375,12 @@ pub(crate) fn metadata_from_graph(graph: &Graph) -> GraphMetadata {
     metadata
 }
 
-/// Maps a media type to the broad Stencila asset kind used in credentials.
+/// Keep credential asset categories stable across specific media types.
+///
+/// Broad kinds support consistent projections while the original media type is
+/// retained separately for consumers that need its precise representation.
 #[must_use]
-pub(crate) fn asset_kind_for_media_type(media_type: &str) -> &'static str {
+pub fn asset_kind_for_media_type(media_type: &str) -> &'static str {
     match media_type {
         value if value.starts_with("image/") => "image",
         value if value.starts_with("video/") => "video",
@@ -624,18 +634,33 @@ fn recorded_evidence(snapshot: &ProvenanceSnapshot) -> GraphEvidence {
     let mut evidence = GraphEvidence::new(GraphEvidenceKind::Recorded);
     evidence.confidence = Some(GraphEvidenceConfidence::Certain);
     evidence.options.description = Some("Projected from Stencila export provenance".to_string());
-    evidence.options.details = Some(object_from_json(json!({
-        "identifiers": metadata_identifiers_as_json(snapshot),
-        "activity": snapshot.activity,
-        "source": snapshot.source,
-        "execution": execution_details(snapshot),
-        "workflow": snapshot.workflow,
-        "environment": snapshot.environment,
-        "aiDisclosure": snapshot.ai_disclosure,
-        "provenanceSummary": snapshot.provenance_summary,
-        "reproducibility": snapshot.reproducibility,
-        "privacy": snapshot.privacy,
-    })));
+    evidence.options.details = Some(Object::from([
+        ("identifiers", metadata_identifiers_as_primitive(snapshot)),
+        ("activity", primitive_from_serializable(&snapshot.activity)),
+        ("source", primitive_from_serializable(&snapshot.source)),
+        (
+            "execution",
+            execution_details(snapshot).map_or(Primitive::Null(Null), primitive_from_json),
+        ),
+        ("workflow", primitive_from_serializable(&snapshot.workflow)),
+        (
+            "environment",
+            primitive_from_serializable(&snapshot.environment),
+        ),
+        (
+            "aiDisclosure",
+            primitive_from_serializable(&snapshot.ai_disclosure),
+        ),
+        (
+            "provenanceSummary",
+            primitive_from_serializable(&snapshot.provenance_summary),
+        ),
+        (
+            "reproducibility",
+            primitive_from_serializable(&snapshot.reproducibility),
+        ),
+        ("privacy", primitive_from_serializable(&snapshot.privacy)),
+    ]));
     evidence
 }
 
@@ -712,19 +737,19 @@ fn metadata_identifiers(snapshot: &ProvenanceSnapshot) -> Vec<PropertyValueOrStr
         .collect()
 }
 
-fn metadata_identifiers_as_json(snapshot: &ProvenanceSnapshot) -> Value {
-    Value::Array(
+fn metadata_identifiers_as_primitive(snapshot: &ProvenanceSnapshot) -> Primitive {
+    Primitive::Array(Array(
         metadata_identifier_entries(snapshot)
             .into_iter()
             .map(|(key, value)| {
-                json!({
-                    "type": "PropertyValue",
-                    "propertyId": key,
-                    "value": primitive_to_json(&value),
-                })
+                Primitive::Object(Object::from([
+                    ("type", Primitive::String("PropertyValue".to_string())),
+                    ("propertyId", Primitive::String(key.to_string())),
+                    ("value", value),
+                ]))
             })
             .collect(),
-    )
+    ))
 }
 
 #[allow(clippy::too_many_lines)]
@@ -957,22 +982,6 @@ fn execution_details(snapshot: &ProvenanceSnapshot) -> Option<Value> {
     Some(value)
 }
 
-fn object_from_json(value: Value) -> Object {
-    match value {
-        Value::Object(object) => Object(
-            object
-                .into_iter()
-                .map(|(key, value)| (key, primitive_from_json(value)))
-                .collect(),
-        ),
-        other => Object(
-            [("value".to_string(), primitive_from_json(other))]
-                .into_iter()
-                .collect(),
-        ),
-    }
-}
-
 fn primitive_from_json(value: Value) -> Primitive {
     match value {
         Value::Null => Primitive::Null(Null),
@@ -999,12 +1008,12 @@ fn primitive_from_json(value: Value) -> Primitive {
     }
 }
 
-fn primitive_to_json(value: &Primitive) -> Value {
+fn json_or_null(value: impl Serialize) -> Value {
     serde_json::to_value(value).unwrap_or(Value::Null)
 }
 
-fn json_or_null(value: impl Serialize) -> Value {
-    serde_json::to_value(value).unwrap_or(Value::Null)
+fn primitive_from_serializable(value: impl Serialize) -> Primitive {
+    primitive_from_json(json_or_null(value))
 }
 
 fn document_node_id(prefix: &str, node: &DocumentSnapshot) -> String {

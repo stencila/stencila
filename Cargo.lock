@@ -12560,8 +12560,13 @@ dependencies = [
  "eyre",
  "pyo3",
  "pyo3-async-runtimes",
+ "serde",
  "serde_json",
  "stencila-codecs",
+ "stencila-content-credentials",
+ "stencila-graph",
+ "stencila-schema",
+ "tokio",
 ]
 
 [[package]]

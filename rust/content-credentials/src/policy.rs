@@ -12,6 +12,7 @@ use std::{
 
 use serde::{Deserialize, Serialize};
 use serde_json::{Map, Value};
+use stencila_schema::Graph;
 
 use crate::{
     error::{Error, Result},
@@ -114,6 +115,16 @@ impl ProjectionPolicy {
         }
     }
 
+    /// Build a policy rooted at the workspace used to prepare a Schema graph.
+    #[must_use]
+    pub fn for_workspace(profile: CredentialProfile, workspace_dir: PathBuf) -> Self {
+        Self {
+            profile,
+            workspace_dir: Some(workspace_dir),
+            home_dir: env::var_os("HOME").map(PathBuf::from),
+        }
+    }
+
     /// Project a snapshot according to this policy.
     #[must_use]
     pub fn project_snapshot(&self, mut snapshot: ProvenanceSnapshot) -> ProvenanceSnapshot {
@@ -196,6 +207,131 @@ impl ProjectionPolicy {
         }
 
         Ok(len)
+    }
+
+    /// Project a prepared Schema graph according to this policy.
+    ///
+    /// Workspace graphs contain richer metadata than credential assertions
+    /// should disclose. This applies the same secret and path rules used for
+    /// snapshots while also removing personal contact fields from public graphs.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the graph cannot be serialized or reconstructed after
+    /// projection.
+    pub fn project_graph(&self, graph: &mut Graph) -> Result<Vec<RedactionSnapshot>> {
+        let mut value = serde_json::to_value(&*graph)?;
+        let mut redactions = Vec::new();
+        self.project_graph_value("graph", &mut value, &mut redactions);
+        *graph = serde_json::from_value(value)?;
+        Ok(redactions)
+    }
+
+    fn project_graph_value(
+        &self,
+        field: &str,
+        value: &mut Value,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
+        match value {
+            Value::Object(object) => {
+                let keys = object.keys().cloned().collect::<Vec<_>>();
+                for key in keys {
+                    let child = format!("{field}.{key}");
+                    if is_secret_key(&key)
+                        || (self.profile == CredentialProfile::Public
+                            && is_personal_contact_key(&key))
+                    {
+                        object.remove(&key);
+                        redactions.push(redaction(child, REDACTION_FULLY_REDACTED));
+                        continue;
+                    }
+
+                    let Some(value) = object.get_mut(&key) else {
+                        continue;
+                    };
+                    if is_path_key(&key) {
+                        self.project_graph_path(&child, value, redactions);
+                    } else if is_url_key(&key) {
+                        self.project_graph_url(&child, &key, value, redactions);
+                    } else {
+                        self.project_graph_value(&child, value, redactions);
+                    }
+                }
+            }
+            Value::Array(values) => {
+                for (index, value) in values.iter_mut().enumerate() {
+                    self.project_graph_value(&format!("{field}[{index}]"), value, redactions);
+                }
+            }
+            Value::String(string) => {
+                if has_secret(string) || contains_home_path(string, self.home_dir.as_deref()) {
+                    *string = REDACTED_NAME.to_string();
+                    redactions.push(redaction(field, REDACTION_NAME_REDACTED));
+                }
+            }
+            Value::Null | Value::Bool(_) | Value::Number(_) => {}
+        }
+    }
+
+    fn project_graph_path(
+        &self,
+        field: &str,
+        value: &mut Value,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
+        let Some(raw) = value.as_str() else {
+            self.project_graph_value(field, value, redactions);
+            return;
+        };
+        if is_probable_url(raw) {
+            self.project_graph_url(field, "url", value, redactions);
+            return;
+        }
+        if has_secret(raw) {
+            *value = Value::String(REDACTED_NAME.to_string());
+            redactions.push(redaction(field, REDACTION_URI_OMITTED));
+            return;
+        }
+
+        let path = Path::new(raw);
+        if !path.is_absolute() {
+            return;
+        }
+        if let Some(relative) = self.workspace_relative(path) {
+            *value = Value::String(relative);
+        } else if self.profile == CredentialProfile::Public {
+            let filename = path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .unwrap_or(REDACTED_NAME);
+            *value = Value::String(filename.to_string());
+            redactions.push(redaction(field, REDACTION_URI_OMITTED));
+        }
+    }
+
+    fn project_graph_url(
+        &self,
+        field: &str,
+        key: &str,
+        value: &mut Value,
+        redactions: &mut Vec<RedactionSnapshot>,
+    ) {
+        let Some(raw) = value.as_str() else {
+            self.project_graph_value(field, value, redactions);
+            return;
+        };
+        if has_secret(raw)
+            || (self.profile == CredentialProfile::Public
+                && if key == "repository" {
+                    !is_public_hosting_url(raw)
+                } else {
+                    !public_web_url(raw)
+                })
+        {
+            *value = Value::String(REDACTED_NAME.to_string());
+            redactions.push(redaction(field, REDACTION_URI_OMITTED));
+        }
     }
 
     fn policy_name(&self) -> String {
@@ -998,6 +1134,21 @@ fn is_secret_key(key: &str) -> bool {
         || lower.contains("api_key")
         || lower.contains("apikey")
         || lower == "authorization"
+}
+
+fn is_personal_contact_key(key: &str) -> bool {
+    matches!(
+        key,
+        "addresses" | "emails" | "telephoneNumbers" | "telephone_numbers"
+    )
+}
+
+fn is_path_key(key: &str) -> bool {
+    matches!(key, "path" | "contentUrl" | "contentURL")
+}
+
+fn is_url_key(key: &str) -> bool {
+    matches!(key, "repository" | "url")
 }
 
 fn public_url(value: &str) -> bool {

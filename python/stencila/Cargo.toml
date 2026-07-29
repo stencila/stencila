@@ -27,4 +27,9 @@ pyo3-async-runtimes = { version = "0.28.0", features = [
     "tokio-runtime",
 ] }
 serde_json = { workspace = true }
+serde = { workspace = true, features = ["derive"] }
 stencila-codecs = { path = "../../rust/codecs" }
+stencila-content-credentials = { path = "../../rust/content-credentials" }
+stencila-graph = { path = "../../rust/graph" }
+stencila-schema = { path = "../../rust/schema" }
+tokio = { workspace = true }

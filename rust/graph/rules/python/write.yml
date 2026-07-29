@@ -130,6 +130,22 @@ rule:
     - pattern: to_zarr($PATH)
 
     # Images, plots, and media writers.
+    #
+    # `credentials.sign` writes its second argument. The single-argument form
+    # signs an existing asset in place, so there the sole argument is the
+    # destination. That form is matched at fixed arity only: a variadic
+    # `sign($PATH, $$$ARGS)` would also match `sign(figure, "out.png")` and
+    # bind the in-memory plot as if it were a path.
+    - pattern: stencila.credentials.sign($PLOT, $PATH, $$$ARGS)
+    - pattern: stencila.credentials.sign($PLOT, $PATH)
+    - pattern: stencila.credentials.sign($PLOT, output=$PATH, $$$ARGS)
+    - pattern: stencila.credentials.sign($PLOT, output=$PATH)
+    - pattern: stencila.credentials.sign($PATH)
+    - pattern: credentials.sign($PLOT, $PATH, $$$ARGS)
+    - pattern: credentials.sign($PLOT, $PATH)
+    - pattern: credentials.sign($PLOT, output=$PATH, $$$ARGS)
+    - pattern: credentials.sign($PLOT, output=$PATH)
+    - pattern: credentials.sign($PATH)
     - pattern: $OBJ.savefig($PATH, $$$ARGS)
     - pattern: $OBJ.savefig($PATH)
     - pattern: $OBJ.savefig(fname=$PATH, $$$ARGS)
