@@ -116,9 +116,12 @@ large_enum_variant = "allow"
 [profile.dev]
 debug = 1
 
-# Profile to reduce the binary size based on https://github.com/johnthagen/min-sized-rust
+# Balance binary size and runtime performance against release build time and
+# peak memory usage. Thin LTO retains most cross-crate optimization benefits
+# without the high resource cost of fat LTO, while multiple codegen units allow
+# LLVM to process this large dependency graph in parallel.
 [profile.release]
 strip = true
-lto = true
-codegen-units = 1
+lto = "thin"
+codegen-units = 16
 panic = "abort"
