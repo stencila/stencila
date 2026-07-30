@@ -1,0 +1,94 @@
+<!-- Generated from site/docs/documents by claude/scripts/gen-references.sh. Do not edit. -->
+
+
+# Lists
+
+Lists are used for sequences, collections, outlines, checklists, and grouped items. Stencila Markdown supports ordered lists, unordered lists, nested lists, task lists, and list items containing richer inline and block content.
+
+# Unordered lists
+
+Use `-` to create an unordered list:
+
+```smd
+- apple
+- pear
+- orange
+```
+
+Use unordered lists when the order of items does not matter.
+
+# Ordered lists
+
+Use `1.`, `2.`, `3.` and so on to create an ordered list:
+
+```smd
+1. first
+2. second
+3. third
+```
+
+Use ordered lists when sequence or ranking matters.
+
+# Nested lists
+
+Indent list items to nest one list inside another:
+
+```smd
+- 1
+
+  - 2a
+
+    - 3a
+
+  - 2b
+
+  - 2c
+
+    - 3b
+
+      - 4a
+```
+
+Nested lists are useful for outlines and hierarchical groupings.
+
+# Rich list items
+
+List items can contain more than plain text. They can include inline formatting and other inline content:
+
+```smd
+- an item with _emphasis_
+- an item with HTML <u>underlined</u>
+```
+
+# Multiple paragraphs in a list item
+
+To continue a list item with additional paragraphs, indent the following paragraphs so they remain part of the same item:
+
+```smd
+- para 1a
+
+  para 1b
+
+  para 1c
+
+- para 2a
+
+  para 2b
+
+- para 3
+```
+
+# Keeping lists separate
+
+Two adjacent lists can be merged if there is no block content between them. Add a paragraph or another block between them when you want them to remain separate:
+
+```smd
+- one
+- two
+
+A paragraph separating the lists.
+
+- three
+- four
+```
+

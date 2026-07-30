@@ -1,0 +1,58 @@
+<!-- Generated from site/docs/documents by claude/scripts/gen-references.sh. Do not edit. -->
+
+
+# Media
+
+Stencila Markdown supports images, audio, and video using familiar Markdown image syntax. Depending on the target resource, the same syntax can represent different media object types.
+
+# Inline media
+
+Media can appear inline within a paragraph:
+
+```smd
+An image ![](https://mdn.github.io/shared-assets/images/examples/grapefruit-slice.jpg), with alt text ![A grapefruit slice](https://mdn.github.io/shared-assets/images/examples/grapefruit-slice.jpg), with alt text and title ![A grapefruit slice](https://mdn.github.io/shared-assets/images/examples/grapefruit-slice.jpg "A grapefruit slice")
+```
+
+Audio and video can also be referenced inline:
+
+```smd
+Some audio ![](https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3)
+
+A video ![](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4)
+```
+
+# Block media
+
+A media object on its own line is treated as block content:
+
+```smd
+![](https://mdn.github.io/shared-assets/images/examples/grapefruit-slice.jpg)
+
+![](https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3)
+
+![](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4)
+```
+
+# Alt text and titles
+
+As with standard Markdown images, you can provide alt text and an optional title:
+
+```smd
+![A grapefruit slice](https://mdn.github.io/shared-assets/images/examples/grapefruit-slice.jpg "A grapefruit slice")
+```
+
+Alt text is especially useful for accessibility and for outputs where the media itself may not be visible.
+
+# Media versus figures
+
+Use plain media syntax when you just want to embed an image, audio file, or video.
+
+Use a [Figure](figures) when the media should be treated as a first-class document element with:
+
+- captions
+- labels
+- numbering
+- cross-references
+- multi-panel layouts
+- overlays
+

@@ -63,6 +63,7 @@ sed -i -e "s/\"version\": .*/\"version\": \"$VERSION\",/" web/package.json
 echo "Updating Python packages..."
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila_types/pyproject.toml
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila/pyproject.toml
+sed -i -e "s/\"stencila-types>=[^\"]*\"/\"stencila-types>=$VERSION\"/" python/stencila/pyproject.toml
 sed -i -e "s/^version = .*/version = \"$VERSION\"/" python/stencila/Cargo.toml
 
 # 5. Build and update lock files

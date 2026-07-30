@@ -33,6 +33,7 @@ lint:
 	make -C python/stencila lint
 	make -C web lint
 	make -C vscode lint
+	make -C claude lint
 
 # Run license metadata checks
 license:
@@ -45,6 +46,7 @@ test:
 	make -C node test
 	make -C python/stencila test
 	make -C test test
+	make -C claude test
 
 # Run tests with coverage
 cover:
@@ -101,6 +103,7 @@ docker:
 # Generate generated source and docs
 generated:
 	make -C rust generated
+	make -C claude generated
 
 # Generate examples in alternative formats
 examples:

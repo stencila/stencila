@@ -5,6 +5,7 @@ items:
   - workflows
   - agents
   - skills
+  - claude-code
   - db
   - formats
   - cli

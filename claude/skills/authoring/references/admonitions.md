@@ -1,0 +1,67 @@
+<!-- Generated from site/docs/documents by claude/scripts/gen-references.sh. Do not edit. -->
+
+
+# Admonitions
+
+Admonitions are callout blocks used to highlight information such as notes, warnings, tips, and errors. They help distinguish important content from the main flow of the document.
+
+# Basic admonitions
+
+Use quote-block syntax together with an admonition marker such as `[!note]` or `[!warning]`:
+
+```smd
+> [!note]
+> A note
+```
+
+```smd
+> [!warning]
+> A warning
+```
+
+# Admonition titles
+
+You can place a title after the admonition type:
+
+```smd
+> [!warning] With a title
+> A warning
+```
+
+# Foldable admonitions
+
+Admonitions can be foldable. Use `-` for foldable but initially open, and `+` for folded:
+
+```smd
+> [!success]-
+> Foldable, but unfolded
+```
+
+```smd
+> [!danger]+ Folded with a title
+> Foldable
+```
+
+# Nested admonitions
+
+Admonitions can be nested inside one another using nested quote syntax:
+
+```smd
+> [!tip] Nested admonitions
+> > [!info]
+> > > [!success]
+> > > This is the first inner-inner admonition
+> > 
+> > > [!error]
+> > > This is the second inner-inner admonition
+```
+
+# When to use admonitions
+
+Use admonitions when content should stand apart from the main prose, for example:
+
+- explanatory notes
+- warnings and cautions
+- tips and best practices
+- success or error states in procedural documentation
+

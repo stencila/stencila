@@ -50,6 +50,7 @@ jobs:
       ts: ${{ steps.changes.outputs.ts }}
       vscode: ${{ steps.changes.outputs.vscode }}
       web: ${{ steps.changes.outputs.web }}
+      claude: ${{ steps.changes.outputs.claude }}
 
     steps:
       - name: Checkout repo
@@ -70,6 +71,10 @@ jobs:
             web:
               - 'web/**'
               - 'package.json'
+            claude:
+              - 'claude/**'
+              - '.claude-plugin/**'
+              - 'site/docs/documents/**'
 
   main:
     runs-on: ubuntu-latest-16core
@@ -242,6 +247,48 @@ jobs:
       - name: Test with xvfb
         run: xvfb-run -a make -C vscode test
         if: runner.os == 'Linux'
+
+  claude:
+    runs-on: ubuntu-latest
+
+    needs: changes
+    if: needs.changes.outputs.claude == 'true'
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Install Stencila CLI
+        run: |
+          curl -LsSf https://stencila.io/install.sh | bash
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Check generated references are up to date
+        run: |
+          ./claude/scripts/gen-references.sh
+          if [ -n "$(git status --porcelain -- claude/skills/authoring/references)" ]; then
+            git status --porcelain -- claude/skills/authoring/references
+            git diff -- claude/skills/authoring/references
+            echo "Generated references are out of date: run 'make -C claude generated' and commit" >&2
+            exit 1
+          fi
+
+      - name: Run skill example golden tests
+        run: ./claude/scripts/test-examples.sh
+
+      - name: Run CLI flag drift guard
+        run: ./claude/scripts/check-flags.sh
+
+      - name: Install Claude Code CLI
+        id: claude-cli
+        continue-on-error: true
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Validate plugin and marketplace manifests
+        if: steps.claude-cli.outcome == 'success'
+        run: |
+          claude plugin validate ./claude --strict
+          claude plugin validate .
 
   web:
     runs-on: ubuntu-latest

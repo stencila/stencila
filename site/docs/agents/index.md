@@ -44,6 +44,16 @@ When an agent session starts, Stencila routes it to either an **API backend** or
 
 Use `stencila agents resolve <name>` to see how a specific agent would be routed.
 
+## Claude Code Plugin
+
+If you work in [Claude Code](https://claude.com/claude-code) rather than
+through Stencila's own agents, the [Stencila plugin for Claude
+Code](../claude-code/) teaches Claude Stencila Markdown and the `stencila`
+CLI, and adds `/stencila:*` commands, document-authoring agents, and
+workspace-aware hooks. It complements the agent stack described here — the
+two share the same Agent Skills format — but runs entirely inside Claude
+Code.
+
 ## Next Steps
 
 - [Creating Agents](creating) — create and configure your own agents

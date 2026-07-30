@@ -307,6 +307,17 @@ Useful options:
 - `--yes`: Run non-interactively with default yes answers
 - `--skip-pull`: Skip pulling `origin/main` before building
 
+### Claude Code plugin
+
+If you use [Claude Code](https://claude.com/claude-code), the [Stencila plugin](claude) teaches it to author, execute, convert and publish Stencila documents using the CLI:
+
+```
+/plugin marketplace add stencila/stencila
+/plugin install stencila@stencila
+```
+
+See the [plugin README](claude/README.md) for details. The plugin complements, rather than replaces, [Stencila's own agents](https://stencila.io/docs/agents).
+
 ### SDKs
 
 <details>
@@ -384,6 +395,8 @@ This repository is organized into the following modules. Please see their respec
 - [`node`](node): A Node.js package, using the generated TypeScript types and bindings to Rust functions, so you can work with Stencila documents from within Node.js.
 
 - [`prompts`](prompts): Prompts used to instruct generative AI models in different contexts and for different purposes.
+
+- [`claude`](claude): A plugin for Claude Code with skills, commands, agents and hooks for working with Stencila documents.
 
 - [`docs`](docs): Documentation, including reference documentation generated from `schema` and CLI tool.
 

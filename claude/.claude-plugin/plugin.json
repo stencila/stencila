@@ -1,0 +1,41 @@
+{
+  "name": "stencila",
+  "displayName": "Stencila",
+  "description": "Author, execute, convert and publish Stencila documents. Teaches Claude Stencila Markdown and the stencila CLI, and adds /stencila:* commands, document-authoring agents, and workspace-aware hooks.",
+  "version": "2.14.1",
+  "author": {
+    "name": "Stencila",
+    "email": "hello@stencila.io",
+    "url": "https://stencila.io"
+  },
+  "homepage": "https://stencila.io",
+  "repository": "https://github.com/stencila/stencila",
+  "license": "Apache-2.0",
+  "keywords": [
+    "stencila",
+    "markdown",
+    "executable-documents",
+    "reproducibility",
+    "publishing"
+  ],
+  "userConfig": {
+    "stencila_path": {
+      "type": "string",
+      "title": "Path to the stencila CLI",
+      "description": "Absolute path to the stencila binary. Leave as \"stencila\" to resolve from PATH.",
+      "default": "stencila"
+    },
+    "auto_lint": {
+      "type": "boolean",
+      "title": "Lint Stencila documents after edits",
+      "description": "Run `stencila lint` on Stencila documents after Claude writes or edits them and feed diagnostics back.",
+      "default": true
+    },
+    "auto_fix": {
+      "type": "boolean",
+      "title": "Auto-fix lint issues (modifies files)",
+      "description": "Pass --fix when auto-linting. Off by default because it rewrites files on disk after Claude edits them.",
+      "default": false
+    }
+  }
+}

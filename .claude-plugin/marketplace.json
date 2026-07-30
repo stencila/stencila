@@ -1,0 +1,26 @@
+{
+  "name": "stencila",
+  "owner": {
+    "name": "Stencila",
+    "email": "hello@stencila.io",
+    "url": "https://stencila.io"
+  },
+  "metadata": {
+    "description": "Official Claude Code plugins from Stencila",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "stencila",
+      "source": "./claude",
+      "description": "Author, execute, convert and publish documents with the Stencila CLI.",
+      "tags": [
+        "stencila",
+        "markdown",
+        "executable-documents",
+        "reproducibility",
+        "publishing"
+      ]
+    }
+  ]
+}

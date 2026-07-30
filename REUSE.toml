@@ -19,6 +19,8 @@ path = [
     ".prettierrc",
     ".stencila/**",
     ".vscode/**",
+    ".claude-plugin/**",
+    "claude/**",
     "AGENTS.md",
     "CHANGELOG.md",
     "CODE_OF_CONDUCT.md",

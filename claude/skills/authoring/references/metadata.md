@@ -1,0 +1,164 @@
+<!-- Generated from site/docs/documents by claude/scripts/gen-references.sh. Do not edit. -->
+
+
+# Metadata
+
+Stencila documents are schema.org-compatible [Articles](../schema/article). That means a document is not just a sequence of block and inline content; it is also a structured work with metadata such as title, authors, dates, keywords, funders, and other article properties.
+
+In Stencila, that metadata is usually authored in frontmatter at the top of the document.
+
+# Article metadata in Stencila
+
+Stencila's document model extends schema.org's `Article` and `CreativeWork` types so that documents can combine:
+
+- article metadata such as title, authors, dates, and keywords
+- structured document content
+- executable content and outputs
+- richer publishing and review features
+
+This means a Stencila document can be both human-readable Markdown and a machine-readable article description.
+
+# Frontmatter metadata
+
+Use YAML frontmatter at the top of a document to define metadata:
+
+```smd
+---
+title: Adding metadata to articles in Stencila
+
+keywords:
+  - keyword
+  - test
+
+authors:
+  - Dr Anne Anderson
+  - type: Organization
+    name: Acme Inc
+  - type: Person
+    first_names: Alice Agnes
+    surname: Andrews
+
+funders:
+  - type: Organization
+    name: Example Inc
+  - Zorro Zenon
+
+dateCreated: 1/1/01
+date_accepted: 11 Nov 2011
+date: 22 February 2022
+---
+
+An example article for testing metadata encoding in various formats.
+```
+
+Stencila parses this frontmatter into structured schema nodes and typed metadata values where possible.
+
+# Metadata properties
+
+Some of the most important document-level metadata properties include:
+
+- `title`
+- `authors`
+- `keywords`
+- `datePublished`
+- `abstract`
+- `references`
+
+Most of these map to schema.org [`Thing`](https://schema.org/Thing), [`Article`](https://schema.org/Article), and [`CreativeWork`](https://schema.org/CreativeWork) properties. In some cases Stencila uses friendlier names for those properties, such as `title` for [`headline`](https://schema.org/headline), `authors` for [`author`](https://schema.org/author), `funders` for [`funder`](https://schema.org/funder), `licenses` for [`license`](https://schema.org/license), and `references` for [`citation`](https://schema.org/citation), while others, such as `dateAccepted` and `doi`, are Stencila-specific extensions or broader scholarly metadata conventions.
+
+Less commonly used metadata properties include:
+
+- `contributors`
+- `editors`
+- `publisher`
+- `funders`
+- `dateCreated`
+- `dateReceived`
+- `dateAccepted`
+- `dateModified`
+- `genre`
+- `licenses`
+- `doi`
+- `identifiers`
+- `url`
+
+> [!tip]
+> For a full list of properties, see [Article](../schema/article).
+
+# A permissive approach to authoring metadata
+
+Stencila tries to be liberal in what it accepts when reading frontmatter. In practice, this means metadata can often be written in several reasonable ways and still be parsed into structured document properties.
+
+## Authors and funders
+
+For properties such as `authors` and `funders`, Stencila accepts one or many values, and those values can often be written as:
+
+- plain strings
+- objects with an explicit `type`
+- mixtures of strings and objects in the same list
+
+For example:
+
+```yaml
+authors:
+  - Dr Anne Anderson
+  - type: Organization
+    name: Acme Inc
+  - type: Person
+    first_names: Alice Agnes
+    surname: Andrews
+
+funders:
+  - type: Organization
+    name: Example Inc
+  - Zorro Zenon
+```
+
+This permissive parsing is useful because metadata often comes from many sources and styles: hand-written Markdown, converted documents, external tooling, and collaborative editing workflows.
+
+## Dates
+
+Date properties are also parsed permissively. Stencila accepts string forms and attempts to interpret common date formats:
+
+```yaml
+dateCreated: 1/1/01
+date_accepted: 11 Nov 2011
+date: 22 February 2022
+```
+
+In this example:
+
+- `dateCreated` maps to the article creation date
+- `date_accepted` is accepted as a form of `dateAccepted`
+- `date` is treated as an alias for `datePublished`
+
+For consistency in hand-authored documents, prefer canonical property names such as `dateAccepted`, even though common aliases are accepted when reading frontmatter.
+
+## List properties
+
+Some metadata properties can be written either as YAML lists or as comma-separated strings in frontmatter. For document metadata, this includes `keywords`, `genre`, and `alternateNames`. The same parsing pattern is also used for some nested properties such as `emails`, `telephoneNumbers`, `availableLanguages`, and `issns`.
+
+For example, these two ways of authoring `keywords` are parsed equivalently:
+
+```yaml
+keywords:
+  - keyword
+  - test
+```
+
+```yaml
+keywords: keyword, test
+```
+
+In both cases, Stencila parses `keywords` as the same list of string values.
+
+# Extra metadata
+
+If a frontmatter property is not part of the current Stencila schema, Stencila can still preserve it as additional metadata on the article. This helps documents remain flexible and interoperable even when they include project-specific or format-specific metadata fields.
+
+# Metadata and conversion
+
+Because document metadata is structured, Stencila can preserve and transform it across formats more reliably than if it were treated as plain text alone.
+
+That is especially important when converting between Stencila Markdown and formats such as MyST, Quarto, JATS, and other scholarly or publishing-oriented representations.
+

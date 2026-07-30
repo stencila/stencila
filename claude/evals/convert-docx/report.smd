@@ -1,0 +1,24 @@
+---
+title: Quarterly report
+description: Source for the DOCX eval fixture - regenerate report.docx from this with stencila convert.
+---
+
+# Summary
+
+Sales grew steadily over the quarter across all three regions.
+
+# Data
+
+| Region | Q1 | Q2 |
+| ------ | -- | -- |
+| North  | 12 | 18 |
+| South  | 9  | 14 |
+| West   | 15 | 21 |
+
+# Methods
+
+Growth rates were computed as the relative change between quarters.
+
+# Conclusion
+
+The West region shows the strongest absolute growth.
