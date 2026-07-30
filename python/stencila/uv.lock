@@ -1,5 +1,5 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.10"
 
 [[package]]
@@ -743,7 +743,7 @@ dev = [
 requires-dist = [
     { name = "beartype", specifier = "==0.19.0" },
     { name = "cattrs", specifier = "==24.1.2" },
-    { name = "stencila-types", specifier = ">=2.0.0b2" },
+    { name = "stencila-types", editable = "../stencila_types" },
     { name = "strenum", marker = "python_full_version < '3.11'", specifier = "==0.4.15" },
 ]
 
@@ -761,16 +761,27 @@ dev = [
 
 [[package]]
 name = "stencila-types"
-version = "2.0.0b2"
-source = { registry = "https://pypi.org/simple" }
+version = "2.15.0"
+source = { editable = "../stencila_types" }
 dependencies = [
     { name = "beartype" },
     { name = "cattrs" },
     { name = "strenum", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/ac/47/aba6ce583af824c66b7651647ea80e5a2a1a0c752948d7352917db3d3183/stencila_types-2.0.0b2.tar.gz", hash = "sha256:a3f5b7f0e07ebe17f7f3710affe1666ee61110637eb50b319ba91f1d785316fa", size = 24613, upload-time = "2024-08-07T00:08:01.563Z" }
-wheels = [
-    { url = "https://files.pythonhosted.org/packages/d4/8b/a37c3c536e337e6fcb90ae79d8e98e0c20b2de341d8a2edd9664e3c349e3/stencila_types-2.0.0b2-py3-none-any.whl", hash = "sha256:8145ae6f06a1bbfc732c9e70552b1b16b87fdc5f7269ef185f68b9fe3958e882", size = 22726, upload-time = "2024-08-07T00:08:00.151Z" },
+
+[package.metadata]
+requires-dist = [
+    { name = "beartype", specifier = ">=0.17.2" },
+    { name = "cattrs", specifier = ">=23.2.3" },
+    { name = "strenum", marker = "python_full_version < '3.11'", specifier = ">=0.4.15" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "pip-audit", specifier = ">=2.7.2" },
+    { name = "pytest", specifier = ">=8.1.1" },
+    { name = "pytest-coverage", specifier = ">=0.0" },
+    { name = "pytest-regressions", specifier = ">=2.5.0" },
 ]
 
 [[package]]
