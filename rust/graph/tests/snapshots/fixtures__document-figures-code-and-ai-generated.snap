@@ -350,8 +350,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-document-reference
+          locator: ai-generated.png
+          resolvedTo: "image:ai-generated.png"
   - type: GraphEdge
     source: "node:article.smd#art_"
     target: "dir:."

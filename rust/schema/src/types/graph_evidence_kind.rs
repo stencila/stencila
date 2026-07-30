@@ -10,7 +10,7 @@ pub enum GraphEvidenceKind {
     #[default]
     Declared,
 
-    /// Evidence from deterministically resolving a declared locator to a concrete graph node.
+    /// Evidence from deterministic resolution when that resolution is itself the sole evidentiary basis.
     Resolved,
 
     /// Evidence from direct inspection of existing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
@@ -22,7 +22,7 @@ pub enum GraphEvidenceKind {
     /// Evidence from persisted Stencila metadata already recorded on a node, such as execution dependencies, execution digests, or execution status.
     Recorded,
 
-    /// Evidence from analyzing code, configuration, or environment files without executing them, preferably with a source location when available.
+    /// Evidence inferred by analyzing code or configuration without executing it, rather than copied from an explicit authored relationship field.
     StaticAnalysis,
 
     /// Evidence imported from an external metadata source, service, graph, or document format.

@@ -48,6 +48,7 @@
 
 mod analysis;
 mod asset;
+mod astra;
 mod builder;
 mod c2pa;
 pub mod code;

@@ -15,6 +15,7 @@ ignore = { workspace = true }
 percent-encoding = { workspace = true }
 serde = { workspace = true, features = ["derive"] }
 serde_json = { workspace = true }
+serde_yaml = { workspace = true }
 sha2 = { workspace = true }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codecs = { path = "../codecs" }
@@ -34,7 +35,6 @@ tree-sitter-snakemake = { git = "https://github.com/osthomas/tree-sitter-snakema
 
 [dev-dependencies]
 insta = { workspace = true }
-serde_yaml = { workspace = true }
 tempfile = { workspace = true }
 tokio = { workspace = true }
 

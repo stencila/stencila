@@ -11,11 +11,6 @@ pub(crate) fn declared() -> GraphEvidence {
     evidence(GraphEvidenceKind::Declared)
 }
 
-/// Create evidence for a relationship resolved to a concrete graph node.
-pub(crate) fn resolved() -> GraphEvidence {
-    evidence(GraphEvidenceKind::Resolved)
-}
-
 /// Create evidence for a direct local or runtime observation.
 pub(crate) fn observed() -> GraphEvidence {
     evidence(GraphEvidenceKind::Observed)
@@ -49,14 +44,17 @@ pub(crate) fn static_analysis_at(
     evidence
 }
 
-/// Create evidence for a declared reference that was also resolved locally.
-pub(crate) fn declared_and_resolved() -> Vec<GraphEvidence> {
-    vec![declared(), resolved()]
-}
-
-/// Create evidence for an observed relationship resolved to a concrete node.
-pub(crate) fn observed_and_resolved() -> Vec<GraphEvidence> {
-    vec![observed(), resolved()]
+/// Create evidence for a declaration at a source offset.
+pub(crate) fn declared_at(
+    source: &str,
+    source_text: Option<&str>,
+    offset: Option<usize>,
+) -> GraphEvidence {
+    let mut evidence = declared();
+    if let Some((source_text, offset)) = source_text.zip(offset) {
+        evidence.code_location = Some(code_location(source, source_text, offset));
+    }
+    evidence
 }
 
 /// Build one evidence value.

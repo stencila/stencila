@@ -681,17 +681,6 @@ edges:
           raw: "{ features = [\"serde\"], version = \"1.3\" }"
           specifier: "1.3"
           extras: serde
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: rust
-          manifest: Cargo.toml
-          group: dependencies
-          name: csv
-          purl: "pkg:cargo/csv"
-          raw: "{ features = [\"serde\"], version = \"1.3\" }"
-          specifier: "1.3"
-          extras: serde
   - type: GraphEdge
     source: "package:cargo/serde"
     target: "environment:rust:Cargo.toml"
@@ -699,16 +688,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: rust
-          manifest: Cargo.toml
-          group: dependencies
-          name: serde
-          purl: "pkg:cargo/serde"
-          raw: "1"
-          specifier: "1"
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: rust
           manifest: Cargo.toml
@@ -732,16 +711,6 @@ edges:
           purl: "pkg:cran/dplyr"
           raw: dplyr (>= 1.1.0)
           specifier: ">= 1.1.0"
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: r
-          manifest: DESCRIPTION
-          group: Imports
-          name: dplyr
-          purl: "pkg:cran/dplyr"
-          raw: dplyr (>= 1.1.0)
-          specifier: ">= 1.1.0"
   - type: GraphEdge
     source: "package:cran/ggplot2"
     target: "environment:r:DESCRIPTION"
@@ -749,15 +718,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: r
-          manifest: DESCRIPTION
-          group: Imports
-          name: ggplot2
-          purl: "pkg:cran/ggplot2"
-          raw: ggplot2
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: r
           manifest: DESCRIPTION
@@ -779,15 +739,6 @@ edges:
           name: testthat
           purl: "pkg:cran/testthat"
           raw: testthat
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: r
-          manifest: DESCRIPTION
-          group: Suggests
-          name: testthat
-          purl: "pkg:cran/testthat"
-          raw: testthat
   - type: GraphEdge
     source: "package:julia/CSV%3Fuuid%3D336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
     target: "environment:julia:Project.toml"
@@ -795,16 +746,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: julia
-          manifest: Project.toml
-          group: deps
-          name: CSV
-          purl: "pkg:julia/CSV?uuid=336ed68f-0bac-5ca0-87d4-7b16caf5d00b"
-          raw: 336ed68f-0bac-5ca0-87d4-7b16caf5d00b
-          specifier: "0.10"
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: julia
           manifest: Project.toml
@@ -828,16 +769,6 @@ edges:
           purl: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
           raw: d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4
           specifier: "1"
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: julia
-          manifest: Project.toml
-          group: weakdeps
-          name: ChainRulesCore
-          purl: "pkg:julia/ChainRulesCore?uuid=d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4"
-          raw: d360d2e6-b24c-11e9-a2a3-2a2ae2dbcce4
-          specifier: "1"
   - type: GraphEdge
     source: "package:julia/DataFrames%3Fuuid%3Da93c6f00-e57d-5684-b7b6-d8193f3e46c0"
     target: "environment:julia:Project.toml"
@@ -845,16 +776,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: julia
-          manifest: Project.toml
-          group: deps
-          name: DataFrames
-          purl: "pkg:julia/DataFrames?uuid=a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
-          raw: a93c6f00-e57d-5684-b7b6-d8193f3e46c0
-          specifier: "1.6"
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: julia
           manifest: Project.toml
@@ -877,15 +798,6 @@ edges:
           name: Test
           purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
           raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: julia
-          manifest: Project.toml
-          group: extras
-          name: Test
-          purl: "pkg:julia/Test?uuid=8dfed614-e22c-5e08-85e1-65c5234f0b40"
-          raw: 8dfed614-e22c-5e08-85e1-65c5234f0b40
   - type: GraphEdge
     source: "package:matlab/StatsTools%3Fuuid%3De6c4123e-0068-42be-aef2-00d49d1509f5"
     target: "environment:matlab:resources/mpackage.json"
@@ -893,16 +805,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: matlab
-          manifest: resources/mpackage.json
-          group: dependencies
-          name: StatsTools
-          purl: "pkg:matlab/StatsTools?uuid=e6c4123e-0068-42be-aef2-00d49d1509f5"
-          raw: "{\"name\":\"StatsTools\",\"compatibleVersions\":\">=1.0.0 <2.0.0\",\"id\":\"e6c4123e-0068-42be-aef2-00d49d1509f5\"}"
-          specifier: ">=1.0.0 <2.0.0"
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: matlab
           manifest: resources/mpackage.json
@@ -926,16 +828,6 @@ edges:
           purl: "pkg:npm/d3-dsv"
           raw: ^3.0.1
           specifier: ^3.0.1
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: node
-          manifest: package.json
-          group: dependencies
-          name: d3-dsv
-          purl: "pkg:npm/d3-dsv"
-          raw: ^3.0.1
-          specifier: ^3.0.1
   - type: GraphEdge
     source: "package:npm/typescript"
     target: "environment:node:package.json"
@@ -943,16 +835,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: node
-          manifest: package.json
-          group: devDependencies
-          name: typescript
-          purl: "pkg:npm/typescript"
-          raw: ~5.4.0
-          specifier: ~5.4.0
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: node
           manifest: package.json
@@ -976,16 +858,6 @@ edges:
           purl: "pkg:pypi/matplotlib"
           raw: matplotlib>=3.8
           specifier: ">=3.8"
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: python
-          manifest: pyproject.toml
-          group: project.optional-dependencies.plot
-          name: matplotlib
-          purl: "pkg:pypi/matplotlib"
-          raw: matplotlib>=3.8
-          specifier: ">=3.8"
   - type: GraphEdge
     source: "package:pypi/pandas"
     target: "environment:python:pyproject.toml"
@@ -1001,16 +873,6 @@ edges:
           purl: "pkg:pypi/pandas@2.2.1"
           raw: pandas==2.2.1
           specifier: "==2.2.1"
-      - type: GraphEvidence
-        kind: StaticAnalysis
-        details:
-          ecosystem: python
-          manifest: pyproject.toml
-          group: project.dependencies
-          name: pandas
-          purl: "pkg:pypi/pandas@2.2.1"
-          raw: pandas==2.2.1
-          specifier: "==2.2.1"
   - type: GraphEdge
     source: "package:pypi/requests"
     target: "environment:python:pyproject.toml"
@@ -1018,16 +880,6 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-        details:
-          ecosystem: python
-          manifest: pyproject.toml
-          group: project.dependencies
-          name: requests
-          purl: "pkg:pypi/requests"
-          raw: requests>=2.31
-          specifier: ">=2.31"
-      - type: GraphEvidence
-        kind: StaticAnalysis
         details:
           ecosystem: python
           manifest: pyproject.toml

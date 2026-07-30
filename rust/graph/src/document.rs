@@ -10,8 +10,8 @@ use stencila_node_stabilize::stabilize;
 use stencila_schema::{
     ActionStatusType, Block, Citation, CitationGroup, CodeChunk, CodeExpression, CreativeWork,
     DateTime as SchemaDateTime, Duration as SchemaDuration, ExecuteAction, ExecutionStatus, Graph,
-    GraphAction, GraphEdgeKind, GraphEvidence, Inline, Link, Node, NodeId, NodeType, Reference,
-    Timestamp, Visitor, WalkControl, WalkNode,
+    GraphAction, GraphEdgeKind, GraphEvidence, Inline, Link, Node, NodeId, NodeType, Object,
+    Primitive, Reference, Timestamp, Visitor, WalkControl, WalkNode,
 };
 
 use crate::{
@@ -435,22 +435,18 @@ impl<'a> DocumentCollector<'a> {
         let Some((file_id, edge_kind)) = reference_resolver(kind, reference) else {
             return false;
         };
+        let evidence = vec![resolved_declaration_evidence(reference, &file_id)];
 
         match edge_kind {
             GraphEdgeKind::IncludedBy => {
-                self.builder
-                    .add_include(file_id, graph_id, evidence::declared_and_resolved());
+                self.builder.add_include(file_id, graph_id, evidence);
             }
             GraphEdgeKind::LinkedBy => {
-                self.builder
-                    .add_link(file_id, graph_id, evidence::declared_and_resolved());
+                self.builder.add_link(file_id, graph_id, evidence);
             }
-            _ => self.builder.add_edge_with_evidence(
-                file_id,
-                graph_id,
-                edge_kind,
-                evidence::declared_and_resolved(),
-            ),
+            _ => self
+                .builder
+                .add_edge_with_evidence(file_id, graph_id, edge_kind, evidence),
         }
         true
     }
@@ -475,9 +471,9 @@ impl<'a> DocumentCollector<'a> {
         self.builder
             .add_schema_node(reference_id.clone(), Node::Reference(reference));
         self.builder.add_citation(
-            reference_id,
+            &reference_id,
             target_id,
-            declared_citation_evidence(citation),
+            declared_citation_evidence(citation, &reference_id),
         );
     }
 
@@ -708,12 +704,31 @@ fn reference_from_citation_target(target: &str) -> Reference {
 }
 
 /// Evidence for a citation edge.
-fn declared_citation_evidence(citation: &Citation) -> Vec<GraphEvidence> {
-    if citation.options.cites.is_some() {
-        evidence::declared_and_resolved()
-    } else {
-        vec![evidence::declared()]
+fn declared_citation_evidence(citation: &Citation, resolved_to: &str) -> Vec<GraphEvidence> {
+    let mut evidence = resolved_declaration_evidence(&citation.target, resolved_to);
+    if citation.options.cites.is_some()
+        && let Some(details) = evidence.options.details.as_mut()
+    {
+        details.insert(
+            "resolutionKind".to_string(),
+            Primitive::String("embeddedReference".to_string()),
+        );
     }
+    vec![evidence]
+}
+
+/// Evidence for an authored locator enriched by successful resolution.
+fn resolved_declaration_evidence(locator: &str, resolved_to: &str) -> GraphEvidence {
+    let mut evidence = evidence::declared();
+    evidence.options.details = Some(Object::from([
+        (
+            "detector",
+            Primitive::String("stencila-document-reference".to_string()),
+        ),
+        ("locator", Primitive::String(locator.to_string())),
+        ("resolvedTo", Primitive::String(resolved_to.to_string())),
+    ]));
+    evidence
 }
 
 /// Convert execution status into Schema action status.

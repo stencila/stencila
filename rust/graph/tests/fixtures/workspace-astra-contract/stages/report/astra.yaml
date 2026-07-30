@@ -1,0 +1,11 @@
+version: "1.0.3"
+name: Build report
+inputs:
+  - id: fit
+    from: ../model.fit
+outputs:
+  - id: summary
+    type: report
+    inputs: [fit]
+    recipe:
+      command: python ../../scripts/report.py --out {output}

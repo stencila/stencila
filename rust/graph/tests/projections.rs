@@ -47,7 +47,7 @@ impl ProjectionCase {
     }
 }
 
-fn projection_cases() -> [ProjectionCase; 11] {
+fn projection_cases() -> [ProjectionCase; 13] {
     use GraphProjectionDetail::{High, Low, Medium};
     use GraphProjectionPreset::{Cite, Deps, Flow, React};
 
@@ -72,6 +72,18 @@ fn projection_cases() -> [ProjectionCase; 11] {
         },
         ProjectionCase {
             fixture: "code-workflow-nextflow-metagenomics",
+            name: "flow-high",
+            preset: Flow,
+            detail: Some(High),
+        },
+        ProjectionCase {
+            fixture: "workspace-astra-contract",
+            name: "flow-medium",
+            preset: Flow,
+            detail: Some(Medium),
+        },
+        ProjectionCase {
+            fixture: "workspace-astra-contract",
             name: "flow-high",
             preset: Flow,
             detail: Some(High),

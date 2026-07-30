@@ -165,8 +165,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-document-reference
+          locator: "../data/source-table.tsv"
+          resolvedTo: "datatable:data/source-table.tsv"
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -216,8 +218,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-workspace-symlink
+          locator: "../../figures/model-v1.png"
+          resolvedTo: "image:figures/model-v1.png"
   - type: GraphEdge
     source: "image:figures/model-v2.png"
     target: "dir:figures"
@@ -232,8 +236,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Observed
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-workspace-symlink
+          locator: "../../figures/model-v2.png"
+          resolvedTo: "image:figures/model-v2.png"
   - type: GraphEdge
     source: "node:docs/manuscript.smd#art_"
     target: "dir:docs"

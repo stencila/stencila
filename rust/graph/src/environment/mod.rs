@@ -397,7 +397,7 @@ fn add_manifest_environment(
         builder.add_requirement(
             package_id,
             &environment_id,
-            declared_static_analysis_evidence(&manifest, dependency),
+            declared_requirement_evidence(&manifest, dependency),
         );
     }
 
@@ -546,23 +546,15 @@ fn exact_version(specifier: &str) -> Option<String> {
     }
 }
 
-/// Evidence for a declared relationship discovered by static analysis.
-///
-/// Dependency edges need both meanings: the manifest declares the package, and
-/// this module discovered that declaration by static analysis. Attaching the
-/// same structured details to both evidence entries makes either provenance
-/// path self-contained for downstream consumers.
-fn declared_static_analysis_evidence(
+/// Evidence for an explicitly declared package requirement.
+fn declared_requirement_evidence(
     manifest: &EnvironmentManifest,
     dependency: &Dependency,
 ) -> Vec<GraphEvidence> {
     let mut declared = evidence::declared();
     declared.options.details = Some(requirement_details(manifest, dependency));
 
-    let mut analyzed = evidence::static_analysis();
-    analyzed.options.details = Some(requirement_details(manifest, dependency));
-
-    vec![declared, analyzed]
+    vec![declared]
 }
 
 /// Structured details for requirement evidence.

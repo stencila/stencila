@@ -395,6 +395,60 @@ impl LocalGraphId {
         )
     }
 
+    /// Create the graph id for an ASTRA analysis in one manifest-root scope.
+    pub(crate) fn astra_analysis(root: &str, scope: &str) -> String {
+        format!(
+            "astra-analysis:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope)
+        )
+    }
+
+    /// Create the graph id for an ASTRA logical input.
+    pub(crate) fn astra_input(root: &str, scope: &str, name: &str) -> String {
+        format!(
+            "astra-input:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for an ASTRA logical output artifact.
+    pub(crate) fn astra_output(root: &str, scope: &str, name: &str) -> String {
+        format!(
+            "astra-output:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for an ASTRA decision parameter.
+    pub(crate) fn astra_decision(root: &str, scope: &str, name: &str) -> String {
+        format!(
+            "astra-decision:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for an analysis referenced through an ASTRA input.
+    pub(crate) fn astra_analysis_ref(root: &str, scope: &str, name: &str) -> String {
+        format!(
+            "astra-analysis-ref:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for a container declaration.
+    pub(crate) fn container(locator: &str) -> String {
+        format!("container:{}", encode_id_component(locator))
+    }
+
     /// Create the graph id for a dataframe column discovered in code.
     pub(crate) fn column(scope: &str, origin: &str, name: &str) -> String {
         format!(

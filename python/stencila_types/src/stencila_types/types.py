@@ -2453,7 +2453,7 @@ class GraphEdge(Entity):
 @dataclass(kw_only=True, repr=False)
 class GraphEvidence(Entity):
     """
-    Evidence for a graph edge.
+    Evidence from one independent evidentiary basis for a graph edge.
     """
 
     type: Literal["GraphEvidence"] = "GraphEvidence"

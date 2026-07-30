@@ -14,7 +14,7 @@ use ignore::WalkBuilder;
 use stencila_codecs::{CodecDirection, DecodeOptions, Format, node_type_from_path};
 use stencila_schema::{
     AudioObject, Author, Datatable, DateTime as SchemaDateTime, Directory, File, Graph,
-    GraphEdgeKind, ImageObject, Node, NodeType, SymbolicLink, VideoObject,
+    GraphEdgeKind, ImageObject, Node, NodeType, Object, Primitive, SymbolicLink, VideoObject,
 };
 
 use crate::{
@@ -72,6 +72,18 @@ pub struct WorkspaceOptions {
     /// workspace inventory graph, but stricter callers can opt into failure.
     pub fail_on_environment_error: bool,
 
+    /// Analyze conventional `astra.yaml` scientific analysis contracts.
+    ///
+    /// ASTRA analysis is declarative: manifests and recipes are parsed and
+    /// projected, but recipe commands are never executed.
+    pub analyze_astra: bool,
+
+    /// Fail graph construction when an ASTRA analysis root is invalid.
+    ///
+    /// In the default permissive mode only the invalid ASTRA root is skipped;
+    /// its files remain in the workspace inventory.
+    pub fail_on_astra_error: bool,
+
     /// Inspect embedded and sidecar C2PA manifests and add provenance to the graph.
     ///
     /// Enabled by default so workspace graphs include signed provenance when it
@@ -108,6 +120,8 @@ impl Default for WorkspaceOptions {
             fail_on_decode_error: false,
             analyze_environment: true,
             fail_on_environment_error: false,
+            analyze_astra: true,
+            fail_on_astra_error: false,
             include_c2pa: true,
             fail_on_c2pa_error: false,
             source_metadata: true,
@@ -382,11 +396,57 @@ pub async fn graph_from_path_with_diagnostics(
                 if let Some(target_id) =
                     symbolic_link_target_id(&root, &entry.path, &entry_kinds, &file_node_types)?
                 {
-                    builder.add_link(target_id, symlink_id, evidence::observed_and_resolved());
+                    let target = entry.path.read_link().wrap_err_with(|| {
+                        format!("unable to read symbolic link {}", entry.path.display())
+                    })?;
+                    let mut observed = evidence::observed();
+                    observed.options.details = Some(Object::from([
+                        (
+                            "detector",
+                            Primitive::String("stencila-workspace-symlink".to_string()),
+                        ),
+                        (
+                            "locator",
+                            Primitive::String(filesystem_path_string(&target)?),
+                        ),
+                        ("resolvedTo", Primitive::String(target_id.clone())),
+                    ]));
+                    builder.add_link(target_id, symlink_id, vec![observed]);
                 }
             }
             WorkspaceEntryKind::Other => {}
         }
+    }
+
+    if options.analyze_astra {
+        let manifest_rels = entries
+            .iter()
+            .filter(|entry| {
+                entry.kind == WorkspaceEntryKind::File
+                    && entry
+                        .rel
+                        .as_str()
+                        .rsplit('/')
+                        .next()
+                        .is_some_and(|name| name == "astra.yaml")
+            })
+            .map(|entry| entry.rel.clone())
+            .collect::<Vec<_>>();
+        let resource_id = |rel: &WorkspaceRelPath| {
+            workspace_resource_id(
+                rel,
+                &entry_kinds,
+                &file_node_types,
+                WorkspaceReferenceTarget::File,
+            )
+        };
+        crate::astra::add_astra_from_workspace(
+            &mut builder,
+            &root,
+            &manifest_rels,
+            resource_id,
+            options.fail_on_astra_error,
+        )?;
     }
 
     if options.include_c2pa {

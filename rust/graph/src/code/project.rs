@@ -155,7 +155,11 @@ pub(super) fn add_code_facts_to_graph(
             script_id,
             context.unit_id,
             GraphEdgeKind::UsedBy,
-            vec![context.evidence.static_analysis(None)],
+            vec![if facts.workflow_units.is_empty() {
+                context.evidence.static_analysis(None)
+            } else {
+                context.evidence.declared(None)
+            }],
         );
     }
 }
@@ -180,6 +184,21 @@ struct CodeEvidenceSource<'a> {
 impl CodeEvidenceSource<'_> {
     fn static_analysis(&self, offset: Option<usize>) -> GraphEvidence {
         evidence::static_analysis_at(self.source, self.source_text, offset)
+    }
+
+    fn declared(&self, offset: Option<usize>) -> GraphEvidence {
+        let mut evidence = evidence::declared_at(self.source, self.source_text, offset);
+        evidence.options.details = Some(Object::from([
+            (
+                "detector",
+                Primitive::String("stencila-workflow-declaration".to_string()),
+            ),
+            (
+                "language",
+                Primitive::String(self.language.id_component().to_string()),
+            ),
+        ]));
+        evidence
     }
 }
 
@@ -316,7 +335,7 @@ fn add_workflow_edges(
         let workflow_unit_id = add_workflow_unit_node(builder, context.scope, unit);
         let evidence = context
             .evidence
-            .static_analysis(facts.definition_offsets.get(unit).copied());
+            .declared(facts.definition_offsets.get(unit).copied());
         builder.add_containment(&workflow_unit_id, context.unit_id, vec![evidence.clone()]);
         builder.add_declaration(context.unit_id, &workflow_unit_id, vec![evidence]);
         let workflow_unit_facts = facts.workflow_unit_facts.get(unit);
@@ -346,10 +365,20 @@ fn add_workflow_edges(
             .unwrap_or_else(|| resources.writes.to_vec());
 
         for input in &unit_read_resources {
-            add_resource_read(builder, input, &workflow_unit_id, &context.evidence);
+            let evidence = vec![workflow_resource_evidence(&context.evidence, input)];
+            if input.is_remote {
+                builder.add_receive(&input.id, &workflow_unit_id, evidence);
+            } else {
+                builder.add_read(&input.id, &workflow_unit_id, evidence);
+            }
         }
         for output in &unit_write_resources {
-            add_resource_generation(builder, &workflow_unit_id, output, &context.evidence);
+            let evidence = vec![workflow_resource_evidence(&context.evidence, output)];
+            if output.is_remote {
+                builder.add_send(&workflow_unit_id, &output.id, evidence);
+            } else {
+                builder.add_generation(&workflow_unit_id, &output.id, evidence);
+            }
         }
         if let Some(workflow_unit_facts) = workflow_unit_facts {
             for script in &workflow_unit_facts.script_links {
@@ -362,13 +391,13 @@ fn add_workflow_edges(
                     script_id,
                     &workflow_unit_id,
                     GraphEdgeKind::UsedBy,
-                    vec![context.evidence.static_analysis(None)],
+                    vec![context.evidence.declared(None)],
                 );
             }
 
             for call in &workflow_unit_facts.calls {
                 let function_id = add_function_node(builder, context.scope, context.language, call);
-                let evidence = context.evidence.static_analysis(None);
+                let evidence = context.evidence.declared(None);
                 builder.add_containment(&function_id, context.unit_id, vec![evidence.clone()]);
                 builder.add_edge_with_evidence(
                     function_id,
@@ -379,6 +408,24 @@ fn add_workflow_edges(
             }
         }
     }
+}
+
+/// Evidence for an authored workflow input or output directive.
+fn workflow_resource_evidence(
+    evidence_source: &CodeEvidenceSource,
+    resource: &IoResourceNode,
+) -> GraphEvidence {
+    let mut evidence = evidence_source.declared(resource.operation_offset);
+    let details = evidence.options.details.get_or_insert_with(Object::new);
+    details.insert(
+        "pathKind".to_string(),
+        Primitive::String(resource.path.kind().to_string()),
+    );
+    details.insert(
+        "expression".to_string(),
+        Primitive::String(resource.path.value().to_string()),
+    );
+    evidence
 }
 
 pub(super) fn add_document_symbol_use(

@@ -1,0 +1,1301 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:workspace-astra-contract"
+nodes:
+  - type: GraphNode
+    id: "astra-analysis-ref:astra.yaml:root:prior_analysis"
+    node:
+      type: CreativeWork
+      id: "astra-analysis-ref:astra.yaml:root:prior_analysis"
+      workType: Workflow
+      name: prior_analysis
+      url: "https://example.org/analyses/prior"
+      version: "1.2"
+  - type: GraphNode
+    id: "astra-analysis:astra.yaml:root"
+    node:
+      type: CreativeWork
+      id: "astra-analysis:astra.yaml:root"
+      workType: Workflow
+      description: Exercises declarative ASTRA graph projection.
+      name: ASTRA contract fixture
+  - type: GraphNode
+    id: "astra-analysis:astra.yaml:root.model"
+    node:
+      type: CreativeWork
+      id: "astra-analysis:astra.yaml:root.model"
+      workType: Workflow
+      name: Fit model
+  - type: GraphNode
+    id: "astra-analysis:astra.yaml:root.prepare"
+    node:
+      type: CreativeWork
+      id: "astra-analysis:astra.yaml:root.prepare"
+      workType: Workflow
+      name: Prepare catalog
+  - type: GraphNode
+    id: "astra-analysis:astra.yaml:root.report"
+    node:
+      type: CreativeWork
+      id: "astra-analysis:astra.yaml:root.report"
+      workType: Workflow
+      name: Build report
+  - type: GraphNode
+    id: "astra-decision:astra.yaml:root.model:estimator"
+    node:
+      type: Parameter
+      id: "astra-decision:astra.yaml:root.model:estimator"
+      name: estimator
+      label: Estimator
+      default: robust
+      validator:
+        type: EnumValidator
+        values:
+          - ordinary
+          - robust
+  - type: GraphNode
+    id: "astra-decision:astra.yaml:root.prepare:estimator"
+    node:
+      type: Parameter
+      id: "astra-decision:astra.yaml:root.prepare:estimator"
+      name: estimator
+      label: Estimator
+      default: robust
+      validator:
+        type: EnumValidator
+        values:
+          - ordinary
+          - robust
+  - type: GraphNode
+    id: "astra-decision:astra.yaml:root:estimator"
+    node:
+      type: Parameter
+      id: "astra-decision:astra.yaml:root:estimator"
+      name: estimator
+      label: Estimator
+      default: robust
+      validator:
+        type: EnumValidator
+        values:
+          - ordinary
+          - robust
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.model:fit"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root.model:fit"
+      workType: Datatable
+      name: fit
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.model:score"
+    node:
+      type: Variable
+      id: "astra-output:astra.yaml:root.model:score"
+      name: score
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.prepare:cleaned"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root.prepare:cleaned"
+      workType: Dataset
+      name: cleaned
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
+      name: baseline
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.ref.prior_analysis:diagnostics"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root.ref.prior_analysis:diagnostics"
+      name: diagnostics
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root.report:summary"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root.report:summary"
+      workType: Report
+      name: summary
+  - type: GraphNode
+    id: "astra-output:astra.yaml:root:final_report"
+    node:
+      type: CreativeWork
+      id: "astra-output:astra.yaml:root:final_report"
+      workType: Dataset
+      name: final_report
+  - type: GraphNode
+    id: "code:scripts/fit.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:scripts/fit.py"
+      name: fit.py
+      path: scripts/fit.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:scripts/prepare.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:scripts/prepare.py"
+      name: prepare.py
+      path: scripts/prepare.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:scripts/report.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:scripts/report.py"
+      name: report.py
+      path: scripts/report.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:scripts/score.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:scripts/score.py"
+      name: score.py
+      path: scripts/score.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "container:ghcr.io/example/fitter%3A1.0"
+    node:
+      type: SoftwareApplication
+      id: "container:ghcr.io/example/fitter%3A1.0"
+      name: "ghcr.io/example/fitter:1.0"
+  - type: GraphNode
+    id: "datatable:data/catalog.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/catalog.csv"
+      columns:
+        - type: DatatableColumn
+          name: value
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/catalog.csv
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: workspace-astra-contract
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:scripts"
+    node:
+      type: Directory
+      id: "dir:scripts"
+      name: scripts
+      path: scripts
+  - type: GraphNode
+    id: "dir:stages"
+    node:
+      type: Directory
+      id: "dir:stages"
+      name: stages
+      path: stages
+  - type: GraphNode
+    id: "dir:stages/report"
+    node:
+      type: Directory
+      id: "dir:stages/report"
+      name: report
+      path: stages/report
+  - type: GraphNode
+    id: "file:Containerfile"
+    node:
+      type: File
+      id: "file:Containerfile"
+      name: Containerfile
+      path: Containerfile
+      size: 22
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:astra.yaml"
+    node:
+      type: File
+      id: "file:astra.yaml"
+      name: astra.yaml
+      path: astra.yaml
+      size: 1857
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "file:stages/report/astra.yaml"
+    node:
+      type: File
+      id: "file:stages/report/astra.yaml"
+      name: astra.yaml
+      path: stages/report/astra.yaml
+      size: 212
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "node:astra.yaml"
+    node:
+      version: "1.0"
+      name: ASTRA contract fixture
+      description: Exercises declarative ASTRA graph projection.
+      container: Containerfile
+      inputs:
+        - id: catalog
+          type: data
+          source: data/catalog.csv
+          description: Local observations.
+        - id: calibration
+          type: data
+          source: "https://example.org/calibration.csv"
+        - id: prior_analysis
+          type: analysis
+          ref: "https://example.org/analyses/prior"
+          ref_version: "1.2"
+          use_outputs:
+            - baseline
+            - diagnostics
+      decisions:
+        estimator:
+          label: Estimator
+          rationale: The estimator changes the fitted values.
+          default: robust
+          options:
+            robust:
+              label: Robust
+            ordinary:
+              label: Ordinary
+      outputs:
+        - id: final_report
+          from: report.summary
+      analyses:
+        prepare:
+          name: Prepare catalog
+          inputs:
+            - id: raw
+              from: "../catalog"
+          decisions:
+            estimator:
+              from: "../estimator"
+          outputs:
+            - id: cleaned
+              type: data
+              inputs:
+                - raw
+              decisions:
+                - estimator
+              recipe:
+                command: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+                resources:
+                  cpus: 2
+        model:
+          name: Fit model
+          inputs:
+            - id: cleaned
+              from: "../prepare.cleaned"
+            - id: remote_calibration
+              from: "../calibration"
+            - id: prior
+              from: "../prior_analysis"
+          decisions:
+            estimator:
+              from: "../estimator"
+          outputs:
+            - id: fit
+              type: table
+              inputs:
+                - cleaned
+                - remote_calibration
+                - prior
+              decisions:
+                - estimator
+              when:
+                - estimator.robust
+              recipe:
+                command: "python scripts/fit.py --out {output}"
+                container: "ghcr.io/example/fitter:1.0"
+            - id: score
+              type: metric
+              inputs:
+                - fit
+              recipe:
+                command: "python scripts/score.py --out {output}"
+        report:
+          path: stages/report
+  - type: GraphNode
+    id: "node:stages/report/astra.yaml"
+    node:
+      version: 1.0.3
+      name: Build report
+      inputs:
+        - id: fit
+          from: "../model.fit"
+      outputs:
+        - id: summary
+          type: report
+          inputs:
+            - fit
+          recipe:
+            command: "python ../../scripts/report.py --out {output}"
+  - type: GraphNode
+    id: "resource:https%3A//example.org/calibration.csv"
+    node:
+      type: CreativeWork
+      url: "https://example.org/calibration.csv"
+  - type: GraphNode
+    id: "workflow-unit:astra.yaml%23root.model:fit"
+    node:
+      type: Function
+      id: "workflow-unit:astra.yaml%23root.model:fit"
+      name: fit
+      parameters: []
+  - type: GraphNode
+    id: "workflow-unit:astra.yaml%23root.model:score"
+    node:
+      type: Function
+      id: "workflow-unit:astra.yaml%23root.model:score"
+      name: score
+      parameters: []
+  - type: GraphNode
+    id: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    node:
+      type: Function
+      id: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+      name: cleaned
+      parameters: []
+  - type: GraphNode
+    id: "workflow-unit:astra.yaml%23root.report:summary"
+    node:
+      type: Function
+      id: "workflow-unit:astra.yaml%23root.report:summary"
+      name: summary
+      parameters: []
+edges:
+  - type: GraphEdge
+    source: "astra-analysis:astra.yaml:root.model"
+    target: "astra-analysis:astra.yaml:root"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 53
+          startColumn: 0
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: analyses
+          analysisScope: root.model
+  - type: GraphEdge
+    source: "astra-analysis:astra.yaml:root.prepare"
+    target: "astra-analysis:astra.yaml:root"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 35
+          startColumn: 0
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: analyses
+          analysisScope: root.prepare
+  - type: GraphEdge
+    source: "astra-analysis:astra.yaml:root.report"
+    target: "astra-analysis:astra.yaml:root"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 0
+          startColumn: 0
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: analyses
+          analysisScope: root.report
+  - type: GraphEdge
+    source: "astra-decision:astra.yaml:root.model:estimator"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 63
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: decisions.estimator
+          analysisScope: root.model
+          id: estimator
+          resolution: "../estimator"
+  - type: GraphEdge
+    source: "astra-decision:astra.yaml:root.model:estimator"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: Configures
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].decisions"
+          analysisScope: root.model
+          id: fit
+          resolution: estimator
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "astra-decision:astra.yaml:root.prepare:estimator"
+    target: "astra-analysis:astra.yaml:root.prepare"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 41
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: decisions.estimator
+          analysisScope: root.prepare
+          id: estimator
+          resolution: "../estimator"
+  - type: GraphEdge
+    source: "astra-decision:astra.yaml:root.prepare:estimator"
+    target: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    kind: Configures
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].decisions"
+          analysisScope: root.prepare
+          id: cleaned
+          resolution: estimator
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "astra-decision:astra.yaml:root:estimator"
+    target: "astra-analysis:astra.yaml:root"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 20
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: decisions.estimator
+          analysisScope: root
+          id: estimator
+          rationale: The estimator changes the fitted values.
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.model:fit"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.model:fit"
+    target: "workflow-unit:astra.yaml%23root.model:score"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 74
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1].inputs"
+          analysisScope: root.model
+          id: score
+          resolution: fit
+          recipeCommand: "python scripts/score.py --out {output}"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.model:fit"
+    target: "workflow-unit:astra.yaml%23root.report:summary"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 6
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.report
+          id: summary
+          resolution: fit
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.model:score"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 74
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1]"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.prepare:cleaned"
+    target: "astra-analysis:astra.yaml:root.prepare"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.prepare:cleaned"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.model
+          id: fit
+          resolution: cleaned
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
+    target: "astra-analysis-ref:astra.yaml:root:prior_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 13
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "inputs[2].use_outputs"
+          analysisScope: root
+          id: prior_analysis
+          resolution: baseline
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: ReceivedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.model
+          id: fit
+          resolution: prior
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.ref.prior_analysis:diagnostics"
+    target: "astra-analysis-ref:astra.yaml:root:prior_analysis"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 13
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "inputs[2].use_outputs"
+          analysisScope: root
+          id: prior_analysis
+          resolution: diagnostics
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.ref.prior_analysis:diagnostics"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: ReceivedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.model
+          id: fit
+          resolution: prior
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.report:summary"
+    target: "astra-analysis:astra.yaml:root.report"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 6
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root.report:summary"
+    target: "astra-output:astra.yaml:root:final_report"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 31
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].from"
+          analysisScope: root
+          id: final_report
+          resolution: report.summary
+  - type: GraphEdge
+    source: "astra-output:astra.yaml:root:final_report"
+    target: "astra-analysis:astra.yaml:root"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 31
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root
+          id: final_report
+          resolution: report.summary
+  - type: GraphEdge
+    source: "code:scripts/fit.py"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/prepare.py"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/report.py"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/score.py"
+    target: "dir:scripts"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "container:ghcr.io/example/fitter%3A1.0"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: Configures
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe.container"
+          analysisScope: root.model
+          id: fit
+          resolution: "ghcr.io/example/fitter:1.0"
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "datatable:data/catalog.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/catalog.csv"
+    target: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.prepare
+          id: cleaned
+          resolution: raw
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:scripts"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:stages"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:stages/report"
+    target: "dir:stages"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:Containerfile"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "astra-analysis:astra.yaml:root"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: $
+          analysisScope: root
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: $
+          analysisScope: root.model
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "astra-analysis:astra.yaml:root.prepare"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: $
+          analysisScope: root.prepare
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "workflow-unit:astra.yaml%23root.model:score"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 74
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1]"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+  - type: GraphEdge
+    source: "file:astra.yaml"
+    target: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "file:stages/report/astra.yaml"
+    target: "astra-analysis:astra.yaml:root.report"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: $
+          analysisScope: root.report
+  - type: GraphEdge
+    source: "file:stages/report/astra.yaml"
+    target: "dir:stages/report"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "file:stages/report/astra.yaml"
+    target: "workflow-unit:astra.yaml%23root.report:summary"
+    kind: Declares
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 6
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+  - type: GraphEdge
+    source: "node:astra.yaml"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "node:stages/report/astra.yaml"
+    target: "dir:stages/report"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "resource:https%3A//example.org/calibration.csv"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: ReceivedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].inputs"
+          analysisScope: root.model
+          id: fit
+          resolution: remote_calibration
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.model:fit"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.model:fit"
+    target: "astra-output:astra.yaml:root.model:fit"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 66
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.model:score"
+    target: "astra-analysis:astra.yaml:root.model"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 74
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1]"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.model:score"
+    target: "astra-output:astra.yaml:root.model:score"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 74
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1].recipe"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    target: "astra-analysis:astra.yaml:root.prepare"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    target: "astra-output:astra.yaml:root.prepare:cleaned"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 44
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.report:summary"
+    target: "astra-analysis:astra.yaml:root.report"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 6
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0]"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+  - type: GraphEdge
+    source: "workflow-unit:astra.yaml%23root.report:summary"
+    target: "astra-output:astra.yaml:root.report:summary"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 6
+          startColumn: 2
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0].recipe"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/workspace-astra-contract
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

@@ -9,7 +9,7 @@ import { ThingVariantOrString } from "./ThingVariantOrString.js";
 import { Timestamp } from "./Timestamp.js";
 
 /**
- * Evidence for a graph edge.
+ * Evidence from one independent evidentiary basis for a graph edge.
  */
 export class GraphEvidence extends Entity {
   // @ts-expect-error 'not assignable to the same property in base type'

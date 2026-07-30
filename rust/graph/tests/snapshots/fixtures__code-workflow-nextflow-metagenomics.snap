@@ -239,36 +239,45 @@ edges:
     kind: Declares
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 11
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:qc"
     kind: Declares
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 0
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "code:main.nf"
     target: "workflow-unit:main.nf:summarize"
     kind: Declares
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 22
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "code:nextflow.config"
     target: "dir:."
@@ -296,9 +305,9 @@ edges:
     kind: ReadBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: results/classify/M1-taxa.tsv
@@ -350,9 +359,9 @@ edges:
     kind: ReadBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: data/reads.fastq
@@ -369,9 +378,9 @@ edges:
     kind: ReadBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: results/qc/M1-qc.txt
@@ -388,42 +397,60 @@ edges:
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "function:main.nf:nextflow:exec"
     target: "workflow-unit:main.nf:summarize"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "function:main.nf:nextflow:script"
     target: "code:main.nf"
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "function:main.nf:nextflow:script"
     target: "workflow-unit:main.nf:qc"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "function:main.nf:nextflow:shell"
     target: "code:main.nf"
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "function:main.nf:nextflow:shell"
     target: "workflow-unit:main.nf:classify"
     kind: CalledBy
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "node:results/summary/report.html#art_"
     target: "dir:results/summary"
@@ -437,21 +464,24 @@ edges:
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 11
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "workflow-unit:main.nf:classify"
     target: "datatable:results/classify/M1-taxa.tsv"
     kind: Generated
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: results/classify/M1-taxa.tsv
@@ -461,21 +491,24 @@ edges:
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 0
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "workflow-unit:main.nf:qc"
     target: "file:results/qc/M1-qc.txt"
     kind: Generated
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: results/qc/M1-qc.txt
@@ -485,21 +518,24 @@ edges:
     kind: PartOf
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         codeLocation:
           type: CodeLocation
           source: main.nf
           startLine: 22
           startColumn: 0
+        details:
+          detector: stencila-workflow-declaration
+          language: nextflow
   - type: GraphEdge
     source: "workflow-unit:main.nf:summarize"
     target: "file:results/summary/report.html"
     kind: Generated
     evidence:
       - type: GraphEvidence
-        kind: StaticAnalysis
+        kind: Declared
         details:
-          detector: stencila-code-static-analysis
+          detector: stencila-workflow-declaration
           language: nextflow
           pathKind: static
           expression: results/summary/report.html

@@ -126,8 +126,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-document-reference
+          locator: "../data/table.tsv"
+          resolvedTo: "datatable:data/table.tsv"
   - type: GraphEdge
     source: "datatable:data/table.tsv"
     target: "node:manuscript/report.smd#art_"
@@ -135,8 +137,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-document-reference
+          locator: "../data/table.tsv"
+          resolvedTo: "datatable:data/table.tsv"
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -179,8 +183,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
-      - type: GraphEvidence
-        kind: Resolved
+        details:
+          detector: stencila-document-reference
+          locator: "../media/figure.svg"
+          resolvedTo: "image:media/figure.svg"
   - type: GraphEdge
     source: "node:manuscript/report.smd#art_"
     target: "dir:manuscript"
@@ -195,6 +201,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        details:
+          detector: stencila-document-reference
+          locator: doe2021
+          resolvedTo: "reference:manuscript/report.smd#doe2021"
   - type: GraphEdge
     source: "reference:manuscript/report.smd#smith2020"
     target: "node:manuscript/report.smd#art_"
@@ -202,6 +212,10 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        details:
+          detector: stencila-document-reference
+          locator: smith2020
+          resolvedTo: "reference:manuscript/report.smd#smith2020"
   - type: GraphEdge
     source: "resource:https%3A//doi.org/10.5281/zenodo.12345"
     target: "node:manuscript/report.smd#art_"

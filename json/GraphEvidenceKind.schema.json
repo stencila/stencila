@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "The kind of evidence supporting a graph edge.",
-  "$comment": "This enumeration classifies how a graph edge was learned or justified.\nVariants describe the evidence source or acquisition method, not the graph\nrelationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and\nallows a single edge to carry several signals, for example an authored\ndeclaration that was also resolved to a concrete local file.\n\nUse `Observed` narrowly for direct inspection of existing state, such as a\nfilesystem entry or runtime access. Use `StaticAnalysis` for relationships\nfound by parsing or scanning source/configuration text without executing it.\n",
+  "$comment": "This enumeration classifies how a graph edge was learned or justified.\nVariants describe the evidence source or acquisition method, not the graph\nrelationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and\nallows a single edge to carry several genuinely independent signals.\n\nUse `Observed` narrowly for direct inspection of existing state, such as a\nfilesystem entry or runtime access. Use `Declared` for explicit authored\nfields, including workflow directives, ASTRA contracts, and environment\nrequirements. Use `StaticAnalysis` for inferred relationships found by\nanalyzing source or configuration without executing it, such as imports,\nconventional lockfile associations, variable flow, or inferred I/O calls.\n\nParsing, normalization, and resolution enrich the evidence basis that caused\nthe edge; they do not create additional evidence items. `Resolved` is retained\nfor relationships where deterministic resolution is itself the sole evidence\nbasis.\n",
   "required": [
     "type"
   ],
@@ -146,7 +146,7 @@
     },
     {
       "@id": "stencila:Resolved",
-      "description": "Evidence from deterministically resolving a declared locator to a concrete graph node.",
+      "description": "Evidence from deterministic resolution when that resolution is itself the sole evidentiary basis.",
       "const": "Resolved"
     },
     {
@@ -166,7 +166,7 @@
     },
     {
       "@id": "stencila:StaticAnalysis",
-      "description": "Evidence from analyzing code, configuration, or environment files without executing them, preferably with a source location when available.",
+      "description": "Evidence inferred by analyzing code or configuration without executing it, rather than copied from an explicit authored relationship field.",
       "const": "StaticAnalysis"
     },
     {

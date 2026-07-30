@@ -18,8 +18,8 @@ use stencila_graph::{
 };
 use stencila_schema::{
     Article, Author, Block, Citation, CodeChunk, Cord, ExecuteAction, Figure, GraphAction,
-    GraphEvidenceKind, Inline, Link, Node, Paragraph, Reference, Section, Table, Text,
-    WorktreeStatus,
+    GraphEvidence, GraphEvidenceKind, Inline, Link, Node, Paragraph, Reference, Section, Table,
+    Text, WorktreeStatus,
 };
 use tempfile::tempdir;
 
@@ -826,7 +826,7 @@ async fn resolves_media_references_relative_to_document_file() -> Result<()> {
         })
         .ok_or_eyre("workspace-relative media/link edge should exist")?;
     assert_edge_evidence(link_edge, GraphEvidenceKind::Declared);
-    assert_edge_evidence(link_edge, GraphEvidenceKind::Resolved);
+    assert_eq!(link_edge.options.evidence.as_ref().map(Vec::len), Some(1));
     assert!(
         graph.nodes.iter().all(|node| {
             !(node.id.starts_with("node:")
@@ -993,7 +993,10 @@ fn adds_citation_and_external_link_provenance() -> Result<()> {
     assert!(citation_edge.source == "reference:document#smith2020");
     assert_eq!(citation_edge.target, article_id);
     assert_edge_evidence(citation_edge, GraphEvidenceKind::Declared);
-    assert_edge_evidence(citation_edge, GraphEvidenceKind::Resolved);
+    assert_eq!(
+        citation_edge.options.evidence.as_ref().map(Vec::len),
+        Some(1)
+    );
 
     let link_edge = graph
         .edges
@@ -1131,6 +1134,39 @@ fn builder_merges_edge_actions() -> Result<()> {
         edge.options.actions.as_deref().map(|actions| actions.len()),
         Some(1)
     );
+    Ok(())
+}
+
+#[test]
+fn builder_merges_independent_evidence_and_deduplicates_identical_evidence() -> Result<()> {
+    let mut builder = GraphBuilder::new("test:graph");
+    builder.add_schema_node("node:source", Node::String("source".to_string()));
+    builder.add_schema_node("node:target", Node::String("target".to_string()));
+    let declared = GraphEvidence::new(GraphEvidenceKind::Declared);
+    let analyzed = GraphEvidence::new(GraphEvidenceKind::StaticAnalysis);
+
+    builder.add_edge_with_evidence(
+        "node:source",
+        "node:target",
+        GraphEdgeKind::Generated,
+        vec![declared.clone()],
+    );
+    builder.add_edge_with_evidence(
+        "node:source",
+        "node:target",
+        GraphEdgeKind::Generated,
+        vec![declared, analyzed],
+    );
+
+    let graph = builder.build()?;
+    let evidence = graph.edges[0]
+        .options
+        .evidence
+        .as_deref()
+        .ok_or_eyre("merged evidence should exist")?;
+    assert_eq!(evidence.len(), 2);
+    assert_eq!(evidence[0].kind, GraphEvidenceKind::Declared);
+    assert_eq!(evidence[1].kind, GraphEvidenceKind::StaticAnalysis);
     Ok(())
 }
 

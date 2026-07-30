@@ -58,6 +58,7 @@ nodes:
       name: runtime.py
       path: runtime.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"

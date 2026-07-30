@@ -7,9 +7,7 @@
   ],
   "@context": {
     "schema": "https://schema.org/",
-    "stencila": "https://stencila.org/",
-    "cito": "http://purl.org/spar/cito/",
-    "mira": "http://purl.org/mira-science/mira#"
+    "stencila": "https://stencila.org/"
   },
   "@graph": {
     "Action": "schema:Action",
