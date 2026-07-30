@@ -11499,6 +11499,7 @@ dependencies = [
  "stencila-codec-utils",
  "stencila-codecs",
  "stencila-content-credentials",
+ "stencila-node-diagnostics",
  "stencila-node-stabilize",
  "stencila-schema",
  "tempfile",
