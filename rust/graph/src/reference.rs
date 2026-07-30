@@ -54,6 +54,25 @@ pub(crate) fn has_non_local_uri_scheme(reference: &str) -> bool {
     )
 }
 
+/// Check whether a reference uses a scheme that denotes a remote transfer.
+///
+/// File URIs and Windows drive paths are non-workspace references, but still
+/// address local files. Keep them out of remote send and receive relationships.
+pub(crate) fn has_remote_uri_scheme(reference: &str) -> bool {
+    let reference = reference.trim();
+    let Some((scheme, _rest)) = reference.split_once(':') else {
+        return false;
+    };
+
+    if scheme.eq_ignore_ascii_case("file")
+        || (scheme.len() == 1 && scheme.as_bytes()[0].is_ascii_alphabetic())
+    {
+        return false;
+    }
+
+    has_non_local_uri_scheme(reference)
+}
+
 /// Reduce a DOI in any common spelling to its bare form.
 ///
 /// A DOI is a citable identifier, not a location. `doi:10.x/y`,
@@ -186,6 +205,28 @@ fn strip_query_or_fragment(reference: &str) -> Option<&str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn distinguishes_remote_schemes_from_local_file_references() {
+        for remote in [
+            "https://example.org/data.csv",
+            "s3://bucket/data.csv",
+            "doi:10.6073/pasta/abc50",
+            "data:text/csv,value",
+        ] {
+            assert!(has_remote_uri_scheme(remote), "for {remote}");
+        }
+
+        for local in [
+            "file:///tmp/data.csv",
+            "FILE:///tmp/data.csv",
+            r"C:\data\input.csv",
+            "d:/data/input.csv",
+            "data/input.csv",
+        ] {
+            assert!(!has_remote_uri_scheme(local), "for {local}");
+        }
+    }
 
     #[test]
     fn reduces_every_doi_spelling_to_one_identity() {

@@ -145,6 +145,14 @@ impl IoSignature {
         }
     }
 
+    /// A remote exchange that both sends a request and receives a response.
+    const fn exchange(callee: &'static str, position: usize, keyword: &'static str) -> Self {
+        Self {
+            direction: IoDirection::ReadWrite,
+            ..Self::read(callee, position, keyword)
+        }
+    }
+
     /// A write.
     const fn write(callee: &'static str, position: usize, keyword: &'static str) -> Self {
         Self {
@@ -334,7 +342,7 @@ const PYTHON: &[IoSignature] = &[
     IoSignature::write("write_table", 1, "where"),
     // URL and download helpers, including httpx and requests.
     IoSignature::peek("get", 0, "url"),
-    IoSignature::peek("post", 0, "url"),
+    IoSignature::exchange("post", 0, "url"),
     IoSignature::peek("head", 0, "url"),
     IoSignature::peek("stream", 1, "url"),
     IoSignature::peek("urlopen", 0, "url"),

@@ -215,6 +215,16 @@ impl GraphBuilder {
         self.add_edge_with_evidence(resource, consumer, GraphEdgeKind::ReadBy, evidence);
     }
 
+    /// Add a remote resource-receipt relationship from a resource to its consumer.
+    pub fn add_receive(
+        &mut self,
+        resource: impl Into<String>,
+        consumer: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(resource, consumer, GraphEdgeKind::ReceivedBy, evidence);
+    }
+
     /// Add a generated-output relationship from a generator to its output.
     pub fn add_generation(
         &mut self,
@@ -233,6 +243,16 @@ impl GraphBuilder {
         evidence: impl IntoIterator<Item = GraphEvidence>,
     ) {
         self.add_edge_with_evidence(value, resource, GraphEdgeKind::WrittenTo, evidence);
+    }
+
+    /// Add a remote resource-send relationship from a value to its destination.
+    pub fn add_send(
+        &mut self,
+        value: impl Into<String>,
+        resource: impl Into<String>,
+        evidence: impl IntoIterator<Item = GraphEvidence>,
+    ) {
+        self.add_edge_with_evidence(value, resource, GraphEdgeKind::SentTo, evidence);
     }
 
     /// Add a lineage relationship from an upstream value or resource to a downstream result.

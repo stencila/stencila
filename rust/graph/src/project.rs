@@ -192,8 +192,10 @@ pub fn edge_family(kind: GraphEdgeKind) -> GraphEdgeFamily {
     match kind {
         GraphEdgeKind::PartOf => GraphEdgeFamily::Structure,
         GraphEdgeKind::ReadBy
+        | GraphEdgeKind::ReceivedBy
         | GraphEdgeKind::Generated
         | GraphEdgeKind::WrittenTo
+        | GraphEdgeKind::SentTo
         | GraphEdgeKind::DerivedInto
         | GraphEdgeKind::ConvertedInto => GraphEdgeFamily::DataFlow,
         GraphEdgeKind::ImportedBy
@@ -474,10 +476,13 @@ struct WorkflowScriptFlow {
 impl WorkflowScriptFlow {
     fn is_redundant_projected_edge(&self, kind: GraphEdgeKind, source: &str, target: &str) -> bool {
         match kind {
-            GraphEdgeKind::ReadBy if self.units_by_script.contains_key(target) => self
-                .redundant_reads
-                .contains(&(source.to_string(), target.to_string())),
-            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo
+            GraphEdgeKind::ReadBy | GraphEdgeKind::ReceivedBy
+                if self.units_by_script.contains_key(target) =>
+            {
+                self.redundant_reads
+                    .contains(&(source.to_string(), target.to_string()))
+            }
+            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo | GraphEdgeKind::SentTo
                 if self.units_by_script.contains_key(source) =>
             {
                 self.redundant_writes
@@ -1001,7 +1006,8 @@ fn project_primary_edge<'a>(
         && edge.kind == GraphEdgeKind::DerivedInto
         && target != edge.target
         && node_kind(nodes_by_id.get(target.as_str()).copied()) == GraphViewNodeKind::Code
-        && edge_lookup.has_edge_of_kind(GraphEdgeKind::ReadBy, &source, &target)
+        && (edge_lookup.has_edge_of_kind(GraphEdgeKind::ReadBy, &source, &target)
+            || edge_lookup.has_edge_of_kind(GraphEdgeKind::ReceivedBy, &source, &target))
     {
         return None;
     }
@@ -1081,7 +1087,11 @@ fn workflow_script_flow(
         if (!include_low_confidence_edges && has_low_confidence(edge))
             || !matches!(
                 edge.kind,
-                GraphEdgeKind::ReadBy | GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo
+                GraphEdgeKind::ReadBy
+                    | GraphEdgeKind::ReceivedBy
+                    | GraphEdgeKind::Generated
+                    | GraphEdgeKind::WrittenTo
+                    | GraphEdgeKind::SentTo
             )
         {
             continue;
@@ -1098,7 +1108,7 @@ fn workflow_script_flow(
         }
 
         match edge.kind {
-            GraphEdgeKind::ReadBy => {
+            GraphEdgeKind::ReadBy | GraphEdgeKind::ReceivedBy => {
                 if is_workflow_unit(&target) {
                     unit_reads.insert((source.clone(), target.clone()));
                 }
@@ -1106,7 +1116,7 @@ fn workflow_script_flow(
                     script_reads.insert((source, target));
                 }
             }
-            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo => {
+            GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo | GraphEdgeKind::SentTo => {
                 if is_workflow_unit(&source) {
                     unit_writes.insert((source.clone(), target.clone()));
                 }
@@ -1274,8 +1284,10 @@ fn edge_score(
             }
         }
         GraphEdgeKind::ReadBy
+        | GraphEdgeKind::ReceivedBy
         | GraphEdgeKind::Generated
         | GraphEdgeKind::WrittenTo
+        | GraphEdgeKind::SentTo
         | GraphEdgeKind::DerivedInto
         | GraphEdgeKind::ConvertedInto
         | GraphEdgeKind::IncludedBy => {
@@ -1293,9 +1305,13 @@ fn edge_score(
                 }
             } else if preset == GraphProjectionPreset::Flow {
                 match edge.kind {
-                    GraphEdgeKind::ReadBy | GraphEdgeKind::DerivedInto => 5,
+                    GraphEdgeKind::ReadBy
+                    | GraphEdgeKind::ReceivedBy
+                    | GraphEdgeKind::DerivedInto => 5,
                     GraphEdgeKind::IncludedBy => 4,
-                    GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo => 3,
+                    GraphEdgeKind::Generated | GraphEdgeKind::WrittenTo | GraphEdgeKind::SentTo => {
+                        3
+                    }
                     GraphEdgeKind::ConvertedInto => 0,
                     _ => 0,
                 }

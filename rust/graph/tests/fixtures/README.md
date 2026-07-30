@@ -244,6 +244,7 @@ Expected graph surface:
 
 - static `ReadBy` edges for every resolvable shape, pointing at the real
   fixture files under `data/`
+- a static `ReceivedBy` edge for the resolvable remote URL
 - a static `Generated` edge for each script's output under `results/`
 - no resource node or edge for any of the negative shapes
 - one static analysis diagnostic per negative shape, naming the binding that

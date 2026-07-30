@@ -150,6 +150,11 @@
       "const": "ReadBy"
     },
     {
+      "@id": "stencila:ReceivedBy",
+      "description": "The upstream remote resource or data is received by the downstream node. Related to `prov:used` with inverse direction.",
+      "const": "ReceivedBy"
+    },
+    {
       "@id": "stencila:Generated",
       "description": "The upstream node generated the downstream node. Related to `prov:generated` and to `prov:wasGeneratedBy` with inverse direction.",
       "const": "Generated"
@@ -158,6 +163,11 @@
       "@id": "stencila:WrittenTo",
       "description": "The upstream data or value is written to the downstream resource. Related to `prov:generated` for the downstream resource and to `prov:used` for the upstream value.",
       "const": "WrittenTo"
+    },
+    {
+      "@id": "stencila:SentTo",
+      "description": "The upstream node or data is sent to the downstream remote resource or endpoint. Related to `prov:generated` for the downstream resource and to `prov:used` for the upstream value.",
+      "const": "SentTo"
     },
     {
       "@id": "stencila:DerivedInto",

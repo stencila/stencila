@@ -1053,7 +1053,7 @@ edges:
   - type: GraphEdge
     source: "resource:https%3A//example.org/remote.csv"
     target: "code:analysis.py"
-    kind: ReadBy
+    kind: ReceivedBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis

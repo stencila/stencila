@@ -9,7 +9,7 @@ use crate::{
     GraphBuilder, evidence,
     ids::LocalGraphId,
     package::{PackageFact, package_id as package_graph_id, package_node},
-    reference::{bare_doi, doi_url, has_non_local_uri_scheme},
+    reference::{bare_doi, doi_url, has_non_local_uri_scheme, has_remote_uri_scheme},
 };
 
 use super::{
@@ -250,21 +250,13 @@ fn add_full_flow_edges(
 
     for resource in read_resources {
         if !precise_read_ids.contains(&resource.id) {
-            builder.add_read(
-                &resource.id,
-                context.unit_id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_read(builder, resource, context.unit_id, &context.evidence);
         }
     }
 
     for resource in write_resources {
         if !precise_write_ids.contains(&resource.id) {
-            builder.add_generation(
-                context.unit_id,
-                &resource.id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_generation(builder, context.unit_id, resource, &context.evidence);
         }
     }
     add_variable_data_flow_edges(builder, context, facts, read_resources, write_resources);
@@ -300,21 +292,13 @@ fn add_document_flow_edges(
 
     for resource in read_resources {
         if !precise_read_ids.contains(&resource.id) {
-            builder.add_read(
-                &resource.id,
-                context.unit_id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_read(builder, resource, context.unit_id, &context.evidence);
         }
     }
 
     for resource in write_resources {
         if !precise_write_ids.contains(&resource.id) {
-            builder.add_generation(
-                context.unit_id,
-                &resource.id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_generation(builder, context.unit_id, resource, &context.evidence);
         }
     }
 
@@ -362,18 +346,10 @@ fn add_workflow_edges(
             .unwrap_or_else(|| resources.writes.to_vec());
 
         for input in &unit_read_resources {
-            builder.add_read(
-                &input.id,
-                &workflow_unit_id,
-                vec![io_path_evidence(&context.evidence, input)],
-            );
+            add_resource_read(builder, input, &workflow_unit_id, &context.evidence);
         }
         for output in &unit_write_resources {
-            builder.add_generation(
-                &workflow_unit_id,
-                &output.id,
-                vec![io_path_evidence(&context.evidence, output)],
-            );
+            add_resource_generation(builder, &workflow_unit_id, output, &context.evidence);
         }
         if let Some(workflow_unit_facts) = workflow_unit_facts {
             for script in &workflow_unit_facts.script_links {
@@ -702,6 +678,7 @@ fn add_io_resource_node(
 #[derive(Debug, Clone)]
 struct IoResourceNode {
     id: String,
+    is_remote: bool,
     path: IoPath,
     operation_offset: Option<usize>,
     target: Option<String>,
@@ -741,6 +718,7 @@ fn add_io_resource_nodes(
         if let Some(id) = add_io_resource_node(builder, unit_id, scope, &fact.path, resolver) {
             ids.push(IoResourceNode {
                 id,
+                is_remote: is_remote_io_path(&fact.path),
                 path: fact.path.clone(),
                 operation_offset: fact.operation_offset,
                 target: fact.target.clone(),
@@ -775,17 +753,9 @@ fn add_lean_flow_edges(
         {
             let target_id =
                 add_lean_variable_node(builder, context, facts, target, resource.target_offset);
-            builder.add_read(
-                &resource.id,
-                target_id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_read(builder, resource, target_id, &context.evidence);
         } else if !precise_read_ids.contains(&resource.id) {
-            builder.add_read(
-                &resource.id,
-                context.unit_id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_read(builder, resource, context.unit_id, &context.evidence);
         }
     }
 
@@ -826,21 +796,13 @@ fn add_lean_flow_edges(
             let value_offset = resource.value_offset.or(resource.operation_offset);
             if value_offset.is_none_or(|offset| variable_available_at(facts, value, offset)) {
                 let value_id = add_lean_variable_node(builder, context, facts, value, value_offset);
-                builder.add_write(
-                    value_id,
-                    &resource.id,
-                    vec![io_path_evidence(&context.evidence, resource)],
-                );
+                add_resource_write(builder, value_id, resource, &context.evidence);
                 continue;
             }
         }
 
         if !precise_write_ids.contains(&resource.id) {
-            builder.add_generation(
-                context.unit_id,
-                &resource.id,
-                vec![io_path_evidence(&context.evidence, resource)],
-            );
+            add_resource_generation(builder, context.unit_id, resource, &context.evidence);
         }
     }
 }
@@ -1005,11 +967,12 @@ fn add_variable_data_flow_edges(
             context.unit_id,
             vec![context.evidence.static_analysis(resource.target_offset)],
         );
-        builder.add_derivation(
-            &resource.id,
-            target_id,
-            vec![io_path_evidence(&context.evidence, resource)],
-        );
+        let evidence = vec![io_path_evidence(&context.evidence, resource)];
+        if resource.is_remote {
+            builder.add_receive(&resource.id, target_id, evidence);
+        } else {
+            builder.add_derivation(&resource.id, target_id, evidence);
+        }
     }
 
     for flow in &facts.variable_flows {
@@ -1045,11 +1008,61 @@ fn add_variable_data_flow_edges(
             context.unit_id,
             vec![context.evidence.static_analysis(value_offset)],
         );
-        builder.add_write(
-            value_id,
-            &resource.id,
-            vec![io_path_evidence(&context.evidence, resource)],
-        );
+        add_resource_write(builder, value_id, resource, &context.evidence);
+    }
+}
+
+/// Whether an I/O path denotes an external resource rather than a local file.
+fn is_remote_io_path(path: &IoPath) -> bool {
+    matches!(
+        path,
+        IoPath::Static(literal)
+            if bare_doi(literal).is_some() || has_remote_uri_scheme(literal)
+    )
+}
+
+/// Add a local read or remote receive edge for an I/O resource.
+fn add_resource_read(
+    builder: &mut GraphBuilder,
+    resource: &IoResourceNode,
+    consumer: impl Into<String>,
+    evidence_source: &CodeEvidenceSource,
+) {
+    let evidence = vec![io_path_evidence(evidence_source, resource)];
+    if resource.is_remote {
+        builder.add_receive(&resource.id, consumer, evidence);
+    } else {
+        builder.add_read(&resource.id, consumer, evidence);
+    }
+}
+
+/// Add a local write or remote send edge from a precise value.
+fn add_resource_write(
+    builder: &mut GraphBuilder,
+    value: impl Into<String>,
+    resource: &IoResourceNode,
+    evidence_source: &CodeEvidenceSource,
+) {
+    let evidence = vec![io_path_evidence(evidence_source, resource)];
+    if resource.is_remote {
+        builder.add_send(value, &resource.id, evidence);
+    } else {
+        builder.add_write(value, &resource.id, evidence);
+    }
+}
+
+/// Add a local generation or remote send edge from a code or workflow unit.
+fn add_resource_generation(
+    builder: &mut GraphBuilder,
+    generator: impl Into<String>,
+    resource: &IoResourceNode,
+    evidence_source: &CodeEvidenceSource,
+) {
+    let evidence = vec![io_path_evidence(evidence_source, resource)];
+    if resource.is_remote {
+        builder.add_send(generator, &resource.id, evidence);
+    } else {
+        builder.add_generation(generator, &resource.id, evidence);
     }
 }
 
