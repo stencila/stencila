@@ -1,0 +1,1534 @@
+---
+source: rust/graph/tests/fixtures.rs
+expression: graph
+---
+type: Graph
+subject: "fixture:code-io-resolution-shapes"
+nodes:
+  - type: GraphNode
+    id: "code:analysis.R"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.R"
+      name: analysis.R
+      path: analysis.R
+      programmingLanguage: R
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:analysis.js"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.js"
+      name: analysis.js
+      path: analysis.js
+      programmingLanguage: JavaScript
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "code:analysis.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:analysis.py"
+      name: analysis.py
+      path: analysis.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
+    id: "datatable:data/first.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/first.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/first.csv
+  - type: GraphNode
+    id: "datatable:data/helper.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/helper.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/helper.csv
+  - type: GraphNode
+    id: "datatable:data/input.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/input.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/input.csv
+  - type: GraphNode
+    id: "datatable:data/local.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/local.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/local.csv
+  - type: GraphNode
+    id: "datatable:data/second.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/second.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/second.csv
+  - type: GraphNode
+    id: "datatable:data/template.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/template.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/template.csv
+  - type: GraphNode
+    id: "datatable:data/wrapped.csv"
+    node:
+      type: Datatable
+      id: "datatable:data/wrapped.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: data/wrapped.csv
+  - type: GraphNode
+    id: "datatable:results/js-summary.csv"
+    node:
+      type: Datatable
+      id: "datatable:results/js-summary.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/js-summary.csv
+  - type: GraphNode
+    id: "datatable:results/r-summary.csv"
+    node:
+      type: Datatable
+      id: "datatable:results/r-summary.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/r-summary.csv
+  - type: GraphNode
+    id: "datatable:results/summary.csv"
+    node:
+      type: Datatable
+      id: "datatable:results/summary.csv"
+      columns:
+        - type: DatatableColumn
+          name: site
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: StringValidator
+        - type: DatatableColumn
+          name: count
+          values: []
+          validator:
+            type: ArrayValidator
+            itemsValidator:
+              type: IntegerValidator
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+      path: results/summary.csv
+  - type: GraphNode
+    id: "dir:."
+    node:
+      type: Directory
+      id: "dir:."
+      name: code-io-resolution-shapes
+      path: "."
+  - type: GraphNode
+    id: "dir:data"
+    node:
+      type: Directory
+      id: "dir:data"
+      name: data
+      path: data
+  - type: GraphNode
+    id: "dir:results"
+    node:
+      type: Directory
+      id: "dir:results"
+      name: results
+      path: results
+  - type: GraphNode
+    id: "function:analysis.py:python:main"
+    node:
+      type: Function
+      id: "function:analysis.py:python:main"
+      name: main
+      parameters: []
+  - type: GraphNode
+    id: "package:node/fs"
+    node:
+      type: SoftwareSourceCode
+      id: "package:node/fs"
+      name: fs
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "resource:https%3A//example.org/remote.csv"
+    node:
+      type: CreativeWork
+      url: "https://example.org/remote.csv"
+  - type: GraphNode
+    id: "symbol:analysis.R:r:BASE"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:BASE"
+      name: BASE
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:INPUT"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:INPUT"
+      name: INPUT
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:computed"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:computed"
+      name: computed
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:computed_table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:computed_table"
+      name: computed_table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:conditional"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:conditional"
+      name: conditional
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:conditional_table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:conditional_table"
+      name: conditional_table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:extra"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:extra"
+      name: extra
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:helper"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:helper"
+      name: helper
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:input"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:input"
+      name: input
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:load_table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:load_table"
+      name: load_table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:local_path"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:local_path"
+      name: local_path
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:local_table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:local_table"
+      name: local_table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:reassigned"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:reassigned"
+      name: reassigned
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:reassigned_table"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:reassigned_table"
+      name: reassigned_table
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:templated"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:templated"
+      name: templated
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.R:r:wrapped"
+    node:
+      type: Variable
+      id: "symbol:analysis.R:r:wrapped"
+      name: wrapped
+      programmingLanguage: R
+  - type: GraphNode
+    id: "symbol:analysis.js:javascript:INPUT"
+    node:
+      type: Variable
+      id: "symbol:analysis.js:javascript:INPUT"
+      name: INPUT
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "symbol:analysis.js:javascript:text"
+    node:
+      type: Variable
+      id: "symbol:analysis.js:javascript:text"
+      name: text
+      programmingLanguage: JavaScript
+  - type: GraphNode
+    id: "symbol:analysis.py:python:main:INPUT"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:main:INPUT"
+      name: INPUT
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:main:computed"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:main:computed"
+      name: computed
+      programmingLanguage: Python
+  - type: GraphNode
+    id: "symbol:analysis.py:python:main:text"
+    node:
+      type: Variable
+      id: "symbol:analysis.py:python:main:text"
+      name: text
+      programmingLanguage: Python
+edges:
+  - type: GraphEdge
+    source: "code:analysis.R"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:analysis.js"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "code:analysis.py"
+    target: "datatable:results/summary.csv"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 74
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: results/summary.csv
+          byteOffset: 2008
+          function: open
+          mode: write
+  - type: GraphEdge
+    source: "code:analysis.py"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/first.csv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 26
+          startColumn: 23
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/first.csv
+          byteOffset: 695
+          function: readFileSync
+  - type: GraphEdge
+    source: "datatable:data/first.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 37
+          startColumn: 21
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/first.csv
+          byteOffset: 874
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/first.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/first.csv"
+    target: "symbol:analysis.R:r:extra"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 24
+          startColumn: 20
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/first.csv
+          byteOffset: 568
+          function: csv
+          target: extra
+  - type: GraphEdge
+    source: "datatable:data/helper.csv"
+    target: "code:analysis.R"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 16
+          startColumn: 11
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/helper.csv
+          byteOffset: 424
+          function: csv
+  - type: GraphEdge
+    source: "datatable:data/helper.csv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 18
+          startColumn: 22
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/helper.csv
+          byteOffset: 521
+          function: readFileSync
+  - type: GraphEdge
+    source: "datatable:data/helper.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 20
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/helper.csv
+          byteOffset: 493
+          function: open
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 47
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/helper.csv
+          byteOffset: 1117
+          function: load
+  - type: GraphEdge
+    source: "datatable:data/helper.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/input.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 33
+          startColumn: 16
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/input.csv
+          byteOffset: 768
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/input.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/input.csv"
+    target: "symbol:analysis.R:r:input"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 20
+          startColumn: 18
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/input.csv
+          byteOffset: 470
+          function: csv
+          target: input
+  - type: GraphEdge
+    source: "datatable:data/input.csv"
+    target: "symbol:analysis.js:javascript:text"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 22
+          startColumn: 24
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/input.csv
+          byteOffset: 583
+          function: readFileSync
+          target: text
+  - type: GraphEdge
+    source: "datatable:data/local.csv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 31
+          startColumn: 21
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/local.csv
+          byteOffset: 796
+          function: readFileSync
+  - type: GraphEdge
+    source: "datatable:data/local.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 41
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/local.csv
+          byteOffset: 967
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/local.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/local.csv"
+    target: "symbol:analysis.R:r:local_table"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 29
+          startColumn: 24
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/local.csv
+          byteOffset: 666
+          function: csv
+          target: local_table
+  - type: GraphEdge
+    source: "datatable:data/second.csv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 26
+          startColumn: 23
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/second.csv
+          byteOffset: 695
+          function: readFileSync
+  - type: GraphEdge
+    source: "datatable:data/second.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 37
+          startColumn: 21
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/second.csv
+          byteOffset: 874
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/second.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/second.csv"
+    target: "symbol:analysis.R:r:extra"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 24
+          startColumn: 20
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/second.csv
+          byteOffset: 568
+          function: csv
+          target: extra
+  - type: GraphEdge
+    source: "datatable:data/template.csv"
+    target: "code:analysis.js"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 34
+          startColumn: 21
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: data/template.csv
+          byteOffset: 864
+          function: readFileSync
+  - type: GraphEdge
+    source: "datatable:data/template.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 44
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/template.csv
+          byteOffset: 1032
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/template.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/template.csv"
+    target: "symbol:analysis.R:r:templated"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 32
+          startColumn: 22
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/template.csv
+          byteOffset: 730
+          function: csv
+          target: templated
+  - type: GraphEdge
+    source: "datatable:data/wrapped.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 50
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: data/wrapped.csv
+          byteOffset: 1204
+          function: open
+  - type: GraphEdge
+    source: "datatable:data/wrapped.csv"
+    target: "dir:data"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:data/wrapped.csv"
+    target: "symbol:analysis.R:r:wrapped"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 38
+          startColumn: 21
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: data/wrapped.csv
+          byteOffset: 895
+          function: readLines
+          target: wrapped
+  - type: GraphEdge
+    source: "datatable:results/js-summary.csv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/r-summary.csv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "datatable:results/summary.csv"
+    target: "dir:results"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:data"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "dir:results"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
+    source: "function:analysis.py:python:main"
+    target: "code:analysis.py"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 31
+          startColumn: 0
+  - type: GraphEdge
+    source: "package:node/fs"
+    target: "code:analysis.js"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
+    source: "resource:https%3A//example.org/remote.csv"
+    target: "code:analysis.py"
+    kind: ReadBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 27
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: python
+          pathKind: static
+          expression: "https://example.org/remote.csv"
+          byteOffset: 662
+          function: urlopen
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:BASE"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 32
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:BASE"
+    target: "symbol:analysis.R:r:templated"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 32
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:INPUT"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 20
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:INPUT"
+    target: "symbol:analysis.R:r:input"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 20
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:computed"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 55
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 54
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:computed"
+    target: "symbol:analysis.R:r:computed_table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 55
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:computed_table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 55
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:conditional"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 46
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:conditional"
+    target: "symbol:analysis.R:r:conditional_table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 46
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:conditional_table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 46
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:extra"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 24
+          startColumn: 2
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:helper"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 35
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:input"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 20
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 54
+          startColumn: 0
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 57
+          startColumn: 17
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:input"
+    target: "datatable:results/r-summary.csv"
+    kind: WrittenTo
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 57
+          startColumn: 17
+        details:
+          detector: stencila-code-static-analysis
+          language: r
+          pathKind: static
+          expression: results/r-summary.csv
+          byteOffset: 1439
+          function: csv
+          value: input
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:input"
+    target: "symbol:analysis.R:r:computed"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 54
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:load_table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 35
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:load_table"
+    target: "symbol:analysis.R:r:helper"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 35
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:local_path"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 29
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:local_path"
+    target: "symbol:analysis.R:r:local_table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 29
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:local_table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 29
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:reassigned"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 51
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:reassigned"
+    target: "symbol:analysis.R:r:reassigned_table"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 51
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:reassigned_table"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 51
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:templated"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 32
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.R:r:wrapped"
+    target: "code:analysis.R"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.R
+          startLine: 38
+          startColumn: 0
+  - type: GraphEdge
+    source: "symbol:analysis.js:javascript:INPUT"
+    target: "code:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 22
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.js:javascript:INPUT"
+    target: "symbol:analysis.js:javascript:text"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 22
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.js:javascript:text"
+    target: "code:analysis.js"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 22
+          startColumn: 4
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 52
+          startColumn: 14
+  - type: GraphEdge
+    source: "symbol:analysis.js:javascript:text"
+    target: "datatable:results/js-summary.csv"
+    kind: WrittenTo
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.js
+          startLine: 52
+          startColumn: 14
+        details:
+          detector: stencila-code-static-analysis
+          language: javascript
+          pathKind: static
+          expression: results/js-summary.csv
+          byteOffset: 1333
+          function: writeFileSync
+          value: text
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:main:INPUT"
+    target: "function:analysis.py:python:main"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 33
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:main:INPUT"
+    target: "symbol:analysis.py:python:main:text"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 33
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:main:computed"
+    target: "function:analysis.py:python:main"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 68
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:main:text"
+    target: "function:analysis.py:python:main"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 33
+          startColumn: 4
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 68
+          startColumn: 4
+  - type: GraphEdge
+    source: "symbol:analysis.py:python:main:text"
+    target: "symbol:analysis.py:python:main:computed"
+    kind: DerivedInto
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+        codeLocation:
+          type: CodeLocation
+          source: analysis.py
+          startLine: 68
+          startColumn: 4
+repository: "https://github.com/stencila/stencila"
+path: rust/graph/tests/fixtures/code-io-resolution-shapes
+commit: "[commit]"
+worktreeStatus: "[worktreeStatus]"

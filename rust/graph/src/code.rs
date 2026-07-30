@@ -20,18 +20,23 @@
 //! and lets workspace and document callers share the same normalization logic.
 
 mod analyze;
+mod ast;
+mod diagnostics;
 mod document;
 mod facts;
+mod io_table;
 mod language;
 mod normalize;
 mod project;
+mod resolve;
 mod scan;
 mod util;
 mod workspace;
 
 pub use crate::package::PackageFact;
 pub use analyze::analyze_source;
-pub(crate) use document::DocumentCodeIndex;
+pub use diagnostics::{StaticAnalysisDiagnostic, UnresolvedIoReason};
+pub(crate) use document::{DocumentCodeIndex, DocumentCodeSource};
 pub use facts::{
     CodeFacts, ColumnFact, FunctionFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact,
     WorkflowUnitFacts,
@@ -216,6 +221,7 @@ df.to_csv("output.csv")
                 value_offset: None,
                 function: None,
                 mode: None,
+                unresolved_reason: None,
             }]),
             ..Default::default()
         };
@@ -320,6 +326,59 @@ Path("outputs/config.txt").write_text(text)
     }
 
     #[test]
+    fn resolves_python_io_arguments_without_fabricating_paths() {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+import pickle
+from pathlib import Path
+
+Path("actual.txt").open("w")
+open(Path("base").joinpath("joined.txt"))
+pickle.dump({"value": "x"}, "actual.pkl", 5)
+"#,
+        );
+
+        assert_io(&facts, IoDirection::Write, "actual.txt");
+        assert_io(&facts, IoDirection::Read, "base/joined.txt");
+        assert_io(&facts, IoDirection::Write, "actual.pkl");
+        assert_no_io(&facts, "w");
+        assert_no_io(&facts, "5");
+    }
+
+    #[test]
+    fn resolves_loop_values_only_within_the_loop_body() {
+        let inside = analyze_source(
+            CodeLanguage::Python,
+            r#"
+paths = ["first.csv", "second.csv"]
+for path in paths:
+    open(path)
+"#,
+        );
+        assert_io(&inside, IoDirection::Read, "first.csv");
+        assert_io(&inside, IoDirection::Read, "second.csv");
+
+        let after = analyze_source(
+            CodeLanguage::Python,
+            r#"
+paths = ["first.csv", "second.csv"]
+for path in paths:
+    pass
+open(path)
+"#,
+        );
+        assert_no_io(&after, "first.csv");
+        assert_no_io(&after, "second.csv");
+        assert!(after.io.iter().any(|fact| {
+            matches!(
+                fact.unresolved_reason,
+                Some(UnresolvedIoReason::ConditionalAssignment { ref name }) if name == "path"
+            )
+        }));
+    }
+
+    #[test]
     fn extracts_r_facts() {
         let facts = analyze_source(
             CodeLanguage::R,
@@ -348,6 +407,20 @@ write.csv(df, "output.csv")
         assert_io(&facts, IoDirection::Write, "named-output.csv");
         assert_io(&facts, IoDirection::Write, "output.csv");
         assert!(facts.columns.iter().any(|column| column.column == "A"));
+    }
+
+    #[test]
+    fn extracts_namespace_qualified_r_io_with_dotted_names() {
+        let facts = analyze_source(
+            CodeLanguage::R,
+            r#"
+table <- utils::read.csv("qualified-input.csv")
+utils::write.csv(table, "qualified-output.csv")
+"#,
+        );
+
+        assert_io(&facts, IoDirection::Read, "qualified-input.csv");
+        assert_io(&facts, IoDirection::Write, "qualified-output.csv");
     }
 
     #[test]
@@ -872,6 +945,7 @@ summarize();
                     value_offset: None,
                     function: None,
                     mode: None,
+                    unresolved_reason: None,
                 },
                 IoFact {
                     direction: IoDirection::Write,
@@ -883,6 +957,7 @@ summarize();
                     value_offset: None,
                     function: None,
                     mode: None,
+                    unresolved_reason: None,
                 },
             ]),
             ..Default::default()
@@ -1070,13 +1145,19 @@ process align {
             CodeLanguage::Python,
             "path = f\"data/{name}.csv\"\npd.read_csv(path)\n",
         );
+        // Resolution follows the binding into the template and keeps the two
+        // proven segments, but an unresolvable placeholder must never become a
+        // concrete path.
         assert!(dynamic.io.iter().any(|fact| {
             fact.direction == IoDirection::Read
-                && matches!(fact.path, IoPath::Unknown(ref path) if path == "path")
+                && matches!(&fact.path, IoPath::Template(template)
+                    if template.expression == "path"
+                        && template.segments == ["data/", ".csv"]
+                        && template.unresolved == ["name"])
         }));
 
         let template = analyze_source(CodeLanguage::Python, "pd.read_csv(f\"data/{name}.csv\")\n");
-        assert_template_io(&template, IoDirection::Read, "data/{name}.csv");
+        assert_template_io(&template, IoDirection::Read, "f\"data/{name}.csv\"");
 
         let syntax = analyze_source(CodeLanguage::Python, "if (");
         assert!(syntax.syntax_error);
@@ -1104,7 +1185,7 @@ process align {
         assert!(
             facts.io.iter().any(|fact| {
                 fact.direction == direction
-                    && matches!(fact.path, IoPath::Template(ref value) if value == path)
+                    && matches!(fact.path, IoPath::Template(ref template) if template.expression == path)
             }),
             "missing template {direction:?} I/O fact for {path}"
         );
@@ -1124,7 +1205,7 @@ process align {
         assert!(
             unit.io.iter().any(|fact| {
                 fact.direction == direction
-                    && matches!(fact.path, IoPath::Template(ref value) if value == path)
+                    && matches!(fact.path, IoPath::Template(ref template) if template.expression == path)
             }),
             "missing workflow unit template {direction:?} I/O fact for {path}"
         );
@@ -1163,6 +1244,8 @@ process align {
             super::project::CodeGraphSource {
                 unit_id: &unit_id,
                 scope,
+                node_type: stencila_schema::NodeType::SoftwareSourceCode,
+                node_id: None,
                 language,
                 source_text: None,
                 mode,
@@ -1187,5 +1270,164 @@ process align {
 
     fn has_graph_node(graph: &stencila_schema::Graph, id: &str) -> bool {
         graph.nodes.iter().any(|node| node.id == id)
+    }
+
+    /// The end-to-end acceptance case for static analysis permissiveness.
+    ///
+    /// This is the idiomatic shape of the penguins download script: DOIs in a
+    /// dict, a `fetch` helper, a wrapper constructor bound to a local, and an
+    /// f-string built from a module constant. Before this analysis widened,
+    /// every one of these defeated resolution and the script's provenance was
+    /// empty.
+    #[test]
+    fn resolves_idiomatic_penguins_download() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+from urllib.request import Request, urlopen
+
+PASTA = "https://pasta.lternet.edu/package"
+OUTPUT = "penguins.csv"
+DOIS = {
+    "Adelie": "https://doi.org/10.6073/pasta/abc50",
+    "Gentoo": "https://doi.org/10.6073/pasta/2b1cff",
+    "Chinstrap": "https://doi.org/10.6073/pasta/409c80",
+}
+
+
+def fetch(url):
+    request = Request(url)
+    with urlopen(request) as response:
+        return response.read().decode()
+
+
+def resolve():
+    for doi in DOIS.values():
+        with urlopen(doi) as response:
+            yield response.url
+
+
+def download_package(identifier):
+    base = f"{PASTA}/data/eml/{identifier}"
+    entity_id = fetch(base).split()[0]
+    return fetch(f"{base}/{entity_id}")
+
+
+def download():
+    with open(OUTPUT, "w") as file:
+        file.write("")
+"#,
+        );
+        let graph = project_test_graph("download.py", CodeLanguage::Python, &facts)?;
+
+        // Each DOI is a citable identifier, canonically identified.
+        for doi in ["abc50", "2b1cff", "409c80"] {
+            assert!(
+                has_graph_node(&graph, &format!("resource:doi%3A10.6073/pasta/{doi}")),
+                "missing DOI dependency for {doi}"
+            );
+        }
+
+        // The output CSV is generated by the script.
+        assert!(has_graph_edge(
+            &graph,
+            "code:download.py",
+            "file-ref:download.py:penguins.csv",
+            stencila_schema::GraphEdgeKind::Generated
+        ));
+
+        // The entity URL inside `download_package` does not exist until the DOI
+        // redirect has been followed at runtime. `fetch` is called with values
+        // this pass cannot prove, so its parameter declines outright rather
+        // than contributing a partial set, and no resource is fabricated.
+        assert!(
+            facts.io.iter().any(|fact| matches!(
+                &fact.unresolved_reason,
+                Some(UnresolvedIoReason::UnresolvedParameter { function, .. }) if function == "fetch"
+            )),
+            "the runtime-only fetch should be reported as an unresolved parameter"
+        );
+        assert!(
+            !graph
+                .nodes
+                .iter()
+                .any(|node| node.id.starts_with("file-ref:")
+                    && node.id != "file-ref:download.py:penguins.csv"),
+            "runtime-only URLs must not be fabricated as resources"
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn coalesces_equivalent_doi_spellings() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+from urllib.request import urlopen
+
+urlopen("doi:10.6073/pasta/abc50")
+urlopen("https://doi.org/10.6073/pasta/abc50")
+urlopen("http://dx.doi.org/10.6073/pasta/abc50")
+"#,
+        );
+        let graph = project_test_graph("download.py", CodeLanguage::Python, &facts)?;
+
+        let id = "resource:doi%3A10.6073/pasta/abc50";
+        assert!(has_graph_node(&graph, id));
+        assert_eq!(
+            graph
+                .nodes
+                .iter()
+                .filter(|node| node.id.contains("10.6073"))
+                .count(),
+            1,
+            "equivalent DOI spellings should produce exactly one graph node"
+        );
+
+        let node = graph
+            .nodes
+            .iter()
+            .find(|node| node.id == id)
+            .expect("DOI node should exist");
+        let stencila_schema::Node::CreativeWork(work) = node.node.as_ref() else {
+            panic!("DOI resource should be a CreativeWork");
+        };
+        assert_eq!(work.doi.as_deref(), Some("10.6073/pasta/abc50"));
+        assert_eq!(
+            work.options.url.as_deref(),
+            Some("https://doi.org/10.6073/pasta/abc50")
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn does_not_mint_resources_for_unresolved_paths() -> eyre::Result<()> {
+        let facts = analyze_source(
+            CodeLanguage::Python,
+            r#"
+import sys
+
+import pandas as pd
+
+path = sys.argv[1]
+pd.read_csv(path)
+pd.read_csv(f"data/{path}.csv")
+"#,
+        );
+        let graph = project_test_graph("analysis.py", CodeLanguage::Python, &facts)?;
+
+        // A local variable name is not a resource, and neither is a partially
+        // resolved template. Both are reported as diagnostics instead.
+        assert!(
+            !graph
+                .nodes
+                .iter()
+                .any(|node| node.id.starts_with("file-ref:")),
+            "unresolved I/O must not mint resource nodes"
+        );
+
+        Ok(())
     }
 }

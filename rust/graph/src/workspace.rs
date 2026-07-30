@@ -18,7 +18,7 @@ use stencila_schema::{
 };
 
 use crate::{
-    DocumentReferenceKind, GraphBuilder, add_document_with_reference_resolver,
+    DocumentReferenceKind, GraphAnalysis, GraphBuilder, add_document_with_reference_resolver,
     code::{self, CodeLanguage},
     environment, evidence,
     ids::{LocalGraphId, WorkspaceRelPath},
@@ -128,6 +128,18 @@ pub async fn graph_from_path(
     root: impl AsRef<Path>,
     options: Option<WorkspaceOptions>,
 ) -> Result<Graph> {
+    Ok(graph_from_path_with_diagnostics(root, options).await?.graph)
+}
+
+/// Build a workspace graph and the static analysis diagnostics behind it.
+///
+/// This is the same analysis as [`graph_from_path`], but it also returns the
+/// I/O operations the analyzer could not resolve. Callers reporting analyzer
+/// coverage, such as `stencila graph --explain`, use this entry point.
+pub async fn graph_from_path_with_diagnostics(
+    root: impl AsRef<Path>,
+    options: Option<WorkspaceOptions>,
+) -> Result<GraphAnalysis> {
     let root = root
         .as_ref()
         .canonicalize()
@@ -392,12 +404,13 @@ pub async fn graph_from_path(
             .await?;
     }
 
+    let diagnostics = builder.take_diagnostics();
     let mut graph = builder.build()?;
     if options.source_metadata {
         source::set_graph_source_metadata_from_path(&mut graph, &root)?;
     }
 
-    Ok(graph)
+    Ok(GraphAnalysis { graph, diagnostics })
 }
 
 /// Resolve a local reference to an existing workspace graph id.

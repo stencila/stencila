@@ -341,7 +341,7 @@ edges:
           pathKind: static
           expression: results/counts/gene-counts.tsv
           byteOffset: 31
-          function: Path
+          function: write_text
   - type: GraphEdge
     source: "code:workflow/scripts/counts.py"
     target: "dir:workflow/scripts"
@@ -381,7 +381,7 @@ edges:
           pathKind: static
           expression: data/raw/S1.fastq
           byteOffset: 31
-          function: Path
+          function: write_text
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
     target: "workflow-unit:Snakefile:download"

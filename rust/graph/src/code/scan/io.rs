@@ -18,171 +18,12 @@ pub(in crate::code) fn collect_named_io_text_facts(
     facts: &mut CodeFacts,
 ) {
     let markers: &[NamedIoMarker] = match language {
-        CodeLanguage::Python => &[
-            // Tabular dataframe readers and writers.
-            NamedIoMarker::read("read_csv", "filepath_or_buffer"),
-            NamedIoMarker::read("read_table", "filepath_or_buffer"),
-            NamedIoMarker::read("read_excel", "io"),
-            NamedIoMarker::read("read_json", "path_or_buf"),
-            NamedIoMarker::read("read_html", "io"),
-            NamedIoMarker::read("read_parquet", "path"),
-            NamedIoMarker::read("read_feather", "path"),
-            NamedIoMarker::read("read_pickle", "filepath_or_buffer"),
-            NamedIoMarker::read("read_hdf", "path_or_buf"),
-            NamedIoMarker::read("read_orc", "path"),
-            NamedIoMarker::read("read_sas", "filepath_or_buffer"),
-            NamedIoMarker::read("read_stata", "filepath_or_buffer"),
-            NamedIoMarker::read("read_fwf", "filepath_or_buffer"),
-            NamedIoMarker::read("read_xml", "path_or_buffer"),
-            NamedIoMarker::read("read_spss", "path"),
-            NamedIoMarker::read("read_file", "filename"),
-            NamedIoMarker::write("to_csv", "path_or_buf"),
-            NamedIoMarker::write("to_excel", "excel_writer"),
-            NamedIoMarker::write("to_json", "path_or_buf"),
-            NamedIoMarker::write("to_html", "buf"),
-            NamedIoMarker::write("to_parquet", "path"),
-            NamedIoMarker::write("to_feather", "path"),
-            NamedIoMarker::write("to_pickle", "path"),
-            NamedIoMarker::write("to_hdf", "path_or_buf"),
-            NamedIoMarker::write("to_orc", "path"),
-            NamedIoMarker::write("to_stata", "path"),
-            NamedIoMarker::write("to_xml", "path_or_buffer"),
-            NamedIoMarker::write("to_latex", "buf"),
-            NamedIoMarker::write("to_markdown", "buf"),
-            NamedIoMarker::write("to_file", "filename"),
-            // Array, matrix, labeled-array, and chunked-store APIs.
-            NamedIoMarker::read("load", "file"),
-            NamedIoMarker::read("loadtxt", "fname"),
-            NamedIoMarker::read("genfromtxt", "fname"),
-            NamedIoMarker::read("fromfile", "file"),
-            NamedIoMarker::read("loadmat", "file_name"),
-            NamedIoMarker::read("open_dataset", "filename_or_obj"),
-            NamedIoMarker::read("open_dataarray", "filename_or_obj"),
-            NamedIoMarker::read("open_mfdataset", "paths"),
-            NamedIoMarker::read("open_zarr", "store"),
-            NamedIoMarker::write("save", "file"),
-            NamedIoMarker::write("savez", "file"),
-            NamedIoMarker::write("savez_compressed", "file"),
-            NamedIoMarker::write("savetxt", "fname"),
-            NamedIoMarker::write("savemat", "file_name"),
-            NamedIoMarker::write("torch.save", "f"),
-            NamedIoMarker::write("save_file", "filename"),
-            NamedIoMarker::write("to_netcdf", "path"),
-            NamedIoMarker::write("to_zarr", "store"),
-            // Images, plots, media, and URL helpers.
-            NamedIoMarker::write("savefig", "fname"),
-            NamedIoMarker::write("imwrite", "uri"),
-            NamedIoMarker::write("imsave", "fname"),
-            NamedIoMarker::read("requests.get", "url"),
-            NamedIoMarker::read("urlopen", "url"),
-            NamedIoMarker::read("urlretrieve", "url"),
-            NamedIoMarker::write("urlretrieve", "filename"),
-        ],
-        CodeLanguage::R => &[
-            // Base R, tidyverse, data.table, workbook, statistical, and
-            // columnar readers.
-            NamedIoMarker::read("read.table", "file"),
-            NamedIoMarker::read("read.csv", "file"),
-            NamedIoMarker::read("read.csv2", "file"),
-            NamedIoMarker::read("read.delim", "file"),
-            NamedIoMarker::read("read.delim2", "file"),
-            NamedIoMarker::read("read.fwf", "file"),
-            NamedIoMarker::read("read_csv", "file"),
-            NamedIoMarker::read("read_tsv", "file"),
-            NamedIoMarker::read("read_delim", "file"),
-            NamedIoMarker::read("read_fwf", "file"),
-            NamedIoMarker::read("read_table", "file"),
-            NamedIoMarker::read("vroom", "file"),
-            NamedIoMarker::read("fread", "file"),
-            NamedIoMarker::read("fread", "input"),
-            NamedIoMarker::read("readRDS", "file"),
-            NamedIoMarker::read("read_rds", "file"),
-            NamedIoMarker::read("load", "file"),
-            NamedIoMarker::read("readBin", "con"),
-            NamedIoMarker::read("readChar", "con"),
-            NamedIoMarker::read("readLines", "con"),
-            NamedIoMarker::read("scan", "file"),
-            NamedIoMarker::read("source", "file"),
-            NamedIoMarker::read("dget", "file"),
-            NamedIoMarker::read("read_excel", "path"),
-            NamedIoMarker::read("read_sav", "file"),
-            NamedIoMarker::read("read_dta", "file"),
-            NamedIoMarker::read("read_parquet", "file"),
-            NamedIoMarker::read("read_feather", "file"),
-            NamedIoMarker::read("open_dataset", "sources"),
-            // Structured, HTML, media, and spatial readers.
-            NamedIoMarker::read("read_json", "path"),
-            NamedIoMarker::read("read_xml", "x"),
-            NamedIoMarker::read("read_html", "x"),
-            NamedIoMarker::read("st_read", "dsn"),
-            NamedIoMarker::read("read_sf", "dsn"),
-            NamedIoMarker::read("terra::rast", "x"),
-            NamedIoMarker::read("terra::vect", "x"),
-            NamedIoMarker::read("image_read", "path"),
-            NamedIoMarker::read("readPNG", "source"),
-            NamedIoMarker::read("readJPEG", "source"),
-            NamedIoMarker::read("readTIFF", "source"),
-            // URL and copy helpers.
-            NamedIoMarker::status_read("download.file", "url"),
-            NamedIoMarker::status_read("curl_download", "url"),
-            NamedIoMarker::status_read("file.copy", "from"),
-            NamedIoMarker::status_read("file.rename", "from"),
-            // Base R, tidyverse, data.table, workbook, statistical, and
-            // columnar writers.
-            NamedIoMarker::write("write.table", "file"),
-            NamedIoMarker::write("write.csv", "file"),
-            NamedIoMarker::write("write.csv2", "file"),
-            NamedIoMarker::write("write", "file"),
-            NamedIoMarker::write("writeLines", "con"),
-            NamedIoMarker::write("cat", "file"),
-            NamedIoMarker::write("sink", "file"),
-            NamedIoMarker::write("write_csv", "file"),
-            NamedIoMarker::write("write_tsv", "file"),
-            NamedIoMarker::write("write_delim", "file"),
-            NamedIoMarker::write("saveRDS", "file"),
-            NamedIoMarker::write("save", "file"),
-            NamedIoMarker::write("save.image", "file"),
-            NamedIoMarker::write("dump", "file"),
-            NamedIoMarker::write("dput", "file"),
-            NamedIoMarker::write("writeBin", "con"),
-            NamedIoMarker::write("writeChar", "con"),
-            NamedIoMarker::write("write_rds", "file"),
-            NamedIoMarker::write("vroom_write", "file"),
-            NamedIoMarker::write("fwrite", "file"),
-            NamedIoMarker::write("write_xlsx", "path"),
-            NamedIoMarker::write("write_sav", "path"),
-            NamedIoMarker::write("write_dta", "path"),
-            NamedIoMarker::write("write_parquet", "sink"),
-            NamedIoMarker::write("write_feather", "sink"),
-            NamedIoMarker::write("write_dataset", "path"),
-            // Structured, spatial, image, and plot writers.
-            NamedIoMarker::write("write_json", "path"),
-            NamedIoMarker::write("write_xml", "file"),
-            NamedIoMarker::write("st_write", "dsn"),
-            NamedIoMarker::write("write_sf", "dsn"),
-            NamedIoMarker::write("writeRaster", "filename"),
-            NamedIoMarker::write("writeVector", "filename"),
-            NamedIoMarker::write("ggsave", "filename"),
-            NamedIoMarker::write("png", "filename"),
-            NamedIoMarker::write("pdf", "file"),
-            NamedIoMarker::write("svg", "filename"),
-            NamedIoMarker::write("jpeg", "filename"),
-            NamedIoMarker::write("tiff", "filename"),
-            NamedIoMarker::write("bmp", "filename"),
-            NamedIoMarker::write("postscript", "file"),
-            NamedIoMarker::write("cairo_pdf", "filename"),
-            NamedIoMarker::write("svglite", "file"),
-            NamedIoMarker::write("agg_png", "filename"),
-            NamedIoMarker::write("image_write", "path"),
-            NamedIoMarker::write("writePNG", "target"),
-            NamedIoMarker::write("writeJPEG", "target"),
-            NamedIoMarker::write("writeTIFF", "target"),
-            // URL and copy helpers.
-            NamedIoMarker::write("download.file", "destfile"),
-            NamedIoMarker::write("curl_download", "destfile"),
-            NamedIoMarker::write("file.copy", "to"),
-            NamedIoMarker::write("file.rename", "to"),
-        ],
+        // Python I/O is collected from the parse tree by the signature table in
+        // `io_table.rs`, which covers positional and keyword forms together.
+        CodeLanguage::Python => &[],
+        // R I/O is collected from the parse tree by the signature table in
+        // `io_table.rs`, which covers positional and keyword forms together.
+        CodeLanguage::R => &[],
         CodeLanguage::Julia => &[
             // Core Julia file readers and handles.
             NamedIoMarker::read("open", "filename"),
@@ -281,18 +122,6 @@ pub(in crate::code) fn collect_named_io_text_facts(
     for marker in markers {
         collect_named_marker(language, source, marker, facts);
     }
-
-    let positional_markers: &[PositionalIoMarker] = match language {
-        CodeLanguage::Python => &[
-            PositionalIoMarker::write("torch.save", 1),
-            PositionalIoMarker::write("save_file", 1),
-        ],
-        _ => return,
-    };
-
-    for marker in positional_markers {
-        collect_positional_marker(language, source, marker, facts);
-    }
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -339,28 +168,6 @@ impl NamedIoMarker {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-struct PositionalIoMarker {
-    /// Direction implied by the API and positional argument.
-    direction: IoDirection,
-
-    /// Function spelling to search for in source text.
-    function: &'static str,
-
-    /// Zero-based argument index that carries the path expression.
-    argument_index: usize,
-}
-
-impl PositionalIoMarker {
-    fn write(function: &'static str, argument_index: usize) -> Self {
-        Self {
-            direction: IoDirection::Write,
-            function,
-            argument_index,
-        }
-    }
-}
-
 fn collect_named_marker(
     language: CodeLanguage,
     source: &str,
@@ -399,6 +206,7 @@ fn collect_named_marker(
             value_offset: None,
             function: function_name(marker.function),
             mode: None,
+            unresolved_reason: None,
         });
 
         if let Some(target) = target {
@@ -415,51 +223,6 @@ fn collect_named_marker(
     }
 }
 
-fn collect_positional_marker(
-    language: CodeLanguage,
-    source: &str,
-    marker: &PositionalIoMarker,
-    facts: &mut CodeFacts,
-) {
-    let call_marker = format!("{}(", marker.function);
-    for call_index in call_indices(language, source, &call_marker) {
-        let Some(call_source) = source.get(call_index..) else {
-            continue;
-        };
-        let Some(arguments) = call_arguments(call_source) else {
-            continue;
-        };
-        let segments = top_level_segments(arguments);
-        let Some(value) = segments.get(marker.argument_index) else {
-            continue;
-        };
-        if top_level_assignment(value).is_some() {
-            continue;
-        }
-        let Some(path) = path_from_argument_value(value) else {
-            continue;
-        };
-
-        facts.io.insert(IoFact {
-            direction: marker.direction,
-            path,
-            operation_offset: Some(call_index),
-            target: None,
-            target_offset: None,
-            value: None,
-            value_offset: None,
-            function: function_name(marker.function),
-            mode: None,
-        });
-    }
-}
-
-/// Return call marker offsets that occur in executable source text.
-///
-/// This fallback scanner deliberately stays lexical. It does enough to avoid
-/// matching commented-out code, string contents, and longer helper names such as
-/// `my_read_csv(...)` or R dotted names such as `my.read.csv(...)`, while
-/// leaving full parsing to the primary ast-grep pass.
 fn call_indices(language: CodeLanguage, source: &str, call_marker: &str) -> Vec<usize> {
     let mut indices = Vec::new();
     let mut index = 0usize;

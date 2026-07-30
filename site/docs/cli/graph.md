@@ -49,6 +49,9 @@ stencila graph . graph.dot --view flow --containment none
 
 # Export a projected software dependency graph as SVG using Graphviz
 stencila graph . graph.svg --view deps
+
+# Report I/O that static analysis could not resolve
+stencila graph . --explain
 ```
 
 # Arguments
@@ -70,6 +73,7 @@ stencila graph . graph.svg --view deps
 | `--no-structure`          | Exclude structural containment context in projected graph exports. Possible values: `true`, `false`.            |
 | `--no-low-confidence`     | Exclude low-confidence edges in projected graph exports. Possible values: `true`, `false`.                      |
 | `--no-collapse-citations` | Keep citation marker nodes visible in projected graph exports. Possible values: `true`, `false`.                |
+| `--explain`               | Report I/O that static analysis could not resolve, instead of serving. Possible values: `true`, `false`.        |
 | `--no-c2pa`               | Do not inspect C2PA content credentials while building workspace graphs. Possible values: `true`, `false`.      |
 | `--no-git-authors`        | Do not include Git commit authors on file-backed workspace graph nodes. Possible values: `true`, `false`.       |
 | `--connected-to`          | Filter projected graph exports to nodes connected to matching nodes.                                            |

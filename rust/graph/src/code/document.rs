@@ -1,6 +1,7 @@
 use std::collections::BTreeMap;
 
 use crate::GraphBuilder;
+use stencila_schema::{NodeId, NodeType};
 
 use super::{
     analyze::analyze_source,
@@ -32,6 +33,15 @@ struct DocumentCodeUnit {
     facts: CodeFacts,
 }
 
+/// Source fields for one executable node in a document.
+pub(crate) struct DocumentCodeSource<'a> {
+    pub(crate) unit_id: &'a str,
+    pub(crate) node_type: NodeType,
+    pub(crate) node_id: &'a NodeId,
+    pub(crate) code: &'a str,
+    pub(crate) language: CodeLanguage,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum DocumentDefinitionKind {
     Variable,
@@ -54,28 +64,28 @@ impl DocumentCodeIndex {
         &mut self,
         builder: &mut GraphBuilder,
         scope: &str,
-        unit_id: &str,
-        code: &str,
-        language: CodeLanguage,
+        source: DocumentCodeSource<'_>,
         resolver: Option<&mut ResourceResolver<'_>>,
     ) {
-        let facts = analyze_source(language, code);
+        let facts = analyze_source(source.language, source.code);
         add_code_facts_to_graph(
             builder,
             CodeGraphSource {
-                unit_id,
+                unit_id: source.unit_id,
                 scope,
-                language,
-                source_text: Some(code),
+                node_type: source.node_type,
+                node_id: Some(source.node_id),
+                language: source.language,
+                source_text: Some(source.code),
                 mode: CodeGraphMode::Document,
             },
             &facts,
             resolver,
         );
         self.units.push(DocumentCodeUnit {
-            unit_id: unit_id.to_string(),
-            code: code.to_string(),
-            language,
+            unit_id: source.unit_id.to_string(),
+            code: source.code.to_string(),
+            language: source.language,
             facts,
         });
     }

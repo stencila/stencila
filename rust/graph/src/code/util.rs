@@ -89,7 +89,7 @@ pub(super) fn collect_path_expressions(source: &str, values: &mut BTreeSet<IoPat
                     || value.contains("${")
                     || value.contains("$(")
                 {
-                    IoPath::Template(value.to_string())
+                    IoPath::template(value)
                 } else if is_static_literal(value) {
                     IoPath::Static(value.to_string())
                 } else {
@@ -131,30 +131,152 @@ pub(super) fn clean_string_literal(raw: &str) -> Option<String> {
     if value.len() < delimiter_len * 2 {
         return None;
     }
-    let end_delimiter = &value[value.len() - delimiter_len..];
-    if !end_delimiter.chars().all(|char| char == quote) {
+    // The closing delimiter must terminate the whole fragment. Accepting any
+    // trailing quote would read `env["KEY"] + "/x.csv"` as one literal and
+    // fabricate a resource that no line of source ever names.
+    let body = &value[delimiter_len..];
+    let close = body.find(&value[..delimiter_len])?;
+    if delimiter_len + close + delimiter_len != value.len() {
         return None;
     }
 
-    let literal = &value[delimiter_len..value.len() - delimiter_len];
+    let literal = &body[..close];
     is_static_literal(literal).then(|| literal.to_string())
+}
+
+/// Constructors and adapters that pass their first argument through as a path.
+///
+/// Wrapping a path in `Request(...)` or `Path(...)` is idiomatic rather than
+/// exotic, so a table of known path-preserving constructors recovers a large
+/// class of otherwise opaque I/O for the cost of one list.
+///
+/// `io.BytesIO` and `io.StringIO` are deliberately absent. They carry payload
+/// bytes rather than a location, so treating an inner literal as a path would
+/// fabricate a resource that was never read or written.
+const PATH_PRESERVING_WRAPPERS: &[&str] = &[
+    // Python
+    "Request",
+    "Path",
+    "PosixPath",
+    "WindowsPath",
+    "PurePath",
+    "fspath",
+    "fsdecode",
+    "fsencode",
+    "str",
+    // R connection constructors
+    "url",
+    "file",
+    "gzfile",
+    "bzfile",
+    "xzfile",
+    "unz",
+    // JavaScript
+    "URL",
+    "fileURLToPath",
+    "pathToFileURL",
+];
+
+/// Strip known path-preserving wrappers from a path expression.
+///
+/// The check is textual so it can run in the rule normalizer and in the text
+/// scanner alike. It only unwraps when the call has a single argument, because a
+/// second argument may change which resource is addressed.
+pub(super) fn unwrap_path_expression(raw: &str) -> &str {
+    let mut current = raw.trim();
+
+    for _ in 0..4 {
+        let Some(inner) = unwrap_once(current) else {
+            break;
+        };
+        current = inner;
+    }
+
+    current
+}
+
+/// Whether a callee name passes its argument through as a path.
+pub(super) fn is_path_wrapper_name(name: &str) -> bool {
+    PATH_PRESERVING_WRAPPERS.contains(&name)
+}
+
+/// Remove one layer of path-preserving wrapper, if present.
+fn unwrap_once(raw: &str) -> Option<&str> {
+    let open = raw.find('(')?;
+    if !raw.ends_with(')') {
+        return None;
+    }
+
+    let callee = raw[..open].trim();
+    let name = callee.rsplit(['.', ':']).find(|part| !part.is_empty())?;
+    if !PATH_PRESERVING_WRAPPERS.contains(&name) {
+        return None;
+    }
+
+    let inner = raw[open + 1..raw.len() - 1].trim();
+    // A single argument only: a second argument may redirect the operation.
+    if split_top_level_arguments(inner).len() != 1 {
+        return None;
+    }
+
+    (inner != raw).then_some(inner)
+}
+
+/// Split call arguments on top-level commas, respecting nesting and quotes.
+fn split_top_level_arguments(source: &str) -> Vec<&str> {
+    let mut arguments = Vec::new();
+    let mut depth = 0usize;
+    let mut quote: Option<char> = None;
+    let mut escaped = false;
+    let mut start = 0;
+
+    for (index, char) in source.char_indices() {
+        if escaped {
+            escaped = false;
+            continue;
+        }
+        match quote {
+            Some(open) => match char {
+                '\\' => escaped = true,
+                _ if char == open => quote = None,
+                _ => {}
+            },
+            None => match char {
+                '\'' | '"' | '`' => quote = Some(char),
+                '(' | '[' | '{' => depth += 1,
+                ')' | ']' | '}' => depth = depth.saturating_sub(1),
+                ',' if depth == 0 => {
+                    arguments.push(source[start..index].trim());
+                    start = index + char.len_utf8();
+                }
+                _ => {}
+            },
+        }
+    }
+
+    let last = source[start..].trim();
+    if !last.is_empty() || !arguments.is_empty() {
+        arguments.push(last);
+    }
+    arguments
 }
 
 /// Convert a captured source fragment into a path expression.
 pub(super) fn path_expression(raw: &str) -> IoPath {
-    if let Some(path) = clean_string_literal(raw) {
+    let unwrapped = unwrap_path_expression(raw);
+
+    if let Some(path) = clean_string_literal(unwrapped) {
         return IoPath::Static(path);
     }
 
-    if let Some(path) = template_string_literal(raw) {
-        return IoPath::Template(path);
+    if template_string_literal(unwrapped).is_some() {
+        return IoPath::template(unwrapped);
     }
 
-    let raw = raw.trim();
-    if looks_like_path_template_expression(raw) {
-        IoPath::Template(raw.to_string())
+    if looks_like_path_template_expression(unwrapped) {
+        IoPath::template(unwrapped)
     } else {
-        IoPath::Unknown(raw.to_string())
+        IoPath::Unknown(unwrapped.to_string())
     }
 }
 

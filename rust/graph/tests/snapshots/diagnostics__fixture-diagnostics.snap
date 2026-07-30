@@ -1,0 +1,120 @@
+---
+source: rust/graph/tests/diagnostics.rs
+expression: "report.join(\"\\n\\n\")"
+---
+# code-io-resolution-shapes: 9 unresolved
+
+analysis.R:47  unresolved read
+  conditional
+  `conditional` is assigned more than once in its scope
+  assign `conditional` exactly once, unconditionally, before it is used
+
+analysis.R:52  unresolved read
+  reassigned
+  `reassigned` is assigned more than once in its scope
+  assign `reassigned` exactly once, unconditionally, before it is used
+
+analysis.R:56  unresolved read
+  computed
+  resolved: .csv
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+analysis.js:47  unresolved read
+  conditional
+  `conditional` is assigned more than once in its scope
+  assign `conditional` exactly once, unconditionally, before it is used
+
+analysis.js:51  unresolved read
+  computed
+  resolved: .csv
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+analysis.py:61  unresolved read
+  conditional
+  `conditional` is assigned more than once in its scope
+  assign `conditional` exactly once, unconditionally, before it is used
+
+analysis.py:66  unresolved read
+  reassigned
+  `reassigned` is assigned more than once in its scope
+  assign `reassigned` exactly once, unconditionally, before it is used
+
+analysis.py:70  unresolved read
+  computed
+  resolved: .csv
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+analysis.py:73  unresolved read
+  f"{BASE}/{computed}"
+  resolved: data/
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+# code-polyglot-tools-io: 0 unresolved
+
+
+
+# code-python-r-dataframe-provenance: 0 unresolved
+
+
+
+# code-workflow-nextflow-metagenomics: 0 unresolved
+
+
+
+# code-workflow-snakemake-rnaseq: 0 unresolved
+
+
+
+# document-executable-reactivity-notebook: 0 unresolved
+
+
+
+# document-figures-code-and-ai-generated: 0 unresolved
+
+
+
+# document-report-references-citations: 0 unresolved
+
+
+
+# environment-manifests-lockfiles-polyglot: 0 unresolved
+
+
+
+# workspace-negative-dynamic-invalid: 4 unresolved
+
+runtime.py:10  unresolved read
+  f"data/{sample}.csv"
+  resolved: data/ … .csv
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+runtime.py:11  unresolved write
+  os.environ["OUTPUT_DIR"] + "/summary.csv"
+  resolved: /summary.csv
+  the template has placeholders this pass could not resolve
+  assign each interpolated value to a module constant or single-assignment local
+
+runtime.py:14  unresolved read
+  io.StringIO("site,count\na,1\n")
+  the path is an expression, not a static literal
+  I/O paths resolve from literals, module constants, or single-assignment locals
+
+runtime.py:15  unresolved write
+  io.BytesIO(b"results/never-written.csv")
+  the path is an expression, not a static literal
+  I/O paths resolve from literals, module constants, or single-assignment locals
+
+# workspace-nested-paths-ecology: 0 unresolved
+
+
+
+# workspace-symlinks-publication-assets: 0 unresolved
+
+
+
+# corpus total: 13 unresolved

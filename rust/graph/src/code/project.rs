@@ -2,17 +2,18 @@ use std::collections::BTreeSet;
 
 use stencila_schema::{
     CreativeWork, DatatableColumn, File, Function, GraphEdgeKind, GraphEvidence,
-    GraphEvidenceConfidence, Node, Object, Primitive, Variable,
+    GraphEvidenceConfidence, Node, NodeId, NodeType, Object, Primitive, Variable,
 };
 
 use crate::{
     GraphBuilder, evidence,
     ids::LocalGraphId,
     package::{PackageFact, package_id as package_graph_id, package_node},
-    reference::has_non_local_uri_scheme,
+    reference::{bare_doi, doi_url, has_non_local_uri_scheme},
 };
 
 use super::{
+    diagnostics::{StaticAnalysisDiagnostic, UnresolvedIoReason},
     facts::{CodeFacts, ColumnFact, FunctionFact, IoFact, IoMode, IoPath},
     language::CodeLanguage,
     util::{is_static_literal, path_name},
@@ -43,6 +44,8 @@ pub(super) enum CodeGraphMode {
 pub(super) struct CodeGraphSource<'a> {
     pub(super) unit_id: &'a str,
     pub(super) scope: &'a str,
+    pub(super) node_type: NodeType,
+    pub(super) node_id: Option<&'a NodeId>,
     pub(super) language: CodeLanguage,
     pub(super) source_text: Option<&'a str>,
     pub(super) mode: CodeGraphMode,
@@ -93,6 +96,8 @@ pub(super) fn add_code_facts_to_graph(
     if source.mode == CodeGraphMode::Full {
         add_reactive_symbol_edges(builder, &context, facts);
     }
+
+    add_unresolved_io_diagnostics(builder, &source, facts);
 
     let read_resources = add_io_resource_nodes(
         builder,
@@ -642,6 +647,19 @@ fn add_resource_node(
         return Some(id);
     }
 
+    // A DOI is a citable identifier rather than a location, so every spelling
+    // of one collapses to a single canonically identified node carrying both
+    // the bare DOI and its resolver URL. Identifying it by the source spelling
+    // would leave several graph entities for one identifier.
+    if let Some(doi) = bare_doi(literal) {
+        let id = LocalGraphId::resource(&format!("doi:{doi}"));
+        let mut node = CreativeWork::new();
+        node.doi = Some(doi.to_string());
+        node.options.url = Some(doi_url(doi));
+        builder.add_schema_node(id.clone(), Node::CreativeWork(node));
+        return Some(id);
+    }
+
     if has_non_local_uri_scheme(literal) {
         let id = LocalGraphId::resource(literal);
         let mut node = CreativeWork::new();
@@ -659,6 +677,14 @@ fn add_resource_node(
 }
 
 /// Add or reuse a resource node for an I/O path expression.
+///
+/// Only a resolved path becomes a resource. An unresolved or partially resolved
+/// expression used to mint a `file-ref:` node named after a local variable,
+/// which denoted nothing: two unrelated scripts that both wrote through a
+/// variable called `path` produced structurally parallel nodes with no common
+/// referent, and anything reading the graph as a set of files saw entries that
+/// do not exist. The underlying signal is still worth having, so it is retained
+/// as a [`StaticAnalysisDiagnostic`] beside the graph instead of inside it.
 fn add_io_resource_node(
     builder: &mut GraphBuilder,
     unit_id: &str,
@@ -668,15 +694,7 @@ fn add_io_resource_node(
 ) -> Option<String> {
     match path {
         IoPath::Static(literal) => add_resource_node(builder, unit_id, scope, literal, resolver),
-        IoPath::Template(expression) | IoPath::Unknown(expression) => {
-            let synthetic = format!("{}:{}", path.kind(), expression);
-            let id = LocalGraphId::file_ref(scope, &synthetic);
-            let mut node = File::new(path_name(expression), expression.to_string());
-            node.id = Some(id.clone());
-            builder.add_schema_node(id.clone(), Node::File(node));
-            builder.add_containment(&id, unit_id, vec![evidence::static_analysis()]);
-            Some(id)
-        }
+        IoPath::Template(..) | IoPath::Unknown(..) => None,
     }
 }
 
@@ -1050,6 +1068,49 @@ fn function_offset(facts: &CodeFacts, name: &str) -> Option<usize> {
         .iter()
         .find(|function| function.name == name)
         .map(|function| function.start)
+}
+
+/// Record a diagnostic for every I/O operation whose path stayed unresolved.
+///
+/// Unresolved I/O is the analyzer's most common silent failure, so it is
+/// reported rather than left for an author to infer from a missing edge. Facts
+/// carry a specific reason when resolution attempted and declined; otherwise the
+/// path kind supplies a generic one.
+fn add_unresolved_io_diagnostics(
+    builder: &mut GraphBuilder,
+    source: &CodeGraphSource,
+    facts: &CodeFacts,
+) {
+    let unit_io = facts
+        .workflow_unit_facts
+        .values()
+        .flat_map(|unit| unit.io.iter());
+
+    for fact in facts.io.iter().chain(unit_io) {
+        if fact.path.is_static() {
+            continue;
+        }
+
+        let reason = fact.unresolved_reason.clone().unwrap_or(match fact.path {
+            IoPath::Template(..) => UnresolvedIoReason::PartialTemplate,
+            _ => UnresolvedIoReason::NotALiteral,
+        });
+
+        builder.add_diagnostic(StaticAnalysisDiagnostic::new(
+            source.node_type,
+            source.node_id,
+            source.scope,
+            source.language.id_component(),
+            source.source_text,
+            fact.direction,
+            fact.path.value(),
+            fact.operation_offset,
+            fact.function.clone(),
+            fact.mode,
+            fact.path.resolved_segments(),
+            &reason,
+        ));
+    }
 }
 
 /// Evidence for an I/O path relationship.

@@ -199,7 +199,12 @@ Expected graph surface:
 - ordinary workspace `Directory` and `File` nodes should still be emitted
 - unsupported source languages should not produce code-unit nodes
 - syntax-error source files may produce code-unit nodes but should not emit partial static facts
-- dynamic resource expressions should not create concrete `ReadBy`, `Generated`, or synthetic resource edges
+- resource expressions whose value cannot be proven from the source — command
+  line arguments, environment variables, in-memory buffers — should not create
+  concrete `ReadBy`, `Generated`, or synthetic resource edges
+- `dynamic.py` interpolates a name that *is* provably assigned once, so it is
+  expected to resolve; it is kept as the boundary case that separates provable
+  interpolation from genuinely runtime values in `runtime.py`
 - invalid manifests should be ignored in permissive mode and rejected only by strict option-specific tests
 - missing local references should not create dangling edges
 
@@ -219,3 +224,27 @@ Expected graph surface:
 - `LinkedBy` edges from in-workspace symlink targets to symlink nodes
 - no document decoding or code analysis through symlink targets
 - unresolved or outside-workspace symlink targets should not create dangling edges
+
+## code-io-resolution-shapes
+
+Purpose: exercise the permissiveness of I/O path resolution across Python, R,
+and JavaScript, and pin the conservative bias where resolution must decline.
+
+Each script covers the same matrix of path shapes so the three languages can be
+compared directly: a module constant, iteration over a literal collection, a
+single-assignment local, a fully resolvable template, one level of a
+user-defined helper function, and a path-preserving wrapper constructor. Each
+script then repeats the shapes that must *not* resolve: a name assigned in both
+branches of a conditional, a name assigned twice in one scope, a name bound to
+a computed expression, and a template with an unresolvable placeholder.
+Language features without an analogue are omitted rather than faked; R has no
+f-string, and JavaScript has no `Request`-style path wrapper in this corpus.
+
+Expected graph surface:
+
+- static `ReadBy` edges for every resolvable shape, pointing at the real
+  fixture files under `data/`
+- a static `Generated` edge for each script's output under `results/`
+- no resource node or edge for any of the negative shapes
+- one static analysis diagnostic per negative shape, naming the binding that
+  defeated resolution

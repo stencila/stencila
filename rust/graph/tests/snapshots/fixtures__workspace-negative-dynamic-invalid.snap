@@ -51,6 +51,20 @@ nodes:
         type: DateTime
         value: "[datetime]"
   - type: GraphNode
+    id: "code:runtime.py"
+    node:
+      type: SoftwareSourceCode
+      id: "code:runtime.py"
+      name: runtime.py
+      path: runtime.py
+      programmingLanguage: Python
+      dateCreated:
+        type: DateTime
+        value: "[datetime]"
+      dateModified:
+        type: DateTime
+        value: "[datetime]"
+  - type: GraphNode
     id: "code:scripts/malformed.R"
     node:
       type: SoftwareSourceCode
@@ -87,19 +101,19 @@ nodes:
       name: scripts
       path: scripts
   - type: GraphNode
-    id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    id: "file-ref:dynamic.py:data/S1.csv"
     node:
       type: File
-      id: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "data/{sample}.csv"
+      id: "file-ref:dynamic.py:data/S1.csv"
+      name: S1.csv
+      path: data/S1.csv
   - type: GraphNode
-    id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    id: "file-ref:dynamic.py:results/S1.csv"
     node:
       type: File
-      id: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
-      name: "{sample}.csv"
-      path: "results/{sample}.csv"
+      id: "file-ref:dynamic.py:results/S1.csv"
+      name: S1.csv
+      path: results/S1.csv
   - type: GraphNode
     id: "file:analysis.sas"
     node:
@@ -195,6 +209,13 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
+    source: "code:runtime.py"
+    target: "dir:."
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Observed
+  - type: GraphEdge
     source: "code:scripts/malformed.R"
     target: "dir:scripts"
     kind: PartOf
@@ -216,20 +237,19 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    source: "file-ref:dynamic.py:data/S1.csv"
     target: "code:dynamic.py"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Adata/%7Bsample%7D.csv"
+    source: "file-ref:dynamic.py:data/S1.csv"
     target: "symbol:dynamic.py:python:table"
     kind: ReadBy
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
-        confidence: Low
         codeLocation:
           type: CodeLocation
           source: dynamic.py
@@ -238,14 +258,13 @@ edges:
         details:
           detector: stencila-code-static-analysis
           language: python
-          pathKind: template
-          expression: "data/{sample}.csv"
+          pathKind: static
+          expression: data/S1.csv
           byteOffset: 55
           function: read_csv
           target: table
-        description: template I/O path detected by static analysis.
   - type: GraphEdge
-    source: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    source: "file-ref:dynamic.py:results/S1.csv"
     target: "code:dynamic.py"
     kind: PartOf
     evidence:
@@ -287,6 +306,13 @@ edges:
       - type: GraphEvidence
         kind: StaticAnalysis
   - type: GraphEdge
+    source: "package:pypi/pandas"
+    target: "code:runtime.py"
+    kind: ImportedBy
+    evidence:
+      - type: GraphEvidence
+        kind: StaticAnalysis
+  - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
     target: "code:dynamic.py"
     kind: PartOf
@@ -304,15 +330,14 @@ edges:
           type: CodeLocation
           source: dynamic.py
           startLine: 4
-          startColumn: 0
+          startColumn: 13
   - type: GraphEdge
     source: "symbol:dynamic.py:python:table"
-    target: "file-ref:dynamic.py:template%3Aresults/%7Bsample%7D.csv"
+    target: "file-ref:dynamic.py:results/S1.csv"
     kind: WrittenTo
     evidence:
       - type: GraphEvidence
         kind: StaticAnalysis
-        confidence: Low
         codeLocation:
           type: CodeLocation
           source: dynamic.py
@@ -321,12 +346,11 @@ edges:
         details:
           detector: stencila-code-static-analysis
           language: python
-          pathKind: template
-          expression: "results/{sample}.csv"
+          pathKind: static
+          expression: results/S1.csv
           byteOffset: 90
           function: to_csv
           value: table
-        description: template I/O path detected by static analysis.
 repository: "https://github.com/stencila/stencila"
 path: rust/graph/tests/fixtures/workspace-negative-dynamic-invalid
 commit: "[commit]"

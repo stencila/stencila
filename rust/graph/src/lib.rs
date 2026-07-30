@@ -46,6 +46,7 @@
 //! }
 //! ```
 
+mod analysis;
 mod asset;
 mod builder;
 mod c2pa;
@@ -61,14 +62,16 @@ mod reference;
 mod source;
 mod workspace;
 
+pub use analysis::GraphAnalysis;
 pub use asset::{AssetCredentialGraph, AssetGraphOptions, credential_graph_for_asset};
 pub use builder::GraphBuilder;
+pub use code::{StaticAnalysisDiagnostic, UnresolvedIoReason};
 pub(crate) use document::{DocumentReferenceKind, add_document_with_reference_resolver};
-pub use document::{add_document, graph_from_node};
+pub use document::{add_document, graph_from_node, graph_from_node_with_diagnostics};
 pub use project::{
     GraphConnectedMode, GraphContainmentMode, GraphEdgeFamily, GraphProjectionDetail,
     GraphProjectionOptions, GraphProjectionPreset, GraphView, GraphViewEdge, GraphViewNode,
     GraphViewNodeKind, edge_family, filter_graph_view_connected_to, project_graph,
 };
 pub use stencila_schema::{Graph, GraphEdge, GraphEdgeKind, GraphNode};
-pub use workspace::{WorkspaceOptions, graph_from_path};
+pub use workspace::{WorkspaceOptions, graph_from_path, graph_from_path_with_diagnostics};

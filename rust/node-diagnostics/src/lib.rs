@@ -41,7 +41,7 @@ where
 }
 
 #[skip_serializing_none]
-#[derive(Serialize)]
+#[derive(Debug, Clone, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Diagnostic {
     /// The type of node that the diagnostic is for
@@ -67,6 +67,13 @@ pub struct Diagnostic {
     /// The diagnostic's message
     pub message: String,
 
+    /// Suggested action that may resolve the diagnostic
+    pub help: Option<String>,
+
+    /// Additional context for the diagnostic
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub notes: Vec<String>,
+
     /// The format / programming language associated with the diagnostic
     pub format: Option<Format>,
 
@@ -77,7 +84,7 @@ pub struct Diagnostic {
     pub code_location: Option<CodeLocation>,
 }
 
-#[derive(Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, Copy, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub enum DiagnosticLevel {
     /// An advisory diagnostic
     Advice,
@@ -87,11 +94,12 @@ pub enum DiagnosticLevel {
     Error,
 }
 
-#[derive(Clone, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
+#[derive(Debug, Clone, Display, PartialEq, Eq, PartialOrd, Ord, Serialize)]
 pub enum DiagnosticKind {
     Linting,
     Compilation,
     Execution,
+    StaticAnalysis,
 }
 
 impl From<&MessageLevel> for DiagnosticLevel {
@@ -134,16 +142,35 @@ impl Diagnostic {
         details
     }
 
-    /// Get the [`Range8`] for the node from a [`PoshMap`]
-    fn range8<'s>(&self, poshmap: &PoshMap<'s, 's>) -> Option<Range8> {
+    /// Get the [`Range8`] for the node from a [`PoshMap`].
+    fn node_range8<'s>(&self, poshmap: &PoshMap<'s, 's>) -> Option<Range8> {
         if let Some(node_property) = self.node_property {
             poshmap
                 .node_property_to_range8(&self.node_id, node_property)
                 .or_else(|| poshmap.node_id_to_range8(&self.node_id))
         } else {
-            poshmap
-                .node_id_to_range8(&self.node_id)
-                .or_else(|| poshmap.node_id_to_range8(&self.node_id))
+            poshmap.node_id_to_range8(&self.node_id)
+        }
+    }
+
+    /// Get the source range for this diagnostic.
+    ///
+    /// Node diagnostics use the node range from a PoshMap as their base and
+    /// shift a relative code location into it. Standalone diagnostics, such as
+    /// static analysis of source files, use their code location directly.
+    fn source_range8<'s>(&self, poshmap: Option<&PoshMap<'s, 's>>) -> Option<Range8> {
+        let code_range = self.code_location.as_ref().and_then(code_location_range8);
+
+        let Some(poshmap) = poshmap else {
+            return code_range;
+        };
+        match (self.node_range8(poshmap), code_range) {
+            (Some(node), Some(code)) => Some(shift_range8(node.start, code)),
+            (Some(node), None) => Some(node),
+            // A code location attached to a node is relative to that node.
+            // Without its PoshMap range it cannot safely become an absolute
+            // location in the containing document.
+            (None, _) => None,
         }
     }
 
@@ -216,35 +243,15 @@ impl Diagnostic {
 
         let mut message = ["::", type_, " file=", path].concat();
 
-        if let Some(Range8 {
-            start: Position8 { line, column },
-            ..
-        }) = poshmap.as_ref().and_then(|poshmap| self.range8(poshmap))
-        {
-            if let Some(location) = &self.code_location {
-                if let Some(start_line) = location.start_line {
-                    message.push_str(",line=");
-                    message.push_str(&(1 + line + start_line as usize).to_string());
-                }
-                if let Some(end_line) = location.end_line {
-                    message.push_str(",endLine=");
-                    message.push_str(&(1 + line + end_line as usize).to_string());
-                }
-                if let Some(start_col) = location.start_column {
-                    message.push_str(",col=");
-                    message.push_str(&(1 + column + start_col as usize).to_string());
-                }
-                if let Some(end_col) = location.end_column {
-                    message.push_str(",endColumn=");
-                    message.push_str(&(1 + column + end_col as usize).to_string());
-                }
-            } else {
-                message.push_str(",line=");
-                message.push_str(&(1 + line).to_string());
-
-                message.push_str(",col=");
-                message.push_str(&(1 + column).to_string());
-            }
+        if let Some(Range8 { start, end }) = self.source_range8(poshmap.as_ref()) {
+            message.push_str(",line=");
+            message.push_str(&(1 + start.line).to_string());
+            message.push_str(",endLine=");
+            message.push_str(&(1 + end.line).to_string());
+            message.push_str(",col=");
+            message.push_str(&(1 + start.column).to_string());
+            message.push_str(",endColumn=");
+            message.push_str(&(1 + end.column).to_string());
         }
 
         message.push_str(",title=");
@@ -286,53 +293,74 @@ impl Diagnostic {
         let positions = Positions::new(&source);
 
         // Convert line/column range to character range
-        let range = if let Some(range8) = poshmap.as_ref().and_then(|poshmap| self.range8(poshmap))
-        {
-            if let Some(location) = self.code_location {
-                // If there is a code location then shift the range
-                let line = location.start_line.unwrap_or(0) as usize;
-                let column = location.start_column.unwrap_or(0) as usize;
-                let start = positions
-                    .index_at_position8(Position8 {
-                        line: range8.start.line + line,
-                        column: range8.start.column + column,
-                    })
-                    .unwrap_or(0);
-
-                let line = location.end_line.map_or_else(|| line, |line| line as usize);
-                let column = location
-                    .end_column
-                    .map_or_else(|| column, |col| col as usize);
-                let end = positions
-                    .index_at_position8(Position8 {
-                        line: range8.start.line + line,
-                        column: range8.start.column + column,
-                    })
-                    .unwrap_or(start)
-                    .max(start);
-
-                start..end
-            } else {
-                let start = positions.index_at_position8(range8.start).unwrap_or(0);
-                let end = positions
-                    .index_at_position8(range8.end)
-                    .unwrap_or(start)
-                    .max(start);
-
-                start..end
-            }
+        let range = if let Some(range8) = self.source_range8(poshmap.as_ref()) {
+            let start = positions.index_at_position8(range8.start).unwrap_or(0);
+            let end = positions
+                .index_at_position8(range8.end)
+                .unwrap_or(start)
+                .max(start);
+            start..end
         } else {
             0..0
         };
 
-        let report = Report::build(kind, (path, range.clone()))
+        let mut report = Report::build(kind, (path, range.clone()))
             .with_message(&title)
             .with_label(Label::new((path, range)).with_message(self.message))
-            .with_config(Config::new().with_color(color).with_compact(compact))
-            .finish();
+            .with_config(Config::new().with_color(color).with_compact(compact));
+        if let Some(help) = self.help {
+            report = report.with_help(help);
+        }
+        for note in self.notes {
+            report = report.with_note(note);
+        }
 
-        Ok((report, source))
+        Ok((report.finish(), source))
     }
+}
+
+/// Convert a direct code location to a source range.
+fn code_location_range8(location: &CodeLocation) -> Option<Range8> {
+    if location.start_line.is_none()
+        && location.start_column.is_none()
+        && location.end_line.is_none()
+        && location.end_column.is_none()
+    {
+        return None;
+    }
+
+    let start_line = usize::try_from(location.start_line.unwrap_or(0)).ok()?;
+    let start_column = usize::try_from(location.start_column.unwrap_or(0)).ok()?;
+    let end_line = location
+        .end_line
+        .map_or(Some(start_line), |line| usize::try_from(line).ok())?;
+    let mut end_column = location
+        .end_column
+        .map_or(Some(start_column), |column| usize::try_from(column).ok())?;
+    if end_line == start_line && end_column == start_column {
+        end_column += 1;
+    }
+
+    Some(Range8::new(
+        Position8::new(start_line, start_column),
+        Position8::new(end_line, end_column),
+    ))
+}
+
+/// Shift a code-relative range by the start of its containing node.
+fn shift_range8(base: Position8, range: Range8) -> Range8 {
+    let shift = |position: Position8| {
+        Position8::new(
+            base.line + position.line,
+            if position.line == 0 {
+                base.column + position.column
+            } else {
+                position.column
+            },
+        )
+    };
+
+    Range8::new(shift(range.start), shift(range.end))
 }
 
 /// A visitor that walks over a node and collects any messages
@@ -384,6 +412,8 @@ impl Collector {
                     kind,
                     error_type: msg.error_type.clone(),
                     message: format!("{}{}", prefix, msg.message),
+                    help: None,
+                    notes: Vec::new(),
                     format: lang.map(Format::from_name),
                     code: code.map(|cord| cord.to_string()),
                     code_location: msg.code_location.clone(),
@@ -420,6 +450,8 @@ impl Collector {
                 kind: DiagnosticKind::Execution,
                 error_type: msg.error_type.clone(),
                 message: format!("{}{}", prefix, msg.message),
+                help: None,
+                notes: Vec::new(),
                 format: lang.map(Format::from_name),
                 code: code.map(|cord| cord.to_string()),
                 code_location: msg.code_location.clone(),
@@ -629,5 +661,40 @@ impl Visitor for Collector {
         );
 
         WalkControl::Continue
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn uses_direct_code_location_without_poshmap() {
+        let mut location = CodeLocation::new();
+        location.source = Some("analysis.py".to_string());
+        location.start_line = Some(2);
+        location.start_column = Some(4);
+        location.end_line = Some(2);
+        location.end_column = Some(8);
+
+        let diagnostic = Diagnostic {
+            node_type: NodeType::SoftwareSourceCode,
+            node_id: NodeId::null(),
+            node_property: None,
+            level: DiagnosticLevel::Advice,
+            kind: DiagnosticKind::StaticAnalysis,
+            error_type: Some("unresolved read".to_string()),
+            message: "the path is dynamic".to_string(),
+            help: Some("use a static path".to_string()),
+            notes: vec!["resolved: data/".to_string()],
+            format: Some(Format::Python),
+            code: Some("\n\n    path".to_string()),
+            code_location: Some(location),
+        };
+
+        assert_eq!(
+            diagnostic.source_range8(None),
+            Some(Range8::new(Position8::new(2, 4), Position8::new(2, 8)))
+        );
     }
 }

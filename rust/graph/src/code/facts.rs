@@ -2,6 +2,8 @@ use std::collections::{BTreeMap, BTreeSet};
 
 use crate::package::PackageFact;
 
+use super::diagnostics::UnresolvedIoReason;
+
 /// Static facts extracted from one code unit.
 ///
 /// This is the normalization boundary between parsing and graph construction.
@@ -173,6 +175,35 @@ pub(super) enum WorkflowResourceKind {
     Script,
 }
 
+/// A template path expression that is only partially resolved.
+///
+/// Partial resolution is worth keeping even though it can never become a
+/// resource node. Knowing that a read targets `https://pasta.lternet.edu/…`
+/// identifies the upstream service, which is most of what an author needs in
+/// order to see what the analyzer did and did not prove.
+#[derive(Debug, Clone, Default, PartialEq, Eq, PartialOrd, Ord)]
+pub struct TemplatePath {
+    /// Original source text of the path expression.
+    pub expression: String,
+
+    /// Literal segments proven from source, in source order.
+    pub segments: Vec<String>,
+
+    /// Placeholder expressions that remain unresolved, in source order.
+    pub unresolved: Vec<String>,
+}
+
+impl TemplatePath {
+    /// Create a template path with no resolved segments.
+    pub(crate) fn new(expression: impl Into<String>) -> Self {
+        Self {
+            expression: expression.into(),
+            segments: Vec::new(),
+            unresolved: Vec::new(),
+        }
+    }
+}
+
 /// Static or dynamic path expression used by an I/O operation.
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum IoPath {
@@ -180,17 +211,23 @@ pub enum IoPath {
     Static(String),
 
     /// A template expression with a partially static shape.
-    Template(String),
+    Template(TemplatePath),
 
     /// A dynamic expression whose concrete path is unknown.
     Unknown(String),
 }
 
 impl IoPath {
+    /// Create a template path from an expression with no resolved segments.
+    pub(crate) fn template(expression: impl Into<String>) -> Self {
+        Self::Template(TemplatePath::new(expression))
+    }
+
     /// Return the path or expression text carried by this fact.
     pub(crate) fn value(&self) -> &str {
         match self {
-            Self::Static(value) | Self::Template(value) | Self::Unknown(value) => value,
+            Self::Static(value) | Self::Unknown(value) => value,
+            Self::Template(template) => &template.expression,
         }
     }
 
@@ -206,6 +243,17 @@ impl IoPath {
     /// Whether this path can be resolved to a concrete workspace resource.
     pub(crate) fn is_static(&self) -> bool {
         matches!(self, Self::Static(..))
+    }
+
+    /// Return the statically known segments of a partially resolved path.
+    ///
+    /// Only templates carry segments; a fully static path is reported by its
+    /// value and an unknown expression has nothing proven about it.
+    pub(crate) fn resolved_segments(&self) -> Vec<String> {
+        match self {
+            Self::Template(template) => template.segments.clone(),
+            _ => Vec::new(),
+        }
     }
 }
 
@@ -279,6 +327,13 @@ pub struct IoFact {
 
     /// File mode, when present.
     pub mode: Option<IoMode>,
+
+    /// Why this path could not be resolved, when it is not static.
+    ///
+    /// Resolution records the specific binding or call that defeated it so the
+    /// author-facing diagnostic can name it. A non-static path without a reason
+    /// falls back to the generic "not a static literal" explanation.
+    pub unresolved_reason: Option<UnresolvedIoReason>,
 }
 
 impl IoFact {
@@ -294,6 +349,7 @@ impl IoFact {
             value_offset: None,
             function: None,
             mode: None,
+            unresolved_reason: None,
         }
     }
 }

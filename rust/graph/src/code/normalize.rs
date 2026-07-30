@@ -36,12 +36,6 @@ pub(super) fn normalize_match(
         (language, "ecmascript-function") if language.is_ecmascript() => {
             normalize_declaration(matched, "NAME", facts)
         }
-        (language, "ecmascript-read") if language.is_ecmascript() => {
-            normalize_io_match(matched, facts, true)
-        }
-        (language, "ecmascript-write") if language.is_ecmascript() => {
-            normalize_io_match(matched, facts, false)
-        }
         (language, "ecmascript-call") if language.is_ecmascript() => {
             normalize_call(matched, "FUNC", facts)
         }
@@ -58,13 +52,9 @@ pub(super) fn normalize_match(
             normalize_assignment(CodeLanguage::Python, matched, facts)
         }
         (CodeLanguage::Python, "python-function") => normalize_declaration(matched, "NAME", facts),
-        (CodeLanguage::Python, "python-read") => normalize_io_match(matched, facts, true),
-        (CodeLanguage::Python, "python-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::Python, "python-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::R, "r-import") => normalize_r_import(matched, facts),
         (CodeLanguage::R, "r-assignment") => normalize_assignment(CodeLanguage::R, matched, facts),
-        (CodeLanguage::R, "r-read") => normalize_io_match(matched, facts, true),
-        (CodeLanguage::R, "r-write") => normalize_io_match(matched, facts, false),
         (CodeLanguage::R, "r-call") => normalize_call(matched, "FUNC", facts),
         (CodeLanguage::Julia, "julia-import") => normalize_julia_import(matched, facts),
         (CodeLanguage::Julia, "julia-assignment") => {
@@ -388,6 +378,7 @@ fn normalize_io_match(
         value_offset,
         function,
         mode,
+        unresolved_reason: None,
     });
 
     if let Some(target_node) = matched.get_env().get_match("TARGET")

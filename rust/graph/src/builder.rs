@@ -11,6 +11,8 @@ use stencila_schema::{
     StripNode, StripScope, StripTargets,
 };
 
+use crate::code::StaticAnalysisDiagnostic;
+
 const CODE_PREVIEW_MAX_LINES: usize = 8;
 const CODE_PREVIEW_MAX_CHARS: usize = 600;
 const CODE_PREVIEW_TRUNCATION_MARKER: &str = "\n...";
@@ -45,6 +47,15 @@ pub struct GraphBuilder {
     /// Collection lets callers keep using the builder API in simple append-only
     /// code and receive all detected graph problems when the graph is built.
     errors: BTreeSet<String>,
+
+    /// Static analysis diagnostics collected while projecting code units.
+    ///
+    /// Diagnostics explain I/O the analyzer could not resolve. They are kept
+    /// beside the graph rather than in it, so graph consumers never have to
+    /// interpret analyzer output as resource nodes. Callers that want them use
+    /// [`Self::take_diagnostics`] before or after [`Self::build`] consumes the
+    /// builder.
+    diagnostics: Vec<StaticAnalysisDiagnostic>,
 }
 
 /// Sortable identity for a graph edge.
@@ -94,7 +105,30 @@ impl GraphBuilder {
             nodes: BTreeMap::new(),
             edges: BTreeMap::new(),
             errors: BTreeSet::new(),
+            diagnostics: Vec::new(),
         }
+    }
+
+    /// Record a static analysis diagnostic discovered while projecting code.
+    pub fn add_diagnostic(&mut self, diagnostic: StaticAnalysisDiagnostic) {
+        self.diagnostics.push(diagnostic);
+    }
+
+    /// Take the static analysis diagnostics collected so far.
+    ///
+    /// Diagnostics are ordered by discovery, then sorted by scope and source
+    /// position so reports are stable across runs regardless of the traversal
+    /// order used by collectors.
+    pub fn take_diagnostics(&mut self) -> Vec<StaticAnalysisDiagnostic> {
+        let mut diagnostics = std::mem::take(&mut self.diagnostics);
+        diagnostics.sort_by(|left, right| {
+            left.scope()
+                .cmp(right.scope())
+                .then(left.offset.cmp(&right.offset))
+                .then(left.expression.cmp(&right.expression))
+        });
+        diagnostics.dedup();
+        diagnostics
     }
 
     /// Add a graph node for a Stencila Schema node.
@@ -361,6 +395,7 @@ impl GraphBuilder {
             nodes,
             edges,
             mut errors,
+            diagnostics: _,
         } = self;
 
         for edge in edges.keys() {

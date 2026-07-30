@@ -13,8 +13,9 @@ use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
     Graph, GraphConnectedMode, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
-    GraphProjectionPreset, WorkspaceOptions, dot::to_dot, filter_graph_view_connected_to,
-    graph_from_node, graph_from_path, project_graph,
+    GraphProjectionPreset, StaticAnalysisDiagnostic, WorkspaceOptions, dot::to_dot,
+    filter_graph_view_connected_to, graph_from_node_with_diagnostics,
+    graph_from_path_with_diagnostics, project_graph,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
 
@@ -63,6 +64,14 @@ pub struct Cli {
     /// Keep citation marker nodes visible in projected graph exports
     #[arg(long)]
     no_collapse_citations: bool,
+
+    /// Report I/O that static analysis could not resolve, instead of serving
+    ///
+    /// Each unresolved read or write is listed with its source location, the
+    /// expression that could not be resolved, why, and what would make it
+    /// resolvable. Combine with an output path to export the graph as well.
+    #[arg(long)]
+    explain: bool,
 
     /// Do not inspect C2PA content credentials while building workspace graphs
     #[arg(long)]
@@ -153,13 +162,53 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Export a projected software dependency graph as SVG using Graphviz</dim>
   <b>stencila graph</> <g>.</> <g>graph.svg</> <c>--view</> <g>deps</>
+
+  <dim># Report I/O that static analysis could not resolve</dim>
+  <b>stencila graph</> <g>.</> <c>--explain</>
 "
 );
 
 impl Cli {
     pub async fn run(self) -> Result<()> {
-        let GraphSource { graph, path } =
-            build_graph(&self.path, self.no_c2pa, self.no_git_authors).await?;
+        let GraphSource {
+            graph,
+            diagnostics,
+            path,
+        } = build_graph(&self.path, self.no_c2pa, self.no_git_authors).await?;
+
+        if self.explain {
+            if let Some(output) = &self.output {
+                let projection_options = self.projection_options();
+                export_graph(
+                    &graph,
+                    output,
+                    self.to,
+                    &projection_options,
+                    &self.connected_to,
+                    self.connected_mode,
+                )
+                .await?;
+            }
+
+            if diagnostics.is_empty() {
+                message!("No unresolved I/O found by static analysis.");
+            } else {
+                let count = diagnostics.len();
+                for diagnostic in diagnostics {
+                    diagnostic.to_stderr()?;
+                }
+                message!(
+                    "{} unresolved I/O {}.",
+                    count,
+                    if count == 1 {
+                        "operation"
+                    } else {
+                        "operations"
+                    }
+                );
+            }
+            return Ok(());
+        }
 
         match &self.output {
             Some(output) => {
@@ -389,6 +438,7 @@ async fn serve_graph(
 
 struct GraphSource {
     graph: Graph,
+    diagnostics: Vec<StaticAnalysisDiagnostic>,
     path: PathBuf,
 }
 
@@ -396,7 +446,7 @@ async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result
     let path = path.canonicalize()?;
 
     if path.is_dir() {
-        let graph = graph_from_path(
+        let analysis = graph_from_path_with_diagnostics(
             &path,
             Some(WorkspaceOptions {
                 include_c2pa: !no_c2pa,
@@ -405,7 +455,11 @@ async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result
             }),
         )
         .await?;
-        return Ok(GraphSource { graph, path });
+        return Ok(GraphSource {
+            graph: analysis.graph,
+            diagnostics: analysis.diagnostics,
+            path,
+        });
     }
 
     if path.is_file() {
@@ -415,8 +469,12 @@ async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result
             .file_name()
             .and_then(|name| name.to_str())
             .map_or_else(|| "document".to_string(), |name| format!("document:{name}"));
-        let graph = graph_from_node(subject, &node)?;
-        return Ok(GraphSource { graph, path });
+        let analysis = graph_from_node_with_diagnostics(subject, &node)?;
+        return Ok(GraphSource {
+            graph: analysis.graph,
+            diagnostics: analysis.diagnostics,
+            path,
+        });
     }
 
     bail!("Graph path is not a file or directory: {}", path.display())

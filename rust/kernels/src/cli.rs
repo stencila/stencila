@@ -400,6 +400,8 @@ fn display(
             kind: DiagnosticKind::Execution,
             error_type: msg.error_type.clone(),
             message: msg.message.clone(),
+            help: None,
+            notes: Vec::new(),
             format: None,
             code: None,
             code_location: msg.code_location.clone(),

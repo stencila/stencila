@@ -5,8 +5,10 @@ use ast_grep_core::tree_sitter::{LanguageExt, StrDoc};
 
 use super::{
     facts::{CodeFacts, should_retain_use},
+    io_table::{collect_table_io_facts, supports_table},
     language::CodeLanguage,
     normalize::{collect_identifier_uses, normalize_match},
+    resolve::resolve_io_paths,
     scan::{
         collect_column_facts, collect_javascript_text_imports, collect_named_io_text_facts,
         collect_nextflow_text_facts, collect_snakemake_text_facts,
@@ -41,8 +43,18 @@ pub fn analyze_source(language: CodeLanguage, source: &str) -> CodeFacts {
     }
 
     collect_rule_facts(language, &grep, &mut facts);
-    collect_named_io_text_facts(language, source, &mut facts);
+    if supports_table(language) {
+        // The table subsumes both the pattern rules and the text scanner for
+        // this language, covering every arity and the keyword form at once.
+        collect_table_io_facts(language, &grep, &mut facts);
+    } else {
+        collect_named_io_text_facts(language, source, &mut facts);
+    }
     collect_identifier_uses(language, &grep, &mut facts);
+    // Resolution runs after both I/O collectors so keyword-argument forms are
+    // included, and before column attribution so newly resolved reads can seed
+    // the dataframe sources that attribution reads.
+    resolve_io_paths(language, &grep, &mut facts);
     collect_column_facts(language, source, &mut facts);
     finish_facts(language, facts)
 }

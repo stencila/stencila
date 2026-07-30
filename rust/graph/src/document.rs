@@ -15,11 +15,11 @@ use stencila_schema::{
 };
 
 use crate::{
-    GraphBuilder,
-    code::{CodeLanguage, DocumentCodeIndex},
+    GraphAnalysis, GraphBuilder,
+    code::{CodeLanguage, DocumentCodeIndex, DocumentCodeSource},
     evidence,
     ids::LocalGraphId,
-    reference::has_non_local_uri_scheme,
+    reference::{bare_doi, has_non_local_uri_scheme},
     source,
 };
 
@@ -33,11 +33,23 @@ use crate::{
 /// references, includes, and headings contribute relationships to retained
 /// containers without becoming graph nodes themselves.
 pub fn graph_from_node(subject: impl Into<String>, node: &Node) -> Result<Graph> {
+    Ok(graph_from_node_with_diagnostics(subject, node)?.graph)
+}
+
+/// Build a document graph and the static analysis diagnostics behind it.
+///
+/// This is the same analysis as [`graph_from_node`], but it also returns the
+/// I/O operations in the document's code that the analyzer could not resolve.
+pub fn graph_from_node_with_diagnostics(
+    subject: impl Into<String>,
+    node: &Node,
+) -> Result<GraphAnalysis> {
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, "document", node, None);
+    let diagnostics = builder.take_diagnostics();
     let mut graph = builder.build()?;
     source::set_graph_source_metadata_from_node(&mut graph, node);
-    Ok(graph)
+    Ok(GraphAnalysis { graph, diagnostics })
 }
 
 /// Add document nodes and relationships to an existing graph builder.
@@ -294,6 +306,8 @@ impl<'a> DocumentCollector<'a> {
                     self.add_code_chunk_execution(&graph_id, &node_id, &chunk);
                     self.add_static_code_facts(
                         &graph_id,
+                        chunk.node_type(),
+                        &node_id,
                         chunk.code.to_string().as_str(),
                         chunk.programming_language.as_deref(),
                     );
@@ -304,6 +318,8 @@ impl<'a> DocumentCollector<'a> {
                     self.add_code_expression_execution(&graph_id, &node_id, &expression);
                     self.add_static_code_facts(
                         &graph_id,
+                        expression.node_type(),
+                        &node_id,
                         expression.code.to_string().as_str(),
                         expression.programming_language.as_deref(),
                     );
@@ -360,6 +376,8 @@ impl<'a> DocumentCollector<'a> {
     fn add_static_code_facts(
         &mut self,
         graph_id: &str,
+        node_type: NodeType,
+        node_id: &NodeId,
         code: &str,
         programming_language: Option<&str>,
     ) {
@@ -376,14 +394,28 @@ impl<'a> DocumentCollector<'a> {
             self.code_index.add_unit(
                 self.builder,
                 &self.scope,
-                graph_id,
-                code,
-                language,
+                DocumentCodeSource {
+                    unit_id: graph_id,
+                    node_type,
+                    node_id,
+                    code,
+                    language,
+                },
                 Some(&mut resolver),
             );
         } else {
-            self.code_index
-                .add_unit(self.builder, &self.scope, graph_id, code, language, None);
+            self.code_index.add_unit(
+                self.builder,
+                &self.scope,
+                DocumentCodeSource {
+                    unit_id: graph_id,
+                    node_type,
+                    node_id,
+                    code,
+                    language,
+                },
+                None,
+            );
         }
     }
 
@@ -666,11 +698,7 @@ fn reference_from_citation_target(target: &str) -> Reference {
     let mut reference = Reference::new();
     reference.id = Some(target.to_string());
 
-    if let Some(doi) = target
-        .strip_prefix("doi:")
-        .or_else(|| target.strip_prefix("https://doi.org/"))
-        .or_else(|| target.strip_prefix("http://doi.org/"))
-    {
+    if let Some(doi) = bare_doi(target) {
         reference.doi = Some(doi.to_string());
     } else if has_non_local_uri_scheme(target) {
         reference.url = Some(target.to_string());
@@ -743,5 +771,26 @@ mod tests {
 
         assert!(policy.records());
         assert!(!policy.seeds_flow_projection());
+    }
+
+    #[test]
+    fn preserves_diagnostics_for_identical_code_in_distinct_nodes() -> Result<()> {
+        let mut first = CodeChunk::new("open(path)\n".into());
+        first.programming_language = Some("python".to_string());
+        let mut second = CodeChunk::new("open(path)\n".into());
+        second.programming_language = Some("python".to_string());
+        let node = Node::Article(stencila_schema::Article::new(vec![
+            Block::CodeChunk(first),
+            Block::CodeChunk(second),
+        ]));
+
+        let analysis = graph_from_node_with_diagnostics("document:test", &node)?;
+
+        assert_eq!(analysis.diagnostics.len(), 2);
+        assert_ne!(
+            analysis.diagnostics[0].diagnostic.node_id,
+            analysis.diagnostics[1].diagnostic.node_id
+        );
+        Ok(())
     }
 }

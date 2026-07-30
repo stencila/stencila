@@ -1,5 +1,5 @@
 use stencila_codecs::Format;
-use stencila_schema::{Author, DateTime, Node, SoftwareSourceCode};
+use stencila_schema::{Author, DateTime, Node, NodeType, SoftwareSourceCode};
 
 use crate::{GraphBuilder, evidence, ids::WorkspaceRelPath};
 
@@ -49,6 +49,7 @@ pub(crate) fn add_workspace_code(
     node.path = Some(source.rel.as_str().to_string());
     node.options.date_created = source.date_created;
     node.options.date_modified = source.date_modified;
+    let node_id = node.node_id();
     builder.add_file_schema_node(
         source.unit_id,
         Node::SoftwareSourceCode(node),
@@ -66,6 +67,8 @@ pub(crate) fn add_workspace_code(
             CodeGraphSource {
                 unit_id: source.unit_id,
                 scope,
+                node_type: NodeType::SoftwareSourceCode,
+                node_id: Some(&node_id),
                 language,
                 source_text: Some(code),
                 mode: CodeGraphMode::Lean,

@@ -480,7 +480,7 @@ edges:
           type: CodeLocation
           source: scripts/analysis.R
           startLine: 6
-          startColumn: 10
+          startColumn: 14
   - type: GraphEdge
     source: "symbol:scripts/analysis.R:r:df"
     target: "datatable:outputs/r-summary.csv"
@@ -519,7 +519,7 @@ edges:
           type: CodeLocation
           source: scripts/analysis.py
           startLine: 6
-          startColumn: 0
+          startColumn: 13
   - type: GraphEdge
     source: "symbol:scripts/analysis.py:python:clean"
     target: "datatable:outputs/python-clean.csv"

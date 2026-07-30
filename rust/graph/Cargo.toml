@@ -19,6 +19,7 @@ sha2 = { workspace = true }
 stencila-codec-utils = { path = "../codec-utils" }
 stencila-codecs = { path = "../codecs" }
 stencila-content-credentials = { path = "../content-credentials" }
+stencila-node-diagnostics = { path = "../node-diagnostics" }
 stencila-node-stabilize = { path = "../node-stabilize" }
 stencila-schema = { path = "../schema" }
 toml = { workspace = true }

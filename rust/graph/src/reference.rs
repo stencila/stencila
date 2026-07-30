@@ -54,6 +54,43 @@ pub(crate) fn has_non_local_uri_scheme(reference: &str) -> bool {
     )
 }
 
+/// Reduce a DOI in any common spelling to its bare form.
+///
+/// A DOI is a citable identifier, not a location. `doi:10.x/y`,
+/// `https://doi.org/10.x/y`, and `http://dx.doi.org/10.x/y` all name the same
+/// thing, so they must reduce to one identity rather than to three URLs that
+/// happen to point at the same registry. Callers use [`doi_url`] when they need
+/// a dereferenceable location for the same identifier.
+pub(crate) fn bare_doi(reference: &str) -> Option<&str> {
+    let reference = reference.trim();
+    let bare = [
+        "doi:",
+        "https://doi.org/",
+        "http://doi.org/",
+        "https://dx.doi.org/",
+        "http://dx.doi.org/",
+        "https://www.doi.org/",
+        "http://www.doi.org/",
+    ]
+    .into_iter()
+    .find_map(|prefix| {
+        reference
+            .get(..prefix.len())
+            .filter(|start| start.eq_ignore_ascii_case(prefix))
+            .map(|_| &reference[prefix.len()..])
+    })?;
+
+    // Every registered DOI prefix starts `10.` and is followed by a suffix.
+    let rest = bare.strip_prefix("10.")?;
+    let (registrant, suffix) = rest.split_once('/')?;
+    (!registrant.is_empty() && !suffix.is_empty()).then_some(bare)
+}
+
+/// Return the canonical resolver URL for a bare DOI.
+pub(crate) fn doi_url(bare: &str) -> String {
+    format!("https://doi.org/{bare}")
+}
+
 /// Check whether a reference should be interpreted as a local relative path.
 pub(crate) fn is_local_relative_reference(reference: &str) -> bool {
     let reference = reference.trim();
@@ -144,4 +181,48 @@ fn push_unique_candidate(candidate: String, candidates: &mut Vec<String>) {
 /// Strip URL query or fragment suffixes from a local path reference.
 fn strip_query_or_fragment(reference: &str) -> Option<&str> {
     reference.find(['?', '#']).map(|index| &reference[..index])
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn reduces_every_doi_spelling_to_one_identity() {
+        let expected = Some("10.6073/pasta/abc50");
+        for spelling in [
+            "doi:10.6073/pasta/abc50",
+            "DOI:10.6073/pasta/abc50",
+            "https://doi.org/10.6073/pasta/abc50",
+            "http://doi.org/10.6073/pasta/abc50",
+            "https://dx.doi.org/10.6073/pasta/abc50",
+            "http://dx.doi.org/10.6073/pasta/abc50",
+            "https://www.doi.org/10.6073/pasta/abc50",
+            "  doi:10.6073/pasta/abc50  ",
+        ] {
+            assert_eq!(bare_doi(spelling), expected, "for {spelling}");
+        }
+
+        assert_eq!(
+            doi_url("10.6073/pasta/abc50"),
+            "https://doi.org/10.6073/pasta/abc50"
+        );
+    }
+
+    #[test]
+    fn declines_things_that_are_not_dois() {
+        for spelling in [
+            "https://example.org/data.csv",
+            "data/input.csv",
+            // A DOI-like host without a registrant and suffix names no work.
+            "https://doi.org/",
+            "doi:10.6073",
+            "doi:10.6073/",
+            "doi:10./suffix",
+            // `doingthing:` merely starts with the same letters.
+            "doingthing:10.1/x",
+        ] {
+            assert_eq!(bare_doi(spelling), None, "for {spelling}");
+        }
+    }
 }
