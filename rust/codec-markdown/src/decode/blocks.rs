@@ -2005,18 +2005,23 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
 
     // Create a new context, with the same format (MyST) so that the decode map
     // does not have position restarting of zero when `value` is re-parsed in `decode_blocks`
-    let context = &mut Context::new(context.format.clone());
+    let parent_context = context;
+    let context = &mut Context::new(parent_context.format.clone());
 
     if let Some(claim_type) = name.strip_prefix("prf:") {
-        return Some(Block::Claim(Claim {
+        let block = Block::Claim(Claim {
             claim_type: claim_type.parse().ok(),
             label: options.get("label").map(|label| label.to_string()),
             content: decode_blocks(&value, context),
             ..Default::default()
-        }));
+        });
+        parent_context
+            .losses
+            .merge(std::mem::take(&mut context.losses));
+        return Some(block);
     }
 
-    Some(match name {
+    let block = match name {
         "admonition" | "attention" | "caution" | "danger" | "error" | "failure" | "hint"
         | "important" | "info" | "note" | "seealso" | "success" | "tip" | "warning" => {
             Block::Admonition(Admonition {
@@ -2066,17 +2071,27 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
             })
         }
         "figure" => {
-            let content = code
-                .meta
-                .as_ref()
-                .map(|url| {
+            let (content, caption) = if let Some(url) = code.meta.as_ref() {
+                let caption = decode_blocks(&value, context);
+                (
                     vec![Block::ImageObject(ImageObject {
                         content_url: url.into(),
                         ..Default::default()
-                    })]
-                })
-                .unwrap_or_default();
-            let caption = decode_blocks(&value, context);
+                    })],
+                    caption,
+                )
+            } else {
+                let value = myst_figure_separate_targets(&value);
+                myst_figure_body(
+                    decode_blocks(&value, context),
+                    options.contains_key("no-subfigures"),
+                    context,
+                )
+            };
+
+            let class_layout = options
+                .get("class")
+                .and_then(|class| myst_figure_grid_class(class, context));
 
             let mut figure = Figure {
                 label: options.get("label").map(|label| label.to_string()),
@@ -2084,7 +2099,10 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 caption: (!caption.is_empty()).then_some(caption),
                 content,
                 options: Box::new(FigureOptions {
-                    layout: options.get("layout").map(|label| label.to_string()),
+                    layout: options
+                        .get("layout")
+                        .map(|layout| layout.to_string())
+                        .or(class_layout),
                     padding: options.get("padding").map(|padding| padding.to_string()),
                     ..Default::default()
                 }),
@@ -2174,7 +2192,168 @@ fn myst_to_block(code: &mdast::Code, context: &mut Context) -> Option<Block> {
                 ..Default::default()
             })
         }
-    })
+    };
+
+    parent_context
+        .losses
+        .merge(std::mem::take(&mut context.losses));
+    Some(block)
+}
+
+/// Decode the body of an argumentless MyST figure into panels and a caption.
+fn myst_figure_body(
+    blocks: Vec<Block>,
+    no_subfigures: bool,
+    context: &mut Context,
+) -> (Vec<Block>, Vec<Block>) {
+    let last_image = blocks
+        .iter()
+        .rposition(|block| matches!(block, Block::ImageObject(..)));
+    let mut content = Vec::new();
+    let mut caption = Vec::new();
+    let mut index = 0;
+
+    while index < blocks.len() {
+        let block = &blocks[index];
+
+        if !no_subfigures
+            && let Some(label) = myst_figure_target(block)
+            && matches!(blocks.get(index + 1), Some(Block::ImageObject(..)))
+            && let Block::ImageObject(image) = blocks[index + 1].clone()
+        {
+            let child_caption = image
+                .caption
+                .clone()
+                .map(|caption| vec![Block::Paragraph(Paragraph::new(caption))]);
+            content.push(Block::Figure(Figure {
+                label: Some(label),
+                label_automatically: Some(false),
+                caption: child_caption,
+                content: vec![Block::ImageObject(image)],
+                ..Default::default()
+            }));
+            index += 2;
+            continue;
+        }
+
+        if let Block::ImageObject(image) = block {
+            if no_subfigures {
+                content.push(Block::ImageObject(image.clone()));
+            } else {
+                let child_caption = image
+                    .caption
+                    .clone()
+                    .map(|caption| vec![Block::Paragraph(Paragraph::new(caption))]);
+                content.push(Block::Figure(Figure {
+                    caption: child_caption,
+                    content: vec![Block::ImageObject(image.clone())],
+                    ..Default::default()
+                }));
+            }
+        } else {
+            if last_image.is_some_and(|last| index < last) {
+                context.lost("Figure.content");
+            }
+            caption.push(block.clone());
+        }
+
+        index += 1;
+    }
+
+    (content, caption)
+}
+
+/// Parse a MyST target block of the form `(label)=`.
+fn myst_figure_target(block: &Block) -> Option<String> {
+    let Block::Paragraph(Paragraph { content, .. }) = block else {
+        return None;
+    };
+    let [Inline::Text(Text { value, .. })] = content.as_slice() else {
+        return None;
+    };
+
+    myst_figure_target_label(value.string.trim())
+}
+
+/// Ensure MyST targets immediately before images parse as standalone blocks.
+fn myst_figure_separate_targets(value: &str) -> String {
+    let mut lines = Vec::new();
+    let mut fence = None;
+
+    for line in value.lines() {
+        let marker = markdown_fence_marker(line);
+
+        if let Some((fence_char, fence_len)) = fence {
+            lines.push(line);
+            if marker.is_some_and(|(marker_char, marker_len, rest)| {
+                marker_char == fence_char && marker_len >= fence_len && rest.trim().is_empty()
+            }) {
+                fence = None;
+            }
+            continue;
+        }
+
+        if let Some((marker_char, marker_len, ..)) = marker {
+            fence = Some((marker_char, marker_len));
+        }
+
+        lines.push(line);
+        if marker.is_none() && myst_figure_target_label(line.trim()).is_some() {
+            lines.push("");
+        }
+    }
+
+    lines.join("\n")
+}
+
+/// Parse the marker at the start of a Markdown fenced code line.
+fn markdown_fence_marker(line: &str) -> Option<(char, usize, &str)> {
+    let trimmed = line.trim_start_matches(' ');
+    if line.len() - trimmed.len() > 3 {
+        return None;
+    }
+
+    let marker = trimmed.chars().next()?;
+    if !matches!(marker, '`' | '~') {
+        return None;
+    }
+
+    let marker_len = trimmed.chars().take_while(|char| *char == marker).count();
+    (marker_len >= 3).then(|| (marker, marker_len, &trimmed[marker_len..]))
+}
+
+/// Parse the label from MyST target syntax.
+fn myst_figure_target_label(value: &str) -> Option<String> {
+    value
+        .strip_suffix('=')?
+        .trim()
+        .strip_prefix('(')?
+        .strip_suffix(')')
+        .map(str::trim)
+        .filter(|label| !label.is_empty())
+        .map(String::from)
+}
+
+/// Map the supported subset of MyST grid utility classes to a Stencila layout.
+fn myst_figure_grid_class(class: &str, context: &mut Context) -> Option<String> {
+    let mut columns = None;
+
+    for token in class.split_whitespace() {
+        if token == "grid" {
+            continue;
+        }
+
+        if let Some(value) = token.strip_prefix("grid-cols-")
+            && value.parse::<usize>().is_ok_and(|value| value > 0)
+            && columns.is_none()
+        {
+            columns = Some(value.to_string());
+        } else {
+            context.lost("Figure.class");
+        }
+    }
+
+    columns
 }
 
 /// Normalize extracted overlay content for stable round-tripping.
@@ -2658,7 +2837,7 @@ mod tests {
         DecodeOptions, EncodeOptions,
         stencila_format::Format,
         stencila_schema::{
-            Block, ClaimType, CodeChunk, ExecutionMode, Figure, LabelType, Node, Paragraph,
+            Article, Block, ClaimType, CodeChunk, ExecutionMode, Figure, LabelType, Node, Paragraph,
         },
     };
 
@@ -2720,6 +2899,231 @@ mod tests {
             panic!("expected figure")
         };
         assert_eq!(figure.options.layout.as_deref(), Some("2"));
+    }
+
+    #[test]
+    fn test_myst_composite_figure() {
+        let code = mdast::Code {
+            value: [
+                ":label: penguins",
+                ":class: grid grid-cols-2",
+                "",
+                "(schematic)=",
+                "![Measurement schematic](schematic.png)",
+                "",
+                "![Observed dimorphism](dimorphism.png)",
+                "",
+                "Overall figure caption.",
+            ]
+            .join("\n"),
+            lang: Some("{figure}".into()),
+            meta: None,
+            position: None,
+        };
+
+        let mut context = Context::new(Format::Myst);
+        let Some(Block::Figure(Figure {
+            label,
+            content,
+            caption: parent_caption,
+            options,
+            ..
+        })) = myst_to_block(&code, &mut context)
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(label.as_deref(), Some("penguins"));
+        assert_eq!(options.layout.as_deref(), Some("2"));
+        assert_eq!(content.len(), 2);
+        assert!(parent_caption.is_some());
+
+        let Some(Block::Figure(Figure {
+            label,
+            content,
+            caption,
+            ..
+        })) = content.first()
+        else {
+            panic!("expected first subfigure")
+        };
+        assert_eq!(label.as_deref(), Some("schematic"));
+        assert!(caption.is_some());
+        assert!(matches!(
+            content.first(),
+            Some(Block::ImageObject(ImageObject { content_url, caption: Some(..), .. }))
+                if content_url == "schematic.png"
+        ));
+    }
+
+    #[test]
+    fn test_myst_figure_without_subfigures() {
+        let code = mdast::Code {
+            value: [
+                ":no-subfigures:",
+                "",
+                "![First](first.png)",
+                "",
+                "![Second](second.png)",
+                "",
+                "Caption.",
+            ]
+            .join("\n"),
+            lang: Some("{figure}".into()),
+            meta: None,
+            position: None,
+        };
+
+        let mut context = Context::new(Format::Myst);
+        let Some(Block::Figure(Figure {
+            content, caption, ..
+        })) = myst_to_block(&code, &mut context)
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(content.len(), 2);
+        assert!(
+            content
+                .iter()
+                .all(|block| matches!(block, Block::ImageObject(..)))
+        );
+        assert!(caption.is_some());
+    }
+
+    #[test]
+    fn test_myst_figure_target_syntax_in_code_is_unchanged() {
+        let code = mdast::Code {
+            value: [
+                "![Panel](panel.png)",
+                "",
+                "```text",
+                "(target)=",
+                "next",
+                "```",
+            ]
+            .join("\n"),
+            lang: Some("{figure}".into()),
+            meta: None,
+            position: None,
+        };
+
+        let mut context = Context::new(Format::Myst);
+        let Some(Block::Figure(Figure {
+            caption: Some(caption),
+            ..
+        })) = myst_to_block(&code, &mut context)
+        else {
+            panic!("expected figure")
+        };
+        let Some(Block::CodeBlock(CodeBlock { code, .. })) = caption.first() else {
+            panic!("expected code block caption")
+        };
+
+        assert_eq!(code.to_string(), "(target)=\nnext");
+        assert!(context.losses.is_empty());
+    }
+
+    #[test]
+    fn test_penguins_composite_figure_myst_roundtrip() {
+        let source = r#"::: figure [40 60]
+
+    ::: figure
+
+    ![](schematic.png)
+
+    Measurement schematic for culmen and flipper dimensions.
+
+    :::
+
+    ::: figure
+
+    ![](figures/dimorphism.png)
+
+    Species-specific structural-size PC1 means and standard errors by sex.
+
+    :::
+
+Morphological measurements and observed structural-size dimorphism.
+
+:::
+"#;
+
+        let (node, _) = decode(
+            source,
+            Some(DecodeOptions {
+                format: Some(Format::Smd),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+        let (myst, info) = encode(
+            &node,
+            Some(EncodeOptions {
+                format: Some(Format::Myst),
+                ..Default::default()
+            }),
+        )
+        .expect("encode should succeed");
+
+        assert!(info.losses.is_empty());
+        assert!(myst.contains(":layout: 40 60"));
+        assert!(myst.contains("![Measurement schematic for culmen and flipper dimensions.]"));
+        assert!(myst.contains("![Species-specific structural-size PC1 means"));
+
+        let (node, _) = decode(
+            &myst,
+            Some(DecodeOptions {
+                format: Some(Format::Myst),
+                ..Default::default()
+            }),
+        )
+        .expect("decode should succeed");
+        let Node::Article(article) = node else {
+            panic!("expected article")
+        };
+        let Some(Block::Figure(Figure {
+            content,
+            caption,
+            options,
+            ..
+        })) = article.content.first()
+        else {
+            panic!("expected figure")
+        };
+
+        assert_eq!(options.layout.as_deref(), Some("40 60"));
+        assert_eq!(content.len(), 2);
+        assert!(
+            content
+                .iter()
+                .all(|block| matches!(block, Block::Figure(..)))
+        );
+        assert!(caption.is_some());
+    }
+
+    #[test]
+    fn test_myst_unsupported_subfigure_content_is_retained_with_loss() {
+        let child = Figure::new(vec![Block::CodeBlock(CodeBlock {
+            code: "panel()".into(),
+            programming_language: Some("r".into()),
+            ..Default::default()
+        })]);
+        let node = Node::Article(Article::new(vec![Block::Figure(Figure::new(vec![
+            Block::Figure(child),
+        ]))]));
+
+        let (myst, info) = encode(
+            &node,
+            Some(EncodeOptions {
+                format: Some(Format::Myst),
+                ..Default::default()
+            }),
+        )
+        .expect("encode should succeed");
+
+        assert!(!info.losses.is_empty());
+        assert!(myst.contains("panel()"));
     }
 
     #[test]

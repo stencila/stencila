@@ -4,7 +4,7 @@ use stencila_layout_lang::{Columns, Layout, Placement, parse as parse_layout};
 use stencila_node_type::NodeType;
 
 use crate::{
-    Block, CodeChunk, Figure, ImageObject, Inline, LabelType,
+    Block, CodeChunk, Figure, FigureOptions, ImageObject, LabelType,
     prelude::*,
     shortcuts::{p, stg, t},
     transforms::blocks_to_inlines,
@@ -485,20 +485,36 @@ impl MarkdownCodec for Figure {
         }
 
         if matches!(context.format, Format::Myst) {
+            let simple_image = match self.content.as_slice() {
+                [Block::ImageObject(image)] => Some(image),
+                _ => None,
+            };
+            let composite = myst_composite_images(&self.content);
+            let direct_images = (self.content.len() > 1
+                && self
+                    .content
+                    .iter()
+                    .all(|block| matches!(block, Block::ImageObject(..))))
+            .then_some(());
+            let standard_grid = (composite.is_some() || direct_images.is_some())
+                .then(|| self.options.layout.as_deref().and_then(myst_equal_columns))
+                .flatten();
+
+            if simple_image.is_none()
+                && composite.is_none()
+                && direct_images.is_none()
+                && !self.content.is_empty()
+            {
+                context.add_loss("Figure.content");
+            }
+
             context
                 .myst_directive(
                     ':',
                     "figure",
                     |context| {
-                        let inlines = blocks_to_inlines(self.content.clone());
-                        let mut urls = inlines.iter().filter_map(|inline| match inline {
-                            Inline::ImageObject(ImageObject { content_url, .. }) => {
-                                Some(content_url)
-                            }
-                            _ => None,
-                        });
-                        if let Some(url) = urls.next() {
-                            context.push_str(" ").push_str(url);
+                        if let Some(image) = simple_image {
+                            context.push_str(" ").push_str(&image.content_url);
                         }
                     },
                     |context| {
@@ -506,15 +522,59 @@ impl MarkdownCodec for Figure {
                             context.myst_directive_option(NodeProperty::Label, None, label);
                         }
 
-                        if let Some(layout) = &self.options.layout {
+                        if let Some(columns) = standard_grid {
+                            context.myst_directive_option(
+                                NodeProperty::Layout,
+                                Some("class"),
+                                &format!("grid grid-cols-{columns}"),
+                            );
+                        } else if let Some(layout) = &self.options.layout {
                             context.myst_directive_option(NodeProperty::Layout, None, layout);
                         }
 
                         if let Some(padding) = &self.options.padding {
                             context.myst_directive_option(NodeProperty::Padding, None, padding);
                         }
+
+                        if direct_images.is_some() {
+                            context.push_str(":no-subfigures:").newline();
+                        }
                     },
                     |context| {
+                        if let Some(children) = &composite {
+                            for (child, image) in children {
+                                context.enter_node(child.node_type(), child.node_id());
+
+                                if !child.label_automatically.unwrap_or(false)
+                                    && let Some(label) = &child.label
+                                {
+                                    context
+                                        .push_str("(")
+                                        .push_prop_str(NodeProperty::Label, label)
+                                        .push_str(")=")
+                                        .newline();
+                                }
+
+                                let mut image = (*image).clone();
+                                if let Some([Block::Paragraph(paragraph)]) =
+                                    child.caption.as_deref()
+                                {
+                                    let subcaption = paragraph.content.clone();
+                                    if image.caption.as_ref().is_some_and(|alt| alt != &subcaption)
+                                    {
+                                        context.add_loss("ImageObject.caption");
+                                    }
+                                    image.caption = Some(subcaption);
+                                }
+                                Block::ImageObject(image).to_markdown(context);
+                                context.exit_node();
+                            }
+                        } else if direct_images.is_some()
+                            || (simple_image.is_none() && !self.content.is_empty())
+                        {
+                            self.content.to_markdown(context);
+                        }
+
                         if let Some(caption) = &self.caption {
                             caption.to_markdown(context);
                         }
@@ -591,9 +651,50 @@ impl MarkdownCodec for Figure {
     }
 }
 
+/// Get the single image from each child figure when content is a MyST composite.
+fn myst_composite_images(content: &[Block]) -> Option<Vec<(&Figure, &ImageObject)>> {
+    if content.is_empty() {
+        return None;
+    }
+
+    content
+        .iter()
+        .map(|block| {
+            let Block::Figure(figure) = block else {
+                return None;
+            };
+            if figure.id.is_some()
+                || figure.work_type.is_some()
+                || figure.doi.is_some()
+                || figure.authors.is_some()
+                || figure.provenance.is_some()
+                || figure.id_automatically.is_some()
+                || figure.options.as_ref() != &FigureOptions::default()
+                || figure
+                    .caption
+                    .as_ref()
+                    .is_some_and(|caption| !matches!(caption.as_slice(), [Block::Paragraph(..)]))
+            {
+                return None;
+            }
+            let [Block::ImageObject(image)] = figure.content.as_slice() else {
+                return None;
+            };
+            Some((figure, image))
+        })
+        .collect()
+}
+
+/// Recognize a layout that MyST can represent as an equal-column grid class.
+fn myst_equal_columns(layout: &str) -> Option<usize> {
+    let layout = layout.trim();
+    let columns = layout.parse::<usize>().ok()?;
+    (columns > 0 && columns.to_string() == layout).then_some(columns)
+}
+
 #[cfg(test)]
 mod tests {
-    use stencila_codec_markdown_trait::to_markdown_with;
+    use stencila_codec_markdown_trait::{MarkdownCodec, MarkdownEncodeContext, to_markdown_with};
 
     use crate::{
         Article, ImageObject,
@@ -614,5 +715,82 @@ mod tests {
         let markdown = to_markdown_with(&article, Format::Markdown, MarkdownEncodeMode::Render);
 
         assert_eq!(markdown, "![](plot.png)\n\nFigure 1: A plot.\n\nNext.");
+    }
+
+    #[test]
+    fn myst_composite_figure() {
+        let mut first = Figure::new(vec![Block::ImageObject(ImageObject {
+            content_url: "schematic.png".into(),
+            caption: Some(vec![t("Measurement schematic")]),
+            ..Default::default()
+        })]);
+        first.label = Some("schematic".into());
+        first.label_automatically = Some(false);
+        first.caption = Some(vec![p([t("Measurement schematic")])]);
+
+        let mut second = Figure::new(vec![Block::ImageObject(ImageObject {
+            content_url: "dimorphism.png".into(),
+            caption: Some(vec![t("Observed dimorphism")]),
+            ..Default::default()
+        })]);
+        second.caption = Some(vec![p([t("Observed dimorphism")])]);
+
+        let mut parent = Figure::new(vec![Block::Figure(first), Block::Figure(second)]);
+        parent.label = Some("penguins".into());
+        parent.options.layout = Some("2".into());
+        parent.caption = Some(vec![p([t("Overall figure caption.")])]);
+
+        let markdown = to_markdown_with(&parent, Format::Myst, MarkdownEncodeMode::Normal);
+
+        assert_eq!(
+            markdown,
+            r#":::{figure}
+:label: penguins
+:class: grid grid-cols-2
+
+(schematic)=
+![Measurement schematic](schematic.png)
+
+![Observed dimorphism](dimorphism.png)
+
+Overall figure caption.
+
+:::"#
+        );
+    }
+
+    #[test]
+    fn myst_composite_figure_reports_decorated_child() {
+        let mut child = Figure::new(vec![Block::ImageObject(ImageObject {
+            content_url: "panel.png".into(),
+            ..Default::default()
+        })]);
+        child.options.overlay = Some("<svg/>".into());
+        let parent = Figure::new(vec![Block::Figure(child)]);
+
+        let mut context =
+            MarkdownEncodeContext::new(Some(Format::Myst), Some(MarkdownEncodeMode::Normal));
+        parent.to_markdown(&mut context);
+
+        assert!(!context.losses.is_empty());
+        assert!(context.content.contains("panel.png"));
+    }
+
+    #[test]
+    fn myst_composite_figure_reports_multi_block_subcaption() {
+        let mut child = Figure::new(vec![Block::ImageObject(ImageObject {
+            content_url: "panel.png".into(),
+            ..Default::default()
+        })]);
+        child.caption = Some(vec![p([t("first")]), p([t("second")])]);
+        let parent = Figure::new(vec![Block::Figure(child)]);
+
+        let mut context =
+            MarkdownEncodeContext::new(Some(Format::Myst), Some(MarkdownEncodeMode::Normal));
+        parent.to_markdown(&mut context);
+
+        assert!(!context.losses.is_empty());
+        assert!(context.content.contains("first\n\nsecond"));
+        assert!(!context.content.contains("firstsecond"));
     }
 }
