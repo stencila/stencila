@@ -1,6 +1,8 @@
 use super::super::{
-    facts::{CodeFacts, WorkflowResourceKind},
-    util::collect_path_expressions,
+    facts::{
+        CodeFacts, WorkflowResourceKind, WorkflowScriptExecutionFact, WorkflowScriptExecutionKind,
+    },
+    util::{clean_string_literal, collect_path_expressions, direct_python_script},
 };
 
 /// Collect Snakemake facts from source text as a grammar fallback.
@@ -10,11 +12,11 @@ use super::super::{
 /// This fallback keeps input, output, script, and shell facts stable across small
 /// grammar shape changes.
 pub(in crate::code) fn collect_snakemake_text_facts(source: &str, facts: &mut CodeFacts) {
-    let lines = source.lines().collect::<Vec<_>>();
+    let lines = source_lines(source);
     let mut current_rule = None::<String>;
     let mut index = 0;
     while index < lines.len() {
-        let line = lines[index].trim();
+        let line = lines[index].text.trim();
         if let Some(rule_name) = line
             .strip_prefix("rule ")
             .and_then(|rest| rest.strip_suffix(':'))
@@ -44,13 +46,32 @@ pub(in crate::code) fn collect_snakemake_text_facts(source: &str, facts: &mut Co
         ] {
             if line.starts_with(directive) {
                 let text = collect_directive_text(&lines, index, directive);
+                let offset = lines[index].offset + leading_spaces(lines[index].text);
                 let mut paths = Default::default();
                 collect_path_expressions(&text, &mut paths);
                 match target {
                     SnakemakeDirective::Resource(kind) => {
-                        facts.extend_workflow_resources(current_rule.as_deref(), kind, paths);
+                        facts.extend_workflow_resources(
+                            current_rule.as_deref(),
+                            kind,
+                            paths,
+                            Some(offset),
+                        );
                     }
                     SnakemakeDirective::Shell => {
+                        if let Some(command) = clean_string_literal(&text)
+                            && let Some(path) = direct_python_script(&command)
+                        {
+                            facts.record_workflow_script(
+                                current_rule.as_deref(),
+                                WorkflowScriptExecutionFact {
+                                    path,
+                                    kind: WorkflowScriptExecutionKind::Shell,
+                                    offset: Some(offset),
+                                    command: Some(command),
+                                },
+                            );
+                        }
                         facts.record_workflow_call(current_rule.as_deref(), "shell");
                     }
                 }
@@ -59,6 +80,31 @@ pub(in crate::code) fn collect_snakemake_text_facts(source: &str, facts: &mut Co
 
         index += 1;
     }
+}
+
+/// One source line and its byte offset in the full source.
+#[derive(Debug, Clone, Copy)]
+struct SourceLine<'a> {
+    text: &'a str,
+    offset: usize,
+}
+
+/// Split source into lines while preserving their byte offsets.
+fn source_lines(source: &str) -> Vec<SourceLine<'_>> {
+    let mut offset = 0;
+    source
+        .split_inclusive('\n')
+        .map(|line| {
+            let current = offset;
+            offset += line.len();
+            let text = line.strip_suffix('\n').unwrap_or(line);
+            let text = text.strip_suffix('\r').unwrap_or(text);
+            SourceLine {
+                text,
+                offset: current,
+            }
+        })
+        .collect()
 }
 
 /// Snakemake directive category used by the text fallback.
@@ -76,19 +122,20 @@ enum SnakemakeDirective {
 /// Directives can place literals on the same line or on following indented
 /// lines. Using indentation mirrors Snakemake's source structure closely enough
 /// for static literals while avoiding a grammar-specific payload visitor.
-fn collect_directive_text(lines: &[&str], start: usize, directive: &str) -> String {
+fn collect_directive_text(lines: &[SourceLine<'_>], start: usize, directive: &str) -> String {
     let mut text = lines[start]
+        .text
         .trim()
         .strip_prefix(directive)
         .unwrap_or_default()
         .to_string();
-    let base_indent = leading_spaces(lines[start]);
+    let base_indent = leading_spaces(lines[start].text);
     for line in lines.iter().skip(start + 1) {
-        let trimmed = line.trim();
+        let trimmed = line.text.trim();
         if trimmed.is_empty() {
             continue;
         }
-        let indent = leading_spaces(line);
+        let indent = leading_spaces(line.text);
         if indent <= base_indent || is_snakemake_directive_line(trimmed) {
             break;
         }

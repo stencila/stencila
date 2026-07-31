@@ -6,6 +6,49 @@ use crate::reference::has_non_local_uri_scheme;
 use super::facts::IoPath;
 use super::language::CodeLanguage;
 
+/// Identify a direct, static Python script invocation.
+///
+/// This deliberately accepts only a single-line command whose first token is a
+/// Python interpreter and whose second token is a relative `.py` path. Shell
+/// operators, interpreter flags, environment wrappers, and dynamic expressions
+/// are left unresolved rather than risking a false generator attribution.
+pub(crate) fn direct_python_script(command: &str) -> Option<String> {
+    if command.contains([
+        '\n', '\r', '|', '&', ';', '<', '>', '$', '`', '\\', '\'', '"',
+    ]) {
+        return None;
+    }
+
+    let mut tokens = command.split_ascii_whitespace();
+    let interpreter = tokens.next()?.rsplit('/').next()?;
+    if !is_python_interpreter(interpreter) {
+        return None;
+    }
+
+    let script = tokens.next()?;
+    if script.starts_with(['-', '/', '~'])
+        || script.contains("://")
+        || script.contains(['*', '?', '[', ']'])
+        || !script.ends_with(".py")
+    {
+        return None;
+    }
+
+    Some(script.to_string())
+}
+
+/// Whether a command name is a conventional Python interpreter executable.
+fn is_python_interpreter(name: &str) -> bool {
+    ["python", "python2", "python3", "pypy", "pypy2", "pypy3"].contains(&name)
+        || name.strip_prefix("python").is_some_and(|version| {
+            !version.is_empty()
+                && version.starts_with(|char: char| char.is_ascii_digit())
+                && version
+                    .chars()
+                    .all(|char| char.is_ascii_digit() || char == '.')
+        })
+}
+
 /// Return the first static string literal in a source fragment.
 pub(super) fn first_static_string_literal(source: &str) -> Option<String> {
     let bytes = source.as_bytes();

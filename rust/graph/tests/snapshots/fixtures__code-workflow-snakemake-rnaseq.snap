@@ -1,5 +1,6 @@
 ---
 source: rust/graph/tests/fixtures.rs
+assertion_line: 46
 expression: graph
 ---
 type: Graph
@@ -344,6 +345,21 @@ edges:
     kind: Generated
     evidence:
       - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 17
+          startColumn: 4
+        details:
+          detector: stencila-workflow-declaration
+          language: snakemake
+          rule: counts
+          executionKind: script
+          script: workflow/scripts/counts.py
+          pathKind: static
+          expression: results/counts/gene-counts.tsv
+      - type: GraphEvidence
         kind: StaticAnalysis
         codeLocation:
           type: CodeLocation
@@ -371,9 +387,17 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 17
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
+          rule: counts
+          executionKind: script
+          script: workflow/scripts/counts.py
   - type: GraphEdge
     source: "code:workflow/scripts/download.py"
     target: "dir:workflow/scripts"
@@ -386,6 +410,21 @@ edges:
     target: "file:data/raw/S1.fastq"
     kind: Generated
     evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 2
+          startColumn: 4
+        details:
+          detector: stencila-workflow-declaration
+          language: snakemake
+          rule: download
+          executionKind: script
+          script: workflow/scripts/download.py
+          pathKind: static
+          expression: data/raw/S1.fastq
       - type: GraphEvidence
         kind: StaticAnalysis
         codeLocation:
@@ -407,9 +446,17 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 2
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
+          rule: download
+          executionKind: script
+          script: workflow/scripts/download.py
   - type: GraphEdge
     source: "datatable:results/counts/gene-counts.tsv"
     target: "dir:results/counts"
@@ -424,6 +471,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 20
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -506,6 +558,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 5
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -525,6 +582,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 10
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -551,6 +613,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 15
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -625,6 +692,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 11
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -652,6 +724,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 16
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -679,6 +756,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 1
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -706,6 +788,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 21
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake
@@ -733,6 +820,11 @@ edges:
     evidence:
       - type: GraphEvidence
         kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: Snakefile
+          startLine: 6
+          startColumn: 4
         details:
           detector: stencila-workflow-declaration
           language: snakemake

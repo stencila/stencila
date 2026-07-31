@@ -1,5 +1,6 @@
 ---
 source: rust/graph/tests/projections.rs
+assertion_line: 26
 expression: to_dot(&view)
 ---
 digraph stencila_graph {
@@ -60,8 +61,8 @@ digraph stencila_graph {
   "function:Snakefile:snakemake:shell" -> "workflow-unit:Snakefile:align" [label="Called By", kind="CalledBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "function:Snakefile:snakemake:shell" -> "workflow-unit:Snakefile:report" [label="Called By", kind="CalledBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "function:Snakefile:snakemake:shell" -> "workflow-unit:Snakefile:trim_reads" [label="Called By", kind="CalledBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
-  "code:workflow/scripts/counts.py" -> "datatable:results/counts/gene-counts.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
-  "code:workflow/scripts/download.py" -> "file:data/raw/S1.fastq" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:workflow/scripts/counts.py" -> "datatable:results/counts/gene-counts.tsv" [label="Generated", kind="Generated", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:workflow/scripts/download.py" -> "file:data/raw/S1.fastq" [label="Generated", kind="Generated", count="1", evidence_count="2", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:Snakefile:align" -> "file:results/alignments/S1.bam" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:Snakefile:counts" -> "datatable:results/counts/gene-counts.tsv" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:Snakefile:download" -> "file:data/raw/S1.fastq" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];

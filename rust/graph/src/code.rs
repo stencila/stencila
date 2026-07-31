@@ -39,9 +39,10 @@ pub use diagnostics::{StaticAnalysisDiagnostic, UnresolvedIoReason};
 pub(crate) use document::{DocumentCodeIndex, DocumentCodeSource};
 pub use facts::{
     CodeFacts, ColumnFact, FunctionFact, IoDirection, IoFact, IoMode, IoPath, VariableFlowFact,
-    WorkflowUnitFacts,
+    WorkflowScriptExecutionFact, WorkflowScriptExecutionKind, WorkflowUnitFacts,
 };
 pub use language::CodeLanguage;
+pub(crate) use util::direct_python_script;
 pub(crate) use workspace::{WorkspaceCode, add_workspace_code};
 
 #[cfg(test)]
@@ -733,16 +734,14 @@ writetable(tbl, "results/output.csv");
     }
 
     #[test]
-    fn extracts_snakemake_facts() {
-        let facts = analyze_source(
-            CodeLanguage::Snakemake,
-            r#"
+    fn extracts_snakemake_facts() -> eyre::Result<()> {
+        let source = r#"
 rule plot:
     input: "data.csv"
     output: "plot.png"
     script: "scripts/plot.py"
-"#,
-        );
+"#;
+        let facts = analyze_source(CodeLanguage::Snakemake, source);
 
         assert!(facts.workflow_units.contains("plot"));
         assert!(!facts.declarations.contains("plot"));
@@ -755,6 +754,99 @@ rule plot:
         assert_unit_io(unit, IoDirection::Read, "data.csv");
         assert_unit_io(unit, IoDirection::Write, "plot.png");
         assert!(unit.script_links.contains("scripts/plot.py"));
+        let execution = unit
+            .script_executions
+            .iter()
+            .next()
+            .ok_or_else(|| eyre::eyre!("missing plot script execution"))?;
+        assert_eq!(execution.path, "scripts/plot.py");
+        assert_eq!(execution.kind, WorkflowScriptExecutionKind::Script);
+        assert_eq!(execution.offset, source.find("script:"));
+        assert!(execution.command.is_none());
+        assert!(unit.io.iter().any(|fact| {
+            fact.direction == IoDirection::Read && fact.operation_offset == source.find("input:")
+        }));
+        assert!(unit.io.iter().any(|fact| {
+            fact.direction == IoDirection::Write && fact.operation_offset == source.find("output:")
+        }));
+        Ok(())
+    }
+
+    #[test]
+    fn extracts_only_direct_static_snakemake_shell_scripts() -> eyre::Result<()> {
+        let source = r#"
+rule download:
+    input: "download.py"
+    output: "penguins.csv"
+    shell: "python download.py"
+
+rule compound:
+    output: "compound.csv"
+    shell: "python compound.py && touch compound.csv"
+
+rule dependency_only:
+    input: "helper.py"
+    output: "dependency.csv"
+    shell: "touch dependency.csv"
+
+rule dynamic:
+    output: "dynamic.csv"
+    shell: f"python {script}"
+
+rule glob:
+    output: "glob.csv"
+    shell: "python scripts/*.py"
+
+rule question:
+    output: "question.csv"
+    shell: "python scripts/job?.py"
+
+rule bracket:
+    output: "bracket.csv"
+    shell: "python scripts/job[12].py"
+"#;
+        let facts = analyze_source(CodeLanguage::Snakemake, source);
+
+        let download = facts
+            .workflow_unit_facts
+            .get("download")
+            .ok_or_else(|| eyre::eyre!("download workflow unit facts should be grouped"))?;
+        assert!(download.script_executions.iter().any(|execution| {
+            execution.path == "download.py"
+                && execution.kind == WorkflowScriptExecutionKind::Shell
+                && execution.offset == source.find("shell:")
+                && execution.command.as_deref() == Some("python download.py")
+        }));
+        assert!(download.script_links.contains("download.py"));
+
+        assert!(
+            facts
+                .workflow_unit_facts
+                .get("compound")
+                .is_some_and(|unit| unit.script_executions.is_empty())
+        );
+        assert!(
+            facts
+                .workflow_unit_facts
+                .get("dependency_only")
+                .is_some_and(|unit| unit.script_executions.is_empty())
+        );
+        assert!(
+            facts
+                .workflow_unit_facts
+                .get("dynamic")
+                .is_some_and(|unit| unit.script_executions.is_empty())
+        );
+        for unit in ["glob", "question", "bracket"] {
+            assert!(
+                facts
+                    .workflow_unit_facts
+                    .get(unit)
+                    .is_some_and(|facts| facts.script_executions.is_empty()),
+                "{unit} must not attribute a shell-expanded script path"
+            );
+        }
+        Ok(())
     }
 
     #[test]

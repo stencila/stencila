@@ -1,5 +1,6 @@
 ---
 source: rust/graph/tests/projections.rs
+assertion_line: 26
 expression: to_dot(&view)
 ---
 digraph stencila_graph {
@@ -44,6 +45,13 @@ digraph stencila_graph {
       label="data/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
       "datatable:data/catalog.csv" [label="catalog.csv", kind="datatable", shape="box", style="filled", fillcolor="#edf7ee", color="#3f7f48"];
     }
+    subgraph "cluster_dir:scripts" {
+      label="scripts/"; color="#c3ccd699"; bgcolor="#c3ccd62c";
+      "code:scripts/fit.py" [label="fit.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      "code:scripts/prepare.py" [label="prepare.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      "code:scripts/report.py" [label="report.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      "code:scripts/score.py" [label="score.py", kind="code", shape="box", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+    }
   }
   "container:ghcr.io/example/fitter%3A1.0" [label="fitter:1.0", kind="software", shape="box3d", style="filled", fillcolor="#f1f5ff", color="#5261b8"];
   "resource:https%3A//example.org/calibration.csv" [label="calibration.csv", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
@@ -52,6 +60,10 @@ digraph stencila_graph {
   "astra-decision:astra.yaml:root.prepare:estimator" -> "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "container:ghcr.io/example/fitter%3A1.0" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "astra-output:astra.yaml:root.report:summary" -> "astra-output:astra.yaml:root:final_report" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/fit.py" -> "astra-output:astra.yaml:root.model:fit" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/prepare.py" -> "astra-output:astra.yaml:root.prepare:cleaned" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/report.py" -> "astra-output:astra.yaml:root.report:summary" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/score.py" -> "astra-output:astra.yaml:root.model:score" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:astra.yaml%23root.model:fit" -> "astra-output:astra.yaml:root.model:fit" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:astra.yaml%23root.model:score" -> "astra-output:astra.yaml:root.model:score" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:astra.yaml%23root.prepare:cleaned" -> "astra-output:astra.yaml:root.prepare:cleaned" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
@@ -63,4 +75,8 @@ digraph stencila_graph {
   "astra-output:astra.yaml:root.ref.prior_analysis:baseline" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Received By", kind="ReceivedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "astra-output:astra.yaml:root.ref.prior_analysis:diagnostics" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Received By", kind="ReceivedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "resource:https%3A//example.org/calibration.csv" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Received By", kind="ReceivedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/fit.py" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/prepare.py" -> "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/report.py" -> "workflow-unit:astra.yaml%23root.report:summary" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "code:scripts/score.py" -> "workflow-unit:astra.yaml%23root.model:score" [label="Used By", kind="UsedBy", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
 }

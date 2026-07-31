@@ -14,7 +14,9 @@ use crate::{
 
 use super::{
     diagnostics::{StaticAnalysisDiagnostic, UnresolvedIoReason},
-    facts::{CodeFacts, ColumnFact, FunctionFact, IoFact, IoMode, IoPath},
+    facts::{
+        CodeFacts, ColumnFact, FunctionFact, IoFact, IoMode, IoPath, WorkflowScriptExecutionFact,
+    },
     language::CodeLanguage,
     util::{is_static_literal, path_name},
 };
@@ -381,7 +383,49 @@ fn add_workflow_edges(
             }
         }
         if let Some(workflow_unit_facts) = workflow_unit_facts {
+            let mut execution_paths = BTreeSet::new();
+            for execution in &workflow_unit_facts.script_executions {
+                let Some(script_id) = add_resource_node(
+                    builder,
+                    context.unit_id,
+                    context.scope,
+                    &execution.path,
+                    resolver,
+                ) else {
+                    continue;
+                };
+                execution_paths.insert(execution.path.as_str());
+                builder.add_edge_with_evidence(
+                    &script_id,
+                    &workflow_unit_id,
+                    GraphEdgeKind::UsedBy,
+                    vec![workflow_script_evidence(
+                        &context.evidence,
+                        unit,
+                        execution,
+                        None,
+                    )],
+                );
+
+                for output in &unit_write_resources {
+                    let evidence = vec![workflow_script_evidence(
+                        &context.evidence,
+                        unit,
+                        execution,
+                        Some(output),
+                    )];
+                    if output.is_remote {
+                        builder.add_send(&script_id, &output.id, evidence);
+                    } else {
+                        builder.add_generation(&script_id, &output.id, evidence);
+                    }
+                }
+            }
+
             for script in &workflow_unit_facts.script_links {
+                if execution_paths.contains(script.as_str()) {
+                    continue;
+                }
                 let Some(script_id) =
                     add_resource_node(builder, context.unit_id, context.scope, script, resolver)
                 else {
@@ -425,6 +469,40 @@ fn workflow_resource_evidence(
         "expression".to_string(),
         Primitive::String(resource.path.value().to_string()),
     );
+    evidence
+}
+
+/// Evidence that an authored workflow executes a script to create an output.
+fn workflow_script_evidence(
+    evidence_source: &CodeEvidenceSource,
+    unit: &str,
+    execution: &WorkflowScriptExecutionFact,
+    output: Option<&IoResourceNode>,
+) -> GraphEvidence {
+    let mut evidence = evidence_source.declared(execution.offset);
+    let details = evidence.options.details.get_or_insert_with(Object::new);
+    details.insert("rule".to_string(), Primitive::String(unit.to_string()));
+    details.insert(
+        "executionKind".to_string(),
+        Primitive::String(execution.kind.as_str().to_string()),
+    );
+    details.insert(
+        "script".to_string(),
+        Primitive::String(execution.path.clone()),
+    );
+    if let Some(command) = &execution.command {
+        details.insert("command".to_string(), Primitive::String(command.clone()));
+    }
+    if let Some(output) = output {
+        details.insert(
+            "pathKind".to_string(),
+            Primitive::String(output.path.kind().to_string()),
+        );
+        details.insert(
+            "expression".to_string(),
+            Primitive::String(output.path.value().to_string()),
+        );
+    }
     evidence
 }
 

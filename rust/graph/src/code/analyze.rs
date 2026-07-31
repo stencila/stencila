@@ -42,7 +42,7 @@ pub fn analyze_source(language: CodeLanguage, source: &str) -> CodeFacts {
         return facts;
     }
 
-    collect_rule_facts(language, &grep, &mut facts);
+    collect_rule_facts(language, source, &grep, &mut facts);
     if supports_table(language) {
         // The table subsumes both the pattern rules and the text scanner for
         // this language, covering every arity and the keyword form at once.
@@ -99,6 +99,7 @@ fn finish_facts(language: CodeLanguage, mut facts: CodeFacts) -> CodeFacts {
 /// configuration files.
 fn collect_rule_facts(
     language: CodeLanguage,
+    source: &str,
     grep: &ast_grep_core::AstGrep<StrDoc<CodeLanguage>>,
     facts: &mut CodeFacts,
 ) {
@@ -118,6 +119,6 @@ fn collect_rule_facts(
     }
 
     if language == CodeLanguage::Snakemake {
-        collect_snakemake_text_facts(grep.root().text().as_ref(), facts);
+        collect_snakemake_text_facts(source, facts);
     }
 }

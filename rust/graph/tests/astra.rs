@@ -1,4 +1,4 @@
-use std::fs;
+use std::{collections::BTreeSet, fs};
 
 use eyre::{Result, eyre};
 use stencila_graph::{WorkspaceOptions, graph_from_path};
@@ -149,6 +149,307 @@ analyses:
 }
 
 #[tokio::test]
+async fn attributes_direct_recipe_scripts_and_canonicalizes_doi_inputs() -> Result<()> {
+    let dir = tempdir()?;
+    let doi = "10.6073/pasta/abc50eed9138b75f54eaada0841b9b86";
+    fs::write(
+        dir.path().join("download.py"),
+        format!(
+            "from urllib.request import urlopen\nurlopen(\"https://doi.org/{doi}\")\nopen(\"result.csv\", \"w\").write(\"value\\n1\\n\")\n"
+        ),
+    )?;
+    fs::write(dir.path().join("result.csv"), "value\n1\n")?;
+    fs::write(dir.path().join("compound.py"), "print('not attributed')\n")?;
+    fs::write(
+        dir.path().join("Snakefile"),
+        r#"rule result:
+    output: "result.csv"
+    shell: "python download.py"
+"#,
+    )?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        format!(
+            r#"version: "1.0"
+inputs:
+  - id: source
+    type: data
+    source: https://doi.org/{doi}
+outputs:
+  - id: result
+    type: data
+    target: result.csv
+    inputs: [source]
+    recipe:
+      command: python download.py
+  - id: compound
+    type: data
+    recipe:
+      command: python compound.py && echo done
+"#
+        ),
+    )?;
+
+    let graph = graph_from_path(dir.path(), Some(options())).await?;
+    let script_id = "code:download.py";
+    let unit_id = "workflow-unit:astra.yaml%23root:result";
+    let output_id = "astra-output:astra.yaml:root:result";
+    let logical_output = graph
+        .nodes
+        .iter()
+        .find(|node| node.id == output_id)
+        .and_then(|node| match node.node.as_ref() {
+            Node::CreativeWork(work) => Some(work),
+            _ => None,
+        })
+        .ok_or_else(|| eyre!("expected logical ASTRA output"))?;
+    assert_eq!(logical_output.options.path.as_deref(), Some("result.csv"));
+
+    for (target, kind) in [
+        (unit_id, GraphEdgeKind::UsedBy),
+        (output_id, GraphEdgeKind::Generated),
+    ] {
+        let edge = graph
+            .edges
+            .iter()
+            .find(|edge| edge.source == script_id && edge.target == target && edge.kind == kind)
+            .ok_or_else(|| eyre!("expected ASTRA recipe script attribution"))?;
+        let evidence = edge
+            .options
+            .evidence
+            .as_deref()
+            .and_then(|evidence| evidence.first())
+            .ok_or_else(|| eyre!("expected recipe script evidence"))?;
+        assert_eq!(evidence.kind, GraphEvidenceKind::Declared);
+        assert_eq!(
+            evidence
+                .options
+                .details
+                .as_ref()
+                .and_then(|details| details.get("fieldPath")),
+            Some(&stencila_schema::Primitive::String(
+                "outputs[0].recipe.command".to_string()
+            ))
+        );
+        assert_eq!(
+            evidence
+                .code_location
+                .as_ref()
+                .and_then(|location| location.start_line),
+            Some(11)
+        );
+    }
+
+    let concrete_id = "datatable:result.csv";
+    let concrete_edge = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == script_id
+                && edge.target == concrete_id
+                && edge.kind == GraphEdgeKind::Generated
+        })
+        .ok_or_else(|| eyre!("expected concrete target generation"))?;
+    let concrete_evidence = concrete_edge
+        .options
+        .evidence
+        .as_deref()
+        .unwrap_or_default();
+    assert_eq!(
+        concrete_evidence
+            .iter()
+            .filter(|evidence| evidence.kind == GraphEvidenceKind::Declared)
+            .count(),
+        2
+    );
+    assert_eq!(
+        concrete_evidence
+            .iter()
+            .filter(|evidence| evidence.kind == GraphEvidenceKind::StaticAnalysis)
+            .count(),
+        1
+    );
+    let detectors = concrete_evidence
+        .iter()
+        .filter_map(|evidence| {
+            evidence
+                .options
+                .details
+                .as_ref()
+                .and_then(|details| details.get("detector"))
+                .and_then(|detector| match detector {
+                    stencila_schema::Primitive::String(detector) => Some(detector.clone()),
+                    _ => None,
+                })
+        })
+        .collect::<BTreeSet<_>>();
+    assert_eq!(
+        detectors,
+        BTreeSet::from([
+            "stencila-astra-contract".to_string(),
+            "stencila-code-static-analysis".to_string(),
+            "stencila-workflow-declaration".to_string(),
+        ])
+    );
+    let astra_target_evidence = concrete_evidence
+        .iter()
+        .find(|evidence| {
+            evidence
+                .options
+                .details
+                .as_ref()
+                .and_then(|details| details.get("extension"))
+                == Some(&stencila_schema::Primitive::String(
+                    "stencila-output-target".to_string(),
+                ))
+        })
+        .ok_or_else(|| eyre!("expected ASTRA output target evidence"))?;
+    assert_eq!(
+        astra_target_evidence
+            .options
+            .details
+            .as_ref()
+            .and_then(|details| details.get("target")),
+        Some(&stencila_schema::Primitive::String(
+            "result.csv".to_string()
+        ))
+    );
+    assert_eq!(
+        astra_target_evidence
+            .code_location
+            .as_ref()
+            .and_then(|location| location.start_line),
+        Some(11)
+    );
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == output_id
+            && edge.target == concrete_id
+            && edge.kind == GraphEdgeKind::WrittenTo
+            && edge
+                .options
+                .evidence
+                .as_deref()
+                .and_then(|evidence| evidence.first())
+                .and_then(|evidence| evidence.code_location.as_ref())
+                .and_then(|location| location.start_line)
+                == Some(8)
+    }));
+
+    assert!(!graph.edges.iter().any(|edge| {
+        edge.source == "code:compound.py"
+            && edge.target == "astra-output:astra.yaml:root:compound"
+            && edge.kind == GraphEdgeKind::Generated
+    }));
+
+    let doi_id = format!("resource:doi%3A{doi}");
+    assert_eq!(
+        graph.nodes.iter().filter(|node| node.id == doi_id).count(),
+        1
+    );
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .all(|node| !node.id.starts_with("resource:https%3A//doi.org/"))
+    );
+    let doi_work = graph
+        .nodes
+        .iter()
+        .find(|node| node.id == doi_id)
+        .and_then(|node| match node.node.as_ref() {
+            Node::CreativeWork(work) => Some(work),
+            _ => None,
+        })
+        .ok_or_else(|| eyre!("expected canonical DOI resource"))?;
+    assert_eq!(doi_work.doi.as_deref(), Some(doi));
+    assert_eq!(
+        doi_work.options.url.as_deref(),
+        Some(format!("https://doi.org/{doi}").as_str())
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn reexported_outputs_inherit_metadata_and_targets() -> Result<()> {
+    let dir = tempdir()?;
+    fs::create_dir(dir.path().join("child"))?;
+    fs::write(dir.path().join("child/result.csv"), "value\n1\n")?;
+    fs::write(
+        dir.path().join("child/astra.yaml"),
+        r#"version: "1.0"
+outputs:
+  - id: result
+    label: Child result
+    type: table
+    description: Materialized by the child analysis.
+    target: result.csv
+"#,
+    )?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+outputs:
+  - id: final
+    from: child.result
+analyses:
+  child:
+    path: child
+"#,
+    )?;
+
+    let graph = graph_from_path(dir.path(), Some(options())).await?;
+    let output_id = "astra-output:astra.yaml:root:final";
+    let output = graph
+        .nodes
+        .iter()
+        .find(|node| node.id == output_id)
+        .and_then(|node| match node.node.as_ref() {
+            Node::CreativeWork(work) => Some(work),
+            _ => None,
+        })
+        .ok_or_else(|| eyre!("expected re-exported output"))?;
+    assert_eq!(output.options.name.as_deref(), Some("Child result"));
+    assert_eq!(
+        output.options.description.as_deref(),
+        Some("Materialized by the child analysis.")
+    );
+    assert_eq!(output.options.path.as_deref(), Some("result.csv"));
+    assert_eq!(
+        output.work_type,
+        Some(stencila_schema::CreativeWorkType::Datatable)
+    );
+
+    let materialization = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == output_id
+                && edge.target == "datatable:child/result.csv"
+                && edge.kind == GraphEdgeKind::WrittenTo
+        })
+        .ok_or_else(|| eyre!("expected inherited output target materialization"))?;
+    let evidence = materialization
+        .options
+        .evidence
+        .as_deref()
+        .and_then(|evidence| evidence.first())
+        .ok_or_else(|| eyre!("expected inherited target evidence"))?;
+    assert_eq!(
+        evidence
+            .options
+            .details
+            .as_ref()
+            .and_then(|details| details.get("fieldPath")),
+        Some(&stencila_schema::Primitive::String(
+            "outputs[0].from".to_string()
+        ))
+    );
+
+    Ok(())
+}
+
+#[tokio::test]
 async fn skips_invalid_astra_roots_permissively_and_fails_strictly() -> Result<()> {
     let dir = tempdir()?;
     fs::write(
@@ -291,6 +592,16 @@ outputs:
     when: [missing.enabled]
 "#,
             "undeclared decision",
+        ),
+        (
+            r#"
+version: "1.0"
+outputs:
+  - id: result
+    type: data
+    target: ../../outside.csv
+"#,
+            "output target must stay within the workspace",
         ),
     ] {
         let dir = tempdir()?;

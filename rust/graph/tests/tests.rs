@@ -57,6 +57,97 @@ async fn decode_options_override_extension() -> Result<()> {
     Ok(())
 }
 
+#[tokio::test]
+async fn snakemake_shell_script_and_static_analysis_merge_generation_evidence() -> Result<()> {
+    let workspace = tempdir()?;
+    write(
+        workspace.path().join("Snakefile"),
+        r#"rule download:
+    input: "download.py"
+    output: "penguins.csv"
+    shell: "python download.py"
+"#,
+    )?;
+    write(
+        workspace.path().join("download.py"),
+        "with open(\"penguins.csv\", \"w\") as output:\n    output.write(\"species\\nAdelie\\n\")\n",
+    )?;
+    write(workspace.path().join("penguins.csv"), "species\nAdelie\n")?;
+
+    let graph = graph_from_path(
+        workspace.path(),
+        Some(WorkspaceOptions {
+            analyze_environment: false,
+            analyze_astra: false,
+            include_c2pa: false,
+            source_metadata: false,
+            git_file_authors: false,
+            ..Default::default()
+        }),
+    )
+    .await?;
+
+    let script_output = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == "code:download.py"
+                && edge.target == "datatable:penguins.csv"
+                && edge.kind == GraphEdgeKind::Generated
+        })
+        .ok_or_eyre("missing script-to-output generation edge")?;
+    let evidence = script_output
+        .options
+        .evidence
+        .as_deref()
+        .ok_or_eyre("missing script-to-output evidence")?;
+    assert_eq!(evidence.len(), 2);
+
+    let declared = evidence
+        .iter()
+        .find(|evidence| evidence.kind == GraphEvidenceKind::Declared)
+        .ok_or_eyre("missing Snakefile declaration evidence")?;
+    let declared_location = declared
+        .code_location
+        .as_ref()
+        .ok_or_eyre("missing Snakefile declaration location")?;
+    assert_eq!(declared_location.source.as_deref(), Some("Snakefile"));
+    assert_eq!(declared_location.start_line, Some(3));
+
+    let analyzed = evidence
+        .iter()
+        .find(|evidence| evidence.kind == GraphEvidenceKind::StaticAnalysis)
+        .ok_or_eyre("missing Python static-analysis evidence")?;
+    assert_eq!(
+        analyzed
+            .code_location
+            .as_ref()
+            .and_then(|location| location.source.as_deref()),
+        Some("download.py")
+    );
+
+    let workflow_output = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == "workflow-unit:Snakefile:download"
+                && edge.target == "datatable:penguins.csv"
+                && edge.kind == GraphEdgeKind::Generated
+        })
+        .ok_or_eyre("missing workflow-to-output generation edge")?;
+    let workflow_location = workflow_output
+        .options
+        .evidence
+        .as_deref()
+        .and_then(|evidence| evidence.first())
+        .and_then(|evidence| evidence.code_location.as_ref())
+        .ok_or_eyre("missing workflow output declaration location")?;
+    assert_eq!(workflow_location.source.as_deref(), Some("Snakefile"));
+    assert_eq!(workflow_location.start_line, Some(2));
+
+    Ok(())
+}
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn workspace_graph_includes_c2pa_provenance_by_default() -> Result<()> {
     let workspace = tempdir()?;

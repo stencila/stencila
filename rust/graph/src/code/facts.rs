@@ -92,6 +92,12 @@ pub struct CodeFacts {
     /// resolve them to concrete file nodes when possible.
     pub script_links: BTreeSet<String>,
 
+    /// Structured script executions that could not be assigned to a workflow unit.
+    ///
+    /// This retains authored execution context alongside the compatibility
+    /// `script_links` set when a scanner discovers a script outside a named unit.
+    pub script_executions: BTreeSet<WorkflowScriptExecutionFact>,
+
     /// Static facts grouped by workflow unit name.
     ///
     /// Unit-level facts keep inputs and outputs attached to the workflow unit
@@ -145,8 +151,51 @@ pub struct WorkflowUnitFacts {
     /// Static script file literals used by the unit.
     pub script_links: BTreeSet<String>,
 
+    /// Authored script executions used by the unit.
+    ///
+    /// These facts retain the directive location and execution form so graph
+    /// projection can attribute declared outputs to a statically identified
+    /// script without treating every source-like input as executable.
+    pub script_executions: BTreeSet<WorkflowScriptExecutionFact>,
+
     /// Function-like actions used by the unit, such as `shell`.
     pub calls: BTreeSet<String>,
+}
+
+/// A statically identified script executed by a workflow unit.
+#[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
+pub struct WorkflowScriptExecutionFact {
+    /// Local script path named by the workflow.
+    pub path: String,
+
+    /// Workflow syntax that identified the script.
+    pub kind: WorkflowScriptExecutionKind,
+
+    /// Byte offset of the owning directive.
+    pub offset: Option<usize>,
+
+    /// Static shell command, when the script was identified in a shell directive.
+    pub command: Option<String>,
+}
+
+/// Authored workflow syntax used to execute a script.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
+pub enum WorkflowScriptExecutionKind {
+    /// A dedicated workflow `script` directive.
+    Script,
+
+    /// A statically parsed script invocation in a workflow `shell` directive.
+    Shell,
+}
+
+impl WorkflowScriptExecutionKind {
+    /// Stable evidence detail label.
+    pub(super) fn as_str(self) -> &'static str {
+        match self {
+            Self::Script => "script",
+            Self::Shell => "shell",
+        }
+    }
 }
 
 /// A function declaration discovered in source code.
@@ -370,6 +419,7 @@ impl CodeFacts {
         unit: Option<&str>,
         kind: WorkflowResourceKind,
         paths: BTreeSet<IoPath>,
+        offset: Option<usize>,
     ) {
         let direction = match kind {
             WorkflowResourceKind::Read => Some(IoDirection::Read),
@@ -379,39 +429,69 @@ impl CodeFacts {
 
         let Some(unit) = unit else {
             if let Some(direction) = direction {
-                self.io
-                    .extend(paths.into_iter().map(|path| IoFact::new(direction, path)));
+                self.io.extend(paths.into_iter().map(|path| {
+                    let mut fact = IoFact::new(direction, path);
+                    fact.operation_offset = offset;
+                    fact
+                }));
             } else {
-                self.script_links
-                    .extend(paths.into_iter().filter_map(|path| {
-                        if let IoPath::Static(path) = path {
-                            Some(path)
-                        } else {
-                            None
-                        }
-                    }));
+                for path in paths.into_iter().filter_map(static_io_path) {
+                    self.record_workflow_script(
+                        None,
+                        WorkflowScriptExecutionFact {
+                            path,
+                            kind: WorkflowScriptExecutionKind::Script,
+                            offset,
+                            command: None,
+                        },
+                    );
+                }
             }
             return;
         };
 
-        let unit_facts = self
-            .workflow_unit_facts
-            .entry(unit.to_string())
-            .or_default();
         if let Some(direction) = direction {
-            unit_facts
-                .io
-                .extend(paths.into_iter().map(|path| IoFact::new(direction, path)));
+            let unit_facts = self
+                .workflow_unit_facts
+                .entry(unit.to_string())
+                .or_default();
+            unit_facts.io.extend(paths.into_iter().map(|path| {
+                let mut fact = IoFact::new(direction, path);
+                fact.operation_offset = offset;
+                fact
+            }));
         } else {
-            unit_facts
-                .script_links
-                .extend(paths.into_iter().filter_map(|path| {
-                    if let IoPath::Static(path) = path {
-                        Some(path)
-                    } else {
-                        None
-                    }
-                }));
+            for path in paths.into_iter().filter_map(static_io_path) {
+                self.record_workflow_script(
+                    Some(unit),
+                    WorkflowScriptExecutionFact {
+                        path,
+                        kind: WorkflowScriptExecutionKind::Script,
+                        offset,
+                        command: None,
+                    },
+                );
+            }
+        }
+    }
+
+    /// Record a script execution while retaining the compatibility path set.
+    pub(super) fn record_workflow_script(
+        &mut self,
+        unit: Option<&str>,
+        execution: WorkflowScriptExecutionFact,
+    ) {
+        let path = execution.path.clone();
+        if let Some(unit) = unit {
+            let facts = self
+                .workflow_unit_facts
+                .entry(unit.to_string())
+                .or_default();
+            facts.script_links.insert(path);
+            facts.script_executions.insert(execution);
+        } else {
+            self.script_links.insert(path);
+            self.script_executions.insert(execution);
         }
     }
 
@@ -426,6 +506,15 @@ impl CodeFacts {
                 .calls
                 .insert(call);
         }
+    }
+}
+
+/// Retain a concrete path from a workflow path expression.
+fn static_io_path(path: IoPath) -> Option<String> {
+    if let IoPath::Static(path) = path {
+        Some(path)
+    } else {
+        None
     }
 }
 

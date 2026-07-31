@@ -162,5 +162,5 @@ fn extend_nextflow_literals(
 ) {
     let mut paths = Default::default();
     collect_path_expressions(source, &mut paths);
-    facts.extend_workflow_resources(Some(process), kind, paths);
+    facts.extend_workflow_resources(Some(process), kind, paths, None);
 }

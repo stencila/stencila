@@ -1,5 +1,6 @@
 ---
 source: rust/graph/tests/fixtures.rs
+assertion_line: 46
 expression: graph
 ---
 type: Graph
@@ -100,7 +101,7 @@ nodes:
     node:
       type: CreativeWork
       id: "astra-output:astra.yaml:root.prepare:cleaned"
-      workType: Dataset
+      workType: Report
       name: cleaned
   - type: GraphNode
     id: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
@@ -505,8 +506,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 69
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -547,8 +548,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 44
-          startColumn: 6
+          startLine: 47
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -609,8 +610,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 74
-          startColumn: 6
+          startLine: 76
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -629,8 +630,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: stages/report/astra.yaml
-          startLine: 6
-          startColumn: 2
+          startLine: 8
+          startColumn: 4
         details:
           detector: stencila-astra-contract
           manifest: stages/report/astra.yaml
@@ -688,8 +689,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 68
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -711,8 +712,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 13
-          startColumn: 2
+          startLine: 17
+          startColumn: 4
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -730,8 +731,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 68
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -753,8 +754,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 13
-          startColumn: 2
+          startLine: 17
+          startColumn: 4
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -772,8 +773,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 68
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -814,8 +815,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 31
-          startColumn: 2
+          startLine: 32
+          startColumn: 4
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -844,11 +845,78 @@ edges:
           resolution: report.summary
   - type: GraphEdge
     source: "code:scripts/fit.py"
+    target: "astra-output:astra.yaml:root.model:fit"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 72
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+          script: scripts/fit.py
+  - type: GraphEdge
+    source: "code:scripts/fit.py"
     target: "dir:scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/fit.py"
+    target: "workflow-unit:astra.yaml%23root.model:fit"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 72
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.model
+          id: fit
+          when:
+            - estimator.robust
+          recipeCommand: "python scripts/fit.py --out {output}"
+          effectiveContainer: "ghcr.io/example/fitter:1.0"
+          script: scripts/fit.py
+  - type: GraphEdge
+    source: "code:scripts/prepare.py"
+    target: "astra-output:astra.yaml:root.prepare:cleaned"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 49
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+          script: scripts/prepare.py
   - type: GraphEdge
     source: "code:scripts/prepare.py"
     target: "dir:scripts"
@@ -857,6 +925,47 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
+    source: "code:scripts/prepare.py"
+    target: "workflow-unit:astra.yaml%23root.prepare:cleaned"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 49
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.prepare
+          id: cleaned
+          recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
+          recipeResources: "cpus: 2"
+          script: scripts/prepare.py
+  - type: GraphEdge
+    source: "code:scripts/report.py"
+    target: "astra-output:astra.yaml:root.report:summary"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 10
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+          script: "../../scripts/report.py"
+  - type: GraphEdge
     source: "code:scripts/report.py"
     target: "dir:scripts"
     kind: PartOf
@@ -864,12 +973,72 @@ edges:
       - type: GraphEvidence
         kind: Observed
   - type: GraphEdge
+    source: "code:scripts/report.py"
+    target: "workflow-unit:astra.yaml%23root.report:summary"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: stages/report/astra.yaml
+          startLine: 10
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: stages/report/astra.yaml
+          fieldPath: "outputs[0].recipe.command"
+          analysisScope: root.report
+          id: summary
+          recipeCommand: "python ../../scripts/report.py --out {output}"
+          script: "../../scripts/report.py"
+  - type: GraphEdge
+    source: "code:scripts/score.py"
+    target: "astra-output:astra.yaml:root.model:score"
+    kind: Generated
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 78
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1].recipe.command"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+          script: scripts/score.py
+  - type: GraphEdge
     source: "code:scripts/score.py"
     target: "dir:scripts"
     kind: PartOf
     evidence:
       - type: GraphEvidence
         kind: Observed
+  - type: GraphEdge
+    source: "code:scripts/score.py"
+    target: "workflow-unit:astra.yaml%23root.model:score"
+    kind: UsedBy
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 78
+          startColumn: 10
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: "outputs[1].recipe.command"
+          analysisScope: root.model
+          id: score
+          recipeCommand: "python scripts/score.py --out {output}"
+          script: scripts/score.py
   - type: GraphEdge
     source: "container:ghcr.io/example/fitter%3A1.0"
     target: "workflow-unit:astra.yaml%23root.model:fit"
@@ -880,8 +1049,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 73
+          startColumn: 10
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -910,8 +1079,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 44
-          startColumn: 6
+          startLine: 46
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -1122,8 +1291,8 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 68
+          startColumn: 8
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
@@ -1167,12 +1336,12 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 66
-          startColumn: 6
+          startLine: 72
+          startColumn: 10
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
-          fieldPath: "outputs[0].recipe"
+          fieldPath: "outputs[0].recipe.command"
           analysisScope: root.model
           id: fit
           when:
@@ -1208,12 +1377,12 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 74
-          startColumn: 6
+          startLine: 78
+          startColumn: 10
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
-          fieldPath: "outputs[1].recipe"
+          fieldPath: "outputs[1].recipe.command"
           analysisScope: root.model
           id: score
           recipeCommand: "python scripts/score.py --out {output}"
@@ -1247,12 +1416,12 @@ edges:
         codeLocation:
           type: CodeLocation
           source: astra.yaml
-          startLine: 44
-          startColumn: 6
+          startLine: 49
+          startColumn: 10
         details:
           detector: stencila-astra-contract
           manifest: astra.yaml
-          fieldPath: "outputs[0].recipe"
+          fieldPath: "outputs[0].recipe.command"
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
@@ -1286,12 +1455,12 @@ edges:
         codeLocation:
           type: CodeLocation
           source: stages/report/astra.yaml
-          startLine: 6
-          startColumn: 2
+          startLine: 10
+          startColumn: 6
         details:
           detector: stencila-astra-contract
           manifest: stages/report/astra.yaml
-          fieldPath: "outputs[0].recipe"
+          fieldPath: "outputs[0].recipe.command"
           analysisScope: root.report
           id: summary
           recipeCommand: "python ../../scripts/report.py --out {output}"

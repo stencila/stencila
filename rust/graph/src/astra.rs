@@ -1,7 +1,11 @@
 //! Native projection of ASTRA contracts into workspace graphs.
 //!
 //! ASTRA manifests are declarations. This module parses and validates their
-//! contract structure, but never invokes recipes or interprets recipe commands.
+//! contract structure and conservatively links direct script commands, but
+//! never invokes recipes.
+//!
+//! Stencila also recognizes the experimental `Output.target` extension
+//! documented in `rust/graph/docs/astra-extensions.md`.
 
 use std::{
     collections::{BTreeMap, BTreeSet},
@@ -21,7 +25,7 @@ use stencila_schema::{
 use crate::{
     GraphBuilder, evidence,
     ids::{LocalGraphId, WorkspaceRelPath},
-    reference::{has_non_local_uri_scheme, has_remote_uri_scheme},
+    reference::{bare_doi, doi_url, has_non_local_uri_scheme, has_remote_uri_scheme},
 };
 
 /// A parsed ASTRA manifest, retained with its source for evidence locations.
@@ -77,6 +81,8 @@ struct Output {
     label: Option<String>,
     r#type: Option<String>,
     description: Option<String>,
+    /// Experimental Stencila extension: URI or path where the output is materialized.
+    target: Option<String>,
     from: Option<String>,
     when: Vec<String>,
     inputs: Vec<String>,
@@ -647,6 +653,7 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
             if output.label.is_some()
                 || output.r#type.is_some()
                 || output.description.is_some()
+                || output.target.is_some()
                 || !output.inputs.is_empty()
                 || !output.decisions.is_empty()
                 || output.recipe.is_some()
@@ -654,7 +661,7 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
                 return Err(astra_error(
                     &node.manifest_rel,
                     &format!("outputs[{index}].from"),
-                    "an output re-export may declare only `id`, `from`, and `when`",
+                    "an output re-export may declare only `id`, `from`, and `when`; its target is inherited",
                 ));
             }
             resolve_output_from(node, from, scopes).map_err(|message| {
@@ -665,6 +672,9 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
                 )
             })?;
         } else {
+            if let Some(target) = output.target.as_deref() {
+                validate_output_target(&node.manifest_rel, index, target)?;
+            }
             if !matches!(
                 output.r#type.as_deref(),
                 Some("metric" | "figure" | "table" | "data" | "report")
@@ -834,6 +844,37 @@ fn validate_recipe_command(command: &str, output: &Output) -> std::result::Resul
     Ok(())
 }
 
+/// Validate the experimental ASTRA `Output.target` extension.
+fn validate_output_target(
+    manifest_rel: &WorkspaceRelPath,
+    output_index: usize,
+    target: &str,
+) -> Result<()> {
+    let field = format!("outputs[{output_index}].target");
+    if target.trim().is_empty() {
+        return Err(astra_error(
+            manifest_rel,
+            &field,
+            "output target must not be empty",
+        ));
+    }
+
+    if !has_non_local_uri_scheme(target) {
+        let parent = Path::new(manifest_rel.as_str())
+            .parent()
+            .unwrap_or_else(|| Path::new(""));
+        normalize_relative(parent.join(target)).map_err(|error| {
+            astra_error(
+                manifest_rel,
+                &field,
+                &format!("output target must stay within the workspace: {error}"),
+            )
+        })?;
+    }
+
+    Ok(())
+}
+
 /// Validate decision-option conditions within one analysis scope.
 fn validate_conditions(
     node: &AnalysisNode,
@@ -993,6 +1034,26 @@ fn resolve_output_from(
     } else {
         Err(format!("unresolved Output.from `{from}`"))
     }
+}
+
+/// Resolve an output re-export chain to the output that declares its metadata.
+fn resolve_effective_output<'a>(
+    node: &'a AnalysisNode,
+    output: &'a Output,
+    scopes: &BTreeMap<String, &'a AnalysisNode>,
+) -> std::result::Result<(&'a AnalysisNode, &'a Output), String> {
+    let Some(from) = &output.from else {
+        return Ok((node, output));
+    };
+    let (target_scope, target_id) = resolve_output_from(node, from, scopes)?;
+    let target_node = scope_node(&target_scope, scopes)?;
+    let target_output = target_node
+        .analysis
+        .outputs
+        .iter()
+        .find(|output| output.id == target_id)
+        .ok_or_else(|| format!("resolved Output.from `{from}` disappeared"))?;
+    resolve_effective_output(target_node, target_output, scopes)
 }
 
 fn resolve_decision_from(
@@ -1203,7 +1264,15 @@ fn project_analysis(
 
     for (index, output) in node.analysis.outputs.iter().enumerate() {
         let output_id = LocalGraphId::astra_output(root_key, &scope, &output.id);
-        add_output_node(builder, &output_id, output);
+        let (effective_node, effective_output) = resolve_effective_output(node, output, scopes)
+            .map_err(|message| {
+                astra_error(
+                    &node.manifest_rel,
+                    &format!("outputs[{index}].from"),
+                    &message,
+                )
+            })?;
+        add_output_node(builder, &output_id, output, effective_output);
         builder.add_containment(
             &output_id,
             &analysis_id,
@@ -1235,6 +1304,27 @@ fn project_analysis(
                     Some(from),
                 )],
             );
+            if let Some(target) = effective_output.target.as_deref()
+                && let Some(endpoint) = project_output_target(
+                    builder,
+                    workspace_root,
+                    effective_node,
+                    resource_id,
+                    target,
+                )
+            {
+                let evidence = vec![target_evidence(
+                    node,
+                    &format!("outputs[{index}].from"),
+                    &output.id,
+                    target,
+                )];
+                if endpoint.is_remote {
+                    builder.add_send(&output_id, &endpoint.id, evidence);
+                } else {
+                    builder.add_write(&output_id, &endpoint.id, evidence);
+                }
+            }
             continue;
         }
 
@@ -1266,16 +1356,82 @@ fn project_analysis(
                 None,
             )],
         );
+        let generation_field = if output
+            .recipe
+            .as_ref()
+            .and_then(|recipe| recipe.command.as_ref())
+            .is_some()
+        {
+            format!("{output_field}.recipe.command")
+        } else {
+            output_field.clone()
+        };
         builder.add_generation(
             &unit_id,
             &output_id,
             vec![declared_evidence(
                 node,
-                &format!("{output_field}.recipe"),
+                &generation_field,
                 Some(&output.id),
                 None,
             )],
         );
+
+        let target_endpoint = output.target.as_deref().and_then(|target| {
+            project_output_target(builder, workspace_root, node, resource_id, target)
+        });
+        if let (Some(target), Some(endpoint)) = (output.target.as_deref(), target_endpoint.as_ref())
+        {
+            let field_path = format!("{output_field}.target");
+            let evidence = vec![target_evidence(node, &field_path, &output.id, target)];
+            if endpoint.is_remote {
+                builder.add_send(&output_id, &endpoint.id, evidence.clone());
+                builder.add_send(&unit_id, &endpoint.id, evidence);
+            } else {
+                builder.add_write(&output_id, &endpoint.id, evidence.clone());
+                builder.add_generation(&unit_id, &endpoint.id, evidence);
+            }
+        }
+
+        if let Some(command) = output
+            .recipe
+            .as_ref()
+            .and_then(|recipe| recipe.command.as_deref())
+            && let Some(script) = crate::code::direct_python_script(command)
+            && let Some(rel) = local_source_rel(workspace_root, &node.manifest_rel, &script)
+            && let Some(script_id) = resource_id(&rel)
+        {
+            let field_path = format!("{output_field}.recipe.command");
+            let evidence = vec![recipe_script_evidence(
+                node,
+                &field_path,
+                &output.id,
+                &script,
+            )];
+            builder.add_edge_with_evidence(
+                &script_id,
+                &unit_id,
+                GraphEdgeKind::UsedBy,
+                evidence.clone(),
+            );
+            builder.add_generation(&script_id, &output_id, evidence);
+            if let (Some(target), Some(endpoint)) =
+                (output.target.as_deref(), target_endpoint.as_ref())
+            {
+                let evidence = vec![recipe_target_evidence(
+                    node,
+                    &field_path,
+                    &output.id,
+                    &script,
+                    target,
+                )];
+                if endpoint.is_remote {
+                    builder.add_send(&script_id, &endpoint.id, evidence);
+                } else {
+                    builder.add_generation(&script_id, &endpoint.id, evidence);
+                }
+            }
+        }
 
         for input in &output.inputs {
             let endpoints = input_endpoints.get(input).cloned().unwrap_or_else(|| {
@@ -1345,6 +1501,16 @@ fn project_analysis(
             .and_then(|recipe| recipe.container.as_ref())
             .or(node.analysis.container.as_ref())
         {
+            let container_field = if output
+                .recipe
+                .as_ref()
+                .and_then(|recipe| recipe.container.as_ref())
+                .is_some()
+            {
+                format!("{output_field}.recipe.container")
+            } else {
+                "container".to_string()
+            };
             let container_id =
                 add_container(builder, workspace_root, node, resource_id, container)?;
             builder.add_edge_with_evidence(
@@ -1353,7 +1519,7 @@ fn project_analysis(
                 GraphEdgeKind::Configures,
                 vec![declared_evidence(
                     node,
-                    &format!("{output_field}.recipe.container"),
+                    &container_field,
                     Some(&output.id),
                     Some(container),
                 )],
@@ -1479,6 +1645,17 @@ fn project_input(
     }
 
     if let Some(source) = &input.source {
+        if let Some(doi) = bare_doi(source) {
+            let id = LocalGraphId::resource(&format!("doi:{doi}"));
+            let mut work = CreativeWork::new();
+            work.doi = Some(doi.to_string());
+            work.options.url = Some(doi_url(doi));
+            builder.add_schema_node(&id, Node::CreativeWork(work));
+            return Ok(vec![InputEndpoint {
+                id,
+                is_remote: true,
+            }]);
+        }
         if has_non_local_uri_scheme(source) {
             let id = LocalGraphId::resource(source);
             let mut work = CreativeWork::new();
@@ -1515,6 +1692,45 @@ fn project_input(
     }])
 }
 
+/// Resolve an experimental ASTRA output target to a concrete graph endpoint.
+fn project_output_target(
+    builder: &mut GraphBuilder,
+    workspace_root: &Path,
+    node: &AnalysisNode,
+    resource_id: impl Fn(&WorkspaceRelPath) -> Option<String> + Copy,
+    target: &str,
+) -> Option<InputEndpoint> {
+    if let Some(doi) = bare_doi(target) {
+        let id = LocalGraphId::resource(&format!("doi:{doi}"));
+        let mut work = CreativeWork::new();
+        work.doi = Some(doi.to_string());
+        work.options.url = Some(doi_url(doi));
+        builder.add_schema_node(&id, Node::CreativeWork(work));
+        return Some(InputEndpoint {
+            id,
+            is_remote: true,
+        });
+    }
+
+    if has_non_local_uri_scheme(target) {
+        let id = LocalGraphId::resource(target);
+        let mut work = CreativeWork::new();
+        work.options.url = Some(target.to_string());
+        builder.add_schema_node(&id, Node::CreativeWork(work));
+        return Some(InputEndpoint {
+            id,
+            is_remote: has_remote_uri_scheme(target),
+        });
+    }
+
+    let rel = local_source_rel(workspace_root, &node.manifest_rel, target)?;
+    let id = resource_id(&rel)?;
+    Some(InputEndpoint {
+        id,
+        is_remote: false,
+    })
+}
+
 fn local_source_rel(
     workspace_root: &Path,
     manifest_rel: &WorkspaceRelPath,
@@ -1526,18 +1742,26 @@ fn local_source_rel(
     workspace_root.join(rel.as_str()).exists().then_some(rel)
 }
 
-fn add_output_node(builder: &mut GraphBuilder, id: &str, output: &Output) {
-    if output.r#type.as_deref() == Some("metric") {
-        let mut variable = Variable::new(output.label.clone().unwrap_or_else(|| output.id.clone()));
+fn add_output_node(builder: &mut GraphBuilder, id: &str, output: &Output, effective: &Output) {
+    if effective.r#type.as_deref() == Some("metric") {
+        let mut variable =
+            Variable::new(effective.label.clone().unwrap_or_else(|| output.id.clone()));
         variable.id = Some(id.to_string());
         builder.add_schema_node(id, Node::Variable(variable));
         return;
     }
     let mut work = CreativeWork::new();
     work.id = Some(id.to_string());
-    work.options.name = output.label.clone().or_else(|| Some(output.id.clone()));
-    work.options.description = output.description.clone();
-    work.work_type = Some(match output.r#type.as_deref() {
+    work.options.name = effective.label.clone().or_else(|| Some(output.id.clone()));
+    work.options.description = effective.description.clone();
+    if let Some(target) = &effective.target {
+        if has_non_local_uri_scheme(target) {
+            work.options.url = Some(target.clone());
+        } else {
+            work.options.path = Some(target.clone());
+        }
+    }
+    work.work_type = Some(match effective.r#type.as_deref() {
         Some("figure") => CreativeWorkType::Figure,
         Some("table") => CreativeWorkType::Datatable,
         Some("report") => CreativeWorkType::Report,
@@ -1576,12 +1800,7 @@ fn declared_evidence(
         .manifest_text
         .get(node.source_range.clone())
         .unwrap_or_default();
-    let offset = id
-        .and_then(|id| find_yaml_id(source, id))
-        .or_else(|| {
-            let key = field_path.rsplit('.').next().unwrap_or(field_path);
-            (key != "$").then(|| find_yaml_key(source, key)).flatten()
-        })
+    let offset = find_yaml_field(source, field_path, id)
         .or_else(|| (field_path != "$").then_some(0))
         .map(|offset| node.source_range.start + offset);
     let mut evidence = evidence::declared_at(
@@ -1683,6 +1902,74 @@ fn declared_evidence(
     evidence
 }
 
+/// Build evidence for a script conservatively identified in a recipe command.
+fn recipe_script_evidence(
+    node: &AnalysisNode,
+    field_path: &str,
+    output_id: &str,
+    script: &str,
+) -> GraphEvidence {
+    let mut evidence = declared_evidence(node, field_path, Some(output_id), None);
+    if let Some(details) = evidence.options.details.as_mut() {
+        details.insert("script".to_string(), Primitive::String(script.to_string()));
+    }
+    evidence
+}
+
+/// Build evidence for the experimental association between an output and target.
+fn target_evidence(
+    node: &AnalysisNode,
+    field_path: &str,
+    output_id: &str,
+    target: &str,
+) -> GraphEvidence {
+    let mut evidence = declared_evidence(node, field_path, Some(output_id), None);
+    add_target_evidence_details(&mut evidence, target);
+    evidence
+}
+
+/// Build recipe-command evidence for generation of a concrete output target.
+fn recipe_target_evidence(
+    node: &AnalysisNode,
+    field_path: &str,
+    output_id: &str,
+    script: &str,
+    target: &str,
+) -> GraphEvidence {
+    let mut evidence = recipe_script_evidence(node, field_path, output_id, script);
+    add_target_evidence_details(&mut evidence, target);
+    evidence
+}
+
+fn add_target_evidence_details(evidence: &mut GraphEvidence, target: &str) {
+    if let Some(details) = evidence.options.details.as_mut() {
+        details.insert(
+            "extension".to_string(),
+            Primitive::String("stencila-output-target".to_string()),
+        );
+        details.insert("target".to_string(), Primitive::String(target.to_string()));
+    }
+}
+
+fn find_yaml_field(source: &str, field_path: &str, id: Option<&str>) -> Option<usize> {
+    if field_path == "$" {
+        return None;
+    }
+
+    let key = field_path.rsplit('.').next()?;
+    let item_field = key.contains('[');
+    if let Some(id_offset) = id.and_then(|id| find_yaml_id(source, id)) {
+        if item_field {
+            return Some(id_offset);
+        }
+        if let Some(field_offset) = find_yaml_key_in_item(source, id_offset, key) {
+            return Some(field_offset);
+        }
+    }
+
+    find_yaml_key(source, key).or_else(|| id.and_then(|id| find_yaml_id(source, id)))
+}
+
 fn find_yaml_id(source: &str, id: &str) -> Option<usize> {
     find_yaml_line(source, |content| {
         content
@@ -1696,9 +1983,37 @@ fn find_yaml_id(source: &str, id: &str) -> Option<usize> {
 fn find_yaml_key(source: &str, key: &str) -> Option<usize> {
     find_yaml_line(source, |content| {
         content
-            .strip_suffix(':')
-            .is_some_and(|candidate| candidate == key)
+            .split_once(':')
+            .is_some_and(|(candidate, _)| candidate == key)
     })
+}
+
+fn find_yaml_key_in_item(source: &str, id_offset: usize, key: &str) -> Option<usize> {
+    let item = source.get(id_offset..)?;
+    let item_indent = source
+        .get(..id_offset)?
+        .rsplit_once('\n')
+        .map_or(id_offset, |(_, prefix)| prefix.len());
+    let mut offset = 0;
+
+    for (index, line) in item.split_inclusive('\n').enumerate() {
+        let content = line.trim();
+        let indent = line.chars().take_while(|char| char.is_whitespace()).count();
+        if index > 0
+            && !content.is_empty()
+            && (indent < item_indent || (indent == item_indent && content.starts_with("- ")))
+        {
+            break;
+        }
+        if content
+            .split_once(':')
+            .is_some_and(|(candidate, _)| candidate == key)
+        {
+            return Some(id_offset + offset + line.find(content).unwrap_or_default());
+        }
+        offset += line.len();
+    }
+    None
 }
 
 fn find_yaml_line(source: &str, predicate: impl Fn(&str) -> bool) -> Option<usize> {
