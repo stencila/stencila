@@ -1,0 +1,9 @@
+id: bootstrap
+description: Add 2,000 fixed-seed sex-year-stratified bootstrap resamples.
+decisions:
+  eligibility: complete_clutch_only
+  sample_policy: endpoint_complete_cases
+  size_metric: paper_pc1_unscaled
+  model_strategy: paper_aicc_candidates
+  outlier_policy: paper_like_single_exclusion
+  uncertainty_method: stratified_bootstrap

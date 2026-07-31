@@ -1,0 +1,9 @@
+id: shared_complete_cases
+description: Use one complete-case sample for both isotope endpoints.
+decisions:
+  eligibility: complete_clutch_only
+  sample_policy: shared_complete_cases
+  size_metric: paper_pc1_unscaled
+  model_strategy: paper_aicc_candidates
+  outlier_policy: paper_like_single_exclusion
+  uncertainty_method: analytic

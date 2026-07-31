@@ -1,0 +1,33 @@
+[project]
+name = "palmer-penguins-astra"
+version = "0.1.0"
+description = "Reproducible ASTRA analysis of Palmer Penguins"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+  "matplotlib>=3.10",
+  "numpy>=2.2",
+  "pandas>=2.2",
+  "pyyaml>=6.0",
+  "scikit-learn>=1.6",
+  "seaborn>=0.13",
+  "statsmodels>=0.14",
+]
+
+[dependency-groups]
+dev = [
+  "astra-tools>=0.1.0",
+  "pytest>=8.3",
+  "ruff>=0.11",
+  "snakemake>=9.0",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

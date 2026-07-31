@@ -19,14 +19,14 @@ environmental variability within a community of Antarctic penguins (genus
 Pygoscelis). PLoS ONE 9(3):e90081. https://doi.org/10.1371/journal.pone.0090081
 """
 
+import argparse
 import csv
 import io
 import re
 from urllib.request import Request, urlopen
 
 PASTA = "https://pasta.lternet.edu/package"
-
-OUTPUT = "penguins.csv"
+USER_AGENT = "PalmerPenguinsASTRA/1.0 (reproducible research download)"
 
 DOIS = {
     "Adelie": "https://doi.org/10.6073/pasta/abc50eed9138b75f54eaada0841b9b86",
@@ -45,7 +45,10 @@ def package_id(url: str) -> str:
 
 def fetch(url: str, accept: str | None = None) -> str:
     """Fetch a URL as text, optionally negotiating a content type."""
-    request = Request(url, headers={"Accept": accept} if accept else {})
+    headers = {"User-Agent": USER_AGENT}
+    if accept:
+        headers["Accept"] = accept
+    request = Request(url, headers=headers)
     with urlopen(request) as response:
         return response.read().decode()
 
@@ -54,7 +57,7 @@ def resolve() -> list[str]:
     """Resolve the DOI of each species to the EDI package id it identifies."""
     identifiers = []
     for doi in DOIS.values():
-        with urlopen(doi) as response:
+        with urlopen(Request(doi, headers={"User-Agent": USER_AGENT})) as response:
             identifiers.append(package_id(response.url))
     return identifiers
 
@@ -67,9 +70,9 @@ def download_package(identifier: str) -> str:
     return fetch(f"{base}/{entity_id}")
 
 
-def download() -> None:
+def download(output: str) -> None:
     """Download the data for all three species into a single CSV file."""
-    with open(OUTPUT, "w", newline="") as file:
+    with open(output, "w", newline="") as file:
         writer = csv.writer(file)
         header = None
         for package in resolve():
@@ -84,5 +87,8 @@ def download() -> None:
 
 
 if __name__ == "__main__":
-    download()
-    print(f"Wrote {OUTPUT}")
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--output", default="penguins.csv")
+    args = parser.parse_args()
+    download(args.output)
+    print(f"Wrote {args.output}")

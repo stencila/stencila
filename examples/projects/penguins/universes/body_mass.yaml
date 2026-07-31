@@ -1,0 +1,9 @@
+id: body_mass
+description: Use body mass rather than a structural-measurement PC1.
+decisions:
+  eligibility: complete_clutch_only
+  sample_policy: endpoint_complete_cases
+  size_metric: body_mass
+  model_strategy: paper_aicc_candidates
+  outlier_policy: paper_like_single_exclusion
+  uncertainty_method: analytic

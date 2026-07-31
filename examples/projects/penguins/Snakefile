@@ -1,0 +1,91 @@
+import yaml
+
+UNIVERSES = sorted(glob_wildcards("universes/{universe}.yaml").universe)
+STENCILA = "MPLCONFIGDIR=.stencila/cache/matplotlib ../../../target/debug/stencila"
+
+def config(name):
+    with open(f"universes/{name}.yaml") as stream:
+        return yaml.safe_load(stream)
+
+def decision_args(name):
+    return " ".join(
+        f"--{key.replace('_', '-')} {value}"
+        for key, value in config(name)["decisions"].items()
+    )
+
+rule all:
+    input:
+        "penguins_normalized.csv", "results/audit.csv", "results/dimorphism.csv",
+        "results/isotope_models.csv", "results/sensitivity.csv",
+        "figures/dimorphism.png", "figures/isotopes.png", "figures/sensitivity.png",
+        "article.pdf", "graph.yaml"
+
+rule prepare:
+    input: data="penguins.csv", script="src/prepare.py"
+    output: "penguins_normalized.csv"
+    shell: STENCILA + " execute --trace {input.script} -- --input {input.data} --output {output}"
+
+rule universe_models:
+    input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/{universe}.yaml"
+    output: ".stencila/cache/penguins/{universe}/isotope_models.csv"
+    params: args=lambda wildcards: decision_args(wildcards.universe)
+    shell: STENCILA + " execute --trace {input.script} -- isotopes --input {input.data} --universe-id {wildcards.universe} {params.args} --output {output}"
+
+rule baseline_audit:
+    input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/baseline.yaml"
+    output: "results/audit.csv"
+    params: args=decision_args("baseline")
+    shell: STENCILA + " execute --trace {input.script} -- audit --input {input.data} --universe-id baseline {params.args} --output {output}"
+
+rule baseline_dimorphism:
+    input: data="penguins_normalized.csv", script="src/analyze.py", config="universes/baseline.yaml"
+    output: "results/dimorphism.csv"
+    params: args=decision_args("baseline")
+    shell: STENCILA + " execute --trace {input.script} -- dimorphism --input {input.data} --universe-id baseline {params.args} --output {output}"
+
+rule publish_baseline_models:
+    input: ".stencila/cache/penguins/baseline/isotope_models.csv"
+    output: "results/isotope_models.csv"
+    shell: "cp {input} {output}"
+
+rule sensitivity:
+    input:
+        models=expand(".stencila/cache/penguins/{universe}/isotope_models.csv", universe=UNIVERSES),
+        configs=expand("universes/{universe}.yaml", universe=UNIVERSES),
+        script="src/analyze.py"
+    output: "results/sensitivity.csv"
+    shell: STENCILA + " execute --trace {input.script} -- sensitivity --input {input.models} --universe-config {input.configs} --output {output}"
+
+rule plot_dimorphism:
+    input: data="results/dimorphism.csv", script="src/plot.py"
+    output: "figures/dimorphism.png"
+    shell: STENCILA + " execute --trace {input.script} -- dimorphism --input {input.data} --output {output}"
+
+rule plot_isotopes:
+    input: data="results/isotope_models.csv", script="src/plot.py"
+    output: "figures/isotopes.png"
+    shell: STENCILA + " execute --trace {input.script} -- isotopes --input {input.data} --output {output}"
+
+rule plot_sensitivity:
+    input: data="results/sensitivity.csv", script="src/plot.py"
+    output: "figures/sensitivity.png"
+    shell: STENCILA + " execute --trace {input.script} -- sensitivity --input {input.data} --output {output}"
+
+rule execute_article:
+    input:
+        article="article.smd", audit="results/audit.csv", dimorphism="results/dimorphism.csv",
+        models="results/isotope_models.csv", sensitivity="results/sensitivity.csv",
+        schematic="schematic.png", figure_dimorphism="figures/dimorphism.png",
+        figure_isotopes="figures/isotopes.png", figure_sensitivity="figures/sensitivity.png"
+    output: touch(".stencila/cache/penguins/article.executed")
+    shell: STENCILA + " execute --trace {input.article} && touch {output}"
+
+rule render_article:
+    input: article="article.smd", executed=".stencila/cache/penguins/article.executed"
+    output: "article.pdf"
+    shell: STENCILA + " render {input.article} {output} --credentials"
+
+rule graph:
+    input: "astra.yaml", "Snakefile", "article.pdf"
+    output: "graph.yaml"
+    shell: STENCILA + " graph . {output}"

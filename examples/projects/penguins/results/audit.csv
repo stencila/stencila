@@ -1,0 +1,4 @@
+species,source_n,eligible_n,sex_missing_n,morphology_missing_n,delta_13c_missing_n,delta_15n_missing_n,delta_13c_model_n,delta_15n_model_n,excluded_outlier_row_id,eligibility,sample_policy,size_metric,model_strategy,outlier_policy,uncertainty_method,universe
+Adelie,152,138,6,1,10,10,125,126,ade-119,complete_clutch_only,endpoint_complete_cases,paper_pc1_unscaled,paper_aicc_candidates,paper_like_single_exclusion,analytic,baseline
+Chinstrap,68,54,0,0,0,1,54,53,,complete_clutch_only,endpoint_complete_cases,paper_pc1_unscaled,paper_aicc_candidates,paper_like_single_exclusion,analytic,baseline
+Gentoo,124,116,4,0,1,1,111,111,,complete_clutch_only,endpoint_complete_cases,paper_pc1_unscaled,paper_aicc_candidates,paper_like_single_exclusion,analytic,baseline

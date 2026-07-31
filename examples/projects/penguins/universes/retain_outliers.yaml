@@ -1,0 +1,9 @@
+id: retain_outliers
+description: Retain every eligible isotope observation, including the Adelie carbon residual outlier.
+decisions:
+  eligibility: complete_clutch_only
+  sample_policy: endpoint_complete_cases
+  size_metric: paper_pc1_unscaled
+  model_strategy: paper_aicc_candidates
+  outlier_policy: retain_all
+  uncertainty_method: analytic

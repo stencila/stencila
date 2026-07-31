@@ -1,0 +1,250 @@
+id: penguins
+version: "1.0"
+name: Palmer Penguins analysis and mini-article
+description: |
+  Reproduce and extend the Palmer Penguins analysis by asking whether sex or
+  structural size better explains pre-breeding carbon and nitrogen isotope
+  variation. Focused universes expose the robustness of that comparison to
+  sampling, size, model, outlier, and uncertainty choices.
+
+inputs:
+  - id: adelie
+    label: Adelie penguins
+    type: data
+    description: Adelie observations from Palmer Station Antarctica LTER.
+    source: https://doi.org/10.6073/pasta/abc50eed9138b75f54eaada0841b9b86
+  - id: gentoo
+    label: Gentoo penguins
+    type: data
+    description: Gentoo observations from Palmer Station Antarctica LTER.
+    source: https://doi.org/10.6073/pasta/2b1cff60f81640f182433d23e68541ce
+  - id: chinstrap
+    label: Chinstrap penguins
+    type: data
+    description: Chinstrap observations from Palmer Station Antarctica LTER.
+    source: https://doi.org/10.6073/pasta/409c808f8fc9899d02401bdb04580af7
+  - id: measurement_schematic
+    label: Penguin measurement schematic
+    type: data
+    description: Local illustrated guide to culmen and flipper measurements.
+    source: schematic.png
+
+prior_insights:
+  structural_pc1:
+    claim: The source study represented overall size using PC1 of three structural measurements.
+    created_at: "2026-07-31T00:00:00Z"
+    evidence:
+      - id: paper_pc1_quote
+        doi: 10.1371/journal.pone.0090081
+        quote:
+          exact: "overall size using a principal components score (PC1)"
+  information_theoretic_models:
+    claim: The source study compared candidate isotope models with AICc, delta AICc, and Akaike weights.
+    created_at: "2026-07-31T00:00:00Z"
+    evidence:
+      - id: paper_aicc_quote
+        doi: 10.1371/journal.pone.0090081
+        quote:
+          exact: "AICc, DAICc and w values were calculated and used to compare models"
+  adelie_carbon_outlier:
+    claim: The published Adelie carbon analysis excluded one observation after residual diagnostics.
+    created_at: "2026-07-31T00:00:00Z"
+    evidence:
+      - id: paper_outlier_quote
+        doi: 10.1371/journal.pone.0090081
+        quote:
+          exact: "exclusion of one data point as a d13C outlier based on residual plots for normality"
+
+findings:
+  structural_dimorphism:
+    claim: Male mean body mass exceeded female mean body mass by 10.0% to 19.4% across the three species in the baseline eligible sample.
+    created_at: "2026-07-31T14:44:00Z"
+    evidence:
+      - id: dimorphism_table_evidence
+        artifact: dimorphism_table
+  sex_versus_size:
+    claim: Baseline nitrogen isotope models assigned more cumulative AICc weight to sex than structural size in Adelie, Chinstrap, and Gentoo penguins, whereas carbon support was species dependent.
+    created_at: "2026-07-31T14:44:00Z"
+    evidence:
+      - id: isotope_model_evidence
+        artifact: isotope_models
+      - id: isotope_figure_evidence
+        artifact: isotope_figure
+  focused_robustness:
+    claim: Sex exceeded structural size in all 21 species-universe nitrogen comparisons among the baseline and six alternative candidate-set universes; Gentoo carbon favored size in six of seven.
+    created_at: "2026-07-31T14:44:00Z"
+    evidence:
+      - id: sensitivity_table_evidence
+        artifact: sensitivity_summary
+      - id: sensitivity_figure_evidence
+        artifact: sensitivity_figure
+
+decisions:
+  eligibility:
+    label: Eligibility rule
+    rationale: Clutch completion was part of the paper's breeding-pair eligibility logic, but retaining all sampled birds is a defensible inclusive sensitivity.
+    tags: [sampling]
+    default: complete_clutch_only
+    options:
+      complete_clutch_only:
+        label: Complete clutches only
+        description: Retain observations whose nest was recorded as completing a clutch.
+      all_sampled:
+        label: All sampled birds
+        description: Retain sampled observations regardless of clutch-completion status.
+  sample_policy:
+    label: Missing-data sample policy
+    rationale: Endpoint-specific samples maximize information, whereas a shared complete-case sample makes isotope comparisons use identical birds.
+    tags: [sampling]
+    default: endpoint_complete_cases
+    options:
+      endpoint_complete_cases:
+        label: Endpoint complete cases
+        description: Select complete cases independently for each isotope endpoint.
+      shared_complete_cases:
+        label: Shared complete cases
+        description: Require both isotope endpoints so their models use a common sample.
+  size_metric:
+    label: Structural-size metric
+    rationale: The paper's unscaled PC1 is the replication target; standardized PC1 and body mass probe dependence on units and proxy choice.
+    tags: [measurement]
+    default: paper_pc1_unscaled
+    options:
+      paper_pc1_unscaled:
+        label: Paper-like unscaled PC1
+        description: Species-specific PC1 of centered culmen length, culmen depth, and flipper length in original units.
+        insights: [structural_pc1]
+      paper_pc1_standardized:
+        label: Standardized PC1
+        description: Species-specific PC1 after z-standardizing the three structural measurements.
+        insights: [structural_pc1]
+      body_mass:
+        label: Body-mass proxy
+        description: Use body mass in grams as a direct size proxy.
+  model_strategy:
+    label: Model strategy
+    rationale: Candidate-model averaging replicates the paper's information-theoretic approach; a joint additive model directly adjusts sex for size.
+    tags: [modeling]
+    default: paper_aicc_candidates
+    options:
+      paper_aicc_candidates:
+        label: Paper-like AICc candidates
+        description: Compare null, sex, size, year, additive-year, and year-interaction candidates.
+        insights: [information_theoretic_models]
+      joint_sex_size:
+        label: Joint sex-size model
+        description: Fit sex, structural size, and categorical year together as additive terms.
+  outlier_policy:
+    label: Adelie carbon outlier policy
+    rationale: A deterministic residual rule operationalizes the paper's single exclusion while retain-all measures its influence.
+    tags: [sampling, modeling]
+    default: paper_like_single_exclusion
+    options:
+      paper_like_single_exclusion:
+        label: Paper-like single exclusion
+        description: For Adelie delta-13C, exclude the row with the largest absolute externally studentized residual across the sex-by-year and size-by-year candidates.
+        insights: [adelie_carbon_outlier]
+      retain_all:
+        label: Retain all observations
+        description: Apply no model-based outlier exclusion.
+  uncertainty_method:
+    label: Uncertainty method
+    rationale: Analytic model-based intervals are the baseline; a fixed-seed stratified bootstrap probes distributional sensitivity.
+    tags: [modeling]
+    default: analytic
+    options:
+      analytic:
+        label: Analytic uncertainty
+        description: Use normal-approximation unconditional model-averaged intervals.
+      stratified_bootstrap:
+        label: Stratified bootstrap
+        description: Use 2,000 fixed-seed resamples stratified by species, year, and sex.
+
+outputs:
+  - id: penguins_dataset
+    label: Palmer Penguins source dataset
+    type: data
+    description: The three species data packages combined into one source-faithful CSV.
+    target: penguins.csv
+    inputs: [adelie, gentoo, chinstrap]
+    recipe:
+      command: python download.py --output {output}
+  - id: normalized_data
+    label: Normalized penguin observations
+    type: data
+    description: All source rows with normalized names, types, stable IDs, and quality flags.
+    target: penguins_normalized.csv
+    inputs: [penguins_dataset]
+    recipe:
+      command: python src/prepare.py --input {inputs.penguins_dataset} --output {output}
+  - id: audit_table
+    label: Analysis sample audit
+    type: table
+    description: Species-level inclusion, missingness, endpoint sample sizes, and excluded stable row ID.
+    target: results/audit.csv
+    inputs: [normalized_data]
+    decisions: [eligibility, sample_policy, size_metric, model_strategy, outlier_policy, uncertainty_method]
+    recipe:
+      command: python src/analyze.py audit --input {inputs.normalized_data} --eligibility {decisions.eligibility} --sample-policy {decisions.sample_policy} --size-metric {decisions.size_metric} --model-strategy {decisions.model_strategy} --outlier-policy {decisions.outlier_policy} --uncertainty-method {decisions.uncertainty_method} --output {output}
+  - id: dimorphism_table
+    label: Sexual dimorphism summary
+    type: table
+    description: Sex-specific structural means, standard errors, and percentage dimorphism by species.
+    target: results/dimorphism.csv
+    inputs: [normalized_data]
+    decisions: [eligibility, sample_policy, size_metric, model_strategy, outlier_policy, uncertainty_method]
+    recipe:
+      command: python src/analyze.py dimorphism --input {inputs.normalized_data} --eligibility {decisions.eligibility} --sample-policy {decisions.sample_policy} --size-metric {decisions.size_metric} --model-strategy {decisions.model_strategy} --outlier-policy {decisions.outlier_policy} --uncertainty-method {decisions.uncertainty_method} --output {output}
+  - id: isotope_models
+    label: Baseline isotope models
+    type: table
+    description: Candidate-model AICc comparisons and unconditional model-averaged coefficients for each species and isotope.
+    target: results/isotope_models.csv
+    inputs: [normalized_data]
+    decisions: [eligibility, sample_policy, size_metric, model_strategy, outlier_policy, uncertainty_method]
+    recipe:
+      command: python src/analyze.py isotopes --input {inputs.normalized_data} --eligibility {decisions.eligibility} --sample-policy {decisions.sample_policy} --size-metric {decisions.size_metric} --model-strategy {decisions.model_strategy} --outlier-policy {decisions.outlier_policy} --uncertainty-method {decisions.uncertainty_method} --output {output}
+  - id: sensitivity_summary
+    label: Focused sensitivity summary
+    type: table
+    description: Sex-versus-size evidence across the baseline and seven focused alternative universes.
+    target: results/sensitivity.csv
+    inputs: [isotope_models]
+  - id: dimorphism_figure
+    label: Structural dimorphism
+    type: figure
+    description: Sex-specific mean structural-size score and standard error by species.
+    target: figures/dimorphism.png
+    inputs: [dimorphism_table]
+    recipe:
+      command: python src/plot.py dimorphism --input {inputs.dimorphism_table} --output {output}
+  - id: isotope_figure
+    label: Isotope candidate evidence
+    type: figure
+    description: AICc weights for the paper-like candidate set by species and isotope.
+    target: figures/isotopes.png
+    inputs: [isotope_models]
+    recipe:
+      command: python src/plot.py isotopes --input {inputs.isotope_models} --output {output}
+  - id: sensitivity_figure
+    label: Sensitivity of sex-versus-size evidence
+    type: figure
+    description: Cumulative evidence weights for sex and size across focused universes.
+    target: figures/sensitivity.png
+    inputs: [sensitivity_summary]
+    recipe:
+      command: python src/plot.py sensitivity --input {inputs.sensitivity_summary} --output {output}
+  - id: article
+    label: Executable mini-article
+    type: report
+    description: Executable Stencila Markdown article whose numerical claims read committed results.
+    target: article.smd
+    inputs: [measurement_schematic, audit_table, dimorphism_table, isotope_models, sensitivity_summary, dimorphism_figure, isotope_figure, sensitivity_figure]
+  - id: article_pdf
+    label: Credentialed mini-article PDF
+    type: report
+    description: Rendered PDF carrying C2PA content credentials.
+    target: article.pdf
+    inputs: [article]
+    recipe:
+      command: stencila render {inputs.article} {output} --credentials

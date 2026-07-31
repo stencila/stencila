@@ -1,0 +1,345 @@
+row_id,studyname,sample_number,species,region,island,stage,individual_id,clutch_completion,date_egg,culmen_length_mm,culmen_depth_mm,flipper_length_mm,body_mass_g,sex,delta_15n,delta_13c,comments,year,clutch_complete,morphology_complete,isotope_complete,quality_issue
+ade-001,PAL0708,1,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N1A1,Yes,2007-11-11,39.1,18.7,181.0,3750.0,Male,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-002,PAL0708,2,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N1A2,Yes,2007-11-11,39.5,17.4,186.0,3800.0,Female,8.94956,-24.69454,,2007.0,True,True,True,none
+ade-003,PAL0708,3,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N2A1,Yes,2007-11-16,40.3,18.0,195.0,3250.0,Female,8.36821,-25.33302,,2007.0,True,True,True,none
+ade-004,PAL0708,4,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N2A2,Yes,2007-11-16,,,,,,,,Adult not sampled.,2007.0,True,False,False,missing_sex
+ade-005,PAL0708,5,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N3A1,Yes,2007-11-16,36.7,19.3,193.0,3450.0,Female,8.76651,-25.32426,,2007.0,True,True,True,none
+ade-006,PAL0708,6,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N3A2,Yes,2007-11-16,39.3,20.6,190.0,3650.0,Male,8.66496,-25.29805,,2007.0,True,True,True,none
+ade-007,PAL0708,7,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N4A1,No,2007-11-15,38.9,17.8,181.0,3625.0,Female,9.18718,-25.21799,Nest never observed with full clutch.,2007.0,False,True,True,none
+ade-008,PAL0708,8,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N4A2,No,2007-11-15,39.2,19.6,195.0,4675.0,Male,9.4606,-24.89958,Nest never observed with full clutch.,2007.0,False,True,True,none
+ade-009,PAL0708,9,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N5A1,Yes,2007-11-09,34.1,18.1,193.0,3475.0,,,,No blood sample obtained.,2007.0,True,True,False,missing_sex
+ade-010,PAL0708,10,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N5A2,Yes,2007-11-09,42.0,20.2,190.0,4250.0,,9.13362,-25.09368,No blood sample obtained for sexing.,2007.0,True,True,True,missing_sex
+ade-011,PAL0708,11,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N6A1,Yes,2007-11-09,37.8,17.1,186.0,3300.0,,8.63243,-25.21315,No blood sample obtained for sexing.,2007.0,True,True,True,missing_sex
+ade-012,PAL0708,12,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N6A2,Yes,2007-11-09,37.8,17.3,180.0,3700.0,,,,No blood sample obtained.,2007.0,True,True,False,missing_sex
+ade-013,PAL0708,13,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N7A1,Yes,2007-11-15,41.1,17.6,182.0,3200.0,Female,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-014,PAL0708,14,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N7A2,Yes,2007-11-15,38.6,21.2,191.0,3800.0,Male,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-015,PAL0708,15,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N8A1,Yes,2007-11-16,34.6,21.1,198.0,4400.0,Male,8.55583,-25.22588,,2007.0,True,True,True,none
+ade-016,PAL0708,16,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N8A2,Yes,2007-11-16,36.6,17.8,185.0,3700.0,Female,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-017,PAL0708,17,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N9A1,Yes,2007-11-12,38.7,19.0,195.0,3450.0,Female,9.18528,-25.06691,,2007.0,True,True,True,none
+ade-018,PAL0708,18,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N9A2,Yes,2007-11-12,42.5,20.7,197.0,4500.0,Male,8.67538,-25.13993,,2007.0,True,True,True,none
+ade-019,PAL0708,19,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N10A1,Yes,2007-11-16,34.4,18.4,184.0,3325.0,Female,8.47827,-25.23319,,2007.0,True,True,True,none
+ade-020,PAL0708,20,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N10A2,Yes,2007-11-16,46.0,21.5,194.0,4200.0,Male,9.11616,-24.77227,,2007.0,True,True,True,none
+ade-021,PAL0708,21,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N11A1,Yes,2007-11-12,37.8,18.3,174.0,3400.0,Female,8.73762,-25.09383,,2007.0,True,True,True,none
+ade-022,PAL0708,22,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N11A2,Yes,2007-11-12,37.7,18.7,180.0,3600.0,Male,8.66271,-25.0639,,2007.0,True,True,True,none
+ade-023,PAL0708,23,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N12A1,Yes,2007-11-12,35.9,19.2,189.0,3800.0,Female,9.22286,-25.03474,,2007.0,True,True,True,none
+ade-024,PAL0708,24,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N12A2,Yes,2007-11-12,38.2,18.1,185.0,3950.0,Male,8.43423,-25.22664,,2007.0,True,True,True,none
+ade-025,PAL0708,25,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A1,Yes,2007-11-10,38.8,17.2,180.0,3800.0,Male,9.63954,-25.29856,,2007.0,True,True,True,none
+ade-026,PAL0708,26,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A2,Yes,2007-11-10,35.3,18.9,187.0,3800.0,Female,9.21292,-24.3613,,2007.0,True,True,True,none
+ade-027,PAL0708,27,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N17A1,Yes,2007-11-12,40.6,18.6,183.0,3550.0,Male,8.93997,-25.36288,,2007.0,True,True,True,none
+ade-028,PAL0708,28,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N17A2,Yes,2007-11-12,40.5,17.9,187.0,3200.0,Female,8.08138,-25.49448,,2007.0,True,True,True,none
+ade-029,PAL0708,29,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A1,No,2007-11-10,37.9,18.6,172.0,3150.0,Female,8.38404,-25.19837,Nest never observed with full clutch.,2007.0,False,True,True,none
+ade-030,PAL0708,30,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A2,No,2007-11-10,40.5,18.9,180.0,3950.0,Male,8.90027,-25.11609,Nest never observed with full clutch.,2007.0,False,True,True,none
+ade-031,PAL0708,31,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N21A1,Yes,2007-11-09,39.5,16.7,178.0,3250.0,Female,9.69756,-25.11223,,2007.0,True,True,True,none
+ade-032,PAL0708,32,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N21A2,Yes,2007-11-09,37.2,18.1,178.0,3900.0,Male,9.72764,-25.0102,,2007.0,True,True,True,none
+ade-033,PAL0708,33,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N22A1,Yes,2007-11-09,39.5,17.8,188.0,3300.0,Female,9.66523,-25.0602,,2007.0,True,True,True,none
+ade-034,PAL0708,34,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N22A2,Yes,2007-11-09,40.9,18.9,184.0,3900.0,Male,8.79665,-25.14591,,2007.0,True,True,True,none
+ade-035,PAL0708,35,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N23A1,Yes,2007-11-16,36.4,17.0,195.0,3325.0,Female,9.17847,-25.23061,,2007.0,True,True,True,none
+ade-036,PAL0708,36,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N23A2,Yes,2007-11-16,39.2,21.1,196.0,4150.0,Male,9.15308,-25.03469,,2007.0,True,True,True,none
+ade-037,PAL0708,37,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N24A1,Yes,2007-11-16,38.8,20.0,190.0,3950.0,Male,9.18985,-25.12255,,2007.0,True,True,True,none
+ade-038,PAL0708,38,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N24A2,Yes,2007-11-16,42.2,18.5,180.0,3550.0,Female,8.04787,-25.49523,,2007.0,True,True,True,none
+ade-039,PAL0708,39,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N25A1,No,2007-11-13,37.6,19.3,181.0,3300.0,Female,9.41131,-25.04169,Nest never observed with full clutch.,2007.0,False,True,True,none
+ade-040,PAL0708,40,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N25A2,No,2007-11-13,39.8,19.1,184.0,4650.0,Male,,,Nest never observed with full clutch. Not enough blood for isotopes.,2007.0,False,True,False,missing_isotope
+ade-041,PAL0708,41,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N26A1,Yes,2007-11-16,36.5,18.0,182.0,3150.0,Female,9.68933,-24.4228,,2007.0,True,True,True,none
+ade-042,PAL0708,42,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N26A2,Yes,2007-11-16,40.8,18.4,195.0,3900.0,Male,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-043,PAL0708,43,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N27A1,Yes,2007-11-19,36.0,18.5,186.0,3100.0,Female,9.50772,-25.03492,,2007.0,True,True,True,none
+ade-044,PAL0708,44,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N27A2,Yes,2007-11-19,44.1,19.7,196.0,4400.0,Male,9.2372,-24.52698,,2007.0,True,True,True,none
+ade-045,PAL0708,45,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N28A1,Yes,2007-11-16,37.0,16.9,185.0,3000.0,Female,9.36392,-25.01745,,2007.0,True,True,True,none
+ade-046,PAL0708,46,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N28A2,Yes,2007-11-16,39.6,18.8,190.0,4600.0,Male,9.49106,-24.10255,,2007.0,True,True,True,none
+ade-047,PAL0708,47,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N29A1,Yes,2007-11-13,41.1,19.0,182.0,3425.0,Male,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+ade-048,PAL0708,48,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N29A2,Yes,2007-11-13,37.5,18.9,179.0,2975.0,,,,Sexing primers did not amplify. Not enough blood for isotopes.,2007.0,True,True,False,missing_sex
+ade-049,PAL0708,49,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N30A1,Yes,2007-11-13,36.0,17.9,190.0,3450.0,Female,9.51784,-25.07683,,2007.0,True,True,True,none
+ade-050,PAL0708,50,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N30A2,Yes,2007-11-13,42.3,21.2,191.0,4150.0,Male,8.87988,-25.18543,,2007.0,True,True,True,none
+ade-051,PAL0809,51,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N21A1,Yes,2008-11-06,39.6,17.7,186.0,3500.0,Female,8.46616,-26.12989,,2008.0,True,True,True,none
+ade-052,PAL0809,52,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N21A2,Yes,2008-11-06,40.1,18.9,188.0,4300.0,Male,8.51362,-26.55602,,2008.0,True,True,True,none
+ade-053,PAL0809,53,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N22A1,Yes,2008-11-09,35.0,17.9,190.0,3450.0,Female,8.19539,-26.17213,,2008.0,True,True,True,none
+ade-054,PAL0809,54,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N22A2,Yes,2008-11-09,42.0,19.5,200.0,4050.0,Male,8.48095,-26.3146,,2008.0,True,True,True,none
+ade-055,PAL0809,55,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N23A1,Yes,2008-11-09,34.5,18.1,187.0,2900.0,Female,8.41837,-26.54718,,2008.0,True,True,True,none
+ade-056,PAL0809,56,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N23A2,Yes,2008-11-09,41.4,18.6,191.0,3700.0,Male,8.35396,-26.27853,,2008.0,True,True,True,none
+ade-057,PAL0809,57,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N24A1,Yes,2008-11-15,39.0,17.5,186.0,3550.0,Female,8.57199,-26.07188,,2008.0,True,True,True,none
+ade-058,PAL0809,58,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N24A2,Yes,2008-11-15,40.6,18.8,193.0,3800.0,Male,8.56674,-25.98843,,2008.0,True,True,True,none
+ade-059,PAL0809,59,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N25A1,Yes,2008-11-15,36.5,16.6,181.0,2850.0,Female,9.07878,-25.88156,,2008.0,True,True,True,none
+ade-060,PAL0809,60,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N25A2,Yes,2008-11-15,37.6,19.1,194.0,3750.0,Male,9.108,-25.89677,,2008.0,True,True,True,none
+ade-061,PAL0809,61,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N27A1,Yes,2008-11-13,35.7,16.9,185.0,3150.0,Female,8.96472,-26.40943,,2008.0,True,True,True,none
+ade-062,PAL0809,62,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N27A2,Yes,2008-11-13,41.3,21.1,195.0,4400.0,Male,8.74802,-26.37809,,2008.0,True,True,True,none
+ade-063,PAL0809,63,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N28A1,Yes,2008-11-13,37.6,17.0,185.0,3600.0,Female,8.58063,-26.21569,,2008.0,True,True,True,none
+ade-064,PAL0809,64,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N28A2,Yes,2008-11-13,41.1,18.2,192.0,4050.0,Male,8.62264,-26.60023,,2008.0,True,True,True,none
+ade-065,PAL0809,65,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N29A1,Yes,2008-11-13,36.4,17.1,184.0,2850.0,Female,8.62623,-26.1165,,2008.0,True,True,True,none
+ade-066,PAL0809,66,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N29A2,Yes,2008-11-13,41.6,18.0,192.0,3950.0,Male,8.85562,-26.09294,,2008.0,True,True,True,none
+ade-067,PAL0809,67,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N30A1,Yes,2008-11-06,35.5,16.2,195.0,3350.0,Female,8.56192,-25.95541,,2008.0,True,True,True,none
+ade-068,PAL0809,68,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N30A2,Yes,2008-11-06,41.1,19.1,188.0,4100.0,Male,8.71078,-25.81012,,2008.0,True,True,True,none
+ade-069,PAL0809,69,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N32A1,No,2008-11-11,35.9,16.6,190.0,3050.0,Female,8.47781,-26.07821,Nest never observed with full clutch.,2008.0,False,True,True,none
+ade-070,PAL0809,70,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N32A2,No,2008-11-11,41.8,19.4,198.0,4450.0,Male,8.86853,-26.06209,Nest never observed with full clutch.,2008.0,False,True,True,none
+ade-071,PAL0809,71,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N34A1,Yes,2008-11-14,33.5,19.0,190.0,3600.0,Female,7.88863,-26.63085,,2008.0,True,True,True,none
+ade-072,PAL0809,72,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N34A2,Yes,2008-11-14,39.7,18.4,190.0,3900.0,Male,9.29808,-25.23453,,2008.0,True,True,True,none
+ade-073,PAL0809,73,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N35A1,Yes,2008-11-11,39.6,17.2,196.0,3550.0,Female,8.33524,-26.55351,,2008.0,True,True,True,none
+ade-074,PAL0809,74,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N35A2,Yes,2008-11-11,45.8,18.9,197.0,4150.0,Male,8.18658,-26.45978,,2008.0,True,True,True,none
+ade-075,PAL0809,75,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N36A1,Yes,2008-11-08,35.5,17.5,190.0,3700.0,Female,8.70642,-26.15003,,2008.0,True,True,True,none
+ade-076,PAL0809,76,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N36A2,Yes,2008-11-08,42.8,18.5,195.0,4250.0,Male,8.2993,-26.38986,,2008.0,True,True,True,none
+ade-077,PAL0809,77,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N37A1,Yes,2008-11-06,40.9,16.8,191.0,3700.0,Female,8.47257,-26.02002,,2008.0,True,True,True,none
+ade-078,PAL0809,78,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N37A2,Yes,2008-11-06,37.2,19.4,184.0,3900.0,Male,8.3554,-26.44787,,2008.0,True,True,True,none
+ade-079,PAL0809,79,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N38A1,Yes,2008-11-09,36.2,16.1,187.0,3550.0,Female,7.82381,-26.51382,,2008.0,True,True,True,none
+ade-080,PAL0809,80,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N38A2,Yes,2008-11-09,42.1,19.1,195.0,4000.0,Male,9.05736,-25.81513,,2008.0,True,True,True,none
+ade-081,PAL0809,81,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N39A1,Yes,2008-11-02,34.6,17.2,189.0,3200.0,Female,7.69778,-26.5387,,2008.0,True,True,True,none
+ade-082,PAL0809,82,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N39A2,Yes,2008-11-02,42.9,17.6,196.0,4700.0,Male,8.63259,-26.23027,,2008.0,True,True,True,none
+ade-083,PAL0809,83,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N40A1,Yes,2008-11-07,36.7,18.8,187.0,3800.0,Female,7.88494,-26.24837,,2008.0,True,True,True,none
+ade-084,PAL0809,84,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N40A2,Yes,2008-11-07,35.1,19.4,193.0,4200.0,Male,8.90002,-26.46254,,2008.0,True,True,True,none
+ade-085,PAL0809,85,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N41A1,Yes,2008-11-17,37.3,17.8,191.0,3350.0,Female,8.32718,-26.38396,,2008.0,True,True,True,none
+ade-086,PAL0809,86,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N41A2,Yes,2008-11-17,41.3,20.3,194.0,3550.0,Male,9.14863,-26.09635,,2008.0,True,True,True,none
+ade-087,PAL0809,87,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N42A1,Yes,2008-11-08,36.3,19.5,190.0,3800.0,Male,8.57087,-26.22227,,2008.0,True,True,True,none
+ade-088,PAL0809,88,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N42A2,Yes,2008-11-08,36.9,18.6,189.0,3500.0,Female,8.59147,-26.08165,,2008.0,True,True,True,none
+ade-089,PAL0809,89,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N44A1,Yes,2008-11-08,38.3,19.2,189.0,3950.0,Male,9.07826,-26.12417,,2008.0,True,True,True,none
+ade-090,PAL0809,90,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N44A2,Yes,2008-11-08,38.9,18.8,190.0,3600.0,Female,8.36936,-26.11199,,2008.0,True,True,True,none
+ade-091,PAL0809,91,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N45A1,Yes,2008-11-14,35.7,18.0,202.0,3550.0,Female,8.46531,-26.05621,,2008.0,True,True,True,none
+ade-092,PAL0809,92,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N45A2,Yes,2008-11-14,41.1,18.1,205.0,4300.0,Male,8.77018,-25.83352,,2008.0,True,True,True,none
+ade-093,PAL0809,93,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N46A1,Yes,2008-11-05,34.0,17.1,185.0,3400.0,Female,8.01485,-26.69543,,2008.0,True,True,True,none
+ade-094,PAL0809,94,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N46A2,Yes,2008-11-05,39.6,18.1,186.0,4450.0,Male,8.49915,-26.42406,,2008.0,True,True,True,none
+ade-095,PAL0809,95,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N48A1,Yes,2008-11-17,36.2,17.3,187.0,3300.0,Female,8.90723,-26.30037,,2008.0,True,True,True,none
+ade-096,PAL0809,96,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N48A2,Yes,2008-11-17,40.8,18.9,208.0,4300.0,Male,8.48204,-26.57941,,2008.0,True,True,True,none
+ade-097,PAL0809,97,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N49A1,Yes,2008-11-08,38.1,18.6,190.0,3700.0,Female,8.10277,-26.50086,,2008.0,True,True,True,none
+ade-098,PAL0809,98,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N49A2,Yes,2008-11-08,40.3,18.5,196.0,4350.0,Male,8.39459,-26.01152,,2008.0,True,True,True,none
+ade-099,PAL0809,99,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N50A1,Yes,2008-11-10,33.1,16.1,178.0,2900.0,Female,9.04218,-26.15775,,2008.0,True,True,True,none
+ade-100,PAL0809,100,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N50A2,Yes,2008-11-10,43.2,18.5,192.0,4100.0,Male,8.97025,-26.03679,,2008.0,True,True,True,none
+ade-101,PAL0910,101,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N47A1,Yes,2009-11-09,35.0,17.9,192.0,3725.0,Female,8.84451,-26.28055,,2009.0,True,True,True,none
+ade-102,PAL0910,102,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N47A2,Yes,2009-11-09,41.0,20.0,203.0,4725.0,Male,9.01079,-26.38085,,2009.0,True,True,True,none
+ade-103,PAL0910,103,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N49A1,Yes,2009-11-15,37.7,16.0,183.0,3075.0,Female,9.2151,-26.2253,,2009.0,True,True,True,none
+ade-104,PAL0910,104,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N49A2,Yes,2009-11-15,37.8,20.0,190.0,4250.0,Male,9.51929,-25.69199,,2009.0,True,True,True,none
+ade-105,PAL0910,105,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N51A1,Yes,2009-11-15,37.9,18.6,193.0,2925.0,Female,9.02642,-25.86482,,2009.0,True,True,True,none
+ade-106,PAL0910,106,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N51A2,Yes,2009-11-15,39.7,18.9,184.0,3550.0,Male,8.85699,-25.80208,,2009.0,True,True,True,none
+ade-107,PAL0910,107,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N53A1,Yes,2009-11-15,38.6,17.2,199.0,3750.0,Female,8.77322,-26.48973,,2009.0,True,True,True,none
+ade-108,PAL0910,108,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N53A2,Yes,2009-11-15,38.2,20.0,190.0,3900.0,Male,9.59245,-25.70711,,2009.0,True,True,True,none
+ade-109,PAL0910,109,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N55A1,Yes,2009-11-20,38.1,17.0,181.0,3175.0,Female,9.79532,-25.27385,,2009.0,True,True,True,none
+ade-110,PAL0910,110,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N55A2,Yes,2009-11-20,43.2,19.0,197.0,4775.0,Male,9.31735,-25.45171,,2009.0,True,True,True,none
+ade-111,PAL0910,111,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N58A1,Yes,2009-11-12,38.1,16.5,198.0,3825.0,Female,8.43951,-26.57563,,2009.0,True,True,True,none
+ade-112,PAL0910,112,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N58A2,Yes,2009-11-12,45.6,20.3,191.0,4600.0,Male,8.65466,-26.32909,,2009.0,True,True,True,none
+ade-113,PAL0910,113,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N60A1,Yes,2009-11-15,39.7,17.7,193.0,3200.0,Female,9.02657,-26.06203,,2009.0,True,True,True,none
+ade-114,PAL0910,114,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N60A2,Yes,2009-11-15,42.2,19.5,197.0,4275.0,Male,8.80186,-26.41218,,2009.0,True,True,True,none
+ade-115,PAL0910,115,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N61A1,Yes,2009-11-17,39.6,20.7,191.0,3900.0,Female,8.80967,-26.78958,,2009.0,True,True,True,none
+ade-116,PAL0910,116,Adelie,Anvers,Biscoe,"Adult, 1 Egg Stage",N61A2,Yes,2009-11-17,42.7,18.3,196.0,4075.0,Male,8.91434,-26.42018,,2009.0,True,True,True,none
+ade-117,PAL0910,117,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N63A1,Yes,2009-11-18,38.6,17.0,188.0,2900.0,Female,9.18021,-25.77264,,2009.0,True,True,True,none
+ade-118,PAL0910,118,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N63A2,Yes,2009-11-18,37.3,20.5,199.0,3775.0,Male,9.49645,-26.36678,,2009.0,True,True,True,none
+ade-119,PAL0910,119,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N64A1,Yes,2009-11-22,35.7,17.0,189.0,3350.0,Female,8.96436,-23.90309,,2009.0,True,True,True,none
+ade-120,PAL0910,120,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N64A2,Yes,2009-11-22,41.1,18.6,189.0,3325.0,Male,9.32277,-26.09989,,2009.0,True,True,True,none
+ade-121,PAL0910,121,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N66A1,No,2009-11-17,36.2,17.2,187.0,3150.0,Female,9.04296,-26.19444,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-122,PAL0910,122,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N66A2,No,2009-11-17,37.7,19.8,198.0,3500.0,Male,9.11066,-26.42563,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-123,PAL0910,123,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N67A1,Yes,2009-11-16,40.2,17.0,176.0,3450.0,Female,9.30722,-25.61039,,2009.0,True,True,True,none
+ade-124,PAL0910,124,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N67A2,Yes,2009-11-16,41.4,18.5,202.0,3875.0,Male,9.59462,-25.42621,,2009.0,True,True,True,none
+ade-125,PAL0910,125,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N69A1,Yes,2009-11-18,35.2,15.9,186.0,3050.0,Female,8.81668,-25.95399,,2009.0,True,True,True,none
+ade-126,PAL0910,126,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N69A2,Yes,2009-11-18,40.6,19.0,199.0,4000.0,Male,9.22537,-25.60826,,2009.0,True,True,True,none
+ade-127,PAL0910,127,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N71A1,Yes,2009-11-21,38.8,17.6,191.0,3275.0,Female,8.88098,-25.89741,,2009.0,True,True,True,none
+ade-128,PAL0910,128,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N71A2,Yes,2009-11-21,41.5,18.3,195.0,4300.0,Male,8.52566,-26.0245,,2009.0,True,True,True,none
+ade-129,PAL0910,129,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N72A1,Yes,2009-11-18,39.0,17.1,191.0,3050.0,Female,9.19031,-25.73722,,2009.0,True,True,True,none
+ade-130,PAL0910,130,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N72A2,Yes,2009-11-18,44.1,18.0,210.0,4000.0,Male,9.10702,-26.01363,,2009.0,True,True,True,none
+ade-131,PAL0910,131,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N73A1,No,2009-11-23,38.5,17.9,190.0,3325.0,Female,8.9846,-25.57956,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-132,PAL0910,132,Adelie,Anvers,Torgersen,"Adult, 1 Egg Stage",N73A2,No,2009-11-23,43.1,19.2,197.0,3500.0,Male,8.86495,-26.1396,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-133,PAL0910,133,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N76A1,Yes,2009-11-10,36.8,18.5,193.0,3500.0,Female,8.98705,-25.57647,,2009.0,True,True,True,none
+ade-134,PAL0910,134,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N76A2,Yes,2009-11-10,37.5,18.5,199.0,4475.0,Male,8.56708,-26.49288,,2009.0,True,True,True,none
+ade-135,PAL0910,135,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N77A1,Yes,2009-11-13,38.1,17.6,187.0,3425.0,Female,8.717,-25.77951,,2009.0,True,True,True,none
+ade-136,PAL0910,136,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N77A2,Yes,2009-11-13,41.1,17.5,190.0,3900.0,Male,8.94365,-26.06943,,2009.0,True,True,True,none
+ade-137,PAL0910,137,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N78A1,Yes,2009-11-16,35.6,17.5,191.0,3175.0,Female,8.75984,-25.97696,,2009.0,True,True,True,none
+ade-138,PAL0910,138,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N78A2,Yes,2009-11-16,40.2,20.1,200.0,3975.0,Male,8.95998,-26.32601,,2009.0,True,True,True,none
+ade-139,PAL0910,139,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N79A1,No,2009-11-16,37.0,16.5,185.0,3400.0,Female,8.61651,-26.07021,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-140,PAL0910,140,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N79A2,No,2009-11-16,39.7,17.9,193.0,4250.0,Male,9.25769,-25.88798,Nest never observed with full clutch.,2009.0,False,True,True,none
+ade-141,PAL0910,141,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N80A1,Yes,2009-11-14,40.2,17.1,193.0,3400.0,Female,9.2881,-25.54976,,2009.0,True,True,True,none
+ade-142,PAL0910,142,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N80A2,Yes,2009-11-14,40.6,17.2,187.0,3475.0,Male,9.23408,-26.01549,,2009.0,True,True,True,none
+ade-143,PAL0910,143,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N81A1,Yes,2009-11-16,32.1,15.5,188.0,3050.0,Female,8.79787,-26.61075,,2009.0,True,True,True,none
+ade-144,PAL0910,144,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N81A2,Yes,2009-11-16,40.7,17.0,190.0,3725.0,Male,9.05674,-25.79529,,2009.0,True,True,True,none
+ade-145,PAL0910,145,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N82A1,Yes,2009-11-16,37.3,16.8,192.0,3000.0,Female,9.06829,-25.85203,,2009.0,True,True,True,none
+ade-146,PAL0910,146,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N82A2,Yes,2009-11-16,39.0,18.7,185.0,3650.0,Male,9.22033,-26.03442,,2009.0,True,True,True,none
+ade-147,PAL0910,147,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N83A1,Yes,2009-11-13,39.2,18.6,190.0,4250.0,Male,9.11006,-25.79549,,2009.0,True,True,True,none
+ade-148,PAL0910,148,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N83A2,Yes,2009-11-13,36.6,18.4,184.0,3475.0,Female,8.68744,-25.8306,,2009.0,True,True,True,none
+ade-149,PAL0910,149,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N84A1,Yes,2009-11-17,36.0,17.8,195.0,3450.0,Female,8.94332,-25.79189,,2009.0,True,True,True,none
+ade-150,PAL0910,150,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N84A2,Yes,2009-11-17,37.8,18.1,193.0,3750.0,Male,8.97533,-26.03495,,2009.0,True,True,True,none
+ade-151,PAL0910,151,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N85A1,Yes,2009-11-17,36.0,17.1,187.0,3700.0,Female,8.93465,-26.07081,,2009.0,True,True,True,none
+ade-152,PAL0910,152,Adelie,Anvers,Dream,"Adult, 1 Egg Stage",N85A2,Yes,2009-11-17,41.5,18.5,201.0,4000.0,Male,8.8964,-26.06967,,2009.0,True,True,True,none
+gen-001,PAL0708,1,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N31A1,Yes,2007-11-27,46.1,13.2,211.0,4500.0,Female,7.993,-25.5139,,2007.0,True,True,True,none
+gen-002,PAL0708,2,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N31A2,Yes,2007-11-27,50.0,16.3,230.0,5700.0,Male,8.14756,-25.39369,,2007.0,True,True,True,none
+gen-003,PAL0708,3,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N32A1,Yes,2007-11-27,48.7,14.1,210.0,4450.0,Female,8.14705,-25.46172,,2007.0,True,True,True,none
+gen-004,PAL0708,4,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N32A2,Yes,2007-11-27,50.0,15.2,218.0,5700.0,Male,8.2554,-25.40075,,2007.0,True,True,True,none
+gen-005,PAL0708,5,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N33A1,Yes,2007-11-18,47.6,14.5,215.0,5400.0,Male,8.2345,-25.54456,,2007.0,True,True,True,none
+gen-006,PAL0708,6,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N33A2,Yes,2007-11-18,46.5,13.5,210.0,4550.0,Female,7.9953,-25.32829,,2007.0,True,True,True,none
+gen-007,PAL0708,7,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N34A1,Yes,2007-11-27,45.4,14.6,211.0,4800.0,Female,8.24515,-25.46782,,2007.0,True,True,True,none
+gen-008,PAL0708,8,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N34A2,Yes,2007-11-27,46.7,15.3,219.0,5200.0,Male,8.22673,-25.4276,,2007.0,True,True,True,none
+gen-009,PAL0708,9,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N35A1,Yes,2007-11-27,43.3,13.4,209.0,4400.0,Female,8.13643,-25.32176,,2007.0,True,True,True,none
+gen-010,PAL0708,10,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N35A2,Yes,2007-11-27,46.8,15.4,215.0,5150.0,Male,8.1631,-25.38017,,2007.0,True,True,True,none
+gen-011,PAL0708,11,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N36A1,No,2007-11-27,40.9,13.7,214.0,4650.0,Female,8.19579,-25.3933,Nest never observed with full clutch.,2007.0,False,True,True,none
+gen-012,PAL0708,12,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N36A2,No,2007-11-27,49.0,16.1,216.0,5550.0,Male,8.10417,-25.50562,Nest never observed with full clutch.,2007.0,False,True,True,none
+gen-013,PAL0708,13,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N37A1,Yes,2007-11-29,45.5,13.7,214.0,4650.0,Female,7.77672,-25.4168,,2007.0,True,True,True,none
+gen-014,PAL0708,14,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N37A2,Yes,2007-11-29,48.4,14.6,213.0,5850.0,Male,7.8208,-25.48025,,2007.0,True,True,True,none
+gen-015,PAL0708,15,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N38A1,Yes,2007-12-03,45.8,14.6,210.0,4200.0,Female,7.79958,-25.62618,,2007.0,True,True,True,none
+gen-016,PAL0708,16,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N38A2,Yes,2007-12-03,49.3,15.7,217.0,5850.0,Male,8.07137,-25.52473,,2007.0,True,True,True,none
+gen-017,PAL0708,17,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N39A1,Yes,2007-11-27,42.0,13.5,210.0,4150.0,Female,7.63884,-25.52627,,2007.0,True,True,True,none
+gen-018,PAL0708,18,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N39A2,Yes,2007-11-27,49.2,15.2,221.0,6300.0,Male,8.27376,-25.00169,,2007.0,True,True,True,none
+gen-019,PAL0708,19,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N40A1,Yes,2007-11-27,46.2,14.5,209.0,4800.0,Female,7.84057,-25.37899,,2007.0,True,True,True,none
+gen-020,PAL0708,20,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N40A2,Yes,2007-11-27,48.7,15.1,222.0,5350.0,Male,7.96491,-25.39587,,2007.0,True,True,True,none
+gen-021,PAL0708,21,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N41A1,Yes,2007-11-27,50.2,14.3,218.0,5700.0,Male,7.8962,-25.37746,,2007.0,True,True,True,none
+gen-022,PAL0708,22,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N41A2,Yes,2007-11-27,45.1,14.5,215.0,5000.0,Female,7.6322,-25.46569,,2007.0,True,True,True,none
+gen-023,PAL0708,23,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N42A1,Yes,2007-11-27,46.5,14.5,213.0,4400.0,Female,7.90436,-25.3947,,2007.0,True,True,True,none
+gen-024,PAL0708,24,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N42A2,Yes,2007-11-27,46.3,15.8,215.0,5050.0,Male,7.90971,-25.38157,,2007.0,True,True,True,none
+gen-025,PAL0708,25,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N44A1,Yes,2007-11-29,42.9,13.1,215.0,5000.0,Female,7.68528,-25.39181,,2007.0,True,True,True,none
+gen-026,PAL0708,26,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N44A2,Yes,2007-11-29,46.1,15.1,215.0,5100.0,Male,7.83733,-25.42826,,2007.0,True,True,True,none
+gen-027,PAL0708,27,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N46A1,Yes,2007-11-29,44.5,14.3,216.0,4100.0,,7.96621,-25.69327,Sexing primers did not amplify.,2007.0,True,True,True,missing_sex
+gen-028,PAL0708,28,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N46A2,Yes,2007-11-29,47.8,15.0,215.0,5650.0,Male,7.92358,-25.48383,,2007.0,True,True,True,none
+gen-029,PAL0708,29,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N47A1,Yes,2007-11-29,48.2,14.3,210.0,4600.0,Female,7.6887,-25.50811,,2007.0,True,True,True,none
+gen-030,PAL0708,30,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N47A2,Yes,2007-11-29,50.0,15.3,220.0,5550.0,Male,8.30515,-25.19017,,2007.0,True,True,True,none
+gen-031,PAL0708,31,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N50A1,Yes,2007-11-29,47.3,15.3,222.0,5250.0,Male,,,Not enough blood for isotopes.,2007.0,True,True,False,missing_isotope
+gen-032,PAL0708,32,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N50A2,Yes,2007-11-29,42.8,14.2,209.0,4700.0,Female,7.63452,-25.46327,,2007.0,True,True,True,none
+gen-033,PAL0708,33,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N56A1,Yes,2007-12-03,45.1,14.5,207.0,5050.0,Female,7.97408,-25.53768,,2007.0,True,True,True,none
+gen-034,PAL0708,34,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N56A2,Yes,2007-12-03,59.6,17.0,230.0,6050.0,Male,7.76843,-25.6821,,2007.0,True,True,True,none
+gen-035,PAL0809,35,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N2A1,Yes,2008-11-13,49.1,14.8,220.0,5150.0,Female,7.89744,-26.63405,,2008.0,True,True,True,none
+gen-036,PAL0809,36,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N2A2,Yes,2008-11-13,48.4,16.3,220.0,5400.0,Male,8.03659,-26.86127,,2008.0,True,True,True,none
+gen-037,PAL0809,37,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N4A1,Yes,2008-11-02,42.6,13.7,213.0,4950.0,Female,7.96935,-26.70968,,2008.0,True,True,True,none
+gen-038,PAL0809,38,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N4A2,Yes,2008-11-02,44.4,17.3,219.0,5250.0,Male,8.13746,-26.79093,,2008.0,True,True,True,none
+gen-039,PAL0809,39,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N5A1,Yes,2008-11-09,44.0,13.6,208.0,4350.0,Female,8.01979,-26.68311,,2008.0,True,True,True,none
+gen-040,PAL0809,40,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N5A2,Yes,2008-11-09,48.7,15.7,208.0,5350.0,Male,8.14776,-26.84506,,2008.0,True,True,True,none
+gen-041,PAL0809,41,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N6A1,No,2008-11-04,42.7,13.7,208.0,3950.0,Female,8.14567,-26.59467,Nest never observed with full clutch.,2008.0,False,True,True,none
+gen-042,PAL0809,42,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N6A2,No,2008-11-04,49.6,16.0,225.0,5700.0,Male,8.38324,-26.84272,Nest never observed with full clutch.,2008.0,False,True,True,none
+gen-043,PAL0809,43,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N7A1,Yes,2008-11-04,45.3,13.7,210.0,4300.0,Female,8.37615,-26.72791,,2008.0,True,True,True,none
+gen-044,PAL0809,44,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N7A2,Yes,2008-11-04,49.6,15.0,216.0,4750.0,Male,8.26548,-26.7699,,2008.0,True,True,True,none
+gen-045,PAL0809,45,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N8A1,Yes,2008-11-03,50.5,15.9,222.0,5550.0,Male,8.46894,-26.60436,,2008.0,True,True,True,none
+gen-046,PAL0809,46,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N8A2,Yes,2008-11-03,43.6,13.9,217.0,4900.0,Female,8.27141,-26.7765,,2008.0,True,True,True,none
+gen-047,PAL0809,47,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N11A1,No,2008-11-09,45.5,13.9,210.0,4200.0,Female,8.47829,-26.61788,Nest never observed with full clutch.,2008.0,False,True,True,none
+gen-048,PAL0809,48,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N11A2,No,2008-11-09,50.5,15.9,225.0,5400.0,Male,8.65803,-26.57585,Nest never observed with full clutch.,2008.0,False,True,True,none
+gen-049,PAL0809,49,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N12A1,Yes,2008-11-02,44.9,13.3,213.0,5100.0,Female,8.45167,-26.89644,,2008.0,True,True,True,none
+gen-050,PAL0809,50,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N12A2,Yes,2008-11-02,45.2,15.8,215.0,5300.0,Male,8.55868,-26.67799,,2008.0,True,True,True,none
+gen-051,PAL0809,51,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A1,Yes,2008-11-04,46.6,14.2,210.0,4850.0,Female,8.38289,-26.86352,,2008.0,True,True,True,none
+gen-052,PAL0809,52,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A2,Yes,2008-11-04,48.5,14.1,220.0,5300.0,Male,8.39867,-26.79358,,2008.0,True,True,True,none
+gen-053,PAL0809,53,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N14A1,Yes,2008-11-04,45.1,14.4,210.0,4400.0,Female,8.51951,-27.01854,,2008.0,True,True,True,none
+gen-054,PAL0809,54,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N14A2,Yes,2008-11-04,50.1,15.0,225.0,5000.0,Male,8.50153,-26.61414,,2008.0,True,True,True,none
+gen-055,PAL0809,55,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N15A1,Yes,2008-11-04,46.5,14.4,217.0,4900.0,Female,8.48789,-26.83006,,2008.0,True,True,True,none
+gen-056,PAL0809,56,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N15A2,Yes,2008-11-04,45.0,15.4,220.0,5050.0,Male,8.63488,-26.75621,,2008.0,True,True,True,none
+gen-057,PAL0809,57,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N16A1,Yes,2008-11-03,43.8,13.9,208.0,4300.0,Female,8.58319,-26.84415,,2008.0,True,True,True,none
+gen-058,PAL0809,58,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N16A2,Yes,2008-11-03,45.5,15.0,220.0,5000.0,Male,8.63604,-26.7489,,2008.0,True,True,True,none
+gen-059,PAL0809,59,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N17A1,Yes,2008-11-06,43.2,14.5,208.0,4450.0,Female,8.48367,-26.86485,,2008.0,True,True,True,none
+gen-060,PAL0809,60,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N17A2,Yes,2008-11-06,50.4,15.3,224.0,5550.0,Male,8.74647,-26.79846,,2008.0,True,True,True,none
+gen-061,PAL0809,61,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A1,Yes,2008-11-03,45.3,13.8,208.0,4200.0,Female,8.65015,-26.79053,,2008.0,True,True,True,none
+gen-062,PAL0809,62,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A2,Yes,2008-11-03,46.2,14.9,221.0,5300.0,Male,8.60092,-26.84374,,2008.0,True,True,True,none
+gen-063,PAL0809,63,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N19A1,Yes,2008-11-13,45.7,13.9,214.0,4400.0,Female,8.6287,-26.60484,,2008.0,True,True,True,none
+gen-064,PAL0809,64,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N19A2,Yes,2008-11-13,54.3,15.7,231.0,5650.0,Male,8.49662,-26.84166,,2008.0,True,True,True,none
+gen-065,PAL0809,65,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N20A1,Yes,2008-11-04,45.8,14.2,219.0,4700.0,Female,8.60447,-26.61601,,2008.0,True,True,True,none
+gen-066,PAL0809,66,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N20A2,Yes,2008-11-04,49.8,16.8,230.0,5700.0,Male,8.47067,-26.69166,,2008.0,True,True,True,none
+gen-067,PAL0809,67,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N51A1,Yes,2008-11-09,46.2,14.4,214.0,4650.0,,8.24253,-26.8154,Sexing primers did not amplify.,2008.0,True,True,True,missing_sex
+gen-068,PAL0809,68,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N51A2,Yes,2008-11-09,49.5,16.2,229.0,5800.0,Male,8.49854,-26.74809,,2008.0,True,True,True,none
+gen-069,PAL0809,69,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N53A1,Yes,2008-11-13,43.5,14.2,220.0,4700.0,Female,8.64931,-26.68867,,2008.0,True,True,True,none
+gen-070,PAL0809,70,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N53A2,Yes,2008-11-13,50.7,15.0,223.0,5550.0,Male,8.63551,-26.74249,,2008.0,True,True,True,none
+gen-071,PAL0809,71,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N54A1,Yes,2008-11-03,47.7,15.0,216.0,4750.0,Female,8.53018,-26.72751,,2008.0,True,True,True,none
+gen-072,PAL0809,72,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N54A2,Yes,2008-11-03,46.4,15.6,221.0,5000.0,Male,8.35078,-26.70783,,2008.0,True,True,True,none
+gen-073,PAL0809,73,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N55A1,Yes,2008-11-09,48.2,15.6,221.0,5100.0,Male,8.24651,-26.66958,,2008.0,True,True,True,none
+gen-074,PAL0809,74,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N55A2,Yes,2008-11-09,46.5,14.8,217.0,5200.0,Female,8.58487,-26.5929,,2008.0,True,True,True,none
+gen-075,PAL0809,75,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N56A1,Yes,2008-11-06,46.4,15.0,216.0,4700.0,Female,8.47938,-26.9547,,2008.0,True,True,True,none
+gen-076,PAL0809,76,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N56A2,Yes,2008-11-06,48.6,16.0,230.0,5800.0,Male,8.5964,-26.71199,,2008.0,True,True,True,none
+gen-077,PAL0809,77,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N58A1,Yes,2008-11-06,47.5,14.2,209.0,4600.0,Female,8.39299,-26.78733,,2008.0,True,True,True,none
+gen-078,PAL0809,78,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N58A2,Yes,2008-11-06,51.1,16.3,220.0,6000.0,Male,8.40327,-26.76821,,2008.0,True,True,True,none
+gen-079,PAL0809,79,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N60A1,Yes,2008-11-09,45.2,13.8,215.0,4750.0,Female,8.24694,-26.65359,,2008.0,True,True,True,none
+gen-080,PAL0809,80,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N60A2,Yes,2008-11-09,45.2,16.4,223.0,5950.0,Male,8.19749,-26.65931,,2008.0,True,True,True,none
+gen-081,PAL0910,81,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N1A1,Yes,2009-11-18,49.1,14.5,212.0,4625.0,Female,8.35802,-26.2766,,2009.0,True,True,True,none
+gen-082,PAL0910,82,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N1A2,Yes,2009-11-18,52.5,15.6,221.0,5450.0,Male,8.28601,-26.27573,,2009.0,True,True,True,none
+gen-083,PAL0910,83,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N6A1,Yes,2009-11-15,47.4,14.6,212.0,4725.0,Female,8.19101,-26.24369,,2009.0,True,True,True,none
+gen-084,PAL0910,84,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N6A2,Yes,2009-11-15,50.0,15.9,224.0,5350.0,Male,8.20042,-26.39677,,2009.0,True,True,True,none
+gen-085,PAL0910,85,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N8A1,Yes,2009-11-22,44.9,13.8,212.0,4750.0,Female,8.11238,-26.20372,,2009.0,True,True,True,none
+gen-086,PAL0910,86,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N8A2,Yes,2009-11-22,50.8,17.3,228.0,5600.0,Male,8.27428,-26.30019,,2009.0,True,True,True,none
+gen-087,PAL0910,87,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A1,Yes,2009-11-20,43.4,14.4,218.0,4600.0,Female,8.23468,-26.18599,,2009.0,True,True,True,none
+gen-088,PAL0910,88,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N13A2,Yes,2009-11-20,51.3,14.2,218.0,5300.0,Male,8.15426,-26.3433,,2009.0,True,True,True,none
+gen-089,PAL0910,89,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N14A1,Yes,2009-11-25,47.5,14.0,212.0,4875.0,Female,8.12691,-26.23613,,2009.0,True,True,True,none
+gen-090,PAL0910,90,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N14A2,Yes,2009-11-25,52.1,17.0,230.0,5550.0,Male,8.27595,-26.11657,,2009.0,True,True,True,none
+gen-091,PAL0910,91,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N15A1,Yes,2009-11-25,47.5,15.0,218.0,4950.0,Female,8.29671,-26.08547,,2009.0,True,True,True,none
+gen-092,PAL0910,92,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N15A2,Yes,2009-11-25,52.2,17.1,228.0,5400.0,Male,8.36701,-25.89834,,2009.0,True,True,True,none
+gen-093,PAL0910,93,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A1,Yes,2009-12-01,45.5,14.5,212.0,4750.0,Female,8.15566,-26.22848,,2009.0,True,True,True,none
+gen-094,PAL0910,94,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N18A2,Yes,2009-12-01,49.5,16.1,224.0,5650.0,Male,8.83352,-25.69195,,2009.0,True,True,True,none
+gen-095,PAL0910,95,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N19A1,Yes,2009-11-27,44.5,14.7,214.0,4850.0,Female,8.20106,-26.16524,,2009.0,True,True,True,none
+gen-096,PAL0910,96,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N19A2,Yes,2009-11-27,50.8,15.7,226.0,5200.0,Male,8.27102,-26.11244,,2009.0,True,True,True,none
+gen-097,PAL0910,97,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N20A1,Yes,2009-11-18,49.4,15.8,216.0,4925.0,Male,8.03624,-26.06594,,2009.0,True,True,True,none
+gen-098,PAL0910,98,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N20A2,Yes,2009-11-18,46.9,14.6,222.0,4875.0,Female,7.8881,-26.04726,,2009.0,True,True,True,none
+gen-099,PAL0910,99,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N21A1,Yes,2009-11-18,48.4,14.4,203.0,4625.0,Female,8.16582,-26.13971,,2009.0,True,True,True,none
+gen-100,PAL0910,100,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N21A2,Yes,2009-11-18,51.1,16.5,225.0,5250.0,Male,8.2066,-26.36863,,2009.0,True,True,True,none
+gen-101,PAL0910,101,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N22A1,Yes,2009-11-22,48.5,15.0,219.0,4850.0,Female,8.10231,-26.18763,,2009.0,True,True,True,none
+gen-102,PAL0910,102,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N22A2,Yes,2009-11-22,55.9,17.0,228.0,5600.0,Male,8.3118,-26.35425,,2009.0,True,True,True,none
+gen-103,PAL0910,103,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N23A1,Yes,2009-11-18,47.2,15.5,215.0,4975.0,Female,8.30817,-26.21651,,2009.0,True,True,True,none
+gen-104,PAL0910,104,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N23A2,Yes,2009-11-18,49.1,15.0,228.0,5500.0,Male,8.65914,-25.79203,,2009.0,True,True,True,none
+gen-105,PAL0910,105,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N24A1,Yes,2009-12-01,47.3,13.8,216.0,4725.0,,8.25818,-26.23886,Sexing primers did not amplify.,2009.0,True,True,True,missing_sex
+gen-106,PAL0910,106,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N24A2,Yes,2009-12-01,46.8,16.1,215.0,5500.0,Male,8.32359,-26.05756,,2009.0,True,True,True,none
+gen-107,PAL0910,107,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N28A1,Yes,2009-11-10,41.7,14.7,210.0,4700.0,Female,8.12311,-26.44815,,2009.0,True,True,True,none
+gen-108,PAL0910,108,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N28A2,Yes,2009-11-10,53.4,15.8,219.0,5500.0,Male,8.41017,-26.33867,,2009.0,True,True,True,none
+gen-109,PAL0910,109,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N29A1,Yes,2009-11-09,43.3,14.0,208.0,4575.0,Female,8.4207,-26.38092,,2009.0,True,True,True,none
+gen-110,PAL0910,110,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N29A2,Yes,2009-11-09,48.1,15.1,209.0,5500.0,Male,8.45738,-26.22664,,2009.0,True,True,True,none
+gen-111,PAL0910,111,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N32A1,Yes,2009-11-20,50.5,15.2,216.0,5000.0,Female,8.24691,-26.18466,,2009.0,True,True,True,none
+gen-112,PAL0910,112,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N32A2,Yes,2009-11-20,49.8,15.9,229.0,5950.0,Male,8.29226,-26.21019,,2009.0,True,True,True,none
+gen-113,PAL0910,113,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N34A1,Yes,2009-11-27,43.5,15.2,213.0,4650.0,Female,8.21634,-26.11046,,2009.0,True,True,True,none
+gen-114,PAL0910,114,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N34A2,Yes,2009-11-27,51.5,16.3,230.0,5500.0,Male,8.78557,-25.76147,,2009.0,True,True,True,none
+gen-115,PAL0910,115,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N35A1,Yes,2009-11-25,46.2,14.1,217.0,4375.0,Female,8.30231,-25.96013,,2009.0,True,True,True,none
+gen-116,PAL0910,116,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N35A2,Yes,2009-11-25,55.1,16.0,230.0,5850.0,Male,8.08354,-26.18161,,2009.0,True,True,True,none
+gen-117,PAL0910,117,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N36A1,Yes,2009-12-01,44.5,15.7,217.0,4875.0,,8.04111,-26.18444,Sexing primers did not amplify.,2009.0,True,True,True,missing_sex
+gen-118,PAL0910,118,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N36A2,Yes,2009-12-01,48.8,16.2,222.0,6000.0,Male,8.33825,-25.88547,,2009.0,True,True,True,none
+gen-119,PAL0910,119,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N38A1,No,2009-12-01,47.2,13.7,214.0,4925.0,Female,7.99184,-26.20538,Nest never observed with full clutch.,2009.0,False,True,True,none
+gen-120,PAL0910,120,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N38A2,No,2009-12-01,,,,,,,,Adult not sampled. Nest never observed with full clutch.,2009.0,False,False,False,missing_sex
+gen-121,PAL0910,121,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N39A1,Yes,2009-11-22,46.8,14.3,215.0,4850.0,Female,8.41151,-26.13832,,2009.0,True,True,True,none
+gen-122,PAL0910,122,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N39A2,Yes,2009-11-22,50.4,15.7,222.0,5750.0,Male,8.30166,-26.04117,,2009.0,True,True,True,none
+gen-123,PAL0910,123,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N43A1,Yes,2009-11-22,45.2,14.8,212.0,5200.0,Female,8.24246,-26.11969,,2009.0,True,True,True,none
+gen-124,PAL0910,124,Gentoo,Anvers,Biscoe,"Adult, 1 Egg Stage",N43A2,Yes,2009-11-22,49.9,16.1,213.0,5400.0,Male,8.3639,-26.15531,,2009.0,True,True,True,none
+chi-001,PAL0708,1,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N61A1,No,2007-11-19,46.5,17.9,192.0,3500.0,Female,9.03935,-24.30229,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-002,PAL0708,2,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N61A2,No,2007-11-19,50.0,19.5,196.0,3900.0,Male,8.92069,-24.23592,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-003,PAL0708,3,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N62A1,Yes,2007-11-26,51.3,19.2,193.0,3650.0,Male,9.29078,-24.7557,,2007.0,True,True,True,none
+chi-004,PAL0708,4,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N62A2,Yes,2007-11-26,45.4,18.7,188.0,3525.0,Female,8.64701,-24.62717,,2007.0,True,True,True,none
+chi-005,PAL0708,5,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N64A1,Yes,2007-11-21,52.7,19.8,197.0,3725.0,Male,9.00642,-24.61867,,2007.0,True,True,True,none
+chi-006,PAL0708,6,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N64A2,Yes,2007-11-21,45.2,17.8,198.0,3950.0,Female,8.88942,-24.49433,,2007.0,True,True,True,none
+chi-007,PAL0708,7,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N66A1,Yes,2007-11-28,46.1,18.2,178.0,3250.0,Female,8.85664,-24.55644,,2007.0,True,True,True,none
+chi-008,PAL0708,8,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N66A2,Yes,2007-11-28,51.3,18.2,197.0,3750.0,Male,8.63701,-24.84059,,2007.0,True,True,True,none
+chi-009,PAL0708,9,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N67A1,Yes,2007-11-21,46.0,18.9,195.0,4150.0,Female,8.47173,-24.29229,,2007.0,True,True,True,none
+chi-010,PAL0708,10,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N67A2,Yes,2007-11-21,51.3,19.9,198.0,3700.0,Male,8.79581,-24.36088,,2007.0,True,True,True,none
+chi-011,PAL0708,11,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N68A1,Yes,2007-11-28,46.6,17.8,193.0,3800.0,Female,8.95063,-24.59897,,2007.0,True,True,True,none
+chi-012,PAL0708,12,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N68A2,Yes,2007-11-28,51.7,20.3,194.0,3775.0,Male,8.68747,-24.38751,,2007.0,True,True,True,none
+chi-013,PAL0708,13,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N69A1,Yes,2007-11-26,47.0,17.3,185.0,3700.0,Female,8.72037,-24.80526,,2007.0,True,True,True,none
+chi-014,PAL0708,14,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N69A2,Yes,2007-11-26,52.0,18.1,201.0,4050.0,Male,9.0233,-24.38933,,2007.0,True,True,True,none
+chi-015,PAL0708,15,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N70A1,Yes,2007-11-22,45.9,17.1,190.0,3575.0,Female,9.12277,-24.90024,,2007.0,True,True,True,none
+chi-016,PAL0708,16,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N70A2,Yes,2007-11-22,50.5,19.6,201.0,4050.0,Male,9.8059,-24.7294,,2007.0,True,True,True,none
+chi-017,PAL0708,17,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N71A1,No,2007-11-30,50.3,20.0,197.0,3300.0,Male,10.02019,-24.54704,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-018,PAL0708,18,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N71A2,No,2007-11-30,58.0,17.8,181.0,3700.0,Female,9.14382,-24.57994,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-019,PAL0708,19,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N72A1,Yes,2007-11-30,46.4,18.6,190.0,3450.0,Female,9.32105,-24.64162,,2007.0,True,True,True,none
+chi-020,PAL0708,20,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N72A2,Yes,2007-11-30,49.2,18.2,195.0,4400.0,Male,9.27158,-24.64335,,2007.0,True,True,True,none
+chi-021,PAL0708,21,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N73A1,Yes,2007-12-03,42.4,17.3,181.0,3600.0,Female,9.35138,-24.6879,,2007.0,True,True,True,none
+chi-022,PAL0708,22,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N73A2,Yes,2007-12-03,48.5,17.5,191.0,3400.0,Male,9.42666,-24.26375,,2007.0,True,True,True,none
+chi-023,PAL0708,23,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N85A1,No,2007-11-28,43.2,16.6,187.0,2900.0,Female,9.35416,-25.01185,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-024,PAL0708,24,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N85A2,No,2007-11-28,50.6,19.4,193.0,3800.0,Male,9.28153,-24.97134,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-025,PAL0708,25,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N89A1,No,2007-11-28,46.7,17.9,195.0,3300.0,Female,9.74144,-24.59467,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-026,PAL0708,26,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N89A2,No,2007-11-28,52.0,19.0,197.0,4150.0,Male,9.36799,-24.47142,Nest never observed with full clutch.,2007.0,False,True,True,none
+chi-027,PAL0809,27,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N61A1,No,2008-11-25,50.5,18.4,200.0,3400.0,Female,8.9399,-23.89017,Nest never observed with full clutch.,2008.0,False,True,True,none
+chi-028,PAL0809,28,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N61A2,No,2008-11-25,49.5,19.0,200.0,3800.0,Male,9.63074,-24.34684,Nest never observed with full clutch.,2008.0,False,True,True,none
+chi-029,PAL0809,29,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N62A1,Yes,2008-11-14,46.4,17.8,191.0,3700.0,Female,9.37369,-24.52896,,2008.0,True,True,True,none
+chi-030,PAL0809,30,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N62A2,Yes,2008-11-14,52.8,20.0,205.0,4550.0,Male,9.25177,-24.69638,,2008.0,True,True,True,none
+chi-031,PAL0809,31,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N63A1,Yes,2008-11-24,40.9,16.6,187.0,3200.0,Female,9.08458,-24.54903,,2008.0,True,True,True,none
+chi-032,PAL0809,32,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N63A2,Yes,2008-11-24,54.2,20.8,201.0,4300.0,Male,9.49283,-24.59996,,2008.0,True,True,True,none
+chi-033,PAL0809,33,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N65A1,Yes,2008-11-24,42.5,16.7,187.0,3350.0,Female,9.36668,-24.45195,,2008.0,True,True,True,none
+chi-034,PAL0809,34,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N65A2,Yes,2008-11-24,51.0,18.8,203.0,4100.0,Male,9.23196,-24.17282,,2008.0,True,True,True,none
+chi-035,PAL0809,35,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N67A1,Yes,2008-11-25,49.7,18.6,195.0,3600.0,Male,9.75486,-24.31198,,2008.0,True,True,True,none
+chi-036,PAL0809,36,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N67A2,Yes,2008-11-25,47.5,16.8,199.0,3900.0,Female,9.07825,-25.1455,,2008.0,True,True,True,none
+chi-037,PAL0809,37,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N69A1,Yes,2008-11-14,47.6,18.3,195.0,3850.0,Female,8.83502,-24.65859,,2008.0,True,True,True,none
+chi-038,PAL0809,38,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N69A2,Yes,2008-11-14,52.0,20.7,210.0,4800.0,Male,9.43146,-24.6844,,2008.0,True,True,True,none
+chi-039,PAL0809,39,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N72A1,No,2008-11-24,46.9,16.6,192.0,2700.0,Female,9.80589,-24.73735,Nest never observed with full clutch.,2008.0,False,True,True,none
+chi-040,PAL0809,40,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N72A2,No,2008-11-24,53.5,19.9,205.0,4500.0,Male,10.02544,-24.90816,Nest never observed with full clutch.,2008.0,False,True,True,none
+chi-041,PAL0809,41,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N74A1,Yes,2008-11-24,49.0,19.5,210.0,3950.0,Male,9.53262,-24.66867,,2008.0,True,True,True,none
+chi-042,PAL0809,42,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N74A2,Yes,2008-11-24,46.2,17.5,187.0,3650.0,Female,9.61734,-24.66188,,2008.0,True,True,True,none
+chi-043,PAL0809,43,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N75A1,Yes,2008-11-14,50.9,19.1,196.0,3550.0,Male,10.02372,-24.86594,,2008.0,True,True,True,none
+chi-044,PAL0809,44,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N75A2,Yes,2008-11-14,45.5,17.0,196.0,3500.0,Female,9.36493,-24.66259,,2008.0,True,True,True,none
+chi-045,PAL0910,45,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N86A1,Yes,2009-11-17,50.9,17.9,196.0,3675.0,Female,9.43684,-24.16566,,2009.0,True,True,True,none
+chi-046,PAL0910,46,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N86A2,Yes,2009-11-17,50.8,18.5,201.0,4450.0,Male,9.45827,-24.35575,,2009.0,True,True,True,none
+chi-047,PAL0910,47,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N87A1,Yes,2009-11-27,50.1,17.9,190.0,3400.0,Female,9.46819,-24.45721,,2009.0,True,True,True,none
+chi-048,PAL0910,48,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N87A2,Yes,2009-11-27,49.0,19.6,212.0,4300.0,Male,9.34089,-24.45189,,2009.0,True,True,True,none
+chi-049,PAL0910,49,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N88A1,Yes,2009-11-23,51.5,18.7,187.0,3250.0,Male,9.6895,-24.43062,,2009.0,True,True,True,none
+chi-050,PAL0910,50,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N88A2,Yes,2009-11-23,49.8,17.3,198.0,3675.0,Female,9.32169,-24.41562,,2009.0,True,True,True,none
+chi-051,PAL0910,51,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N90A1,Yes,2009-11-21,48.1,16.4,199.0,3325.0,Female,9.46929,-24.48403,,2009.0,True,True,True,none
+chi-052,PAL0910,52,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N90A2,Yes,2009-11-21,51.4,19.0,201.0,3950.0,Male,9.43782,-24.36202,,2009.0,True,True,True,none
+chi-053,PAL0910,53,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N92A1,Yes,2009-11-23,45.7,17.3,193.0,3600.0,Female,9.415,-24.805,,2009.0,True,True,True,none
+chi-054,PAL0910,54,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N92A2,Yes,2009-11-23,50.7,19.7,203.0,4050.0,Male,9.93727,-24.59066,,2009.0,True,True,True,none
+chi-055,PAL0910,55,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N93A1,Yes,2009-11-27,42.5,17.3,187.0,3350.0,Female,9.56534,-24.60882,,2009.0,True,True,True,none
+chi-056,PAL0910,56,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N93A2,Yes,2009-11-27,52.2,18.8,197.0,3450.0,Male,9.77528,-24.56481,,2009.0,True,True,True,none
+chi-057,PAL0910,57,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N94A1,Yes,2009-11-21,45.2,16.6,191.0,3250.0,Female,9.62357,-24.78984,,2009.0,True,True,True,none
+chi-058,PAL0910,58,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N94A2,Yes,2009-11-21,49.3,19.9,203.0,4050.0,Male,9.88809,-24.59513,,2009.0,True,True,True,none
+chi-059,PAL0910,59,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N95A1,Yes,2009-11-21,50.2,18.8,202.0,3800.0,Male,9.74492,-24.404,,2009.0,True,True,True,none
+chi-060,PAL0910,60,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N95A2,Yes,2009-11-21,45.6,19.4,194.0,3525.0,Female,9.46985,-24.65786,,2009.0,True,True,True,none
+chi-061,PAL0910,61,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N96A1,Yes,2009-11-27,51.9,19.5,206.0,3950.0,Male,,-23.78767,No delta15N data received from lab.,2009.0,True,True,False,missing_isotope
+chi-062,PAL0910,62,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N96A2,Yes,2009-11-27,46.8,16.5,189.0,3650.0,Female,9.65061,-24.48153,,2009.0,True,True,True,none
+chi-063,PAL0910,63,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N98A1,Yes,2009-11-19,45.7,17.0,195.0,3650.0,Female,9.26715,-24.31912,,2009.0,True,True,True,none
+chi-064,PAL0910,64,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N98A2,Yes,2009-11-19,55.8,19.8,207.0,4000.0,Male,9.70465,-24.53494,,2009.0,True,True,True,none
+chi-065,PAL0910,65,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N99A1,No,2009-11-21,43.5,18.1,202.0,3400.0,Female,9.37608,-24.40753,Nest never observed with full clutch.,2009.0,False,True,True,none
+chi-066,PAL0910,66,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N99A2,No,2009-11-21,49.6,18.2,193.0,3775.0,Male,9.4618,-24.70615,Nest never observed with full clutch.,2009.0,False,True,True,none
+chi-067,PAL0910,67,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N100A1,Yes,2009-11-21,50.8,19.0,210.0,4100.0,Male,9.98044,-24.68741,,2009.0,True,True,True,none
+chi-068,PAL0910,68,Chinstrap,Anvers,Dream,"Adult, 1 Egg Stage",N100A2,Yes,2009-11-21,50.2,18.7,198.0,3775.0,Female,9.39305,-24.25255,,2009.0,True,True,True,none
