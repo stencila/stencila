@@ -15,7 +15,9 @@ import inspect
 import io
 import json
 import os
+import site
 import sys
+import sysconfig
 import tempfile
 import threading
 import urllib.parse
@@ -37,11 +39,63 @@ _AUDIT_INSTALLED = False
 _PATCHED = set()
 
 
+def _is_within(path: str, root: str) -> bool:
+    try:
+        path = os.path.normcase(os.path.abspath(path))  # noqa: PTH100
+        root = os.path.normcase(os.path.abspath(root))  # noqa: PTH100
+        return os.path.commonpath((path, root)) == root
+    except (OSError, ValueError):
+        return False
+
+
+def _python_roots() -> tuple[tuple[str, ...], tuple[str, ...]]:
+    package_roots: set[str] = set()
+    stdlib_roots: set[str] = set()
+    try:
+        paths = sysconfig.get_paths()
+        for name in ("purelib", "platlib"):
+            if path := paths.get(name):
+                package_roots.add(os.path.abspath(path))  # noqa: PTH100
+        for name in ("stdlib", "platstdlib"):
+            if path := paths.get(name):
+                stdlib_roots.add(os.path.abspath(path))  # noqa: PTH100
+    except Exception:
+        pass
+    with contextlib.suppress(Exception):
+        package_roots.update(
+            str(Path(path).absolute()) for path in site.getsitepackages()
+        )
+    with contextlib.suppress(Exception):
+        if path := site.getusersitepackages():
+            package_roots.add(os.path.abspath(path))  # noqa: PTH100
+    return tuple(sorted(package_roots)), tuple(sorted(stdlib_roots))
+
+
 @dataclass
 class _TraceState:
     options: dict[str, str]
     events: dict[tuple[str, str, str, int], int] = field(default_factory=dict)
     diagnostics: set[str] = field(default_factory=set)
+    workspace: str = field(init=False, default="")
+    cache_dir: str = field(init=False, default="")
+    package_roots: tuple[str, ...] = field(init=False, default=())
+    environment_roots: tuple[str, ...] = field(init=False, default=())
+
+    def __post_init__(self) -> None:
+        try:
+            self.cache_dir = os.path.abspath(self.options["cacheDir"])  # noqa: PTH100
+            self.workspace = os.path.dirname(  # noqa: PTH120
+                os.path.dirname(os.path.dirname(self.cache_dir))  # noqa: PTH120
+            )
+            package_roots, stdlib_roots = _python_roots()
+            environment_roots = set(package_roots) | set(stdlib_roots)
+            prefix = os.path.abspath(sys.prefix)  # noqa: PTH100
+            if prefix != self.workspace and _is_within(prefix, self.workspace):
+                environment_roots.add(prefix)
+            self.package_roots = package_roots
+            self.environment_roots = tuple(sorted(environment_roots))
+        except Exception:
+            pass
 
 
 def _current_state() -> Any:
@@ -86,11 +140,8 @@ def _location(state: _TraceState) -> tuple[str, int]:
 def _record(operation: str, resource: str) -> None:
     try:
         state = _current_state()
-        if state is None or not resource:
+        if state is None:
             return
-        source, line = _location(state)
-        key = (operation, resource, source, line)
-        state.events[key] = state.events.get(key, 0) + 1
         if operation.startswith("file_"):
             state.diagnostics.discard("unconfirmed audit event: open")
         elif operation == "import":
@@ -102,6 +153,11 @@ def _record(operation: str, resource: str) -> None:
                 for item in state.diagnostics
                 if not item.startswith("unconfirmed audit event: socket.")
             }
+        if not resource:
+            return
+        source, line = _location(state)
+        key = (operation, resource, source, line)
+        state.events[key] = state.events.get(key, 0) + 1
     except Exception:
         pass
 
@@ -121,13 +177,11 @@ def _path(value: Any, state: Any = None) -> str:
     try:
         path = os.path.abspath(os.fsdecode(os.fspath(value)))  # noqa: PTH100
         if state is not None:
-            cache_dir = os.path.abspath(state.options["cacheDir"])  # noqa: PTH100
-            workspace = os.path.dirname(  # noqa: PTH120
-                os.path.dirname(os.path.dirname(cache_dir))  # noqa: PTH120
-            )
             try:
-                if os.path.commonpath((path, workspace)) == workspace:
-                    relative = os.path.relpath(path, workspace).replace(os.sep, "/")
+                if _is_within(path, state.workspace):
+                    relative = os.path.relpath(path, state.workspace).replace(
+                        os.sep, "/"
+                    )
                     return f"workspace:{relative}"
             except ValueError:
                 pass
@@ -143,6 +197,69 @@ def _path(value: Any, state: Any = None) -> str:
         return ""
     finally:
         _SUPPRESSED.reset(token)
+
+
+def _absolute_resource(resource: str, state: _TraceState) -> str:
+    try:
+        if resource.startswith("workspace:"):
+            path = resource.removeprefix("workspace:")
+            return str((Path(state.workspace) / path).absolute())
+        if resource.startswith("home:"):
+            path = resource.removeprefix("home:")
+            return str((Path.home() / path).absolute())
+        return os.path.abspath(resource)  # noqa: PTH100
+    except Exception:
+        return ""
+
+
+def _in_environment(path: str, state: _TraceState) -> bool:
+    if any(_is_within(path, root) for root in state.environment_roots):
+        return True
+    if any(part in ("site-packages", "dist-packages") for part in Path(path).parts):
+        return True
+    if _is_within(path, state.workspace):
+        for ancestor in Path(path).parents:
+            if not _is_within(str(ancestor), state.workspace):
+                break
+            if (ancestor / "pyvenv.cfg").is_file():
+                return True
+    return False
+
+
+def _file_resource(value: Any, state: Any = None) -> str:
+    state = state or _current_state()
+    if state is None:
+        return ""
+    token = _SUPPRESSED.set(True)
+    try:
+        path = os.path.abspath(os.fsdecode(os.fspath(value)))  # noqa: PTH100
+        if (
+            not _is_within(path, state.workspace)
+            or _is_within(path, state.cache_dir)
+            or _in_environment(path, state)
+        ):
+            return ""
+        relative = os.path.relpath(path, state.workspace).replace(os.sep, "/")
+        return f"workspace:{relative}"
+    except Exception:
+        return ""
+    finally:
+        _SUPPRESSED.reset(token)
+
+
+def _keep_cached_event(operation: str, resource: str, state: _TraceState) -> bool:
+    if operation.startswith("file_"):
+        path = _absolute_resource(resource, state)
+        return bool(
+            path
+            and _is_within(path, state.workspace)
+            and not _is_within(path, state.cache_dir)
+            and not _in_environment(path, state)
+        )
+    if operation == "import" and "|" in resource:
+        path = _absolute_resource(resource.split("|", 1)[1], state)
+        return not path or not _in_environment(path, state)
+    return True
 
 
 def _url(value: Any) -> str:
@@ -174,9 +291,24 @@ def _request_url(args: tuple[Any, ...], kwargs: dict[str, Any]) -> str:
 
 
 def _import_resource(name: str, module: Any) -> str:
-    top_level = name.split(".", 1)[0]
+    module_name = getattr(module, "__name__", "") or name
+    top_level = module_name.split(".", 1)[0]
     source = getattr(module, "__file__", "")
     module_path = _path(source) if source else ""
+    state = _current_state()
+
+    if source and state is not None:
+        try:
+            absolute = os.path.abspath(source)  # noqa: PTH100
+            if any(_is_within(absolute, root) for root in state.package_roots):
+                return top_level
+            if _in_environment(absolute, state):
+                stdlib_names = getattr(sys, "stdlib_module_names", ())
+                if top_level in sys.builtin_module_names or top_level in stdlib_names:
+                    return ""
+                return top_level
+        except (OSError, TypeError, ValueError):
+            pass
 
     # A workspace module can intentionally shadow a standard-library name.
     if module_path.startswith("workspace:"):
@@ -343,7 +475,7 @@ def install_runtime_tracer() -> None:
             result = original(file, mode, *args, **kwargs)
             if _current_state() is None:
                 return result
-            path = _path(file)
+            path = _file_resource(file)
             for operation in _mode_operations(mode):
                 _record(operation, path)
             return result
@@ -356,7 +488,7 @@ def install_runtime_tracer() -> None:
             result = original(path, flags, *args, **kwargs)
             if _current_state() is None:
                 return result
-            resource = _path(path)
+            resource = _file_resource(path)
             for operation in _flags_operations(flags):
                 _record(operation, resource)
             return result
@@ -410,6 +542,7 @@ def install_runtime_tracer() -> None:
 
     if not _AUDIT_INSTALLED and hasattr(sys, "addaudithook"):
         try:
+
             def audit(event: str, args: Any) -> None:
                 if _current_state() is None:
                     return
@@ -441,15 +574,18 @@ def _persist(state: _TraceState) -> None:
             pass
 
         merged: dict[tuple[str, str, str, int], int] = {}
-        if (
-            previous.get("identity") == state.options.get("identity")
-            and previous.get("codeDigest") == state.options.get("codeDigest")
-        ):
+        if previous.get("identity") == state.options.get("identity") and previous.get(
+            "codeDigest"
+        ) == state.options.get("codeDigest"):
             for event in previous.get("events", []):
                 location = event.get("location", {})
+                operation = event.get("operation", "")
+                resource = event.get("resource", "")
+                if not _keep_cached_event(operation, resource, state):
+                    continue
                 key = (
-                    event.get("operation", ""),
-                    event.get("resource", ""),
+                    operation,
+                    resource,
                     location.get("source", ""),
                     int(location.get("line", 0)),
                 )

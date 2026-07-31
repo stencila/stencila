@@ -256,6 +256,9 @@ fn file_resource(
         .strip_prefix("workspace:")
         .map_or_else(|| PathBuf::from(path), |path| workspace_root.join(path));
     let rel = WorkspaceRelPath::from_workspace_path(graph_root, &absolute).ok()?;
+    if is_python_environment_path(workspace_root, &absolute) {
+        return None;
+    }
     if let Some(id) = builder.graph_id_for_file_path(rel.as_str()) {
         return Some(id);
     }
@@ -296,6 +299,9 @@ fn local_module_resource(
         .strip_prefix("workspace:")
         .map_or_else(|| PathBuf::from(path), |path| workspace_root.join(path));
     let rel = WorkspaceRelPath::from_workspace_path(graph_root, &path).ok()?;
+    if is_python_environment_path(workspace_root, &path) {
+        return None;
+    }
     let id = LocalGraphId::code(rel.as_str());
     if builder.contains_node(&id) {
         return Some(id);
@@ -310,6 +316,25 @@ fn local_module_resource(
     node.path = Some(rel.as_str().to_string());
     builder.add_schema_node(id.clone(), Node::SoftwareSourceCode(node));
     Some(id)
+}
+
+/// Whether a path is part of a Python environment nested in the workspace.
+///
+/// Checking both installation directory names and `pyvenv.cfg` supports legacy
+/// trace caches without assuming that virtual environments are named `.venv`.
+fn is_python_environment_path(workspace_root: &Path, path: &Path) -> bool {
+    if path.components().any(|component| {
+        matches!(
+            component.as_os_str().to_str(),
+            Some("site-packages" | "dist-packages")
+        )
+    }) {
+        return true;
+    }
+
+    path.ancestors()
+        .take_while(|ancestor| ancestor.starts_with(workspace_root))
+        .any(|ancestor| ancestor.join("pyvenv.cfg").is_file())
 }
 
 fn runtime_evidence(event: &RuntimeEvent) -> GraphEvidence {
@@ -625,6 +650,88 @@ mod tests {
                 .nodes
                 .iter()
                 .all(|node| node.id != package_id("pypi", "helpers", &[]))
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn cached_runtime_evidence_excludes_python_environment_files() -> Result<()> {
+        let temp_dir = tempfile::tempdir()?;
+        let root = temp_dir.path().canonicalize()?;
+        let script_path = root.join("analysis.py");
+        let input_path = root.join("input.csv");
+        let environment = root.join("python-environment");
+        let package_path = environment.join("lib/python3.13/site-packages/example");
+        fs::create_dir_all(&package_path)?;
+        fs::write(&script_path, "import example\nopen('input.csv').read()\n")?;
+        fs::write(&input_path, "value\n1\n")?;
+        fs::write(environment.join("pyvenv.cfg"), "home = /usr/bin\n")?;
+        fs::write(package_path.join("__init__.py"), "VALUE = 1\n")?;
+        fs::write(environment.join("environment.dat"), "internal\n")?;
+
+        let script_rel = WorkspaceRelPath::from_relative_path(Path::new("analysis.py"))?;
+        let script_id = LocalGraphId::code(script_rel.as_str());
+        let mut builder = GraphBuilder::new("test");
+        let mut script = SoftwareSourceCode::new("analysis.py".into(), "Python".into());
+        script.path = Some("analysis.py".into());
+        builder.add_schema_node(script_id.clone(), Node::SoftwareSourceCode(script));
+
+        let cache_dir = root.join(".stencila/cache/runtime");
+        fs::create_dir_all(&cache_dir)?;
+        let code_digest = Sha256::digest(fs::read(&script_path)?)
+            .iter()
+            .map(|byte| format!("{byte:02x}"))
+            .collect::<String>();
+        fs::write(
+            cache_dir.join("trace.json"),
+            serde_json::json!({
+                "version": 1,
+                "identity": "script:workspace:analysis.py",
+                "codeDigest": code_digest,
+                "events": [
+                    {
+                        "operation": "file_read",
+                        "resource": "workspace:input.csv",
+                        "location": {"source": "analysis.py", "line": 1},
+                        "count": 1
+                    },
+                    {
+                        "operation": "file_read",
+                        "resource": "workspace:python-environment/environment.dat",
+                        "location": {"source": "analysis.py", "line": 0},
+                        "count": 1
+                    },
+                    {
+                        "operation": "import",
+                        "resource": "example|workspace:python-environment/lib/python3.13/site-packages/example/__init__.py",
+                        "location": {"source": "analysis.py", "line": 0},
+                        "count": 1
+                    }
+                ],
+                "diagnostics": []
+            })
+            .to_string(),
+        )?;
+
+        add_cached_runtime_evidence(&mut builder, &root);
+        let graph = builder.build()?;
+
+        assert!(graph.edges.iter().any(|edge| {
+            edge.source == "file:input.csv"
+                && edge.target == script_id
+                && edge.kind == GraphEdgeKind::ReadBy
+        }));
+        assert!(graph.edges.iter().any(|edge| {
+            edge.source == package_id("pypi", "example", &[])
+                && edge.target == script_id
+                && edge.kind == GraphEdgeKind::ImportedBy
+        }));
+        assert!(
+            graph
+                .nodes
+                .iter()
+                .all(|node| !node.id.contains("python-environment"))
         );
 
         Ok(())

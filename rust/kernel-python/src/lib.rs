@@ -291,16 +291,33 @@ print(a, b)",
         };
         let temp_dir = tempfile::tempdir()?;
         let input = temp_dir.path().join("input.txt");
+        let local_module = temp_dir.path().join("runtime_trace_local_example.py");
+        let package_root = temp_dir.path().join("site-packages");
+        let package_dir = package_root.join("example");
+        std::fs::create_dir_all(&package_dir)?;
         std::fs::write(&input, "value")?;
+        std::fs::write(&local_module, "VALUE = 1\n")?;
+        std::fs::write(package_dir.join("__init__.py"), "VALUE = 1\n")?;
         let options = RuntimeTraceOptions {
             identity: "runtime-test".to_string(),
             code_digest: "digest".to_string(),
             cache_dir: temp_dir.path().join(".stencila/cache/runtime"),
         };
         let input_literal = serde_json::to_string(&input)?;
+        let workspace_literal = serde_json::to_string(temp_dir.path())?;
+        let package_root_literal = serde_json::to_string(&package_root)?;
 
         let (.., messages) = instance
             .execute_traced(&format!("open({input_literal}).read()"), &options)
+            .await?;
+        assert!(messages.is_empty());
+        let (.., messages) = instance
+            .execute_traced(
+                &format!(
+                    "import sys\nsys.path.insert(0, {package_root_literal})\nsys.path.insert(0, {workspace_literal})\nimport example\nimport runtime_trace_local_example"
+                ),
+                &options,
+            )
             .await?;
         assert!(messages.is_empty());
         let (.., messages) = instance
@@ -313,6 +330,23 @@ print(a, b)",
             .transpose()?
             .ok_or_eyre("expected runtime cache")?
             .path();
+        let mut cache: serde_json::Value = serde_json::from_slice(&std::fs::read(&cache_path)?)?;
+        cache["events"]
+            .as_array_mut()
+            .ok_or_eyre("expected runtime events")?
+            .push(serde_json::json!({
+                "operation": "file_read",
+                "resource": "/usr/share/fonts/example.ttf",
+                "location": {"source": "legacy.py", "line": 0},
+                "count": 1
+            }));
+        std::fs::write(&cache_path, serde_json::to_vec(&cache)?)?;
+
+        let (.., messages) = instance
+            .execute_traced(&format!("open({input_literal}).read()"), &options)
+            .await?;
+        assert!(messages.is_empty());
+
         let cache: serde_json::Value = serde_json::from_slice(&std::fs::read(cache_path)?)?;
         let events = cache["events"]
             .as_array()
@@ -320,10 +354,38 @@ print(a, b)",
         assert!(events.iter().any(|event| {
             event["operation"] == "file_read" && event["resource"] == "workspace:input.txt"
         }));
+        assert!(
+            events
+                .iter()
+                .any(|event| { event["operation"] == "import" && event["resource"] == "example" })
+        );
+        assert!(events.iter().any(|event| {
+            event["operation"] == "import"
+                && event["resource"]
+                    == "runtime_trace_local_example|workspace:runtime_trace_local_example.py"
+        }));
+        assert!(!events.iter().any(|event| {
+            event["resource"]
+                .as_str()
+                .is_some_and(|resource| resource.contains("site-packages"))
+        }));
         assert!(!events.iter().any(|event| {
             event["resource"]
                 .as_str()
                 .is_some_and(|resource| resource.contains("does-not-exist"))
+        }));
+        assert!(events.iter().all(|event| {
+            event["operation"]
+                .as_str()
+                .is_none_or(|operation| !operation.starts_with("file_"))
+                || event["resource"]
+                    .as_str()
+                    .is_some_and(|resource| resource.starts_with("workspace:"))
+        }));
+        assert!(!events.iter().any(|event| {
+            event["resource"]
+                .as_str()
+                .is_some_and(|resource| resource.contains("example.ttf"))
         }));
         assert!(
             cache["diagnostics"]
