@@ -82,7 +82,7 @@ pub struct Cli {
 
     /// Display debug level logging and detailed error reports
     ///
-    /// For trace level logging, use the unlisted --trace option. See
+    /// For trace level logging, use the unlisted --trace-logging option. See
     /// documentation for other unlisted logging options --log-level,
     /// --log-format, log-filter.
     #[arg(
@@ -90,7 +90,7 @@ pub struct Cli {
         global = true,
         help_heading = "Global Options",
         display_order = 120,
-        conflicts_with = "trace",
+        conflicts_with = "trace_logging",
         conflicts_with = "log_level",
         conflicts_with = "log_format",
         conflicts_with = "error_details"
@@ -107,7 +107,7 @@ pub struct Cli {
         conflicts_with = "log_format",
         conflicts_with = "error_details"
     )]
-    pub trace: bool,
+    pub trace_logging: bool,
 
     /// The minimum log level to output
     #[arg(long, default_value = "info", global = true, hide = true)]
@@ -227,6 +227,25 @@ impl Cli {
         } else {
             None
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use clap::Parser;
+
+    use super::Cli;
+
+    #[test]
+    fn runtime_trace_is_distinct_from_trace_logging() -> Result<(), clap::Error> {
+        let cli = Cli::try_parse_from(["stencila", "execute", "--debug", "--trace", "report.smd"])?;
+        assert!(cli.debug);
+        assert!(!cli.trace_logging);
+
+        let cli = Cli::try_parse_from(["stencila", "--trace-logging", "execute", "report.smd"])?;
+        assert!(cli.trace_logging);
+
+        Ok(())
     }
 }
 

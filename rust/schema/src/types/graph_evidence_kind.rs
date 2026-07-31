@@ -13,7 +13,7 @@ pub enum GraphEvidenceKind {
     /// Evidence from deterministic resolution when that resolution is itself the sole evidentiary basis.
     Resolved,
 
-    /// Evidence from direct inspection of existing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
+    /// Evidence from direct inspection of existing local state, such as filesystem entries or symlink targets.
     Observed,
 
     /// Evidence from a deterministic Stencila operation, such as walking document structure, decoding a file, or materializing recorded execution outputs.
@@ -24,6 +24,9 @@ pub enum GraphEvidenceKind {
 
     /// Evidence inferred by analyzing code or configuration without executing it, rather than copied from an explicit authored relationship field.
     StaticAnalysis,
+
+    /// Evidence from a confirmed operation observed while executing code, such as a successful file access, import, or remote response.
+    RuntimeAnalysis,
 
     /// Evidence imported from an external metadata source, service, graph, or document format.
     Imported,

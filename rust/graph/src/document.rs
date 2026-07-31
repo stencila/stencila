@@ -3,7 +3,7 @@
 //! This module turns a single Stencila Schema document node tree into graph
 //! nodes and resource-flow relationships.
 
-use std::collections::HashMap;
+use std::{collections::HashMap, path::Path};
 
 use eyre::Result;
 use stencila_node_stabilize::stabilize;
@@ -20,6 +20,7 @@ use crate::{
     evidence,
     ids::LocalGraphId,
     reference::{bare_doi, has_non_local_uri_scheme},
+    runtime::{RuntimeEvidenceMode, add_cached_runtime_evidence},
     source,
 };
 
@@ -46,6 +47,28 @@ pub fn graph_from_node_with_diagnostics(
 ) -> Result<GraphAnalysis> {
     let mut builder = GraphBuilder::new(subject);
     add_document(&mut builder, "document", node, None);
+    let diagnostics = builder.take_diagnostics();
+    let mut graph = builder.build()?;
+    source::set_graph_source_metadata_from_node(&mut graph, node);
+    Ok(GraphAnalysis { graph, diagnostics })
+}
+
+/// Build a document graph and optionally merge cached runtime evidence.
+///
+/// The default document APIs remain execution- and cache-independent; callers
+/// must explicitly select [`RuntimeEvidenceMode::Cached`].
+pub fn graph_from_node_with_runtime_evidence(
+    subject: impl Into<String>,
+    scope: impl Into<String>,
+    node: &Node,
+    root: &Path,
+    runtime_evidence: RuntimeEvidenceMode,
+) -> Result<GraphAnalysis> {
+    let mut builder = GraphBuilder::new(subject);
+    add_document(&mut builder, scope, node, None);
+    if runtime_evidence == RuntimeEvidenceMode::Cached {
+        add_cached_runtime_evidence(&mut builder, root);
+    }
     let diagnostics = builder.take_diagnostics();
     let mut graph = builder.build()?;
     source::set_graph_source_metadata_from_node(&mut graph, node);

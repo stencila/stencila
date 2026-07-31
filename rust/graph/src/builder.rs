@@ -6,6 +6,7 @@
 use std::collections::{BTreeMap, BTreeSet};
 
 use eyre::{Result, bail};
+use sha2::{Digest, Sha256};
 use stencila_schema::{
     Author, Cord, Graph, GraphAction, GraphEdge, GraphEdgeKind, GraphEvidence, GraphNode, Node,
     StripNode, StripScope, StripTargets,
@@ -35,6 +36,9 @@ pub struct GraphBuilder {
     /// A `BTreeMap` gives stable node order in snapshots, generated files, and
     /// downstream consumers that diff graph output.
     nodes: BTreeMap<String, GraphNode>,
+
+    /// Full-code digests retained separately from shallow graph previews.
+    code_digests: BTreeMap<String, String>,
 
     /// Graph edges keyed by their semantic tuple.
     ///
@@ -103,6 +107,7 @@ impl GraphBuilder {
         Self {
             subject: subject.into(),
             nodes: BTreeMap::new(),
+            code_digests: BTreeMap::new(),
             edges: BTreeMap::new(),
             errors: BTreeSet::new(),
             diagnostics: Vec::new(),
@@ -138,6 +143,9 @@ impl GraphBuilder {
     /// different node, the conflict is recorded and reported by [`Self::build`].
     pub fn add_schema_node(&mut self, id: impl Into<String>, node: Node) {
         let id = id.into();
+        if let Node::CodeChunk(chunk) = &node {
+            self.code_digests.insert(id.clone(), sha256(&chunk.code));
+        }
         let node = Box::new(shallow_node(&node));
         self.add_prepared_schema_node(id, node);
     }
@@ -180,6 +188,37 @@ impl GraphBuilder {
     /// Check whether a graph node id has already been added.
     pub fn contains_node(&self, id: &str) -> bool {
         self.nodes.contains_key(id)
+    }
+
+    /// Find the unique graph node with the stable schema node id embedded within it.
+    pub(crate) fn unique_graph_id_for_schema_node_id(&self, node_id: &str) -> Option<String> {
+        let mut matches = self
+            .nodes
+            .iter()
+            .filter(|(_, graph_node)| {
+                graph_node
+                    .node
+                    .node_id()
+                    .is_some_and(|id| id.to_string() == node_id)
+            })
+            .map(|(graph_id, _)| graph_id.clone());
+        let graph_id = matches.next()?;
+        matches.next().is_none().then_some(graph_id)
+    }
+
+    /// Confirm that cached runtime evidence matches the current full code.
+    pub(crate) fn runtime_code_digest_matches(&self, graph_id: &str, digest: &str) -> bool {
+        self.code_digests
+            .get(graph_id)
+            .is_some_and(|current| current == digest)
+    }
+
+    /// Find a file resource by its normalized path.
+    pub(crate) fn graph_id_for_file_path(&self, path: &str) -> Option<String> {
+        self.nodes.iter().find_map(|(graph_id, graph_node)| {
+            matches!(graph_node.node.as_ref(), Node::File(file) if file.path == path)
+                .then(|| graph_id.clone())
+        })
     }
 
     /// Add a directed graph edge.
@@ -413,6 +452,7 @@ impl GraphBuilder {
         let GraphBuilder {
             subject,
             nodes,
+            code_digests: _,
             edges,
             mut errors,
             diagnostics: _,
@@ -458,6 +498,13 @@ impl GraphBuilder {
                 .collect(),
         ))
     }
+}
+
+fn sha256(value: &str) -> String {
+    Sha256::digest(value.as_bytes())
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect()
 }
 
 /// Create a shallow graph payload for a Schema node.

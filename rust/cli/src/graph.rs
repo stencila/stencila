@@ -9,12 +9,13 @@ use eyre::{Result, WrapErr, bail};
 use tokio::{io::AsyncWriteExt, sync::oneshot};
 
 use stencila_cli_utils::{Code, ToStdout, color_print::cstr, message};
+use stencila_dirs::closest_workspace_dir;
 use stencila_document::Document;
 use stencila_format::Format;
 use stencila_graph::{
     Graph, GraphConnectedMode, GraphContainmentMode, GraphProjectionDetail, GraphProjectionOptions,
-    GraphProjectionPreset, StaticAnalysisDiagnostic, WorkspaceOptions, dot::to_dot,
-    filter_graph_view_connected_to, graph_from_node_with_diagnostics,
+    GraphProjectionPreset, RuntimeEvidenceMode, StaticAnalysisDiagnostic, WorkspaceOptions,
+    dot::to_dot, filter_graph_view_connected_to, graph_from_node_with_runtime_evidence,
     graph_from_path_with_diagnostics, project_graph,
 };
 use stencila_server::{DEFAULT_PORT, ServeOptions, ServerStarted, get_server_token};
@@ -80,6 +81,10 @@ pub struct Cli {
     /// Do not include Git commit authors on file-backed workspace graph nodes
     #[arg(long)]
     no_git_authors: bool,
+
+    /// Do not merge cached evidence from prior traced executions
+    #[arg(long)]
+    no_runtime_evidence: bool,
 
     /// Filter projected graph exports to nodes connected to matching nodes
     #[arg(long, value_name = "PATTERN")]
@@ -174,7 +179,13 @@ impl Cli {
             graph,
             diagnostics,
             path,
-        } = build_graph(&self.path, self.no_c2pa, self.no_git_authors).await?;
+        } = build_graph(
+            &self.path,
+            self.no_c2pa,
+            self.no_git_authors,
+            self.no_runtime_evidence,
+        )
+        .await?;
 
         if self.explain {
             if let Some(output) = &self.output {
@@ -442,7 +453,12 @@ struct GraphSource {
     path: PathBuf,
 }
 
-async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result<GraphSource> {
+async fn build_graph(
+    path: &Path,
+    no_c2pa: bool,
+    no_git_authors: bool,
+    no_runtime_evidence: bool,
+) -> Result<GraphSource> {
     let path = path.canonicalize()?;
 
     if path.is_dir() {
@@ -451,6 +467,11 @@ async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result
             Some(WorkspaceOptions {
                 include_c2pa: !no_c2pa,
                 git_file_authors: !no_git_authors,
+                runtime_evidence: if no_runtime_evidence {
+                    RuntimeEvidenceMode::None
+                } else {
+                    RuntimeEvidenceMode::Cached
+                },
                 ..Default::default()
             }),
         )
@@ -469,7 +490,26 @@ async fn build_graph(path: &Path, no_c2pa: bool, no_git_authors: bool) -> Result
             .file_name()
             .and_then(|name| name.to_str())
             .map_or_else(|| "document".to_string(), |name| format!("document:{name}"));
-        let analysis = graph_from_node_with_diagnostics(subject, &node)?;
+        let root = closest_workspace_dir(&path, false).await?;
+        let scope = path
+            .strip_prefix(&root)
+            .ok()
+            .map(Path::to_path_buf)
+            .or_else(|| path.file_name().map(PathBuf::from))
+            .unwrap_or_else(|| PathBuf::from("document"))
+            .to_string_lossy()
+            .replace(std::path::MAIN_SEPARATOR, "/");
+        let analysis = graph_from_node_with_runtime_evidence(
+            subject,
+            scope,
+            &node,
+            &root,
+            if no_runtime_evidence {
+                RuntimeEvidenceMode::None
+            } else {
+                RuntimeEvidenceMode::Cached
+            },
+        )?;
         return Ok(GraphSource {
             graph: analysis.graph,
             diagnostics: analysis.diagnostics,
@@ -704,6 +744,27 @@ mod tests {
             error
                 .to_string()
                 .contains("`--connected-to` is only supported for DOT, SVG, and PNG")
+        );
+        Ok(())
+    }
+
+    #[tokio::test(flavor = "multi_thread")]
+    async fn file_graph_uses_closest_runtime_workspace() -> Result<()> {
+        let temp_dir = tempfile::tempdir()?;
+        let nested = temp_dir.path().join("nested");
+        std::fs::create_dir_all(temp_dir.path().join(".stencila/cache/runtime"))?;
+        std::fs::create_dir_all(&nested)?;
+        let path = nested.join("report.md");
+        std::fs::write(&path, "# Report\n")?;
+
+        let source = build_graph(&path, true, true, true).await?;
+
+        assert!(
+            source
+                .graph
+                .nodes
+                .iter()
+                .any(|node| node.id.starts_with("node:nested/report.md"))
         );
         Ok(())
     }

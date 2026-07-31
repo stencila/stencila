@@ -57,13 +57,13 @@ setup-binstall:
 fix:
 	cargo clippy --workspace --no-deps --tests --fix --allow-dirty
 	cargo fmt --all
-	ruff check --no-cache --fix kernel-python/src/kernel.py
+	ruff check --no-cache --fix kernel-python/src/kernel.py kernel-python/src/tracing.py
 
 # Run linting checks
 lint:
 	cargo clippy --workspace --no-deps --tests
-	ruff check --no-cache kernel-python/src/kernel.py
-	pyright kernel-python/src/kernel.py
+	ruff check --no-cache kernel-python/src/kernel.py kernel-python/src/tracing.py
+	pyright kernel-python/src/kernel.py kernel-python/src/tracing.py
 
 # Setup required before running tests
 test-setup:

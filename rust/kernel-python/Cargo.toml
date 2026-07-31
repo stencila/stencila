@@ -6,7 +6,11 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+serde_json = { workspace = true }
+sha2 = { workspace = true }
 stencila-kernel-micro = { path = "../kernel-micro" }
+tempfile = { workspace = true }
+tokio = { workspace = true }
 
 [dev-dependencies]
 indexmap = { workspace = true }

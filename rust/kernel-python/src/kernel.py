@@ -24,6 +24,7 @@ from typing import Any, Callable, Literal, Optional, TypedDict, Union, get_type_
 # Include separate theme.py (this gets transcluded in build so that there is a
 # single kernel script)
 from .theme import theme
+from .tracing import install_runtime_tracer, trace_context
 
 # 3.9 does not have `type` or TypeAlias.
 PrimitiveType = Union[str, int, float, bool, None]
@@ -155,6 +156,7 @@ READY = "READY" if DEV_MODE else "\U0010acdc"
 LINE = "|" if DEV_MODE else "\U0010abba"
 EXEC = "EXEC" if DEV_MODE else "\U0010b522"
 EVAL = "EVAL" if DEV_MODE else "\U001010cc"
+TRACE = "TRACE" if DEV_MODE else "\U0010a71c"
 FORK = "FORK" if DEV_MODE else "\U0010de70"
 BOX = "BOX" if DEV_MODE else "\U0010b0c5"
 THEME = "THEME" if DEV_MODE else "\U0010DEC0"
@@ -1042,6 +1044,8 @@ def box() -> None:
 
 
 def main() -> None:
+    install_runtime_tracer()
+
     # Signal that ready to receive tasks
     for stream in (sys.stdout, sys.stderr):
         stream.write(READY + "\n")
@@ -1063,6 +1067,12 @@ def main() -> None:
                 code_id += 1
                 code_label = f"Code chunk #{code_id}"
                 execute(lines[1:], code_label)
+            elif task_type == TRACE:
+                code_id += 1
+                code_label = f"Code chunk #{code_id}"
+                options = json.loads(lines[1])
+                with trace_context(options):
+                    execute(lines[2:], code_label)
             elif task_type == EVAL:
                 # Note: if multiple lines provided then joined with space
                 evaluate(" ".join(lines[1:]))

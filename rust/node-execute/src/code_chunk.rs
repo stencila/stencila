@@ -1,5 +1,6 @@
 use std::hash::{Hash, Hasher};
 
+use sha2::{Digest, Sha256};
 use stencila_schema::{
     CodeChunk, CodeLocation, CompilationDigest, CompilationMessage, ExecutionBounds, LabelType,
     NodeProperty,
@@ -294,16 +295,50 @@ impl Executable for CodeChunk {
             let (outputs, messages, instance) = if let Some(kernels) = kernels {
                 let kernels = &mut *kernels.write().await;
 
-                kernels
-                    .execute(&self.code, lang.as_deref())
-                    .await
-                    .unwrap_or_else(|error| {
-                        (
-                            Vec::new(),
-                            vec![error_to_execution_message("While executing code", error)],
-                            String::new(),
-                        )
-                    })
+                let trace = executor
+                    .execute_options
+                    .as_ref()
+                    .is_some_and(|options| options.trace);
+                let result = if trace {
+                    let execute_options = executor.execute_options.as_ref();
+                    let code_digest = Sha256::digest(self.code.as_bytes())
+                        .iter()
+                        .map(|byte| format!("{byte:02x}"))
+                        .collect();
+                    let stable_node_id = executor.stable_node_ids.get(&node_id).unwrap_or(&node_id);
+                    let options = stencila_kernels::RuntimeTraceOptions {
+                        identity: execute_options
+                            .and_then(|options| options.trace_scope.as_deref())
+                            .map_or_else(
+                                || stable_node_id.to_string(),
+                                |scope| format!("document:{scope}#{stable_node_id}"),
+                            ),
+                        code_digest,
+                        cache_dir: execute_options
+                            .and_then(|options| options.trace_workspace.clone())
+                            .unwrap_or_else(|| {
+                                executor
+                                    .directory_stack
+                                    .first()
+                                    .cloned()
+                                    .unwrap_or_default()
+                            })
+                            .join(".stencila/cache/runtime"),
+                    };
+                    kernels
+                        .execute_traced(&self.code, lang.as_deref(), &options)
+                        .await
+                } else {
+                    kernels.execute(&self.code, lang.as_deref()).await
+                };
+
+                result.unwrap_or_else(|error| {
+                    (
+                        Vec::new(),
+                        vec![error_to_execution_message("While executing code", error)],
+                        String::new(),
+                    )
+                })
             } else {
                 (
                     Vec::new(),

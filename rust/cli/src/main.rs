@@ -35,7 +35,7 @@ async fn main() -> Result<()> {
             LoggingFormat::Pretty,
             "all".to_string(),
         )
-    } else if cli.trace {
+    } else if cli.trace_logging {
         (
             LoggingLevel::Trace,
             LoggingFormat::Pretty,

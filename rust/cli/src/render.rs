@@ -1,4 +1,4 @@
-use std::{path::PathBuf, process::exit};
+use std::{env::current_dir, path::PathBuf, process::exit};
 
 use clap::Parser;
 use eyre::{Result, bail, eyre};
@@ -10,6 +10,7 @@ use stencila_cli_utils::{
     message,
     tabulated::{Attribute, Cell, Color},
 };
+use stencila_dirs::closest_workspace_dir;
 use stencila_document::{Document, EncodeInfo};
 use stencila_format::Format;
 use stencila_node_execute::ExecuteOptions;
@@ -116,6 +117,9 @@ pub static CLI_AFTER_LONG_HELP: &str = cstr!(
 
   <dim># Render and cache a document</dim>
   <b>stencila render</b> <g>temp.md</g> <g>output.html</g> <c>--cache</c>
+
+  <dim># Render while tracing Python runtime dependencies</dim>
+  <b>stencila render</b> <c>--trace</c> <g>report.smd</g> <g>report.html</g>
 
   <dim># Spread render with multiple parameter combinations (grid)</dim>
   <b>stencila render</b> <g>report.md</g> <g>'report-{region}-{species}.pdf'</g> -- <c>region</c>=<g>north,south</g> <c>species</c>=<g>ABC,DEF</g>
@@ -257,7 +261,34 @@ impl Cli {
     }
 
     #[allow(clippy::print_stderr)]
-    pub async fn run(self) -> Result<()> {
+    pub async fn run(mut self) -> Result<()> {
+        if self.execute_options.trace {
+            let current_dir = current_dir()?;
+            let workspace_base = self
+                .input
+                .as_deref()
+                .filter(|path| *path != std::path::Path::new("-"))
+                .unwrap_or(&current_dir);
+            let workspace = closest_workspace_dir(workspace_base, false).await?;
+            let scope = self
+                .input
+                .as_ref()
+                .and_then(|path| path.canonicalize().ok())
+                .and_then(|path| path.strip_prefix(&workspace).ok().map(PathBuf::from))
+                .or_else(|| {
+                    self.input
+                        .as_ref()
+                        .and_then(|path| path.file_name().map(PathBuf::from))
+                })
+                .unwrap_or_else(|| PathBuf::from("stdin"));
+            self.execute_options.trace_workspace = Some(workspace);
+            self.execute_options.trace_scope = Some(
+                scope
+                    .to_string_lossy()
+                    .replace(std::path::MAIN_SEPARATOR, "/"),
+            );
+        }
+
         let input = &self.input;
         let outputs = &self.outputs;
         let arguments = self.arguments()?;

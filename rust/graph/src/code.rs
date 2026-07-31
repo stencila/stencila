@@ -42,7 +42,7 @@ pub use facts::{
     WorkflowScriptExecutionFact, WorkflowScriptExecutionKind, WorkflowUnitFacts,
 };
 pub use language::CodeLanguage;
-pub(crate) use util::direct_python_script;
+pub(crate) use util::{direct_python_script, is_python_stdlib};
 pub(crate) use workspace::{WorkspaceCode, add_workspace_code};
 
 #[cfg(test)]

@@ -15,6 +15,7 @@ regex = { workspace = true }
 seahash = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
+sha2 = { workspace = true }
 stencila-codec-biblio = { path = "../codec-biblio" }
 stencila-codec-cbor = { path = "../codec-cbor" }
 stencila-codec-markdown = { path = "../codec-markdown" }
@@ -26,6 +27,7 @@ stencila-linters = { path = "../linters" }
 stencila-models = { path = "../models" }
 stencila-node-contains = { path = "../node-contains" }
 stencila-node-diagnostics = { path = "../node-diagnostics" }
+stencila-node-stabilize = { path = "../node-stabilize" }
 stencila-parsers = { path = "../parsers" }
 stencila-prompts = { path = "../prompts" }
 stencila-schema = { path = "../schema" }

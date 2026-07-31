@@ -17,11 +17,40 @@ use stencila_schema::{
     AuthorRole, AuthorRoleName, Block, CitationGroup, CompilationMessage, ExecutionBounds,
     ExecutionMode, ExecutionRequired, ExecutionStatus, IfBlockClause, Inline, LabelType, Link,
     List, ListItem, ListOrder, Node, NodeId, NodePath, NodeProperty, NodeType, Paragraph, Patch,
-    PatchNode, PatchOp, PatchValue, Reference, SuggestionBlock, Timestamp, VisitorAsync,
+    PatchNode, PatchOp, PatchValue, Reference, SuggestionBlock, Timestamp, Visitor, VisitorAsync,
     WalkControl, WalkNode,
 };
 
 type NodeIds = Vec<NodeId>;
+
+/// Map executable node ids in a live document to the ids used by graph construction.
+///
+/// Document execution must retain live ids so patches can be applied, while graph
+/// construction stabilizes a clone to produce portable ids. Walking both trees in
+/// the same order provides the bridge without mutating the executable document.
+fn stable_node_ids(root: &Node) -> HashMap<NodeId, NodeId> {
+    #[derive(Default)]
+    struct CodeChunkIds(Vec<NodeId>);
+
+    impl Visitor for CodeChunkIds {
+        fn visit_block(&mut self, block: &Block) -> WalkControl {
+            if let Block::CodeChunk(chunk) = block {
+                self.0.push(chunk.node_id());
+            }
+            WalkControl::Continue
+        }
+    }
+
+    let mut live_ids = CodeChunkIds::default();
+    root.walk(&mut live_ids);
+
+    let mut stable = root.clone();
+    stencila_node_stabilize::stabilize(&mut stable);
+    let mut stable_ids = CodeChunkIds::default();
+    stable.walk(&mut stable_ids);
+
+    live_ids.0.into_iter().zip(stable_ids.0).collect()
+}
 
 mod prelude;
 
@@ -94,6 +123,13 @@ pub async fn execute(
     let mut executor = Executor::new(home, kernels, patch_sender);
     executor.node_ids = node_ids;
     executor.execute_options = execute_options;
+    if executor
+        .execute_options
+        .as_ref()
+        .is_some_and(|options| options.trace)
+    {
+        executor.stable_node_ids = stable_node_ids(&root);
+    }
     executor.prepare(&mut root).await?;
     executor.execute(&mut root).await?;
     executor.finalize().await
@@ -181,6 +217,9 @@ pub struct Executor {
     ///
     /// If `None` then the entire node (usually an `Article`) will be executed.
     node_ids: Option<NodeIds>,
+
+    /// Stable graph ids keyed by the corresponding live document node id.
+    stable_node_ids: HashMap<NodeId, NodeId>,
 
     /// The phase of execution
     phase: Phase,
@@ -350,6 +389,20 @@ pub struct CompileOptions {
 #[derive(Debug, Default, Clone, Serialize, Deserialize, PartialEq, Eq, Args)]
 #[serde(default)]
 pub struct ExecuteOptions {
+    /// Trace successful runtime resource access in supported kernels
+    #[arg(long, help_heading = "Execution Options")]
+    pub trace: bool,
+
+    /// Workspace root used internally for runtime trace cache paths
+    #[arg(skip)]
+    #[serde(skip)]
+    pub trace_workspace: Option<PathBuf>,
+
+    /// Document scope used internally for runtime trace identities
+    #[arg(skip)]
+    #[serde(skip)]
+    pub trace_scope: Option<String>,
+
     /// Ignore any errors while executing document
     #[arg(long, help_heading = "Execution Options")]
     pub ignore_errors: bool,
@@ -437,6 +490,7 @@ impl Executor {
             kernels,
             patch_sender,
             node_ids: None,
+            stable_node_ids: HashMap::new(),
             phase: Phase::Prepare,
             execution_status: ExecutionStatus::Pending,
             walk_ancestors: Default::default(),
@@ -1476,17 +1530,37 @@ mod labelling_tests {
 
     use stencila_kernels::Kernels;
     use stencila_schema::{
-        Article, Block, Datatable, ExecutionBounds, Heading, Inline, Link, MathBlock, NodeId,
-        NodeType, VisitorAsync,
+        Article, Block, CodeChunk, Datatable, ExecutionBounds, Heading, Inline, Link, MathBlock,
+        Node, NodeId, NodeType, VisitorAsync,
         shortcuts::{ci, stg, t},
     };
     use tokio::sync::RwLock;
 
-    use super::{Executable, Executor};
+    use super::{Executable, Executor, stable_node_ids};
 
     fn test_executor() -> Executor {
         let kernels = Kernels::new(ExecutionBounds::Main, &PathBuf::from("."), None);
         Executor::new(PathBuf::from("."), Arc::new(RwLock::new(kernels)), None)
+    }
+
+    #[test]
+    fn runtime_trace_ids_match_stabilized_document_ids() -> eyre::Result<()> {
+        let chunk = CodeChunk::new("1 + 1".into());
+        let live_id = chunk.node_id();
+        let root = Node::Article(Article::new(vec![Block::CodeChunk(chunk)]));
+
+        let ids = stable_node_ids(&root);
+        let mut stable = root.clone();
+        stencila_node_stabilize::stabilize(&mut stable);
+        let Node::Article(article) = stable else {
+            eyre::bail!("expected article")
+        };
+        let Some(Block::CodeChunk(chunk)) = article.content.first() else {
+            eyre::bail!("expected code chunk")
+        };
+
+        assert_eq!(ids.get(&live_id), Some(&chunk.node_id()));
+        Ok(())
     }
 
     #[test]

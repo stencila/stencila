@@ -504,7 +504,7 @@ fn is_node_builtin(value: &str) -> bool {
 /// recording them as PyPI packages would create misleading joins with
 /// manifest-declared dependencies — most acutely for names like `pathlib`
 /// that also exist as deprecated PyPI projects.
-pub(super) fn is_python_stdlib(value: &str) -> bool {
+pub(crate) fn is_python_stdlib(value: &str) -> bool {
     matches!(
         value,
         "__future__"

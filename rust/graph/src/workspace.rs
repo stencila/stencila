@@ -26,6 +26,7 @@ use crate::{
         document_relative_workspace_path, is_local_relative_reference, normalize_path_lexically,
         reference_path_candidates,
     },
+    runtime::{RuntimeEvidenceMode, add_cached_runtime_evidence},
     source,
 };
 
@@ -109,6 +110,9 @@ pub struct WorkspaceOptions {
     /// When enabled, graph construction inspects Git history for the workspace
     /// subtree and records unique commit authors on file-backed nodes.
     pub git_file_authors: bool,
+
+    /// Optionally merge digest-valid evidence from prior traced executions.
+    pub runtime_evidence: RuntimeEvidenceMode,
 }
 
 impl Default for WorkspaceOptions {
@@ -126,6 +130,7 @@ impl Default for WorkspaceOptions {
             fail_on_c2pa_error: false,
             source_metadata: true,
             git_file_authors: true,
+            runtime_evidence: RuntimeEvidenceMode::None,
         }
     }
 }
@@ -462,6 +467,10 @@ pub async fn graph_from_path_with_diagnostics(
         let candidates = crate::c2pa::candidates_from_files(c2pa_files);
         crate::c2pa::add_c2pa_from_candidates(&mut builder, candidates, options.fail_on_c2pa_error)
             .await?;
+    }
+
+    if options.runtime_evidence == RuntimeEvidenceMode::Cached {
+        add_cached_runtime_evidence(&mut builder, &root);
     }
 
     let diagnostics = builder.take_diagnostics();

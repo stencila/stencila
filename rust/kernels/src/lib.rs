@@ -29,9 +29,13 @@ use stencila_kernel_tex::TexKernel;
 //#[cfg(feature = "stencila-kernel-rhai")]
 //use stencila_kernel_rhai::RhaiKernel;
 
-pub use stencila_kernel::{KernelAvailability, KernelProvider, KernelSpecification, KernelType};
+pub use stencila_kernel::{
+    KernelAvailability, KernelProvider, KernelSpecification, KernelType, RuntimeTraceOptions,
+};
 
 pub mod cli;
+
+pub use stencila_kernel_python::trace_script as trace_python_script;
 
 /// Get a list of available kernels
 pub async fn list() -> Vec<Box<dyn Kernel>> {
@@ -384,6 +388,31 @@ impl Kernels {
 
         let mut instance = instance.lock().await;
         let (nodes, messages) = instance.execute_language(code, language).await?;
+        let id = instance.id().to_string();
+
+        Ok((nodes, messages, id))
+    }
+
+    /// Execute code with opt-in runtime tracing.
+    ///
+    /// Kernels without tracing support execute normally through the default
+    /// kernel API implementation.
+    pub async fn execute_traced(
+        &mut self,
+        code: &str,
+        language: Option<&str>,
+        options: &RuntimeTraceOptions,
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>, String)> {
+        let instance = match language {
+            Some(language) => match self.get_instance_for(language).await? {
+                Some(instance) => instance,
+                None => self.create_instance(Some(language)).await?,
+            },
+            None => self.get_instance_programming().await?,
+        };
+
+        let mut instance = instance.lock().await;
+        let (nodes, messages) = instance.execute_traced(code, options).await?;
         let id = instance.id().to_string();
 
         Ok((nodes, messages, id))

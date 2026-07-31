@@ -2,7 +2,7 @@ use std::{
     collections::BTreeMap,
     env::{self, current_dir},
     fs::{create_dir_all, write},
-    path::PathBuf,
+    path::{Path, PathBuf},
     process::Stdio,
 };
 
@@ -27,7 +27,8 @@ use stencila_version::STENCILA_VERSION;
 // the `Microkernel` trait
 pub use stencila_kernel::{
     Kernel, KernelAvailability, KernelInstance, KernelInterrupt, KernelKill, KernelProvider,
-    KernelSignal, KernelStatus, KernelTerminate, eyre, stencila_format, stencila_schema, tests,
+    KernelSignal, KernelStatus, KernelTerminate, RuntimeTraceOptions, eyre, stencila_format,
+    stencila_schema, tests,
 };
 
 use stencila_kernel::{
@@ -39,6 +40,72 @@ use stencila_kernel::{
         SoftwareSourceCode, Variable,
     },
 };
+
+/// Resolve an executable and arguments using the same environment selection as
+/// a microkernel process.
+///
+/// Python executables prefer uv, then `PYTHON_PATH`, then the nearest devbox or
+/// `.venv`, before falling back to `PATH`. Other executables use the nearest
+/// devbox or `.venv` when available and otherwise fall back to `PATH`.
+pub fn resolve_executable(
+    executable_name: &str,
+    mut arguments: Vec<String>,
+    directory: &Path,
+) -> Result<(PathBuf, Vec<String>)> {
+    let mut executable_path = None;
+
+    if executable_name.starts_with("python") {
+        if let Ok(uv_path) = which("uv") {
+            executable_path = Some(uv_path);
+            arguments.insert(0, "run".into());
+        } else if let Ok(python_path) = env::var("PYTHON_PATH") {
+            executable_path = Some(PathBuf::from(python_path));
+        }
+    }
+
+    if executable_path.is_none() {
+        let mut current = directory.to_path_buf();
+        loop {
+            let devbox_file = current.join("devbox.json");
+            if devbox_file.is_file()
+                && let Ok(devbox_path) = which("devbox")
+            {
+                executable_path = Some(devbox_path);
+                arguments.splice(
+                    0..0,
+                    [
+                        "run".to_string(),
+                        "--".to_string(),
+                        executable_name.to_string(),
+                    ],
+                );
+                break;
+            }
+
+            let venv_path = current.join(".venv").join("bin").join(executable_name);
+            if venv_path.exists() {
+                executable_path = Some(venv_path);
+                break;
+            }
+
+            if !current.pop() {
+                break;
+            }
+        }
+    }
+
+    let executable_path = match executable_path {
+        Some(path) => path,
+        None => which(executable_name).map_err(|error| {
+            eyre!(
+                "While searching for '{executable_name}' on PATH '{}': {error}",
+                env::var("PATH").unwrap_or_default()
+            )
+        })?,
+    };
+
+    Ok((executable_path, arguments))
+}
 
 /// A specification for a minimal, lightweight execution kernel in a spawned process
 #[async_trait]
@@ -320,6 +387,8 @@ enum MicrokernelFlag {
     Exec,
     /// Sent by Rust to signal the start of an `evaluation` task
     Eval,
+    /// Sent by Rust to signal a runtime-traced `execute` task
+    Trace,
     /// Sent by Rust to signal the start of a `fork` task
     Fork,
     /// Sent by Rust to signal that the kernel should have restricted capabilities
@@ -356,6 +425,7 @@ impl MicrokernelFlag {
             Pkgs => "\u{10BEC4}",
             Exec => "\u{10B522}",
             Eval => "\u{1010CC}",
+            Trace => "\u{10A71C}",
             Fork => "\u{10DE70}",
             Box => "\u{10B0C5}",
             Theme => "\u{10DEC0}",
@@ -409,78 +479,8 @@ impl KernelInstance for MicrokernelInstance {
         }
 
         let exec_name = self.executable_name.clone();
-        let mut exec_args = self.executable_args.clone();
-        let mut exec_path = None;
-        let mut using_uv = false;
-
-        if exec_name.starts_with("python") {
-            if let Ok(uv_path) = which("uv") {
-                // UV is installed so use it so that it can resolve the nearest pyproject.toml
-                // for us (and install dependencies if necessary)
-                using_uv = true;
-                exec_path = Some(uv_path);
-                exec_args.insert(0, "run".into());
-            } else if let Ok(python_path) = env::var("PYTHON_PATH") {
-                // The PYTHON_PATH env var exists (usually set by LSP client) so use it
-                exec_path = Some(PathBuf::from(python_path));
-            }
-        }
-
-        // Search for an environment in the current, or ancestor, directories
-        if exec_path.is_none() {
-            let mut current_dir = directory.to_path_buf();
-            let mut in_pyproject = false;
-            loop {
-                // Check for devbox.json
-                let devbox_file: PathBuf = current_dir.join("devbox.json");
-                if let (true, Ok(devbox_path)) = (devbox_file.is_file(), which("devbox")) {
-                    // Run `devbox run -- ...`
-                    exec_path = Some(devbox_path);
-                    exec_args.splice(
-                        0..0,
-                        ["run".to_string(), "--".to_string(), exec_name.clone()],
-                    );
-                    break;
-                }
-
-                // Check for pyproject.toml
-                let pyproject_toml = current_dir.join("pyproject.toml");
-                if pyproject_toml.is_file() {
-                    in_pyproject = true;
-                }
-
-                // Check for .venv directory with the desired exec in it
-                let venv_path = current_dir
-                    .join(".venv")
-                    .join("bin")
-                    .join(exec_name.clone());
-                if venv_path.exists() {
-                    // Set the executable path to the one in the venv
-                    exec_path = Some(venv_path);
-                    break;
-                }
-
-                // Move up to the parent directory
-                if !current_dir.pop() {
-                    // We've reached the root of the file system so stop
-                    break;
-                }
-            }
-
-            // If the executable is `uv` and we are not in a pyproject add argument
-            // to use the system Python. Otherwise, no packages will be available, just plain Python.
-            if using_uv && !in_pyproject {
-                exec_args.insert(0, "--python-preference=system".into())
-            }
-        }
-
-        // Get the path to the executable, failing early if it can not be found
-        let exec_path = exec_path.unwrap_or(which(&exec_name).map_err(|error| {
-            eyre!(
-                "While searching for '{exec_name}' on PATH '{}': {error}",
-                std::env::var("PATH").unwrap_or_default()
-            )
-        })?);
+        let (exec_path, exec_args) =
+            resolve_executable(&exec_name, self.executable_args.clone(), directory)?;
 
         tracing::debug!(
             "Running `{} {}` in `{}`",
@@ -625,6 +625,20 @@ impl KernelInstance for MicrokernelInstance {
 
     async fn execute(&mut self, code: &str) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
         self.send_receive(MicrokernelFlag::Exec, [code]).await
+    }
+
+    async fn execute_traced(
+        &mut self,
+        code: &str,
+        options: &RuntimeTraceOptions,
+    ) -> Result<(Vec<Node>, Vec<ExecutionMessage>)> {
+        if self.kernel_name != "python" {
+            return self.execute(code).await;
+        }
+
+        let options = serde_json::to_string(options)?;
+        self.send_receive(MicrokernelFlag::Trace, [options.as_str(), code])
+            .await
     }
 
     async fn evaluate(&mut self, code: &str) -> Result<(Node, Vec<ExecutionMessage>)> {
