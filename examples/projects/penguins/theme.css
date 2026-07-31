@@ -1,0 +1,571 @@
+/*
+ * ASTRA / Lightcone Research document theme
+ *
+ * An editorial scientific-paper treatment based on Lightcone Research's
+ * restrained parchment, charcoal, Antique Gold, Slate Blue, Vert de Gris,
+ * and Wax Red design language. Stencila's base theme is loaded implicitly.
+ */
+
+:root {
+    /* Lightcone Research palette */
+    --astra-paper: #ffffff;
+    --astra-parchment: #f1efe9;
+    --astra-parchment-deep: #e9e6dd;
+    --astra-charcoal: #221f20;
+    --astra-blue-ink: #4e5a70;
+    --astra-mushroom: #8b7d70;
+    --astra-rule: #e4e1d7;
+    --astra-rule-strong: #d2ccbf;
+    --astra-gold: #a67c3c;
+    --astra-slate: #3f7280;
+    --astra-verdigris: #3b7a73;
+    --astra-wax-red: #a45a43;
+
+    /* Font roles mirror ASTRA's editorial hierarchy, with offline fallbacks. */
+    --font-family-serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, serif;
+    --font-family-sans: "Alegreya", "Avenir Next", Avenir, "Segoe UI", sans-serif;
+    --font-family-mono: "JetBrains Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+    --text-font-family: var(--font-family-serif);
+
+    /* Semantic foundation */
+    --surface-background: var(--astra-paper);
+    --surface-background-dark: var(--astra-charcoal);
+    --surface-background-print: var(--astra-paper);
+    --surface-sunken: var(--astra-parchment-deep);
+    --surface-sunken-dark: #312d2e;
+    --surface-sunken-print: var(--astra-parchment);
+    --surface-elevated: var(--astra-parchment);
+    --surface-elevated-dark: #2a2728;
+    --surface-elevated-print: var(--astra-parchment);
+    --surface-raised: #fbf9f4;
+    --surface-raised-dark: #2a2728;
+    --surface-raised-print: #fbf9f4;
+
+    --text-color-primary: var(--astra-charcoal);
+    --text-color-primary-dark: var(--astra-parchment);
+    --text-color-primary-print: var(--astra-charcoal);
+    --text-color-secondary: var(--astra-blue-ink);
+    --text-color-secondary-dark: #b4bdcd;
+    --text-color-secondary-print: var(--astra-blue-ink);
+    --text-color-muted: var(--astra-mushroom);
+    --text-color-muted-dark: #9c9085;
+    --text-color-muted-print: var(--astra-mushroom);
+
+    --border-color-default: var(--astra-rule-strong);
+    --border-color-default-dark: #4c4747;
+    --border-color-default-print: var(--astra-rule-strong);
+    --border-color-muted: var(--astra-rule);
+    --border-color-muted-dark: #3b3738;
+    --border-color-emphasis: var(--astra-gold);
+    --border-color-emphasis-dark: #c2924a;
+    --border-radius-default: 3px;
+
+    --color-accent: var(--astra-gold);
+    --color-accent-dark: #c2924a;
+    --color-accent-muted: #f2eadc;
+    --color-accent-muted-dark: #493a27;
+    --focus-ring-color: var(--astra-slate);
+    --focus-ring-color-dark: #7fa8b5;
+
+    /* Editorial measure and body rhythm */
+    --text-font-size: 1rem;
+    --text-font-size-mobile: 1rem;
+    --text-font-size-print: 8.6pt;
+    --text-line-height: 1.55;
+    --text-line-height-mobile: 1.62;
+    --text-line-height-print: 1.42;
+    --text-letter-spacing: 0.002em;
+    --content-width: 76ch;
+    --content-breakout-width: min(92vw, 1080px);
+    --content-spacing: 0.9rem;
+
+    /* Article title */
+    --work-title-font-family: "Quattrocento", var(--font-family-serif);
+    --work-title-font-size: calc(var(--text-font-size) * 2.15);
+    --work-title-font-size-print: 18pt;
+    --work-title-font-weight: 400;
+    --work-title-line-height: 1.12;
+    --work-title-letter-spacing: -0.018em;
+    --work-title-color: var(--astra-gold);
+    --work-title-text-align: left;
+    --work-title-max-width: var(--work-content-max-width);
+    --work-title-margin-bottom: 1.1rem;
+
+    --work-authors-font-size: calc(var(--text-font-size) * 0.92);
+    --work-authors-margin-bottom: 1.1rem;
+
+    --work-abstract-font-size: calc(var(--text-font-size) * 0.96);
+    --work-abstract-background: var(--astra-parchment);
+    --work-abstract-max-width: var(--work-content-max-width);
+    --work-abstract-margin-bottom: 1.4rem;
+
+    /* Section hierarchy */
+    --heading-font-family: "Quattrocento", var(--font-family-serif);
+    --heading-font-size: calc(var(--text-font-size) * 1.48);
+    --heading-font-size-print: 11pt;
+    --heading-font-size-ratio: 0.84;
+    --heading-font-weight: 400;
+    --heading-font-weight-decrement: 0;
+    --heading-letter-spacing: -0.01em;
+    --heading-color: var(--astra-gold);
+    --heading-color-dark: #c2924a;
+    --heading-spacing-top: calc(var(--content-spacing) * 1.7);
+    --heading-spacing-bottom: calc(var(--content-spacing) * 0.42);
+
+    --paragraph-spacing: calc(var(--content-spacing) * 0.45);
+    --paragraph-text-align: justify;
+    --paragraph-hyphens: auto;
+    --paragraph-text-wrap: pretty;
+
+    /* Figures and captions */
+    --caption-font-family: var(--font-family-sans);
+    --caption-font-size: calc(var(--text-font-size) * 0.78);
+    --caption-color: var(--astra-blue-ink);
+    --caption-color-dark: #b4bdcd;
+    --caption-line-height: 1.32;
+    --caption-line-height-print: 1.24;
+    --caption-align: left;
+    --caption-spacing: calc(var(--content-spacing) * 0.32);
+
+    --figure-spacing-top: calc(var(--content-spacing) * 1.25);
+    --figure-spacing-bottom: calc(var(--content-spacing) * 1.2);
+    --figure-background: transparent;
+    --figure-background-dark: transparent;
+    --figure-background-print: transparent;
+    --figure-border-width: 0;
+    --figure-border-radius: 3px;
+    --figure-subfigure-gap: 0.7rem;
+    --figure-label-color: var(--astra-gold);
+    --figure-label-font-weight: 700;
+    --figure-sublabel-font-family: var(--font-family-sans);
+    --figure-sublabel-font-size: 0.7rem;
+    --figure-sublabel-font-weight: 700;
+    --figure-sublabel-color: var(--astra-paper);
+    --figure-sublabel-color-dark: var(--astra-charcoal);
+    --figure-sublabel-background: color-mix(in srgb, var(--astra-slate) 92%, transparent);
+    --figure-sublabel-background-dark: color-mix(in srgb, #7fa8b5 92%, transparent);
+    --figure-sublabel-border: 0;
+    --figure-sublabel-border-radius: 999px;
+    --figure-sublabel-padding: 0.15em 0.52em;
+
+    /* Tables */
+    --table-max-width: var(--content-breakout-width);
+    --table-border-color: var(--astra-rule-strong);
+    --table-border-width: 0;
+    --table-border-width-print: 0;
+    --table-row-border-color: var(--astra-rule-strong);
+    --table-row-border-width: 1px;
+    --table-row-border-width-print: 0.4pt;
+    --table-header-background: var(--astra-parchment-deep);
+    --table-header-background-dark: #312d2e;
+    --table-header-background-print: var(--astra-parchment);
+    --table-header-font-weight: 600;
+    --table-cell-font-family: var(--font-family-sans);
+    --table-cell-font-size: calc(var(--text-font-size) * 0.82);
+    --table-cell-padding: 0.5rem 0.65rem;
+    --table-row-striped: color-mix(in srgb, var(--astra-parchment) 55%, transparent);
+    --table-row-striped-dark: color-mix(in srgb, #312d2e 55%, transparent);
+    --table-row-striped-print: color-mix(in srgb, var(--astra-parchment) 55%, transparent);
+    --table-label-color: var(--astra-gold);
+
+    /* Code and plot handoff */
+    --code-font-family: var(--font-family-mono);
+    --code-theme: basic-light;
+    --code-theme-dark: basic-dark;
+    --plot-theme: custom;
+    --plot-font-family: var(--font-family-sans);
+    --plot-background: var(--astra-paper);
+    --plot-background-dark: var(--astra-charcoal);
+    --plot-panel: var(--astra-paper);
+    --plot-panel-dark: var(--astra-charcoal);
+    --plot-text-color: var(--astra-charcoal);
+    --plot-text-color-dark: var(--astra-parchment);
+    --plot-grid-color: var(--astra-rule);
+    --plot-grid-color-dark: #4c4747;
+    --plot-color-1: var(--astra-slate);
+    --plot-color-1-dark: #7fa8b5;
+    --plot-color-2: var(--astra-wax-red);
+    --plot-color-2-dark: #c97f66;
+    --plot-color-3: var(--astra-verdigris);
+    --plot-color-3-dark: #5fa199;
+    --plot-color-4: var(--astra-gold);
+    --plot-color-4-dark: #c2924a;
+
+    --link-color: var(--astra-gold);
+    --link-color-visited: #7f653d;
+    --link-decoration: underline;
+    --reference-font-size: calc(var(--text-font-size) * 0.82);
+    --reference-line-height: 1.3;
+}
+
+::selection {
+    color: var(--astra-charcoal);
+    background: #e6d5b8;
+}
+
+stencila-article[root] {
+    color: var(--text-color-primary);
+    background: var(--surface-background);
+}
+
+stencila-article > [slot='title'] {
+    position: relative;
+    margin-top: 1.3rem;
+    padding-top: 1.35rem;
+}
+
+stencila-article > [slot='title']::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 8rem;
+    height: 3px;
+    background: linear-gradient(
+        90deg,
+        var(--astra-gold) 0 45%,
+        var(--astra-slate) 45% 72%,
+        var(--astra-verdigris) 72% 88%,
+        var(--astra-wax-red) 88% 100%
+    );
+}
+
+stencila-article > [slot='authors'],
+stencila-article > [slot='affiliations'],
+stencila-article > [slot='contacts'],
+stencila-article > [slot='correspondence'] {
+    color: var(--astra-blue-ink);
+    font-family: var(--font-family-sans);
+}
+
+stencila-article > [slot='abstract'] {
+    box-sizing: border-box;
+    padding: 1rem 1.2rem 1.05rem;
+    border-left: 3px solid var(--astra-gold);
+    box-shadow: inset 0 0 0 1px var(--astra-rule);
+}
+
+stencila-article > [slot='abstract'] stencila-heading {
+    margin-top: 0;
+}
+
+stencila-article > [slot='abstract'] stencila-heading h1,
+stencila-article > [slot='abstract'] stencila-heading h2 {
+    color: var(--astra-slate);
+    font-family: var(--font-family-sans);
+    font-size: 0.78em;
+    font-weight: 600;
+    letter-spacing: 0.11em;
+    text-transform: uppercase;
+}
+
+stencila-article
+    > [slot='content']
+    stencila-heading[level='1']
+    h1 {
+    display: inline-block;
+    padding-top: 0.32rem;
+    border-top: 1px solid var(--astra-rule-strong);
+}
+
+stencila-heading[level='2'] h2,
+stencila-heading[level='3'] h3 {
+    color: var(--astra-slate);
+    font-family: var(--font-family-sans);
+    font-weight: 600;
+}
+
+stencila-link a {
+    text-decoration-thickness: 0.06em;
+    text-underline-offset: 0.16em;
+}
+
+stencila-block-quote {
+    border-left: 3px solid var(--astra-verdigris);
+    color: var(--astra-blue-ink);
+    background: color-mix(in srgb, var(--astra-parchment) 70%, transparent);
+}
+
+stencila-code-block,
+stencila-code-chunk {
+    --code-block-background: var(--astra-parchment);
+    --code-block-background-dark: #2a2728;
+    --code-block-border-color: var(--astra-rule-strong);
+    --code-block-border-color-dark: #4c4747;
+    --code-block-border-radius: 3px;
+}
+
+stencila-figure {
+    break-inside: avoid;
+}
+
+stencila-figure > figure > figcaption,
+stencila-figure > [slot='content'] > figcaption,
+stencila-figure figcaption {
+    box-sizing: border-box;
+    margin-top: var(--caption-spacing);
+    padding: 0.65rem 0.8rem 0.7rem;
+    border-left: 3px solid var(--astra-gold);
+    background: var(--astra-parchment);
+}
+
+stencila-figure stencila-figure figcaption {
+    padding: 0.42rem 0.58rem;
+    border-left-color: var(--astra-slate);
+    background: color-mix(in srgb, var(--astra-parchment) 65%, transparent);
+}
+
+stencila-figure figcaption stencila-paragraph,
+stencila-figure figcaption stencila-paragraph p {
+    margin: 0;
+    text-indent: 0;
+}
+
+stencila-table {
+    break-inside: avoid;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root:not([data-color-scheme='light']) {
+        --astra-gold: #c2924a;
+        --astra-slate: #7fa8b5;
+        --astra-verdigris: #5fa199;
+        --astra-wax-red: #c97f66;
+        --astra-rule: #3b3738;
+        --astra-rule-strong: #4c4747;
+        --astra-blue-ink: #b4bdcd;
+    }
+}
+
+:root[data-color-scheme='dark'] {
+    --astra-gold: #c2924a;
+    --astra-slate: #7fa8b5;
+    --astra-verdigris: #5fa199;
+    --astra-wax-red: #c97f66;
+    --astra-rule: #3b3738;
+    --astra-rule-strong: #4c4747;
+    --astra-blue-ink: #b4bdcd;
+}
+
+@media (max-width: 640px) {
+    stencila-article > [slot='title'] {
+        padding-top: 1rem;
+    }
+
+    stencila-article > [slot='title']::before {
+        width: 5.5rem;
+    }
+
+    stencila-figure figcaption {
+        padding: 0.55rem 0.65rem;
+    }
+}
+
+@media print {
+    :root,
+    :root[data-color-scheme='dark'],
+    :root:not([data-color-scheme='light']) {
+        --astra-paper: #ffffff;
+        --astra-parchment: #f1efe9;
+        --astra-parchment-deep: #e9e6dd;
+        --astra-charcoal: #221f20;
+        --astra-blue-ink: #4e5a70;
+        --astra-rule: #e4e1d7;
+        --astra-rule-strong: #d2ccbf;
+        --astra-gold: #a67c3c;
+        --astra-slate: #3f7280;
+        --astra-verdigris: #3b7a73;
+        --astra-wax-red: #a45a43;
+
+        --surface-background: var(--astra-paper);
+        --surface-elevated: var(--astra-parchment);
+        --surface-sunken: var(--astra-parchment-deep);
+        --text-color-primary: var(--astra-charcoal);
+        --text-color-secondary: var(--astra-blue-ink);
+        --text-color-muted: var(--astra-mushroom);
+        --color-accent: var(--astra-gold);
+
+        --text-font-size: var(--text-font-size-print);
+        --text-line-height: var(--text-line-height-print);
+        --content-spacing: 3.2pt;
+        --content-width: 100%;
+        --content-width-print: 100%;
+        --content-breakout-width: 100%;
+        --work-content-max-width: 100%;
+        --figure-max-width-print: 100%;
+
+        --page-margin-top: 15mm;
+        --page-margin-right: 22mm;
+        --page-margin-bottom: 15mm;
+        --page-margin-left: 0;
+        --page-content-width: 165mm;
+
+        --page-margin-font-family: var(--font-family-sans);
+        --page-margin-font-size: 6.8pt;
+        --page-margin-color: var(--astra-mushroom);
+        --page-top-left-content: '';
+        --page-top-center-content: '';
+        --page-top-right-content: '';
+        --page-bottom-left-content: 'ASTRA · PALMER PENGUINS';
+        --page-bottom-center-content: '';
+        --page-bottom-right-content: counter(page);
+        --page1-bottom-left-content: var(--page-bottom-left-content);
+        --page1-bottom-right-content: counter(page);
+        --page-border-wide: 0;
+        --page1-border-wide: 0;
+
+        --work-title-font-size: var(--work-title-font-size-print);
+        --heading-font-size: var(--heading-font-size-print);
+    }
+
+    @page {
+        @bottom-left {
+            padding-left: 23mm;
+            color: var(--astra-slate);
+            letter-spacing: 0.09em;
+        }
+    }
+
+    @page :first {
+        margin-top: 0;
+    }
+
+    stencila-article[root] {
+        display: block;
+        position: relative;
+        padding-top: 15mm;
+        padding-left: 23mm;
+    }
+
+    /* A narrow provenance rail: gold opens into the cooler analysis palette. */
+    stencila-article[root]::before {
+        content: '';
+        position: absolute;
+        z-index: 2;
+        top: 0;
+        left: 0;
+        width: 7mm;
+        height: 272mm;
+        pointer-events: none;
+        background: linear-gradient(
+            to bottom,
+            var(--astra-charcoal) 0 19mm,
+            var(--astra-gold) 19mm 45mm,
+            var(--astra-wax-red) 45mm 51mm,
+            var(--astra-verdigris) 51mm 58mm,
+            var(--astra-slate) 58mm 272mm
+        );
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-article > [slot='title'] {
+        z-index: 1;
+        margin-top: 0;
+        margin-bottom: 4mm;
+        padding-top: 15mm;
+    }
+
+    stencila-article > [slot='title']::before {
+        width: 24mm;
+        height: 0.7mm;
+    }
+
+    stencila-article > [slot='authors'] {
+        font-size: 8.2pt;
+    }
+
+    stencila-article > [slot='abstract'] {
+        break-inside: avoid;
+        margin-bottom: 4mm;
+        padding: 3mm 3.8mm;
+        border-left-width: 0.8mm;
+        font-size: 8pt;
+        line-height: 1.38;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-heading[level='1'] {
+        margin-top: 3.4mm;
+    }
+
+    stencila-heading[level='2'] {
+        margin-top: 2.3mm;
+    }
+
+    stencila-heading h1 {
+        font-size: 10.6pt;
+    }
+
+    stencila-heading h2 {
+        font-size: 9pt;
+    }
+
+    stencila-heading h3,
+    stencila-heading h4,
+    stencila-heading h5,
+    stencila-heading h6 {
+        font-size: 8.3pt;
+    }
+
+    stencila-article
+        > [slot='content']
+        stencila-heading[level='1']
+        h1 {
+        padding-top: 0.55mm;
+        border-top-width: 0.3pt;
+    }
+
+    stencila-paragraph {
+        margin-top: 0;
+        margin-bottom: 0;
+    }
+
+    stencila-paragraph p {
+        text-indent: 3mm;
+    }
+
+    stencila-heading + stencila-paragraph p,
+    stencila-figure + stencila-paragraph p,
+    stencila-section > [slot='content'] > stencila-paragraph:first-of-type p,
+    stencila-figure figcaption stencila-paragraph p {
+        text-indent: 0;
+    }
+
+    stencila-figure {
+        margin-top: 3.5mm;
+        margin-bottom: 2.5mm;
+    }
+
+    stencila-figure figcaption {
+        margin-top: 1mm;
+        padding: 1.5mm 2mm 1.6mm;
+        border-left-width: 0.7mm;
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+    }
+
+    stencila-figure stencila-figure figcaption {
+        padding: 1mm 1.4mm;
+        border-left-width: 0.4mm;
+    }
+
+    stencila-figure figcaption stencila-paragraph p {
+        font-size: 7.3pt;
+        line-height: 1.22;
+    }
+
+    stencila-reference p {
+        font-size: 6.8pt;
+    }
+
+    stencila-table {
+        margin-block: 2.5mm;
+    }
+
+    stencila-math-block {
+        margin-block: 1.5mm;
+        font-size: 8pt;
+    }
+}

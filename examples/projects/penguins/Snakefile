@@ -73,7 +73,7 @@ rule plot_sensitivity:
 
 rule execute_article:
     input:
-        article="article.smd", audit="results/audit.csv", dimorphism="results/dimorphism.csv",
+        article="article.myst", audit="results/audit.csv", dimorphism="results/dimorphism.csv",
         models="results/isotope_models.csv", sensitivity="results/sensitivity.csv",
         schematic="schematic.png", figure_dimorphism="figures/dimorphism.png",
         figure_isotopes="figures/isotopes.png", figure_sensitivity="figures/sensitivity.png"
@@ -81,7 +81,9 @@ rule execute_article:
     shell: STENCILA + " execute --trace {input.article} && touch {output}"
 
 rule render_article:
-    input: article="article.smd", executed=".stencila/cache/penguins/article.executed"
+    input:
+        article="article.myst", executed=".stencila/cache/penguins/article.executed",
+        theme="theme.css"
     output: "article.pdf"
     shell: STENCILA + " render {input.article} {output} --credentials"
 

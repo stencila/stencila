@@ -3,7 +3,9 @@ title: Sex, structural size, and pre-breeding isotope variation in Palmer Pengui
 description: A paper-informed replication and focused sensitivity analysis across three Pygoscelis species.
 ---
 
-```python exec hide
+```{code-cell} python
+:hide: true
+
 import pandas as pd
 
 audit = pd.read_csv("results/audit.csv")
@@ -38,7 +40,7 @@ excluded_row = audit.loc[audit["species"].eq("Adelie"), "excluded_outlier_row_id
 
 # Abstract
 
-We asked whether sex or structural size better explains pre-breeding red-blood-cell isotope variation in 344 Palmer Penguins. In the eligible baseline sample, males were `round(body_min, 1)`{python exec}% to `round(body_max, 1)`{python exec}% heavier than females across species. Information-theoretic model comparisons favored sex over size for nitrogen variation, while carbon patterns were species dependent: year led for Adelie and Chinstrap, and size plus year led for Gentoo. Seven focused one-at-a-time sensitivity analyses preserved the sex-over-size result for nitrogen in `nitrogen_sex_wins`{python exec} of `nitrogen_comparisons`{python exec} candidate-set comparisons. These results distinguish robust sexual differentiation in trophic-position signals from more heterogeneous carbon-source patterns.
+We asked whether sex or structural size better explains pre-breeding red-blood-cell isotope variation in 344 Palmer Penguins. In the eligible baseline sample, males were {eval python}`round(body_min, 1)`% to {eval python}`round(body_max, 1)`% heavier than females across species. Information-theoretic model comparisons favored sex over size for nitrogen variation, while carbon patterns were species dependent: year led for Adelie and Chinstrap, and size plus year led for Gentoo. Seven focused one-at-a-time sensitivity analyses preserved the sex-over-size result for nitrogen in {eval python}`nitrogen_sex_wins` of {eval python}`nitrogen_comparisons` candidate-set comparisons. These results distinguish robust sexual differentiation in trophic-position signals from more heterogeneous carbon-source patterns.
 
 # Introduction
 
@@ -48,23 +50,13 @@ Sexual size dimorphism may accompany ecological niche differentiation when males
 
 The source comprises species-specific, citable Environmental Data Initiative packages for Adelie, Chinstrap, and Gentoo penguins. The normalized table retains all 344 observations, converts the source's `.` sex code to missing, derives year from egg date, and assigns a stable species/sample row ID. Quality flags expose missing sex, morphology, and isotope measurements rather than silently deleting rows. The ASTRA manifest records each source, methodological decision, output, and evidence link; the Snakefile and Stencila runtime traces record how declared artifacts were produced.
 
-::: figure [40 60]
+:::{figure}
+:label: 1
+:layout: 40 60
 
-    ::: figure
-    
-    ![](schematic.png)
+![Measurement schematic for culmen and flipper dimensions.](schematic.png)
 
-    Measurement schematic for culmen and flipper dimensions.
-
-    :::
-
-    ::: figure
-    
-    ![](figures/dimorphism.png)
-
-    Species-specific structural-size PC1 means and standard errors by sex.
-
-    :::
+![Species-specific structural-size PC1 means and standard errors by sex.](figures/dimorphism.png)
 
 Morphological measurements and observed structural-size dimorphism. PC1 is oriented so larger scores correspond to longer flippers.
 
@@ -74,27 +66,33 @@ Morphological measurements and observed structural-size dimorphism. PC1 is orien
 
 The baseline restricts eligibility to birds recorded at nests that completed a clutch and uses endpoint-specific complete cases. Within each species, we center culmen length, culmen depth, and flipper length in their original units, extract PC1, and orient it to correlate positively with flipper length. Models are fit separately by species and isotope, with female and 2007 as reference levels.
 
-The paper-like candidate set contains null, sex, size, year, sex + year, size + year, sex × year, and size × year models. We calculate small-sample-corrected AIC, ΔAICc, Akaike weights, and full unconditional model-averaged coefficients. For Adelie δ¹³C, the deterministic paper-like rule excludes stable row `excluded_row`{python exec}: the one observation with the largest absolute externally studentized residual across the two maximal interaction candidates.
+The paper-like candidate set contains null, sex, size, year, sex + year, size + year, sex × year, and size × year models. We calculate small-sample-corrected AIC, ΔAICc, Akaike weights, and full unconditional model-averaged coefficients. For Adelie δ¹³C, the deterministic paper-like rule excludes stable row {eval python}`excluded_row`: the one observation with the largest absolute externally studentized residual across the two maximal interaction candidates.
 
 Focused universes alter one decision at a time: inclusive eligibility, shared complete cases, standardized PC1, body mass, a joint additive sex-size-year model, retained outliers, or 2,000 resamples stratified by species, year, and sex with a fixed seed. This design probes identifiable choices without implying that every Cartesian combination is scientifically useful.
 
 # Results
 
-Male mean body mass exceeded female mean body mass by `round(body_effects["Chinstrap"], 1)`{python exec}% in Chinstrap, `round(body_effects["Gentoo"], 1)`{python exec}% in Gentoo, and `round(body_effects["Adelie"], 1)`{python exec}% in Adelie penguins.
+Male mean body mass exceeded female mean body mass by {eval python}`round(body_effects["Chinstrap"], 1)`% in Chinstrap, {eval python}`round(body_effects["Gentoo"], 1)`% in Gentoo, and {eval python}`round(body_effects["Adelie"], 1)`% in Adelie penguins.
 
-For δ¹⁵N, sex-containing models received substantially more baseline cumulative weight than size-containing models in all species. For δ¹³C, the best baseline model was year for Adelie (weight `round(adelie_carbon["top_weight"], 2)`{python exec}) and Chinstrap (weight `round(chinstrap_carbon["top_weight"], 2)`{python exec}), whereas Gentoo favored size + year (weight `round(gentoo_carbon["top_weight"], 2)`{python exec}). Thus, sexual differentiation was clearest for nitrogen, while carbon evidence emphasized annual conditions or structural size depending on species.
+For δ¹⁵N, sex-containing models received substantially more baseline cumulative weight than size-containing models in all species. For δ¹³C, the best baseline model was year for Adelie (weight {eval python}`round(adelie_carbon["top_weight"], 2)`) and Chinstrap (weight {eval python}`round(chinstrap_carbon["top_weight"], 2)`), whereas Gentoo favored size + year (weight {eval python}`round(gentoo_carbon["top_weight"], 2)`). Thus, sexual differentiation was clearest for nitrogen, while carbon evidence emphasized annual conditions or structural size depending on species.
 
-![](figures/isotopes.png)
+:::{figure} figures/isotopes.png
+:label: 2
 
-Figure: AICc weights for the eight baseline candidate models, separately by species and isotope.
+AICc weights for the eight baseline candidate models, separately by species and isotope.
+
+:::
 
 # Sensitivity analysis
 
-Across the baseline and six alternative candidate-set universes, sex had more cumulative weight than size for δ¹⁵N in all `nitrogen_comparisons`{python exec} species-universe comparisons. Gentoo δ¹³C favored size over sex in `gentoo_size_wins`{python exec} of `gentoo_comparisons`{python exec} comparisons. Adelie and Chinstrap carbon evidence was less decisive, with the leading candidate or sex-size ordering changing under some choices. The joint model is shown separately because its single model necessarily contains both sex and size and therefore does not define competing cumulative weights.
+Across the baseline and six alternative candidate-set universes, sex had more cumulative weight than size for δ¹⁵N in all {eval python}`nitrogen_comparisons` species-universe comparisons. Gentoo δ¹³C favored size over sex in {eval python}`gentoo_size_wins` of {eval python}`gentoo_comparisons` comparisons. Adelie and Chinstrap carbon evidence was less decisive, with the leading candidate or sex-size ordering changing under some choices. The joint model is shown separately because its single model necessarily contains both sex and size and therefore does not define competing cumulative weights.
 
-![](figures/sensitivity.png)
+:::{figure} figures/sensitivity.png
+:label: 3
 
-Figure: Cumulative Akaike weight assigned to models containing sex or structural size across the baseline and focused universes.
+Cumulative Akaike weight assigned to models containing sex or structural size across the baseline and focused universes.
+
+:::
 
 # Limitations
 

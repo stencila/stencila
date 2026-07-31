@@ -28,6 +28,11 @@ inputs:
     type: data
     description: Local illustrated guide to culmen and flipper measurements.
     source: schematic.png
+  - id: article_theme
+    label: ASTRA-inspired article theme
+    type: data
+    description: Local Stencila CSS theme for screen and credentialed PDF rendering.
+    source: theme.css
 
 prior_insights:
   structural_pc1:
@@ -237,14 +242,14 @@ outputs:
   - id: article
     label: Executable mini-article
     type: report
-    description: Executable Stencila Markdown article whose numerical claims read committed results.
-    target: article.smd
+    description: Executable MyST Markdown article whose numerical claims read committed results.
+    target: article.myst
     inputs: [measurement_schematic, audit_table, dimorphism_table, isotope_models, sensitivity_summary, dimorphism_figure, isotope_figure, sensitivity_figure]
   - id: article_pdf
     label: Credentialed mini-article PDF
     type: report
     description: Rendered PDF carrying C2PA content credentials.
     target: article.pdf
-    inputs: [article]
+    inputs: [article, article_theme]
     recipe:
       command: stencila render {inputs.article} {output} --credentials
