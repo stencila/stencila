@@ -13,6 +13,11 @@ use super::language::CodeLanguage;
 /// operators, interpreter flags, environment wrappers, and dynamic expressions
 /// are left unresolved rather than risking a false generator attribution.
 pub(crate) fn direct_python_script(command: &str) -> Option<String> {
+    direct_source_script(command).filter(|script| script.ends_with(".py"))
+}
+
+/// Identify a direct invocation of a source file in an analyzed language.
+pub(crate) fn direct_source_script(command: &str) -> Option<String> {
     if command.contains([
         '\n', '\r', '|', '&', ';', '<', '>', '$', '`', '\\', '\'', '"',
     ]) {
@@ -21,15 +26,18 @@ pub(crate) fn direct_python_script(command: &str) -> Option<String> {
 
     let mut tokens = command.split_ascii_whitespace();
     let interpreter = tokens.next()?.rsplit('/').next()?;
-    if !is_python_interpreter(interpreter) {
-        return None;
-    }
-
     let script = tokens.next()?;
+    let supported = (is_python_interpreter(interpreter) && script.ends_with(".py"))
+        || (interpreter == "Rscript" && script.ends_with(".R"))
+        || (interpreter == "julia" && script.ends_with(".jl"))
+        || (matches!(interpreter, "node" | "nodejs")
+            && [".js", ".mjs", ".cjs", ".ts", ".mts", ".cts"]
+                .iter()
+                .any(|extension| script.ends_with(extension)));
     if script.starts_with(['-', '/', '~'])
         || script.contains("://")
         || script.contains(['*', '?', '[', ']'])
-        || !script.ends_with(".py")
+        || !supported
     {
         return None;
     }

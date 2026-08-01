@@ -19,14 +19,15 @@ digraph stencila_graph {
     label="ASTRA contract fixture"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_astra-analysis:astra.yaml:root.model" {
       label="Fit model"; color="#c3ccd699"; bgcolor="#c3ccd62c";
-      "astra-analysis:astra.yaml:root.model" [label="Fit model", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
+      "astra-analysis:astra.yaml:root.model" [label="Fit model", kind="other", shape="box", style="filled", fillcolor="#ffffff", color="#647486"];
+      "astra-decision:astra.yaml:root.model:estimator" [label="Estimator", kind="other", shape="box", style="filled", fillcolor="#ffffff", color="#647486"];
       "astra-output:astra.yaml:root.model:fit" [label="fit", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
       "workflow-unit:astra.yaml%23root.model:fit" [label="fit", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
       "workflow-unit:astra.yaml%23root.model:score" [label="score", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
     }
     subgraph "cluster_astra-analysis:astra.yaml:root.prepare" {
       label="Prepare catalog"; color="#c3ccd699"; bgcolor="#c3ccd62c";
-      "astra-analysis:astra.yaml:root.prepare" [label="Prepare catalog", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
+      "astra-decision:astra.yaml:root.prepare:estimator" [label="Estimator", kind="other", shape="box", style="filled", fillcolor="#ffffff", color="#647486"];
       "astra-output:astra.yaml:root.prepare:cleaned" [label="cleaned", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
       "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="cleaned", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
     }
@@ -47,8 +48,8 @@ digraph stencila_graph {
   "container:ghcr.io/example/fitter%3A1.0" [label="fitter:1.0", kind="software", shape="box3d", style="filled", fillcolor="#f1f5ff", color="#5261b8"];
   "resource:https%3A//example.org/calibration.csv" [label="calibration.csv", kind="resource", shape="component", style="filled", fillcolor="#eef2f7", color="#516981"];
 
-  "astra-analysis:astra.yaml:root.model" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
-  "astra-analysis:astra.yaml:root.prepare" -> "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "astra-decision:astra.yaml:root.model:estimator" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
+  "astra-decision:astra.yaml:root.prepare:estimator" -> "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "container:ghcr.io/example/fitter%3A1.0" -> "workflow-unit:astra.yaml%23root.model:fit" [label="Configures", kind="Configures", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "astra-output:astra.yaml:root.report:summary" -> "astra-output:astra.yaml:root:final_report" [label="Derived Into", kind="DerivedInto", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];
   "workflow-unit:astra.yaml%23root.model:fit" -> "astra-output:astra.yaml:root.model:fit" [label="Generated", kind="Generated", count="1", evidence_count="1", action_count="0", low_confidence="false", style="solid", color="#4b5563"];

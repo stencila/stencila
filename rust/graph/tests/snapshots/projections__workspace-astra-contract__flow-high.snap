@@ -1,6 +1,5 @@
 ---
 source: rust/graph/tests/projections.rs
-assertion_line: 26
 expression: to_dot(&view)
 ---
 digraph stencila_graph {
@@ -20,7 +19,7 @@ digraph stencila_graph {
     label="ASTRA contract fixture"; color="#c3ccd699"; bgcolor="#c3ccd62c";
     subgraph "cluster_astra-analysis:astra.yaml:root.model" {
       label="Fit model"; color="#c3ccd699"; bgcolor="#c3ccd62c";
-      "astra-decision:astra.yaml:root.model:estimator" [label="estimator", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      "astra-decision:astra.yaml:root.model:estimator" [label="Estimator", kind="other", shape="box", style="filled", fillcolor="#ffffff", color="#647486"];
       "astra-output:astra.yaml:root.model:fit" [label="fit", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
       "astra-output:astra.yaml:root.model:score" [label="score", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
       "workflow-unit:astra.yaml%23root.model:fit" [label="fit", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
@@ -28,7 +27,7 @@ digraph stencila_graph {
     }
     subgraph "cluster_astra-analysis:astra.yaml:root.prepare" {
       label="Prepare catalog"; color="#c3ccd699"; bgcolor="#c3ccd62c";
-      "astra-decision:astra.yaml:root.prepare:estimator" [label="estimator", kind="symbol", shape="ellipse", style="filled", fillcolor="#eef6f4", color="#187b6b"];
+      "astra-decision:astra.yaml:root.prepare:estimator" [label="Estimator", kind="other", shape="box", style="filled", fillcolor="#ffffff", color="#647486"];
       "astra-output:astra.yaml:root.prepare:cleaned" [label="cleaned", kind="reference", shape="note", style="filled", fillcolor="#f1eef8", color="#6f4fb0"];
       "workflow-unit:astra.yaml%23root.prepare:cleaned" [label="cleaned", kind="function", shape="diamond", style="filled", fillcolor="#eaf4fb", color="#2870a6"];
     }

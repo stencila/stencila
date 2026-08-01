@@ -399,6 +399,7 @@ class GraphEvidenceKind(StrEnum):
     Computed = "Computed"
     Recorded = "Recorded"
     StaticAnalysis = "StaticAnalysis"
+    RuntimeAnalysis = "RuntimeAnalysis"
     Imported = "Imported"
     UserAssertion = "UserAssertion"
     Attested = "Attested"

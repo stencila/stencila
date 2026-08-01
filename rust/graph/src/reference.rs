@@ -97,12 +97,18 @@ pub(crate) fn bare_doi(reference: &str) -> Option<&str> {
             .get(..prefix.len())
             .filter(|start| start.eq_ignore_ascii_case(prefix))
             .map(|_| &reference[prefix.len()..])
-    })?;
+    })
+    .unwrap_or(reference);
 
     // Every registered DOI prefix starts `10.` and is followed by a suffix.
     let rest = bare.strip_prefix("10.")?;
     let (registrant, suffix) = rest.split_once('/')?;
-    (!registrant.is_empty() && !suffix.is_empty()).then_some(bare)
+    (registrant.len() >= 4
+        && registrant
+            .chars()
+            .all(|character| character.is_ascii_digit())
+        && !suffix.is_empty())
+    .then_some(bare)
 }
 
 /// Return the canonical resolver URL for a bare DOI.
@@ -232,6 +238,7 @@ mod tests {
     fn reduces_every_doi_spelling_to_one_identity() {
         let expected = Some("10.6073/pasta/abc50");
         for spelling in [
+            "10.6073/pasta/abc50",
             "doi:10.6073/pasta/abc50",
             "DOI:10.6073/pasta/abc50",
             "https://doi.org/10.6073/pasta/abc50",
@@ -260,6 +267,8 @@ mod tests {
             "doi:10.6073",
             "doi:10.6073/",
             "doi:10./suffix",
+            "10.123/suffix",
+            "10.results/data.csv",
             // `doingthing:` merely starts with the same letters.
             "doingthing:10.1/x",
         ] {

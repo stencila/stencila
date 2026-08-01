@@ -9,6 +9,7 @@ export type GraphEvidenceKind =
   'Computed' |
   'Recorded' |
   'StaticAnalysis' |
+  'RuntimeAnalysis' |
   'Imported' |
   'UserAssertion' |
   'Attested' |

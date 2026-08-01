@@ -80,7 +80,14 @@ analyses:
 "#,
     )?;
 
-    let graph = graph_from_path(dir.path(), Some(options())).await?;
+    let graph = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await?;
 
     assert!(
         !dir.path().join("SHOULD_NOT_EXIST").exists(),
@@ -88,11 +95,38 @@ analyses:
     );
     assert!(graph.nodes.iter().any(|node| {
         node.id.starts_with("astra-analysis:")
-            && matches!(node.node.as_ref(), Node::CreativeWork(work) if work.work_type == Some(stencila_schema::CreativeWorkType::Workflow))
+            && matches!(
+                node.node.as_ref(),
+                Node::Object(object)
+                    if object.get("astraType")
+                        == Some(&stencila_schema::Primitive::String("Analysis".to_string()))
+            )
     }));
     assert!(graph.nodes.iter().any(|node| {
         node.id.starts_with("astra-decision:")
-            && matches!(node.node.as_ref(), Node::Parameter(parameter) if parameter.options.validator.is_some())
+            && matches!(
+                node.node.as_ref(),
+                Node::Object(object)
+                    if object.get("astraType")
+                        == Some(&stencila_schema::Primitive::String("Decision".to_string()))
+            )
+    }));
+    assert!(graph.nodes.iter().any(|node| {
+        node.id.starts_with("astra-option:")
+            && matches!(
+                node.node.as_ref(),
+                Node::Object(object)
+                    if object.get("astraType")
+                        == Some(&stencila_schema::Primitive::String("Option".to_string()))
+            )
+    }));
+    assert!(graph.nodes.iter().all(|node| {
+        !node.id.starts_with("astra-analysis:")
+            || !matches!(node.node.as_ref(), Node::CreativeWork(..))
+    }));
+    assert!(graph.nodes.iter().all(|node| {
+        !node.id.starts_with("astra-decision:")
+            || !matches!(node.node.as_ref(), Node::Parameter(..))
     }));
     assert!(graph.nodes.iter().any(|node| {
         node.id.starts_with("workflow-unit:") && matches!(node.node.as_ref(), Node::Function(..))
@@ -149,6 +183,37 @@ analyses:
 }
 
 #[tokio::test]
+async fn ignores_unknown_analysis_metadata_for_forward_compatibility() -> Result<()> {
+    let dir = tempdir()?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+future_metadata:
+  value: retained-by-a-newer-astra-version
+outputs:
+  - id: result
+    type: data
+"#,
+    )?;
+
+    let graph = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await?;
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .any(|node| node.id == "astra-analysis:astra.yaml:root")
+    );
+    Ok(())
+}
+
+#[tokio::test]
 async fn attributes_direct_recipe_scripts_and_canonicalizes_doi_inputs() -> Result<()> {
     let dir = tempdir()?;
     let doi = "10.6073/pasta/abc50eed9138b75f54eaada0841b9b86";
@@ -160,6 +225,7 @@ async fn attributes_direct_recipe_scripts_and_canonicalizes_doi_inputs() -> Resu
     )?;
     fs::write(dir.path().join("result.csv"), "value\n1\n")?;
     fs::write(dir.path().join("compound.py"), "print('not attributed')\n")?;
+    fs::write(dir.path().join("analysis.R"), "print('attributed')\n")?;
     fs::write(
         dir.path().join("Snakefile"),
         r#"rule result:
@@ -186,6 +252,10 @@ outputs:
     type: data
     recipe:
       command: python compound.py && echo done
+  - id: r_result
+    type: data
+    recipe:
+      command: Rscript analysis.R
 "#
         ),
     )?;
@@ -338,6 +408,11 @@ outputs:
     assert!(!graph.edges.iter().any(|edge| {
         edge.source == "code:compound.py"
             && edge.target == "astra-output:astra.yaml:root:compound"
+            && edge.kind == GraphEdgeKind::Generated
+    }));
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == "code:analysis.R"
+            && edge.target == "astra-output:astra.yaml:root:r_result"
             && edge.kind == GraphEdgeKind::Generated
     }));
 
@@ -777,5 +852,554 @@ analyses:
             && edge.target == unit_id
             && edge.kind == GraphEdgeKind::Configures
     }));
+    Ok(())
+}
+
+#[tokio::test]
+async fn projects_insights_evidence_options_and_universes_neutrally() -> Result<()> {
+    let dir = tempdir()?;
+    fs::create_dir(dir.path().join("universes"))?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+name: Complete contract
+tags: [reproducible]
+decisions:
+  auxiliary:
+    label: Auxiliary mode
+    default: "on"
+    options:
+      "on": { label: "On" }
+  method:
+    label: Method
+    rationale: Compare defensible estimators.
+    default: robust
+    tags: [statistics]
+    options:
+      robust:
+        label: Robust
+        description: Resistant estimator.
+        insights: [literature]
+        requires: [auxiliary.on]
+      ordinary:
+        label: Ordinary
+        excluded: true
+        excluded_reason: Known sensitivity.
+prior_insights:
+  literature:
+    label: Prior result
+    claim: Robust estimators reduce sensitivity to outliers.
+    created_at: 2025-01-02T03:04:05Z
+    derived: false
+    scope: Comparable tabular data.
+    tags: [statistics]
+    notes: Used to justify the default.
+    evidence:
+      - id: paper
+        doi: 10.1000/example
+        version: 2
+        quote:
+          exact: Robust estimators reduce sensitivity.
+          prefix: The study found that
+        location:
+          value: page=4
+          page: 4
+findings:
+  result_support:
+    claim: The nested result supports the robust estimator.
+    created_at: 2025-01-03T03:04:05+00:00
+    evidence:
+      - id: artifact_result
+        artifact: child.grand.result
+        snapshot: snapshots/result.csv
+        source_commit: abc123
+outputs:
+  - id: combined
+    type: data
+    inputs: [child.grand.result]
+    decisions: [method]
+    recipe:
+      resources:
+        cpus: 0
+        memory: 4Gi
+        time_limit: 30m
+        disk: 1Gi
+        gpus: 1
+analyses:
+  child:
+    decisions:
+      method:
+        from: ../method
+      auxiliary:
+        from: ../auxiliary
+    analyses:
+      grand:
+        decisions:
+          method:
+            from: ../../method
+          auxiliary:
+            from: ../../auxiliary
+        outputs:
+          - id: result
+            type: table
+"#,
+    )?;
+    fs::write(
+        dir.path().join("universes/baseline.yaml"),
+        r#"id: baseline
+description: Baseline complete universe.
+decisions:
+  auxiliary: "on"
+  method: robust
+"#,
+    )?;
+
+    let graph = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await?;
+    for (prefix, astra_type) in [
+        ("astra-analysis:", "Analysis"),
+        ("astra-decision:", "Decision"),
+        ("astra-option:", "Option"),
+        ("astra-universe:", "Universe"),
+    ] {
+        assert!(graph.nodes.iter().any(|node| {
+            node.id.starts_with(prefix)
+                && matches!(
+                    node.node.as_ref(),
+                    Node::Object(object)
+                        if object.get("astraType")
+                            == Some(&stencila_schema::Primitive::String(astra_type.to_string()))
+                )
+        }));
+    }
+    assert_eq!(
+        graph
+            .nodes
+            .iter()
+            .filter(|node| node.id.starts_with("astra-option:"))
+            .count(),
+        3
+    );
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .any(|node| node.id.starts_with("astra-insight:")
+                && matches!(node.node.as_ref(), Node::Claim(..)))
+    );
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .any(|node| node.id.starts_with("astra-evidence:")
+                && matches!(node.node.as_ref(), Node::Evidence(..)))
+    );
+    for kind in [
+        GraphEdgeKind::Supports,
+        GraphEdgeKind::CitedBy,
+        GraphEdgeKind::Grounds,
+    ] {
+        assert!(graph.edges.iter().any(|edge| edge.kind == kind));
+    }
+    let analysis_id = "astra-analysis:astra.yaml:root";
+    for claim_id in [
+        "astra-insight:astra.yaml:root:prior_insights:literature",
+        "astra-insight:astra.yaml:root:findings:result_support",
+    ] {
+        assert!(graph.edges.iter().any(|edge| {
+            edge.source == claim_id
+                && edge.target == analysis_id
+                && edge.kind == GraphEdgeKind::PartOf
+        }));
+    }
+    for (evidence_id, claim_id) in [
+        (
+            "astra-evidence:astra.yaml:root:prior_insights:literature:paper",
+            "astra-insight:astra.yaml:root:prior_insights:literature",
+        ),
+        (
+            "astra-evidence:astra.yaml:root:findings:result_support:artifact_result",
+            "astra-insight:astra.yaml:root:findings:result_support",
+        ),
+    ] {
+        assert!(graph.edges.iter().any(|edge| {
+            edge.source == evidence_id
+                && edge.target == claim_id
+                && edge.kind == GraphEdgeKind::PartOf
+        }));
+    }
+    let universe_id = "astra-universe:astra.yaml:root:baseline";
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source.starts_with("astra-option:")
+            && edge.target == universe_id
+            && edge.kind == GraphEdgeKind::Configures
+    }));
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == universe_id
+            && edge.target == "astra-analysis:astra.yaml:root"
+            && edge.kind == GraphEdgeKind::Configures
+    }));
+    assert!(!dir.path().join("combined").exists());
+    Ok(())
+}
+
+#[tokio::test]
+async fn inherits_universe_decisions_and_resolves_ancestor_insights() -> Result<()> {
+    let dir = tempdir()?;
+    fs::create_dir(dir.path().join("universes"))?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+decisions:
+  method:
+    label: Method
+    options:
+      robust: { label: Robust }
+      ordinary: { label: Ordinary }
+prior_insights:
+  shared:
+    claim: Prior support.
+    created_at: 2025-01-02T03:04:05Z
+    evidence:
+      - id: paper
+        doi: 10.1000/prior
+findings:
+  shared:
+    claim: Later finding with the same collection-local id.
+    created_at: 2025-01-03T03:04:05Z
+    evidence:
+      - id: paper
+        doi: 10.1000/finding
+analyses:
+  child:
+    decisions:
+      method:
+        from: ../method
+      tuning:
+        label: Tuning
+        when: [method.robust]
+        options:
+          fine:
+            label: Fine
+            insights: [../shared]
+            requires: [method.robust]
+    analyses:
+      grand:
+        decisions:
+          method:
+            from: ../../method
+          skipped:
+            label: Inactive decision
+            when: [method.ordinary]
+            options:
+              unused: { label: Unused }
+"#,
+    )?;
+    fs::write(
+        dir.path().join("universes/baseline.yaml"),
+        r#"id: baseline
+decisions:
+  method: robust
+analyses:
+  child:
+    decisions:
+      tuning: fine
+"#,
+    )?;
+
+    let graph = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await?;
+
+    let prior = "astra-insight:astra.yaml:root:prior_insights:shared";
+    let finding = "astra-insight:astra.yaml:root:findings:shared";
+    let option = "astra-option:astra.yaml:root.child:tuning:fine";
+    assert!(graph.nodes.iter().any(|node| node.id == prior));
+    assert!(graph.nodes.iter().any(|node| node.id == finding));
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == prior && edge.target == option && edge.kind == GraphEdgeKind::Supports
+    }));
+    assert!(!graph.edges.iter().any(|edge| {
+        edge.source == finding && edge.target == option && edge.kind == GraphEdgeKind::Supports
+    }));
+    Ok(())
+}
+
+#[tokio::test]
+async fn preserves_doi_like_local_input_paths() -> Result<()> {
+    let dir = tempdir()?;
+    fs::create_dir(dir.path().join("10.1234"))?;
+    fs::write(dir.path().join("10.1234/input.csv"), "value\n1\n")?;
+    fs::write(dir.path().join("10.1234/result.csv"), "value\n1\n")?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+inputs:
+  - id: source
+    type: data
+    source: 10.1234/input.csv
+outputs:
+  - id: result
+    type: data
+    target: 10.1234/result.csv
+    inputs: [source]
+"#,
+    )?;
+
+    let graph = graph_from_path(dir.path(), Some(options())).await?;
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == "datatable:10.1234/input.csv" && edge.kind == GraphEdgeKind::ReadBy
+    }));
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == "astra-output:astra.yaml:root:result"
+            && edge.target == "datatable:10.1234/result.csv"
+            && edge.kind == GraphEdgeKind::WrittenTo
+    }));
+    assert!(
+        graph
+            .nodes
+            .iter()
+            .all(|node| !node.id.starts_with("resource:doi%3A10.1234/"))
+    );
+    Ok(())
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn rejects_universe_directories_outside_the_workspace() -> Result<()> {
+    use std::os::unix::fs::symlink;
+
+    let dir = tempdir()?;
+    let outside = tempdir()?;
+    fs::write(dir.path().join("astra.yaml"), "version: '1.0'\n")?;
+    fs::write(outside.path().join("baseline.yaml"), "id: baseline\n")?;
+    symlink(outside.path(), dir.path().join("universes"))?;
+
+    let error = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await
+    .expect_err("an external universe directory should be rejected");
+    assert!(error.to_string().contains("outside the workspace"));
+    Ok(())
+}
+
+#[tokio::test]
+async fn rejects_invalid_extended_astra_contracts() -> Result<()> {
+    for (manifest, universe, expected) in [
+        (
+            "version: '1.0'\noutputs:\n  - id: result\n    type: data\n    unknown_field: true\n",
+            None,
+            "unknown field",
+        ),
+        (
+            r#"version: "1.0"
+prior_insights:
+  bad:
+    claim: Invalid evidence.
+    created_at: yesterday
+    evidence:
+      - id: source
+        doi: 10.1000/example
+        artifact: result
+outputs:
+  - id: result
+    type: data
+"#,
+            None,
+            "timestamp",
+        ),
+        (
+            r#"version: "1.0"
+outputs:
+  - id: result
+    type: data
+    recipe:
+      resources:
+        cpus: -1
+"#,
+            None,
+            "non-negative",
+        ),
+        (
+            r#"version: "1.0"
+outputs:
+  - id: result
+    type: data
+    recipe:
+      resources:
+        gpus: 0
+"#,
+            None,
+            "greater than zero",
+        ),
+        (
+            r#"version: "1.0"
+decisions:
+  method:
+    label: Method
+    default: rejected
+    options:
+      rejected:
+        label: Rejected
+        excluded: true
+        excluded_reason: Not defensible.
+"#,
+            None,
+            "default option must not be excluded",
+        ),
+        (
+            r#"version: "1.0"
+decisions:
+  method:
+    label: Method
+    options:
+      valid: { label: Valid }
+"#,
+            Some("id: broken\ndecisions:\n  method: missing\n"),
+            "has no option",
+        ),
+        (
+            r#"version: "1.0"
+decisions:
+  method:
+    label: Method
+    options:
+      valid: { label: Valid }
+analyses:
+  child:
+    decisions:
+      method:
+        from: ../method
+"#,
+            Some(
+                "id: broken\ndecisions:\n  method: valid\nanalyses:\n  child:\n    decisions:\n      method: valid\n",
+            ),
+            "must not select inherited decision",
+        ),
+    ] {
+        let dir = tempdir()?;
+        fs::write(dir.path().join("astra.yaml"), manifest)?;
+        if let Some(universe) = universe {
+            fs::create_dir(dir.path().join("universes"))?;
+            fs::write(dir.path().join("universes/broken.yaml"), universe)?;
+        }
+        let error = graph_from_path(
+            dir.path(),
+            Some(WorkspaceOptions {
+                fail_on_astra_error: true,
+                ..options()
+            }),
+        )
+        .await
+        .expect_err("invalid extended ASTRA contract should fail");
+        assert!(
+            error.to_string().contains(expected),
+            "expected {expected:?} in {error}"
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test]
+async fn resolves_and_projects_named_child_universes() -> Result<()> {
+    let dir = tempdir()?;
+    fs::create_dir_all(dir.path().join("child/universes"))?;
+    fs::create_dir(dir.path().join("universes"))?;
+    fs::write(
+        dir.path().join("astra.yaml"),
+        r#"version: "1.0"
+analyses:
+  child:
+    path: child
+"#,
+    )?;
+    fs::write(
+        dir.path().join("child/astra.yaml"),
+        r#"version: "1.0"
+decisions:
+  method:
+    label: Method
+    options:
+      robust: { label: Robust }
+"#,
+    )?;
+    fs::write(
+        dir.path().join("universes/baseline.yaml"),
+        r#"id: baseline
+analyses:
+  child:
+    universe: robust
+"#,
+    )?;
+    fs::write(
+        dir.path().join("child/universes/robust.yaml"),
+        r#"id: robust
+decisions:
+  method: robust
+"#,
+    )?;
+
+    let graph = graph_from_path(
+        dir.path(),
+        Some(WorkspaceOptions {
+            fail_on_astra_error: true,
+            ..options()
+        }),
+    )
+    .await?;
+    assert!(graph.nodes.iter().any(|node| {
+        node.id == "astra-universe:astra.yaml:root.child:robust"
+            && matches!(node.node.as_ref(), Node::Object(..))
+    }));
+    assert!(graph.edges.iter().any(|edge| {
+        edge.source == "astra-universe:astra.yaml:root.child:robust"
+            && edge.target == "astra-analysis:astra.yaml:root.child"
+            && edge.kind == GraphEdgeKind::Configures
+    }));
+    let inherited_selection = graph
+        .edges
+        .iter()
+        .find(|edge| {
+            edge.source == "astra-option:astra.yaml:root.child:method:robust"
+                && edge.target == "astra-universe:astra.yaml:root:baseline"
+                && edge.kind == GraphEdgeKind::Configures
+        })
+        .ok_or_else(|| eyre!("expected named child selection in the parent universe"))?;
+    assert_eq!(
+        inherited_selection
+            .options
+            .evidence
+            .as_deref()
+            .and_then(|evidence| evidence.first())
+            .and_then(|evidence| evidence.code_location.as_ref())
+            .and_then(|location| location.source.as_deref()),
+        Some("child/universes/robust.yaml")
+    );
+    assert_eq!(
+        inherited_selection
+            .options
+            .evidence
+            .as_deref()
+            .and_then(|evidence| evidence.first())
+            .and_then(|evidence| evidence.options.details.as_ref())
+            .and_then(|details| details.get("id")),
+        Some(&stencila_schema::Primitive::String("robust".to_string()))
+    );
     Ok(())
 }

@@ -17,9 +17,9 @@ use std::{
 use eyre::{Result, WrapErr, bail};
 use serde::Deserialize;
 use stencila_schema::{
-    Array, CreativeWork, CreativeWorkType, EnumValidator, Function, GraphEdgeKind, GraphEvidence,
-    Node, Object, Parameter, Primitive, PropertyValueOrString, SoftwareApplication, StringOrNumber,
-    Validator, Variable,
+    Array, Block, Claim, CodeLocation, CreativeWork, CreativeWorkType, Evidence, Function,
+    GraphEdgeKind, GraphEvidence, Inline, Node, Object, Paragraph, Primitive,
+    PropertyValueOrString, SoftwareApplication, StringOrNumber, Text, Variable,
 };
 
 use crate::{
@@ -42,9 +42,12 @@ struct ManifestError {
     message: String,
 }
 
-/// The subset of ASTRA v1 needed for contract graph projection.
+/// The supported ASTRA analysis fields.
 ///
-/// Unknown fields are intentionally ignored for forward compatibility.
+/// Unknown analysis-level fields are intentionally ignored so newer ASTRA
+/// metadata does not cause an otherwise projectable analysis to disappear.
+/// Nested contract structures remain strict because unknown fields there may
+/// change graph relationships or execution semantics.
 #[derive(Debug, Clone, Default, Deserialize)]
 #[serde(default)]
 struct Analysis {
@@ -52,16 +55,19 @@ struct Analysis {
     version: Option<serde_yaml::Value>,
     name: Option<String>,
     description: Option<String>,
+    tags: Vec<String>,
     container: Option<String>,
     inputs: Vec<Input>,
     outputs: Vec<Output>,
     decisions: BTreeMap<String, Decision>,
+    prior_insights: BTreeMap<String, Insight>,
+    findings: BTreeMap<String, Insight>,
     analyses: BTreeMap<String, Analysis>,
     path: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 struct Input {
     id: String,
     label: Option<String>,
@@ -75,7 +81,7 @@ struct Input {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 struct Output {
     id: String,
     label: Option<String>,
@@ -91,15 +97,25 @@ struct Output {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 struct Recipe {
     command: Option<String>,
-    resources: Option<serde_yaml::Value>,
+    resources: Option<Resources>,
     container: Option<String>,
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
+struct Resources {
+    cpus: Option<f64>,
+    memory: Option<String>,
+    time_limit: Option<String>,
+    disk: Option<String>,
+    gpus: Option<u64>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
 struct Decision {
     label: Option<String>,
     rationale: Option<String>,
@@ -111,10 +127,92 @@ struct Decision {
 }
 
 #[derive(Debug, Clone, Default, Deserialize)]
-#[serde(default)]
+#[serde(default, deny_unknown_fields)]
 struct OptionSpec {
-    #[serde(rename = "label")]
-    _label: Option<String>,
+    label: Option<String>,
+    description: Option<String>,
+    insights: Vec<String>,
+    incompatible_with: Vec<String>,
+    requires: Vec<String>,
+    excluded: Option<bool>,
+    excluded_reason: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct Insight {
+    label: Option<String>,
+    claim: String,
+    created_at: String,
+    evidence: Vec<EvidenceSpec>,
+    derived: Option<bool>,
+    scope: Option<String>,
+    tags: Vec<String>,
+    notes: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct EvidenceSpec {
+    id: String,
+    doi: Option<String>,
+    artifact: Option<String>,
+    version: Option<u64>,
+    snapshot: Option<String>,
+    source_commit: Option<String>,
+    quote: Option<TextQuoteSelector>,
+    location: Option<FragmentSelector>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct TextQuoteSelector {
+    exact: String,
+    prefix: Option<String>,
+    suffix: Option<String>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct FragmentSelector {
+    value: Option<String>,
+    page: Option<u64>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct Universe {
+    id: String,
+    description: Option<String>,
+    decisions: BTreeMap<String, String>,
+    analyses: BTreeMap<String, UniverseNode>,
+}
+
+#[derive(Debug, Clone, Default, Deserialize)]
+#[serde(default, deny_unknown_fields)]
+struct UniverseNode {
+    universe: Option<String>,
+    decisions: BTreeMap<String, String>,
+    analyses: BTreeMap<String, UniverseNode>,
+}
+
+#[derive(Debug, Clone)]
+struct LoadedUniverse {
+    rel: WorkspaceRelPath,
+    scope: String,
+    universe: Universe,
+    selections: Vec<UniverseSelection>,
+    nested: Vec<LoadedUniverse>,
+}
+
+#[derive(Debug, Clone)]
+struct UniverseSelection {
+    rel: WorkspaceRelPath,
+    universe_id: String,
+    scope: String,
+    decision_scope: String,
+    decision_id: String,
+    option_id: String,
 }
 
 /// One analysis node after inline and path-based children have been loaded.
@@ -133,6 +231,50 @@ struct AnalysisNode {
 struct InputEndpoint {
     id: String,
     is_remote: bool,
+}
+
+/// Build the provisional neutral envelope used for ASTRA structural concepts.
+///
+/// Graph ids and edge meanings are deliberately independent of this payload so
+/// purpose-built Schema types can replace these objects without graph churn.
+fn astra_object(astra_type: &str, id: &str, name: &str, scope: &str) -> Object {
+    Object::from([
+        ("astraType", Primitive::String(astra_type.to_string())),
+        ("id", Primitive::String(id.to_string())),
+        ("name", Primitive::String(name.to_string())),
+        ("scope", Primitive::String(scope.to_string())),
+    ])
+}
+
+fn insert_string(object: &mut Object, key: &str, value: Option<&str>) {
+    if let Some(value) = value {
+        object.insert(key.to_string(), Primitive::String(value.to_string()));
+    }
+}
+
+fn insert_strings(object: &mut Object, key: &str, values: &[String]) {
+    if !values.is_empty() {
+        object.insert(
+            key.to_string(),
+            Primitive::Array(Array(
+                values.iter().cloned().map(Primitive::String).collect(),
+            )),
+        );
+    }
+}
+
+fn resources_object(resources: &Resources) -> Object {
+    let mut object = Object::new();
+    if let Some(cpus) = resources.cpus {
+        object.insert("cpus".to_string(), Primitive::Number(cpus));
+    }
+    insert_string(&mut object, "memory", resources.memory.as_deref());
+    insert_string(&mut object, "timeLimit", resources.time_limit.as_deref());
+    insert_string(&mut object, "disk", resources.disk.as_deref());
+    if let Some(gpus) = resources.gpus {
+        object.insert("gpus".to_string(), Primitive::UnsignedInteger(gpus));
+    }
+    object
 }
 
 impl AnalysisNode {
@@ -221,7 +363,8 @@ pub(crate) fn add_astra_from_workspace(
                 true,
             )?;
             validate_tree(&node)?;
-            project_tree(builder, root, &node, resource_id)
+            let universes = load_universes(root, &node)?;
+            project_tree(builder, root, &node, &universes, resource_id)
         })();
 
         if let Err(error) = result
@@ -421,10 +564,13 @@ fn child_has_inline_content(analysis: &Analysis) -> bool {
         || analysis.version.is_some()
         || analysis.name.is_some()
         || analysis.description.is_some()
+        || !analysis.tags.is_empty()
         || analysis.container.is_some()
         || !analysis.inputs.is_empty()
         || !analysis.outputs.is_empty()
         || !analysis.decisions.is_empty()
+        || !analysis.prior_insights.is_empty()
+        || !analysis.findings.is_empty()
         || !analysis.analyses.is_empty()
 }
 
@@ -685,15 +831,6 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
                     "output type must be metric, figure, table, data, or report",
                 ));
             }
-            if let Some(recipe) = &output.recipe
-                && recipe.command.as_deref().is_none_or(str::is_empty)
-            {
-                return Err(astra_error(
-                    &node.manifest_rel,
-                    &format!("outputs[{index}].recipe.command"),
-                    "recipe command is required",
-                ));
-            }
             if let Some(command) = output
                 .recipe
                 .as_ref()
@@ -709,13 +846,49 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
             }
             for input in &output.inputs {
                 if !node.analysis.inputs.iter().any(|item| item.id == *input)
-                    && !node.analysis.outputs.iter().any(|item| item.id == *input)
+                    && resolve_output_dependency(node, input, scopes).is_err()
                 {
                     return Err(astra_error(
                         &node.manifest_rel,
                         &format!("outputs[{index}].inputs"),
                         &format!("unresolved input or sibling output `{input}` in `{scope}`"),
                     ));
+                }
+            }
+            if let Some(resources) = output
+                .recipe
+                .as_ref()
+                .and_then(|recipe| recipe.resources.as_ref())
+            {
+                if resources
+                    .cpus
+                    .is_some_and(|value| !value.is_finite() || value < 0.0)
+                {
+                    return Err(astra_error(
+                        &node.manifest_rel,
+                        &format!("outputs[{index}].recipe.resources.cpus"),
+                        "recipe CPUs must be finite and non-negative",
+                    ));
+                }
+                if resources.gpus == Some(0) {
+                    return Err(astra_error(
+                        &node.manifest_rel,
+                        &format!("outputs[{index}].recipe.resources.gpus"),
+                        "recipe GPU count must be greater than zero",
+                    ));
+                }
+                for (name, value) in [
+                    ("memory", resources.memory.as_deref()),
+                    ("time_limit", resources.time_limit.as_deref()),
+                    ("disk", resources.disk.as_deref()),
+                ] {
+                    if value.is_some_and(str::is_empty) {
+                        return Err(astra_error(
+                            &node.manifest_rel,
+                            &format!("outputs[{index}].recipe.resources.{name}"),
+                            "resource values must not be empty",
+                        ));
+                    }
                 }
             }
             for decision in &output.decisions {
@@ -781,12 +954,57 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
                     &format!("decisions.{id}.options.{option_id}"),
                     option_id,
                 )?;
-                if option._label.is_none() {
+                if option.label.is_none() {
                     return Err(astra_error(
                         &node.manifest_rel,
                         &format!("decisions.{id}.options.{option_id}.label"),
                         "an option requires `label`",
                     ));
+                }
+                if option.excluded_reason.is_some() && option.excluded != Some(true) {
+                    return Err(astra_error(
+                        &node.manifest_rel,
+                        &format!("decisions.{id}.options.{option_id}.excluded_reason"),
+                        "excluded_reason requires excluded to be true",
+                    ));
+                }
+                if option.excluded == Some(true) && option.excluded_reason.is_none() {
+                    return Err(astra_error(
+                        &node.manifest_rel,
+                        &format!("decisions.{id}.options.{option_id}.excluded"),
+                        "an excluded option requires an excluded_reason",
+                    ));
+                }
+                if decision.default.as_deref() == Some(option_id.as_str())
+                    && option.excluded == Some(true)
+                {
+                    return Err(astra_error(
+                        &node.manifest_rel,
+                        &format!("decisions.{id}.default"),
+                        "the default option must not be excluded",
+                    ));
+                }
+                for insight in &option.insights {
+                    resolve_prior_insight(node, insight, scopes).map_err(|message| {
+                        astra_error(
+                            &node.manifest_rel,
+                            &format!("decisions.{id}.options.{option_id}.insights"),
+                            &message,
+                        )
+                    })?;
+                }
+                for constraint in option
+                    .requires
+                    .iter()
+                    .chain(option.incompatible_with.iter())
+                {
+                    validate_constraint(node, constraint, scopes).map_err(|message| {
+                        astra_error(
+                            &node.manifest_rel,
+                            &format!("decisions.{id}.options.{option_id}"),
+                            &message,
+                        )
+                    })?;
                 }
             }
         }
@@ -797,8 +1015,151 @@ fn validate_analysis(node: &AnalysisNode, scopes: &BTreeMap<String, &AnalysisNod
                 &message,
             )
         })?;
+        if decision
+            .when
+            .iter()
+            .filter_map(|condition| condition_target(condition).ok())
+            .any(|(decision_id, _)| decision_id == id)
+        {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("decisions.{id}.when"),
+                "a decision condition must not reference itself",
+            ));
+        }
+    }
+    for (collection, insights) in [
+        ("prior_insights", &node.analysis.prior_insights),
+        ("findings", &node.analysis.findings),
+    ] {
+        for (id, insight) in insights {
+            validate_insight(node, scopes, collection, id, insight)?;
+        }
     }
     validate_output_cycles(node)
+}
+
+fn validate_constraint(
+    node: &AnalysisNode,
+    constraint: &str,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+) -> std::result::Result<(), String> {
+    let (decision, option) = condition_target(constraint)?;
+    let decision = effective_decision(node, decision, scopes)?;
+    if decision.options.contains_key(option) {
+        Ok(())
+    } else {
+        Err(format!(
+            "constraint '{constraint}' references an undeclared option"
+        ))
+    }
+}
+
+fn validate_insight(
+    node: &AnalysisNode,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+    collection: &str,
+    id: &str,
+    insight: &Insight,
+) -> Result<()> {
+    let field = format!("{collection}.{id}");
+    validate_id(&node.manifest_rel, &field, id)?;
+    if insight.claim.trim().is_empty()
+        || insight.created_at.trim().is_empty()
+        || insight.evidence.is_empty()
+    {
+        return Err(astra_error(
+            &node.manifest_rel,
+            &field,
+            "an insight requires claim, created_at, and evidence",
+        ));
+    }
+    chrono::DateTime::parse_from_rfc3339(&insight.created_at).map_err(|_| {
+        astra_error(
+            &node.manifest_rel,
+            &format!("{field}.created_at"),
+            "insight timestamp must be ISO 8601 with a timezone",
+        )
+    })?;
+    let mut evidence_ids = BTreeSet::new();
+    for evidence in &insight.evidence {
+        validate_id(
+            &node.manifest_rel,
+            &format!("{field}.evidence.id"),
+            &evidence.id,
+        )?;
+        if !evidence_ids.insert(&evidence.id) {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("{field}.evidence"),
+                &format!("duplicate evidence id '{}'", evidence.id),
+            ));
+        }
+        if evidence.doi.is_some() == evidence.artifact.is_some() {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("{field}.evidence.{}", evidence.id),
+                "evidence requires exactly one of doi or artifact",
+            ));
+        }
+        if let Some(doi) = &evidence.doi
+            && !is_valid_astra_doi(doi)
+        {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("{field}.evidence.{}.doi", evidence.id),
+                "invalid DOI",
+            ));
+        }
+        if evidence.version == Some(0)
+            || evidence
+                .location
+                .as_ref()
+                .and_then(|location| location.page)
+                == Some(0)
+        {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("{field}.evidence.{}", evidence.id),
+                "evidence versions and pages are 1-indexed",
+            ));
+        }
+        if evidence
+            .quote
+            .as_ref()
+            .is_some_and(|quote| quote.exact.trim().is_empty())
+        {
+            return Err(astra_error(
+                &node.manifest_rel,
+                &format!("{field}.evidence.{}.quote.exact", evidence.id),
+                "evidence quote must not be empty",
+            ));
+        }
+        if let Some(artifact) = &evidence.artifact {
+            resolve_output_dependency(node, artifact, scopes).map_err(|message| {
+                astra_error(
+                    &node.manifest_rel,
+                    &format!("{field}.evidence.{}.artifact", evidence.id),
+                    &message,
+                )
+            })?;
+        }
+    }
+    Ok(())
+}
+
+fn is_valid_astra_doi(value: &str) -> bool {
+    bare_doi(value).is_some_and(|doi| {
+        doi.strip_prefix("10.")
+            .and_then(|rest| rest.split_once('/'))
+            .is_some_and(|(registrant, suffix)| {
+                registrant.len() >= 4
+                    && registrant
+                        .chars()
+                        .all(|character| character.is_ascii_digit())
+                    && !suffix.is_empty()
+            })
+    })
 }
 
 /// Validate typed placeholders in one ASTRA recipe command.
@@ -913,6 +1274,19 @@ fn effective_decision<'a>(
     id: &str,
     scopes: &BTreeMap<String, &'a AnalysisNode>,
 ) -> std::result::Result<&'a Decision, String> {
+    effective_decision_inner(node, id, scopes, &mut BTreeSet::new())
+}
+
+fn effective_decision_inner<'a>(
+    node: &'a AnalysisNode,
+    id: &str,
+    scopes: &BTreeMap<String, &'a AnalysisNode>,
+    visiting: &mut BTreeSet<(String, String)>,
+) -> std::result::Result<&'a Decision, String> {
+    let key = (node.scope_string(), id.to_string());
+    if !visiting.insert(key.clone()) {
+        return Err(format!("decision alias cycle includes '{id}'"));
+    }
     let decision = node
         .analysis
         .decisions
@@ -922,14 +1296,74 @@ fn effective_decision<'a>(
         return Ok(decision);
     };
     let (target_scope, target_id) = resolve_decision_from(node, from, scopes)?;
-    scopes
-        .get(&target_scope)
-        .and_then(|target| target.analysis.decisions.get(&target_id))
-        .ok_or_else(|| format!("resolved decision `{from}` disappeared"))
+    let target = scope_node(&target_scope, scopes)?;
+    let resolved = effective_decision_inner(target, &target_id, scopes, visiting)?;
+    visiting.remove(&key);
+    Ok(resolved)
+}
+
+fn defining_decision(
+    node: &AnalysisNode,
+    id: &str,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+) -> std::result::Result<(String, String), String> {
+    let decision = node
+        .analysis
+        .decisions
+        .get(id)
+        .ok_or_else(|| format!("undeclared decision '{id}'"))?;
+    let Some(from) = &decision.from else {
+        return Ok((node.scope_string(), id.to_string()));
+    };
+    let (scope, target_id) = resolve_decision_from(node, from, scopes)?;
+    defining_decision(scope_node(&scope, scopes)?, &target_id, scopes)
+}
+
+/// Resolve an option insight reference to a local or ancestor prior insight.
+fn resolve_prior_insight(
+    node: &AnalysisNode,
+    reference: &str,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+) -> std::result::Result<(String, String), String> {
+    let (scope, id) = if reference.starts_with("../") {
+        let (scope, path) = ascend_from(node, reference)?;
+        if path.len() != 1 {
+            return Err(format!(
+                "option insight '{reference}' must reference one ancestor prior insight"
+            ));
+        }
+        (scope, path[0].clone())
+    } else {
+        if reference.contains(['/', '.']) {
+            return Err(format!(
+                "option insight '{reference}' must be a local id or an ancestor reference"
+            ));
+        }
+        (node.scope_string(), reference.to_string())
+    };
+    let target = scope_node(&scope, scopes)?;
+    if target.analysis.prior_insights.contains_key(&id) {
+        Ok((scope, id))
+    } else {
+        Err(format!(
+            "unresolved prior insight '{reference}' in analysis scope '{scope}'"
+        ))
+    }
 }
 
 fn validate_id(rel: &WorkspaceRelPath, field: &str, id: &str) -> Result<()> {
+    const RESERVED: [&str; 8] = [
+        "inputs",
+        "outputs",
+        "decisions",
+        "findings",
+        "prior_insights",
+        "analyses",
+        "options",
+        "content",
+    ];
     let valid = !id.is_empty()
+        && !RESERVED.contains(&id)
         && id
             .chars()
             .next()
@@ -1036,6 +1470,35 @@ fn resolve_output_from(
     }
 }
 
+/// Resolve a local or qualified descendant output dependency.
+fn resolve_output_dependency(
+    node: &AnalysisNode,
+    value: &str,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+) -> std::result::Result<(String, String), String> {
+    let path = split_dotted(value);
+    if path.len() == 1
+        && node
+            .analysis
+            .outputs
+            .iter()
+            .any(|output| output.id == path[0])
+    {
+        return Ok((node.scope_string(), path[0].clone()));
+    }
+    if path.len() >= 2 {
+        let child_scope = join_scope(&node.scope_string(), &path[..path.len() - 1]);
+        let target = scope_node(&child_scope, scopes)?;
+        let id = path.last().cloned().unwrap_or_default();
+        if target.analysis.outputs.iter().any(|output| output.id == id) {
+            return Ok((child_scope, id));
+        }
+    }
+    Err(format!(
+        "unresolved output dependency \u{0060}{value}\u{0060}"
+    ))
+}
+
 /// Resolve an output re-export chain to the output that declares its metadata.
 fn resolve_effective_output<'a>(
     node: &'a AnalysisNode,
@@ -1125,11 +1588,350 @@ fn scope_node<'a>(
         .ok_or_else(|| format!("unresolved analysis scope `{scope}`"))
 }
 
+fn load_universes(workspace_root: &Path, root: &AnalysisNode) -> Result<Vec<LoadedUniverse>> {
+    let parent = Path::new(root.manifest_rel.as_str())
+        .parent()
+        .unwrap_or_else(|| Path::new(""));
+    let directory = workspace_root.join(parent).join("universes");
+    if !directory.is_dir() {
+        return Ok(Vec::new());
+    }
+    ensure_workspace_path(workspace_root, &directory)?;
+    let mut paths = fs::read_dir(&directory)
+        .wrap_err_with(|| format!("unable to read {}", directory.display()))?
+        .map(|entry| entry.map(|entry| entry.path()))
+        .collect::<std::io::Result<Vec<_>>>()?
+        .into_iter()
+        .filter(|path| {
+            path.extension()
+                .and_then(|extension| extension.to_str())
+                .is_some_and(|extension| matches!(extension, "yaml" | "yml"))
+        })
+        .collect::<Vec<_>>();
+    paths.sort();
+
+    let mut scopes = BTreeMap::new();
+    collect_scopes(root, &mut scopes);
+    paths
+        .into_iter()
+        .map(|path| {
+            ensure_workspace_path(workspace_root, &path)?;
+            let rel = WorkspaceRelPath::from_workspace_path(workspace_root, &path)?;
+            let text = fs::read_to_string(&path)
+                .wrap_err_with(|| format!("unable to read universe {}", rel.as_str()))?;
+            let universe = serde_yaml::from_str::<Universe>(&text)
+                .map_err(|error| astra_error(&rel, "$", &error.to_string()))?;
+            validate_universe_id(&rel, &universe.id)?;
+            let mut selections = Vec::new();
+            let mut nested = Vec::new();
+            validate_universe_node(
+                workspace_root,
+                root,
+                &universe.decisions,
+                &universe.analyses,
+                Some(&rel),
+                &universe.id,
+                &scopes,
+                &BTreeMap::new(),
+                &mut vec![rel.as_str().to_string()],
+                &mut selections,
+                &mut nested,
+            )?;
+            Ok(LoadedUniverse {
+                rel,
+                scope: root.scope_string(),
+                universe,
+                selections,
+                nested,
+            })
+        })
+        .collect()
+}
+
+#[allow(clippy::too_many_arguments)]
+fn validate_universe_node(
+    workspace_root: &Path,
+    analysis: &AnalysisNode,
+    decisions: &BTreeMap<String, String>,
+    analyses: &BTreeMap<String, UniverseNode>,
+    universe_rel: Option<&WorkspaceRelPath>,
+    universe_id: &str,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+    ancestor_selections: &BTreeMap<String, BTreeMap<String, String>>,
+    stack: &mut Vec<String>,
+    selections: &mut Vec<UniverseSelection>,
+    nested_universes: &mut Vec<LoadedUniverse>,
+) -> Result<()> {
+    let error_rel = universe_rel.unwrap_or(&analysis.manifest_rel);
+    for id in decisions.keys() {
+        match analysis.analysis.decisions.get(id) {
+            None => {
+                return Err(astra_error(
+                    error_rel,
+                    "decisions",
+                    &format!("universe selects unknown decision '{id}'"),
+                ));
+            }
+            Some(decision) if decision.from.is_some() => {
+                return Err(astra_error(
+                    error_rel,
+                    "decisions",
+                    &format!(
+                        "universe must not select inherited decision '{id}'; its value comes from an ancestor"
+                    ),
+                ));
+            }
+            Some(..) => {}
+        }
+    }
+
+    let mut effective_selections = decisions.clone();
+    for (id, decision) in &analysis.analysis.decisions {
+        let Some(from) = &decision.from else {
+            continue;
+        };
+        let (target_scope, target_id) = resolve_decision_from(analysis, from, scopes)
+            .map_err(|message| astra_error(error_rel, "decisions", &message))?;
+        if let Some(option_id) = ancestor_selections
+            .get(&target_scope)
+            .and_then(|selections| selections.get(&target_id))
+        {
+            effective_selections.insert(id.clone(), option_id.clone());
+        }
+    }
+
+    for (id, decision) in analysis
+        .analysis
+        .decisions
+        .iter()
+        .filter(|(_, decision)| decision.from.is_none())
+    {
+        let active = decision.when.iter().all(|condition| {
+            condition_target(condition).is_ok_and(|(target, option)| {
+                let selected = effective_selections
+                    .get(target)
+                    .is_some_and(|value| value == option);
+                if condition.starts_with('~') {
+                    !selected
+                } else {
+                    selected
+                }
+            })
+        });
+        let selected = decisions.get(id);
+        if active && selected.is_none() {
+            return Err(astra_error(
+                error_rel,
+                "decisions",
+                &format!("universe is missing active decision '{id}'"),
+            ));
+        }
+        if !active && selected.is_some() {
+            return Err(astra_error(
+                error_rel,
+                "decisions",
+                &format!("universe selects inactive decision '{id}'"),
+            ));
+        }
+        let Some(option_id) = selected else {
+            continue;
+        };
+        let option = decision.options.get(option_id).ok_or_else(|| {
+            astra_error(
+                error_rel,
+                "decisions",
+                &format!("decision '{id}' has no option '{option_id}'"),
+            )
+        })?;
+        if option.excluded == Some(true) {
+            return Err(astra_error(
+                error_rel,
+                "decisions",
+                &format!("universe selects excluded option '{id}.{option_id}'"),
+            ));
+        }
+        for required in &option.requires {
+            let (required_decision, required_option) = condition_target(required)
+                .map_err(|message| astra_error(error_rel, "decisions", &message))?;
+            if effective_selections
+                .get(required_decision)
+                .map(String::as_str)
+                != Some(required_option)
+            {
+                return Err(astra_error(
+                    error_rel,
+                    "decisions",
+                    &format!("option '{id}.{option_id}' requires '{required}'"),
+                ));
+            }
+        }
+        for incompatible in &option.incompatible_with {
+            let (other_decision, other_option) = condition_target(incompatible)
+                .map_err(|message| astra_error(error_rel, "decisions", &message))?;
+            if effective_selections.get(other_decision).map(String::as_str) == Some(other_option) {
+                return Err(astra_error(
+                    error_rel,
+                    "decisions",
+                    &format!("option '{id}.{option_id}' is incompatible with '{incompatible}'"),
+                ));
+            }
+        }
+        selections.push(UniverseSelection {
+            rel: error_rel.clone(),
+            universe_id: universe_id.to_string(),
+            scope: analysis.scope_string(),
+            decision_scope: analysis.scope_string(),
+            decision_id: id.clone(),
+            option_id: option_id.clone(),
+        });
+    }
+
+    let mut selections_by_scope = ancestor_selections.clone();
+    selections_by_scope.insert(analysis.scope_string(), effective_selections);
+
+    for id in analyses.keys() {
+        if !analysis.children.contains_key(id) {
+            return Err(astra_error(
+                error_rel,
+                "analyses",
+                &format!("universe references unknown sub-analysis '{id}'"),
+            ));
+        }
+    }
+    for (id, child) in &analysis.children {
+        let Some(node) = analyses.get(id) else {
+            validate_universe_node(
+                workspace_root,
+                child,
+                &BTreeMap::new(),
+                &BTreeMap::new(),
+                Some(error_rel),
+                universe_id,
+                scopes,
+                &selections_by_scope,
+                stack,
+                selections,
+                nested_universes,
+            )?;
+            continue;
+        };
+        if let Some(name) = &node.universe {
+            if !node.decisions.is_empty() || !node.analyses.is_empty() {
+                return Err(astra_error(
+                    error_rel,
+                    &format!("analyses.{id}"),
+                    "a named child universe may not include inline selections",
+                ));
+            }
+            let parent = Path::new(child.manifest_rel.as_str())
+                .parent()
+                .unwrap_or_else(|| Path::new(""));
+            let path = workspace_root
+                .join(parent)
+                .join("universes")
+                .join(format!("{name}.yaml"));
+            if !path.is_file() {
+                return Err(astra_error(
+                    error_rel,
+                    &format!("analyses.{id}.universe"),
+                    &format!("missing named child universe '{name}'"),
+                ));
+            }
+            ensure_workspace_path(workspace_root, &path)?;
+            let rel = WorkspaceRelPath::from_workspace_path(workspace_root, &path)?;
+            if stack.contains(&rel.as_str().to_string()) {
+                return Err(astra_error(&rel, "$", "universe reference cycle"));
+            }
+            stack.push(rel.as_str().to_string());
+            let text = fs::read_to_string(&path)?;
+            let nested = serde_yaml::from_str::<Universe>(&text)
+                .map_err(|error| astra_error(&rel, "$", &error.to_string()))?;
+            validate_universe_id(&rel, &nested.id)?;
+            let mut nested_selections = Vec::new();
+            let mut nested_children = Vec::new();
+            validate_universe_node(
+                workspace_root,
+                child,
+                &nested.decisions,
+                &nested.analyses,
+                Some(&rel),
+                &nested.id,
+                scopes,
+                &selections_by_scope,
+                stack,
+                &mut nested_selections,
+                &mut nested_children,
+            )?;
+            selections.extend(nested_selections.iter().cloned());
+            nested_universes.push(LoadedUniverse {
+                rel,
+                scope: child.scope_string(),
+                universe: nested,
+                selections: nested_selections,
+                nested: nested_children,
+            });
+            let _ = stack.pop();
+        } else {
+            validate_universe_node(
+                workspace_root,
+                child,
+                &node.decisions,
+                &node.analyses,
+                Some(error_rel),
+                universe_id,
+                scopes,
+                &selections_by_scope,
+                stack,
+                selections,
+                nested_universes,
+            )?;
+        }
+    }
+    Ok(())
+}
+
+/// Ensure a discovered or referenced ASTRA path does not traverse a symlink
+/// outside the canonical workspace root.
+fn ensure_workspace_path(workspace_root: &Path, path: &Path) -> Result<()> {
+    let canonical = path
+        .canonicalize()
+        .wrap_err_with(|| format!("unable to resolve {}", path.display()))?;
+    if !canonical.starts_with(workspace_root) {
+        bail!(
+            "ASTRA universe path resolves outside the workspace: {}",
+            path.display()
+        );
+    }
+    Ok(())
+}
+
+fn validate_universe_id(rel: &WorkspaceRelPath, id: &str) -> Result<()> {
+    let valid = id
+        .chars()
+        .next()
+        .is_some_and(|character| character.is_ascii_lowercase())
+        && id.chars().all(|character| {
+            character.is_ascii_lowercase()
+                || character.is_ascii_digit()
+                || matches!(character, '_' | '-')
+        });
+    if valid {
+        Ok(())
+    } else {
+        Err(astra_error(
+            rel,
+            "id",
+            &format!("invalid universe id '{id}'"),
+        ))
+    }
+}
+
 /// Project a validated ASTRA root using its scoped symbol tables.
 fn project_tree(
     builder: &mut GraphBuilder,
     workspace_root: &Path,
     root: &AnalysisNode,
+    universes: &[LoadedUniverse],
     resource_id: impl Fn(&WorkspaceRelPath) -> Option<String> + Copy,
 ) -> Result<()> {
     let root_key = root.manifest_rel.as_str();
@@ -1143,7 +1945,97 @@ fn project_tree(
         &scopes,
         resource_id,
         None,
-    )
+    )?;
+    project_universes(builder, root_key, root, universes, resource_id);
+    Ok(())
+}
+
+fn project_universes(
+    builder: &mut GraphBuilder,
+    root_key: &str,
+    _root: &AnalysisNode,
+    universes: &[LoadedUniverse],
+    resource_id: impl Fn(&WorkspaceRelPath) -> Option<String> + Copy,
+) {
+    for loaded in universes {
+        project_universe(builder, root_key, loaded, resource_id);
+    }
+}
+
+fn project_universe(
+    builder: &mut GraphBuilder,
+    root_key: &str,
+    loaded: &LoadedUniverse,
+    resource_id: impl Fn(&WorkspaceRelPath) -> Option<String> + Copy,
+) {
+    let scope = &loaded.scope;
+    let analysis_id = LocalGraphId::astra_analysis(root_key, scope);
+    let universe_id = LocalGraphId::astra_universe(root_key, scope, &loaded.universe.id);
+    let mut object = astra_object("Universe", &loaded.universe.id, &loaded.universe.id, scope);
+    insert_string(
+        &mut object,
+        "description",
+        loaded.universe.description.as_deref(),
+    );
+    builder.add_schema_node(&universe_id, Node::Object(object));
+    let evidence = vec![universe_evidence(&loaded.rel, &loaded.universe.id)];
+    builder.add_containment(&universe_id, &analysis_id, evidence.clone());
+    builder.add_edge_with_evidence(
+        &universe_id,
+        &analysis_id,
+        GraphEdgeKind::Configures,
+        evidence.clone(),
+    );
+    if let Some(manifest_id) = resource_id(&loaded.rel) {
+        builder.add_declaration(&manifest_id, &universe_id, evidence.clone());
+    }
+    for selection in &loaded.selections {
+        let option_id = LocalGraphId::astra_option(
+            root_key,
+            &selection.decision_scope,
+            &selection.decision_id,
+            &selection.option_id,
+        );
+        let mut selection_evidence =
+            vec![universe_evidence(&selection.rel, &selection.universe_id)];
+        if let Some(item) = selection_evidence.first_mut() {
+            let details = item.options.details.get_or_insert_with(Object::new);
+            details.insert(
+                "analysisScope".to_string(),
+                Primitive::String(selection.scope.clone()),
+            );
+            details.insert(
+                "selection".to_string(),
+                Primitive::String(format!("{}.{}", selection.decision_id, selection.option_id)),
+            );
+        }
+        builder.add_edge_with_evidence(
+            option_id,
+            &universe_id,
+            GraphEdgeKind::Configures,
+            selection_evidence,
+        );
+    }
+    for nested in &loaded.nested {
+        project_universe(builder, root_key, nested, resource_id);
+    }
+}
+
+fn universe_evidence(rel: &WorkspaceRelPath, id: &str) -> GraphEvidence {
+    let mut evidence = evidence::declared_at(rel.as_str(), None, None);
+    evidence.code_location = Some(CodeLocation {
+        source: Some(rel.as_str().to_string()),
+        ..Default::default()
+    });
+    evidence.options.details = Some(Object::from([
+        (
+            "detector",
+            Primitive::String("stencila-astra-contract".to_string()),
+        ),
+        ("fieldPath", Primitive::String("decisions".to_string())),
+        ("id", Primitive::String(id.to_string())),
+    ]));
+    evidence
 }
 
 #[allow(clippy::too_many_arguments)]
@@ -1158,16 +2050,40 @@ fn project_analysis(
 ) -> Result<()> {
     let scope = node.scope_string();
     let analysis_id = LocalGraphId::astra_analysis(root_key, &scope);
-    let mut analysis_node = CreativeWork::new();
-    analysis_node.id = Some(analysis_id.clone());
-    analysis_node.work_type = Some(CreativeWorkType::Workflow);
-    analysis_node.options.name = node
+    let local_id = node
+        .analysis
+        .id
+        .as_deref()
+        .or_else(|| node.scope.last().map(String::as_str))
+        .unwrap_or("root");
+    let name = node
         .analysis
         .name
         .clone()
-        .or_else(|| node.analysis.id.clone());
-    analysis_node.options.description = node.analysis.description.clone();
-    builder.add_schema_node(&analysis_id, Node::CreativeWork(analysis_node));
+        .or_else(|| node.analysis.id.clone())
+        .unwrap_or_else(|| local_id.to_string());
+    let mut analysis_object = astra_object("Analysis", local_id, &name, &scope);
+    insert_string(
+        &mut analysis_object,
+        "description",
+        node.analysis.description.as_deref(),
+    );
+    insert_string(
+        &mut analysis_object,
+        "version",
+        node.analysis
+            .version
+            .as_ref()
+            .and_then(yaml_scalar_string)
+            .as_deref(),
+    );
+    insert_strings(&mut analysis_object, "tags", &node.analysis.tags);
+    insert_string(
+        &mut analysis_object,
+        "container",
+        node.analysis.container.as_deref(),
+    );
+    builder.add_schema_node(&analysis_id, Node::Object(analysis_object));
 
     let manifest_id = resource_id(&node.manifest_rel).ok_or_else(|| {
         astra_error(
@@ -1206,49 +2122,40 @@ fn project_analysis(
 
     let mut decision_endpoints = BTreeMap::new();
     for (id, decision) in &node.analysis.decisions {
-        let (effective, resolution) = if let Some(from) = &decision.from {
-            let (target_scope, target_id) =
-                resolve_decision_from(node, from, scopes).map_err(|message| {
+        let effective = effective_decision(node, id, scopes).map_err(|message| {
+            astra_error(
+                &node.manifest_rel,
+                &format!("decisions.{id}.from"),
+                &message,
+            )
+        })?;
+        let endpoint = LocalGraphId::astra_decision(root_key, &scope, id);
+        let name = effective.label.as_deref().unwrap_or(id);
+        let mut object = astra_object("Decision", id, name, &scope);
+        insert_string(&mut object, "rationale", effective.rationale.as_deref());
+        insert_strings(&mut object, "tags", &effective.tags);
+        insert_string(&mut object, "default", effective.default.as_deref());
+        insert_strings(&mut object, "when", &decision.when);
+        insert_string(&mut object, "from", decision.from.as_deref());
+        if decision.from.is_some() {
+            let (resolved_scope, resolved_id) =
+                defining_decision(node, id, scopes).map_err(|message| {
                     astra_error(
                         &node.manifest_rel,
                         &format!("decisions.{id}.from"),
                         &message,
                     )
                 })?;
-            let target = scopes.get(&target_scope).copied().ok_or_else(|| {
-                astra_error(
-                    &node.manifest_rel,
-                    &format!("decisions.{id}.from"),
-                    "resolved decision scope disappeared",
-                )
-            })?;
-            let effective = target.analysis.decisions.get(&target_id).ok_or_else(|| {
-                astra_error(
-                    &node.manifest_rel,
-                    &format!("decisions.{id}.from"),
-                    "resolved decision disappeared",
-                )
-            })?;
-            (effective, Some(from.as_str()))
-        } else {
-            (decision, None)
-        };
-        let endpoint = LocalGraphId::astra_decision(root_key, &scope, id);
-        let mut parameter = Parameter::new(id.clone());
-        parameter.id = Some(endpoint.clone());
-        parameter.options.label = effective.label.clone();
-        parameter.options.default = effective
-            .default
-            .as_ref()
-            .map(|value| Box::new(Node::String(value.clone())));
-        parameter.options.validator = Some(Validator::EnumValidator(EnumValidator::new(
-            effective
-                .options
-                .keys()
-                .map(|value| Node::String(value.clone()))
-                .collect(),
-        )));
-        builder.add_schema_node(&endpoint, Node::Parameter(parameter));
+            object.insert(
+                "resolvedTo".to_string(),
+                Primitive::String(LocalGraphId::astra_decision(
+                    root_key,
+                    &resolved_scope,
+                    &resolved_id,
+                )),
+            );
+        }
+        builder.add_schema_node(&endpoint, Node::Object(object));
         builder.add_containment(
             &endpoint,
             &analysis_id,
@@ -1256,11 +2163,74 @@ fn project_analysis(
                 node,
                 &format!("decisions.{id}"),
                 Some(id),
-                resolution,
+                decision.from.as_deref(),
             )],
         );
+        if decision.from.is_none() {
+            for (option_id, option) in &decision.options {
+                let option_endpoint = LocalGraphId::astra_option(root_key, &scope, id, option_id);
+                let mut object = astra_object(
+                    "Option",
+                    option_id,
+                    option.label.as_deref().unwrap_or(option_id),
+                    &scope,
+                );
+                insert_string(&mut object, "description", option.description.as_deref());
+                object.insert("decision".to_string(), Primitive::String(endpoint.clone()));
+                insert_strings(&mut object, "insights", &option.insights);
+                insert_strings(&mut object, "requires", &option.requires);
+                insert_strings(&mut object, "incompatibleWith", &option.incompatible_with);
+                if let Some(excluded) = option.excluded {
+                    object.insert("excluded".to_string(), Primitive::Boolean(excluded));
+                }
+                insert_string(
+                    &mut object,
+                    "excludedReason",
+                    option.excluded_reason.as_deref(),
+                );
+                builder.add_schema_node(&option_endpoint, Node::Object(object));
+                builder.add_containment(
+                    &option_endpoint,
+                    &endpoint,
+                    vec![declared_evidence(
+                        node,
+                        &format!("decisions.{id}.options.{option_id}"),
+                        Some(option_id),
+                        None,
+                    )],
+                );
+                for insight in &option.insights {
+                    let (insight_scope, insight_id) = resolve_prior_insight(node, insight, scopes)
+                        .map_err(|message| {
+                            astra_error(
+                                &node.manifest_rel,
+                                &format!("decisions.{id}.options.{option_id}.insights"),
+                                &message,
+                            )
+                        })?;
+                    builder.add_edge_with_evidence(
+                        LocalGraphId::astra_insight(
+                            root_key,
+                            &insight_scope,
+                            "prior_insights",
+                            &insight_id,
+                        ),
+                        &option_endpoint,
+                        GraphEdgeKind::Supports,
+                        vec![declared_evidence(
+                            node,
+                            &format!("decisions.{id}.options.{option_id}.insights"),
+                            Some(option_id),
+                            Some(insight),
+                        )],
+                    );
+                }
+            }
+        }
         decision_endpoints.insert(id.clone(), endpoint);
     }
+
+    project_insights(builder, root_key, node, scopes)?;
 
     for (index, output) in node.analysis.outputs.iter().enumerate() {
         let output_id = LocalGraphId::astra_output(root_key, &scope, &output.id);
@@ -1397,7 +2367,7 @@ fn project_analysis(
             .recipe
             .as_ref()
             .and_then(|recipe| recipe.command.as_deref())
-            && let Some(script) = crate::code::direct_python_script(command)
+            && let Some(script) = crate::code::direct_source_script(command)
             && let Some(rel) = local_source_rel(workspace_root, &node.manifest_rel, &script)
             && let Some(script_id) = resource_id(&rel)
         {
@@ -1435,8 +2405,11 @@ fn project_analysis(
 
         for input in &output.inputs {
             let endpoints = input_endpoints.get(input).cloned().unwrap_or_else(|| {
+                let (dependency_scope, dependency_id) =
+                    resolve_output_dependency(node, input, scopes)
+                        .unwrap_or_else(|_| (scope.clone(), input.clone()));
                 vec![InputEndpoint {
-                    id: LocalGraphId::astra_output(root_key, &scope, input),
+                    id: LocalGraphId::astra_output(root_key, &dependency_scope, &dependency_id),
                     is_remote: false,
                 }]
             });
@@ -1537,6 +2510,157 @@ fn project_analysis(
             resource_id,
             Some(&analysis_id),
         )?;
+    }
+    Ok(())
+}
+
+fn project_insights(
+    builder: &mut GraphBuilder,
+    root_key: &str,
+    node: &AnalysisNode,
+    scopes: &BTreeMap<String, &AnalysisNode>,
+) -> Result<()> {
+    let scope = node.scope_string();
+    for (collection, insights) in [
+        ("prior_insights", &node.analysis.prior_insights),
+        ("findings", &node.analysis.findings),
+    ] {
+        for (insight_id, insight) in insights {
+            let claim_id = LocalGraphId::astra_insight(root_key, &scope, collection, insight_id);
+            let mut claim = Claim::new(vec![Block::Paragraph(Paragraph::new(vec![Inline::Text(
+                Text::new(insight.claim.clone().into()),
+            )]))]);
+            claim.id = Some(claim_id.clone());
+            claim.label = insight.label.clone();
+            claim.options.name = insight.label.clone().or_else(|| Some(insight_id.clone()));
+            let mut metadata = Object::from([
+                ("createdAt", Primitive::String(insight.created_at.clone())),
+                ("collection", Primitive::String(collection.to_string())),
+            ]);
+            if let Some(derived) = insight.derived {
+                metadata.insert("derived".to_string(), Primitive::Boolean(derived));
+            }
+            insert_string(&mut metadata, "scope", insight.scope.as_deref());
+            insert_strings(&mut metadata, "tags", &insight.tags);
+            insert_string(&mut metadata, "notes", insight.notes.as_deref());
+            claim.options.extra = Some(metadata);
+            builder.add_schema_node(&claim_id, Node::Claim(claim));
+            builder.add_containment(
+                &claim_id,
+                LocalGraphId::astra_analysis(root_key, &scope),
+                vec![declared_evidence(
+                    node,
+                    &format!("{collection}.{insight_id}"),
+                    Some(insight_id),
+                    None,
+                )],
+            );
+
+            for evidence in &insight.evidence {
+                let evidence_id = LocalGraphId::astra_evidence(
+                    root_key,
+                    &scope,
+                    collection,
+                    insight_id,
+                    &evidence.id,
+                );
+                let mut evidence_node = Evidence::new(vec![]);
+                evidence_node.id = Some(evidence_id.clone());
+                evidence_node.options.name = Some(evidence.id.clone());
+                let mut metadata = Object::new();
+                if let Some(doi) = &evidence.doi {
+                    evidence_node.doi = bare_doi(doi).map(ToString::to_string);
+                }
+                insert_string(&mut metadata, "artifact", evidence.artifact.as_deref());
+                insert_string(&mut metadata, "snapshot", evidence.snapshot.as_deref());
+                insert_string(
+                    &mut metadata,
+                    "sourceCommit",
+                    evidence.source_commit.as_deref(),
+                );
+                if let Some(version) = evidence.version {
+                    metadata.insert("version".to_string(), Primitive::Integer(version as i64));
+                }
+                if let Some(quote) = &evidence.quote {
+                    let mut selector =
+                        Object::from([("exact", Primitive::String(quote.exact.clone()))]);
+                    insert_string(&mut selector, "prefix", quote.prefix.as_deref());
+                    insert_string(&mut selector, "suffix", quote.suffix.as_deref());
+                    metadata.insert("quote".to_string(), Primitive::Object(selector));
+                }
+                if let Some(location) = &evidence.location {
+                    let mut selector = Object::new();
+                    insert_string(&mut selector, "value", location.value.as_deref());
+                    if let Some(page) = location.page {
+                        selector.insert("page".to_string(), Primitive::Integer(page as i64));
+                    }
+                    metadata.insert("location".to_string(), Primitive::Object(selector));
+                }
+                evidence_node.options.extra = (!metadata.is_empty()).then_some(metadata);
+                builder.add_schema_node(&evidence_id, Node::Evidence(evidence_node));
+                builder.add_containment(
+                    &evidence_id,
+                    &claim_id,
+                    vec![declared_evidence(
+                        node,
+                        &format!("{collection}.{insight_id}.evidence"),
+                        Some(insight_id),
+                        Some(&evidence.id),
+                    )],
+                );
+                builder.add_edge_with_evidence(
+                    &evidence_id,
+                    &claim_id,
+                    GraphEdgeKind::Supports,
+                    vec![declared_evidence(
+                        node,
+                        &format!("{collection}.{insight_id}.evidence"),
+                        Some(insight_id),
+                        Some(&evidence.id),
+                    )],
+                );
+
+                if let Some(doi) = evidence.doi.as_deref().and_then(bare_doi) {
+                    let doi_id = LocalGraphId::resource(&format!("doi:{doi}"));
+                    let mut work = CreativeWork::new();
+                    work.doi = Some(doi.to_string());
+                    work.options.url = Some(doi_url(doi));
+                    builder.add_schema_node(&doi_id, Node::CreativeWork(work));
+                    builder.add_edge_with_evidence(
+                        &doi_id,
+                        &evidence_id,
+                        GraphEdgeKind::CitedBy,
+                        vec![declared_evidence(
+                            node,
+                            &format!("{collection}.{insight_id}.evidence"),
+                            Some(insight_id),
+                            Some(doi),
+                        )],
+                    );
+                }
+                if let Some(artifact) = &evidence.artifact {
+                    let (artifact_scope, artifact_id) =
+                        resolve_output_dependency(node, artifact, scopes).map_err(|message| {
+                            astra_error(
+                                &node.manifest_rel,
+                                &format!("{collection}.{insight_id}.evidence"),
+                                &message,
+                            )
+                        })?;
+                    builder.add_edge_with_evidence(
+                        LocalGraphId::astra_output(root_key, &artifact_scope, &artifact_id),
+                        &evidence_id,
+                        GraphEdgeKind::Grounds,
+                        vec![declared_evidence(
+                            node,
+                            &format!("{collection}.{insight_id}.evidence"),
+                            Some(insight_id),
+                            Some(artifact),
+                        )],
+                    );
+                }
+            }
+        }
     }
     Ok(())
 }
@@ -1645,6 +2769,16 @@ fn project_input(
     }
 
     if let Some(source) = &input.source {
+        // A bare DOI and a relative path can have the same spelling. Prefer an
+        // existing workspace file for ASTRA fields that explicitly accept paths.
+        if let Some(rel) = local_source_rel(workspace_root, &node.manifest_rel, source)
+            && let Some(id) = resource_id(&rel)
+        {
+            return Ok(vec![InputEndpoint {
+                id,
+                is_remote: false,
+            }]);
+        }
         if let Some(doi) = bare_doi(source) {
             let id = LocalGraphId::resource(&format!("doi:{doi}"));
             let mut work = CreativeWork::new();
@@ -1664,14 +2798,6 @@ fn project_input(
             return Ok(vec![InputEndpoint {
                 id,
                 is_remote: has_remote_uri_scheme(source),
-            }]);
-        }
-        if let Some(rel) = local_source_rel(workspace_root, &node.manifest_rel, source)
-            && let Some(id) = resource_id(&rel)
-        {
-            return Ok(vec![InputEndpoint {
-                id,
-                is_remote: false,
             }]);
         }
     }
@@ -1700,6 +2826,17 @@ fn project_output_target(
     resource_id: impl Fn(&WorkspaceRelPath) -> Option<String> + Copy,
     target: &str,
 ) -> Option<InputEndpoint> {
+    // Prefer an existing workspace path over the syntactically ambiguous bare
+    // DOI form (for example, `10.1234/result.csv`).
+    if let Some(rel) = local_source_rel(workspace_root, &node.manifest_rel, target)
+        && let Some(id) = resource_id(&rel)
+    {
+        return Some(InputEndpoint {
+            id,
+            is_remote: false,
+        });
+    }
+
     if let Some(doi) = bare_doi(target) {
         let id = LocalGraphId::resource(&format!("doi:{doi}"));
         let mut work = CreativeWork::new();
@@ -1723,12 +2860,7 @@ fn project_output_target(
         });
     }
 
-    let rel = local_source_rel(workspace_root, &node.manifest_rel, target)?;
-    let id = resource_id(&rel)?;
-    Some(InputEndpoint {
-        id,
-        is_remote: false,
-    })
+    None
 }
 
 fn local_source_rel(
@@ -1845,12 +2977,10 @@ fn declared_evidence(
                     Primitive::String(command.clone()),
                 );
             }
-            if let Some(resources) = &recipe.resources
-                && let Ok(resources) = serde_yaml::to_string(resources)
-            {
+            if let Some(resources) = &recipe.resources {
                 details.insert(
                     "recipeResources".to_string(),
-                    Primitive::String(resources.trim().to_string()),
+                    Primitive::Object(resources_object(resources)),
                 );
             }
             if let Some(container) = recipe

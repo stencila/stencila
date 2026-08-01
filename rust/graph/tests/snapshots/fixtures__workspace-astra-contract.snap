@@ -1,6 +1,5 @@
 ---
 source: rust/graph/tests/fixtures.rs
-assertion_line: 46
 expression: graph
 ---
 type: Graph
@@ -18,71 +17,82 @@ nodes:
   - type: GraphNode
     id: "astra-analysis:astra.yaml:root"
     node:
-      type: CreativeWork
-      id: "astra-analysis:astra.yaml:root"
-      workType: Workflow
-      description: Exercises declarative ASTRA graph projection.
+      astraType: Analysis
+      id: root
       name: ASTRA contract fixture
+      scope: root
+      description: Exercises declarative ASTRA graph projection.
+      version: "1.0"
+      container: Containerfile
   - type: GraphNode
     id: "astra-analysis:astra.yaml:root.model"
     node:
-      type: CreativeWork
-      id: "astra-analysis:astra.yaml:root.model"
-      workType: Workflow
+      astraType: Analysis
+      id: model
       name: Fit model
+      scope: root.model
   - type: GraphNode
     id: "astra-analysis:astra.yaml:root.prepare"
     node:
-      type: CreativeWork
-      id: "astra-analysis:astra.yaml:root.prepare"
-      workType: Workflow
+      astraType: Analysis
+      id: prepare
       name: Prepare catalog
+      scope: root.prepare
   - type: GraphNode
     id: "astra-analysis:astra.yaml:root.report"
     node:
-      type: CreativeWork
-      id: "astra-analysis:astra.yaml:root.report"
-      workType: Workflow
+      astraType: Analysis
+      id: report
       name: Build report
+      scope: root.report
+      version: 1.0.3
   - type: GraphNode
     id: "astra-decision:astra.yaml:root.model:estimator"
     node:
-      type: Parameter
-      id: "astra-decision:astra.yaml:root.model:estimator"
-      name: estimator
-      label: Estimator
+      astraType: Decision
+      id: estimator
+      name: Estimator
+      scope: root.model
+      rationale: The estimator changes the fitted values.
       default: robust
-      validator:
-        type: EnumValidator
-        values:
-          - ordinary
-          - robust
+      from: "../estimator"
+      resolvedTo: "astra-decision:astra.yaml:root:estimator"
   - type: GraphNode
     id: "astra-decision:astra.yaml:root.prepare:estimator"
     node:
-      type: Parameter
-      id: "astra-decision:astra.yaml:root.prepare:estimator"
-      name: estimator
-      label: Estimator
+      astraType: Decision
+      id: estimator
+      name: Estimator
+      scope: root.prepare
+      rationale: The estimator changes the fitted values.
       default: robust
-      validator:
-        type: EnumValidator
-        values:
-          - ordinary
-          - robust
+      from: "../estimator"
+      resolvedTo: "astra-decision:astra.yaml:root:estimator"
   - type: GraphNode
     id: "astra-decision:astra.yaml:root:estimator"
     node:
-      type: Parameter
-      id: "astra-decision:astra.yaml:root:estimator"
-      name: estimator
-      label: Estimator
+      astraType: Decision
+      id: estimator
+      name: Estimator
+      scope: root
+      rationale: The estimator changes the fitted values.
       default: robust
-      validator:
-        type: EnumValidator
-        values:
-          - ordinary
-          - robust
+  - type: GraphNode
+    id: "astra-option:astra.yaml:root:estimator:ordinary"
+    node:
+      astraType: Option
+      id: ordinary
+      name: Ordinary
+      scope: root
+      decision: "astra-decision:astra.yaml:root:estimator"
+  - type: GraphNode
+    id: "astra-option:astra.yaml:root:estimator:robust"
+    node:
+      astraType: Option
+      id: robust
+      name: Robust
+      scope: root
+      decision: "astra-decision:astra.yaml:root:estimator"
   - type: GraphNode
     id: "astra-output:astra.yaml:root.model:fit"
     node:
@@ -101,7 +111,7 @@ nodes:
     node:
       type: CreativeWork
       id: "astra-output:astra.yaml:root.prepare:cleaned"
-      workType: Report
+      workType: Dataset
       name: cleaned
   - type: GraphNode
     id: "astra-output:astra.yaml:root.ref.prior_analysis:baseline"
@@ -127,7 +137,7 @@ nodes:
     node:
       type: CreativeWork
       id: "astra-output:astra.yaml:root:final_report"
-      workType: Dataset
+      workType: Report
       name: final_report
   - type: GraphNode
     id: "code:scripts/fit.py"
@@ -137,6 +147,7 @@ nodes:
       name: fit.py
       path: scripts/fit.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -151,6 +162,7 @@ nodes:
       name: prepare.py
       path: scripts/prepare.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -165,6 +177,7 @@ nodes:
       name: report.py
       path: scripts/report.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -179,6 +192,7 @@ nodes:
       name: score.py
       path: scripts/score.py
       programmingLanguage: Python
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -204,6 +218,7 @@ nodes:
             type: ArrayValidator
             itemsValidator:
               type: IntegerValidator
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -254,6 +269,7 @@ nodes:
       name: Containerfile
       path: Containerfile
       size: 22
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -268,6 +284,7 @@ nodes:
       name: astra.yaml
       path: astra.yaml
       size: 1857
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -282,6 +299,7 @@ nodes:
       name: astra.yaml
       path: stages/report/astra.yaml
       size: 212
+      authors: "[authors]"
       dateCreated:
         type: DateTime
         value: "[datetime]"
@@ -558,7 +576,8 @@ edges:
           id: cleaned
           resolution: estimator
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "astra-decision:astra.yaml:root:estimator"
     target: "astra-analysis:astra.yaml:root"
@@ -578,6 +597,42 @@ edges:
           analysisScope: root
           id: estimator
           rationale: The estimator changes the fitted values.
+  - type: GraphEdge
+    source: "astra-option:astra.yaml:root:estimator:ordinary"
+    target: "astra-decision:astra.yaml:root:estimator"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 27
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: decisions.estimator.options.ordinary
+          analysisScope: root
+          id: ordinary
+  - type: GraphEdge
+    source: "astra-option:astra.yaml:root:estimator:robust"
+    target: "astra-decision:astra.yaml:root:estimator"
+    kind: PartOf
+    evidence:
+      - type: GraphEvidence
+        kind: Declared
+        codeLocation:
+          type: CodeLocation
+          source: astra.yaml
+          startLine: 25
+          startColumn: 6
+        details:
+          detector: stencila-astra-contract
+          manifest: astra.yaml
+          fieldPath: decisions.estimator.options.robust
+          analysisScope: root
+          id: robust
   - type: GraphEdge
     source: "astra-output:astra.yaml:root.model:fit"
     target: "astra-analysis:astra.yaml:root.model"
@@ -678,7 +733,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "astra-output:astra.yaml:root.prepare:cleaned"
     target: "workflow-unit:astra.yaml%23root.model:fit"
@@ -915,7 +971,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
           script: scripts/prepare.py
   - type: GraphEdge
     source: "code:scripts/prepare.py"
@@ -943,7 +1000,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
           script: scripts/prepare.py
   - type: GraphEdge
     source: "code:scripts/report.py"
@@ -1089,7 +1147,8 @@ edges:
           id: cleaned
           resolution: raw
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "dir:data"
     target: "dir:."
@@ -1228,7 +1287,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "file:stages/report/astra.yaml"
     target: "astra-analysis:astra.yaml:root.report"
@@ -1405,7 +1465,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "workflow-unit:astra.yaml%23root.prepare:cleaned"
     target: "astra-output:astra.yaml:root.prepare:cleaned"
@@ -1425,7 +1486,8 @@ edges:
           analysisScope: root.prepare
           id: cleaned
           recipeCommand: "python scripts/prepare.py --input {inputs.raw} --out {output}"
-          recipeResources: "cpus: 2"
+          recipeResources:
+            cpus: 2
   - type: GraphEdge
     source: "workflow-unit:astra.yaml%23root.report:summary"
     target: "astra-analysis:astra.yaml:root.report"

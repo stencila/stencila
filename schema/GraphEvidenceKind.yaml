@@ -10,7 +10,8 @@ $comment: |
   allows a single edge to carry several genuinely independent signals.
 
   Use `Observed` narrowly for direct inspection of existing state, such as a
-  filesystem entry or runtime access. Use `Declared` for explicit authored
+  filesystem entry or symlink target. Use `RuntimeAnalysis` for confirmed
+  relationships observed while executing code. Use `Declared` for explicit authored
   fields, including workflow directives, ASTRA contracts, and environment
   requirements. Use `StaticAnalysis` for inferred relationships found by
   analyzing source or configuration without executing it, such as imports,
@@ -29,7 +30,7 @@ anyOf:
     description: Evidence from deterministic resolution when that resolution is itself the sole evidentiary basis.
   - const: Observed
     '@id': stencila:Observed
-    description: Evidence from direct inspection of existing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.
+    description: Evidence from direct inspection of existing local state, such as filesystem entries or symlink targets.
   - const: Computed
     '@id': stencila:Computed
     description: Evidence from a deterministic Stencila operation, such as walking document structure, decoding a file, or materializing recorded execution outputs.
@@ -39,6 +40,9 @@ anyOf:
   - const: StaticAnalysis
     '@id': stencila:StaticAnalysis
     description: Evidence inferred by analyzing code or configuration without executing it, rather than copied from an explicit authored relationship field.
+  - const: RuntimeAnalysis
+    '@id': stencila:RuntimeAnalysis
+    description: Evidence from a confirmed operation observed while executing code, such as a successful file access, import, or remote response.
   - const: Imported
     '@id': stencila:Imported
     description: Evidence imported from an external metadata source, service, graph, or document format.

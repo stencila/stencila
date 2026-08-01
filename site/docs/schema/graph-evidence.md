@@ -1,12 +1,20 @@
 ---
 title: Graph Evidence
-description: Evidence for a graph edge.
+description: Evidence from one independent evidentiary basis for a graph edge.
 ---
 
 This is an evidence type used in Stencila for graph edges.
 
-It records why an edge exists, how confident the assertion is, and optional
-provenance details about the observation, assertion, or imported metadata.
+Each instance represents one independent reason for believing an edge exists,
+not one processing step used to discover or enrich that reason. Parsing,
+normalization, and locator resolution add context to the same evidence
+instance. For example, resolving an authored link does not add a second
+`Resolved` evidence item, and resolving an observed symbolic-link target does
+not add evidence separate from the observation.
+
+Multiple evidence items remain appropriate when genuinely independent bases
+support the same edge, such as an authored declaration and a separately
+inferred static relationship.
 
 The evidence metadata fields have distinct roles:
 

@@ -8,7 +8,7 @@
   ],
   "category": "flow",
   "description": "The kind of evidence supporting a graph edge.",
-  "$comment": "This enumeration classifies how a graph edge was learned or justified.\nVariants describe the evidence source or acquisition method, not the graph\nrelationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and\nallows a single edge to carry several genuinely independent signals.\n\nUse `Observed` narrowly for direct inspection of existing state, such as a\nfilesystem entry or runtime access. Use `Declared` for explicit authored\nfields, including workflow directives, ASTRA contracts, and environment\nrequirements. Use `StaticAnalysis` for inferred relationships found by\nanalyzing source or configuration without executing it, such as imports,\nconventional lockfile associations, variable flow, or inferred I/O calls.\n\nParsing, normalization, and resolution enrich the evidence basis that caused\nthe edge; they do not create additional evidence items. `Resolved` is retained\nfor relationships where deterministic resolution is itself the sole evidence\nbasis.\n",
+  "$comment": "This enumeration classifies how a graph edge was learned or justified.\nVariants describe the evidence source or acquisition method, not the graph\nrelationship itself. This keeps evidence orthogonal to `GraphEdgeKind`, and\nallows a single edge to carry several genuinely independent signals.\n\nUse `Observed` narrowly for direct inspection of existing state, such as a\nfilesystem entry or symlink target. Use `RuntimeAnalysis` for confirmed\nrelationships observed while executing code. Use `Declared` for explicit authored\nfields, including workflow directives, ASTRA contracts, and environment\nrequirements. Use `StaticAnalysis` for inferred relationships found by\nanalyzing source or configuration without executing it, such as imports,\nconventional lockfile associations, variable flow, or inferred I/O calls.\n\nParsing, normalization, and resolution enrich the evidence basis that caused\nthe edge; they do not create additional evidence items. `Resolved` is retained\nfor relationships where deterministic resolution is itself the sole evidence\nbasis.\n",
   "required": [
     "type"
   ],
@@ -151,7 +151,7 @@
     },
     {
       "@id": "stencila:Observed",
-      "description": "Evidence from direct inspection of existing local state or runtime behavior, such as filesystem entries, symlink targets, or runtime reads and writes.",
+      "description": "Evidence from direct inspection of existing local state, such as filesystem entries or symlink targets.",
       "const": "Observed"
     },
     {
@@ -168,6 +168,11 @@
       "@id": "stencila:StaticAnalysis",
       "description": "Evidence inferred by analyzing code or configuration without executing it, rather than copied from an explicit authored relationship field.",
       "const": "StaticAnalysis"
+    },
+    {
+      "@id": "stencila:RuntimeAnalysis",
+      "description": "Evidence from a confirmed operation observed while executing code, such as a successful file access, import, or remote response.",
+      "const": "RuntimeAnalysis"
     },
     {
       "@id": "stencila:Imported",

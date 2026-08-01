@@ -240,7 +240,7 @@ includes the full set of properties and constraints.
 - [`GraphAction`](./graph-action.md) - An action associated with a graph edge.
 - [`GraphEdge`](./graph-edge.md) - A directed edge in a graph.
 - [`GraphEdgeKind`](./graph-edge-kind.md) - The kind of directed relationship represented by a graph edge.
-- [`GraphEvidence`](./graph-evidence.md) - Evidence for a graph edge.
+- [`GraphEvidence`](./graph-evidence.md) - Evidence from one independent evidentiary basis for a graph edge.
 - [`GraphEvidenceConfidence`](./graph-evidence-confidence.md) - The confidence level for graph evidence.
 - [`GraphEvidenceKind`](./graph-evidence-kind.md) - The kind of evidence supporting a graph edge.
 - [`GraphNode`](./graph-node.md) - A node in a graph.

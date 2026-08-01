@@ -434,6 +434,56 @@ impl LocalGraphId {
         )
     }
 
+    /// Create the graph id for an option owned by an ASTRA decision.
+    pub(crate) fn astra_option(root: &str, scope: &str, decision: &str, name: &str) -> String {
+        format!(
+            "astra-option:{}:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(decision),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for an insight embedded in an ASTRA analysis.
+    pub(crate) fn astra_insight(root: &str, scope: &str, collection: &str, name: &str) -> String {
+        format!(
+            "astra-insight:{}:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(collection),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for one evidence item attached to an ASTRA insight.
+    pub(crate) fn astra_evidence(
+        root: &str,
+        scope: &str,
+        collection: &str,
+        insight: &str,
+        name: &str,
+    ) -> String {
+        format!(
+            "astra-evidence:{}:{}:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(collection),
+            encode_id_component(insight),
+            encode_id_component(name)
+        )
+    }
+
+    /// Create the graph id for a named ASTRA universe.
+    pub(crate) fn astra_universe(root: &str, scope: &str, name: &str) -> String {
+        format!(
+            "astra-universe:{}:{}:{}",
+            encode_id_component(root),
+            encode_id_component(scope),
+            encode_id_component(name)
+        )
+    }
+
     /// Create the graph id for an analysis referenced through an ASTRA input.
     pub(crate) fn astra_analysis_ref(root: &str, scope: &str, name: &str) -> String {
         format!(
