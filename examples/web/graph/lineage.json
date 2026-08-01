@@ -1,0 +1,172 @@
+{
+  "type": "Graph",
+  "subject": "fixture:lineage",
+  "nodes": [
+    {
+      "type": "GraphNode",
+      "id": "file:data.csv",
+      "node": {
+        "type": "File",
+        "name": "data.csv",
+        "path": "data.csv"
+      }
+    },
+    {
+      "type": "GraphNode",
+      "id": "code:analysis.py",
+      "node": {
+        "type": "File",
+        "name": "analysis.py",
+        "path": "analysis.py"
+      }
+    },
+    {
+      "type": "GraphNode",
+      "id": "output:summary.csv",
+      "node": {
+        "type": "File",
+        "name": "summary.csv",
+        "path": "summary.csv"
+      }
+    },
+    {
+      "type": "GraphNode",
+      "id": "file:report.smd",
+      "node": {
+        "type": "File",
+        "name": "report.smd",
+        "path": "report.smd"
+      }
+    },
+    {
+      "type": "GraphNode",
+      "id": "dir:.",
+      "node": {
+        "type": "Directory",
+        "name": "workspace",
+        "path": "."
+      }
+    }
+  ],
+  "edges": [
+    {
+      "type": "GraphEdge",
+      "source": "file:data.csv",
+      "target": "code:analysis.py",
+      "kind": "ReadBy",
+      "evidence": [
+        {
+          "type": "GraphEvidence",
+          "kind": "StaticAnalysis",
+          "confidence": "High",
+          "codeLocation": {
+            "type": "CodeLocation",
+            "source": "analysis.py",
+            "startLine": 3,
+            "startColumn": 7
+          },
+          "description": "Detected from a dataframe read",
+          "details": {
+            "activity": {
+              "generatedAssetIds": ["exported-asset"],
+              "kind": "export",
+              "name": "Export document"
+            },
+            "aiDisclosure": null,
+            "environment": {
+              "architecture": "x86_64",
+              "lockfiles": [
+                {
+                  "digest": "sha256:01e2a2a1c5f5f2f338cf1758d0a6eb762357dd3d8f26ca01e1823d93a2905e8e",
+                  "path": "uv.lock"
+                }
+              ],
+              "manifests": [
+                {
+                  "digest": "sha256:92ad9593b64a6d2e339548fc2a7c88aa47c54a5d85ca5f4f4836b5deb7f9b935",
+                  "path": "pyproject.toml"
+                }
+              ],
+              "os": "linux",
+              "repository": "https://github.com/stencila/stencila",
+              "runtimes": [{ "name": "stencila", "version": "2.15.0" }],
+              "validator": {
+                "type": "ArrayValidator",
+                "itemsValidator": { "type": "StringValidator" }
+              }
+            },
+            "parser": "python",
+            "rule": "read_csv"
+          }
+        }
+      ],
+      "actions": [
+        {
+          "type": "ExecuteAction",
+          "name": "Run analysis"
+        }
+      ]
+    },
+    {
+      "type": "GraphEdge",
+      "source": "file:data.csv",
+      "target": "code:analysis.py",
+      "kind": "ReadBy",
+      "evidence": [
+        {
+          "type": "GraphEvidence",
+          "kind": "Attested",
+          "source": "fixture attestation",
+          "recordedAt": {
+            "type": "Timestamp",
+            "value": 1767323045000,
+            "timeUnit": "Millisecond"
+          },
+          "details": {
+            "issuer": "fixture",
+            "method": "signed statement"
+          }
+        }
+      ]
+    },
+    {
+      "type": "GraphEdge",
+      "source": "code:analysis.py",
+      "target": "output:summary.csv",
+      "kind": "Generated",
+      "evidence": [
+        {
+          "type": "GraphEvidence",
+          "kind": "Recorded",
+          "confidence": "Certain"
+        }
+      ],
+      "actions": [
+        {
+          "type": "CreateAction",
+          "name": "Create summary"
+        }
+      ]
+    },
+    {
+      "type": "GraphEdge",
+      "source": "output:summary.csv",
+      "target": "file:report.smd",
+      "kind": "IncludedBy",
+      "evidence": [
+        {
+          "type": "GraphEvidence",
+          "kind": "Declared",
+          "confidence": "Low",
+          "description": "Included by the report source"
+        }
+      ]
+    },
+    {
+      "type": "GraphEdge",
+      "source": "file:report.smd",
+      "target": "dir:.",
+      "kind": "PartOf"
+    }
+  ]
+}

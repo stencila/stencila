@@ -1,6 +1,8 @@
 import { createArgosReporterOptions } from '@argos-ci/playwright/reporter'
 import { defineConfig, devices } from '@playwright/test'
 
+const testPort = Number(process.env.STENCILA_TEST_PORT ?? 9000)
+
 /**
  * Read environment variables from file.
  * https://github.com/motdotla/dotenv
@@ -36,7 +38,7 @@ export default defineConfig({
   /* Shared settings for all the projects below. See https://playwright.dev/docs/api/class-testoptions. */
   use: {
     /* Base URL to use in actions like `await page.goto('/')`. */
-    baseURL: 'http://127.0.0.1:9000',
+    baseURL: `http://127.0.0.1:${testPort}`,
 
     /* Collect trace when retrying the failed test. See https://playwright.dev/docs/trace-viewer */
     trace: 'on-first-retry',
@@ -60,8 +62,14 @@ export default defineConfig({
   ],
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'cargo run --bin stencila serve ../examples/web --no-auth',
-    url: 'http://127.0.0.1:9000',
+    // Playwright sets FORCE_COLOR for its child processes while the Stencila
+    // test CLI disables color, and the CLI correctly rejects both flags at
+    // once. Remove the inherited variable at this process boundary.
+    command:
+      `env -u FORCE_COLOR cargo run --bin stencila serve ../examples/web ` +
+      `--no-auth --port ${testPort}`,
+    url: `http://127.0.0.1:${testPort}`,
     reuseExistingServer: !process.env.CI,
+    timeout: 180_000,
   },
 })

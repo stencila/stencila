@@ -54,6 +54,19 @@ export type GraphProjectionDetail = 'low' | 'medium' | 'high'
 export type GraphLayout = 'breadthfirst' | 'cose' | 'grid' | 'circle'
 
 /**
+ * User-selectable amount of space between graph elements.
+ *
+ * Named steps keep the UI stable while allowing each Cytoscape layout to map
+ * the same intent onto its own layout-specific parameters.
+ */
+export type GraphLayoutSpacing =
+  | 'compact'
+  | 'cozy'
+  | 'balanced'
+  | 'open'
+  | 'spacious'
+
+/**
  * Options used to project a schema graph.
  *
  * These are intentionally close to the UI controls. Optional booleans allow

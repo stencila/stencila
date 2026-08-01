@@ -44,6 +44,19 @@ const EDGE_PRESETS_BY_KIND: Record<
   Configures: ['data-flow', 'software-dependencies'],
   RequiredBy: ['software-dependencies'],
   Pins: ['software-dependencies'],
+  // Discourse relationships currently have no focused projection. They remain
+  // inspectable in the full graph until a dedicated discourse view is added.
+  Supports: [],
+  SupportedBy: [],
+  Opposes: [],
+  OpposedBy: [],
+  Addresses: [],
+  AddressedBy: [],
+  Follows: [],
+  Grounds: [],
+  IsGroundedIn: [],
+  RequestFor: [],
+  RequestTarget: [],
 }
 
 /**

@@ -242,15 +242,27 @@ function includeEdgeForDetail(
   const targetKind = nodeKind(nodesById.get(edge.target))
   const sourceInternal = isLocalCodeInternal(edge.source, sourceKind)
   const targetInternal = isLocalCodeInternal(edge.target, targetKind)
-  const sourceDatatable = sourceKind === 'datatable'
-  const targetDatatable = targetKind === 'datatable'
+  const sourceDatatableDetail = isDatatableDetailNode(
+    edge.source,
+    sourceKind,
+    nodesById
+  )
+  const targetDatatableDetail = isDatatableDetailNode(
+    edge.target,
+    targetKind,
+    nodesById
+  )
 
   if (preset === 'data-flow') {
     return detail === 'low'
-      ? !sourceInternal && !targetInternal && !sourceDatatable && !targetDatatable
+      ? !sourceInternal &&
+          !targetInternal &&
+          !sourceDatatableDetail &&
+          !targetDatatableDetail
       : !sourceInternal &&
           !targetInternal &&
-          (!(sourceDatatable || targetDatatable) || edge.kind === 'DerivedInto')
+          (!(sourceDatatableDetail || targetDatatableDetail) ||
+            edge.kind === 'DerivedInto')
   }
 
   if (preset === 'software-dependencies') {
@@ -265,6 +277,38 @@ function isLocalCodeInternal(
   kind: ReturnType<typeof nodeKind>
 ): boolean {
   return kind === 'symbol' || (kind === 'function' && graphIdNamespace(id) !== 'workflow-rule')
+}
+
+/**
+ * Distinguish column-level datatable detail from a whole tabular resource.
+ *
+ * Both use the `datatable` display kind, so namespace and schema type are
+ * needed to keep generated CSV resources visible while suppressing columns.
+ */
+function isDatatableDetailNode(
+  id: string,
+  kind: ReturnType<typeof nodeKind>,
+  nodesById: Map<string, GraphNode>
+): boolean {
+  return (
+    kind === 'datatable' &&
+    (graphIdNamespace(id) === 'column' ||
+      schemaNodeType(nodesById.get(id)) === 'DatatableColumn')
+  )
+}
+
+function schemaNodeType(node: GraphNode | undefined): string | undefined {
+  const value = node?.node
+  if (
+    typeof value === 'object' &&
+    value !== null &&
+    'type' in value &&
+    typeof value.type === 'string'
+  ) {
+    return value.type
+  }
+
+  return undefined
 }
 
 function isReactiveEdge(

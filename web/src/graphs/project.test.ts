@@ -117,22 +117,40 @@ describe('projectGraph', () => {
       view.nodes.some((node) => node.id === 'column:analysis.py:data.csv:count')
     ).toBe(true)
     expect(
+      view.nodes.some((node) => node.id === 'datatable:penguins.csv')
+    ).toBe(true)
+    expect(
       view.edges.map((edge) => `${edge.kind}:${edge.source}->${edge.target}`)
     ).toEqual([
       'DerivedInto:column:analysis.py:data.csv:count->file:plot.png',
+      'Generated:code:analysis.py->datatable:penguins.csv',
       'Generated:code:analysis.py->file:plot.png',
       'ReadBy:file:data.csv->code:analysis.py',
     ])
   })
 
-  it('hides datatable columns at low flow detail', () => {
+  it('keeps whole datatables but hides columns at low flow detail', () => {
     const view = projectGraph(detailGraph(), {
       ...defaultProjectionOptions('data-flow'),
       detail: 'low',
     })
 
-    expect(view.nodes.some((node) => node.kind === 'datatable')).toBe(false)
-    expect(view.edges.map((edge) => edge.kind)).toEqual(['Generated', 'ReadBy'])
+    expect(
+      view.nodes.some((node) => node.id === 'datatable:penguins.csv')
+    ).toBe(true)
+    expect(
+      view.nodes.some((node) => node.id === 'column:analysis.py:data.csv:count')
+    ).toBe(false)
+    expect(
+      view.nodes.some(
+        (node) => node.id === 'datatable-column:analysis.py:data.csv:species'
+      )
+    ).toBe(false)
+    expect(view.edges.map((edge) => edge.kind)).toEqual([
+      'Generated',
+      'Generated',
+      'ReadBy',
+    ])
   })
 
   it('includes local symbols and functions at high flow detail', () => {
@@ -379,6 +397,11 @@ function detailGraph(): Graph {
       },
       {
         type: 'GraphNode',
+        id: 'datatable:penguins.csv',
+        node: { type: 'Datatable', columns: [] },
+      },
+      {
+        type: 'GraphNode',
         id: 'symbol:analysis.py:python:df',
         node: { type: 'Variable', name: 'df' },
       },
@@ -392,6 +415,11 @@ function detailGraph(): Graph {
         id: 'column:analysis.py:data.csv:count',
         node: { type: 'DatatableColumn', name: 'count' },
       },
+      {
+        type: 'GraphNode',
+        id: 'datatable-column:analysis.py:data.csv:species',
+        node: { type: 'DatatableColumn', name: 'species' },
+      },
     ],
     edges: [
       {
@@ -404,6 +432,12 @@ function detailGraph(): Graph {
         type: 'GraphEdge',
         source: 'code:analysis.py',
         target: 'file:plot.png',
+        kind: 'Generated',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'code:analysis.py',
+        target: 'datatable:penguins.csv',
         kind: 'Generated',
       },
       {
@@ -435,6 +469,12 @@ function detailGraph(): Graph {
         source: 'column:analysis.py:data.csv:count',
         target: 'file:plot.png',
         kind: 'DerivedInto',
+      },
+      {
+        type: 'GraphEdge',
+        source: 'datatable-column:analysis.py:data.csv:species',
+        target: 'code:analysis.py',
+        kind: 'UsedBy',
       },
     ],
   } as Graph
