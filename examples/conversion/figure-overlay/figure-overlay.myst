@@ -7,6 +7,18 @@ A cat with an annotation overlay.
 :::{figure}
 :layout: 2
 
+:::::{figure} https://example.org/panel-a.jpg
+
+Left panel.
+
+:::::
+
+:::::{figure} https://example.org/panel-b.jpg
+
+Right panel.
+
+:::::
+
 A figure with a subfigure overlay.
 
 :::

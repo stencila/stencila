@@ -147,6 +147,7 @@ impl ReadNode for Inline {
         }
 
         load_map_variants!(
+            Annotation,
             AudioObject,
             Boundary,
             Button,
@@ -167,10 +168,12 @@ impl ReadNode for Inline {
             Note,
             Parameter,
             QuoteInline,
+            Sentence,
             Strikeout,
             Strong,
             StyledInline,
             Subscript,
+            SuggestionInline,
             Superscript,
             Text,
             Time,
