@@ -5,13 +5,13 @@ use std::{
     fmt::{self, Display},
     io::{Cursor, Write},
     path::{Path, PathBuf},
-    time::Duration,
+    sync::Arc,
 };
 
 use axum::{
     Json, Router,
     body::Body,
-    extract::{DefaultBodyLimit, FromRequest, Multipart, Query},
+    extract::{DefaultBodyLimit, FromRequest, Multipart, Query, State},
     http::{
         HeaderMap, HeaderValue, Request, StatusCode,
         header::{CONTENT_DISPOSITION, CONTENT_TYPE},
@@ -29,21 +29,79 @@ use stencila_codecs::{self, CodecDirection, DecodeOptions, EncodeOptions, Format
 use stencila_version::STENCILA_VERSION;
 use strum::IntoEnumIterator;
 use tempfile::{TempDir, tempdir};
-use tokio::{fs, time::timeout};
+use tokio::{
+    fs,
+    sync::{OwnedSemaphorePermit, Semaphore},
+    time::timeout,
+};
 use zip::{ZipWriter, write::SimpleFileOptions};
 
-pub const MAX_UPLOAD_BYTES: usize = 25 * 1024 * 1024;
-pub const MAX_REQUEST_BYTES: usize = MAX_UPLOAD_BYTES + 1024 * 1024;
-pub const CONVERSION_TIMEOUT: Duration = Duration::from_secs(60);
+mod config;
+mod grobid;
+
+pub use config::ServerConfig;
+
 pub const FORMAT_DENYLIST: &[Format] = &[Format::Directory];
 
+/// The shared state of a running server
+#[derive(Debug, Clone)]
+struct AppState {
+    config: Arc<ServerConfig>,
+    semaphore: Option<Arc<Semaphore>>,
+}
+
+impl AppState {
+    /// Create state for a configuration
+    fn new(config: ServerConfig) -> Self {
+        let semaphore = config
+            .max_concurrency
+            .map(|limit| Arc::new(Semaphore::new(limit)));
+        Self {
+            config: Arc::new(config),
+            semaphore,
+        }
+    }
+
+    /// Wait for permission to run a conversion
+    ///
+    /// Returns `None` when concurrency is unlimited.
+    async fn acquire(&self) -> Result<Option<OwnedSemaphorePermit>, AppError> {
+        match &self.semaphore {
+            Some(semaphore) => semaphore
+                .clone()
+                .acquire_owned()
+                .await
+                .map(Some)
+                .map_err(AppError::internal),
+            None => Ok(None),
+        }
+    }
+}
+
+/// Create the router, reading configuration from the environment
 pub fn app() -> Router {
+    app_with_config(ServerConfig::from_env())
+}
+
+/// Create the router for a configuration
+pub fn app_with_config(mut config: ServerConfig) -> Router {
+    // Artifact resolution depends on process-global current-directory state,
+    // so prepare it before constructing a router that can accept requests.
+    config.prepare_artifacts_dir();
+    if let Some(dir) = &config.artifacts_dir {
+        tracing::info!("Retaining decoding artifacts in {}", dir.display());
+    }
+
+    let max_request_bytes = config.max_request_bytes();
+
     Router::new()
         .route("/api/health", get(health))
         .route("/api/formats", get(formats))
         .route("/api/convert", post(convert))
+        .merge(grobid::routes())
         .fallback(fallback)
-        .layer(DefaultBodyLimit::max(MAX_REQUEST_BYTES))
+        .layer(DefaultBodyLimit::max(max_request_bytes))
+        .with_state(AppState::new(config))
 }
 
 async fn health() -> Json<HealthResponse> {
@@ -128,15 +186,35 @@ async fn development_static_response(_path: &str) -> Option<Response> {
     None
 }
 
-async fn convert(request: Request<Body>) -> Result<Response, AppError> {
-    let raw = raw_request_from_http(request).await?;
+async fn convert(
+    State(state): State<AppState>,
+    request: Request<Body>,
+) -> Result<Response, AppError> {
+    let raw = raw_request_from_http(request, &state.config).await?;
     let request = prepare_request(raw).await?;
-    let result = timeout(CONVERSION_TIMEOUT, convert_request(request)).await;
 
-    match result {
-        Ok(result) => result,
-        Err(_) => Err(conversion_timeout_error()),
-    }
+    execute_conversion(&state, request)
+        .await?
+        .into_response(None)
+}
+
+/// Acquire a concurrency permit and run a conversion
+async fn execute_conversion(
+    state: &AppState,
+    request: ConvertRequest,
+) -> Result<ConversionOutput, AppError> {
+    let _permit = state.acquire().await?;
+    run_conversion(request, &state.config).await
+}
+
+/// Run a conversion, bounded by the configured time limit
+async fn run_conversion(
+    request: ConvertRequest,
+    config: &ServerConfig,
+) -> Result<ConversionOutput, AppError> {
+    timeout(config.conversion_timeout, convert_request(request, config))
+        .await
+        .unwrap_or_else(|_| Err(conversion_timeout_error(config)))
 }
 
 #[derive(Debug, Serialize)]
@@ -253,11 +331,67 @@ impl RawConvertRequest {
 
 #[derive(Debug)]
 enum RawInput {
-    Upload {
-        filename: Option<String>,
-        bytes: Bytes,
-    },
+    Upload(UploadedFile),
     Url(String),
+}
+
+/// An uploaded file read from a multipart field
+#[derive(Debug)]
+struct UploadedFile {
+    filename: Option<String>,
+    bytes: Bytes,
+}
+
+impl UploadedFile {
+    /// Store this upload in an isolated temporary directory
+    async fn into_source(
+        self,
+        from: Option<&Format>,
+        default_filename: &str,
+    ) -> Result<InputSource, AppError> {
+        let filename = sanitize_filename(self.filename.as_deref().unwrap_or(default_filename));
+        let temp_dir = tempdir().map_err(AppError::internal)?;
+        let path = upload_path(temp_dir.path(), &filename, from);
+        fs::write(&path, self.bytes)
+            .await
+            .map_err(AppError::internal)?;
+
+        Ok(InputSource::Upload {
+            path,
+            filename,
+            _temp_dir: temp_dir,
+        })
+    }
+}
+
+/// A field understood by the generic conversion form
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+enum ConvertFormField {
+    File,
+    Url,
+    To,
+    From,
+    Mode,
+    Compact,
+    Standalone,
+    EmbedMedia,
+    Ignore,
+}
+
+impl From<Option<&str>> for ConvertFormField {
+    fn from(name: Option<&str>) -> Self {
+        match name {
+            Some("file") => Self::File,
+            Some("url") => Self::Url,
+            Some("to") => Self::To,
+            Some("from") => Self::From,
+            Some("mode") => Self::Mode,
+            Some("compact") => Self::Compact,
+            Some("standalone") => Self::Standalone,
+            Some("embedMedia") => Self::EmbedMedia,
+            Some(_) | None => Self::Ignore,
+        }
+    }
 }
 
 #[derive(Debug, Deserialize)]
@@ -286,23 +420,29 @@ impl From<JsonConvertRequest> for RawConvertRequest {
     }
 }
 
-async fn raw_request_from_http(request: Request<Body>) -> Result<RawConvertRequest, AppError> {
-    let content_type = request
+fn content_type_of(request: &Request<Body>) -> &str {
+    request
         .headers()
         .get(CONTENT_TYPE)
         .and_then(|value| value.to_str().ok())
         .unwrap_or_default()
-        .to_string();
+}
+
+async fn raw_request_from_http(
+    request: Request<Body>,
+    config: &ServerConfig,
+) -> Result<RawConvertRequest, AppError> {
+    let content_type = content_type_of(&request);
 
     if content_type.starts_with("multipart/form-data") {
         let multipart = Multipart::from_request(request, &())
             .await
-            .map_err(|error| extractor_error(error.status(), error.body_text()))?;
-        raw_request_from_multipart(multipart).await
+            .map_err(|error| extractor_error(error.status(), error.body_text(), config))?;
+        raw_request_from_multipart(multipart, config).await
     } else if content_type.starts_with("application/json") {
         let Json(request) = Json::<JsonConvertRequest>::from_request(request, &())
             .await
-            .map_err(|error| extractor_error(error.status(), error.body_text()))?;
+            .map_err(|error| extractor_error(error.status(), error.body_text(), config))?;
         Ok(request.into())
     } else {
         Err(AppError::new(
@@ -315,94 +455,113 @@ async fn raw_request_from_http(request: Request<Body>) -> Result<RawConvertReque
 
 async fn raw_request_from_multipart(
     mut multipart: Multipart,
+    config: &ServerConfig,
 ) -> Result<RawConvertRequest, AppError> {
     let mut request = RawConvertRequest::empty();
 
-    while let Some(field) = multipart
-        .next_field()
-        .await
-        .map_err(|error| extractor_error(error.status(), error.body_text()))?
-    {
-        let Some(name) = field.name().map(str::to_string) else {
-            continue;
-        };
-
-        match name.as_str() {
-            "file" => {
-                let filename = field.file_name().map(str::to_string);
-                let bytes = field
-                    .bytes()
-                    .await
-                    .map_err(|error| extractor_error(error.status(), error.body_text()))?;
-                check_upload_size(bytes.len())?;
-                request.set_source(RawInput::Upload { filename, bytes })?;
+    while let Some(field) = next_multipart_field(&mut multipart, config).await? {
+        match ConvertFormField::from(field.name()) {
+            ConvertFormField::File => {
+                let upload = read_uploaded_file(field, config).await?;
+                request.set_source(RawInput::Upload(upload))?;
             }
-            "url" => {
-                let url = field
-                    .text()
-                    .await
-                    .map_err(|error| extractor_error(error.status(), error.body_text()))?;
+            ConvertFormField::Url => {
+                let url = text_field(field, config).await?;
                 if !url.trim().is_empty() {
                     request.set_source(RawInput::Url(url))?;
                 }
             }
-            "to" => {
-                request.to = Some(text_field(field).await?);
+            ConvertFormField::To => {
+                request.to = Some(text_field(field, config).await?);
             }
-            "from" => {
-                let value = text_field(field).await?;
+            ConvertFormField::From => {
+                let value = text_field(field, config).await?;
                 if !value.trim().is_empty() {
                     request.from = Some(value);
                 }
             }
-            "mode" => {
-                let value = text_field(field).await?;
+            ConvertFormField::Mode => {
+                let value = text_field(field, config).await?;
                 if !value.trim().is_empty() {
                     request.mode = Some(value);
                 }
             }
-            "compact" => {
-                request.compact = parse_bool_field("compact", &text_field(field).await?)?;
+            ConvertFormField::Compact => {
+                request.compact = parse_bool_field("compact", &text_field(field, config).await?)?;
             }
-            "standalone" => {
-                request.standalone = parse_bool_field("standalone", &text_field(field).await?)?;
+            ConvertFormField::Standalone => {
+                request.standalone =
+                    parse_bool_field("standalone", &text_field(field, config).await?)?;
             }
-            "embedMedia" => {
-                request.embed_media = parse_bool_field("embedMedia", &text_field(field).await?)?;
+            ConvertFormField::EmbedMedia => {
+                request.embed_media =
+                    parse_bool_field("embedMedia", &text_field(field, config).await?)?;
             }
-            _ => {}
+            ConvertFormField::Ignore => {}
         }
     }
 
     Ok(request)
 }
 
-async fn text_field(field: axum::extract::multipart::Field<'_>) -> Result<String, AppError> {
+/// Read the next multipart field and map extraction failures consistently
+async fn next_multipart_field<'a>(
+    multipart: &'a mut Multipart,
+    config: &ServerConfig,
+) -> Result<Option<axum::extract::multipart::Field<'a>>, AppError> {
+    multipart
+        .next_field()
+        .await
+        .map_err(|error| extractor_error(error.status(), error.body_text(), config))
+}
+
+async fn text_field(
+    field: axum::extract::multipart::Field<'_>,
+    config: &ServerConfig,
+) -> Result<String, AppError> {
     field
         .text()
         .await
-        .map_err(|error| extractor_error(error.status(), error.body_text()))
+        .map_err(|error| extractor_error(error.status(), error.body_text(), config))
 }
 
-fn extractor_error(status: StatusCode, message: String) -> AppError {
+/// Read and size-check a file from a multipart field
+async fn read_uploaded_file(
+    field: axum::extract::multipart::Field<'_>,
+    config: &ServerConfig,
+) -> Result<UploadedFile, AppError> {
+    let filename = field.file_name().map(str::to_string);
+    let bytes = field
+        .bytes()
+        .await
+        .map_err(|error| extractor_error(error.status(), error.body_text(), config))?;
+    check_upload_size(bytes.len(), config)?;
+
+    Ok(UploadedFile { filename, bytes })
+}
+
+fn extractor_error(status: StatusCode, message: String, config: &ServerConfig) -> AppError {
     if status == StatusCode::PAYLOAD_TOO_LARGE {
-        AppError::new(
-            StatusCode::PAYLOAD_TOO_LARGE,
-            "input_too_large",
-            "Input exceeds the 25 MiB public service limit",
-        )
+        upload_too_large_error(config)
     } else {
         AppError::new(status, "invalid_request", message)
     }
 }
 
-pub fn check_upload_size(size: usize) -> Result<(), AppError> {
-    if size > MAX_UPLOAD_BYTES {
-        Err(AppError::new(
-            StatusCode::PAYLOAD_TOO_LARGE,
-            "input_too_large",
-            "Input exceeds the 25 MiB public service limit",
-        ))
+fn upload_too_large_error(config: &ServerConfig) -> AppError {
+    AppError::new(
+        StatusCode::PAYLOAD_TOO_LARGE,
+        "input_too_large",
+        format!(
+            "Input exceeds the {} MiB service limit",
+            config.max_upload_mb()
+        ),
+    )
+}
+
+pub fn check_upload_size(size: usize, config: &ServerConfig) -> Result<(), AppError> {
+    if size > config.max_upload_bytes {
+        Err(upload_too_large_error(config))
     } else {
         Ok(())
     }
@@ -486,18 +645,7 @@ async fn prepare_request(raw: RawConvertRequest) -> Result<ConvertRequest, AppEr
     let mode = raw.mode.as_deref().map(Mode::parse).transpose()?;
 
     let source = match raw.source {
-        Some(RawInput::Upload { filename, bytes }) => {
-            check_upload_size(bytes.len())?;
-            let filename = sanitize_filename(filename.as_deref().unwrap_or("upload"));
-            let temp_dir = tempdir().map_err(AppError::internal)?;
-            let path = upload_path(temp_dir.path(), &filename, from.as_ref());
-            fs::write(&path, bytes).await.map_err(AppError::internal)?;
-            InputSource::Upload {
-                path,
-                filename,
-                _temp_dir: temp_dir,
-            }
-        }
+        Some(RawInput::Upload(upload)) => upload.into_source(from.as_ref(), "upload").await?,
         Some(RawInput::Url(identifier)) => {
             let identifier = identifier.trim().to_string();
             let kind = IdentifierKind::from_identifier(&identifier).ok_or_else(|| {
@@ -566,20 +714,54 @@ fn unsupported_format(value: &str) -> AppError {
     )
 }
 
-fn conversion_timeout_error() -> AppError {
+fn conversion_timeout_error(config: &ServerConfig) -> AppError {
     AppError::new(
         StatusCode::GATEWAY_TIMEOUT,
         "conversion_timeout",
-        "Conversion exceeded the public service time limit",
+        format!(
+            "Conversion exceeded the {} second time limit",
+            config.conversion_timeout.as_secs()
+        ),
     )
 }
 
-async fn convert_request(request: ConvertRequest) -> Result<Response, AppError> {
+/// The result of a conversion, before it is turned into a HTTP response
+struct ConversionOutput {
+    bytes: Vec<u8>,
+    media_type: String,
+    disposition: Disposition,
+    filename: String,
+}
+
+impl ConversionOutput {
+    /// Turn this conversion into an HTTP response
+    ///
+    /// A compatibility route may override the codec's media type while keeping
+    /// the converted bytes, disposition, and filename unchanged.
+    fn into_response(self, media_type: Option<&str>) -> Result<Response, AppError> {
+        let media_type = media_type.unwrap_or(&self.media_type);
+        response_from_bytes_with_media_type(
+            self.bytes,
+            media_type,
+            self.disposition,
+            &self.filename,
+        )
+    }
+}
+
+async fn convert_request(
+    request: ConvertRequest,
+    config: &ServerConfig,
+) -> Result<ConversionOutput, AppError> {
+    // Artifacts (e.g. cached OCR output, keyed by a hash of the input content)
+    // are only created and reused when an operator has opted in by configuring
+    // an artifacts directory
+    let use_artifacts = config.artifacts_enabled();
     let decode_options = Some(DecodeOptions {
         format: request.from.clone(),
         reproducible: Some(false),
-        ignore_artifacts: Some(true),
-        no_artifacts: Some(true),
+        ignore_artifacts: Some(!use_artifacts),
+        no_artifacts: Some(!use_artifacts),
         ..Default::default()
     });
 
@@ -630,26 +812,22 @@ async fn convert_request(request: ConvertRequest) -> Result<Response, AppError> 
         if files.len() > 1 {
             let archive_filename = archive_filename(&output_filename, &request.to);
             let bytes = zip_files(temp_dir.path(), files).await?;
-            return response_from_bytes_with_media_type(
+            return Ok(ConversionOutput {
                 bytes,
-                "application/zip",
-                Disposition::Attachment,
-                &archive_filename,
-            );
+                media_type: "application/zip".to_string(),
+                disposition: Disposition::Attachment,
+                filename: archive_filename,
+            });
         }
         fs::read(path).await.map_err(AppError::internal)?
     };
 
-    response_from_bytes(bytes, &request.to, disposition, &output_filename)
-}
-
-fn response_from_bytes(
-    bytes: Vec<u8>,
-    format: &Format,
-    disposition: Disposition,
-    output_filename: &str,
-) -> Result<Response, AppError> {
-    response_from_bytes_with_media_type(bytes, &format.media_type(), disposition, output_filename)
+    Ok(ConversionOutput {
+        bytes,
+        media_type: request.to.media_type(),
+        disposition,
+        filename: output_filename,
+    })
 }
 
 fn response_from_bytes_with_media_type(
@@ -956,6 +1134,8 @@ mod tests {
 
     use super::*;
 
+    const MIB: usize = 1024 * 1024;
+
     #[test]
     fn validates_output_format() -> Result<(), AppError> {
         assert_eq!(parse_format("json", CodecDirection::Encode)?, Format::Json);
@@ -1057,12 +1237,25 @@ mod tests {
 
     #[test]
     fn maps_upload_limit_status_and_code() -> Result<(), AppError> {
-        let error = check_upload_size(MAX_UPLOAD_BYTES + 1)
+        let config = ServerConfig::default();
+        let error = check_upload_size(config.max_upload_bytes + 1, &config)
             .err()
             .ok_or_else(|| AppError::new(StatusCode::INTERNAL_SERVER_ERROR, "test", "test"))?;
 
         assert_eq!(error.status(), StatusCode::PAYLOAD_TOO_LARGE);
         assert_eq!(error.code(), "input_too_large");
+
+        // The limit is configurable, and the message tracks it
+        let config = ServerConfig {
+            max_upload_bytes: 200 * MIB,
+            ..Default::default()
+        };
+        assert!(check_upload_size(30 * MIB, &config).is_ok());
+        let error = check_upload_size(config.max_upload_bytes + 1, &config)
+            .err()
+            .ok_or_else(|| AppError::new(StatusCode::INTERNAL_SERVER_ERROR, "test", "test"))?;
+        assert!(error.message.contains("200 MiB"));
+
         Ok(())
     }
 
@@ -1070,10 +1263,76 @@ mod tests {
     async fn maps_timeout() -> Result<(), AppError> {
         let result = timeout(Duration::from_millis(1), sleep(Duration::from_millis(20))).await;
         assert!(result.is_err());
-        let error = conversion_timeout_error();
+
+        let error = conversion_timeout_error(&ServerConfig::default());
         assert_eq!(error.status(), StatusCode::GATEWAY_TIMEOUT);
         assert_eq!(error.code(), "conversion_timeout");
+        assert!(error.message.contains("60 second"));
+
+        let error = conversion_timeout_error(&ServerConfig {
+            conversion_timeout: Duration::from_secs(300),
+            ..Default::default()
+        });
+        assert!(error.message.contains("300 second"));
+
         Ok(())
+    }
+
+    #[test]
+    fn limits_concurrency_only_when_configured() {
+        let state = AppState::new(ServerConfig::default());
+        assert!(state.semaphore.is_none());
+
+        let state = AppState::new(ServerConfig {
+            max_concurrency: Some(3),
+            ..Default::default()
+        });
+        assert_eq!(
+            state
+                .semaphore
+                .as_ref()
+                .map(|semaphore| semaphore.available_permits()),
+            Some(3)
+        );
+    }
+
+    #[tokio::test]
+    async fn queues_conversions_beyond_the_concurrency_limit() -> Result<(), AppError> {
+        let state = AppState::new(ServerConfig {
+            max_concurrency: Some(1),
+            ..Default::default()
+        });
+
+        let permit = state.acquire().await?;
+        assert!(permit.is_some());
+
+        // A second conversion has to wait until the first releases its permit
+        assert!(
+            timeout(Duration::from_millis(20), state.acquire())
+                .await
+                .is_err()
+        );
+
+        drop(permit);
+        assert!(
+            timeout(Duration::from_millis(20), state.acquire())
+                .await
+                .is_ok()
+        );
+
+        Ok(())
+    }
+
+    #[test]
+    fn uses_artifacts_only_when_a_directory_is_configured() {
+        assert!(!ServerConfig::default().artifacts_enabled());
+        assert!(
+            ServerConfig {
+                artifacts_dir: Some(PathBuf::from("/data/artifacts")),
+                ..Default::default()
+            }
+            .artifacts_enabled()
+        );
     }
 
     #[test]

@@ -29,6 +29,8 @@ backend.
 ## Public API
 
 - `GET /api/health` returns `{ "ok": true, "version": "<stencila version>" }`.
+- `GET /api/isalive` returns `true` as plain text, matching GROBID's liveness
+  response shape for orchestration tools.
 - `GET /api/formats` returns runtime-supported formats and their direction
   support. The optional `from` and `to` query parameters accept comma-separated
   format names and restrict the formats advertised for each direction, for
@@ -47,29 +49,81 @@ The OXA codec is exposed as two concrete output formats: OXA JSON (`.oxa.json`)
 and OXA YAML (`.oxa.yaml`). Both are routed through the same codec, but the file
 extension determines the serialized flavor.
 
+## GROBID-Shaped JATS API
+
+- `POST` or `PUT /api/processFulltextDocument` accepts a `multipart/form-data`
+  request with the document to convert in the `input` part and returns JATS XML.
+  The legacy `file` field used by ScienceBeam is also accepted.
+
+This route mirrors the request shape of
+[GROBID's](https://grobid.readthedocs.io) fulltext endpoint, but it is not a
+general GROBID replacement. GROBID returns TEI XML by default; Stencila returns
+JATS because it does not currently have a TEI encoder. Clients that require TEI,
+including ScienceBeam's default benchmark workflow, are therefore not
+compatible with this route.
+
+- GROBID's other form fields, such as `includeRawAffiliations` and
+  `includeRawCitations`, are accepted and ignored.
+- A request with neither an `input` nor `file` upload, or with more than one
+  file, is rejected with `400`. Filename-less text fields do not count as an
+  upload, and unrelated file field names are not accepted as the input.
+- The response is always inline, with `Content-Type: application/xml;
+  charset=utf-8`, never a ZIP attachment. Any sidecar files a conversion might
+  otherwise produce, such as extracted images, are discarded.
+- `Accept: application/xml`, `text/xml`, `application/vnd.jats+xml`, `*/*`, and
+  a missing `Accept` header all return JATS. Any other explicitly requested type,
+  or an allowed type with quality `q=0`, returns `406`.
+- GROBID only accepts PDF in `input`. This server also accepts any other format
+  it can decode, choosing the format from the uploaded filename and falling back
+  to PDF when it is not recognized.
+
+Errors use the same JSON error body as `/api/convert`. In particular, exceeding
+the conversion time limit returns `504` with the code `conversion_timeout`.
+
 ## Limits
 
-- Uploads are capped at 25 MiB.
-- Conversions time out after 60 seconds.
+- Uploads are capped at 25 MiB by default.
+- Conversions time out after 60 seconds by default.
 - Each request must provide exactly one input: `file` or `url`.
 - Remote input is limited to arXiv, bioRxiv, medRxiv, and PMC identifiers and
   URLs. Generic URL fetching is intentionally not supported.
 - The Cloudflare Worker rate-limits public conversions per client IP.
 
+## Configuration
+
+Every setting keeps its previous hard-coded value as the default, so the public
+converter is unaffected unless an operator opts in.
+
+| Environment variable                | Default     | Effect                                                     |
+| ----------------------------------- | ----------- | ---------------------------------------------------------- |
+| `STENCILA_CONVERT_TIMEOUT_SECONDS`  | `60`        | Time limit for a single conversion                         |
+| `STENCILA_CONVERT_MAX_UPLOAD_MB`    | `25`        | Maximum uploaded file size; the request limit tracks it     |
+| `STENCILA_CONVERT_MAX_CONCURRENCY`  | _unlimited_ | Maximum conversions running at the same time               |
+| `STENCILA_CONVERT_ARTIFACTS_DIR`    | _unset_     | Directory in which to retain decoding artifacts (see below) |
+| `STENCILA_CONVERT_PORT`             | `8080`      | Port to bind to                                            |
+
+Values that are empty or invalid are logged and ignored, falling back to the
+default. If the configured artifacts directory can not be created or entered,
+the error is logged and artifact retention is disabled.
+
 ## Concurrency
 
-Axum and Tokio handle requests concurrently inside each container process. There
-is no global conversion queue in the Rust server. The Cloudflare Worker can also
-route requests across multiple `ConvertBackend` container instances.
+Axum and Tokio handle requests concurrently inside each container process. The
+Cloudflare Worker can also route requests across multiple `ConvertBackend`
+container instances.
 
-This means multiple conversions can run at the same time. The Worker rate
-limiter controls public request volume, but a future hardening step should add a
-small in-process concurrency limit around `/api/convert` to cap CPU and memory
-pressure per container.
+By default there is no in-process limit, so multiple conversions can run at the
+same time and the Worker rate limiter is the only backpressure on public request
+volume. Setting `STENCILA_CONVERT_MAX_CONCURRENCY` adds a semaphore around the
+conversion path in both `/api/convert` and `/api/processFulltextDocument`, to cap
+CPU and memory pressure per container. Requests beyond the limit wait for a
+permit rather than being rejected, and the conversion time limit is applied after
+a permit is acquired.
 
 ## File Isolation And Retention
 
-The server does not intentionally retain uploaded files or converted outputs.
+By default, and therefore for the public converter, the server does not
+intentionally retain uploaded files or converted outputs.
 
 - Uploaded multipart bodies are parsed in memory by Axum up to the configured
   request limit.
@@ -93,6 +147,29 @@ requests should not see each other's files. If the process or container crashes
 mid-request, temporary files may remain on the container's ephemeral filesystem
 until the container is restarted or destroyed. They are not written to durable
 storage by this service.
+
+### Artifact Retention
+
+Setting `STENCILA_CONVERT_ARTIFACTS_DIR` deliberately changes this. When it is
+set:
+
+- Decoding runs with `ignore_artifacts: false` and `no_artifacts: false`, so
+  codecs create and reuse artifacts such as OCR output for PDFs.
+- The server creates `<dir>/.stencila/artifacts` at startup and makes `<dir>`
+  the process working directory, which is how codecs locate that tree.
+- Artifacts are keyed by a hash of the **input content**, not its path, so
+  re-uploading the same document is a cache hit even though each upload lands in
+  a different temporary directory.
+
+This means derived output from uploaded documents is retained on disk, across
+requests and across restarts if the directory is a mounted volume. It is
+therefore off by default and **must not** be enabled for the public converter,
+whose retention behaviour is described above.
+
+Its purpose is repeated conversion of a fixed corpus: PDF decoding calls the
+paid Mistral OCR API using the model selected by the PDF codec (requiring
+`MISTRAL_API_KEY`), and caching means a corpus is only OCR'd once no matter how
+many times it is re-converted.
 
 ## Verification
 
