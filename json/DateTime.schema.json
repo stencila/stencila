@@ -21,8 +21,7 @@
     }
   ],
   "jats": {
-    "elem": "date-time",
-    "special": true
+    "derive": false
   },
   "proptest": {},
   "required": [

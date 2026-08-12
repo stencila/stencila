@@ -519,7 +519,11 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
                 derives.push("DomCodec");
             }
 
-            derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+            derives.push("HtmlCodec");
+
+            if schema.jats.as_ref().map(|spec| spec.derive).unwrap_or(true) {
+                derives.push("JatsCodec");
+            }
 
             if schema
                 .latex
@@ -657,7 +661,9 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
         }
 
         // Add #[jats] attribute for main struct if necessary
-        if let Some(jats) = &schema.jats {
+        if let Some(jats) = &schema.jats
+            && jats.derive
+        {
             let mut args = Vec::new();
 
             if let Some(elem) = &jats.elem {
@@ -675,11 +681,9 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
                         .join(", ")
                 ));
             }
-            if jats.special {
-                args.push("special".to_string());
+            if !args.is_empty() {
+                attrs.push(format!("#[jats({})]", args.join(", ")));
             }
-
-            attrs.push(format!("#[jats({})]", args.join(", ")));
         }
 
         // Add #[latex] attribute for main struct if necessary
@@ -932,7 +936,9 @@ pub(crate) fn node_type_properties(node_type: &NodeType) -> Vec<NodeProperty> {{
             }
 
             // Add #[jats] attribute for field if necessary
-            if let Some(jats) = &property.jats {
+            if schema.jats.as_ref().map(|jats| jats.derive).unwrap_or(true)
+                && let Some(jats) = &property.jats
+            {
                 let mut args = Vec::new();
 
                 if let Some(elem) = &jats.elem {
@@ -1012,6 +1018,11 @@ pub struct {title}Options {{
                 (*is_required || *is_core).then_some(field)
             })
             .join("\n\n    ");
+        let jats_flatten = if schema.jats.as_ref().map(|jats| jats.derive).unwrap_or(true) {
+            "#[jats(flatten)]\n    "
+        } else {
+            Default::default()
+        };
         if !options.is_empty() {
             core_fields += &format!(
                 r#"
@@ -1019,8 +1030,7 @@ pub struct {title}Options {{
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
-    pub options: Box<{title}Options>,"#
+    {jats_flatten}pub options: Box<{title}Options>,"#
             );
         }
 
@@ -1334,7 +1344,11 @@ impl {title} {{
                 derives.push("DomCodec");
             }
 
-            derives.append(&mut vec!["HtmlCodec", "JatsCodec"]);
+            derives.push("HtmlCodec");
+
+            if schema.jats.as_ref().map(|spec| spec.derive).unwrap_or(true) {
+                derives.push("JatsCodec");
+            }
 
             if schema
                 .latex

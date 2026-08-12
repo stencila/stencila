@@ -24,6 +24,9 @@
       "notes": "Close analogue for structured bibliographic record data used by citation processors."
     }
   ],
+  "jats": {
+    "derive": false
+  },
   "markdown": {
     "derive": false
   },

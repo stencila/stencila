@@ -2,11 +2,120 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Cells evoke the DNA damage checkpoint (DDC) to inhibit mitosis in the presence of DNA double-strand breaks (DSBs) to allow more time for DNA repair. In budding yeast, a single irreparable DSB is sufficient to activate the DDC and induce cell cycle arrest prior to anaphase for about 12–15 hr, after which cells ‘adapt’ to the damage by extinguishing the DDC and resuming the cell cycle. While activation of the DNA damage-dependent cell cycle arrest is well understood, how it is maintained remains unclear. To address this, we conditionally depleted key DDC proteins after the DDC was fully activated and monitored changes in the maintenance of cell cycle arrest. Degradation of Ddc2<sup>ATRIP</sup>, Rad9, Rad24, or Rad53<sup>CHK2</sup>results in premature resumption of the cell cycle, indicating that these DDC factors are required both to establish and maintain the arrest. Dun1 is required for the establishment, but not the maintenance, of arrest, whereas Chk1 is required for prolonged maintenance but not for initial establishment of the mitotic arrest. When the cells are challenged with two persistent DSBs, they remain permanently arrested. This permanent arrest is initially dependent on the continuous presence of Ddc2, Rad9, and Rad53; however, after 15 hr these proteins become dispensable. Instead, the continued mitotic arrest is sustained by spindle assembly checkpoint (SAC) proteins Mad1, Mad2, and Bub2 but not by Bub2’s binding partner Bfa1. These data suggest that prolonged cell cycle arrest in response to 2 DSBs is achieved by a handoff from the DDC to specific components of the SAC. Furthermore, the establishment and maintenance of DNA damage-induced cell cycle arrest require overlapping but different sets of factors.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>eLife</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>eLife Sciences Publications, Ltd</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.7554/eLife.94334.3</article-id>
+      <title-group>
+        <article-title>Prolonged cell cycle arrest in response to DNA damage in yeast requires the maintenance of DNA damage signaling and the spindle assembly checkpoint</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Zhou</surname>
+            <given-names>Felix Y</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-8619-7160</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Waterman</surname>
+            <given-names>David P</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Ashton</surname>
+            <given-names>Marissa</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Caban-Penix</surname>
+            <given-names>Suhaily</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Memisoglu</surname>
+            <given-names>Gonen</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Eapen</surname>
+            <given-names>Vinay V</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Haber</surname>
+            <given-names>James E</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-1878-0610</contrib-id>
+          <email>haber@brandeis.edu</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Department of Biology and Rosenstiel Basic Medical Sciences Research Center, Brandeis University</institution>
+            <institution-id institution-id-type="ror">https://ror.org/05abbep66</institution-id>
+          </institution-wrap>
+          <addr-line>United States</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Department of Molecular Genetics &amp; Cell Biology, University of Chicago</institution>
+            <institution-id institution-id-type="ror">https://ror.org/024mw5h28</institution-id>
+          </institution-wrap>
+          <addr-line>United States</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2024-12-10">
+        <year>2024</year>
+        <month>12</month>
+        <day>10</day>
+      </pub-date>
+      <volume>13</volume>
+      <abstract>
+        <p>Cells evoke the DNA damage checkpoint (DDC) to inhibit mitosis in the presence of DNA double-strand breaks (DSBs) to allow more time for DNA repair. In budding yeast, a single irreparable DSB is sufficient to activate the DDC and induce cell cycle arrest prior to anaphase for about 12–15 hr, after which cells ‘adapt’ to the damage by extinguishing the DDC and resuming the cell cycle. While activation of the DNA damage-dependent cell cycle arrest is well understood, how it is maintained remains unclear. To address this, we conditionally depleted key DDC proteins after the DDC was fully activated and monitored changes in the maintenance of cell cycle arrest. Degradation of Ddc2<sup>ATRIP</sup>, Rad9, Rad24, or Rad53<sup>CHK2</sup>results in premature resumption of the cell cycle, indicating that these DDC factors are required both to establish and maintain the arrest. Dun1 is required for the establishment, but not the maintenance, of arrest, whereas Chk1 is required for prolonged maintenance but not for initial establishment of the mitotic arrest. When the cells are challenged with two persistent DSBs, they remain permanently arrested. This permanent arrest is initially dependent on the continuous presence of Ddc2, Rad9, and Rad53; however, after 15 hr these proteins become dispensable. Instead, the continued mitotic arrest is sustained by spindle assembly checkpoint (SAC) proteins Mad1, Mad2, and Bub2 but not by Bub2’s binding partner Bfa1. These data suggest that prolonged cell cycle arrest in response to 2 DSBs is achieved by a handoff from the DDC to specific components of the SAC. Furthermore, the establishment and maintenance of DNA damage-induced cell cycle arrest require overlapping but different sets of factors.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>double-strand break</kwd>
+        <kwd>DSB</kwd>
+        <kwd>DNA damage checkpoint</kwd>
+        <kwd>DDC</kwd>
+        <kwd>spindle assembly 3 checkpoint</kwd>
+        <kwd>SAC</kwd>
+        <kwd>S. cerevisiae</kwd>
+        <kwd>auxin-inducible degron</kwd>
+        <kwd>HO endonuclease</kwd>
+        <kwd>S. cerevisiae</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -1344,1787 +1453,3792 @@ expression: jats
       <p>Data is available on Dryad:<ext-link xlink:href="https://doi.org/10.5061/dryad.sj3tx96dv">https://doi.org/10.5061/dryad.sj3tx96dv</ext-link>.</p>
       <p>The following dataset was generated:</p>
     </sec>
-    <sec sec-type="Acknowledgements">
+  </body>
+  <back>
+    <ack>
       <title level="1">Acknowledgements</title>
       <p>We thank Helle Ulrich for the AID and TIR1 plasmid and Masato Kanemaki for the TIR1(F74G) plasmid. We also thank Nikita Alimov, Jessie Ang, and Astré Bouchier for their assistance.</p>
-    </sec>
-    <sec sec-type="Appendix">
-      <title level="1">Appendix 1</title>
-      <table-wrap id="app1keyresource">
-        <label>Appendix 1—key resources table</label>
-        <table>
-          <thead>
-            <tr>
-              <th>
-                <p>Reagent type (species) or resource</p>
-              </th>
-              <th>
-                <p>Designation</p>
-              </th>
-              <th>
-                <p>Source or reference</p>
-              </th>
-              <th>
-                <p>Identifiers</p>
-              </th>
-              <th>
-                <p>Additional information</p>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>Anti-Rad53;(mouse monoclonal)</p>
-              </td>
-              <td>
-                <p>Abcam</p>
-              </td>
-              <td>
-                <p>Cat# ab166859;RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_2801547">AB_2801547</ext-link>
-                </p>
-              </td>
-              <td>
-                <p>WB (1:1000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>Anti-Rad53;(rabbit polyclonal)</p>
-              </td>
-              <td>
-                <p>Abcam</p>
-              </td>
-              <td>
-                <p>ab104232</p>
-              </td>
-              <td>
-                <p>WB (1:1000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>Anti-Myc;(mouse monoclonal)</p>
-              </td>
-              <td>
-                <p>Abcam</p>
-              </td>
-              <td>
-                <p>Cat# ab16918;RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_30256">AB_30256</ext-link>
-                </p>
-              </td>
-              <td>
-                <p>WB (1:1000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>Anti-Pgk1; (mouse monoclonal)</p>
-              </td>
-              <td>
-                <p>Abcam</p>
-              </td>
-              <td>
-                <p>Cat# ab32; RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_30359">AB_30359</ext-link>
-                </p>
-              </td>
-              <td>
-                <p>WB (1:5000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>Anti-Rad9;(rabbit polyclonal)</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>N/A</p>
-              </td>
-              <td>
-                <p>WB (1:4000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>ECL<sup>TH</sup>Anti-mouse IgG horseradish peroxidase from sheep</p>
-              </td>
-              <td>
-                <p>GE Healthcare</p>
-              </td>
-              <td>
-                <p>NXA931VLot 16937010</p>
-              </td>
-              <td>
-                <p>WB (1:10,000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Antibody</p>
-              </td>
-              <td>
-                <p>ECL<sup>TH</sup>Anti-rabbit IgG horseradish peroxidase from donkey</p>
-              </td>
-              <td>
-                <p>GE Healthcare</p>
-              </td>
-              <td>
-                <p>NA934V lot 6969611</p>
-              </td>
-              <td>
-                <p>WB (1:10,000)</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Chemical compound, drug</p>
-              </td>
-              <td>
-                <p>Indole-3-acetic acid</p>
-              </td>
-              <td>
-                <p>Sigma-Aldrich</p>
-              </td>
-              <td>
-                <p>I3750-25G-A</p>
-              </td>
-              <td>
-                <p>1 mM</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Chemical compound, drug</p>
-              </td>
-              <td>
-                <p>5-Ph-IAA</p>
-              </td>
-              <td>
-                <p>Sigma-Aldrich</p>
-              </td>
-              <td>
-                <p>SML3574-25MG</p>
-              </td>
-              <td>
-                <p>1 µM</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Chemical compound, drug</p>
-              </td>
-              <td>
-                <p>Formaldehyde</p>
-              </td>
-              <td>
-                <p>Sigma-Aldrich</p>
-              </td>
-              <td>
-                <p>47608</p>
-              </td>
-              <td>
-                <p>4%</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Chemical compound, drug</p>
-              </td>
-              <td>
-                <p>VECTASHIELD Antifade Mounting Medium with DAPI</p>
-              </td>
-              <td>
-                <p>Vector Laboratories</p>
-              </td>
-              <td>
-                <p>Cat# H-1200</p>
-              </td>
-              <td>
-                <p>1 μg/ml</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Chemical compound, drug</p>
-              </td>
-              <td>
-                <p>Prometheus Protein Biology Products 20–313 OneBlock Western-CL Blocking Buffer, For Chemiluminescent Blots</p>
-              </td>
-              <td>
-                <p>Genesee Scientific</p>
-              </td>
-              <td>
-                <p>Cat# 20-313</p>
-              </td>
-              <td>
-                <p>Blocking buffer for western blots</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Commercial assay or kit</p>
-              </td>
-              <td>
-                <p>ECL Prime Western Blotting System</p>
-              </td>
-              <td>
-                <p>MilliporeSigma</p>
-              </td>
-              <td>
-                <p>GERPN2232</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>Saccharomyces cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>
-                  <italic>cerevisiae</italic>: strain background S228c</p>
-              </td>
-              <td>
-                <p>See<ext-link xlink:href="#supp1">Supplementary file 1a</ext-link>for full strain list</p>
-              </td>
-              <td>
-                <p>N/A</p>
-              </td>
-              <td>
-                <p>Strains used in this study</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>JKM179</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>MATα ade1 leu2-3 lys5 trp1::hisG ura3-52 hoΔ hmlΔ::ADE1 hmrΔ::ADE1 ade3::GAL::HO</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW184</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>TIR1-myc6::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW417</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH TIR1-myc6::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW418</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Ddc2-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW419</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad9-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW420</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad24-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW421</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad53-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW426</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW647</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Ddc2-AID*–9xMyc::KAN chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW427</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad9-AID*–9xMyc::KAN chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW428</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad24-AID*–9xMyc::KAN chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW429</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad53-AID*–9xMyc::KAN chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW625</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>dun1∆::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW626</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Dun1-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW641</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Dun1-AID*–9xMyc::KAN chk1∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ009</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Mad2*–9xMyc-AID::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ010</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Ddc2-AID*–9xMyc::KAN Mad2*–9xMyc-AID::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW455</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>mad2Δ::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>GM180</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>pGal::Ddc2::LEU2</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW648</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH pGal::Ddc2::LEU2</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW649</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH pGal::Ddc2::LEU2 mad2∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW642</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Ddc2-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW643</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW644</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW645</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>DW650</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>pGal::Ddc2::LEU2 mad2∆::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>GM539</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Ddc2-9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ001</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>MATα HOcse6::HPH</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>JY542</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH tel1∆::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ024</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ025</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ026</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ173</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ174</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ175</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>YSL53</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse5::URA3</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>GEM188</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>HOcse2::LYS2</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ201</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Rad9-AID*–9xMyc::KAN pRAD9-AID*–9xMyc</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ155</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>bfa1∆::KAN</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yMA11</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2A-S129A H2B-T129A</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yMA12</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2AS129E H2B-T129E</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yMA13</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2B-T129A</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yMA14</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2B-T129E</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yBL257</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2A-S129E</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>yBL259</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>H2A-S129A</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ062</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Mad1*–9xMyc-AID::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ165</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Bfa1*–9xMyc-AID::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>FZ167</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>Yeast strain</p>
-              </td>
-              <td>
-                <p>
-                  <italic>Bub2*–9xMyc-AID::NAT</italic>
-                </p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>GAT1p1B</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>GAT1p2B</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>VE162 Ddc2-AID For</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>VE163 Ddc2-AID Rev</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW217 Rad9-AID 1 F</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW218 Rad9-AID 1 R</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW208 Rad24-AID 1 F</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW209 Rad24-AID 1 R</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW199 Rad53AID 1 F</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Sequence-based reagent</p>
-              </td>
-              <td>
-                <p>DW200 Rad53AID 1 R</p>
-              </td>
-              <td>
-                <p>This paper</p>
-              </td>
-              <td>
-                <p>PCR primers</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pKan-9xMyc-AID</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pJH2892</p>
-              </td>
-              <td>
-                <p>Backbone: pSM409</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pNAT-9xMyc-AID</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pJH2899</p>
-              </td>
-              <td>
-                <p>Backbone: pSM409</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>sTIR1::<italic>URA3</italic>
-                </p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pNHK53</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>GAL-DDC2</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pML100</p>
-              </td>
-              <td>
-                <p>Backbone: pML95</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>ADH1-OsTIR1(F74G)</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pMK420</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>bRA90</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>bRA90</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>bG059</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>bG059</p>
-              </td>
-              <td>
-                <p>Backbone: bRA90</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>bG060</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>bG060</p>
-              </td>
-              <td>
-                <p>Backbone: bRA90</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pRad9-3HA</p>
-              </td>
-              <td>
-              </td>
-              <td>
-                <p>pFL36.1</p>
-              </td>
-              <td>
-                <p>Backbone: pRS306</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pRad9-9xMyc-AID</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>pFZ052</p>
-              </td>
-              <td>
-                <p>Backbone: pRS306</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pBL15 – HTA1 gRNA1</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>pBL15</p>
-              </td>
-              <td>
-                <p>Backbone: BRA89</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pBL16 – HTA2 gRNA2</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>pBL16</p>
-              </td>
-              <td>
-                <p>Backbone: BRA89</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pKL004 – HTB1 gRNA1</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>pKL004</p>
-              </td>
-              <td>
-                <p>Backbone: BRA89</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Recombinant DNA reagent</p>
-              </td>
-              <td>
-                <p>pKL005 – HTB2 gRNA1</p>
-              </td>
-              <td>
-                <p>This study</p>
-              </td>
-              <td>
-                <p>pKL005</p>
-              </td>
-              <td>
-                <p>Backbone: BRA89</p>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Software, algorithm</p>
-              </td>
-              <td>
-                <p>Prism 7.00</p>
-              </td>
-              <td>
-                <p>GraphPad Software, Inc.</p>
-              </td>
-              <td>
-                <p>N/A</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Software, algorithm</p>
-              </td>
-              <td>
-                <p>Image Lab</p>
-              </td>
-              <td>
-                <p>Bio-Rad</p>
-              </td>
-              <td>
-                <p>N/A</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Software, algorithm</p>
-              </td>
-              <td>
-                <p>FiJi</p>
-              </td>
-              <td>
-                <p>ImageJ</p>
-              </td>
-              <td>
-                <p>N/A</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Ddc2</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYDR499W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Rad9</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYDR217C</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Rad24</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYER173W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Rad53</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYPL153C</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Chk1</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYBR274W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Dun1</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYDL101C</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Tel1</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYBL088C</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Mad2</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYJL030W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Mad1</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYGL086W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Bub2</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYMR055C</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-            <tr>
-              <td>
-                <p>Gene (<italic>S. cerevisiae</italic>)</p>
-              </td>
-              <td>
-                <p>Bfa1</p>
-              </td>
-              <td>
-                <p>Saccharomyces Genome Database</p>
-              </td>
-              <td>
-                <p>Systematic nameYJR053W</p>
-              </td>
-              <td>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </table-wrap>
-    </sec>
-  </body>
+    </ack>
+    <app-group>
+      <app>
+        <title level="1">Appendix 1</title>
+        <table-wrap id="app1keyresource">
+          <label>Appendix 1—key resources table</label>
+          <table>
+            <thead>
+              <tr>
+                <th>
+                  <p>Reagent type (species) or resource</p>
+                </th>
+                <th>
+                  <p>Designation</p>
+                </th>
+                <th>
+                  <p>Source or reference</p>
+                </th>
+                <th>
+                  <p>Identifiers</p>
+                </th>
+                <th>
+                  <p>Additional information</p>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>Anti-Rad53;(mouse monoclonal)</p>
+                </td>
+                <td>
+                  <p>Abcam</p>
+                </td>
+                <td>
+                  <p>Cat# ab166859;RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_2801547">AB_2801547</ext-link>
+                  </p>
+                </td>
+                <td>
+                  <p>WB (1:1000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>Anti-Rad53;(rabbit polyclonal)</p>
+                </td>
+                <td>
+                  <p>Abcam</p>
+                </td>
+                <td>
+                  <p>ab104232</p>
+                </td>
+                <td>
+                  <p>WB (1:1000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>Anti-Myc;(mouse monoclonal)</p>
+                </td>
+                <td>
+                  <p>Abcam</p>
+                </td>
+                <td>
+                  <p>Cat# ab16918;RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_30256">AB_30256</ext-link>
+                  </p>
+                </td>
+                <td>
+                  <p>WB (1:1000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>Anti-Pgk1; (mouse monoclonal)</p>
+                </td>
+                <td>
+                  <p>Abcam</p>
+                </td>
+                <td>
+                  <p>Cat# ab32; RRID:<ext-link xlink:href="https://identifiers.org/RRID/RRID:AB_30359">AB_30359</ext-link>
+                  </p>
+                </td>
+                <td>
+                  <p>WB (1:5000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>Anti-Rad9;(rabbit polyclonal)</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>N/A</p>
+                </td>
+                <td>
+                  <p>WB (1:4000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>ECL<sup>TH</sup>Anti-mouse IgG horseradish peroxidase from sheep</p>
+                </td>
+                <td>
+                  <p>GE Healthcare</p>
+                </td>
+                <td>
+                  <p>NXA931VLot 16937010</p>
+                </td>
+                <td>
+                  <p>WB (1:10,000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Antibody</p>
+                </td>
+                <td>
+                  <p>ECL<sup>TH</sup>Anti-rabbit IgG horseradish peroxidase from donkey</p>
+                </td>
+                <td>
+                  <p>GE Healthcare</p>
+                </td>
+                <td>
+                  <p>NA934V lot 6969611</p>
+                </td>
+                <td>
+                  <p>WB (1:10,000)</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Chemical compound, drug</p>
+                </td>
+                <td>
+                  <p>Indole-3-acetic acid</p>
+                </td>
+                <td>
+                  <p>Sigma-Aldrich</p>
+                </td>
+                <td>
+                  <p>I3750-25G-A</p>
+                </td>
+                <td>
+                  <p>1 mM</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Chemical compound, drug</p>
+                </td>
+                <td>
+                  <p>5-Ph-IAA</p>
+                </td>
+                <td>
+                  <p>Sigma-Aldrich</p>
+                </td>
+                <td>
+                  <p>SML3574-25MG</p>
+                </td>
+                <td>
+                  <p>1 µM</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Chemical compound, drug</p>
+                </td>
+                <td>
+                  <p>Formaldehyde</p>
+                </td>
+                <td>
+                  <p>Sigma-Aldrich</p>
+                </td>
+                <td>
+                  <p>47608</p>
+                </td>
+                <td>
+                  <p>4%</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Chemical compound, drug</p>
+                </td>
+                <td>
+                  <p>VECTASHIELD Antifade Mounting Medium with DAPI</p>
+                </td>
+                <td>
+                  <p>Vector Laboratories</p>
+                </td>
+                <td>
+                  <p>Cat# H-1200</p>
+                </td>
+                <td>
+                  <p>1 μg/ml</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Chemical compound, drug</p>
+                </td>
+                <td>
+                  <p>Prometheus Protein Biology Products 20–313 OneBlock Western-CL Blocking Buffer, For Chemiluminescent Blots</p>
+                </td>
+                <td>
+                  <p>Genesee Scientific</p>
+                </td>
+                <td>
+                  <p>Cat# 20-313</p>
+                </td>
+                <td>
+                  <p>Blocking buffer for western blots</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Commercial assay or kit</p>
+                </td>
+                <td>
+                  <p>ECL Prime Western Blotting System</p>
+                </td>
+                <td>
+                  <p>MilliporeSigma</p>
+                </td>
+                <td>
+                  <p>GERPN2232</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>Saccharomyces cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>cerevisiae</italic>: strain background S228c</p>
+                </td>
+                <td>
+                  <p>See<ext-link xlink:href="#supp1">Supplementary file 1a</ext-link>for full strain list</p>
+                </td>
+                <td>
+                  <p>N/A</p>
+                </td>
+                <td>
+                  <p>Strains used in this study</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>JKM179</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>MATα ade1 leu2-3 lys5 trp1::hisG ura3-52 hoΔ hmlΔ::ADE1 hmrΔ::ADE1 ade3::GAL::HO</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW184</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>TIR1-myc6::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW417</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH TIR1-myc6::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW418</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Ddc2-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW419</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad9-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW420</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad24-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW421</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad53-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW426</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW647</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Ddc2-AID*–9xMyc::KAN chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW427</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad9-AID*–9xMyc::KAN chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW428</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad24-AID*–9xMyc::KAN chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW429</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad53-AID*–9xMyc::KAN chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW625</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>dun1∆::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW626</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Dun1-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW641</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Dun1-AID*–9xMyc::KAN chk1∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ009</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Mad2*–9xMyc-AID::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ010</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Ddc2-AID*–9xMyc::KAN Mad2*–9xMyc-AID::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW455</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>mad2Δ::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>GM180</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>pGal::Ddc2::LEU2</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW648</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH pGal::Ddc2::LEU2</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW649</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH pGal::Ddc2::LEU2 mad2∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW642</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Ddc2-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW643</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW644</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW645</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>DW650</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>pGal::Ddc2::LEU2 mad2∆::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>GM539</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Ddc2-9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ001</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>MATα HOcse6::HPH</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>JY542</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH tel1∆::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ024</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ025</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ026</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ173</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad24-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ174</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad9-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ175</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse6::HPH Rad53-AID*–9xMyc::KAN TIR1(F74G)::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>YSL53</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse5::URA3</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>GEM188</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>HOcse2::LYS2</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ201</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Rad9-AID*–9xMyc::KAN pRAD9-AID*–9xMyc</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ155</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>bfa1∆::KAN</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yMA11</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2A-S129A H2B-T129A</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yMA12</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2AS129E H2B-T129E</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yMA13</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2B-T129A</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yMA14</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2B-T129E</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yBL257</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2A-S129E</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>yBL259</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>H2A-S129A</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ062</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Mad1*–9xMyc-AID::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ165</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Bfa1*–9xMyc-AID::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Strain, strain background (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>FZ167</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>Yeast strain</p>
+                </td>
+                <td>
+                  <p>
+                    <italic>Bub2*–9xMyc-AID::NAT</italic>
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>GAT1p1B</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>GAT1p2B</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>VE162 Ddc2-AID For</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>VE163 Ddc2-AID Rev</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW217 Rad9-AID 1 F</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW218 Rad9-AID 1 R</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW208 Rad24-AID 1 F</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW209 Rad24-AID 1 R</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW199 Rad53AID 1 F</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Sequence-based reagent</p>
+                </td>
+                <td>
+                  <p>DW200 Rad53AID 1 R</p>
+                </td>
+                <td>
+                  <p>This paper</p>
+                </td>
+                <td>
+                  <p>PCR primers</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pKan-9xMyc-AID</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pJH2892</p>
+                </td>
+                <td>
+                  <p>Backbone: pSM409</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pNAT-9xMyc-AID</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pJH2899</p>
+                </td>
+                <td>
+                  <p>Backbone: pSM409</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>sTIR1::<italic>URA3</italic>
+                  </p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pNHK53</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>GAL-DDC2</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pML100</p>
+                </td>
+                <td>
+                  <p>Backbone: pML95</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>ADH1-OsTIR1(F74G)</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pMK420</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>bRA90</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>bRA90</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>bG059</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>bG059</p>
+                </td>
+                <td>
+                  <p>Backbone: bRA90</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>bG060</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>bG060</p>
+                </td>
+                <td>
+                  <p>Backbone: bRA90</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pRad9-3HA</p>
+                </td>
+                <td>
+                </td>
+                <td>
+                  <p>pFL36.1</p>
+                </td>
+                <td>
+                  <p>Backbone: pRS306</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pRad9-9xMyc-AID</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>pFZ052</p>
+                </td>
+                <td>
+                  <p>Backbone: pRS306</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pBL15 – HTA1 gRNA1</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>pBL15</p>
+                </td>
+                <td>
+                  <p>Backbone: BRA89</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pBL16 – HTA2 gRNA2</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>pBL16</p>
+                </td>
+                <td>
+                  <p>Backbone: BRA89</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pKL004 – HTB1 gRNA1</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>pKL004</p>
+                </td>
+                <td>
+                  <p>Backbone: BRA89</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Recombinant DNA reagent</p>
+                </td>
+                <td>
+                  <p>pKL005 – HTB2 gRNA1</p>
+                </td>
+                <td>
+                  <p>This study</p>
+                </td>
+                <td>
+                  <p>pKL005</p>
+                </td>
+                <td>
+                  <p>Backbone: BRA89</p>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Software, algorithm</p>
+                </td>
+                <td>
+                  <p>Prism 7.00</p>
+                </td>
+                <td>
+                  <p>GraphPad Software, Inc.</p>
+                </td>
+                <td>
+                  <p>N/A</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Software, algorithm</p>
+                </td>
+                <td>
+                  <p>Image Lab</p>
+                </td>
+                <td>
+                  <p>Bio-Rad</p>
+                </td>
+                <td>
+                  <p>N/A</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Software, algorithm</p>
+                </td>
+                <td>
+                  <p>FiJi</p>
+                </td>
+                <td>
+                  <p>ImageJ</p>
+                </td>
+                <td>
+                  <p>N/A</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Ddc2</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYDR499W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Rad9</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYDR217C</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Rad24</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYER173W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Rad53</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYPL153C</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Chk1</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYBR274W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Dun1</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYDL101C</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Tel1</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYBL088C</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Mad2</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYJL030W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Mad1</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYGL086W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Bub2</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYMR055C</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <p>Gene (<italic>S. cerevisiae</italic>)</p>
+                </td>
+                <td>
+                  <p>Bfa1</p>
+                </td>
+                <td>
+                  <p>Saccharomyces Genome Database</p>
+                </td>
+                <td>
+                  <p>Systematic nameYJR053W</p>
+                </td>
+                <td>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </table-wrap>
+      </app>
+    </app-group>
+    <ref-list>
+      <ref id="bib1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Agarwal</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Tang</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Yu</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Cohen-Fix</surname>
+              <given-names>O</given-names>
+            </name>
+          </person-group>
+          <article-title>Two distinct pathways for inhibiting pds1 ubiquitination in response to DNA damage</article-title>
+          <source>The Journal of Biological Chemistry</source>
+          <year>2003</year>
+          <fpage>45027</fpage>
+          <lpage>45033</lpage>
+          <pub-id pub-id-type="doi">10.1074/jbc.M306783200</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Anand</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Beach</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Rad51-mediated double-strand break repair and mismatch correction of divergent substrates</article-title>
+          <source>Nature</source>
+          <year>2017</year>
+          <fpage>377</fpage>
+          <lpage>380</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature22046</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Aylon</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Kupiec</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>The checkpoint protein Rad24 of<italic>Saccharomyces cerevisiae</italic>is involved in processing double-strand break ends and in recombination partner choice</article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>2003</year>
+          <fpage>6585</fpage>
+          <lpage>6596</lpage>
+          <pub-id pub-id-type="doi">10.1128/MCB.23.18.6585-6596.2003</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bardin</surname>
+              <given-names>A J</given-names>
+            </name>
+            <name>
+              <surname>Visintin</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Amon</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>A mechanism for coupling exit from mitosis to partitioning of the nucleus</article-title>
+          <source>Cell</source>
+          <year>2000</year>
+          <fpage>21</fpage>
+          <lpage>31</lpage>
+          <pub-id pub-id-type="doi">10.1016/s0092-8674(00)00007-6</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib5">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bazzi</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Mantiero</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Trovesi</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Lucchini</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Longhese</surname>
+              <given-names>M P</given-names>
+            </name>
+          </person-group>
+          <article-title>Dephosphorylation of gamma H2A by Glc7/protein phosphatase 1 promotes recovery from inhibition of DNA replication</article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>2010</year>
+          <fpage>131</fpage>
+          <lpage>145</lpage>
+          <pub-id pub-id-type="doi">10.1128/MCB.01000-09</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib6">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chen</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Smolka</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Zhou</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Mechanism of Dun1 activation by Rad53 phosphorylation in<italic>Saccharomyces cerevisiae</italic>
+          </article-title>
+          <source>The Journal of Biological Chemistry</source>
+          <year>2007</year>
+          <fpage>986</fpage>
+          <lpage>995</lpage>
+          <pub-id pub-id-type="doi">10.1074/jbc.M609322200</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib7">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Clerici</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Paciotti</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Baldo</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Romano</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lucchini</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Longhese</surname>
+              <given-names>M P</given-names>
+            </name>
+          </person-group>
+          <article-title>Hyperactivation of the yeast DNA damage checkpoint by TEL1 and DDC2 overexpression</article-title>
+          <source>The EMBO Journal</source>
+          <year>2001</year>
+          <fpage>6485</fpage>
+          <lpage>6498</lpage>
+          <pub-id pub-id-type="doi">10.1093/emboj/20.22.6485</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib8">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>de la Torre-Ruiz</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Green</surname>
+              <given-names>C M</given-names>
+            </name>
+            <name>
+              <surname>Lowndes</surname>
+              <given-names>N F</given-names>
+            </name>
+          </person-group>
+          <article-title>RAD9 and RAD24 define two additive, interacting branches of the DNA damage checkpoint pathway in budding yeast normally required for Rad53 modification and activation</article-title>
+          <source>The EMBO Journal</source>
+          <year>1998</year>
+          <fpage>2687</fpage>
+          <lpage>2698</lpage>
+          <pub-id pub-id-type="doi">10.1093/emboj/17.9.2687</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dick</surname>
+              <given-names>A E</given-names>
+            </name>
+            <name>
+              <surname>Gerlich</surname>
+              <given-names>D W</given-names>
+            </name>
+          </person-group>
+          <article-title>Kinetic framework of spindle assembly checkpoint signalling</article-title>
+          <source>Nature Cell Biology</source>
+          <year>2013</year>
+          <fpage>1370</fpage>
+          <lpage>1377</lpage>
+          <pub-id pub-id-type="doi">10.1038/ncb2842</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dotiwala</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Haase</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Arbel-Eden</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Bloom</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>The yeast DNA damage checkpoint proteins control a cytoplasmic response to DNA damage</article-title>
+          <source>PNAS</source>
+          <year>2007</year>
+          <fpage>11358</fpage>
+          <lpage>11363</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.0609636104</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib11">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dotiwala</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Harrison</surname>
+              <given-names>J C</given-names>
+            </name>
+            <name>
+              <surname>Jain</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Sugawara</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Mad2 prolongs DNA damage checkpoint arrest caused by a double-strand break via a centromere-dependent mechanism</article-title>
+          <source>Current Biology</source>
+          <year>2010</year>
+          <fpage>328</fpage>
+          <lpage>332</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cub.2009.12.033</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib12">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dubrana</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>van Attikum</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Hediger</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Gasser</surname>
+              <given-names>S M</given-names>
+            </name>
+          </person-group>
+          <article-title>The processing of double-strand breaks and binding of single-strand-binding proteins RPA and Rad51 modulate the formation of ATR-kinase foci in yeast</article-title>
+          <source>Journal of Cell Science</source>
+          <year>2007</year>
+          <fpage>4209</fpage>
+          <lpage>4220</lpage>
+          <pub-id pub-id-type="doi">10.1242/jcs.018366</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib13">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Durocher</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Henckel</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Fersht</surname>
+              <given-names>A R</given-names>
+            </name>
+            <name>
+              <surname>Jackson</surname>
+              <given-names>S P</given-names>
+            </name>
+          </person-group>
+          <article-title>The FHA domain is a modular phosphopeptide recognition motif</article-title>
+          <source>Molecular Cell</source>
+          <year>1999</year>
+          <fpage>387</fpage>
+          <lpage>394</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(00)80340-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib14">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Eapen</surname>
+              <given-names>V V</given-names>
+            </name>
+            <name>
+              <surname>Sugawara</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Tsabar</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Wu</surname>
+              <given-names>W H</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>The<italic>Saccharomyces cerevisiae</italic>chromatin remodeler Fun30 regulates DNA end resection and checkpoint deactivation</article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>2012</year>
+          <fpage>4727</fpage>
+          <lpage>4740</lpage>
+          <pub-id pub-id-type="doi">10.1128/MCB.00566-12</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib15">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ellison</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Stillman</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>Biochemical characterization of DNA damage checkpoint complexes: clamp loader and clamp complexes with specificity for 5’ recessed DNA</article-title>
+          <source>PLOS Biology</source>
+          <year>2003</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pbio.0000033</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Emili</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>MEC1-dependent phosphorylation of Rad9p in response to DNA damage</article-title>
+          <source>Molecular Cell</source>
+          <year>1998</year>
+          <fpage>183</fpage>
+          <lpage>189</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(00)80128-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fiorani</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Mimun</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Caleca</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Piccini</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Pellicioli</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Characterization of the activation domain of the Rad53 checkpoint kinase</article-title>
+          <source>Cell Cycle</source>
+          <year>2008</year>
+          <fpage>493</fpage>
+          <lpage>499</lpage>
+          <pub-id pub-id-type="doi">10.4161/cc.7.4.5323</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib18">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Garber</surname>
+              <given-names>P M</given-names>
+            </name>
+            <name>
+              <surname>Rine</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Overlapping roles of the spindle assembly and DNA damage checkpoints in the cell-cycle response to altered chromosomes in<italic>Saccharomyces cerevisiae</italic>
+          </article-title>
+          <source>Genetics</source>
+          <year>2002</year>
+          <fpage>521</fpage>
+          <lpage>534</lpage>
+          <pub-id pub-id-type="doi">10.1093/genetics/161.2.521</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Geymonat</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Spanos</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>S J M</given-names>
+            </name>
+            <name>
+              <surname>Wheatley</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Rittinger</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Johnston</surname>
+              <given-names>L H</given-names>
+            </name>
+            <name>
+              <surname>Sedgwick</surname>
+              <given-names>S G</given-names>
+            </name>
+          </person-group>
+          <article-title>Control of mitotic exit in budding yeast. In vitro regulation of Tem1 GTPase by Bub2 and Bfa1</article-title>
+          <source>The Journal of Biological Chemistry</source>
+          <year>2002</year>
+          <fpage>28439</fpage>
+          <lpage>28445</lpage>
+          <pub-id pub-id-type="doi">10.1074/jbc.M202540200</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hu</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Qin</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Elledge</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>Regulation of the Bub2/Bfa1 GAP complex by Cdc5 and cell cycle checkpoints</article-title>
+          <source>Cell</source>
+          <year>2001</year>
+          <fpage>655</fpage>
+          <lpage>665</lpage>
+          <pub-id pub-id-type="doi">10.1016/s0092-8674(01)00580-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib21">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kim</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Kruhlak</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Dotiwala</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Nussenzweig</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Heterochromatin is refractory to gamma-H2AX modification in yeast and mammals</article-title>
+          <source>The Journal of Cell Biology</source>
+          <year>2007</year>
+          <fpage>209</fpage>
+          <lpage>218</lpage>
+          <pub-id pub-id-type="doi">10.1083/jcb.200612031</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kim</surname>
+              <given-names>E M</given-names>
+            </name>
+            <name>
+              <surname>Burke</surname>
+              <given-names>D J</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA damage activates the SAC in an ATM/ATR-dependent manner, independently of the kinetochore</article-title>
+          <source>PLOS Genetics</source>
+          <year>2008</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pgen.1000015</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib23">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lanz</surname>
+              <given-names>M C</given-names>
+            </name>
+            <name>
+              <surname>Dibitetto</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Smolka</surname>
+              <given-names>M B</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA damage kinase signaling: checkpoint and repair at 30 years</article-title>
+          <source>The EMBO Journal</source>
+          <year>2019</year>
+          <pub-id pub-id-type="doi">10.15252/embj.2019101801</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lazzaro</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Sapountzi</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Granata</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Pellicioli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Vaze</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Plevani</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Lydall</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Muzi-Falconi</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Histone methyltransferase Dot1 and Rad9 inhibit single-stranded DNA accumulation at DSBs and uncapped telomeres</article-title>
+          <source>The EMBO Journal</source>
+          <year>2008</year>
+          <fpage>1502</fpage>
+          <lpage>1512</lpage>
+          <pub-id pub-id-type="doi">10.1038/emboj.2008.81</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lee</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Moore</surname>
+              <given-names>J K</given-names>
+            </name>
+            <name>
+              <surname>Holmes</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Umezu</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Kolodner</surname>
+              <given-names>R D</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Saccharomyces Ku70, mre11/rad50 and RPA proteins regulate adaptation to G2/M arrest after DNA damage</article-title>
+          <source>Cell</source>
+          <year>1998</year>
+          <fpage>399</fpage>
+          <lpage>409</lpage>
+          <pub-id pub-id-type="doi">10.1016/s0092-8674(00)81482-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lee</surname>
+              <given-names>C S</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Legube</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Dynamics of yeast histone H2A and H2B phosphorylation in response to a double-strand break</article-title>
+          <source>Nature Structural &amp; Molecular Biology</source>
+          <year>2014</year>
+          <fpage>103</fpage>
+          <lpage>109</lpage>
+          <pub-id pub-id-type="doi">10.1038/nsmb.2737</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Leroy</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Vaze</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Ochsenbein</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Guerois</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Marsolier-Kergoat</surname>
+              <given-names>M C</given-names>
+            </name>
+          </person-group>
+          <article-title>PP2C phosphatases Ptc2 and Ptc3 are required for DNA checkpoint inactivation after a double-strand break</article-title>
+          <source>Molecular Cell</source>
+          <year>2003</year>
+          <fpage>827</fpage>
+          <lpage>835</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(03)00058-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Limbo</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Porter-Goff</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Rhind</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Russell</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Mre11 nuclease activity and Ctp1 regulate Chk1 activation by Rad3ATR and Tel1ATM checkpoint kinases at double-strand breaks</article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>2011</year>
+          <fpage>573</fpage>
+          <lpage>583</lpage>
+          <pub-id pub-id-type="doi">10.1128/MCB.00994-10</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Majka</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Binz</surname>
+              <given-names>S K</given-names>
+            </name>
+            <name>
+              <surname>Wold</surname>
+              <given-names>M S</given-names>
+            </name>
+            <name>
+              <surname>Burgers</surname>
+              <given-names>P M J</given-names>
+            </name>
+          </person-group>
+          <article-title>Replication protein A directs loading of the DNA damage checkpoint clamp to 5’-DNA junctions</article-title>
+          <source>The Journal of Biological Chemistry</source>
+          <year>2006</year>
+          <fpage>27855</fpage>
+          <lpage>27861</lpage>
+          <pub-id pub-id-type="doi">10.1074/jbc.M605176200</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mantiero</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Clerici</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lucchini</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Longhese</surname>
+              <given-names>M P</given-names>
+            </name>
+          </person-group>
+          <article-title>Dual role for<italic>Saccharomyces cerevisiae</italic>Tel1 in the checkpoint response to double-strand breaks</article-title>
+          <source>EMBO Reports</source>
+          <year>2007</year>
+          <fpage>380</fpage>
+          <lpage>387</lpage>
+          <pub-id pub-id-type="doi">10.1038/sj.embor.7400911</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Marangos</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Stevense</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Niaka</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Lagoudaki</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Nabti</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Jessberger</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Carroll</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA damage-induced metaphase I arrest is mediated by the spindle assembly checkpoint and maternal age</article-title>
+          <source>Nature Communications</source>
+          <year>2015</year>
+          <pub-id pub-id-type="doi">10.1038/ncomms9706</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maréchal</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Zou</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>RPA-coated single-stranded DNA as a platform for post-translational modifications in the DNA damage response</article-title>
+          <source>Cell Research</source>
+          <year>2015</year>
+          <fpage>9</fpage>
+          <lpage>23</lpage>
+          <pub-id pub-id-type="doi">10.1038/cr.2014.147</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib33">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Matellán</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Monje-Casas</surname>
+              <given-names>F</given-names>
+            </name>
+          </person-group>
+          <article-title>Regulation of mitotic exit by cell cycle checkpoints: lessons from<italic>Saccharomyces cerevisiae</italic>
+          </article-title>
+          <source>Genes</source>
+          <year>2020</year>
+          <pub-id pub-id-type="doi">10.3390/genes11020195</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib34">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>McAinsh</surname>
+              <given-names>A D</given-names>
+            </name>
+            <name>
+              <surname>Kops</surname>
+              <given-names>G J P L</given-names>
+            </name>
+          </person-group>
+          <article-title>Principles and dynamics of spindle assembly checkpoint signalling</article-title>
+          <source>Nature Reviews. Molecular Cell Biology</source>
+          <year>2023</year>
+          <fpage>543</fpage>
+          <lpage>559</lpage>
+          <pub-id pub-id-type="doi">10.1038/s41580-023-00593-z</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib35">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mehta</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Sources of DNA double-strand breaks and models of recombinational DNA repair</article-title>
+          <source>Cold Spring Harbor Perspectives in Biology</source>
+          <year>2014</year>
+          <pub-id pub-id-type="doi">10.1101/cshperspect.a016428</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Melo</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Cohen</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Toczyski</surname>
+              <given-names>D P</given-names>
+            </name>
+          </person-group>
+          <article-title>Two checkpoint complexes are independently recruited to sites of DNA damage in vivo</article-title>
+          <source>Genes &amp; Development</source>
+          <year>2001</year>
+          <fpage>2809</fpage>
+          <lpage>2821</lpage>
+          <pub-id pub-id-type="doi">10.1101/gad.903501</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib37">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Memisoglu</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Lanz</surname>
+              <given-names>M C</given-names>
+            </name>
+            <name>
+              <surname>Eapen</surname>
+              <given-names>V V</given-names>
+            </name>
+            <name>
+              <surname>Jordan</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Smolka</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Mec1ATR Autophosphorylation and Ddc2ATRIP Phosphorylation Regulates DNA Damage Checkpoint Signaling</article-title>
+          <source>Cell Reports</source>
+          <year>2019</year>
+          <fpage>1090</fpage>
+          <lpage>1102</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.celrep.2019.06.068</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miller-Fleming</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Cheong</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Antas</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Klionsky</surname>
+              <given-names>D J</given-names>
+            </name>
+          </person-group>
+          <article-title>Detection of<italic>Saccharomyces cerevisiae</italic>Atg13 by western blot</article-title>
+          <source>Autophagy</source>
+          <year>2014</year>
+          <fpage>514</fpage>
+          <lpage>517</lpage>
+          <pub-id pub-id-type="doi">10.4161/auto.27707</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib39">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Moore</surname>
+              <given-names>J K</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Cell cycle and genetic requirements of two pathways of nonhomologous end-joining repair of double-strand breaks in<italic>Saccharomyces cerevisiae</italic>
+          </article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>1996</year>
+          <fpage>2164</fpage>
+          <lpage>2173</lpage>
+          <pub-id pub-id-type="doi">10.1128/MCB.16.5.2164</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Morawska</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>H D</given-names>
+            </name>
+          </person-group>
+          <article-title>An expanded tool kit for the auxin-inducible degron system in budding yeast</article-title>
+          <source>Yeast</source>
+          <year>2013</year>
+          <fpage>341</fpage>
+          <lpage>351</lpage>
+          <pub-id pub-id-type="doi">10.1002/yea.2967</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib41">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Musacchio</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>The molecular biology of spindle assembly checkpoint signaling dynamics</article-title>
+          <source>Current Biology</source>
+          <year>2015</year>
+          <fpage>R1002</fpage>
+          <lpage>R1018</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cub.2015.08.051</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib42">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Navadgi-Patil</surname>
+              <given-names>V M</given-names>
+            </name>
+            <name>
+              <surname>Burgers</surname>
+              <given-names>P M</given-names>
+            </name>
+          </person-group>
+          <article-title>The unstructured C-terminal tail of the 9-1-1 clamp subunit Ddc1 activates Mec1/ATR via two distinct mechanisms</article-title>
+          <source>Molecular Cell</source>
+          <year>2009</year>
+          <fpage>743</fpage>
+          <lpage>753</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.molcel.2009.10.014</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib43">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nishimura</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Fukagawa</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Takisawa</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Kakimoto</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Kanemaki</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>An auxin-based degron system for the rapid depletion of proteins in nonplant cells</article-title>
+          <source>Nature Methods</source>
+          <year>2009</year>
+          <fpage>917</fpage>
+          <lpage>922</lpage>
+          <pub-id pub-id-type="doi">10.1038/nmeth.1401</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib44">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>O’Neill</surname>
+              <given-names>B M</given-names>
+            </name>
+            <name>
+              <surname>Szyjka</surname>
+              <given-names>S J</given-names>
+            </name>
+            <name>
+              <surname>Lis</surname>
+              <given-names>E T</given-names>
+            </name>
+            <name>
+              <surname>Bailey</surname>
+              <given-names>A O</given-names>
+            </name>
+            <name>
+              <surname>Yates</surname>
+              <given-names>J R</given-names>
+            </name>
+            <name>
+              <surname>Aparicio</surname>
+              <given-names>O M</given-names>
+            </name>
+            <name>
+              <surname>Romesberg</surname>
+              <given-names>F E</given-names>
+            </name>
+          </person-group>
+          <article-title>Pph3-Psy2 is a phosphatase complex required for Rad53 dephosphorylation and replication fork restart during recovery from DNA damage</article-title>
+          <source>PNAS</source>
+          <year>2007</year>
+          <fpage>9290</fpage>
+          <lpage>9295</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.0703252104</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib45">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Paciotti</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Clerici</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lucchini</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Longhese</surname>
+              <given-names>M P</given-names>
+            </name>
+          </person-group>
+          <article-title>The checkpoint protein Ddc2, functionally related to<italic>S. pombe</italic>Rad26, interacts with Mec1 and is regulated by Mec1-dependent phosphorylation in budding yeast</article-title>
+          <source>Genes &amp; Development</source>
+          <year>2000</year>
+          <fpage>2046</fpage>
+          <lpage>2059</lpage>
+        </element-citation>
+      </ref>
+      <ref id="bib46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pellicioli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Lucca</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Liberi</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Marini</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Lopes</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Plevani</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Romano</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Di Fiore</surname>
+              <given-names>P P</given-names>
+            </name>
+            <name>
+              <surname>Foiani</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Activation of Rad53 kinase in response to DNA damage and its effect in modulating phosphorylation of the lagging strand DNA polymerase</article-title>
+          <source>The EMBO Journal</source>
+          <year>1999</year>
+          <fpage>6561</fpage>
+          <lpage>6572</lpage>
+          <pub-id pub-id-type="doi">10.1093/emboj/18.22.6561</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pellicioli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Lucca</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Foiani</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Regulation of Saccharomyces Rad53 checkpoint kinase during adaptation from DNA damage-induced G2/M arrest</article-title>
+          <source>Molecular Cell</source>
+          <year>2001</year>
+          <fpage>293</fpage>
+          <lpage>300</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(01)00177-0</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rao</surname>
+              <given-names>R P</given-names>
+            </name>
+            <name>
+              <surname>Hunter</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Kashpur</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Normanly</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Aberrant synthesis of indole-3-acetic acid in<italic>Saccharomyces cerevisiae</italic>triggers morphogenic transition, a virulence trait of pathogenic fungi</article-title>
+          <source>Genetics</source>
+          <year>2010</year>
+          <fpage>211</fpage>
+          <lpage>220</lpage>
+          <pub-id pub-id-type="doi">10.1534/genetics.109.112854</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rogakou</surname>
+              <given-names>E P</given-names>
+            </name>
+            <name>
+              <surname>Pilch</surname>
+              <given-names>D R</given-names>
+            </name>
+            <name>
+              <surname>Orr</surname>
+              <given-names>A H</given-names>
+            </name>
+            <name>
+              <surname>Ivanova</surname>
+              <given-names>V S</given-names>
+            </name>
+            <name>
+              <surname>Bonner</surname>
+              <given-names>W M</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA double-stranded breaks induce histone H2AX phosphorylation on serine 139</article-title>
+          <source>The Journal of Biological Chemistry</source>
+          <year>1998</year>
+          <fpage>5858</fpage>
+          <lpage>5868</lpage>
+          <pub-id pub-id-type="doi">10.1074/jbc.273.10.5858</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sadeghi</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Dervey</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Gligorovski</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Labagnara</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Rahi</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>The optimal strategy balancing risk and speed predicts DNA damage checkpoint override times</article-title>
+          <source>Nature Physics</source>
+          <year>2022</year>
+          <fpage>832</fpage>
+          <lpage>839</lpage>
+          <pub-id pub-id-type="doi">10.1038/s41567-022-01601-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib51">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sanchez</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Bachant</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Hu</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Tetzlaff</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Elledge</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>Control of the DNA damage checkpoint by chk1 and rad53 protein kinases through distinct mechanisms</article-title>
+          <source>Science</source>
+          <year>1999</year>
+          <fpage>1166</fpage>
+          <lpage>1171</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.286.5442.1166</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib52">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Schwartz</surname>
+              <given-names>M F</given-names>
+            </name>
+            <name>
+              <surname>Duong</surname>
+              <given-names>J K</given-names>
+            </name>
+            <name>
+              <surname>Sun</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Morrow</surname>
+              <given-names>J S</given-names>
+            </name>
+            <name>
+              <surname>Pradhan</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Stern</surname>
+              <given-names>D F</given-names>
+            </name>
+          </person-group>
+          <article-title>Rad9 phosphorylation sites couple Rad53 to the<italic>Saccharomyces cerevisiae</italic>DNA damage checkpoint</article-title>
+          <source>Molecular Cell</source>
+          <year>2002</year>
+          <fpage>1055</fpage>
+          <lpage>1065</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(02)00532-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib53">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shirayama</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Matsui</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Toh-E</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>The yeast TEM1 gene, which encodes a GTP-binding protein, is involved in termination of M phase</article-title>
+          <source>Molecular and Cellular Biology</source>
+          <year>1994</year>
+          <fpage>7476</fpage>
+          <lpage>7482</lpage>
+          <pub-id pub-id-type="doi">10.1128/mcb.14.11.7476-7482.1994</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib54">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shroff</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Arbel-Eden</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Pilch</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Ira</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Bonner</surname>
+              <given-names>W M</given-names>
+            </name>
+            <name>
+              <surname>Petrini</surname>
+              <given-names>J H</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Lichten</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Distribution and dynamics of chromatin modification induced by a defined DNA double-strand break</article-title>
+          <source>Current Biology</source>
+          <year>2004</year>
+          <fpage>1703</fpage>
+          <lpage>1711</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cub.2004.09.047</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib55">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smolka</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Albuquerque</surname>
+              <given-names>C P</given-names>
+            </name>
+            <name>
+              <surname>Chen</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Zhou</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Proteome-wide identification of in vivo targets of DNA damage checkpoint kinases</article-title>
+          <source>PNAS</source>
+          <year>2007</year>
+          <fpage>10364</fpage>
+          <lpage>10369</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.0701622104</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib56">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sweeney</surname>
+              <given-names>F D</given-names>
+            </name>
+            <name>
+              <surname>Yang</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Chi</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Shabanowitz</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Hunt</surname>
+              <given-names>D F</given-names>
+            </name>
+            <name>
+              <surname>Durocher</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>
+            <italic>Saccharomyces cerevisiae</italic>Rad9 acts as a Mec1 adaptor to allow Rad53 activation</article-title>
+          <source>Current Biology</source>
+          <year>2005</year>
+          <fpage>1364</fpage>
+          <lpage>1375</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cub.2005.06.063</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib57">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tsabar</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Eapen</surname>
+              <given-names>V V</given-names>
+            </name>
+            <name>
+              <surname>Mason</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Memisoglu</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>D P</given-names>
+            </name>
+            <name>
+              <surname>Long</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Bishop</surname>
+              <given-names>D K</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Caffeine impairs resection during DNA break repair by reducing the levels of nucleases Sae2 and Dna2</article-title>
+          <source>Nucleic Acids Research</source>
+          <year>2015</year>
+          <fpage>6889</fpage>
+          <lpage>6901</lpage>
+          <pub-id pub-id-type="doi">10.1093/nar/gkv520</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib58">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Usui</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Petrini</surname>
+              <given-names>J H J</given-names>
+            </name>
+          </person-group>
+          <article-title>The<italic>Saccharomyces cerevisiae</italic>14-3-3 proteins Bmh1 and Bmh2 directly influence the DNA damage-dependent functions of Rad53</article-title>
+          <source>PNAS</source>
+          <year>2007</year>
+          <fpage>2797</fpage>
+          <lpage>2802</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.0611259104</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib59">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Usui</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Foster</surname>
+              <given-names>S S</given-names>
+            </name>
+            <name>
+              <surname>Petrini</surname>
+              <given-names>J H J</given-names>
+            </name>
+          </person-group>
+          <article-title>Maintenance of the DNA-damage checkpoint requires DNA-damage-induced mediator protein oligomerization</article-title>
+          <source>Molecular Cell</source>
+          <year>2009</year>
+          <fpage>147</fpage>
+          <lpage>159</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.molcel.2008.12.022</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib60">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vaze</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Pellicioli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Ira</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Liberi</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Arbel-Eden</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Foiani</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Recovery from checkpoint-mediated arrest after repair of a double-strand break requires Srs2 helicase</article-title>
+          <source>Molecular Cell</source>
+          <year>2002</year>
+          <fpage>373</fpage>
+          <lpage>385</lpage>
+          <pub-id pub-id-type="doi">10.1016/s1097-2765(02)00593-2</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib61">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wach</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Brachat</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Pöhlmann</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Philippsen</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>New heterologous modules for classical or PCR-based gene disruptions in<italic>Saccharomyces cerevisiae</italic>
+          </article-title>
+          <source>Yeast</source>
+          <year>1994</year>
+          <fpage>1793</fpage>
+          <lpage>1808</lpage>
+          <pub-id pub-id-type="doi">10.1002/yea.320101310</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib62">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Waterman</surname>
+              <given-names>D P</given-names>
+            </name>
+            <name>
+              <surname>Haber</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Smolka</surname>
+              <given-names>M B</given-names>
+            </name>
+          </person-group>
+          <article-title>Checkpoint Responses to DNA Double-Strand Breaks</article-title>
+          <source>Annual Review of Biochemistry</source>
+          <year>2020</year>
+          <fpage>103</fpage>
+          <lpage>133</lpage>
+          <pub-id pub-id-type="doi">10.1146/annurev-biochem-011520-104722</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib63">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yam</surname>
+              <given-names>C Q X</given-names>
+            </name>
+            <name>
+              <surname>Chia</surname>
+              <given-names>D B</given-names>
+            </name>
+            <name>
+              <surname>Shi</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Lim</surname>
+              <given-names>H H</given-names>
+            </name>
+            <name>
+              <surname>Surana</surname>
+              <given-names>U</given-names>
+            </name>
+          </person-group>
+          <article-title>Dun1, a Chk2-related kinase, is the central regulator of securin-separase dynamics during DNA damage signaling</article-title>
+          <source>Nucleic Acids Research</source>
+          <year>2020</year>
+          <fpage>6092</fpage>
+          <lpage>6107</lpage>
+          <pub-id pub-id-type="doi">10.1093/nar/gkaa355</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib64">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yesbolatova</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Saito</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Kitamoto</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Makino-Itou</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Ajima</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Nakano</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Nakaoka</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Fukui</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Gamo</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Tominari</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Takeuchi</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Saga</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Hayashi</surname>
+              <given-names>K I</given-names>
+            </name>
+            <name>
+              <surname>Kanemaki</surname>
+              <given-names>M T</given-names>
+            </name>
+          </person-group>
+          <article-title>The auxin-inducible degron 2 technology provides sharp degradation control in yeast, mammalian cells, and mice</article-title>
+          <source>Nature Communications</source>
+          <year>2020</year>
+          <pub-id pub-id-type="doi">10.1038/s41467-020-19532-z</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib65">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zhao</surname>
+              <given-names>X</given-names>
+            </name>
+            <name>
+              <surname>Rothstein</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>The Dun1 checkpoint kinase phosphorylates and regulates the ribonucleotide reductase inhibitor Sml1</article-title>
+          <source>PNAS</source>
+          <year>2002</year>
+          <fpage>3746</fpage>
+          <lpage>3751</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.062502299</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib66">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zhou</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Elledge</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>DUN1 encodes a protein kinase that controls the DNA damage response in yeast</article-title>
+          <source>Cell</source>
+          <year>1993</year>
+          <fpage>1119</fpage>
+          <lpage>1127</lpage>
+          <pub-id pub-id-type="doi">10.1016/0092-8674(93)90321-g</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib67">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zhu</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Chung</surname>
+              <given-names>W H</given-names>
+            </name>
+            <name>
+              <surname>Shim</surname>
+              <given-names>E Y</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Ira</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>Sgs1 helicase and two nucleases Dna2 and Exo1 resect DNA double-strand break ends</article-title>
+          <source>Cell</source>
+          <year>2008</year>
+          <fpage>981</fpage>
+          <lpage>994</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cell.2008.08.037</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="bib68">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zou</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Elledge</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>Sensing DNA damage through ATRIP recognition of RPA-ssDNA complexes</article-title>
+          <source>Science</source>
+          <year>2003</year>
+          <fpage>1542</fpage>
+          <lpage>1548</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.1083430</pub-id>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

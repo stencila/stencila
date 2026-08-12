@@ -31,7 +31,7 @@
     "elem": "td"
   },
   "jats": {
-    "special": true
+    "derive": false
   },
   "proptest": {},
   "required": [

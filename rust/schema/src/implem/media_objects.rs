@@ -1,6 +1,6 @@
 use stencila_codec_info::lost_options;
 
-use crate::{AudioObject, ImageObject, MediaObject, VideoObject, prelude::*};
+use crate::{AudioObject, ImageObject, Inline, MediaObject, VideoObject, prelude::*};
 
 macro_rules! html_attrs {
     ($object:expr) => {{
@@ -20,37 +20,37 @@ macro_rules! html_attrs {
     }};
 }
 
-macro_rules! jats_attrs {
-    ($object:expr) => {{
-        let mut attrs = vec![("xlink:href", $object.content_url.as_str())];
+fn encode_jats_media(
+    context: &mut JatsEncodeContext,
+    element: &str,
+    content_url: &str,
+    media_type: Option<&str>,
+    default_mime_type: Option<&str>,
+    caption: Option<&Vec<Inline>>,
+) {
+    context
+        .enter_elem(element)
+        .push_attr("xlink:href", content_url);
 
-        if let Some(media_type) = &$object.media_type {
-            let mut parts = media_type.split('/');
-            if let Some(mime_type) = parts.next() {
-                attrs.push(("mimetype", mime_type))
-            }
-            if let Some(mime_subtype) = parts.next() {
-                attrs.push(("mime-subtype", mime_subtype))
-            }
+    let mut parts = media_type
+        .into_iter()
+        .flat_map(|media_type| media_type.split('/'));
+    if let Some(mime_type) = parts.next().or(default_mime_type) {
+        context.push_attr("mimetype", mime_type);
+    }
+    if let Some(mime_subtype) = parts.next() {
+        context.push_attr("mime-subtype", mime_subtype);
+    }
+    if let Some(caption) = caption {
+        let caption = caption.to_text();
+        if !caption.trim().is_empty() {
+            context
+                .enter_elem("alt-text")
+                .push_text(caption.trim())
+                .exit_elem();
         }
-
-        attrs
-    }};
-}
-
-macro_rules! jats_content {
-    ($object:expr) => {{
-        let mut content = String::new();
-
-        if let Some(caption) = &$object.caption {
-            use stencila_codec_jats_trait::encode::escape;
-
-            let caption = caption.to_text();
-            content.push_str(&["<alt-text>", &escape(caption.trim()), "</alt-text>"].concat())
-        }
-
-        content
-    }};
+    }
+    context.exit_elem().merge_losses(Losses::todo());
 }
 
 macro_rules! to_markdown {
@@ -100,16 +100,21 @@ macro_rules! to_markdown {
     }};
 }
 
-impl MediaObject {
-    pub fn to_jats_special(&self) -> (String, Losses) {
+impl JatsCodec for MediaObject {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
         // It is necessary to have special JATS functions for these types
         // to split the `media_type` field into separate `mimetype` and `media-subtype`
         // attributes and to ensure `AudioObject` and `VideoObject` ad differentiated
         // through the `mimetype` attribute
 
-        use stencila_codec_jats_trait::encode::elem;
-
-        (elem("inline-media", jats_attrs!(self), ""), Losses::todo())
+        encode_jats_media(
+            context,
+            "inline-media",
+            &self.content_url,
+            self.media_type.as_deref(),
+            None,
+            None,
+        );
     }
 }
 
@@ -122,19 +127,18 @@ impl AudioObject {
 
         elem("audio", &attrs, &[])
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        let mut attrs = jats_attrs!(self);
-        if !attrs.iter().any(|(name, ..)| name == &"mimetype") {
-            attrs.push(("mimetype", "audio"));
-        }
-
-        (
-            elem("inline-media", attrs, jats_content!(self)),
-            Losses::todo(),
-        )
+impl JatsCodec for AudioObject {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        encode_jats_media(
+            context,
+            "inline-media",
+            &self.content_url,
+            self.media_type.as_deref(),
+            Some("audio"),
+            self.caption.as_ref(),
+        );
     }
 }
 
@@ -187,14 +191,18 @@ impl ImageObject {
 
         elem("img", &html_attrs!(self), &[])
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        (
-            elem("inline-graphic", jats_attrs!(self), jats_content!(self)),
-            Losses::todo(),
-        )
+impl JatsCodec for ImageObject {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        encode_jats_media(
+            context,
+            "inline-graphic",
+            &self.content_url,
+            self.media_type.as_deref(),
+            None,
+            self.caption.as_ref(),
+        );
     }
 }
 
@@ -283,19 +291,18 @@ impl VideoObject {
 
         elem("video", &attrs, &[])
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        let mut attrs = jats_attrs!(self);
-        if !attrs.iter().any(|(name, ..)| name == &"mimetype") {
-            attrs.push(("mimetype", "video"));
-        }
-
-        (
-            elem("inline-media", attrs, jats_content!(self)),
-            Losses::todo(),
-        )
+impl JatsCodec for VideoObject {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        encode_jats_media(
+            context,
+            "inline-media",
+            &self.content_url,
+            self.media_type.as_deref(),
+            Some("video"),
+            self.caption.as_ref(),
+        );
     }
 }
 

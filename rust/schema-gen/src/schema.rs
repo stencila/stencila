@@ -753,19 +753,20 @@ pub struct HtmlOptions {
 
 /// Options for conversion to/from JATS XML
 #[skip_serializing_none]
-#[derive(Debug, Clone, Default, Deserialize, Serialize, JsonSchema)]
+#[derive(Debug, Clone, SmartDefault, Deserialize, Serialize, JsonSchema)]
 #[serde(default, rename_all = "camelCase", deny_unknown_fields)]
 pub struct JatsOptions {
+    /// Whether the `JatsCodec` trait should be derived for the type
+    #[serde(skip_serializing_if = "is_true")]
+    #[default = true]
+    pub derive: bool,
+
     /// The name of the JATS element to use for a type or property
     pub elem: Option<String>,
 
     /// Attributes which should be added to the JATS element
     #[serde(skip_serializing_if = "IndexMap::is_empty")]
     pub attrs: IndexMap<String, String>,
-
-    /// Whether the node type has a special function for encoding to JATS
-    #[serde(skip_serializing_if = "is_false")]
-    pub special: bool,
 
     /// The name of the JATS attribute to use for a property
     ///
@@ -776,6 +777,27 @@ pub struct JatsOptions {
     /// Whether a property should be encoded as content of the parent element
     #[serde(skip_serializing_if = "is_false")]
     pub content: bool,
+}
+
+#[cfg(test)]
+mod jats_options_tests {
+    use super::JatsOptions;
+
+    #[test]
+    fn derive_defaults_true_and_can_be_disabled() -> Result<(), serde_yaml::Error> {
+        let default: JatsOptions = serde_yaml::from_str("{}")?;
+        assert!(default.derive);
+
+        let manual: JatsOptions = serde_yaml::from_str("derive: false")?;
+        assert!(!manual.derive);
+        Ok(())
+    }
+
+    #[test]
+    fn special_is_no_longer_supported() {
+        let result = serde_yaml::from_str::<JatsOptions>("special: true");
+        assert!(result.is_err());
+    }
 }
 
 /// Options for deriving the `LatexCodec` trait

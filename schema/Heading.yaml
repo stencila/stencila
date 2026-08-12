@@ -24,8 +24,7 @@ analogues:
 dom:
   derive: false
 jats:
-  elem: title
-  special: true
+  derive: false
 html:
   special: true
 latex:

@@ -20,8 +20,7 @@ analogues:
     url: https://en.wikipedia.org/wiki/ISO_8601#Durations
     notes: Close external duration analogue, though Stencila stores duration as numeric `value` plus explicit `timeUnit` rather than a single encoded string.
 jats:
-  elem: duration
-  special: true
+  derive: false
 proptest: {}
 required:
   - value

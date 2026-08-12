@@ -4,69 +4,58 @@ use crate::{HorizontalAlignment, Table, TableRow, TableRowType, prelude::*};
 
 use super::utils::{caption_to_dom, caption_to_markdown, ensure_markdown_blankline};
 
-impl Table {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
-
-        let mut losses = Losses::none();
-
-        let mut attrs = Vec::new();
+impl JatsCodec for Table {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.enter_elem("table-wrap");
         if let Some(value) = &self.id {
-            attrs.push(("id", value.to_string()));
+            context.push_attr("id", value);
         }
 
-        let mut table_wrap = String::new();
-
         if let Some(label) = &self.label {
-            let (label, label_losses) = label.to_jats();
-            losses.merge(label_losses);
-            table_wrap.push_str(&elem_no_attrs("label", label));
+            context.enter_elem("label");
+            label.to_jats(context);
+            context.exit_elem();
         }
 
         if let Some(caption) = &self.caption {
-            let (caption, caption_losses) = caption.to_jats();
-            losses.merge(caption_losses);
-            table_wrap.push_str(&elem_no_attrs("caption", caption));
+            context.enter_elem("caption");
+            caption.to_jats(context);
+            context.exit_elem();
         }
 
-        let mut thead = String::new();
-        let mut tbody = String::new();
-        let mut tfoot = String::new();
-        for row in &self.rows {
-            let (row_jats, row_losses) = row.to_jats();
-
-            match row.row_type {
-                Some(TableRowType::HeaderRow) => thead.push_str(&row_jats),
-                Some(TableRowType::FooterRow) => tfoot.push_str(&row_jats),
-                _ => tbody.push_str(&row_jats),
+        context.enter_elem("table");
+        for (row_type, name) in [
+            (Some(TableRowType::HeaderRow), "thead"),
+            (None, "tbody"),
+            (Some(TableRowType::FooterRow), "tfoot"),
+        ] {
+            context.enter_elem(name);
+            for row in &self.rows {
+                let matches_group = match row_type {
+                    Some(expected) => row.row_type == Some(expected),
+                    None => !matches!(
+                        row.row_type,
+                        Some(TableRowType::HeaderRow | TableRowType::FooterRow)
+                    ),
+                };
+                if matches_group {
+                    row.to_jats(context);
+                }
             }
-
-            losses.merge(row_losses);
+            context.exit_elem_omit_empty();
         }
-
-        let mut table = String::new();
-        if !thead.is_empty() {
-            table.push_str(&elem_no_attrs("thead", thead));
-        }
-        if !tbody.is_empty() {
-            table.push_str(&elem_no_attrs("tbody", tbody));
-        }
-        if !tfoot.is_empty() {
-            table.push_str(&elem_no_attrs("tfoot", tfoot));
-        }
-
-        let table = elem_no_attrs("table", table);
-        table_wrap.push_str(&table);
+        context.exit_elem();
 
         if let Some(notes) = &self.notes {
-            let (notes, notes_losses) = notes.to_jats();
-            table_wrap.push_str(&elem_no_attrs("table-wrap-foot", notes));
-            losses.merge(notes_losses);
+            context.enter_elem("table-wrap-foot");
+            notes.to_jats(context);
+            context.exit_elem();
         }
-
-        (elem("table-wrap", attrs, table_wrap), losses)
+        context.exit_elem();
     }
+}
 
+impl Table {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use stencila_codec_html_trait::encode::{attr, elem};
 

@@ -30,8 +30,7 @@
     "elem": "math"
   },
   "jats": {
-    "elem": "disp-formula",
-    "special": true
+    "derive": false
   },
   "latex": {
     "derive": false

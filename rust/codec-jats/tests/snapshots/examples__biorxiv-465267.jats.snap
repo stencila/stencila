@@ -2,11 +2,108 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>The use of null models has been a cornerstone to assess the emergence of many network properties at different levels of organization (micro-, meso- and macroscale). Notwithstanding, the debate around which is the most appropriate randomization procedure for a given problem is far from being over. Within the ecological community, for example, the discussion around whether nestedness is –or is not– a frequent pattern in natural systems, and under which assumptions, remains open. For this particular problem, efforts have been devoted to exploring to what extent current models are vulnerable to statistical errors, or to introduce new models that employ different randomization procedures. However, few or no attention has been devoted to the performance of those null models against other architectures. Here, we show that assessing alternative structures under a single null model may produce ambiguous results, which difficult the comparison regarding the joint emergence of different arrangements within a single network. To this aim, we analyze the statistical significance –in terms of<italic>z</italic>-scores– of nestedness, modularity, and in-block nestedness scores, employing five different null models on a benchmark of ∼ 2.5 × 10<sup>4</sup>synthetic bipartite networks with prescribed levels of the mentioned patterns. We show that some null models systematically over- or underestimate the presence of one or another structural pattern. In light of these ambiguities, we introduce an alternative model (termed Corrected Probabilistic model) that reduces the observed biases towards under- and overestimation, and highlight the need for the development of new frameworks that take into account those biases.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>bioRxiv</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Cold Spring Harbor Laboratory</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1101/2021.10.21.465267</article-id>
+      <title-group>
+        <article-title>A comprehensive benchmark for structural assessment in bipartite networks</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Palazzi</surname>
+            <given-names>María J</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-4894-4110</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Lampo</surname>
+            <given-names>Aniello</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-4826-9896</contrib-id>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Solé-Ribalta</surname>
+            <given-names>Albert</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-2953-5338</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Borge-Holthoefer</surname>
+            <given-names>Javier</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-9036-8463</contrib-id>
+          <email>jborgeh@uoc.edu</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Internet Interdisciplinary Institute (IN3), Universitat Oberta de Catalunya</institution>
+          </institution-wrap>
+          <addr-line>Barcelona, Catalonia, Spain</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Universitat Rovira i Virgili</institution>
+          </institution-wrap>
+          <addr-line>Tarragona, Catalonia, Spain</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>URPP Social Networks, University of Zurich</institution>
+          </institution-wrap>
+          <addr-line>Zurich, Switzerland</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2021-10-22">
+        <year>2021</year>
+        <month>10</month>
+        <day>22</day>
+      </pub-date>
+      <history>
+        <date date-type="received" iso-8601-date="2021-10-21">
+          <year>2021</year>
+          <month>10</month>
+          <day>21</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2021-10-22">
+          <year>2021</year>
+          <month>10</month>
+          <day>22</day>
+        </date>
+      </history>
+      <abstract>
+        <p>The use of null models has been a cornerstone to assess the emergence of many network properties at different levels of organization (micro-, meso- and macroscale). Notwithstanding, the debate around which is the most appropriate randomization procedure for a given problem is far from being over. Within the ecological community, for example, the discussion around whether nestedness is –or is not– a frequent pattern in natural systems, and under which assumptions, remains open. For this particular problem, efforts have been devoted to exploring to what extent current models are vulnerable to statistical errors, or to introduce new models that employ different randomization procedures. However, few or no attention has been devoted to the performance of those null models against other architectures. Here, we show that assessing alternative structures under a single null model may produce ambiguous results, which difficult the comparison regarding the joint emergence of different arrangements within a single network. To this aim, we analyze the statistical significance –in terms of<italic>z</italic>-scores– of nestedness, modularity, and in-block nestedness scores, employing five different null models on a benchmark of ∼ 2.5 × 10<sup>4</sup>synthetic bipartite networks with prescribed levels of the mentioned patterns. We show that some null models systematically over- or underestimate the presence of one or another structural pattern. In light of these ambiguities, we introduce an alternative model (termed Corrected Probabilistic model) that reduces the observed biases towards under- and overestimation, and highlight the need for the development of new frameworks that take into account those biases.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>Bipartite networks</kwd>
+        <kwd>null models</kwd>
+        <kwd>nestedness</kwd>
+        <kwd>modularity</kwd>
+        <kwd>in-block nestedness</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -414,9 +511,1742 @@ expression: jats
       <title level="1">CODE AVAILABILITY</title>
       <p>The corresponding software code to (1) generate synthetic networks with nested, modular and in-block nested structures; (2) the implementation of the metrics and optimization algorithms aimed to characterize nestedness, modularity, and in-block nestedness; and (3) the Python implementation of the five null models employed in this paper are available at the Github repository<ext-link xlink:href="https://github.com/COSIN3-UOC">https://github.com/COSIN3-UOC</ext-link>.</p>
     </sec>
-    <sec sec-type="Acknowledgements">
+  </body>
+  <back>
+    <ack>
       <title level="1">ACKNOWLEDGEMENTS</title>
       <p>M.J.P., A.S.-R. and J.B-H. acknowledge the support of the Spanish MICINN project PGC2018-096999-A-I00. M.J.P. acknowledges as well the support of a Postdoctoral research grant from the Universitat Oberta de Catalunya (UOC).</p>
-    </sec>
-  </body>
+    </ack>
+    <ref-list>
+      <ref id="c1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Jordano</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Melián</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>Olesen</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>The nested assembly of plant–animal mutualistic networks</article-title>
+          <source>Proceedings of the National Academy of Sciences</source>
+          <year>2003</year>
+          <fpage>9383</fpage>
+          <lpage>9387</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Olesen</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Dupont</surname>
+              <given-names>Y L</given-names>
+            </name>
+            <name>
+              <surname>Jordano</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>The modularity of pollination networks</article-title>
+          <source>Proceedings of the National Academy of Sciences</source>
+          <year>2007</year>
+          <fpage>19891</fpage>
+          <lpage>19896</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bastolla</surname>
+              <given-names>U</given-names>
+            </name>
+            <name>
+              <surname>Fortuna</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Pascual-García</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Ferrera</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Luque</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>The architecture of mutualistic networks minimizes competition and increases biodiversity</article-title>
+          <source>Nature</source>
+          <year>2009</year>
+          <fpage>1018</fpage>
+          <lpage>1020</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Suweis</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Simini</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Banavar</surname>
+              <given-names>J R</given-names>
+            </name>
+            <name>
+              <surname>Maritan</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Emergence of structural and dynamical properties of ecological mutualistic networks</article-title>
+          <source>Nature</source>
+          <year>2013</year>
+          <fpage>449</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c5">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Allesina</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Grilli</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Barabás</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Tang</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Aljadeff</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Maritan</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Predicting the stability of large structured food webs</article-title>
+          <source>Nature Communications</source>
+          <year>2015</year>
+          <fpage>7842</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c6">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Grilli</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Rogers</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Allesina</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Modularity and stability in ecological communities</article-title>
+          <source>Nature Communications</source>
+          <year>2016</year>
+          <fpage>1</fpage>
+          <lpage>10</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c7">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Okuyama</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Holland</surname>
+              <given-names>J N</given-names>
+            </name>
+          </person-group>
+          <article-title>Network structural properties mediate the stability of mutualistic communities</article-title>
+          <source>Ecology Letters</source>
+          <year>2008</year>
+          <fpage>208</fpage>
+          <lpage>216</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1461-0248.2007.01137.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="c8">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Thébault</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Fontaine</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Stability of ecological communities and the architecture of mutualistic and trophic networks</article-title>
+          <source>Science</source>
+          <year>2010</year>
+          <fpage>853</fpage>
+          <lpage>856</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Allesina</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Tang</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Stability criteria for complex ecosystems</article-title>
+          <source>Nature</source>
+          <year>2012</year>
+          <fpage>205</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Stouffer</surname>
+              <given-names>D B</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Compartmentalization increases food-web persistence</article-title>
+          <source>Proceedings of the National Academy of Sciences</source>
+          <year>2011</year>
+          <fpage>3648</fpage>
+          <lpage>3652</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.1014353108</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="c11">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Staniczenko</surname>
+              <given-names>P P</given-names>
+            </name>
+            <name>
+              <surname>Kopp</surname>
+              <given-names>J C</given-names>
+            </name>
+            <name>
+              <surname>Allesina</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>The ghost of nestedness in ecological networks</article-title>
+          <source>Nature Communications</source>
+          <year>2013</year>
+          <fpage>1391</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c12">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rohr</surname>
+              <given-names>R P</given-names>
+            </name>
+            <name>
+              <surname>Saavedra</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>On the structural stability of mutualistic systems</article-title>
+          <source>Science</source>
+          <year>2014</year>
+          <fpage>1253497</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c13">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Saavedra</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Rohr</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Olesen</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Nested species interactions promote feasibility over stability during the assembly of a pollinator community</article-title>
+          <source>Ecology and Evolution</source>
+          <year>2015</year>
+          <fpage>1007</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c14">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pascual-García</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Bastolla</surname>
+              <given-names>U</given-names>
+            </name>
+          </person-group>
+          <article-title>Mutualism supports biodiversity when the direct competition is weak</article-title>
+          <source>Nature Communications</source>
+          <year>2017</year>
+          <fpage>1</fpage>
+          <lpage>13</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c15">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mariani</surname>
+              <given-names>M S</given-names>
+            </name>
+            <name>
+              <surname>Ren</surname>
+              <given-names>Z M</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Tessone</surname>
+              <given-names>C J</given-names>
+            </name>
+          </person-group>
+          <article-title>Nestedness in complex networks: Observation, emergence, and implications</article-title>
+          <source>Physics Reports</source>
+          <year>2019</year>
+          <fpage>1</fpage>
+          <lpage>90</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+          </person-group>
+          <article-title>Null model analysis of species nestedness patterns</article-title>
+          <source>Ecology</source>
+          <year>2007</year>
+          <fpage>1824</fpage>
+          <lpage>1831</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Almeida-Neto</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+          </person-group>
+          <article-title>A consumer’s guide to nestedness analysis</article-title>
+          <source>Oikos</source>
+          <year>2009</year>
+          <fpage>3</fpage>
+          <lpage>17</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c18">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+            <name>
+              <surname>Graves</surname>
+              <given-names>G R</given-names>
+            </name>
+          </person-group>
+          <article-title>Null models in ecology</article-title>
+          <year>1996</year>
+        </element-citation>
+      </ref>
+      <ref id="c19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>Statistical challenges in null model analysis</article-title>
+          <source>Oikos</source>
+          <year>2012</year>
+          <fpage>171</fpage>
+          <lpage>180</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Beckett</surname>
+              <given-names>S J</given-names>
+            </name>
+            <name>
+              <surname>Boulton</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Williams</surname>
+              <given-names>H T</given-names>
+            </name>
+          </person-group>
+          <article-title>FALCON: a software package for analysis of nestedness in bipartite networks</article-title>
+          <source>F1000Research</source>
+          <year>2014</year>
+        </element-citation>
+      </ref>
+      <ref id="c21">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Strona</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Fattorini</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>On the methods to assess significance in nestedness analyses</article-title>
+          <source>Theory in Biosciences</source>
+          <year>2014</year>
+          <fpage>179</fpage>
+          <lpage>186</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+            <name>
+              <surname>Entsminger</surname>
+              <given-names>G L</given-names>
+            </name>
+          </person-group>
+          <article-title>Swap and fill algorithms in null model analysis: rethinking the knight’s tour</article-title>
+          <source>Oecologia</source>
+          <year>2001</year>
+          <fpage>281</fpage>
+          <lpage>291</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c23">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sale</surname>
+              <given-names>P F</given-names>
+            </name>
+          </person-group>
+          <article-title>Overlap in resource use, and interspecific competition</article-title>
+          <source>Oecologia</source>
+          <year>1974</year>
+          <fpage>245</fpage>
+          <lpage>256</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Connor</surname>
+              <given-names>E F</given-names>
+            </name>
+            <name>
+              <surname>Simberloff</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>The assembly of species communities: chance or competition?</article-title>
+          <source>Ecology</source>
+          <year>1979</year>
+          <fpage>1132</fpage>
+          <lpage>1140</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miklós</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Podani</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Randomization of presence–absence matrices: comments and new algorithms</article-title>
+          <source>Ecology</source>
+          <year>2004</year>
+          <fpage>86</fpage>
+          <lpage>92</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Strona</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Nappo</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Boccacci</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Fattorini</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>San-Miguel-Ayanz</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>A fast and unbiased procedure to randomize ecological binary matrices with fixed row and column totals</article-title>
+          <source>Nature Communications</source>
+          <year>2014</year>
+          <fpage>1</fpage>
+          <lpage>9</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miller</surname>
+              <given-names>J W</given-names>
+            </name>
+            <name>
+              <surname>Harrison</surname>
+              <given-names>M T</given-names>
+            </name>
+          </person-group>
+          <article-title>Exact sampling and counting for fixed-margin matrices</article-title>
+          <source>The Annals of Statistics</source>
+          <year>2013</year>
+          <fpage>1569</fpage>
+          <lpage>1592</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rechner</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Strowick</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Müller-Hannemann</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Uniform sampling of bipartite graphs with degrees in prescribed intervals</article-title>
+          <source>Journal of Complex Networks</source>
+          <year>2018</year>
+          <fpage>833</fpage>
+          <lpage>858</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Artzy-Randrup</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Stone</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>Generating uniformly distributed random networks</article-title>
+          <source>Physical Review E</source>
+          <year>2005</year>
+          <fpage>56708</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+          </person-group>
+          <article-title>Null model analysis of species co-occurrence patterns</article-title>
+          <source>Ecology</source>
+          <year>2000</year>
+          <fpage>2606</fpage>
+          <lpage>2621</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dormann</surname>
+              <given-names>C F</given-names>
+            </name>
+            <name>
+              <surname>Fründ</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Blüthgen</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Gruber</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>Indices, graphs and null models: analyzing bipartite ecological networks</article-title>
+          <source>The Open Ecology Journal</source>
+          <year>2009</year>
+        </element-citation>
+      </ref>
+      <ref id="c32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bruno</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Saracco</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Garlaschelli</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Tessone</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>Caldarelli</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>The ambiguity of nestedness under soft and hard constraints</article-title>
+          <source>Scientific Reports</source>
+          <year>2020</year>
+          <fpage>1</fpage>
+          <lpage>13</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c33">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Beckett</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Williams</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Synthetic matrix ensemble for nestedness analysis</article-title>
+          <year>2015</year>
+        </element-citation>
+      </ref>
+      <ref id="c34">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fortuna</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Stouffer</surname>
+              <given-names>D B</given-names>
+            </name>
+            <name>
+              <surname>Olesen</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Nestedness versus modularity in ecological networks: two sides of the same coin?</article-title>
+          <source>Journal of Animal Ecology</source>
+          <year>2010</year>
+          <fpage>811</fpage>
+          <lpage>817</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c35">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Thébault</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Identifying compartments in presence–absence matrices and bipartite networks: insights into modularity measures</article-title>
+          <source>Journal of Biogeography</source>
+          <year>2013</year>
+          <fpage>759</fpage>
+          <lpage>768</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lewinsohn</surname>
+              <given-names>T M</given-names>
+            </name>
+            <name>
+              <surname>Inácio Prado</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Jordano</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Bascompte</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Olesen</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Structure in plant–animal interaction assemblages</article-title>
+          <source>Oikos</source>
+          <year>2006</year>
+          <fpage>174</fpage>
+          <lpage>184</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c37">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Flores</surname>
+              <given-names>C O</given-names>
+            </name>
+            <name>
+              <surname>Meyer</surname>
+              <given-names>J R</given-names>
+            </name>
+            <name>
+              <surname>Valverde</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Farr</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Weitz</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Statistical structure of host–phage interactions</article-title>
+          <source>Proceedings of the National Academy of Sciences</source>
+          <year>2011</year>
+          <fpage>E288</fpage>
+          <lpage>E297</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Solé-Ribalta</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Tessone</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>Mariani</surname>
+              <given-names>M S</given-names>
+            </name>
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Revealing In-Block Nestedness: detection and benchmarking</article-title>
+          <source>Physical Review E</source>
+          <year>2018</year>
+          <fpage>62302</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c39">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lampo</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Palazzi</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Solé-Ribalta</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Hybrid structural arrangements mediate stability and feasibility in mutualistic networks</article-title>
+          <year>2021</year>
+        </element-citation>
+      </ref>
+      <ref id="c40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cai</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Snyder</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Hastings</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>D’Souza</surname>
+              <given-names>R M</given-names>
+            </name>
+          </person-group>
+          <article-title>Mutualistic networks emerging from adaptive niche-based interactions</article-title>
+          <source>Nature Communications</source>
+          <year>2020</year>
+        </element-citation>
+      </ref>
+      <ref id="c41">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Palazzi</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Solé-Ribalta</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Calleja-Solanas</surname>
+              <given-names>V</given-names>
+            </name>
+          </person-group>
+          <article-title>An ecological approach to structural flexibility in online communication systems</article-title>
+          <source>Nature Communications</source>
+          <year>2021</year>
+          <fpage>1</fpage>
+          <lpage>11</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c42">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mello</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Felix</surname>
+              <given-names>G M</given-names>
+            </name>
+            <name>
+              <surname>Pinheiro</surname>
+              <given-names>R B</given-names>
+            </name>
+          </person-group>
+          <article-title>Insights into the assembly rules of a continent-wide multilayer network</article-title>
+          <source>Nature Ecology &amp; Evolution</source>
+          <year>2019</year>
+          <fpage>1</fpage>
+          <lpage>8</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c43">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hultén</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Outline of the history of arctic and boreal biota during the Quaternary period</article-title>
+          <source>Bokforlags Aktiebolaget Thule</source>
+          <year>1937</year>
+        </element-citation>
+      </ref>
+      <ref id="c44">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Darlington</surname>
+              <given-names>P J</given-names>
+            </name>
+          </person-group>
+          <article-title>Zoogeography</article-title>
+          <source>The Geographical Distributions of Animals</source>
+          <year>1957</year>
+        </element-citation>
+      </ref>
+      <ref id="c45">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Patterson</surname>
+              <given-names>B D</given-names>
+            </name>
+            <name>
+              <surname>Atmar</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>Nested subsets and the structure of insular mammalian faunas and archipelagos</article-title>
+          <source>Biological Journal of the Linnean Society</source>
+          <year>1986</year>
+          <fpage>65</fpage>
+          <lpage>82</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Soramäki</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Bech</surname>
+              <given-names>M L</given-names>
+            </name>
+            <name>
+              <surname>Arnold</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Glass</surname>
+              <given-names>R J</given-names>
+            </name>
+            <name>
+              <surname>Beyeler</surname>
+              <given-names>W E</given-names>
+            </name>
+          </person-group>
+          <article-title>The topology of interbank payment flows</article-title>
+          <source>Physica A: Statistical Mechanics and its Applications</source>
+          <year>2007</year>
+          <fpage>317</fpage>
+          <lpage>333</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>König</surname>
+              <given-names>M D</given-names>
+            </name>
+            <name>
+              <surname>Tessone</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>Zenou</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Nestedness in networks: A theoretical model and some applications</article-title>
+          <source>Theoretical Economics</source>
+          <year>2014</year>
+          <fpage>695</fpage>
+          <lpage>752</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Saracco</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Di Clemente</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Gabrielli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Squartini</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Detecting early signs of the 2007–2008 crisis in the world trade</article-title>
+          <source>Scientific Reports</source>
+          <year>2016</year>
+          <fpage>30286</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Baños</surname>
+              <given-names>R A</given-names>
+            </name>
+            <name>
+              <surname>Gracia-Lázaro</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Moreno</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Emergence of consensus as a modular-to-nested transition in communication dynamics</article-title>
+          <source>Scientific Reports</source>
+          <year>2017</year>
+          <fpage>41673</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Payrató-Borràs</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Hernández</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Moreno</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Measuring nestedness: A comparative study of the performance of different metrics</article-title>
+          <source>Ecology and Evolution</source>
+          <year>2020</year>
+          <fpage>11906</fpage>
+          <lpage>11921</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c51">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bell</surname>
+              <given-names>F K</given-names>
+            </name>
+            <name>
+              <surname>Cvetkovic</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Rowlinson</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Simic</surname>
+              <given-names>S K</given-names>
+            </name>
+          </person-group>
+          <article-title>Graphs for which the least eigenvalue is minimal, II</article-title>
+          <source>Linear Algebra and its Applications</source>
+          <year>2008</year>
+          <fpage>2168</fpage>
+          <lpage>2179</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c52">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bhattacharya</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Friedland</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Peled</surname>
+              <given-names>U N</given-names>
+            </name>
+          </person-group>
+          <article-title>On the first eigenvalue of bipartite graphs</article-title>
+          <source>arXiv preprint</source>
+          <year>2008</year>
+        </element-citation>
+      </ref>
+      <ref id="c53">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Atmar</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Patterson</surname>
+              <given-names>B D</given-names>
+            </name>
+          </person-group>
+          <article-title>The measure of order and disorder in the distribution of species in fragmented habitat</article-title>
+          <source>Oecologia</source>
+          <year>1993</year>
+          <fpage>373</fpage>
+          <lpage>382</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c54">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Almeida-Neto</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Guimaraes</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Guimarães</surname>
+              <given-names>P R</given-names>
+            </name>
+            <name>
+              <surname>Loyola</surname>
+              <given-names>R D</given-names>
+            </name>
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>A consistent metric for nestedness analysis in ecological systems: reconciling concept and measurement</article-title>
+          <source>Oikos</source>
+          <year>2008</year>
+          <fpage>1227</fpage>
+          <lpage>1239</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c55">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Galeano</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Pastor</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Iriondo</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Weighted-interaction nestedness estimator (WINE): a new estimator to calculate over frequency matrices</article-title>
+          <source>Environmental Modelling &amp; Software</source>
+          <year>2009</year>
+          <fpage>1342</fpage>
+          <lpage>1346</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c56">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Almeida-Neto</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>A straightforward computational approach for measuring nestedness using quantitative matrices</article-title>
+          <source>Environmental Modelling &amp; Software</source>
+          <year>2011</year>
+          <fpage>173</fpage>
+          <lpage>178</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c57">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Podani</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Ricotta</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Schmera</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>A general framework for analyzing beta diversity, nestedness and related community-level phenomena based on abundance data</article-title>
+          <source>Ecological Complexity</source>
+          <year>2013</year>
+          <fpage>52</fpage>
+          <lpage>61</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c58">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zachary</surname>
+              <given-names>W W</given-names>
+            </name>
+          </person-group>
+          <article-title>An information flow model for conflict and fission in small groups</article-title>
+          <source>Journal of Anthropological Research</source>
+          <year>1977</year>
+          <fpage>452</fpage>
+          <lpage>473</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c59">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Guimerà</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Amaral</surname>
+              <given-names>L A N</given-names>
+            </name>
+          </person-group>
+          <article-title>Functional cartography of complex metabolic networks</article-title>
+          <source>Nature</source>
+          <year>2005</year>
+          <fpage>895</fpage>
+          <lpage>900</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c60">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Adamic</surname>
+              <given-names>L A</given-names>
+            </name>
+            <name>
+              <surname>Glance</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>The political blogosphere and the 2004 US election: divided they blog</article-title>
+          <source>In: ACM</source>
+          <year>2005</year>
+          <fpage>36</fpage>
+          <lpage>43</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c61">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fortunato</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Community detection in graphs</article-title>
+          <source>Physics Reports</source>
+          <year>2010</year>
+          <fpage>75</fpage>
+          <lpage>174</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c62">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Arenas</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Semantic Networks: Structure and Dynamics</article-title>
+          <source>Entropy</source>
+          <year>2010</year>
+          <fpage>1264</fpage>
+          <lpage>1302</lpage>
+          <pub-id pub-id-type="doi">10.3390/e12051264</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="c63">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fortunato</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Hric</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Community detection in networks: A user guide</article-title>
+          <source>Physics Reports</source>
+          <year>2016</year>
+          <fpage>1</fpage>
+          <lpage>44</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.physrep.2016.09.002</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="c64">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Newman</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Girvan</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Finding and evaluating community structure in networks</article-title>
+          <source>Physical Review E</source>
+          <year>2004</year>
+          <fpage>26113</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c65">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Palazzi</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Tessone</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Solé-Ribalta</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Macro-and mesoscale pattern interdependencies in complex networks</article-title>
+          <source>Journal of the Royal Society Interface</source>
+          <year>2019</year>
+          <fpage>20190553</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c66">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Palazzi</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Cabot</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Izquierdo</surname>
+              <given-names>J L C</given-names>
+            </name>
+            <name>
+              <surname>Solé-Ribalta</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Borge-Holthoefer</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Online division of labour: emergent structures in Open Source Software</article-title>
+          <source>Scientific Reports</source>
+          <year>2019</year>
+          <fpage>1</fpage>
+          <lpage>11</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c67">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Flores</surname>
+              <given-names>C O</given-names>
+            </name>
+            <name>
+              <surname>Valverde</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Weitz</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Multi-scale structure and geographic drivers of cross-infection within marine bacteria and phages</article-title>
+          <source>The ISME Journal</source>
+          <year>2013</year>
+          <fpage>520</fpage>
+          <lpage>532</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c68">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kemp</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Evans</surname>
+              <given-names>D M</given-names>
+            </name>
+            <name>
+              <surname>Augustyn</surname>
+              <given-names>W J</given-names>
+            </name>
+            <name>
+              <surname>Ellis</surname>
+              <given-names>A G</given-names>
+            </name>
+          </person-group>
+          <article-title>Invariant antagonistic network structure despite high spatial and temporal turnover of interactions</article-title>
+          <source>Ecography</source>
+          <year>2017</year>
+          <fpage>1315</fpage>
+          <lpage>1324</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c69">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Guardiola</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Stefanescu</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Rodà</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Pino</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Do asynchronies in extinction debt affect the structure of trophic networks? A case study of antagonistic butterfly larvae–plant networks</article-title>
+          <source>Oikos</source>
+          <year>2018</year>
+          <fpage>803</fpage>
+          <lpage>813</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c70">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <collab>Web of Life</collab>
+          </person-group>
+          <article-title>ecological networks database</article-title>
+          <source>http://www.web-of-life.es/</source>
+          <year>2012</year>
+        </element-citation>
+      </ref>
+      <ref id="c71">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gilpin</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Diamond</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Factors contributing to non-randomness in species co-occurrences on islands</article-title>
+          <source>Oecologia</source>
+          <year>1982</year>
+          <fpage>75</fpage>
+          <lpage>84</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c72">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Payrató-Borràs</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Hernández</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Moreno</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Breaking the spell of nestedness: The entropic origin of nestedness in mutualistic systems</article-title>
+          <source>Physical Review X</source>
+          <year>2019</year>
+          <fpage>31024</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c73">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Joppa</surname>
+              <given-names>L N</given-names>
+            </name>
+            <name>
+              <surname>Montoya</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Sanderson</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Pimm</surname>
+              <given-names>S L</given-names>
+            </name>
+          </person-group>
+          <article-title>On nestedness in ecological networks</article-title>
+          <source>Evolutionary Ecology Research</source>
+          <year>2010</year>
+          <fpage>35</fpage>
+          <lpage>46</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c74">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Strona</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Ulrich</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Gotelli</surname>
+              <given-names>N J</given-names>
+            </name>
+          </person-group>
+          <article-title>Bi-dimensional null model analysis of presence-absence binary matrices</article-title>
+          <source>Ecology</source>
+          <year>2018</year>
+          <fpage>103</fpage>
+          <lpage>115</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c75">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lehsten</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Harmand</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Null models for species co-occurrence patterns: assessing bias and minimum iteration number for the sequential swap</article-title>
+          <source>Ecography</source>
+          <year>2006</year>
+          <fpage>786</fpage>
+          <lpage>792</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c76">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Carstens</surname>
+              <given-names>C J</given-names>
+            </name>
+          </person-group>
+          <article-title>Proof of uniform sampling of binary matrices with fixed row sums and column sums for the fast Curveball algorithm</article-title>
+          <source>Physical Review E</source>
+          <year>2015</year>
+          <fpage>42812</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c77">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Squartini</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Garlaschelli</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Analytical maximum-likelihood method to detect patterns in real networks</article-title>
+          <source>New Journal of Physics</source>
+          <year>2011</year>
+          <fpage>83001</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c78">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Saracco</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Di Clemente</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Gabrielli</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Squartini</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Randomizing bipartite networks: the case of the World Trade Web</article-title>
+          <source>Scientific Reports</source>
+          <year>2015</year>
+          <fpage>1</fpage>
+          <lpage>18</lpage>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

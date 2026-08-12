@@ -31,7 +31,7 @@ patch:
 dom:
   derive: false
 jats:
-  special: true
+  derive: false
 html:
   special: true
 markdown:

@@ -2,11 +2,390 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Earth system models (<styled-content style="fixed-case">ESM</styled-content>s) use photosynthetic capacity, indexed by the maximum&#10;          Rubisco carboxylation rate (<italic>V</italic>&#10;<sub>cmax</sub>), to simulate carbon&#10;          assimilation and typically rely on empirical estimates, including an assumed dependence on&#10;          leaf nitrogen determined from soil fertility. In contrast, new theory, based on&#10;          biochemical coordination and co‐optimization of carboxylation and water costs for&#10;          photosynthesis, suggests that optimal<italic>V</italic>&#10;<sub>cmax</sub>can be predicted&#10;          from climate alone, irrespective of soil fertility. Here, we develop this theory and find&#10;          it captures 64% of observed variability in a global, field‐measured<italic>V</italic>&#10;<sub>&#10;          cmax</sub>dataset for C<sub>3</sub>plants. Soil fertility indices explained&#10;          substantially less variation (32%). These results indicate that environmentally regulated&#10;          biophysical constraints and light availability are the first‐order drivers of&#10;          global photosynthetic capacity. Through acclimation and adaptation, plants efficiently&#10;          utilize resources at the leaf level, thus maximizing potential resource use for growth and&#10;          reproduction. Our theory offers a robust strategy for dynamically predicting&#10;          photosynthetic capacity in<styled-content style="fixed-case">ESM</styled-content>s.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>Ecology Letters</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>John Wiley and Sons Inc.</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1111/ele.13210</article-id>
+      <title-group>
+        <article-title>Global photosynthetic capacity is optimized to the environment</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Smith</surname>
+            <given-names>Nicholas G</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-7048-4387</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Keenan</surname>
+            <given-names>Trevor F</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Colin Prentice</surname>
+            <given-names>I</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+          <xref ref-type="aff" rid="aff7">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Wang</surname>
+            <given-names>Han</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff7">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Wright</surname>
+            <given-names>Ian J</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Niinemets</surname>
+            <given-names>Ülo</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff8">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Crous</surname>
+            <given-names>Kristine Y</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff9">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Domingues</surname>
+            <given-names>Tomas F</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff10">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Guerrieri</surname>
+            <given-names>Rossella</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff11">
+          </xref>
+          <xref ref-type="aff" rid="aff12">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Yoko Ishida</surname>
+            <given-names>F</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff13">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Kattge</surname>
+            <given-names>Jens</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff14">
+          </xref>
+          <xref ref-type="aff" rid="aff15">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Kruger</surname>
+            <given-names>Eric L</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2463-9231</contrib-id>
+          <xref ref-type="aff" rid="aff16">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Maire</surname>
+            <given-names>Vincent</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff17">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Rogers</surname>
+            <given-names>Alistair</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-9262-7430</contrib-id>
+          <xref ref-type="aff" rid="aff18">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Serbin</surname>
+            <given-names>Shawn P</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-4136-8971</contrib-id>
+          <xref ref-type="aff" rid="aff18">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Tarvainen</surname>
+            <given-names>Lasse</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff19">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Togashi</surname>
+            <given-names>Henrique F</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Townsend</surname>
+            <given-names>Philip A</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff16">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Wang</surname>
+            <given-names>Meng</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-5291-5622</contrib-id>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+          <xref ref-type="aff" rid="aff20">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Weerasinghe</surname>
+            <given-names>Lasantha K</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff21">
+          </xref>
+          <xref ref-type="aff" rid="aff22">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Zhou</surname>
+            <given-names>Shuang‐Xi</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+          <xref ref-type="aff" rid="aff23">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Department of Biological Sciences, Texas Tech University</institution>
+          </institution-wrap>
+          <addr-line>Lubbock, USA</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Climate and Ecosystem Sciences Division, Lawrence Berkeley National Laboratory</institution>
+          </institution-wrap>
+          <addr-line>Berkeley, USA</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Department of Environmental Science, Policy and&#10;          Management, UC Berkeley</institution>
+          </institution-wrap>
+          <addr-line>Berkeley, USA</addr-line>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>AXA Chair of Biosphere and Climate Impacts, Department of Life Sciences, Imperial College London</institution>
+          </institution-wrap>
+          <addr-line>London, UK</addr-line>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>College of Forestry, Northwest A&amp;F University</institution>
+          </institution-wrap>
+          <addr-line>Yangling, China</addr-line>
+        </aff>
+        <aff id="aff6">
+          <institution-wrap>
+            <institution>Department of Biological Sciences, Macquarie University</institution>
+          </institution-wrap>
+          <addr-line>Australia</addr-line>
+        </aff>
+        <aff id="aff7">
+          <institution-wrap>
+            <institution>Department of Earth System Science, Tsinghua University</institution>
+          </institution-wrap>
+          <addr-line>Beijing</addr-line>
+        </aff>
+        <aff id="aff8">
+          <institution-wrap>
+            <institution>Department of Plant Physiology, Institute of Agricultural and Environmental Sciences, Estonian University of Life Sciences</institution>
+          </institution-wrap>
+          <addr-line>Tartu, Estonia</addr-line>
+        </aff>
+        <aff id="aff9">
+          <institution-wrap>
+            <institution>Hawkesbury Institute for the Environment, Western Sydney University</institution>
+          </institution-wrap>
+          <addr-line>Penrith, Australia</addr-line>
+        </aff>
+        <aff id="aff10">
+          <institution-wrap>
+            <institution>Departamento de Biologia, Faculdade de Filosofia, Ciências e Letras de Ribeirão Preto ‐ University of São&#10;          Paulo</institution>
+          </institution-wrap>
+          <addr-line>São Paulo, Brazil</addr-line>
+        </aff>
+        <aff id="aff11">
+          <institution-wrap>
+            <institution>Center for Ecological Research and Forestry&#10;          Applications, Universidad Autonoma de Barcelona</institution>
+          </institution-wrap>
+          <addr-line>Cerdanyola, Spain</addr-line>
+        </aff>
+        <aff id="aff12">
+          <institution-wrap>
+            <institution>School of Geosciences, University of Edinburgh</institution>
+          </institution-wrap>
+          <addr-line>Edinburgh, UK</addr-line>
+        </aff>
+        <aff id="aff13">
+          <institution-wrap>
+            <institution>Centre for Tropical Environmental and Sustainability&#10;          Science, College of Science and Engineering, James Cook University</institution>
+          </institution-wrap>
+          <addr-line>Cairns, Australia</addr-line>
+        </aff>
+        <aff id="aff14">
+          <institution-wrap>
+            <institution>Max Planck Institute for Biogeochemistry</institution>
+          </institution-wrap>
+          <addr-line>Jena, Germany</addr-line>
+        </aff>
+        <aff id="aff15">
+          <institution-wrap>
+            <institution>German Center for Integrative Biodiversity Research&#10;          Halle‐Jena‐Leipzig</institution>
+          </institution-wrap>
+          <addr-line>Leipzig, Germany</addr-line>
+        </aff>
+        <aff id="aff16">
+          <institution-wrap>
+            <institution>Department of Forest and Wildlife Ecology, University of Wisconsin – Madison</institution>
+          </institution-wrap>
+          <addr-line>Madison, USA</addr-line>
+        </aff>
+        <aff id="aff17">
+          <institution-wrap>
+            <institution>Département des sciences de l&apos;environnement, Université du Québec à Trois</institution>
+          </institution-wrap>
+          <addr-line>Rivières, Canada</addr-line>
+        </aff>
+        <aff id="aff18">
+          <institution-wrap>
+            <institution>Environmental and Climate Sciences Department, Brookhaven National Laboratory</institution>
+          </institution-wrap>
+          <addr-line>Upton, USA</addr-line>
+        </aff>
+        <aff id="aff19">
+          <institution-wrap>
+            <institution>Department of Biological and Environmental Sciences, University of Gothenburg</institution>
+          </institution-wrap>
+          <addr-line>Gothenburg, Sweden</addr-line>
+        </aff>
+        <aff id="aff20">
+          <institution-wrap>
+            <institution>State Environmental Protection Key Laboratory of Wetland Ecology and Vegetation&#10;          Restoration, Northeast Normal University</institution>
+          </institution-wrap>
+          <addr-line>Changchun, China</addr-line>
+        </aff>
+        <aff id="aff21">
+          <institution-wrap>
+            <institution>Research School of Biology, The Australian National University</institution>
+          </institution-wrap>
+          <addr-line>Canberra, Australia</addr-line>
+        </aff>
+        <aff id="aff22">
+          <institution-wrap>
+            <institution>Faculty of Agriculture, University of Peradeniya</institution>
+          </institution-wrap>
+          <addr-line>Peradeniya, Sri Lanka</addr-line>
+        </aff>
+        <aff id="aff23">
+          <institution-wrap>
+            <institution>The New Zealand Institute for Plant and Food Research Ltd</institution>
+          </institution-wrap>
+          <addr-line>Hawke&apos;s, Bay, New Zealand</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2019-3">
+        <year>2019</year>
+        <month>3</month>
+      </pub-date>
+      <volume>22</volume>
+      <issue>3</issue>
+      <fpage>506</fpage>
+      <lpage>517</lpage>
+      <history>
+        <date date-type="received" iso-8601-date="2018-9-06">
+          <year>2018</year>
+          <month>9</month>
+          <day>06</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2018-11-07">
+          <year>2018</year>
+          <month>11</month>
+          <day>07</day>
+        </date>
+      </history>
+      <abstract>
+        <p>Earth system models (<styled-content style="fixed-case">ESM</styled-content>s) use photosynthetic capacity, indexed by the maximum&#10;          Rubisco carboxylation rate (<italic>V</italic>&#10;<sub>cmax</sub>), to simulate carbon&#10;          assimilation and typically rely on empirical estimates, including an assumed dependence on&#10;          leaf nitrogen determined from soil fertility. In contrast, new theory, based on&#10;          biochemical coordination and co‐optimization of carboxylation and water costs for&#10;          photosynthesis, suggests that optimal<italic>V</italic>&#10;<sub>cmax</sub>can be predicted&#10;          from climate alone, irrespective of soil fertility. Here, we develop this theory and find&#10;          it captures 64% of observed variability in a global, field‐measured<italic>V</italic>&#10;<sub>&#10;          cmax</sub>dataset for C<sub>3</sub>plants. Soil fertility indices explained&#10;          substantially less variation (32%). These results indicate that environmentally regulated&#10;          biophysical constraints and light availability are the first‐order drivers of&#10;          global photosynthetic capacity. Through acclimation and adaptation, plants efficiently&#10;          utilize resources at the leaf level, thus maximizing potential resource use for growth and&#10;          reproduction. Our theory offers a robust strategy for dynamically predicting&#10;          photosynthetic capacity in<styled-content style="fixed-case">ESM</styled-content>s.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>Carbon cycle</kwd>
+        <kwd>Carboxylation</kwd>
+        <kwd>coordination</kwd>
+        <kwd>ecophysiology</kwd>
+        <kwd>electron transport</kwd>
+        <kwd>Jmax</kwd>
+        <kwd>light availability</kwd>
+        <kwd>nitrogen availability</kwd>
+        <kwd>temperature</kwd>
+        <kwd>Vcmax</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -360,13 +739,1923 @@ expression: jats
       <supplementary-material id="ele13210-sup-0001" href="ELE-22-506-s001.docx">
       </supplementary-material>
     </sec>
-    <sec sec-type="Acknowledgements">
-      <title level="1">Acknowledgements</title>
-      <p>NGS and TFK were supported by the Laboratory Directed Research and Development (LDRD) fund&#10;        under the auspices of DOE, BER Office of Science at Lawrence Berkeley National Laboratory.&#10;        HW was supported by National Natural Science Foundation of China (31600388). VM was&#10;        supported by The Fonds de recherché du Quebec – Nature et Technologies&#10;        (FRQNT‐2017‐NC‐198009) and Natural Sciences and Engineering Research&#10;        Council of Canada (NSERC‐Discovery‐2016‐05716). AR and SPS were&#10;        supported by the Next‐Generation Ecosystem Experiments (NGEE Arctic) project that is&#10;        supported by the Office of Biological and Environmental Research in the Department of&#10;        Energy, Office of Science, and through the United States Department of Energy contract No.&#10;        DE‐SC0012704 to Brookhaven National Laboratory. This work contributes to the AXA&#10;        Chair Programme on Biosphere and Climate Impacts and the Imperial College Initiative on&#10;        Grand Challenges in Ecosystems and the Environment. Contributions by PAT and ELK were&#10;        supported by NASA grants NNX10AJ94G and NNX08AN31G, as well as USDA&#10;        Hatch/McIntire‐Stennis awards WIS01809 and WIS02010. RG was supported by Newton&#10;        International (n. NF082365) and MSCA (n. 705432) fellowships. We thank Belinda Medlyn and&#10;        David Ellsworth for their comments on an earlier version of this manuscript.</p>
-    </sec>
     <sec sec-type="DataAvailability">
       <title level="1">Data availability</title>
       <p>Model code can be found at<ext-link xlink:href="https://github.com/SmithEcophysLab/optimal_vcmax_R">&#10;        https://github.com/SmithEcophysLab/optimal_vcmax_R</ext-link>(<ext-link xlink:href="https://doi.org/10.5281/zenodo.1482044">https://doi.org/10.5281/zenodo.1482044</ext-link>).&#10;        No new data were used in the analyses. Investigators should refer to the citations provided&#10;        in the Methods section for data access. Please contact Nick Smith ()&#10;        with any issues.</p>
     </sec>
   </body>
+  <back>
+    <ack>
+      <title level="1">Acknowledgements</title>
+      <p>NGS and TFK were supported by the Laboratory Directed Research and Development (LDRD) fund&#10;        under the auspices of DOE, BER Office of Science at Lawrence Berkeley National Laboratory.&#10;        HW was supported by National Natural Science Foundation of China (31600388). VM was&#10;        supported by The Fonds de recherché du Quebec – Nature et Technologies&#10;        (FRQNT‐2017‐NC‐198009) and Natural Sciences and Engineering Research&#10;        Council of Canada (NSERC‐Discovery‐2016‐05716). AR and SPS were&#10;        supported by the Next‐Generation Ecosystem Experiments (NGEE Arctic) project that is&#10;        supported by the Office of Biological and Environmental Research in the Department of&#10;        Energy, Office of Science, and through the United States Department of Energy contract No.&#10;        DE‐SC0012704 to Brookhaven National Laboratory. This work contributes to the AXA&#10;        Chair Programme on Biosphere and Climate Impacts and the Imperial College Initiative on&#10;        Grand Challenges in Ecosystems and the Environment. Contributions by PAT and ELK were&#10;        supported by NASA grants NNX10AJ94G and NNX08AN31G, as well as USDA&#10;        Hatch/McIntire‐Stennis awards WIS01809 and WIS02010. RG was supported by Newton&#10;        International (n. NF082365) and MSCA (n. 705432) fellowships. We thank Belinda Medlyn and&#10;        David Ellsworth for their comments on an earlier version of this manuscript.</p>
+    </ack>
+    <ref-list>
+      <ref id="ele13210-bib-0001">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ainsworth</surname>
+              <given-names>E.A</given-names>
+            </name>
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>The response of photosynthesis and stomatal conductance to&#10;          rising CO<sub>2</sub>: mechanisms and environmental interactions</article-title>
+          <source>Plant, Cell Environ.</source>
+          <fpage>258</fpage>
+          <lpage>270</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0002">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ali</surname>
+              <given-names>A.A</given-names>
+            </name>
+            <name>
+              <surname>Xu</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>McDowell</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Fisher</surname>
+              <given-names>R.A</given-names>
+            </name>
+          </person-group>
+          <article-title>Global‐scale environmental&#10;          control of plant photosynthetic capacity</article-title>
+          <source>Ecol. Appl.</source>
+          <year>2015</year>
+          <fpage>2349</fpage>
+          <lpage>&#10;          2365</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0003">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ali</surname>
+              <given-names>A.A</given-names>
+            </name>
+            <name>
+              <surname>Xu</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Fisher</surname>
+              <given-names>R.A</given-names>
+            </name>
+            <name>
+              <surname>Wullschleger</surname>
+              <given-names>S.D</given-names>
+            </name>
+            <name>
+              <surname>Massoud</surname>
+              <given-names>E.C</given-names>
+            </name>
+          </person-group>
+          <article-title>A global scale mechanistic model&#10;          of photosynthetic capacity (LUNA V1. 0)</article-title>
+          <source>Geosci. Model Dev.</source>
+          <year>2016</year>
+          <fpage>587</fpage>
+          <lpage>&#10;          606</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0004">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bahar</surname>
+              <given-names>N.H.A</given-names>
+            </name>
+            <name>
+              <surname>Ishida</surname>
+              <given-names>F.Y</given-names>
+            </name>
+            <name>
+              <surname>Weerasinghe</surname>
+              <given-names>L.K</given-names>
+            </name>
+            <name>
+              <surname>Guerrieri</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>O&apos;Sullivan</surname>
+              <given-names>O.S</given-names>
+            </name>
+            <name>
+              <surname>Bloomfield</surname>
+              <given-names>K.J</given-names>
+            </name>
+          </person-group>
+          <article-title>Leaf‐level photosynthetic&#10;          capacity in lowland Amazonian and high‐elevation Andean tropical moist forests of&#10;          Peru</article-title>
+          <source>New Phytol.</source>
+          <year>2017</year>
+          <fpage>1002</fpage>
+          <lpage>&#10;          1018</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0005">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bernacchi</surname>
+              <given-names>C.J</given-names>
+            </name>
+            <name>
+              <surname>Singsaas</surname>
+              <given-names>E.L</given-names>
+            </name>
+            <name>
+              <surname>Pimentel</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Portis</surname>
+              <given-names>A.R</given-names>
+            </name>
+            <name>
+              <surname>Long</surname>
+              <given-names>S.P</given-names>
+            </name>
+          </person-group>
+          <article-title>Improved temperature response functions for models of&#10;          Rubisco‐limited photosynthesis</article-title>
+          <source>Plant, Cell Environ.</source>
+          <fpage>253</fpage>
+          <lpage>259</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0006">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Carswell</surname>
+              <given-names>F.E</given-names>
+            </name>
+            <name>
+              <surname>Meir</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Wandelli</surname>
+              <given-names>E.V</given-names>
+            </name>
+            <name>
+              <surname>Bonates</surname>
+              <given-names>L.C.M</given-names>
+            </name>
+            <name>
+              <surname>Kruijt</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Barbosa</surname>
+              <given-names>E.M</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthetic capacity in a&#10;          central Amazonian rain forest</article-title>
+          <source>Tree Physiol.</source>
+          <year>2000</year>
+          <fpage>179</fpage>
+          <lpage>&#10;          186</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0007">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chayes</surname>
+              <given-names>F</given-names>
+            </name>
+          </person-group>
+          <article-title>Ratio Correlation: A Manual for Students of Petrology and Geochemistry</article-title>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0008">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chen</surname>
+              <given-names>J.‐L</given-names>
+            </name>
+            <name>
+              <surname>Reynolds</surname>
+              <given-names>J.F</given-names>
+            </name>
+            <name>
+              <surname>Harley</surname>
+              <given-names>P.C</given-names>
+            </name>
+            <name>
+              <surname>Tenhunen</surname>
+              <given-names>J.D</given-names>
+            </name>
+          </person-group>
+          <article-title>Coordination theory of leaf nitrogen distribution in a canopy</article-title>
+          <source>Oecologia</source>
+          <fpage>63</fpage>
+          <lpage>69</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0009">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cornwell</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>wcornwell/leaf13C v0.1.0. Zenodo</article-title>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0010">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Crous</surname>
+              <given-names>K.Y</given-names>
+            </name>
+            <name>
+              <surname>Quentin</surname>
+              <given-names>A.G</given-names>
+            </name>
+            <name>
+              <surname>Lin</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Williams</surname>
+              <given-names>D.G</given-names>
+            </name>
+            <name>
+              <surname>Barton</surname>
+              <given-names>C.V.M</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthesis of temperate&#10;          Eucalyptus globulus trees outside their native range has limited adjustment to elevated CO<sub>&#10;          2</sub>and climate warming</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <year>2013</year>
+          <fpage>3790</fpage>
+          <lpage>3807</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0011">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Davis</surname>
+              <given-names>T.W</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Stocker</surname>
+              <given-names>B.D</given-names>
+            </name>
+            <name>
+              <surname>Thomas</surname>
+              <given-names>R.T</given-names>
+            </name>
+            <name>
+              <surname>Whitley</surname>
+              <given-names>R.J</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Simple process‐led&#10;          algorithms for simulating habitats (SPLASH v.1.0): Robust indices of radiation,&#10;          evapotranspiration and plant‐available moisture</article-title>
+          <source>Geosci. Model Dev.</source>
+          <year>2017</year>
+          <fpage>689</fpage>
+          <lpage>708</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0012">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>De Kauwe</surname>
+              <given-names>M.G</given-names>
+            </name>
+            <name>
+              <surname>Lin</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Crous</surname>
+              <given-names>K.Y</given-names>
+            </name>
+            <name>
+              <surname>Ellsworth</surname>
+              <given-names>D.S</given-names>
+            </name>
+          </person-group>
+          <article-title>A test of the&#10;          ‘one‐point method’ for estimating maximum carboxylation capacity from&#10;          field‐measured, light‐saturated photosynthesis</article-title>
+          <source>New Phytol.</source>
+          <year>2016</year>
+          <fpage>1130</fpage>
+          <lpage>&#10;          1144</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0013">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Domingues</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Meir</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Feldpausch</surname>
+              <given-names>T.R</given-names>
+            </name>
+            <name>
+              <surname>Saiz</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Veenendaal</surname>
+              <given-names>E.M</given-names>
+            </name>
+            <name>
+              <surname>Schrodt</surname>
+              <given-names>F</given-names>
+            </name>
+          </person-group>
+          <article-title>Co‐limitation of&#10;          photosynthetic capacity by nitrogen and phosphorus in West Africa woodlands</article-title>
+          <source>Plant, Cell Environ.</source>
+          <year>2010</year>
+          <fpage>959</fpage>
+          <lpage>980</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0014">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Domingues</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Ishida</surname>
+              <given-names>F.Y</given-names>
+            </name>
+            <name>
+              <surname>Feldpausch</surname>
+              <given-names>T.R</given-names>
+            </name>
+            <name>
+              <surname>Grace</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Meir</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Saiz</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>Biome‐specific effects of&#10;          nitrogen and phosphorus on the photosynthetic characteristics of trees at a&#10;          forest‐savanna boundary in Cameroon</article-title>
+          <source>Oecologia</source>
+          <year>2015</year>
+          <fpage>659</fpage>
+          <lpage>&#10;          672</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0015">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dong</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Evans</surname>
+              <given-names>B.J</given-names>
+            </name>
+            <name>
+              <surname>Caddy‐Retalic</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Lowe</surname>
+              <given-names>A.J</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+          </person-group>
+          <article-title>Leaf nitrogen from first principles: field evidence for&#10;          adaptive variation with climate</article-title>
+          <source>Biogeosciences</source>
+          <fpage>481</fpage>
+          <lpage>&#10;          495</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0016">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Drake</surname>
+              <given-names>J.E</given-names>
+            </name>
+            <name>
+              <surname>Gallet‐Budynek</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Hofmockel</surname>
+              <given-names>K.S</given-names>
+            </name>
+            <name>
+              <surname>Bernhardt</surname>
+              <given-names>E.S</given-names>
+            </name>
+            <name>
+              <surname>Billings</surname>
+              <given-names>S.A</given-names>
+            </name>
+            <name>
+              <surname>Jackson</surname>
+              <given-names>R.B</given-names>
+            </name>
+          </person-group>
+          <article-title>Increases in the flux of carbon&#10;          belowground stimulate nitrogen uptake and sustain the long‐term enhancement of&#10;          forest productivity under elevated CO<sub>2</sub>&#10;</article-title>
+          <source>Ecol. Lett.</source>
+          <year>2011</year>
+          <fpage>349</fpage>
+          <lpage>&#10;          357</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0017">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ehleringer</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Björkman</surname>
+              <given-names>O</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantum yields for CO<sub>2</sub>uptake in C3 and C4&#10;          plants</article-title>
+          <year>1977</year>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0018">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ellsworth</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Crous</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>A global dataset of photosynthetic CO<sub>2</sub>response&#10;          curves measured in the field at controlled light, CO<sub>2</sub>and temperatures</article-title>
+          <source>Univ. West. Sydney</source>
+          <pub-id pub-id-type="doi">10.4225/35/569434cfba16e</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0019">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Evans</surname>
+              <given-names>J.R</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthesis and nitrogen relationships in leaves of C3&#10;          plants</article-title>
+          <source>Oecologia</source>
+          <fpage>9</fpage>
+          <lpage>19</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0020">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Evans</surname>
+              <given-names>J.R</given-names>
+            </name>
+            <name>
+              <surname>Poorter</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthetic acclimation of plants to growth irradiance:&#10;          the relative importance of specific leaf area and nitrogen partitioning in maximizing&#10;          carbon gain</article-title>
+          <source>Plant, Cell Environ.</source>
+          <fpage>755</fpage>
+          <lpage>767</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0021">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Farquhar</surname>
+              <given-names>G.D</given-names>
+            </name>
+          </person-group>
+          <article-title>Models of integrated photosynthesis of cells and leaves</article-title>
+          <source>Philos. Trans. R. Soc. London. B, Biol. Sci.</source>
+          <fpage>357 LP</fpage>
+          <lpage>367</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0022">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Farquhar</surname>
+              <given-names>G.D</given-names>
+            </name>
+            <name>
+              <surname>Wong</surname>
+              <given-names>S.C</given-names>
+            </name>
+          </person-group>
+          <article-title>An empirical model of stomatal conductance</article-title>
+          <source>Funct. Plant Biol.</source>
+          <fpage>191</fpage>
+          <lpage>210</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0023">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Farquhar</surname>
+              <given-names>G.D</given-names>
+            </name>
+            <name>
+              <surname>von Caemmerer</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Berry</surname>
+              <given-names>J.A</given-names>
+            </name>
+          </person-group>
+          <article-title>A biochemical model of photosynthetic CO 2 assimilation in&#10;          leaves of C 3 species</article-title>
+          <source>Planta</source>
+          <fpage>78</fpage>
+          <lpage>90</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0024">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Harley</surname>
+              <given-names>P.C</given-names>
+            </name>
+            <name>
+              <surname>Weber</surname>
+              <given-names>J.A</given-names>
+            </name>
+            <name>
+              <surname>Gates</surname>
+              <given-names>D.M</given-names>
+            </name>
+          </person-group>
+          <article-title>Interactive effects of light, leaf temperature, CO<sub>2</sub>&#10;          and O<sub>2</sub>on photosynthesis in soybean</article-title>
+          <source>Planta</source>
+          <fpage>249</fpage>
+          <lpage>263</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0025">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Harris</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Jones</surname>
+              <given-names>P.D</given-names>
+            </name>
+            <name>
+              <surname>Osborn</surname>
+              <given-names>T.J</given-names>
+            </name>
+            <name>
+              <surname>Lister</surname>
+              <given-names>D.H</given-names>
+            </name>
+          </person-group>
+          <article-title>Updated high‐resolution grids of monthly climatic&#10;          observations – the CRU TS3.10 Dataset</article-title>
+          <source>Int. J. Climatol.</source>
+          <fpage>623</fpage>
+          <lpage>&#10;          642</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0026">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Huber</surname>
+              <given-names>M.L</given-names>
+            </name>
+            <name>
+              <surname>Perkins</surname>
+              <given-names>R.A</given-names>
+            </name>
+            <name>
+              <surname>Laesecke</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Friend</surname>
+              <given-names>D.G</given-names>
+            </name>
+            <name>
+              <surname>Sengers</surname>
+              <given-names>J.V</given-names>
+            </name>
+            <name>
+              <surname>Assael</surname>
+              <given-names>M.J</given-names>
+            </name>
+          </person-group>
+          <article-title>New international formulation for&#10;          the Viscosity of H<sub>2</sub>O</article-title>
+          <source>J. Phys. Chem. Ref. Data</source>
+          <year>2009</year>
+          <fpage>101</fpage>
+          <lpage>125</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0027">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>June</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>The light gradients inside soybean leaves and their effect on&#10;          the curvature factor of the light response curves of photosynthesis</article-title>
+          <source>BIOTROPIA‐The Southeast Asian J. Trop. Biol</source>
+          <fpage>29</fpage>
+          <lpage>49</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0028">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kattge</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Knorr</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>Temperature acclimation in a biochemical model of&#10;          photosynthesis: a reanalysis of data from 36 species</article-title>
+          <source>Plant, Cell Environ.</source>
+          <fpage>1176</fpage>
+          <lpage>1190</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0029">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kattge</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Knorr</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Raddatz</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Wirth</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantifying photosynthetic capacity and its relationship to&#10;          leaf nitrogen content for global‐scale terrestrial biosphere models</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <fpage>976</fpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0030">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kattge</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Diaz</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Lavorel</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Leadley</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Bönisch</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>TRY–a global database of&#10;          plant traits</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <year>2011</year>
+          <fpage>2905</fpage>
+          <lpage>2935</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0031">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Niinemets</surname>
+              <given-names>Ü</given-names>
+            </name>
+          </person-group>
+          <article-title>Global leaf trait estimates biased due to plasticity&#10;          in the shade</article-title>
+          <source>Nat. Plants</source>
+          <year>2016</year>
+          <fpage>16201</fpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0032">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Sabate</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Gracia</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Soil water stress and coupled&#10;          photosynthesis–conductance models: bridging the gap between conflicting reports on&#10;          the relative roles of stomatal, mesophyll conductance and biochemical limitations to&#10;          photosynthesis</article-title>
+          <source>Agric. For. Meteorol.</source>
+          <fpage>443</fpage>
+          <lpage>453</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0033">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kirschbaum</surname>
+              <given-names>M.U.F</given-names>
+            </name>
+            <name>
+              <surname>Farquhar</surname>
+              <given-names>G.D</given-names>
+            </name>
+          </person-group>
+          <article-title>Investigation of the CO<sub>2</sub>dependence of quantum&#10;          yield and respiration in Eucalyptus pauciflora</article-title>
+          <source>Plant Physiol.</source>
+          <fpage>1032</fpage>
+          <lpage>&#10;          1036</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0034">
+        <element-citation>
+          <person-group person-group-type="author">
+            <name>
+              <surname>Legendre</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>lmodel2: Model II Regression</article-title>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0035">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maire</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Martre</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Kattge</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Gastal</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Esser</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Fontaine</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>The coordination of leaf&#10;          photosynthesis links C and N fluxes in C3 plant species</article-title>
+          <source>PLoS ONE</source>
+          <year>2012</year>
+          <fpage>e38345</fpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0036">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maire</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Batjes</surname>
+              <given-names>N.H</given-names>
+            </name>
+            <name>
+              <surname>Bhaskar</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Bodegom</surname>
+              <given-names>P.M</given-names>
+            </name>
+          </person-group>
+          <article-title>Global effects of soil and climate&#10;          on leaf photosynthetic traits and rates</article-title>
+          <source>Glob. Ecol. Biogeogr.</source>
+          <year>2015</year>
+          <fpage>706</fpage>
+          <lpage>717</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0037">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Dreyer</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Ellsworth</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Forstreuter</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Harley</surname>
+              <given-names>P.C</given-names>
+            </name>
+            <name>
+              <surname>Kirschbaum</surname>
+              <given-names>M.U.F</given-names>
+            </name>
+          </person-group>
+          <article-title>Temperature response of parameters&#10;          of a biochemically based model of photosynthesis. II. A review of experimental data</article-title>
+          <source>Plant, Cell Environ.</source>
+          <year>2002</year>
+          <fpage>1167</fpage>
+          <lpage>1179</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0038">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Duursma</surname>
+              <given-names>R.A</given-names>
+            </name>
+            <name>
+              <surname>Eamus</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Ellsworth</surname>
+              <given-names>D.S</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Barton</surname>
+              <given-names>C.V.M</given-names>
+            </name>
+          </person-group>
+          <article-title>Reconciling the optimal and&#10;          empirical approaches to modelling stomatal conductance</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <year>2011</year>
+          <fpage>2134</fpage>
+          <lpage>2144</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0039">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Meir</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Kruijt</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Broadmeadow</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Barbosa</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Kull</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Carswell</surname>
+              <given-names>F</given-names>
+            </name>
+          </person-group>
+          <article-title>Acclimation of photosynthetic&#10;          capacity to irradiance in tree canopies in relation to leaf nitrogen concentration and&#10;          leaf mass per unit area</article-title>
+          <source>Plant, Cell Environ.</source>
+          <year>2002</year>
+          <fpage>343</fpage>
+          <lpage>357</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0040">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Meir</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Levy</surname>
+              <given-names>P.E</given-names>
+            </name>
+            <name>
+              <surname>Grace</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Jarvis</surname>
+              <given-names>P.G</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthetic parameters from two contrasting woody&#10;          vegetation types in West Africa</article-title>
+          <source>Plant Ecol.</source>
+          <fpage>277</fpage>
+          <lpage>&#10;          287</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0041">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Niinemets</surname>
+              <given-names>Ü</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Evans</surname>
+              <given-names>J.R</given-names>
+            </name>
+          </person-group>
+          <article-title>Leaf mesophyll diffusion conductance in 35 Australian&#10;          sclerophylls covering a broad range of foliage structural and physiological variation</article-title>
+          <source>J. Exp. Bot.</source>
+          <fpage>2433</fpage>
+          <lpage>&#10;          2449</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0042">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Niinemets</surname>
+              <given-names>Ü</given-names>
+            </name>
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Hallik</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>A worldwide analysis of within‐canopy variations in&#10;          leaf structural, chemical and physiological traits across plant functional types</article-title>
+          <source>New Phytol.</source>
+          <fpage>973</fpage>
+          <lpage>&#10;          993</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0043">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Dong</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Gleason</surname>
+              <given-names>S.M</given-names>
+            </name>
+            <name>
+              <surname>Maire</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+          </person-group>
+          <article-title>Balancing the costs of carbon gain and water transport:&#10;          testing a new theoretical framework for plant functional ecology</article-title>
+          <source>Ecol. Lett.</source>
+          <fpage>82</fpage>
+          <lpage>&#10;          91</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0044">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>The use and misuse of Vc,max in Earth System Models</article-title>
+          <source>Photosynth. Res.</source>
+          <fpage>15</fpage>
+          <lpage>&#10;          29</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0045">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Medlyn</surname>
+              <given-names>B.E</given-names>
+            </name>
+            <name>
+              <surname>Dukes</surname>
+              <given-names>J.S</given-names>
+            </name>
+            <name>
+              <surname>Bonan</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>von Caemmerer</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Dietze</surname>
+              <given-names>M.C</given-names>
+            </name>
+          </person-group>
+          <article-title>A roadmap for improving the&#10;          representation of photosynthesis in Earth system models</article-title>
+          <source>New Phytol.</source>
+          <fpage>22</fpage>
+          <lpage>&#10;          42</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0046">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Serbin</surname>
+              <given-names>S.P</given-names>
+            </name>
+            <name>
+              <surname>Ely</surname>
+              <given-names>K.S</given-names>
+            </name>
+            <name>
+              <surname>Sloan</surname>
+              <given-names>V.L</given-names>
+            </name>
+            <name>
+              <surname>Wullschleger</surname>
+              <given-names>S.D</given-names>
+            </name>
+          </person-group>
+          <article-title>Terrestrial biosphere models underestimate&#10;          photosynthetic capacity and CO<sub>2</sub>assimilation in the Arctic</article-title>
+          <source>New Phytol.</source>
+          <fpage>1090</fpage>
+          <lpage>&#10;          1103</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0047">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Scafaro</surname>
+              <given-names>A.P</given-names>
+            </name>
+            <name>
+              <surname>Xiang</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Long</surname>
+              <given-names>B.M</given-names>
+            </name>
+            <name>
+              <surname>Bahar</surname>
+              <given-names>N.H.A</given-names>
+            </name>
+            <name>
+              <surname>Weerasinghe</surname>
+              <given-names>L.K</given-names>
+            </name>
+            <name>
+              <surname>Creek</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Strong thermal acclimation of&#10;          photosynthesis in tropical and temperate wet‐forest tree species: the importance of&#10;          altered Rubisco content</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <year>2017</year>
+          <fpage>2783</fpage>
+          <lpage>2800</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0048">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Serbin</surname>
+              <given-names>S.P</given-names>
+            </name>
+            <name>
+              <surname>Singh</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Desai</surname>
+              <given-names>A.R</given-names>
+            </name>
+            <name>
+              <surname>Dubois</surname>
+              <given-names>S.G</given-names>
+            </name>
+            <name>
+              <surname>Jablonski</surname>
+              <given-names>A.D</given-names>
+            </name>
+            <name>
+              <surname>Kingdon</surname>
+              <given-names>C.C</given-names>
+            </name>
+          </person-group>
+          <article-title>Remotely estimating photosynthetic&#10;          capacity, and its response to temperature, in vegetation canopies using imaging&#10;          spectroscopy</article-title>
+          <source>Remote Sens. Environ.</source>
+          <year>2015</year>
+          <fpage>78</fpage>
+          <lpage>87</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0049">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Skillman</surname>
+              <given-names>J.B</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantum yield variation across the three pathways of&#10;          photosynthesis: not yet out of the dark</article-title>
+          <source>J. Exp. Bot.</source>
+          <fpage>1647</fpage>
+          <lpage>&#10;          1661</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0050">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Slessarev</surname>
+              <given-names>E.W</given-names>
+            </name>
+            <name>
+              <surname>Lin</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Bingham</surname>
+              <given-names>N.L</given-names>
+            </name>
+            <name>
+              <surname>Johnson</surname>
+              <given-names>J.E</given-names>
+            </name>
+            <name>
+              <surname>Dai</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Schimel</surname>
+              <given-names>J.P</given-names>
+            </name>
+          </person-group>
+          <article-title>Water balance creates a threshold&#10;          in soil pH at the global scale</article-title>
+          <source>Nature</source>
+          <year>2016</year>
+          <fpage>567</fpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0051">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Dukes</surname>
+              <given-names>J.S</given-names>
+            </name>
+          </person-group>
+          <article-title>Plant respiration and photosynthesis in global‐scale&#10;          models: incorporating acclimation to temperature and CO<sub>2</sub>&#10;</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <fpage>45</fpage>
+          <lpage>63</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0052">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Dukes</surname>
+              <given-names>J.S</given-names>
+            </name>
+          </person-group>
+          <article-title>LCE: Leaf carbon exchange dataset for tropical, temperate,&#10;          and boreal species of North and Central America</article-title>
+          <source>Ecology</source>
+          <fpage>2978</fpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0053">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Dukes</surname>
+              <given-names>J.S</given-names>
+            </name>
+          </person-group>
+          <article-title>Short‐term acclimation to warmer temperatures&#10;          accelerates leaf carbon exchange processes across plant types</article-title>
+          <source>Glob. Chang. Biol.</source>
+          <fpage>4840</fpage>
+          <lpage>4853</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0054">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Dukes</surname>
+              <given-names>J.S</given-names>
+            </name>
+          </person-group>
+          <article-title>Drivers of leaf carbon exchange capacity across biomes at the&#10;          continental scale</article-title>
+          <source>Ecology</source>
+          <fpage>1610</fpage>
+          <lpage>&#10;          1620</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0055">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Smith</surname>
+              <given-names>N.G</given-names>
+            </name>
+            <name>
+              <surname>Rodgers</surname>
+              <given-names>V.L</given-names>
+            </name>
+            <name>
+              <surname>Brzostek</surname>
+              <given-names>E.R</given-names>
+            </name>
+            <name>
+              <surname>Kulmatiski</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Avolio</surname>
+              <given-names>M.L</given-names>
+            </name>
+            <name>
+              <surname>Hoover</surname>
+              <given-names>D.L</given-names>
+            </name>
+          </person-group>
+          <article-title>Toward a better integration of&#10;          biological data from precipitation manipulation experiments into Earth system models</article-title>
+          <source>Rev. Geophys.</source>
+          <year>2014</year>
+          <fpage>412</fpage>
+          <lpage>&#10;          434</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0056">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sperry</surname>
+              <given-names>J.S</given-names>
+            </name>
+            <name>
+              <surname>Venturas</surname>
+              <given-names>M.D</given-names>
+            </name>
+            <name>
+              <surname>Anderegg</surname>
+              <given-names>W.R.L</given-names>
+            </name>
+            <name>
+              <surname>Mencuccini</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Mackay</surname>
+              <given-names>D.S</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Predicting stomatal responses to&#10;          the environment from the optimization of photosynthetic gain and hydraulic cost</article-title>
+          <source>Plant, Cell Environ.</source>
+          <year>2017</year>
+          <fpage>816</fpage>
+          <lpage>830</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0057">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tarvainen</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Wallin</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Räntfors</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Uddling</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Weak vertical canopy gradients of photosynthetic capacities&#10;          and stomatal responses in a fertile Norway spruce stand</article-title>
+          <source>Oecologia</source>
+          <fpage>1179</fpage>
+          <lpage>&#10;          1189</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0058">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Terrer</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Vicca</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Hungate</surname>
+              <given-names>B.A</given-names>
+            </name>
+            <name>
+              <surname>Phillips</surname>
+              <given-names>R.P</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+          </person-group>
+          <article-title>Mycorrhizal association as a primary control of the CO<sub>2</sub>&#10;          fertilization effect</article-title>
+          <source>Science</source>
+          <fpage>72</fpage>
+          <lpage>74</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0059">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Togashi</surname>
+              <given-names>H.F</given-names>
+            </name>
+            <name>
+              <surname>Atkin</surname>
+              <given-names>O.K</given-names>
+            </name>
+            <name>
+              <surname>Bloomfield</surname>
+              <given-names>K.J</given-names>
+            </name>
+            <name>
+              <surname>Bradford</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Cao</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Dong</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>Functional trait variation&#10;          related to gap dynamics in tropical moist forests: a vegetation modelling perspective</article-title>
+          <source>Perspect. Plant Ecol. Evol. Syst.</source>
+          <fpage>&#10;          0000</fpage>
+          <lpage>0</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0060">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Togashi</surname>
+              <given-names>H.F</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Atkin</surname>
+              <given-names>O.K</given-names>
+            </name>
+            <name>
+              <surname>Macfarlane</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Prober</surname>
+              <given-names>S.M</given-names>
+            </name>
+            <name>
+              <surname>Bloomfield</surname>
+              <given-names>K.J</given-names>
+            </name>
+          </person-group>
+          <article-title>Thermal acclimation of leaf&#10;          photosynthetic traits in an evergreen woodland, consistent with the coordination&#10;          hypothesis</article-title>
+          <source>Biogeosciences</source>
+          <fpage>3461</fpage>
+          <lpage>&#10;          3474</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0061">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>von Caemmerer</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Farquhar</surname>
+              <given-names>G.D</given-names>
+            </name>
+          </person-group>
+          <article-title>Some relationships between the biochemistry of photosynthesis&#10;          and the gas exchange of leaves</article-title>
+          <source>Planta</source>
+          <fpage>376</fpage>
+          <lpage>387</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0062">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Walker</surname>
+              <given-names>A.P</given-names>
+            </name>
+            <name>
+              <surname>Beckerman</surname>
+              <given-names>A.P</given-names>
+            </name>
+            <name>
+              <surname>Gu</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Kattge</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Cernusak</surname>
+              <given-names>L.A</given-names>
+            </name>
+            <name>
+              <surname>Domingues</surname>
+              <given-names>T.F</given-names>
+            </name>
+          </person-group>
+          <article-title>The relationship of leaf&#10;          photosynthetic traits – V<sub>cmax</sub>and Jmax – to leaf nitrogen, leaf&#10;          phosphorus, and specific leaf area: a meta‐analysis and modeling study</article-title>
+          <source>Ecol. Evol.</source>
+          <year>2014</year>
+          <fpage>3218</fpage>
+          <lpage>&#10;          3235</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0063">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Walker</surname>
+              <given-names>A.P</given-names>
+            </name>
+            <name>
+              <surname>Quaife</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>van Bodegom</surname>
+              <given-names>P.M</given-names>
+            </name>
+            <name>
+              <surname>De Kauwe</surname>
+              <given-names>M.G</given-names>
+            </name>
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Joiner</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>The impact of alternative&#10;          trait‐scaling hypotheses for the maximum photosynthetic carboxylation rate (V<sub>&#10;          cmax</sub>) on global gross primary production</article-title>
+          <source>New Phytol.</source>
+          <year>2017</year>
+          <fpage>1370</fpage>
+          <lpage>&#10;          1386</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0064">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wang</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Harrison</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Yang</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Bai</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Togashi</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>The China Plant Trait Database:&#10;          towards a comprehensive regional compilation of functional traits for land plants</article-title>
+          <source>Ecology</source>
+          <fpage>500</fpage>
+          <lpage>500</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0065">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wang</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Davis</surname>
+              <given-names>T.W</given-names>
+            </name>
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Peng</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Photosynthetic responses to altitude: an explanation based&#10;          on optimality principles</article-title>
+          <source>New Phytol.</source>
+          <fpage>976</fpage>
+          <lpage>&#10;          982</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0066">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wang</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Prentice</surname>
+              <given-names>I.C</given-names>
+            </name>
+            <name>
+              <surname>Keenan</surname>
+              <given-names>T.F</given-names>
+            </name>
+            <name>
+              <surname>Davis</surname>
+              <given-names>T.W</given-names>
+            </name>
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Cornwell</surname>
+              <given-names>W.K</given-names>
+            </name>
+          </person-group>
+          <article-title>Towards a universal model for&#10;          carbon dioxide uptake by plants</article-title>
+          <source>Nat. Plants</source>
+          <fpage>734</fpage>
+          <lpage>&#10;          741</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0067">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Weedon</surname>
+              <given-names>G.P</given-names>
+            </name>
+            <name>
+              <surname>Balsamo</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Bellouin</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Gomes</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Best</surname>
+              <given-names>M.J</given-names>
+            </name>
+            <name>
+              <surname>Viterbo</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>The WFDEI meteorological forcing data set: WATCH Forcing Data&#10;          methodology applied to ERA‐Interim reanalysis data</article-title>
+          <source>Water Resour. Res.</source>
+          <fpage>7505</fpage>
+          <lpage>7514</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0068">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wohlfahrt</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Bahn</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Haubner</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Horak</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Michaeler</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Rottmar</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Inter‐specific variation of&#10;          the biochemical limitation to photosynthesis and related leaf traits of 30 species from&#10;          mountain grassland ecosystems under different land use</article-title>
+          <source>Plant, Cell Environ.</source>
+          <year>1999</year>
+          <fpage>1281</fpage>
+          <lpage>1296</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0069">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wright</surname>
+              <given-names>I.J</given-names>
+            </name>
+            <name>
+              <surname>Reich</surname>
+              <given-names>P.B</given-names>
+            </name>
+            <name>
+              <surname>Westoby</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Least‐cost input mixtures of water and nitrogen for&#10;          photosynthesis</article-title>
+          <source>Am. Nat.</source>
+          <fpage>98</fpage>
+          <lpage>&#10;          111</lpage>
+        </element-citation>
+      </ref>
+      <ref id="ele13210-bib-0070">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zuur</surname>
+              <given-names>A.F</given-names>
+            </name>
+            <name>
+              <surname>Ieno</surname>
+              <given-names>E.N</given-names>
+            </name>
+            <name>
+              <surname>Walker</surname>
+              <given-names>N.J</given-names>
+            </name>
+            <name>
+              <surname>Saveliev</surname>
+              <given-names>A.A</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>G.M</given-names>
+            </name>
+            <name>
+              <surname>Gail</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Krickeberg</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Samet</surname>
+              <given-names>J.M</given-names>
+            </name>
+            <name>
+              <surname>Tsiatis</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Wong</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>Mixed Effects Models and Extensions in Ecology</article-title>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

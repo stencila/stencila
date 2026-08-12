@@ -23,7 +23,7 @@ analogues:
     url: https://docs.citationstyles.org/en/stable/specification.html
     notes: Conceptually analogous to a rendered citation cluster in Citation Style Language processors.
 jats:
-  special: true
+  derive: false
 latex:
   derive: false
 markdown:

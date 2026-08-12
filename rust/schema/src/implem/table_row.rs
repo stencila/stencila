@@ -2,13 +2,11 @@ use stencila_codec_info::lost_options;
 
 use crate::{TableCellType, TableRow, TableRowType, prelude::*};
 
-impl TableRow {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
-
-        let mut losses = lost_options!(self, id);
-
-        let mut cells = String::new();
+impl JatsCodec for TableRow {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("tr")
+            .merge_losses(lost_options!(self, id));
         for cell in &self.cells {
             let tag = if matches!(self.row_type, Some(TableRowType::HeaderRow))
                 || matches!(cell.cell_type, Some(TableCellType::HeaderCell))
@@ -18,23 +16,17 @@ impl TableRow {
                 "td"
             };
 
-            let mut attrs = Vec::new();
+            context.enter_elem(tag);
             if let Some(value) = &cell.options.row_span {
-                attrs.push(("rowspan", value));
+                context.push_attr("rowspan", value);
             }
             if let Some(value) = &cell.options.column_span {
-                attrs.push(("colspan", value));
+                context.push_attr("colspan", value);
             }
-
-            let (cell_content, cell_losses) = cell.content.to_jats();
-
-            let cell = elem(tag, attrs, cell_content);
-            cells.push_str(&cell);
-
-            losses.merge(cell_losses);
+            cell.content.to_jats(context);
+            context.exit_elem();
         }
-
-        (elem_no_attrs("tr", cells), losses)
+        context.exit_elem();
     }
 }
 

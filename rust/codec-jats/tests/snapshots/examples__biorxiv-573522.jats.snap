@@ -2,15 +2,103 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>The sense of smell is tightly linked to emotions, a link that is thought to rely on the direct synaptic connections between the olfactory bulb and nuclei of the amygdala. A small number of amygdaloid nuclei are the recipients of such direct input from the olfactory bulb and their unique functions are not known. Among them, the nucleus of the lateral olfactory tract (NLOT) is unique in its developmental history and gene expression. NLOT has been very little studied and consequentially its function is unknown. Furthermore, formulation of informed hypotheses about NLOT function is at this stage limited by the lack of knowledge about its connectivity and physiological properties. Here, we used pseudo-rabies tracing methods to systematically reveal monosynaptic inputs into NLOT, and adeno-associated viruses to reveal NLOT projection targets. We found that the NLOT is interconnected with several olfactory brain regions and with the basolateral amygdala. Some of these connections were reciprocal, and some showed unique interhemispheric patterns. We tested the excitable properties of NLOT neurons and the properties of each of the major synaptic inputs. We found that the NLOT receives powerful input from piriform cortex, tenia tecta, and the basolateral amygdala, but only very weak input from the olfactory bulb. When input crosses threshold, NLOT neurons respond with calcium-dependent bursts of action potentials. This integration of olfactory and amygdalar inputs suggests that NLOT plays a role in behaviors that combine smell and emotion, possibly assigning emotional value to odors.</p>
-      <sec sec-type="NonTechnicalSummary">
-        <title level="2">Significance statement</title>
-        <p>Despite the well-known functional links between olfaction and emotions, the physiological properties of these links remain largely understudied. One major pathway by which olfactory and emotional signals interact, is via the nucleus of the lateral olfactory tract (NLOT). NLOT has been little studied and its function is yet unclear. The lack of physiological information hinders informed hypotheses. Here, we characterize the synaptic and intrinsic properties of NLOT neurons. We show that the NLOT receives converging olfactory and amygdalar inputs, and that NLOT neurons respond to input with high-rate bursts of action potentials. This suggests that the NLOT, that harbors ∼2500 cells, encodes a low-dimensional signal that is of high importance. We hypothesize that the NLOT assigns emotional value to odors.</p>
-      </sec>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>bioRxiv</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Cold Spring Harbor Laboratory</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1101/2023.12.31.573522</article-id>
+      <title-group>
+        <article-title>Synaptic connectivity and electrophysiological properties of the nucleus of the lateral olfactory tract</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Penker</surname>
+            <given-names>Sapir</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-6935-0047</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Lawabny</surname>
+            <given-names>Naheel</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-6760-4728</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Dhamshy</surname>
+            <given-names>Aya</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0009-0004-0947-2984</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Licht</surname>
+            <given-names>Tamar</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2333-1665</contrib-id>
+          <email>tamarli@ekmd.huji.ac.il</email>
+          <email>dan.rokni@mail.huji.ac.il</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Rokni</surname>
+            <given-names>Dan</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-3041-8462</contrib-id>
+          <email>tamarli@ekmd.huji.ac.il</email>
+          <email>dan.rokni@mail.huji.ac.il</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Department of Medical Neurobiology, Faculty of Medicine and IMRIC, The Hebrew University of Jerusalem</institution>
+          </institution-wrap>
+          <addr-line>9112102, Jerusalem, Israel</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2024-1-1">
+        <year>2024</year>
+        <month>1</month>
+        <day>1</day>
+      </pub-date>
+      <history>
+        <date date-type="received" iso-8601-date="2023-12-31">
+          <year>2023</year>
+          <month>12</month>
+          <day>31</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2024-1-01">
+          <year>2024</year>
+          <month>1</month>
+          <day>01</day>
+        </date>
+      </history>
+      <abstract>
+        <p>The sense of smell is tightly linked to emotions, a link that is thought to rely on the direct synaptic connections between the olfactory bulb and nuclei of the amygdala. A small number of amygdaloid nuclei are the recipients of such direct input from the olfactory bulb and their unique functions are not known. Among them, the nucleus of the lateral olfactory tract (NLOT) is unique in its developmental history and gene expression. NLOT has been very little studied and consequentially its function is unknown. Furthermore, formulation of informed hypotheses about NLOT function is at this stage limited by the lack of knowledge about its connectivity and physiological properties. Here, we used pseudo-rabies tracing methods to systematically reveal monosynaptic inputs into NLOT, and adeno-associated viruses to reveal NLOT projection targets. We found that the NLOT is interconnected with several olfactory brain regions and with the basolateral amygdala. Some of these connections were reciprocal, and some showed unique interhemispheric patterns. We tested the excitable properties of NLOT neurons and the properties of each of the major synaptic inputs. We found that the NLOT receives powerful input from piriform cortex, tenia tecta, and the basolateral amygdala, but only very weak input from the olfactory bulb. When input crosses threshold, NLOT neurons respond with calcium-dependent bursts of action potentials. This integration of olfactory and amygdalar inputs suggests that NLOT plays a role in behaviors that combine smell and emotion, possibly assigning emotional value to odors.</p>
+        <sec sec-type="NonTechnicalSummary">
+          <title level="2">Significance statement</title>
+          <p>Despite the well-known functional links between olfaction and emotions, the physiological properties of these links remain largely understudied. One major pathway by which olfactory and emotional signals interact, is via the nucleus of the lateral olfactory tract (NLOT). NLOT has been little studied and its function is yet unclear. The lack of physiological information hinders informed hypotheses. Here, we characterize the synaptic and intrinsic properties of NLOT neurons. We show that the NLOT receives converging olfactory and amygdalar inputs, and that NLOT neurons respond to input with high-rate bursts of action potentials. This suggests that the NLOT, that harbors ∼2500 cells, encodes a low-dimensional signal that is of high importance. We hypothesize that the NLOT assigns emotional value to odors.</p>
+        </sec>
+      </abstract>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -188,4 +276,1293 @@ expression: jats
       <p>The authors have declared no competing interest.</p>
     </sec>
   </body>
+  <back>
+    <ref-list>
+      <ref id="c1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bernander</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Koch</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Douglas</surname>
+              <given-names>R J</given-names>
+            </name>
+          </person-group>
+          <article-title>Amplification and linearization of distal synaptic input to cortical pyramidal cells</article-title>
+          <source>Journal of Neurophysiology</source>
+          <year>1994</year>
+          <fpage>2743</fpage>
+          <lpage>2753</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Boyden</surname>
+              <given-names>E S</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Bamberg</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Nagel</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Deisseroth</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Millisecond-timescale, genetically targeted optical control of neural activity</article-title>
+          <source>Nat Neurosci</source>
+          <year>2005</year>
+          <fpage>1263</fpage>
+          <lpage>1268</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Broadwell</surname>
+              <given-names>R D</given-names>
+            </name>
+          </person-group>
+          <article-title>Olfactory relationships of the telencephlaon and diencephalon in the rabbit. 1. An autoradiographic study of the efferent connections of the main and accessory olfactory bulbs</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1975</year>
+          <fpage>329</fpage>
+          <lpage>345</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Connors</surname>
+              <given-names>B W</given-names>
+            </name>
+            <name>
+              <surname>Gutnick</surname>
+              <given-names>M J</given-names>
+            </name>
+          </person-group>
+          <article-title>Intrinsic firing patterns of diverse neocortical neurons</article-title>
+          <source>Trends in Neurosciences</source>
+          <year>1990</year>
+          <fpage>99</fpage>
+          <lpage>104</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c5">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Crosby</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Schnitzlein</surname>
+              <given-names>H N</given-names>
+            </name>
+          </person-group>
+          <article-title>Comparative correlative neuroanatomy of the vertebrate telencephalon</article-title>
+          <year>1982</year>
+        </element-citation>
+      </ref>
+      <ref id="c6">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Deryckere</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Woych</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Jaeger</surname>
+              <given-names>E C B</given-names>
+            </name>
+            <name>
+              <surname>Tosches</surname>
+              <given-names>M A</given-names>
+            </name>
+          </person-group>
+          <article-title>Glutamatergic neuron types in the amygdala of the urodele amphibian Pleurodeles waltl</article-title>
+          <year>2022</year>
+        </element-citation>
+      </ref>
+      <ref id="c7">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dudman</surname>
+              <given-names>J T</given-names>
+            </name>
+            <name>
+              <surname>Tsay</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Siegelbaum</surname>
+              <given-names>S A</given-names>
+            </name>
+          </person-group>
+          <article-title>A Role for Synaptic Inputs at Distal Dendrites: Instructive Signals for Hippocampal Long-Term Plasticity</article-title>
+          <source>Neuron</source>
+          <year>2007</year>
+          <fpage>866</fpage>
+          <lpage>879</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c8">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Faber</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Callister</surname>
+              <given-names>R J</given-names>
+            </name>
+            <name>
+              <surname>Sah</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Morphological and Electrophysiological Properties of Principal Neurons in the Rat Lateral Amygdala In Vitro</article-title>
+          <source>Journal of Neurophysiology</source>
+          <year>2001</year>
+          <fpage>714</fpage>
+          <lpage>723</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Faber</surname>
+              <given-names>E S L</given-names>
+            </name>
+            <name>
+              <surname>Sah</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Physiological Role of Calcium-Activated Potassium Currents in the Rat Lateral Amygdala</article-title>
+          <source>J Neurosci</source>
+          <year>2002</year>
+          <fpage>1618</fpage>
+          <lpage>1628</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Franks</surname>
+              <given-names>K M</given-names>
+            </name>
+            <name>
+              <surname>Isaacson</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Synapse-Specific Downregulation of NMDA Receptors by Early Experience: A Critical Period for Plasticity of Sensory Input to Olfactory Cortex</article-title>
+          <source>Neuron</source>
+          <year>2005</year>
+          <fpage>101</fpage>
+          <lpage>114</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c11">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Franks</surname>
+              <given-names>K M</given-names>
+            </name>
+            <name>
+              <surname>Isaacson</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Strong Single-Fiber Sensory Inputs to Olfactory Cortex: Implications for Olfactory Coding</article-title>
+          <source>Neuron</source>
+          <year>2006</year>
+          <fpage>357</fpage>
+          <lpage>363</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c12">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gadziola</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Tylicki</surname>
+              <given-names>K A</given-names>
+            </name>
+            <name>
+              <surname>Christian</surname>
+              <given-names>D L</given-names>
+            </name>
+            <name>
+              <surname>Wesson</surname>
+              <given-names>D W</given-names>
+            </name>
+          </person-group>
+          <article-title>The Olfactory Tubercle Encodes Odor Valence in Behaving Mice</article-title>
+          <source>J Neurosci</source>
+          <year>2015</year>
+          <fpage>4515</fpage>
+          <lpage>4527</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c13">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gong</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Zheng</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Doughty</surname>
+              <given-names>M L</given-names>
+            </name>
+            <name>
+              <surname>Losos</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Didkovsky</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Schambra</surname>
+              <given-names>U B</given-names>
+            </name>
+            <name>
+              <surname>Nowak</surname>
+              <given-names>N J</given-names>
+            </name>
+            <name>
+              <surname>Joyner</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Leblanc</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Hatten</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Heintz</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>A gene expression atlas of the central nervous system based on bacterial artificial chromosomes</article-title>
+          <source>Nature</source>
+          <year>2003</year>
+          <fpage>917</fpage>
+          <lpage>925</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c14">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Haddad</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Lanjuin</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Madisen</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Zeng</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Murthy</surname>
+              <given-names>V N</given-names>
+            </name>
+            <name>
+              <surname>Uchida</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>Olfactory cortical neurons read out a relative time code in the olfactory bulb</article-title>
+          <source>Nat Neurosci</source>
+          <year>2013</year>
+          <fpage>949</fpage>
+          <lpage>957</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c15">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Häusser</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Synaptic function: Dendritic democracy</article-title>
+          <source>Current Biology</source>
+          <year>2001</year>
+          <fpage>R10</fpage>
+          <lpage>R12</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hernández-Pérez</surname>
+              <given-names>O R</given-names>
+            </name>
+            <name>
+              <surname>Hernández</surname>
+              <given-names>V S</given-names>
+            </name>
+            <name>
+              <surname>Zetter</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Eiden</surname>
+              <given-names>L E</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>Nucleus of the lateral olfactory tract: A hub linking the water homeostasis-associated supraoptic nucleus-arginine vasopressin circuit and neocortical regions to promote social behavior under osmotic challenge</article-title>
+          <source>Journal of Neuroendocrinology n/a:e</source>
+          <year>2022</year>
+        </element-citation>
+      </ref>
+      <ref id="c17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Herz</surname>
+              <given-names>R S</given-names>
+            </name>
+          </person-group>
+          <article-title>Odor-associative Learning and Emotion: Effects on Perception and Behavior</article-title>
+          <source>Chemical Senses</source>
+          <year>2005</year>
+          <fpage>i250</fpage>
+          <lpage>i251</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c18">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hirata</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Shioi</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Abe</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Kiyonari</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Kato</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Kobayashi</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Mori</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Kawasaki</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>A Novel Birthdate-Labeling Method Reveals Segregated Parallel Projections of Mitral and External Tufted Cells in the Main Olfactory System</article-title>
+          <source>eNeuro</source>
+          <year>2019</year>
+          <fpage>234</fpage>
+          <lpage>19</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hochgerner</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Singh</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Tibi</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lin</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Skarbianskis</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Admati</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Ophir</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Reinhardt</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Netser</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Wagner</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Zeisel</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Neuronal types in the mouse amygdala and their transcriptional response to fear conditioning</article-title>
+          <source>Nat Neurosci</source>
+          <year>2023</year>
+          <fpage>1</fpage>
+          <lpage>13</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Izhikevich</surname>
+              <given-names>E M</given-names>
+            </name>
+          </person-group>
+          <article-title>Bursting</article-title>
+          <source>Scholarpedia</source>
+          <year>2006</year>
+          <fpage>1300</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c21">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kadohisa</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Effects of odor on emotion, with implications</article-title>
+          <source>Frontiers in Systems Neuroscience</source>
+          <year>2013</year>
+        </element-citation>
+      </ref>
+      <ref id="c22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Keshavarzi</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Power</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Albers</surname>
+              <given-names>E H H</given-names>
+            </name>
+            <name>
+              <surname>Sullivan</surname>
+              <given-names>R K S</given-names>
+            </name>
+            <name>
+              <surname>Sah</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Dendritic Organization of Olfactory Inputs to Medial Amygdala Neurons</article-title>
+          <source>J Neurosci</source>
+          <year>2015</year>
+          <fpage>13020</fpage>
+          <lpage>13028</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c23">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kontaris</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>East</surname>
+              <given-names>B S</given-names>
+            </name>
+            <name>
+              <surname>Wilson</surname>
+              <given-names>D A</given-names>
+            </name>
+          </person-group>
+          <article-title>Behavioral and Neurobiological Convergence of Odor, Mood and Emotion: A Review</article-title>
+          <source>Frontiers in Behavioral Neuroscience</source>
+          <year>2020</year>
+        </element-citation>
+      </ref>
+      <ref id="c24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Krabbe</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Paradiso</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>d’Aquin</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Bitterman</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Courtin</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Xu</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Yonehara</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Markovic</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Müller</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Eichlisberger</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Gründemann</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Ferraguti</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Lüthi</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Adaptive disinhibitory gating by VIP interneurons permits associative learning</article-title>
+          <source>Nat Neurosci</source>
+          <year>2019</year>
+          <fpage>1834</fpage>
+          <lpage>1843</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Krettek</surname>
+              <given-names>J E</given-names>
+            </name>
+            <name>
+              <surname>Price</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>A description of the amygdaloid complex in the rat and cat with observations on intra-amygdaloid axonal connections</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1978</year>
+          <fpage>255</fpage>
+          <lpage>279</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Larkum</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Zhu</surname>
+              <given-names>J J</given-names>
+            </name>
+            <name>
+              <surname>Sakmann</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>A new cellular mechanism for coupling inputs arriving at different cortical layers</article-title>
+          <source>Nature</source>
+          <year>1999</year>
+          <fpage>338</fpage>
+          <lpage>341</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Licht</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Yunerman</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Maor</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Lawabny</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Oz Rokach</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Shiff</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Mizrahi</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Rokni</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Adaptive olfactory circuitry restores function despite severe olfactory bulb degeneration</article-title>
+          <source>Current Biology</source>
+          <year>2023</year>
+          <fpage>4857</fpage>
+          <lpage>4868</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lisman</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>Bursts as a unit of neural information: making unreliable synapses reliable</article-title>
+          <source>Trends in Neurosciences</source>
+          <year>1997</year>
+          <fpage>38</fpage>
+          <lpage>43</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>De Armentia M</surname>
+              <given-names>Lopez</given-names>
+            </name>
+            <name>
+              <surname>Sah</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Firing Properties and Connectivity of Neurons in the Rat Lateral Central Nucleus of the Amygdala</article-title>
+          <source>Journal of Neurophysiology</source>
+          <year>2004</year>
+          <fpage>1285</fpage>
+          <lpage>1294</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Luskin</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Price</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>The topographic organization of associational fibers of the olfactory system in the rat, including centrifugal fibers to the olfactory bulb</article-title>
+          <source>J Comp Neurol</source>
+          <year>1983</year>
+          <fpage>264</fpage>
+          <lpage>291</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Madisen</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>A toolbox of Cre-dependent optogenetic transgenic mice for light-induced activation and silencing</article-title>
+          <source>Nat Neurosci</source>
+          <year>2012</year>
+          <fpage>793</fpage>
+          <lpage>802</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Markram</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Toledo-Rodriguez</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Gupta</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Silberberg</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Wu</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Interneurons of the neocortical inhibitory system</article-title>
+          <source>Nat Rev Neurosci</source>
+          <year>2004</year>
+          <fpage>793</fpage>
+          <lpage>807</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c33">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>McDonald</surname>
+              <given-names>A J</given-names>
+            </name>
+          </person-group>
+          <article-title>Cytoarchitecture of the nucleus of the lateral olfactory tract: A Golgi study in the rat</article-title>
+          <source>Brain Research Bulletin</source>
+          <year>1983</year>
+          <fpage>497</fpage>
+          <lpage>503</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c34">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Metwalli</surname>
+              <given-names>A H</given-names>
+            </name>
+            <name>
+              <surname>Abellán</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Freixes</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Pross</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Desfilis</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Medina</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <article-title>Distinct Subdivisions in the Transition Between Telencephalon and Hypothalamus Produce Otp and Sim1 Cells for the Extended Amygdala in Sauropsids</article-title>
+          <source>Frontiers in Neuroanatomy</source>
+          <year>2022</year>
+        </element-citation>
+      </ref>
+      <ref id="c35">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Millhouse</surname>
+              <given-names>O E</given-names>
+            </name>
+            <name>
+              <surname>Uemura-Sumi</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>The structure of the nucleus of the lateral olfactory tract</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1985</year>
+          <fpage>517</fpage>
+          <lpage>552</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Millman</surname>
+              <given-names>D J</given-names>
+            </name>
+            <name>
+              <surname>Murthy</surname>
+              <given-names>V N</given-names>
+            </name>
+          </person-group>
+          <article-title>Rapid Learning of Odor–Value Association in the Olfactory Striatum</article-title>
+          <source>J Neurosci</source>
+          <year>2020</year>
+          <fpage>4335</fpage>
+          <lpage>4347</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c37">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miyamichi</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Shlomai-Fuchs</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Shu</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Weissbourd</surname>
+              <given-names>B C</given-names>
+            </name>
+            <name>
+              <surname>Luo</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Mizrahi</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Dissecting Local Circuits: Parvalbumin Interneurons Underlie Broad Feedback Control of Olfactory Bulb Output</article-title>
+          <source>Neuron</source>
+          <year>2013</year>
+          <fpage>1232</fpage>
+          <lpage>1245</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>O’Leary</surname>
+              <given-names>T P</given-names>
+            </name>
+            <name>
+              <surname>Sullivan</surname>
+              <given-names>K E</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Clements</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Lemire</surname>
+              <given-names>A L</given-names>
+            </name>
+            <name>
+              <surname>Cembrowski</surname>
+              <given-names>M S</given-names>
+            </name>
+            <name>
+              <surname>West</surname>
+              <given-names>A E</given-names>
+            </name>
+            <name>
+              <surname>Colgin</surname>
+              <given-names>L L</given-names>
+            </name>
+            <name>
+              <surname>Okaty</surname>
+              <given-names>B W</given-names>
+            </name>
+          </person-group>
+          <article-title>Extensive and spatially variable within-cell-type heterogeneity across the basolateral amygdala</article-title>
+          <source>eLife</source>
+          <year>2020</year>
+          <fpage>e59003</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c39">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Price</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>An autoradiographic study of complementary laminar patterns of termination of afferent fibers to the olfactory cortex</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1973</year>
+          <fpage>87</fpage>
+          <lpage>108</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rainnie</surname>
+              <given-names>D G</given-names>
+            </name>
+            <name>
+              <surname>Asprodini</surname>
+              <given-names>E K</given-names>
+            </name>
+            <name>
+              <surname>Shinnick-Gallagher</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Intracellular recordings from morphologically identified neurons of the basolateral amygdala</article-title>
+          <source>Journal of Neurophysiology</source>
+          <year>1993</year>
+          <fpage>1350</fpage>
+          <lpage>1362</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c41">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rogers</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Beier</surname>
+              <given-names>K T</given-names>
+            </name>
+          </person-group>
+          <article-title>Can transsynaptic viral strategies be used to reveal functional aspects of neural circuitry?</article-title>
+          <source>Journal of Neuroscience Methods</source>
+          <year>2021</year>
+          <fpage>109005</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c42">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Santiago</surname>
+              <given-names>A C</given-names>
+            </name>
+            <name>
+              <surname>Shammah-Lagnado</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>Efferent connections of the nucleus of the lateral olfactory tract in the rat</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>2004</year>
+          <fpage>314</fpage>
+          <lpage>332</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c43">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Scalia</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Winans</surname>
+              <given-names>S S</given-names>
+            </name>
+          </person-group>
+          <article-title>The differential projections of the olfactory bulb and accessory olfactory bulb in mammals</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1975</year>
+          <fpage>31</fpage>
+          <lpage>55</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c44">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Soudry</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Lemogne</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Malinvaud</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Consoli</surname>
+              <given-names>S-M</given-names>
+            </name>
+            <name>
+              <surname>Bonfils</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Olfactory system and emotion: Common substrates. European Annals of Otorhinolaryngology</article-title>
+          <source>Head and Neck Diseases</source>
+          <year>2011</year>
+          <fpage>18</fpage>
+          <lpage>23</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c45">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Srinivasan</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Stevens</surname>
+              <given-names>C F</given-names>
+            </name>
+          </person-group>
+          <article-title>A quantitative description of the mouse piriform cortex</article-title>
+          <year>2017</year>
+        </element-citation>
+      </ref>
+      <ref id="c46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tanisumi</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Shiotani</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Hirokawa</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Sakurai</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Manabe</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Bi-directional encoding of context-based odors and behavioral states by the nucleus of the lateral olfactory tract</article-title>
+          <source>iScience</source>
+          <year>2021</year>
+          <fpage>102381</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Turner</surname>
+              <given-names>B H</given-names>
+            </name>
+            <name>
+              <surname>Gupta</surname>
+              <given-names>K C</given-names>
+            </name>
+            <name>
+              <surname>Mishkin</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>The locus and cytoarchitecture of the projection areas of the olfactory bulb in Macaca mulatta</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>1978</year>
+          <fpage>381</fpage>
+          <lpage>396</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vaz</surname>
+              <given-names>R P</given-names>
+            </name>
+            <name>
+              <surname>Cardoso</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Sá</surname>
+              <given-names>S I</given-names>
+            </name>
+            <name>
+              <surname>Pereira</surname>
+              <given-names>P A</given-names>
+            </name>
+            <name>
+              <surname>Madeira</surname>
+              <given-names>M D</given-names>
+            </name>
+          </person-group>
+          <article-title>The integrity of the nucleus of the lateral olfactory tract is essential for the normal functioning of the olfactory system</article-title>
+          <source>Brain Struct Funct</source>
+          <year>2017</year>
+          <fpage>3615</fpage>
+          <lpage>3637</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vaz</surname>
+              <given-names>R P</given-names>
+            </name>
+            <name>
+              <surname>Pereira</surname>
+              <given-names>P A</given-names>
+            </name>
+            <name>
+              <surname>Madeira</surname>
+              <given-names>M D</given-names>
+            </name>
+          </person-group>
+          <article-title>Age effects on the nucleus of the lateral olfactory tract of the rat</article-title>
+          <source>Journal of Comparative Neurology</source>
+          <year>2016</year>
+          <fpage>759</fpage>
+          <lpage>771</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wiegand</surname>
+              <given-names>H F</given-names>
+            </name>
+            <name>
+              <surname>Beed</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Bendels</surname>
+              <given-names>M H K</given-names>
+            </name>
+            <name>
+              <surname>Leibold</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Schmitz</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Johenning</surname>
+              <given-names>F W</given-names>
+            </name>
+          </person-group>
+          <article-title>Complementary Sensory and Associative Microcircuitry in Primary Olfactory Cortex</article-title>
+          <source>J Neurosci</source>
+          <year>2011</year>
+          <fpage>12149</fpage>
+          <lpage>12158</lpage>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

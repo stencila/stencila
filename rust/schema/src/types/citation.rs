@@ -13,11 +13,10 @@ use super::string::String;
 /// A reference to a `CreativeWork` that is cited in another `CreativeWork`.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Citation")]
-#[jats(special)]
 pub struct Citation {
     /// The type of this item.
     pub r#type: MustBe!("Citation"),
@@ -26,7 +25,6 @@ pub struct Citation {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The target of the citation (URL or reference ID).
@@ -41,7 +39,6 @@ pub struct Citation {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
     pub options: Box<CitationOptions>,
 
     /// A unique identifier for a node within a document
@@ -51,7 +48,7 @@ pub struct Citation {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct CitationOptions {
     /// Messages generated while resolving the target if the citation.

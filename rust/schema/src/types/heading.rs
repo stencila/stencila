@@ -12,14 +12,13 @@ use super::string::String;
 /// A heading.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, JatsCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, HtmlCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[cfg_attr(feature = "proptest", derive(Arbitrary))]
 #[derive(derive_more::Display)]
 #[display("Heading")]
 #[patch(authors_on = "self")]
 #[html(special)]
-#[jats(elem = "title", special)]
 pub struct Heading {
     /// The type of this item.
     #[cfg_attr(feature = "proptest", proptest(value = "Default::default()"))]
@@ -30,7 +29,6 @@ pub struct Heading {
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[cfg_attr(feature = "proptest", proptest(value = "None"))]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of the label for the appendix (if present, should be `AppendixLabel`).

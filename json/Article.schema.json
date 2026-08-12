@@ -35,8 +35,7 @@
     "elem": "article"
   },
   "jats": {
-    "elem": "article",
-    "special": true
+    "derive": false
   },
   "latex": {
     "derive": false

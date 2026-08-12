@@ -20,8 +20,7 @@ analogues:
     url: https://en.wikipedia.org/wiki/Unix_time
     notes: Closest external analogue, though Stencila stores the epoch offset together with explicit `timeUnit` rather than assuming seconds.
 jats:
-  elem: timestamp
-  special: true
+  derive: false
 proptest: {}
 required:
   - value

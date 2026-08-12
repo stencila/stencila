@@ -79,18 +79,15 @@ impl Timestamp {
     pub fn to_dom_attr(name: &str, timestamp: &Self, context: &mut DomEncodeContext) {
         context.push_attr(&name.to_kebab_case(), &timestamp.value.to_string());
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        (
-            elem(
-                "timestamp",
-                [("value", &self.value)],
-                self.value.to_string(),
-            ),
-            Losses::none(),
-        )
+impl JatsCodec for Timestamp {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("timestamp")
+            .push_attr("value", self.value)
+            .push_text(self.value.to_string())
+            .exit_elem();
     }
 }
 

@@ -2,25 +2,199 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <sec sec-type="Background">
-        <title level="2">Background</title>
-        <p>The intense childrearing years often coincide with the heightened work demands and responsibilities of the career-building years. We aimed to evaluate the association between family-life stage and men’s and women’s experience of work and private demands, and the conflict between these demands.</p>
-      </sec>
-      <sec sec-type="Methods">
-        <title level="2">Methods</title>
-        <p>We evaluated 3532 mothers and 731 fathers as part of the Portuguese population-based birth cohort Generation XXI (2018-2020). Data on family-life stage (exposure), work demands, private demands, and work-to-family conflict (outcomes) were retrieved at the 13-year follow-up wave, as well as data on sociodemographic and household characteristics. Family-life stage was operationalized according to the age of the youngest child: stage 1 (≤5 years), stage 2 (6-11 years), and stage 3 (≥12 years). Ordinal logistic regression models were used to estimate associations.</p>
-      </sec>
-      <sec sec-type="Results">
-        <title level="2">Results</title>
-        <p>Men reported more frequently long working hours, while women spent more time on household and child-related tasks. After adjustment for parents’ and household characteristics, mothers and fathers with younger children were more likely to report spending more time on child-related tasks (ORmothers = 1.83; 95%CI 1.44, 2.33; ORfathers = 2.36; 95%CI 1.41, 3.94), compared to those with older children. Fathers with younger children were also more likely to report spending more time on household tasks (OR = 2.20; 95%CI 1.30, 3.73 for routine tasks and OR = 1.75; 95%CI 1.03, 2.97 for sporadic tasks). Mothers exhibited a significant association between family-life stage and time-based work-to-family conflict when they had younger children (OR = 1.24; 95% CI 1.05, 1.47 for family-life stage 2 and OR = 1.28; 95% CI 1.00, 1.63 for family-life stage 1).</p>
-      </sec>
-      <sec sec-type="Conclusions">
-        <title level="2">Conclusions</title>
-        <p>Both fathers and mothers with young children experienced increased private demands, but only mothers experienced work-to-family conflict. This reveals that family and working arrangements remain marked by a gendered pattern against women.</p>
-      </sec>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>The European Journal of Public Health</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Oxford University Press</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1093/eurpub/ckae144.662</article-id>
+      <title-group>
+        <article-title>Differences in the work-family experience of mothers and fathers of a southern European country</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Amaro</surname>
+            <given-names>J</given-names>
+          </name>
+          <email>jmcamaro@gmail.com</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Lucas</surname>
+            <given-names>R</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Perelman</surname>
+            <given-names>J</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Fraga</surname>
+            <given-names>S</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Maia</surname>
+            <given-names>S</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Pereira</surname>
+            <given-names>M</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff7">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Mamelund</surname>
+            <given-names>S E</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff8">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Matias</surname>
+            <given-names>M</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff9">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Leão</surname>
+            <given-names>T</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff10">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>EPI Unit, Institute of Public Health of the Porto University</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>ITR, University of Porto</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Department of Medicine, Faculty of Medicine of the Porto University</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>ICBAS, University of Porto</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>Comprehensive Health Research Center, NOVA University Lisbon</institution>
+          </institution-wrap>
+          <addr-line>Lisbon, Portugal</addr-line>
+        </aff>
+        <aff id="aff6">
+          <institution-wrap>
+            <institution>Nova National School of Public Health, NOVA University Lisbon</institution>
+          </institution-wrap>
+          <addr-line>Lisbon, Portugal</addr-line>
+        </aff>
+        <aff id="aff7">
+          <institution-wrap>
+            <institution>Centro Investigação em Antropologia Saúde, Coimbra University</institution>
+          </institution-wrap>
+          <addr-line>Coimbra, Portugal</addr-line>
+        </aff>
+        <aff id="aff8">
+          <institution-wrap>
+            <institution>PANSOC, Oslo Metropolitan University</institution>
+          </institution-wrap>
+          <addr-line>Oslo, Norway</addr-line>
+        </aff>
+        <aff id="aff9">
+          <institution-wrap>
+            <institution>Faculty of Psychology and Educational Science, University of Porto</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+        <aff id="aff10">
+          <institution-wrap>
+            <institution>Public Health Forensic Sciences Department, Faculty of Medicine of the Porto University</institution>
+          </institution-wrap>
+          <addr-line>Porto, Portugal</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2024-10-28">
+        <year>2024</year>
+        <month>10</month>
+        <day>28</day>
+      </pub-date>
+      <volume>34</volume>
+      <issue>Suppl 3</issue>
+      <abstract>
+        <sec sec-type="Background">
+          <title level="2">Background</title>
+          <p>The intense childrearing years often coincide with the heightened work demands and responsibilities of the career-building years. We aimed to evaluate the association between family-life stage and men’s and women’s experience of work and private demands, and the conflict between these demands.</p>
+        </sec>
+        <sec sec-type="Methods">
+          <title level="2">Methods</title>
+          <p>We evaluated 3532 mothers and 731 fathers as part of the Portuguese population-based birth cohort Generation XXI (2018-2020). Data on family-life stage (exposure), work demands, private demands, and work-to-family conflict (outcomes) were retrieved at the 13-year follow-up wave, as well as data on sociodemographic and household characteristics. Family-life stage was operationalized according to the age of the youngest child: stage 1 (≤5 years), stage 2 (6-11 years), and stage 3 (≥12 years). Ordinal logistic regression models were used to estimate associations.</p>
+        </sec>
+        <sec sec-type="Results">
+          <title level="2">Results</title>
+          <p>Men reported more frequently long working hours, while women spent more time on household and child-related tasks. After adjustment for parents’ and household characteristics, mothers and fathers with younger children were more likely to report spending more time on child-related tasks (ORmothers = 1.83; 95%CI 1.44, 2.33; ORfathers = 2.36; 95%CI 1.41, 3.94), compared to those with older children. Fathers with younger children were also more likely to report spending more time on household tasks (OR = 2.20; 95%CI 1.30, 3.73 for routine tasks and OR = 1.75; 95%CI 1.03, 2.97 for sporadic tasks). Mothers exhibited a significant association between family-life stage and time-based work-to-family conflict when they had younger children (OR = 1.24; 95% CI 1.05, 1.47 for family-life stage 2 and OR = 1.28; 95% CI 1.00, 1.63 for family-life stage 1).</p>
+        </sec>
+        <sec sec-type="Conclusions">
+          <title level="2">Conclusions</title>
+          <p>Both fathers and mothers with young children experienced increased private demands, but only mothers experienced work-to-family conflict. This reveals that family and working arrangements remain marked by a gendered pattern against women.</p>
+        </sec>
+      </abstract>
+    </article-meta>
   </front>
 </article>

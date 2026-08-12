@@ -29,8 +29,7 @@
     "special": true
   },
   "jats": {
-    "elem": "inline-media",
-    "special": true
+    "derive": false
   },
   "markdown": {
     "derive": false

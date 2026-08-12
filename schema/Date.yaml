@@ -19,8 +19,7 @@ analogues:
   - id: jats:date
     notes: Close JATS analogue for structured date values in document metadata.
 jats:
-  elem: date
-  special: true
+  derive: false
 proptest: {}
 required:
   - value

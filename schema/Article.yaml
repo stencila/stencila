@@ -30,8 +30,7 @@ dom:
 html:
   elem: article
 jats:
-  special: true
-  elem: article
+  derive: false
 latex:
   derive: false
 markdown:

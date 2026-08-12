@@ -2,23 +2,21 @@ use stencila_codec_info::lost_options;
 
 use crate::{Heading, LabelType, prelude::*};
 
-impl Heading {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        let (content, mut losses) = self.content.to_jats();
-
-        // The `level` attribute is not part of the JATS standard but allows
-        // lossless roundtrip conversion of Stencila documents to/from JATS.
-        let attrs = [("level", &self.level)];
+impl JatsCodec for Heading {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("title")
+            .push_attr("level", self.level.to_string());
 
         if self.id.is_some() {
-            losses.add("Heading.id")
+            context.add_loss("Heading.id");
         }
-
-        (elem("title", attrs, content), losses)
+        self.content.to_jats(context);
+        context.exit_elem();
     }
+}
 
+impl Heading {
     pub fn to_html_special(&self, context: &mut HtmlEncodeContext) -> String {
         use stencila_codec_html_trait::encode::{attr, elem};
         elem(

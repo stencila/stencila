@@ -1,1 +1,3 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes" ?><article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p>A styled inlines containing other compound inline nodes: <styled-content style="text-blue-600"><italic>emphasis</italic>, <ext-link xlink:href="https://example.org">link</ext-link></styled-content></p></body></article>
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<!DOCTYPE article SYSTEM "https://jats.nlm.nih.gov/archiving/1.4/JATS-archivearticle1-4-mathml3.dtd">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><front><article-meta></article-meta></front><body><p>A styled inlines containing other compound inline nodes: <styled-content style="text-blue-600"><italic>emphasis</italic>, <ext-link xlink:href="https://example.org">link</ext-link></styled-content></p></body></article>

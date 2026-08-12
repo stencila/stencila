@@ -24,8 +24,7 @@ analogues:
   - id: pandoc:Image
     notes: Only an approximate Pandoc analogue; Pandoc has media-specific inline nodes rather than a generic media-object base type.
 jats:
-  elem: inline-media
-  special: true
+  derive: false
 required:
   - contentUrl
 core:

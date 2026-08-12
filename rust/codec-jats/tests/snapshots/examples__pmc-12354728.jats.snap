@@ -2,15 +2,161 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Nine small felid species, including the introduced domestic cat, inhabit Southeast Asia. We analysed their skull morphology, using 36 selected morphometric measurements of up to 465 specimens. Of the species examined, the fishing cat and the Asian golden cat were the largest, whilst the mainland and Sunda leopard cats were the smallest. However, there was substantial overlap in size amongst these species. Principal Component Analysis and Quadratic Discriminant Analysis revealed that the skulls of fishing cats and flat-headed cats were clearly distinguishable from those of the other species. Additionally, the skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were well differentiated. In contrast, those of female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats showed considerable morphological overlap with other morphospecies. When analysing only sympatric assemblages (i.e., on the continental mainland, Borneo, Sumatra, and Java), each morphospecies was generally well differentiated from the others although conspecific males and females were not clearly differentiated. Notable exceptions were female Asian golden cats and male jungle cats, female mainland leopard cats and female domestic cats, and female marbled cats and male domestic cats on the mainland, and female marbled cats and male domestic cats on Borneo and Sumatra. More detailed research is necessary to understand the impacts of introduced domestic cats on indigenous small wild felids in Southeast Asia through niche overlap and competition.</p>
-      <sec sec-type="SupplementaryMaterials">
-        <title level="2">Supplementary Information</title>
-        <p>The online version contains supplementary material available at 10.1038/s41598-025-15365-2.</p>
-      </sec>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>Scientific Reports</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Nature Publishing Group</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1038/s41598-025-15365-2</article-id>
+      <title-group>
+        <article-title>Craniological differentiation amongst Southeast Asian small cats</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Azli</surname>
+            <given-names>Athirah N</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Gomez</surname>
+            <given-names>Chrishen R</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Kitchener</surname>
+            <given-names>Andrew C</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Chua</surname>
+            <given-names>Marcus A H</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Maryanto</surname>
+            <given-names>Ibnu</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Macdonald</surname>
+            <given-names>David W</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Ahmed</surname>
+            <given-names>Amirrudin Bin</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Yamaguchi</surname>
+            <given-names>Nobuyuki</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Institute of Tropical Biodiversity and Sustainable Development, University of Malaysia Terengganu</institution>
+          </institution-wrap>
+          <addr-line>21030 Kuala Nerus, Terengganu Malaysia</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>The Wildlife Conservation Research Unit, The Recanati-Kaplan Centre, Department of Biology, University of Oxford</institution>
+          </institution-wrap>
+          <addr-line>Oxford, UK</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Department of Natural Sciences, National Museums Scotland</institution>
+          </institution-wrap>
+          <addr-line>Chambers Street, Edinburgh, EH1 1JF UK</addr-line>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>School of Geosciences, University of Edinburgh</institution>
+          </institution-wrap>
+          <addr-line>Drummond Street, Edinburgh, EH8 9XP UK</addr-line>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>Lee Kong Chian Natural History Museum, National University of Singapore</institution>
+          </institution-wrap>
+          <addr-line>2 Conservatory Drive, Singapore, 117377 Singapore</addr-line>
+        </aff>
+        <aff id="aff6">
+          <institution-wrap>
+            <institution>Museum Zoologicum Bogoriense, Research Centre in Biosystematics and Evolution-BRIN, Jl. Raya Cibinong KM 47, Cibinong, Indonesia</institution>
+          </institution-wrap>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2025">
+        <year>2025</year>
+      </pub-date>
+      <volume>15</volume>
+      <history>
+        <date date-type="received" iso-8601-date="2025-5-15">
+          <year>2025</year>
+          <month>5</month>
+          <day>15</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2025-8-7">
+          <year>2025</year>
+          <month>8</month>
+          <day>7</day>
+        </date>
+      </history>
+      <abstract>
+        <p>Nine small felid species, including the introduced domestic cat, inhabit Southeast Asia. We analysed their skull morphology, using 36 selected morphometric measurements of up to 465 specimens. Of the species examined, the fishing cat and the Asian golden cat were the largest, whilst the mainland and Sunda leopard cats were the smallest. However, there was substantial overlap in size amongst these species. Principal Component Analysis and Quadratic Discriminant Analysis revealed that the skulls of fishing cats and flat-headed cats were clearly distinguishable from those of the other species. Additionally, the skulls of male Asian golden cats, female jungle cats, female Sunda leopard cats, and male marbled cats were well differentiated. In contrast, those of female Asian golden cats, male jungle cats, male domestic cats, and female marbled cats showed considerable morphological overlap with other morphospecies. When analysing only sympatric assemblages (i.e., on the continental mainland, Borneo, Sumatra, and Java), each morphospecies was generally well differentiated from the others although conspecific males and females were not clearly differentiated. Notable exceptions were female Asian golden cats and male jungle cats, female mainland leopard cats and female domestic cats, and female marbled cats and male domestic cats on the mainland, and female marbled cats and male domestic cats on Borneo and Sumatra. More detailed research is necessary to understand the impacts of introduced domestic cats on indigenous small wild felids in Southeast Asia through niche overlap and competition.</p>
+        <sec sec-type="SupplementaryMaterials">
+          <title level="2">Supplementary Information</title>
+          <p>The online version contains supplementary material available at 10.1038/s41598-025-15365-2.</p>
+        </sec>
+      </abstract>
+      <kwd-group>
+        <kwd>Competition</kwd>
+        <kwd>Conservation</kwd>
+        <kwd>Domestic cat</kwd>
+        <kwd>Museum</kwd>
+        <kwd>Niche overlap</kwd>
+        <kwd>Small felids</kwd>
+        <kwd>Zoology</kwd>
+        <kwd>Biodiversity</kwd>
+        <kwd>Conservation biology</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -1987,10 +2133,6 @@ expression: jats
         </caption>
       </supplementary-material>
     </sec>
-    <sec sec-type="Acknowledgements">
-      <title level="1">Acknowledgements</title>
-      <p>We thank museums and their staff who kindly allowed and helped NY accessing their collections (see the Supplementary Information for the full list).</p>
-    </sec>
     <sec sec-type="AuthorContributions">
       <title level="1">Author contributions</title>
       <p>Conceived and general planning: ACK, ABA, DWM, NY, Data collection: NY, Data analysis: ANA, NY, Writing of the manuscript: ANA, CRG, MAHC, NY, Creation of figures: ANA, NY. Discussion on Southeast Asian small felids: CRG, IM, MAHC, NY. All authors reviewed the manuscript submitted.</p>
@@ -2003,4 +2145,1044 @@ expression: jats
       <title level="1">Declarations</title>
     </sec>
   </body>
+  <back>
+    <ack>
+      <title level="1">Acknowledgements</title>
+      <p>We thank museums and their staff who kindly allowed and helped NY accessing their collections (see the Supplementary Information for the full list).</p>
+    </ack>
+    <ref-list>
+      <ref id="CR1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wilting</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Duckworth</surname>
+              <given-names>J W</given-names>
+            </name>
+            <name>
+              <surname>Breitenmoser-Würsten</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Belant</surname>
+              <given-names>J L</given-names>
+            </name>
+            <name>
+              <surname>Mathai</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Distribution of and conservation priorities for Bornean small carnivores and cats</article-title>
+          <source>Raffles Bull. Zool. Suppl.</source>
+          <year>2016</year>
+          <fpage>1</fpage>
+          <lpage>217</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kitchener</surname>
+              <given-names>A C</given-names>
+            </name>
+          </person-group>
+          <article-title>A revised taxonomy of the felidae: the final report of the cat classification task force of the IUCN cat specialist group</article-title>
+          <source>Cat News Special Issue</source>
+          <year>2017</year>
+          <fpage>1</fpage>
+          <lpage>80</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Luo</surname>
+              <given-names>S J</given-names>
+            </name>
+          </person-group>
+          <article-title>Sympatric Asian felid phylogeography reveals a major Indochinese–Sundaic divergence</article-title>
+          <source>Mol. Ecol.</source>
+          <year>2014</year>
+          <fpage>2072</fpage>
+          <lpage>2092</lpage>
+          <pub-id pub-id-type="doi">10.1111/mec.12716</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Patel</surname>
+              <given-names>R P</given-names>
+            </name>
+          </person-group>
+          <article-title>Genetic structure and phylogeography of the leopard cat (<italic>Prionailurus bengalensis</italic>) inferred from mitochondrial genomes</article-title>
+          <source>J. Hered</source>
+          <year>2017</year>
+          <fpage>349</fpage>
+          <lpage>360</lpage>
+          <pub-id pub-id-type="doi">10.1093/jhered/esx017</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR5">
+        <mixed-citation>Bogdan, V., Jůnek, T. &amp; Vymyslická, P. J. Temporal overlaps of feral cats with prey and competitors in primary and human-altered habitats on Bohol Island. Philippines PeerJ 4 , e2288 (2016). 10.7717/peerj.2288 PMC4994077 27602271<person-group person-group-type="author">
+            <name>
+              <surname>Bogdan</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Jůnek</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Vymyslická</surname>
+              <given-names>P J</given-names>
+            </name>
+          </person-group>
+          <year>2016</year>
+          <pub-id pub-id-type="doi">10.7717/peerj.2288</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR6">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Koch</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Algar</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Schwenk</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Feral cat globetrotters: genetic traces of historical human-mediated dispersal</article-title>
+          <source>Ecol. Evol.</source>
+          <year>2016</year>
+          <fpage>5321</fpage>
+          <lpage>5332</lpage>
+          <pub-id pub-id-type="doi">10.1002/ece3.2261</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR7">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hong</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Mohd-Azlan</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>The urban avifauna of kuching, borneo, and the possible impact of cats on its structure</article-title>
+          <source>Kukila</source>
+          <year>2018</year>
+          <fpage>1</fpage>
+          <lpage>12</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR8">
+        <mixed-citation>Nowell, K. &amp; Jackson, P. Wild Cats: Status Survey and Conservation Action Plan (IUCN/SSC Cat Specialist Group, 1996).<person-group person-group-type="author">
+            <name>
+              <surname>Nowell</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Jackson</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <year>1996</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maiwald</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Mohd-Azlan</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Brodie</surname>
+              <given-names>J F</given-names>
+            </name>
+          </person-group>
+          <article-title>Resilience of terrestrial mammals to logging in an active concession in Sarawak</article-title>
+          <source>Borneo Mammalia</source>
+          <year>2021</year>
+          <fpage>115</fpage>
+          <lpage>122</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mohd-Azlan</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Ecology, occurrence and distribution of wild felids in sarawak, Malaysian Borneo</article-title>
+          <source>Oryx</source>
+          <year>2023</year>
+          <fpage>252</fpage>
+          <lpage>261</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR11">
+        <mixed-citation>Wilting, A. et al. Prionailurus planiceps. IUCN Red List. Threatened Species . e.T18148A50662095 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2015).<person-group person-group-type="author">
+            <name>
+              <surname>Wilting</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <year>2025</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR12">
+        <mixed-citation>Hearn, A. et al. Catopuma badia (errata version published in 2017). The IUCN Red List of Threatened Species e.T4037A112910221 10.2305/IUCN.UK.2016-1.RLTS.T4037A50650716.en (Accessed 4 Apr 2025) (2016).<person-group person-group-type="author">
+            <name>
+              <surname>Hearn</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <year>2017</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2016-1.RLTS.T4037A50650716.en</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR13">
+        <mixed-citation>Mukherjee, S. et al. Prionailurus viverrinus. IUCN Red List. Threatened Species . e.T18150A268618387 10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en (Accessed 4 Apr 2025) (2025).<person-group person-group-type="author">
+            <name>
+              <surname>Mukherjee</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <year>2025</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2015-2.RLTS.T18148A50662095.en</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR14">
+        <mixed-citation>Petersen, W. J. et al. Catopuma temminckii . The IUCN Red List of Threatened Species e.T4038A245236583 (Accessed 4 Apr 2025) (2025).<person-group person-group-type="author">
+            <name>
+              <surname>Petersen</surname>
+              <given-names>W J</given-names>
+            </name>
+          </person-group>
+          <year>2025</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR15">
+        <mixed-citation>Chiaverini, L. et al. Identifying gaps in the conservation of small wild cats of Southeast Asia. Biodivers. Conserv. 2025 , 1–25 (2025).<person-group person-group-type="author">
+            <name>
+              <surname>Chiaverini</surname>
+              <given-names>L</given-names>
+            </name>
+          </person-group>
+          <year>2025</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lynam</surname>
+              <given-names>A J</given-names>
+            </name>
+          </person-group>
+          <article-title>Terrestrial activity patterns of wild cats from camera-trapping</article-title>
+          <source>Raffles Bull. Zool.</source>
+          <year>2013</year>
+          <fpage>407</fpage>
+          <lpage>415</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sunarto</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Kelly</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Parakkasi</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Hutajulu</surname>
+              <given-names>M B</given-names>
+            </name>
+          </person-group>
+          <article-title>Cat coexistence in central sumatra: ecological characteristics, spatial and temporal overlap, and implications for management</article-title>
+          <source>J. Zool.</source>
+          <year>2015</year>
+          <fpage>104</fpage>
+          <lpage>115</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR18">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hearn</surname>
+              <given-names>A J</given-names>
+            </name>
+          </person-group>
+          <article-title>Spatio-temporal ecology of sympatric felids on borneo. Evidence for resource partitioning?</article-title>
+          <source>PLoS One</source>
+          <year>2018</year>
+          <fpage>e0200828</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0200828</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kyaw</surname>
+              <given-names>P P</given-names>
+            </name>
+          </person-group>
+          <article-title>Investigating carnivore guild structure: Spatial and temporal relationships amongst threatened felids in Myanmar</article-title>
+          <source>ISPRS Int. J. Geo-Inf</source>
+          <year>2021</year>
+          <fpage>808</fpage>
+        </element-citation>
+      </ref>
+      <ref id="CR20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kamler</surname>
+              <given-names>J F</given-names>
+            </name>
+          </person-group>
+          <article-title>Diet, prey selection, and activity of Asian golden cats and leopard cats in Northern Laos</article-title>
+          <source>J. Mammal</source>
+          <year>2020</year>
+          <fpage>1267</fpage>
+          <lpage>1278</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR21">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rostro-García</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Small cats in big trouble? Diet, activity, and habitat use of jungle cats and leopard cats in threatened dry deciduous forests, Cambodia</article-title>
+          <source>Ecol. Evol.</source>
+          <year>2021</year>
+          <fpage>4205</fpage>
+          <lpage>4217</lpage>
+          <pub-id pub-id-type="doi">10.1002/ece3.7316</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wongson</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Dietary habits of fishing cats in a human-dominated wetland in coastal Thailand</article-title>
+          <source>Biodiversitas</source>
+          <year>2024</year>
+          <fpage>2788</fpage>
+          <lpage>2797</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR23">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Brown</surname>
+              <given-names>W L</given-names>
+            </name>
+            <name>
+              <surname>Wilson</surname>
+              <given-names>E O</given-names>
+            </name>
+          </person-group>
+          <article-title>Character displacement</article-title>
+          <source>Syst. Zool.</source>
+          <year>1956</year>
+          <fpage>49</fpage>
+          <lpage>64</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dayan</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Simberloff</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Tchernov</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Yom-Tov</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Feline canines: community-wide character displacement among the small cats of Israel</article-title>
+          <source>Am. Nat.</source>
+          <year>1990</year>
+          <fpage>39</fpage>
+          <lpage>60</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Michaud</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Veron</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Peignè</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Blin</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Fabre</surname>
+              <given-names>A C</given-names>
+            </name>
+          </person-group>
+          <article-title>Are phenotypic disparity and rate of morphological evolution correlated with ecological diversity in carnivora??</article-title>
+          <source>Biol. J. Linn. Soc.</source>
+          <year>2018</year>
+          <fpage>294</fpage>
+          <lpage>307</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Meachen-Samuels</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Van Valkenburgh</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>Forelimb indicators of prey‐size preference in the felidae</article-title>
+          <source>J. Morphol.</source>
+          <year>2009</year>
+          <fpage>729</fpage>
+          <lpage>744</lpage>
+          <pub-id pub-id-type="doi">10.1002/jmor.10712</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sicuro</surname>
+              <given-names>F L</given-names>
+            </name>
+            <name>
+              <surname>Oliveira</surname>
+              <given-names>L F B</given-names>
+            </name>
+          </person-group>
+          <article-title>Skull morphology and functionality of extant felidae (Mammalia: Carnivora): A phylogenetic and evolutionary perspective</article-title>
+          <source>Zool. J. Linn. Soc.</source>
+          <year>2011</year>
+          <fpage>414</fpage>
+          <lpage>462</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Abramov</surname>
+              <given-names>A V</given-names>
+            </name>
+            <name>
+              <surname>Puzachenko</surname>
+              <given-names>A Y</given-names>
+            </name>
+            <name>
+              <surname>Tumanov</surname>
+              <given-names>I L</given-names>
+            </name>
+          </person-group>
+          <article-title>Morphological differentiation of the skull in two closely-related Mustelid species (Carnivora: Mustelidae)</article-title>
+          <source>Zool. Stud.</source>
+          <year>2016</year>
+          <fpage>e1</fpage>
+          <pub-id pub-id-type="doi">10.6620/ZS.2016.55-01</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Davies</surname>
+              <given-names>T J</given-names>
+            </name>
+            <name>
+              <surname>Meiri</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Barraclough</surname>
+              <given-names>T G</given-names>
+            </name>
+            <name>
+              <surname>Gittleman</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>Species co-existence and character divergence across carnivores</article-title>
+          <source>Ecol. Lett.</source>
+          <year>2007</year>
+          <fpage>146</fpage>
+          <lpage>152</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1461-0248.2006.01005.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mukherjee</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Groves</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Geographic variation in jungle cat (<italic>Felis chaus</italic>Schreber, 1777) (Mammalia, Carnivora, Felidae) body size: is competition responsible?</article-title>
+          <source>Biol. J. Linn. Soc.</source>
+          <year>2007</year>
+          <fpage>163</fpage>
+          <lpage>172</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Groves</surname>
+              <given-names>C P</given-names>
+            </name>
+          </person-group>
+          <article-title>Leopard-cats:<italic>Prionailurus bengalensis</italic>(Carnivora: Felidae) from Indonesia and the Philippines, with the description of two new subspecies</article-title>
+          <source>Z. Säugetierkd</source>
+          <year>1997</year>
+          <fpage>330</fpage>
+          <lpage>338</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sicuro</surname>
+              <given-names>F L</given-names>
+            </name>
+            <name>
+              <surname>Oliveira</surname>
+              <given-names>L F B</given-names>
+            </name>
+          </person-group>
+          <article-title>Variations in leopard cat (<italic>Prionailurus bengalensis</italic>) skull morphology and body size: sexual and geographic influences</article-title>
+          <source>PeerJ</source>
+          <year>2015</year>
+          <fpage>e1309</fpage>
+          <pub-id pub-id-type="doi">10.7717/peerj.1309</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR33">
+        <mixed-citation>Borries, C., Primeau, Z. M., Ossi-Lupo, K., Dtubpraserit, S. &amp; Koenig, A. Possible predation attempt by a marbled cat on a juvenile Phayre’s leaf monkey. Raffles Bull. Zool 62 , (2014).<person-group person-group-type="author">
+            <name>
+              <surname>Borries</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Primeau</surname>
+              <given-names>Z M</given-names>
+            </name>
+            <name>
+              <surname>Ossi-Lupo</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Dtubpraserit</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Koenig</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <year>2014</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR34">
+        <mixed-citation>Ross, J. et al. Pardofelis marmorata. IUCN Red List. Threatened Species . e.T16218A97164299 10.2305/IUCN.UK.2016-1.RLTS.T16218A97164299.en (Accessed 6 Apr 2025) (2016).<person-group person-group-type="author">
+            <name>
+              <surname>Ross</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <year>2025</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2016-1.RLTS.T16218A97164299.en</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR35">
+        <mixed-citation>Gray, T. N. E. et al. Felis chaus (amended version of 2016 assessment). The IUCN Red List of Threatened Species 2021, e.T8540A200639312 10.2305/IUCN.UK.2021-2.RLTS.T8540A200639312.en (Accessed 4 Apr 2025).<person-group person-group-type="author">
+            <name>
+              <surname>Gray</surname>
+              <given-names>T N E</given-names>
+            </name>
+          </person-group>
+          <year>2016</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2021-2.RLTS.T8540A200639312.en</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Patel</surname>
+              <given-names>R P</given-names>
+            </name>
+          </person-group>
+          <article-title>Two species of Southeast Asian cats in the genus<italic>Catopuma</italic>with diverging histories: an Island endemic forest specialist and a widespread habitat generalist</article-title>
+          <source>R Soc. Open. Sci.</source>
+          <year>2016</year>
+          <fpage>160350</fpage>
+          <pub-id pub-id-type="doi">10.1098/rsos.160350</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR37">
+        <mixed-citation>Nijhawan, S., Mitapo, I., Pulu, J., Carbone, C. &amp; Rowcliffe, J. M. Does polymorphism make the Asiatic golden cat the most adaptable predator in the Eastern Himalayas? Ecology 100 , e02768 (2019). 10.1002/ecy.2768 31172504<person-group person-group-type="author">
+            <name>
+              <surname>Nijhawan</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Mitapo</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Pulu</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Carbone</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Rowcliffe</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <year>2019</year>
+          <pub-id pub-id-type="doi">10.1002/ecy.2768</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Crowley</surname>
+              <given-names>S L</given-names>
+            </name>
+            <name>
+              <surname>Cecchetti</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>McDonald</surname>
+              <given-names>R A</given-names>
+            </name>
+          </person-group>
+          <article-title>Our wild companions: domestic cats in the anthropocene</article-title>
+          <source>Trends Ecol. Evol.</source>
+          <year>2020</year>
+          <fpage>477</fpage>
+          <lpage>483</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.tree.2020.01.008</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR39">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Loss</surname>
+              <given-names>S R</given-names>
+            </name>
+          </person-group>
+          <article-title>Review and synthesis of the global literature on domestic cat impacts on wildlife</article-title>
+          <source>J. Anim. Ecol.</source>
+          <year>2022</year>
+          <fpage>1361</fpage>
+          <lpage>1372</lpage>
+          <pub-id pub-id-type="doi">10.1111/1365-2656.13745</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Watanabe</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Nakanishi</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Izawa</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Habitat and prey resource overlap between the Iriomote cat<italic>Prionailurus iriomotensis</italic>and introduced feral cat<italic>Felis catus</italic>based on assessment of scat content and distribution</article-title>
+          <source>Mamm. Study</source>
+          <year>2003</year>
+          <fpage>47</fpage>
+          <lpage>56</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR41">
+        <mixed-citation>Chua, M. A. H. Ecology and conservation of the leopard cat Prionailurus bengalensis (Kerr, 1792) (Mammalia: Carnivora: Felidae) in Singapore . MSc thesis, National University of Singapore (2013).<person-group person-group-type="author">
+            <name>
+              <surname>Chua</surname>
+              <given-names>M A H</given-names>
+            </name>
+          </person-group>
+          <year>1792</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR42">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Doherty</surname>
+              <given-names>T S</given-names>
+            </name>
+            <name>
+              <surname>Bengsen</surname>
+              <given-names>A J</given-names>
+            </name>
+            <name>
+              <surname>Davis</surname>
+              <given-names>R A</given-names>
+            </name>
+          </person-group>
+          <article-title>A critical review of habitat use by feral cats and key directions for future research and management</article-title>
+          <source>Wildl. Res.</source>
+          <year>2015</year>
+          <fpage>435</fpage>
+          <lpage>446</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR43">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Driscoll</surname>
+              <given-names>C A</given-names>
+            </name>
+          </person-group>
+          <article-title>The near Eastern origin of cat domestication</article-title>
+          <source>Science</source>
+          <year>2007</year>
+          <fpage>519</fpage>
+          <lpage>523</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.1139518</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR44">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dickman</surname>
+              <given-names>C R</given-names>
+            </name>
+            <name>
+              <surname>Legge</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Woinarski</surname>
+              <given-names>J C</given-names>
+            </name>
+          </person-group>
+          <article-title>Assessing risks to wildlife from free-roaming hybrid cats: the proposed introduction of pet Savannah cats to Australia as a case study</article-title>
+          <source>Animals</source>
+          <year>2019</year>
+          <fpage>795</fpage>
+          <pub-id pub-id-type="doi">10.3390/ani9100795</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR45">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yu</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Genomic evidence for the Chinese mountain cat as a wildcat conspecific (<italic>Felis silvestris bieti</italic>) and its introgression to domestic cats</article-title>
+          <source>Sci. Adv.</source>
+          <year>2021</year>
+          <fpage>eabg0221</fpage>
+          <pub-id pub-id-type="doi">10.1126/sciadv.abg0221</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yamaguchi</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Driscoll</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Kitchener</surname>
+              <given-names>A C</given-names>
+            </name>
+            <name>
+              <surname>Ward</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Macdonald</surname>
+              <given-names>D W</given-names>
+            </name>
+          </person-group>
+          <article-title>Craniological differentiation between European wildcats (<italic>Felis S.lvestris S.lvestris</italic>), African wildcats (<italic>F. S. lybica</italic>) and Asian wildcats (<italic>F. S. ornata</italic>): implications for their evolution and conservation</article-title>
+          <source>Biol. J. Linn. Soc.</source>
+          <year>2004</year>
+          <fpage>47</fpage>
+          <lpage>63</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gittleman</surname>
+              <given-names>J L</given-names>
+            </name>
+            <name>
+              <surname>Van Valkenburgh</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>Sexual dimorphism in the canines and skulls of carnivores: effects of size, phylogeny, and behavioural ecology</article-title>
+          <source>J. Zool.</source>
+          <year>1997</year>
+          <fpage>97</fpage>
+          <lpage>117</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yamaguchi</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Kitchener</surname>
+              <given-names>A C</given-names>
+            </name>
+            <name>
+              <surname>Gilissen</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Macdonald</surname>
+              <given-names>D W</given-names>
+            </name>
+          </person-group>
+          <article-title>Brain size of the lion (<italic>Panthera leo</italic>) and the tiger (<italic>P. tigris</italic>): implications for intrageneric phylogeny, intraspecific differences and the effects of captivity</article-title>
+          <source>Biol. J. Linn. Soc.</source>
+          <year>2009</year>
+          <fpage>85</fpage>
+          <lpage>93</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Saragusty</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Comparative skull analysis suggests species-specific captivity-related malformation in lions (<italic>Panthera leo</italic>)</article-title>
+          <source>PLoS One</source>
+          <year>2014</year>
+          <fpage>e94527</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0094527</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cooper</surname>
+              <given-names>D M</given-names>
+            </name>
+          </person-group>
+          <article-title>Getting to the meat of it: the effects of a captive diet upon the skull morphology of the lion and tiger</article-title>
+          <source>Animals</source>
+          <year>2023</year>
+          <fpage>3616</fpage>
+          <pub-id pub-id-type="doi">10.3390/ani13233616</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR51">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nanova</surname>
+              <given-names>O</given-names>
+            </name>
+          </person-group>
+          <article-title>Skull morphology analysis suggests the extinct cape lion,<italic>Panthera leo melanochaita</italic>(Smith, 1842), is not distinctive</article-title>
+          <source>Sci. Rep.</source>
+          <year>2024</year>
+          <fpage>24251</fpage>
+          <pub-id pub-id-type="doi">10.1038/s41598-024-74225-7</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR52">
+        <mixed-citation>Tabachnick, B. G. &amp; Fidell, L. S. Using Multivariate Statistics 7th edn (Pearson, 2019).<person-group person-group-type="author">
+            <name>
+              <surname>Tabachnick</surname>
+              <given-names>B G</given-names>
+            </name>
+            <name>
+              <surname>Fidell</surname>
+              <given-names>L S</given-names>
+            </name>
+          </person-group>
+          <year>2019</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR53">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wu</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Hao</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>Quadratic discriminant analysis by projection</article-title>
+          <source>J. Multivar. Anal.</source>
+          <year>2022</year>
+          <fpage>104987</fpage>
+        </element-citation>
+      </ref>
+      <ref id="CR54">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Konecny</surname>
+              <given-names>M J</given-names>
+            </name>
+          </person-group>
+          <article-title>Home range and activity patterns of feral house cats in the Galapagos Islands</article-title>
+          <source>Oikos</source>
+          <year>1987</year>
+          <fpage>17</fpage>
+          <lpage>23</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR55">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Doherty</surname>
+              <given-names>T S</given-names>
+            </name>
+          </person-group>
+          <article-title>A continental-scale analysis of feral cat diet in Australia</article-title>
+          <source>J. Biogeogr.</source>
+          <year>2015</year>
+          <fpage>964</fpage>
+          <lpage>975</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR56">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Izawa</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Daily activities of the feral cat<italic>Felis catus</italic>Linn</article-title>
+          <source>J. Mammal Soc. Jpn</source>
+          <year>1983</year>
+          <fpage>219</fpage>
+          <lpage>228</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR57">
+        <mixed-citation>Ghimirey, Y. et al. Prionailurus bengalensis (amended version of 2022 assessment). IUCN Red List. Threatened Species . e.T223138747A226150742 10.2305/IUCN.UK.2023-1.RLTS.T223138747A226150742.en (2023). (accessed 4 Apr 2025).<person-group person-group-type="author">
+            <name>
+              <surname>Ghimirey</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <year>2022</year>
+          <pub-id pub-id-type="doi">10.2305/IUCN.UK.2023-1.RLTS.T223138747A226150742.en</pub-id>
+        </mixed-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

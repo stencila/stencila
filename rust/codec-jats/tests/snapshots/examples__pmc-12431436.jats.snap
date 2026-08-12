@@ -2,11 +2,212 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Dengue is one of the neglected tropical diseases (NTDs) transmitted by<italic>Aedes</italic>mosquitoes and continues to spread globally. When mosquitoes are infected with dengue virus (DENV), virus-derived DNA (vDNA) is generated in mosquitoes, which subsequently contributes to their immune response. We traced the generation and presence of dengue virus type 2 (DENV-2) vDNA in experimentally infected cultured mosquito cells and<italic>Aedes</italic>mosquitoes, and notably, in wild mosquitoes collected in Burkina Faso. Detection of vDNA was achieved using a method incorporating loop-mediated isothermal amplification (LAMP), specifically, a LAMP-based vDNA detection method (vDNA-LAMP). The LAMP reaction, using primers targeting a segment of the NS5 region of DENV-2, detected vDNA from crude DNA extracted from experimentally infected cultured cells and<italic>Aedes</italic>mosquitoes. Detection revealed that the amount of DENV-2 vDNA generated in infected cells was relatively low; nevertheless, vDNA-LAMP enabled successful detection. The timing and quantity of vDNA generation in cultured cells were associated with the initial number of viral particles introduced during infection. Furthermore, vDNA-LAMP was applied to detect dengue virus vDNA in wild mosquitoes in dengue-endemic regions. This resulted in the successful detection of DENV-2 vDNA in field-collected mosquitoes, indicating that a proportion of wild mosquitoes in Burkina Faso harbored DENV-2 vDNA. Mapping these vDNA-positive mosquitoes allowed the identification of areas where infected mosquitoes and/or their progeny were likely present. These findings provide insights into the dynamics of DENV-2 vDNA in natural environments and underscore the potential of vDNA-LAMP as a tool for tracing vDNA in wild mosquitoes, which are responsible for transmitting viral infections.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>PLOS One</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>PLOS</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1371/journal.pone.0332245</article-id>
+      <title-group>
+        <article-title>Dissecting the dynamics of virus-derived DNA of dengue virus 2 (DENV-2) in<italic>Aedes</italic>mosquitoes</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Aonuma</surname>
+            <given-names>Hiroka</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0009-0000-2244-4292</contrib-id>
+          <email>aonuma@jikei.ac.jp</email>
+          <email>kanuka@jikei.ac.jp</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Sombié</surname>
+            <given-names>Aboubacar</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Li</surname>
+            <given-names>Jian-Chiuan</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Ote</surname>
+            <given-names>Manabu</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Saiki</surname>
+            <given-names>Erisha</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2844-9582</contrib-id>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Ichimura</surname>
+            <given-names>Hidetoshi</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Iizuka</surname>
+            <given-names>Itoe</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-5454-6661</contrib-id>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Odagawa</surname>
+            <given-names>Taichi</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Sakurai</surname>
+            <given-names>Tatsuya</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Yamaji</surname>
+            <given-names>Kayoko</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Saijo</surname>
+            <given-names>Masayuki</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Chen</surname>
+            <given-names>Chun-Hong</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Badolo</surname>
+            <given-names>Athanase</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Kanuka</surname>
+            <given-names>Hirotaka</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-0432-6510</contrib-id>
+          <email>aonuma@jikei.ac.jp</email>
+          <email>kanuka@jikei.ac.jp</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Department of Tropical Medicine, The Jikei University School of Medicine, Tokyo, Japan</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Center for Medical Entomology, The Jikei University School of Medicine, Tokyo, Japan</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Laboratoire d’Entomologie Fondamentale et Appliquée, Université Joseph Ki-Zerbo, Ouagadougou, Burkina Faso</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>National Institute of Infectious Diseases and Vaccinology, National Health Research Institutes, Zhunan, Taiwan</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>Laboratory Animal Facilities, The Jikei University School of Medicine, Tokyo, Japan</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff6">
+          <institution-wrap>
+            <institution>Department of Virology 1, National Institute of Infectious Diseases, Tokyo, Japan</institution>
+          </institution-wrap>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2025">
+        <year>2025</year>
+      </pub-date>
+      <volume>20</volume>
+      <issue>9</issue>
+      <history>
+        <date date-type="received" iso-8601-date="2025-5-8">
+          <year>2025</year>
+          <month>5</month>
+          <day>8</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2025-8-27">
+          <year>2025</year>
+          <month>8</month>
+          <day>27</day>
+        </date>
+      </history>
+      <abstract>
+        <p>Dengue is one of the neglected tropical diseases (NTDs) transmitted by<italic>Aedes</italic>mosquitoes and continues to spread globally. When mosquitoes are infected with dengue virus (DENV), virus-derived DNA (vDNA) is generated in mosquitoes, which subsequently contributes to their immune response. We traced the generation and presence of dengue virus type 2 (DENV-2) vDNA in experimentally infected cultured mosquito cells and<italic>Aedes</italic>mosquitoes, and notably, in wild mosquitoes collected in Burkina Faso. Detection of vDNA was achieved using a method incorporating loop-mediated isothermal amplification (LAMP), specifically, a LAMP-based vDNA detection method (vDNA-LAMP). The LAMP reaction, using primers targeting a segment of the NS5 region of DENV-2, detected vDNA from crude DNA extracted from experimentally infected cultured cells and<italic>Aedes</italic>mosquitoes. Detection revealed that the amount of DENV-2 vDNA generated in infected cells was relatively low; nevertheless, vDNA-LAMP enabled successful detection. The timing and quantity of vDNA generation in cultured cells were associated with the initial number of viral particles introduced during infection. Furthermore, vDNA-LAMP was applied to detect dengue virus vDNA in wild mosquitoes in dengue-endemic regions. This resulted in the successful detection of DENV-2 vDNA in field-collected mosquitoes, indicating that a proportion of wild mosquitoes in Burkina Faso harbored DENV-2 vDNA. Mapping these vDNA-positive mosquitoes allowed the identification of areas where infected mosquitoes and/or their progeny were likely present. These findings provide insights into the dynamics of DENV-2 vDNA in natural environments and underscore the potential of vDNA-LAMP as a tool for tracing vDNA in wild mosquitoes, which are responsible for transmitting viral infections.</p>
+      </abstract>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -657,8 +858,940 @@ expression: jats
       <title level="1">Data Availability</title>
       <p>All relevant data are within the manuscript and its<ext-link xlink:href="#sec020">Supporting Information</ext-link>files. In the data for<ext-link xlink:href="#pone.0332245.g004">Fig 4</ext-link>included in<ext-link xlink:href="#sec020">Supporting Information</ext-link>, mosquito sample IDs were anonymized. GPS data representing individual households cannot be made publicly available in accordance with the participants’ consent process, in which participants have not given approval to share their households’ GPS location data.</p>
     </sec>
-    <sec sec-type="Acknowledgements">
-      <p>We thank all the members of the Kanuka laboratory for their assistance and advice. In particular, Chisako Sakuma for mosquito rearing.</p>
-    </sec>
   </body>
+  <back>
+    <ack>
+      <p>We thank all the members of the Kanuka laboratory for their assistance and advice. In particular, Chisako Sakuma for mosquito rearing.</p>
+    </ack>
+    <ref-list>
+      <ref id="pone.0332245.ref001">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <collab>World Health Organization</collab>
+          </person-group>
+          <article-title>fact sheet Dengue and severe dengue, 2024 April 23 [Cited 2025 Jul 24]</article-title>
+          <ext-link ext-link-type="uri" xlink:href="https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue">https://www.who.int/news-room/fact-sheets/detail/dengue-and-severe-dengue</ext-link>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref002">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <collab>World Health Organization</collab>
+          </person-group>
+          <article-title>fact sheet Yellow fever, 2023 May 31 [Cited 2025 Jul 24]</article-title>
+          <ext-link ext-link-type="uri" xlink:href="https://www.who.int/news-room/fact-sheets/detail/yellow-fever">https://www.who.int/news-room/fact-sheets/detail/yellow-fever</ext-link>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref003">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <collab>World Health Organization</collab>
+          </person-group>
+          <article-title>fact sheet Chikungunya, 2025 April 14 [Cited 2025 Jul 24]</article-title>
+          <ext-link ext-link-type="uri" xlink:href="https://www.who.int/news-room/fact-sheets/detail/chikungunya">https://www.who.int/news-room/fact-sheets/detail/chikungunya</ext-link>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref004">
+        <element-citation publication-type="website">
+          <person-group person-group-type="author">
+            <collab>World Health Organization</collab>
+          </person-group>
+          <article-title>fact sheet Zika virus, 2022 December 8 [Cited 2025 Jul 24]</article-title>
+          <ext-link ext-link-type="uri" xlink:href="https://www.who.int/news-room/fact-sheets/zika-virus">https://www.who.int/news-room/fact-sheets/zika-virus</ext-link>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref005">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Whitehorn</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Kien</surname>
+              <given-names>D T H</given-names>
+            </name>
+            <name>
+              <surname>Nguyen</surname>
+              <given-names>N M</given-names>
+            </name>
+            <name>
+              <surname>Nguyen</surname>
+              <given-names>H L</given-names>
+            </name>
+            <name>
+              <surname>Kyrylos</surname>
+              <given-names>P P</given-names>
+            </name>
+            <name>
+              <surname>Carrington</surname>
+              <given-names>L B</given-names>
+            </name>
+          </person-group>
+          <article-title>Comparative Susceptibility of Aedes albopictus and Aedes aegypti to Dengue Virus Infection After Feeding on Blood of Viremic Humans: Implications for Public Health</article-title>
+          <source>J Infect Dis</source>
+          <year>2015</year>
+          <fpage>1182</fpage>
+          <lpage>90</lpage>
+          <pub-id pub-id-type="doi">10.1093/infdis/jiv173</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref006">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Togami</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Chiew</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lowbridge</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Biaukula</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Bell</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Yajima</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Epidemiology of dengue reported in the World Health Organization’s Western Pacific Region, 2013-2019</article-title>
+          <source>Western Pac Surveill Response J</source>
+          <year>2023</year>
+          <fpage>1</fpage>
+          <lpage>16</lpage>
+          <pub-id pub-id-type="doi">10.5365/wpsar.2023.14.1.973</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref007">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Brady</surname>
+              <given-names>O J</given-names>
+            </name>
+            <name>
+              <surname>Gething</surname>
+              <given-names>P W</given-names>
+            </name>
+            <name>
+              <surname>Bhatt</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Messina</surname>
+              <given-names>J P</given-names>
+            </name>
+            <name>
+              <surname>Brownstein</surname>
+              <given-names>J S</given-names>
+            </name>
+            <name>
+              <surname>Hoen</surname>
+              <given-names>A G</given-names>
+            </name>
+          </person-group>
+          <article-title>Refining the global spatial limits of dengue virus transmission by evidence-based consensus</article-title>
+          <source>PLoS Negl Trop Dis</source>
+          <year>2012</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pntd.0001760</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref008">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Haider</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Hasan</surname>
+              <given-names>M N</given-names>
+            </name>
+            <name>
+              <surname>Onyango</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Asaduzzaman</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Global landmark: 2023 marks the worst year for dengue cases with millions infected and thousands of deaths reported</article-title>
+          <source>IJID Reg</source>
+          <year>2024</year>
+          <fpage>100459</fpage>
+          <pub-id pub-id-type="doi">10.1016/j.ijregi.2024.100459</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref009">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Goic</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Vodovar</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Mondotte</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Monot</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Frangeul</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Blanc</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>RNA-mediated interference and reverse transcription control the persistence of RNA viruses in the insect model Drosophila</article-title>
+          <source>Nat Immunol</source>
+          <year>2013</year>
+          <fpage>396</fpage>
+          <lpage>403</lpage>
+          <pub-id pub-id-type="doi">10.1038/ni.2542</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref010">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nag</surname>
+              <given-names>D K</given-names>
+            </name>
+            <name>
+              <surname>Brecher</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Kramer</surname>
+              <given-names>L D</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA forms of arboviral RNA genomes are generated following infection in mosquito cell cultures</article-title>
+          <source>Virology</source>
+          <year>2016</year>
+          <fpage>164</fpage>
+          <lpage>71</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.virol.2016.08.022</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref011">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nag</surname>
+              <given-names>D K</given-names>
+            </name>
+            <name>
+              <surname>Kramer</surname>
+              <given-names>L D</given-names>
+            </name>
+          </person-group>
+          <article-title>Patchy DNA forms of the Zika virus RNA genome are generated following infection in mosquito cell cultures and in mosquitoes</article-title>
+          <source>J Gen Virol</source>
+          <year>2017</year>
+          <fpage>2731</fpage>
+          <lpage>7</lpage>
+          <pub-id pub-id-type="doi">10.1099/jgv.0.000945</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref012">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Goic</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Stapleford</surname>
+              <given-names>K A</given-names>
+            </name>
+            <name>
+              <surname>Frangeul</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Doucet</surname>
+              <given-names>A J</given-names>
+            </name>
+            <name>
+              <surname>Gausson</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Blanc</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Virus-derived DNA drives mosquito vector tolerance to arboviral infection</article-title>
+          <source>Nat Commun</source>
+          <year>2016</year>
+          <fpage>12410</fpage>
+          <pub-id pub-id-type="doi">10.1038/ncomms12410</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref013">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rodriguez-Andres</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Axford</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Hoffmann</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Fazakerley</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Mosquito transgenerational antiviral immunity is mediated by vertical transfer of virus DNA sequences and RNAi</article-title>
+          <source>iScience</source>
+          <year>2023</year>
+          <fpage>108598</fpage>
+          <pub-id pub-id-type="doi">10.1016/j.isci.2023.108598</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref014">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lakshmanan</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>B M</given-names>
+            </name>
+          </person-group>
+          <article-title>Impact of Point-of-Care Testing on Diagnosis, Treatment, and Surveillance of Vaccine-Preventable Viral Infections</article-title>
+          <source>Diagnostics (Basel)</source>
+          <year>2025</year>
+          <fpage>123</fpage>
+          <pub-id pub-id-type="doi">10.3390/diagnostics15020123</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref015">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Soroka</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Wasowicz</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Rymaszewska</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Loop-Mediated Isothermal Amplification (LAMP): The Better Sibling of PCR?</article-title>
+          <source>Cells</source>
+          <year>2021</year>
+          <fpage>1931</fpage>
+          <pub-id pub-id-type="doi">10.3390/cells10081931</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref016">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Notomi</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Okayama</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Masubuchi</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Yonekawa</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Watanabe</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Amino</surname>
+              <given-names>N</given-names>
+            </name>
+          </person-group>
+          <article-title>Loop-mediated isothermal amplification of DNA</article-title>
+          <source>Nucleic Acids Res</source>
+          <year>2000</year>
+          <pub-id pub-id-type="doi">10.1093/nar/28.12.e63</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref017">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hu</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Zhong</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Lu</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Pu</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Development of reverse-transcription loop-mediated isothermal amplification assay for rapid detection and differentiation of dengue virus serotypes 1-4</article-title>
+          <source>BMC Microbiol</source>
+          <year>2015</year>
+          <fpage>265</fpage>
+          <pub-id pub-id-type="doi">10.1186/s12866-015-0595-1</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref018">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Garg</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Ahmad</surname>
+              <given-names>F J</given-names>
+            </name>
+            <name>
+              <surname>Kar</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Recent advances in loop-mediated isothermal amplification (LAMP) for rapid and efficient detection of pathogens</article-title>
+          <source>Curr Res Microb Sci</source>
+          <year>2022</year>
+          <fpage>100120</fpage>
+          <pub-id pub-id-type="doi">10.1016/j.crmicr.2022.100120</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref019">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Yang</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Han</surname>
+              <given-names>X</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Lu</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Advancements and applications of loop-mediated isothermal amplification technology: a comprehensive overview</article-title>
+          <source>Front Microbiol</source>
+          <year>2024</year>
+          <fpage>1406632</fpage>
+          <pub-id pub-id-type="doi">10.3389/fmicb.2024.1406632</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref020">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Choi</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Moehling</surname>
+              <given-names>T J</given-names>
+            </name>
+            <name>
+              <surname>Meagher</surname>
+              <given-names>R J</given-names>
+            </name>
+          </person-group>
+          <article-title>Advances in RT-LAMP for COVID-19 testing and diagnosis</article-title>
+          <source>Expert Rev Mol Diagn</source>
+          <year>2023</year>
+          <fpage>9</fpage>
+          <lpage>28</lpage>
+          <pub-id pub-id-type="doi">10.1080/14737159.2023.2169071</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref021">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Aonuma</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Suzuki</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Iseki</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Perera</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Nelson</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Igarashi</surname>
+              <given-names>I</given-names>
+            </name>
+          </person-group>
+          <article-title>Rapid identification of Plasmodium-carrying mosquitoes using loop-mediated isothermal amplification</article-title>
+          <source>Biochem Biophys Res Commun</source>
+          <year>2008</year>
+          <fpage>671</fpage>
+          <lpage>6</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.bbrc.2008.09.061</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref022">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Aonuma</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Yoshimura</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Perera</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Shinzawa</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Bando</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Oshiro</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Loop-mediated isothermal amplification applied to filarial parasites detection in the mosquito vectors: Dirofilaria immitis as a study model</article-title>
+          <source>Parasit Vectors</source>
+          <year>2009</year>
+          <fpage>15</fpage>
+          <pub-id pub-id-type="doi">10.1186/1756-3305-2-15</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref023">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Aonuma</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Iizuka</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>J-C</given-names>
+            </name>
+            <name>
+              <surname>Ote</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Tajima</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Saijo</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>LAMP Detection of Virus-Derived DNA of Zika Virus in Vector Mosquito</article-title>
+          <source>Front Trop Dis</source>
+          <year>2022</year>
+          <pub-id pub-id-type="doi">10.3389/fitd.2022.759375</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref024">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gurukumar</surname>
+              <given-names>K R</given-names>
+            </name>
+            <name>
+              <surname>Priyadarshini</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Patil</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Bhagat</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Singh</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Shah</surname>
+              <given-names>P S</given-names>
+            </name>
+          </person-group>
+          <article-title>Development of real time PCR for detection and quantitation of Dengue Viruses</article-title>
+          <source>Virol J</source>
+          <year>2009</year>
+          <fpage>10</fpage>
+          <pub-id pub-id-type="doi">10.1186/1743-422X-6-10</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref025">
+        <mixed-citation publication-type="website">Volodymyr Agafonkin. Leaflet 1.7.1. 2020. Available from: https://leafletjs.com<person-group person-group-type="author">
+            <name>
+              <surname>Agafonkin</surname>
+              <given-names>Volodymyr</given-names>
+            </name>
+          </person-group>
+          <year>2020</year>
+          <ext-link ext-link-type="uri" xlink:href="https://leafletjs.com">https://leafletjs.com</ext-link>
+        </mixed-citation>
+      </ref>
+      <ref id="pone.0332245.ref026">
+        <mixed-citation>Biggerstaff, Brad J . PooledInfRate, Version 4.0: a Microsoft® Office Excel© Add-In to compute prevalence estimates from pooled samples. Centers for Disease Control and Prevention , Fort Collins, CO, U.S.A ., 2009 .<person-group person-group-type="author">
+            <name>
+              <surname>Biggerstaff</surname>
+              <given-names>Brad J</given-names>
+            </name>
+          </person-group>
+          <year>2009</year>
+        </mixed-citation>
+      </ref>
+      <ref id="pone.0332245.ref027">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <collab>World Health Organization</collab>
+          </person-group>
+          <article-title>Dengue fever-Burkina Faso</article-title>
+          <source>WHO</source>
+          <year>2017</year>
+          <fpage>from</fpage>
+          <ext-link ext-link-type="uri" xlink:href="https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en">https://www.who.int/emergencies/disease-outbreak-news/item/6-november-2017-dengue-burkina-faso-en</ext-link>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref028">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Badolo</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Sombié</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Yaméogo</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Wangrawa</surname>
+              <given-names>D W</given-names>
+            </name>
+            <name>
+              <surname>Sanon</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Pignatelli</surname>
+              <given-names>P M</given-names>
+            </name>
+          </person-group>
+          <article-title>First comprehensive analysis of Aedes aegypti bionomics during an arbovirus outbreak in west Africa: Dengue in Ouagadougou, Burkina Faso, 2016-2017</article-title>
+          <source>PLoS Negl Trop Dis</source>
+          <year>2022</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pntd.0010059</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref029">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mondotte</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Gausson</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Frangeul</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Suzuki</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Vazeille</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Mongelli</surname>
+              <given-names>V</given-names>
+            </name>
+          </person-group>
+          <article-title>Evidence For Long-Lasting Transgenerational Antiviral Immunity in Insects</article-title>
+          <source>Cell Rep</source>
+          <year>2020</year>
+          <fpage>108506</fpage>
+          <pub-id pub-id-type="doi">10.1016/j.celrep.2020.108506</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref030">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zhou</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Wan</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Yang</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Li</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Wang</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <article-title>A Mismatch-Tolerant Reverse Transcription Loop-Mediated Isothermal Amplification Method and Its Application on Simultaneous Detection of All Four Serotype of Dengue Viruses</article-title>
+          <source>Front Microbiol</source>
+          <year>2019</year>
+          <fpage>1056</fpage>
+          <pub-id pub-id-type="doi">10.3389/fmicb.2019.01056</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref031">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Moehling</surname>
+              <given-names>T J</given-names>
+            </name>
+            <name>
+              <surname>Browne</surname>
+              <given-names>E R</given-names>
+            </name>
+            <name>
+              <surname>Meagher</surname>
+              <given-names>R J</given-names>
+            </name>
+          </person-group>
+          <article-title>Effects of single and multiple nucleotide mutations on loop-mediated isothermal amplification</article-title>
+          <source>Analyst</source>
+          <year>2024</year>
+          <fpage>1701</fpage>
+          <lpage>8</lpage>
+          <pub-id pub-id-type="doi">10.1039/d3an01927f</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref032">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tamanaha</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Tanner</surname>
+              <given-names>N A</given-names>
+            </name>
+          </person-group>
+          <article-title>Profiling RT-LAMP tolerance of sequence variation for SARS-CoV-2 RNA detection</article-title>
+          <source>PLoS One</source>
+          <year>2022</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0259610</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref033">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hien</surname>
+              <given-names>A S</given-names>
+            </name>
+            <name>
+              <surname>Sangaré</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Ouattara</surname>
+              <given-names>E L P</given-names>
+            </name>
+            <name>
+              <surname>Sawadogo</surname>
+              <given-names>S P</given-names>
+            </name>
+            <name>
+              <surname>Soma</surname>
+              <given-names>D D</given-names>
+            </name>
+            <name>
+              <surname>Maiga</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Chikungunya (Togaviridae) and dengue 2 (Flaviviridae) viruses detected from Aedes aegypti mosquitoes in Burkina Faso by qRT-PCR technique: Preliminary results and perspective for molecular characterization of arbovirus circulation in vector populations</article-title>
+          <source>Front Trop Dis</source>
+          <year>2022</year>
+          <pub-id pub-id-type="doi">10.3389/fitd.2022.920224</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref034">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tenywa</surname>
+              <given-names>F S C</given-names>
+            </name>
+            <name>
+              <surname>Hälg</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Makame</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Moore</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Dogan</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Mapipi</surname>
+              <given-names>H I</given-names>
+            </name>
+          </person-group>
+          <article-title>DENV-2 Circulation and Host Preference Among Highly Anthropophilic, Outdoor-Biting Aedes aegypti in Dar es Salaam, Tanzania</article-title>
+          <source>Viruses</source>
+          <year>2025</year>
+          <fpage>818</fpage>
+          <pub-id pub-id-type="doi">10.3390/v17060818</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="pone.0332245.ref035">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mutua</surname>
+              <given-names>M M</given-names>
+            </name>
+            <name>
+              <surname>Rimal</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Shrestha</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Kharbuja</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Dulal</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Subedi</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Detection of Dengue and Chikungunya Viruses in Mosquitoes from Nepal</article-title>
+          <source>Am J Trop Med Hyg</source>
+          <year>2025</year>
+          <fpage>378</fpage>
+          <lpage>81</lpage>
+          <pub-id pub-id-type="doi">10.4269/ajtmh.24-0685</pub-id>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

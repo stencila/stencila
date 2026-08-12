@@ -4,11 +4,11 @@ impl Text {
     pub fn to_value_string(&self) -> String {
         self.value.to_string()
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::escape;
-
-        (escape(self.value.as_str()), Losses::none())
+impl JatsCodec for Text {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.push_text(self.value.as_str());
     }
 }
 

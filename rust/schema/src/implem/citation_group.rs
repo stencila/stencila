@@ -57,21 +57,16 @@ impl LatexCodec for CitationGroup {
     }
 }
 
-impl CitationGroup {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        (
-            [
-                "(",
-                &self
-                    .items
-                    .iter()
-                    .map(|item| item.to_jats_special().0)
-                    .join("; "),
-                ")",
-            ]
-            .concat(),
-            Losses::none(),
-        )
+impl JatsCodec for CitationGroup {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.push_text("(");
+        for (index, item) in self.items.iter().enumerate() {
+            if index > 0 {
+                context.push_text("; ");
+            }
+            item.to_jats(context);
+        }
+        context.push_text(")");
     }
 }
 

@@ -18,8 +18,7 @@
     }
   ],
   "jats": {
-    "elem": "timestamp",
-    "special": true
+    "derive": false
   },
   "proptest": {},
   "required": [

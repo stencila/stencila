@@ -29,7 +29,7 @@ dom:
 html:
   elem: span
 jats:
-  special: true
+  derive: false
 latex:
   derive: false
 markdown:

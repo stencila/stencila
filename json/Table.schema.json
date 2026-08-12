@@ -39,7 +39,7 @@
     "special": true
   },
   "jats": {
-    "special": true
+    "derive": false
   },
   "markdown": {
     "derive": false

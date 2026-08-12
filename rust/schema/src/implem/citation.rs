@@ -55,36 +55,34 @@ impl LatexCodec for Citation {
     }
 }
 
-impl Citation {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
+impl JatsCodec for Citation {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context.merge_losses(lost_options!(self, id));
 
-        let mut losses = lost_options!(self, id);
+        let parenthetical = matches!(self.citation_mode, Some(CitationMode::Parenthetical));
+        if parenthetical {
+            context.push_text("(");
+        }
 
-        let attrs = vec![("ref-type", "bibr"), ("rid", &self.target)];
-
-        let mut content = String::new();
+        let target = context.resolve_reference_id(&self.target).to_string();
+        context
+            .enter_elem("xref")
+            .push_attr("ref-type", "bibr")
+            .push_attr("rid", target);
         if let Some(prefix) = &self.options.citation_prefix {
-            content.push_str(prefix);
+            context.push_text(prefix);
         }
         if let Some(inner) = &self.options.content {
-            let (inner, inner_losses) = inner.to_jats();
-            content.push_str(&inner);
-            losses.merge(inner_losses);
+            inner.to_jats(context);
         }
         if let Some(suffix) = &self.options.citation_suffix {
-            content.push_str(suffix);
+            context.push_text(suffix);
         }
+        context.exit_elem();
 
-        let xref = elem("xref", attrs, content);
-
-        let jats = if matches!(self.citation_mode, Some(CitationMode::Parenthetical)) {
-            ["(", &xref, ")"].concat()
-        } else {
-            xref
-        };
-
-        (jats, losses)
+        if parenthetical {
+            context.push_text(")");
+        }
     }
 }
 

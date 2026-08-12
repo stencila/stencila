@@ -2,11 +2,133 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Cells under high confinement form highly polarized hydrostatic pressure-driven, stable leader blebs that enable efficient migration in low adhesion, environments. Here we investigated the basis of the polarized bleb morphology of metastatic melanoma cells migrating in non-adhesive confinement. Using high-resolution time-lapse imaging and specific molecular perturbations, we found that EGF signaling via PI3K stabilizes and maintains a polarized leader bleb. Protein activity biosensors revealed a unique EGFR/PI3K activity gradient decreasing from rear-to-front, promoting PIP3 and Rac1-GTP accumulation at the bleb rear, with its antagonists PIP2 and RhoA-GTP concentrated at the bleb tip, opposite to the front-to-rear organization of these signaling modules in integrin-mediated mesenchymal migration. Optogenetic experiments showed that disrupting this gradient caused bleb retraction, underscoring the role of this signaling gradient in bleb stability. Mathematical modeling and experiments identified a mechanism where, as the bleb initiates, CD44 and ERM proteins restrict EGFR mobility in a membrane-apposed cortical actin meshwork in the bleb rear, establishing a rear-to-front EGFR-PI3K-Rac activity gradient. Thus, our study reveals the biophysical and molecular underpinnings of cell polarity in bleb-based migration of metastatic cells in non-adhesive confinement, and underscores how alternative spatial arrangements of migration signaling modules can mediate different migration modes according to the local microenvironment.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>bioRxiv</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Cold Spring Harbor Laboratory</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1101/2024.12.31.630838</article-id>
+      <title-group>
+        <article-title>CD44 and Ezrin restrict EGF receptor mobility to generate a novel spatial arrangement of cytoskeletal signaling modules driving bleb-based migration</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Jha</surname>
+            <given-names>Ankita</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-4921-5136</contrib-id>
+          <email>ankita.13jha@gmail.com</email>
+          <email>watermancm@nhlbi.nih.gov</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Chandra</surname>
+            <given-names>Ankit</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Farahani</surname>
+            <given-names>Payam</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0003-2912-0519</contrib-id>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Toettcher</surname>
+            <given-names>Jared</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-1546-4030</contrib-id>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Haugh</surname>
+            <given-names>Jason M</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-2476-4027</contrib-id>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Waterman</surname>
+            <given-names>Clare M</given-names>
+          </name>
+          <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0001-6142-6775</contrib-id>
+          <email>ankita.13jha@gmail.com</email>
+          <email>watermancm@nhlbi.nih.gov</email>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Cell and Developmental Biology Center, National Heart Lung and Blood Institute, National Institutes of Health</institution>
+          </institution-wrap>
+          <addr-line>Bethesda, United States</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Department of Chemical &amp; Biomolecular Engineering, North Carolina State University</institution>
+          </institution-wrap>
+          <addr-line>Raleigh, United States</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Department of Chemical and Biological Engineering, Princeton University</institution>
+          </institution-wrap>
+          <addr-line>Princeton, United States</addr-line>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>Department of Molecular Biology, Princeton University</institution>
+          </institution-wrap>
+          <addr-line>Princeton, United States</addr-line>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>Omenn-Darling Bioengineering Institute, Princeton University</institution>
+          </institution-wrap>
+          <addr-line>Princeton, United States</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2025-1-1">
+        <year>2025</year>
+        <month>1</month>
+        <day>1</day>
+      </pub-date>
+      <history>
+        <date date-type="received" iso-8601-date="2024-12-31">
+          <year>2024</year>
+          <month>12</month>
+          <day>31</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2025-1-01">
+          <year>2025</year>
+          <month>1</month>
+          <day>01</day>
+        </date>
+      </history>
+      <abstract>
+        <p>Cells under high confinement form highly polarized hydrostatic pressure-driven, stable leader blebs that enable efficient migration in low adhesion, environments. Here we investigated the basis of the polarized bleb morphology of metastatic melanoma cells migrating in non-adhesive confinement. Using high-resolution time-lapse imaging and specific molecular perturbations, we found that EGF signaling via PI3K stabilizes and maintains a polarized leader bleb. Protein activity biosensors revealed a unique EGFR/PI3K activity gradient decreasing from rear-to-front, promoting PIP3 and Rac1-GTP accumulation at the bleb rear, with its antagonists PIP2 and RhoA-GTP concentrated at the bleb tip, opposite to the front-to-rear organization of these signaling modules in integrin-mediated mesenchymal migration. Optogenetic experiments showed that disrupting this gradient caused bleb retraction, underscoring the role of this signaling gradient in bleb stability. Mathematical modeling and experiments identified a mechanism where, as the bleb initiates, CD44 and ERM proteins restrict EGFR mobility in a membrane-apposed cortical actin meshwork in the bleb rear, establishing a rear-to-front EGFR-PI3K-Rac activity gradient. Thus, our study reveals the biophysical and molecular underpinnings of cell polarity in bleb-based migration of metastatic cells in non-adhesive confinement, and underscores how alternative spatial arrangements of migration signaling modules can mediate different migration modes according to the local microenvironment.</p>
+      </abstract>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -484,9 +606,1797 @@ expression: jats
       <title level="1">Scientific illustrations</title>
       <p>Illustrations and cartoons were made using Adobe illustrator and BioRender.</p>
     </sec>
-    <sec sec-type="Acknowledgements">
+  </body>
+  <back>
+    <ack>
       <title level="1">Acknowledgements and funding</title>
       <p>We thank the Waterman Lab especially William Shin, Dr. Ana Pasapera, the National Heart, Lung, and Blood Institute (NHLBI), the NHLBI light microscopy (Xufeng) and flow cytometry core facilities. We would also like to thank Dr. Tamas Balla, Dr. Senthil Arumugam, Dr. Valentine Jaumouille for their feedbacks and discussions on this work. This work was funded by the NHLBI Division of Intramural Research (DIR) (AJ and CMW), National Institute of General Medical Sciences under award number R01 GM141691 (JMH), the National Institute of Biomedical Imaging and Bioengineering of the National Institutes of Health under award number U01 EB018816 (JMH), NIH grant 5R01GM144362 and a Vallee Scholar award (JET).</p>
-    </sec>
-  </body>
+    </ack>
+    <ref-list>
+      <ref id="c1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Stuelten</surname>
+              <given-names>C H</given-names>
+            </name>
+            <name>
+              <surname>Parent</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Montell</surname>
+              <given-names>D J</given-names>
+            </name>
+          </person-group>
+          <article-title>Cell motility in cancer invasion and metastasis: insights from simple model organisms</article-title>
+          <source>Nat Rev Cancer</source>
+          <year>2018</year>
+          <fpage>296</fpage>
+          <lpage>312</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Novikov</surname>
+              <given-names>N M</given-names>
+            </name>
+            <name>
+              <surname>Zolotaryova</surname>
+              <given-names>S Y</given-names>
+            </name>
+            <name>
+              <surname>Gautreau</surname>
+              <given-names>A M</given-names>
+            </name>
+            <name>
+              <surname>Denisov</surname>
+              <given-names>E V</given-names>
+            </name>
+          </person-group>
+          <article-title>Mutational drivers of cancer cell migration and invasion</article-title>
+          <source>Br J Cancer</source>
+          <year>2021</year>
+          <fpage>102</fpage>
+          <lpage>114</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fares</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Fares</surname>
+              <given-names>M Y</given-names>
+            </name>
+            <name>
+              <surname>Khachfe</surname>
+              <given-names>H H</given-names>
+            </name>
+            <name>
+              <surname>Salhab</surname>
+              <given-names>H A</given-names>
+            </name>
+            <name>
+              <surname>Fares</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Molecular principles of metastasis: a hallmark of cancer revisited</article-title>
+          <source>Sig Transduct Target Ther</source>
+          <year>2020</year>
+        </element-citation>
+      </ref>
+      <ref id="c4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Alexander</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Koehl</surname>
+              <given-names>G E</given-names>
+            </name>
+            <name>
+              <surname>Hirschberg</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Geissler</surname>
+              <given-names>E K</given-names>
+            </name>
+            <name>
+              <surname>Friedl</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Dynamic imaging of cancer growth and invasion: a modified skin-fold chamber model</article-title>
+          <source>Histochem Cell Biol</source>
+          <year>2008</year>
+          <fpage>1147</fpage>
+          <lpage>1154</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c5">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Weigelin</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Bakker</surname>
+              <given-names>G.-J</given-names>
+            </name>
+            <name>
+              <surname>Friedl</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Intravital third harmonic generation microscopy of collective melanoma cell invasion: Principles of interface guidance and microvesicle dynamics</article-title>
+          <source>IntraVital</source>
+          <year>2012</year>
+          <fpage>32</fpage>
+          <lpage>43</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c6">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mayor</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Etienne-Manneville</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>The front and rear of collective cell migration</article-title>
+          <source>Nat Rev Mol Cell Biol</source>
+          <year>2016</year>
+          <fpage>97</fpage>
+          <lpage>109</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c7">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ridley</surname>
+              <given-names>A J</given-names>
+            </name>
+          </person-group>
+          <article-title>Cell Migration: Integrating Signals from Front to Back</article-title>
+          <source>Science</source>
+          <year>2003</year>
+          <fpage>1704</fpage>
+          <lpage>1709</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c8">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Devreotes</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Horwitz</surname>
+              <given-names>A R</given-names>
+            </name>
+          </person-group>
+          <article-title>Signaling Networks that Regulate Cell Migration</article-title>
+          <source>Cold Spring Harb Perspect Biol</source>
+          <year>2015</year>
+        </element-citation>
+      </ref>
+      <ref id="c9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Friedl</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Wolf</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Tumour-cell invasion and migration: diversity and escape mechanisms</article-title>
+          <source>Nat Rev Cancer</source>
+          <year>2003</year>
+          <fpage>362</fpage>
+          <lpage>374</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Friedl</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Alexander</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Cancer Invasion and the Microenvironment: Plasticity and Reciprocity</article-title>
+          <source>Cell</source>
+          <year>2011</year>
+          <fpage>992</fpage>
+          <lpage>1009</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c11">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tozluoğlu</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Matrix geometry determines optimal cancer cell migration strategy and modulates response to interventions</article-title>
+          <source>Nat Cell Biol</source>
+          <year>2013</year>
+          <fpage>751</fpage>
+          <lpage>762</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c12">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Paňková</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Rösel</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Novotný</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Brábek</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>The molecular mechanisms of transition between mesenchymal and amoeboid invasiveness in tumor cells</article-title>
+          <source>Cell. Mol. Life Sci</source>
+          <year>2010</year>
+          <fpage>63</fpage>
+          <lpage>71</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c13">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Case</surname>
+              <given-names>L B</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>C M</given-names>
+            </name>
+          </person-group>
+          <article-title>Integration of actin dynamics and cell adhesion by a three-dimensional, mechanosensitive molecular clutch</article-title>
+          <source>Nat Cell Biol</source>
+          <year>2015</year>
+          <fpage>955</fpage>
+          <lpage>963</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c14">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Charras</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Paluch</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Blebs lead the way: how to migrate without lamellipodia</article-title>
+          <source>Nat Rev Mol Cell Biol</source>
+          <year>2008</year>
+          <fpage>730</fpage>
+          <lpage>736</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c15">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lorentzen</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Bamber</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Sadok</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Elson-Schwab</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Marshall</surname>
+              <given-names>C J</given-names>
+            </name>
+          </person-group>
+          <article-title>An ezrin-rich, rigid uropod-like structure directs movement of amoeboid blebbing cells</article-title>
+          <source>Journal of Cell Science</source>
+          <year>2011</year>
+          <fpage>1256</fpage>
+          <lpage>1267</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>García-Arcos</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Jha</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>C M</given-names>
+            </name>
+            <name>
+              <surname>Piel</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Blebology: principles of bleb-based migration</article-title>
+          <source>Trends in Cell Biology</source>
+          <year>2024</year>
+          <fpage>838</fpage>
+          <lpage>853</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Charras</surname>
+              <given-names>G T</given-names>
+            </name>
+            <name>
+              <surname>Yarrow</surname>
+              <given-names>J C</given-names>
+            </name>
+            <name>
+              <surname>Horton</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Mahadevan</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Mitchison</surname>
+              <given-names>T J</given-names>
+            </name>
+          </person-group>
+          <article-title>Non-equilibration of hydrostatic pressure in blebbing cells</article-title>
+          <source>Nature</source>
+          <year>2005</year>
+          <fpage>365</fpage>
+          <lpage>369</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c18">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bergert</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Chandradoss</surname>
+              <given-names>S D</given-names>
+            </name>
+            <name>
+              <surname>Desai</surname>
+              <given-names>R A</given-names>
+            </name>
+            <name>
+              <surname>Paluch</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Cell mechanics control rapid transitions between blebs and lamellipodia during migration</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A</source>
+          <year>2012</year>
+          <fpage>14434</fpage>
+          <lpage>14439</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Liu</surname>
+              <given-names>Y.-J</given-names>
+            </name>
+          </person-group>
+          <article-title>Confinement and Low Adhesion Induce Fast Amoeboid Migration of Slow Mesenchymal Cells</article-title>
+          <source>Cell</source>
+          <year>2015</year>
+          <fpage>659</fpage>
+          <lpage>672</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Logue</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Erk regulation of actin capping and bundling by Eps8 promotes cortex tension and leader bleb-based migration</article-title>
+          <source>eLife</source>
+          <year>2015</year>
+          <fpage>e08314</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c21">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Charras</surname>
+              <given-names>G T</given-names>
+            </name>
+            <name>
+              <surname>Hu</surname>
+              <given-names>C.-K</given-names>
+            </name>
+            <name>
+              <surname>Coughlin</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Mitchison</surname>
+              <given-names>T J</given-names>
+            </name>
+          </person-group>
+          <article-title>Reassembly of contractile actin cortex in cell blebs</article-title>
+          <source>The Journal of Cell Biology</source>
+          <year>2006</year>
+          <fpage>477</fpage>
+          <lpage>490</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ruprecht</surname>
+              <given-names>V</given-names>
+            </name>
+          </person-group>
+          <article-title>Cortical Contractility Triggers a Stochastic Switch to Fast Amoeboid Cell Motility</article-title>
+          <source>Cell</source>
+          <year>2015</year>
+          <fpage>673</fpage>
+          <lpage>685</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c23">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ladoux</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Mège</surname>
+              <given-names>R.-M</given-names>
+            </name>
+            <name>
+              <surname>Trepat</surname>
+              <given-names>X</given-names>
+            </name>
+          </person-group>
+          <article-title>Front–Rear Polarization by Mechanical Cues: From Single Cells to Tissues</article-title>
+          <source>Trends in Cell Biology</source>
+          <year>2016</year>
+          <fpage>420</fpage>
+          <lpage>433</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Olguin-Olguin</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Chemokine-biased robust self-organizing polarization of migrating cells in vivo</article-title>
+          <source>Proc Natl Acad Sci USA</source>
+          <year>2021</year>
+          <fpage>e2018480118</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mullins</surname>
+              <given-names>R D</given-names>
+            </name>
+          </person-group>
+          <article-title>Cytoskeletal Mechanisms for Breaking Cellular Symmetry</article-title>
+          <source>Cold Spring Harbor Perspectives in Biology</source>
+          <year>2010</year>
+          <fpage>a003392</fpage>
+          <lpage>a003392</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Price</surname>
+              <given-names>L S</given-names>
+            </name>
+            <name>
+              <surname>Leng</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Schwartz</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Bokoch</surname>
+              <given-names>G M</given-names>
+            </name>
+          </person-group>
+          <article-title>Activation of Rac and Cdc42 by Integrins Mediates Cell Spreading</article-title>
+          <source>MBoC</source>
+          <year>1998</year>
+          <fpage>1863</fpage>
+          <lpage>1871</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Innocenti</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Phosphoinositide 3-kinase activates Rac by entering in a complex with Eps8, Abi1, and Sos-1</article-title>
+          <source>The Journal of Cell Biology</source>
+          <year>2003</year>
+          <fpage>17</fpage>
+          <lpage>23</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ponti</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Machacek</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Gupton</surname>
+              <given-names>S L</given-names>
+            </name>
+            <name>
+              <surname>Waterman-Storer</surname>
+              <given-names>C M</given-names>
+            </name>
+            <name>
+              <surname>Danuser</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>Two Distinct Actin Networks Drive the Protrusion of Migrating Cells</article-title>
+          <source>Science</source>
+          <year>2004</year>
+          <fpage>1782</fpage>
+          <lpage>1786</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wu</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Arp2/3 Is Critical for Lamellipodia and Response to Extracellular Matrix Cues but Is Dispensable for Chemotaxis</article-title>
+          <source>Cell</source>
+          <year>2012</year>
+          <fpage>973</fpage>
+          <lpage>987</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nordenfelt</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Elliott</surname>
+              <given-names>H L</given-names>
+            </name>
+            <name>
+              <surname>Springer</surname>
+              <given-names>T A</given-names>
+            </name>
+          </person-group>
+          <article-title>Coordinated integrin activation by actin-dependent force during T-cell migration</article-title>
+          <source>Nat Commun</source>
+          <year>2016</year>
+        </element-citation>
+      </ref>
+      <ref id="c31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>SenGupta</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Parent</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Bear</surname>
+              <given-names>J E</given-names>
+            </name>
+          </person-group>
+          <article-title>The principles of directed cell migration</article-title>
+          <source>Nat Rev Mol Cell Biol</source>
+          <year>2021</year>
+          <fpage>529</fpage>
+          <lpage>547</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chrzanowska-Wodnicka</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Burridge</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Rho-stimulated contractility drives the formation of stress fibers and focal adhesions</article-title>
+          <source>The Journal of cell biology</source>
+          <year>1996</year>
+          <fpage>1403</fpage>
+          <lpage>1415</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c33">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>García-Arcos</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Rigidity percolation and active advection synergize in the actomyosin cortex to drive amoeboid cell motility</article-title>
+          <source>Developmental Cell</source>
+          <year>2024</year>
+          <pub-id pub-id-type="doi">10.1016/j.devcel.2024.06.023</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="c34">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>O’Neill</surname>
+              <given-names>P R</given-names>
+            </name>
+          </person-group>
+          <article-title>Membrane Flow Drives an Adhesion-Independent Amoeboid Cell Migration Mode</article-title>
+          <source>Developmental Cell</source>
+          <year>2018</year>
+          <fpage>9</fpage>
+          <lpage>22</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c35">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Maiuri</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Actin Flows Mediate a Universal Coupling between Cell Speed and Cell Persistence</article-title>
+          <source>Cell</source>
+          <year>2015</year>
+          <fpage>374</fpage>
+          <lpage>386</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hons</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Chemokines and integrins independently tune actin flow and substrate friction during intranodal migration of T cells</article-title>
+          <source>Nat Immunol</source>
+          <year>2018</year>
+          <fpage>606</fpage>
+          <lpage>616</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c37">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Munro</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Nance</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Priess</surname>
+              <given-names>J R</given-names>
+            </name>
+          </person-group>
+          <article-title>Cortical Flows Powered by Asymmetrical Contraction Transport PAR Proteins to Establish and Maintain Anterior-Posterior Polarity in the Early C. elegans Embryo</article-title>
+          <source>Developmental Cell</source>
+          <year>2004</year>
+          <fpage>413</fpage>
+          <lpage>424</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rodriguez-Boulan</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Nelson</surname>
+              <given-names>W J</given-names>
+            </name>
+          </person-group>
+          <article-title>Morphogenesis of the Polarized Epithelial Cell Phenotype</article-title>
+          <source>Science</source>
+          <year>1989</year>
+          <fpage>718</fpage>
+          <lpage>725</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c39">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jékely</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Sung</surname>
+              <given-names>H.-H</given-names>
+            </name>
+            <name>
+              <surname>Luque</surname>
+              <given-names>C M</given-names>
+            </name>
+            <name>
+              <surname>Rørth</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Regulators of Endocytosis Maintain Localized Receptor Tyrosine Kinase Signaling in Guided Migration</article-title>
+          <source>Developmental Cell</source>
+          <year>2005</year>
+          <fpage>197</fpage>
+          <lpage>207</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Assaker</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Ramel</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Wculek</surname>
+              <given-names>S K</given-names>
+            </name>
+            <name>
+              <surname>González-Gaitán</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Emery</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>Spatial restriction of receptor tyrosine kinase activity through a polarized endocytic cycle controls border cell migration</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A</source>
+          <year>2010</year>
+          <fpage>22558</fpage>
+          <lpage>22563</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c41">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gong</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Johnston</surname>
+              <given-names>J D</given-names>
+            </name>
+            <name>
+              <surname>Thiemicke</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>De Marco</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Meyer</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Endoplasmic reticulum–plasma membrane contact gradients direct cell migration</article-title>
+          <source>Nature</source>
+          <year>2024</year>
+          <fpage>415</fpage>
+          <lpage>423</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c42">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jaqaman</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Cytoskeletal Control of CD36 Diffusion Promotes Its Receptor and Signaling Function</article-title>
+          <source>Cell</source>
+          <year>2011</year>
+          <fpage>593</fpage>
+          <lpage>606</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c43">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Freeman</surname>
+              <given-names>S A</given-names>
+            </name>
+          </person-group>
+          <article-title>Transmembrane Pickets Connect Cyto- and Pericellular Skeletons Forming Barriers to Receptor Engagement</article-title>
+          <source>Cell</source>
+          <year>2018</year>
+          <fpage>305</fpage>
+          <lpage>317</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c44">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rei</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Nobes</surname>
+              <given-names>C D</given-names>
+            </name>
+            <name>
+              <surname>Thomas</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Hall</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Cantrell</surname>
+              <given-names>D A</given-names>
+            </name>
+          </person-group>
+          <article-title>Phosphatidylinositol 3-kinase signals activate a selective subset of Rac/Rho-dependent effector pathways</article-title>
+          <source>Current Biology</source>
+          <year>1996</year>
+          <fpage>1445</fpage>
+          <lpage>1455</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c45">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fantl</surname>
+              <given-names>W J</given-names>
+            </name>
+          </person-group>
+          <article-title>Distinct phosphotyrosines on a growth factor receptor bind to specific molecules that mediate different signaling pathways</article-title>
+          <source>Cell</source>
+          <year>1992</year>
+          <fpage>413</fpage>
+          <lpage>423</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cantley</surname>
+              <given-names>L C</given-names>
+            </name>
+          </person-group>
+          <article-title>Oncogenes and signal transduction</article-title>
+          <source>Cell</source>
+          <year>1991</year>
+          <fpage>281</fpage>
+          <lpage>302</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Brunet</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>A flagellate-to-amoeboid switch in the closest living relatives of animals</article-title>
+          <source>eLife</source>
+          <year>2021</year>
+          <fpage>e61037</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Witsch</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Sela</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Yarden</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Roles for Growth Factors in Cancer Progression</article-title>
+          <source>Physiology</source>
+          <year>2010</year>
+          <fpage>85</fpage>
+          <lpage>101</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Erdogan</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Webb</surname>
+              <given-names>D J</given-names>
+            </name>
+          </person-group>
+          <article-title>Cancer-associated fibroblasts modulate growth factor signaling and extracellular matrix remodeling to regulate tumor metastasis</article-title>
+          <source>Biochemical Society Transactions</source>
+          <year>2017</year>
+          <fpage>229</fpage>
+          <lpage>236</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pietraszek-Gremplewicz</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>Expression level of EGFR and MET receptors regulates invasiveness of melanoma cells</article-title>
+          <source>J Cellular Molecular Medi</source>
+          <year>2019</year>
+          <fpage>8453</fpage>
+          <lpage>8463</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c51">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pastwińska</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Karaś</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Karwaciak</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Ratajewski</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Targeting EGFR in melanoma – The sea of possibilities to overcome drug resistance</article-title>
+          <source>Biochimica et Biophysica Acta (BBA) - Reviews on Cancer</source>
+          <year>2022</year>
+          <fpage>188754</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c52">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Farahani</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>pYtags enable spatiotemporal measurements of receptor tyrosine kinase signaling in living cells</article-title>
+          <source>eLife</source>
+          <year>2023</year>
+          <fpage>e82863</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c53">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Várnai</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Balla</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Visualization of Phosphoinositides That Bind Pleckstrin Homology Domains: Calcium- and Agonist-induced Dynamic Changes and Relationship to Myo-[3H]inositol-labeled Phosphoinositide Pools</article-title>
+          <source>The Journal of Cell Biology</source>
+          <year>1998</year>
+          <fpage>501</fpage>
+          <lpage>510</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c54">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Stauffer</surname>
+              <given-names>T P</given-names>
+            </name>
+            <name>
+              <surname>Ahn</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Meyer</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Receptor-induced transient reduction in plasma membrane PtdIns(4,5)P2 concentration monitored in living cells</article-title>
+          <source>Current Biology</source>
+          <year>1998</year>
+          <fpage>343</fpage>
+          <lpage>346</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c55">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Weernink</surname>
+              <given-names>P A O</given-names>
+            </name>
+          </person-group>
+          <article-title>Activation of Type I Phosphatidylinositol 4-Phosphate 5-Kinase Isoforms by the Rho GTPases, RhoA, Rac1, and Cdc42</article-title>
+          <source>Journal of Biological Chemistry</source>
+          <year>2004</year>
+          <fpage>7840</fpage>
+          <lpage>7849</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c56">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shin</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Spatiotemporal Control of Intracellular Phase Transitions Using Light-Activated optoDroplets</article-title>
+          <source>Cell</source>
+          <year>2017</year>
+          <fpage>159</fpage>
+          <lpage>171</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c57">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Farahani</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>Substratum stiffness regulates Erk signaling dynamics through receptor-level control</article-title>
+          <source>Cell Reports</source>
+          <year>2021</year>
+        </element-citation>
+      </ref>
+      <ref id="c58">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Christie</surname>
+              <given-names>J M</given-names>
+            </name>
+            <name>
+              <surname>Salomon</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Nozue</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Wada</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Briggs</surname>
+              <given-names>W R</given-names>
+            </name>
+          </person-group>
+          <article-title>LOV (light, oxygen, or voltage) domains of the blue-light photoreceptor phototropin (nph1): Binding sites for the chromophore flavin mononucleotide</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A</source>
+          <year>1999</year>
+          <fpage>8779</fpage>
+          <lpage>8783</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c59">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Harper</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Neil</surname>
+              <given-names>L C</given-names>
+            </name>
+            <name>
+              <surname>Gardner</surname>
+              <given-names>K H</given-names>
+            </name>
+          </person-group>
+          <article-title>Structural Basis of a Phototropin Light Switch</article-title>
+          <source>Science</source>
+          <year>2003</year>
+          <fpage>1541</fpage>
+          <lpage>1544</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c60">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wu</surname>
+              <given-names>Y I</given-names>
+            </name>
+          </person-group>
+          <article-title>A genetically encoded photoactivatable Rac controls the motility of living cells</article-title>
+          <source>Nature</source>
+          <year>2009</year>
+          <fpage>104</fpage>
+          <lpage>108</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c61">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Breckenridge</surname>
+              <given-names>L J</given-names>
+            </name>
+            <name>
+              <surname>Almers</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>Currents through the fusion pore that forms during exocytosis of a secretory vesicle</article-title>
+          <source>Nature</source>
+          <year>1987</year>
+          <fpage>814</fpage>
+          <lpage>817</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c62">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tomas</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Futter</surname>
+              <given-names>C E</given-names>
+            </name>
+            <name>
+              <surname>Eden</surname>
+              <given-names>E R</given-names>
+            </name>
+          </person-group>
+          <article-title>EGF receptor trafficking: consequences for signaling and cancer</article-title>
+          <source>Trends in Cell Biology</source>
+          <year>2014</year>
+          <fpage>26</fpage>
+          <lpage>34</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c63">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Illukkumbura</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Bland</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Goehring</surname>
+              <given-names>N W</given-names>
+            </name>
+          </person-group>
+          <article-title>Patterning and polarization of cells by intracellular flows</article-title>
+          <source>Current Opinion in Cell Biology</source>
+          <year>2020</year>
+          <fpage>123</fpage>
+          <lpage>134</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c64">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jaqaman</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Grinstein</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Regulation from within: the cytoskeleton in transmembrane signaling</article-title>
+          <source>Trends in Cell Biology</source>
+          <year>2012</year>
+          <fpage>515</fpage>
+          <lpage>526</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c65">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Venturini</surname>
+              <given-names>V</given-names>
+            </name>
+          </person-group>
+          <article-title>The nucleus measures shape changes for cellular proprioception to control dynamic cell behavior</article-title>
+          <source>Science</source>
+          <year>2020</year>
+        </element-citation>
+      </ref>
+      <ref id="c66">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Adams</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>López</surname>
+              <given-names>M P</given-names>
+            </name>
+            <name>
+              <surname>Cartagena-Rivera</surname>
+              <given-names>A X</given-names>
+            </name>
+            <name>
+              <surname>Waterman</surname>
+              <given-names>C M</given-names>
+            </name>
+          </person-group>
+          <article-title>Survey of cancer cell anatomy in nonadhesive confinement reveals a role for filamin-A and fascin-1 in leader bleb–based migration</article-title>
+          <source>MBoC</source>
+          <year>2021</year>
+          <fpage>1772</fpage>
+          <lpage>1791</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c67">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kenworthy</surname>
+              <given-names>A K</given-names>
+            </name>
+          </person-group>
+          <article-title>Dynamics of putative raft-associated proteins at the cell surface</article-title>
+          <source>The Journal of Cell Biology</source>
+          <year>2004</year>
+          <fpage>735</fpage>
+          <lpage>746</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c68">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bisaria</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Hayer</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Garbett</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Cohen</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Meyer</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Membrane-proximal F-actin restricts local membrane protrusions and directs cell migration</article-title>
+          <source>Science</source>
+          <year>2020</year>
+          <fpage>1205</fpage>
+          <lpage>1210</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c69">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Estecha</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Moesin orchestrates cortical polarity of melanoma tumour cells to initiate 3D invasion</article-title>
+          <source>Journal of Cell Science</source>
+          <year>2009</year>
+          <fpage>3492</fpage>
+          <lpage>3501</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c70">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Orgaz</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>Diverse matrix metalloproteinase functions regulate cancer amoeboid migration</article-title>
+          <source>Nat Commun</source>
+          <year>2014</year>
+          <fpage>4255</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c71">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Poincloux</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Contractility of the cell rear drives invasion of breast tumor cells in 3D Matrigel</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A</source>
+          <year>2011</year>
+          <fpage>1943</fpage>
+          <lpage>1948</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c72">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Moissoglu</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Schwartz</surname>
+              <given-names>M A</given-names>
+            </name>
+          </person-group>
+          <article-title>Integrin signalling in directed cell migration</article-title>
+          <source>Biology of the Cell</source>
+          <year>2006</year>
+          <fpage>547</fpage>
+          <lpage>555</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c73">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Theriot</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Mitchison</surname>
+              <given-names>T J</given-names>
+            </name>
+          </person-group>
+          <article-title>Actin microfilament dynamics in locomoting cells</article-title>
+          <source>Nature</source>
+          <year>1991</year>
+          <fpage>126</fpage>
+          <lpage>131</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c74">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lin</surname>
+              <given-names>C H</given-names>
+            </name>
+            <name>
+              <surname>Espreafico</surname>
+              <given-names>E M</given-names>
+            </name>
+            <name>
+              <surname>Mooseker</surname>
+              <given-names>M S</given-names>
+            </name>
+            <name>
+              <surname>Forscher</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Myosin Drives Retrograde F-Actin Flow in Neuronal Growth Cones</article-title>
+          <source>Neuron</source>
+          <year>1996</year>
+          <fpage>769</fpage>
+          <lpage>782</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c75">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Welf</surname>
+              <given-names>E S</given-names>
+            </name>
+          </person-group>
+          <article-title>Actin-Membrane Release Initiates Cell Protrusions</article-title>
+          <source>Developmental Cell</source>
+          <year>2020</year>
+          <fpage>723</fpage>
+          <lpage>736</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c76">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pasapera</surname>
+              <given-names>A M</given-names>
+            </name>
+          </person-group>
+          <article-title>Rac1-Dependent Phosphorylation and Focal Adhesion Recruitment of Myosin IIA Regulates Migration and Mechanosensing</article-title>
+          <source>Current Biology</source>
+          <year>2015</year>
+          <fpage>175</fpage>
+          <lpage>186</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c77">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ponta</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Sherman</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Herrlich</surname>
+              <given-names>P A</given-names>
+            </name>
+          </person-group>
+          <article-title>CD44: From adhesion molecules to signalling regulators</article-title>
+          <source>Nat Rev Mol Cell Biol</source>
+          <year>2003</year>
+          <fpage>33</fpage>
+          <lpage>45</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c78">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Turley</surname>
+              <given-names>E A</given-names>
+            </name>
+            <name>
+              <surname>Noble</surname>
+              <given-names>P W</given-names>
+            </name>
+            <name>
+              <surname>Bourguignon</surname>
+              <given-names>L Y W</given-names>
+            </name>
+          </person-group>
+          <article-title>Signaling Properties of Hyaluronan Receptors</article-title>
+          <source>Journal of Biological Chemistry</source>
+          <year>2002</year>
+          <fpage>4589</fpage>
+          <lpage>4592</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c79">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Teramura</surname>
+              <given-names>Y</given-names>
+            </name>
+          </person-group>
+          <article-title>Single-molecule analysis of epidermal growth factor binding on the surface of living cells</article-title>
+          <source>EMBO J</source>
+          <year>2006</year>
+          <fpage>4215</fpage>
+          <lpage>4222</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c80">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fanfone</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Confined migration promotes cancer metastasis through resistance to anoikis and increased invasiveness</article-title>
+          <source>eLife</source>
+          <year>2022</year>
+          <fpage>e73150</fpage>
+        </element-citation>
+      </ref>
+      <ref id="c81">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Weems</surname>
+              <given-names>A D</given-names>
+            </name>
+          </person-group>
+          <article-title>Blebs promote cell survival by assembling oncogenic signalling hubs</article-title>
+          <source>Nature</source>
+          <year>2023</year>
+          <fpage>517</fpage>
+          <lpage>525</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c82">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Le Berre</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Zlotek-Zlotkiewicz</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Bonazzi</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Lautenschlaeger</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Piel</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Methods for Two-Dimensional Cell Confinement</article-title>
+          <source>Methods in Cell Biology</source>
+          <year>2014</year>
+          <fpage>213</fpage>
+          <lpage>229</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c83">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Meijering</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Dzyubachyk</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Smal</surname>
+              <given-names>I</given-names>
+            </name>
+          </person-group>
+          <article-title>Methods for Cell and Particle Tracking</article-title>
+          <source>Methods in Enzymology</source>
+          <year>2012</year>
+          <fpage>183</fpage>
+          <lpage>200</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c84">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gorelik</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Gautreau</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantitative and unbiased analysis of directional persistence in cell migration</article-title>
+          <source>Nat Protoc</source>
+          <year>2014</year>
+          <fpage>1931</fpage>
+          <lpage>1943</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c85">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Koulouras</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>EasyFRAP-web: a web-based tool for the analysis of fluorescence recovery after photobleaching data</article-title>
+          <source>Nucleic Acids Research</source>
+          <year>2018</year>
+          <fpage>W467</fpage>
+          <lpage>W472</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c86">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Soumpasis</surname>
+              <given-names>D M</given-names>
+            </name>
+          </person-group>
+          <article-title>Theoretical analysis of fluorescence photobleaching recovery experiments</article-title>
+          <source>Biophysical Journal</source>
+          <year>1983</year>
+          <fpage>95</fpage>
+          <lpage>97</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c87">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kang</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Day</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Kenworthy</surname>
+              <given-names>A K</given-names>
+            </name>
+            <name>
+              <surname>DiBenedetto</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Simplified Equation to Extract Diffusion Coefficients from Confocal FRAP Data</article-title>
+          <source>Traffic</source>
+          <year>2012</year>
+          <fpage>1589</fpage>
+          <lpage>1600</lpage>
+        </element-citation>
+      </ref>
+      <ref id="c88">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Thielicke</surname>
+              <given-names>W</given-names>
+            </name>
+            <name>
+              <surname>Sonntag</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Particle Image Velocimetry for MATLAB: Accuracy and enhanced algorithms in PIVlab</article-title>
+          <source>JORS</source>
+          <year>2021</year>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

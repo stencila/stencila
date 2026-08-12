@@ -2,31 +2,27 @@ use stencila_codec_info::lost_options;
 
 use crate::{MathInline, prelude::*};
 
-impl MathInline {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
-
-        let mathml = self
-            .options
-            .mathml
-            .as_ref()
-            .map(|mathml| elem_no_attrs("mml:math", mathml))
-            .unwrap_or_default();
-
-        let mut attrs = vec![("code", self.code.as_str())];
+impl JatsCodec for MathInline {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("inline-formula")
+            .push_attr("code", self.code.as_str());
         if let Some(lang) = &self.math_language {
-            attrs.push(("language", lang.as_str()));
+            context.push_attr("language", lang);
         }
 
-        let jats = elem("inline-formula", attrs, mathml);
+        if let Some(mathml) = &self.options.mathml {
+            context.enter_elem("mml:math").push_xml(mathml).exit_elem();
+        }
 
-        let mut losses = lost_options!(self, id);
-        losses.merge(lost_options!(
-            self.options,
-            compilation_digest,
-            compilation_messages
-        ));
-        (jats, losses)
+        context
+            .exit_elem()
+            .merge_losses(lost_options!(self, id))
+            .merge_losses(lost_options!(
+                self.options,
+                compilation_digest,
+                compilation_messages
+            ));
     }
 }
 

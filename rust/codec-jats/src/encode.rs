@@ -7,7 +7,7 @@ use quick_xml::{
 use roxmltree::{Node as XmlNode, NodeType as XmlNodeType};
 
 use stencila_codec::{EncodeInfo, EncodeOptions, Losses, eyre::Result, stencila_schema::Node};
-use stencila_codec_jats_trait::JatsCodec as _;
+use stencila_codec_jats_trait::to_jats;
 
 /// Encode a [`Node`] as JATS XML
 pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, EncodeInfo)> {
@@ -27,11 +27,15 @@ pub fn encode(node: &Node, options: Option<EncodeOptions>) -> Result<(String, En
         ));
     }
 
-    let (mut jats, losses) = node.to_jats();
+    let (mut jats, losses) = to_jats(node)?;
     if standalone.unwrap_or_default() {
         jats.insert_str(
             0,
-            r#"<?xml version="1.0" encoding="utf-8" standalone="yes" ?>"#,
+            concat!(
+                "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n",
+                "<!DOCTYPE article SYSTEM \"https://jats.nlm.nih.gov/archiving/1.4/",
+                "JATS-archivearticle1-4-mathml3.dtd\">\n"
+            ),
         );
     }
     if matches!(compact, Some(false)) {

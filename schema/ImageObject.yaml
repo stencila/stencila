@@ -27,8 +27,7 @@ html:
   elem: img
   special: true
 jats:
-  elem: inline-graphic
-  special: true
+  derive: false
 latex:
   derive: false
 markdown:

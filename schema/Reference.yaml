@@ -23,6 +23,8 @@ analogues:
     notes: Close analogue for structured bibliographic record data used by citation processors.
 markdown:
   derive: false
+jats:
+  derive: false
 core:
   - workType
   - doi

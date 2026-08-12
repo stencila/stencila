@@ -28,12 +28,11 @@ use super::worktree_status::WorktreeStatus;
 /// A media object.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("MediaObject")]
 #[patch(authors_on = "options")]
-#[jats(elem = "inline-media", special)]
 pub struct MediaObject {
     /// The type of this item.
     pub r#type: MustBe!("MediaObject"),
@@ -42,7 +41,6 @@ pub struct MediaObject {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of `CreativeWork` (e.g. article, book, software application).
@@ -65,7 +63,6 @@ pub struct MediaObject {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
     pub options: Box<MediaObjectOptions>,
 
     /// A unique identifier for a node within a document
@@ -75,7 +72,7 @@ pub struct MediaObject {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, MarkdownCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, LatexCodec, MarkdownCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct MediaObjectOptions {
     /// Alternate names (aliases) for the item.

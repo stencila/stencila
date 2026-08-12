@@ -29,8 +29,7 @@
     "elem": "math"
   },
   "jats": {
-    "elem": "inline-formula",
-    "special": true
+    "derive": false
   },
   "latex": {
     "derive": false

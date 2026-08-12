@@ -2,16 +2,6 @@ use crate::{
     SuggestionBlock, SuggestionType, implem::utils::suggestion_attrs_to_markdown, prelude::*,
 };
 
-impl SuggestionBlock {
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        let (content, mut losses) = self.content.to_jats();
-
-        losses.add("SuggestionBlock@");
-
-        (content, losses)
-    }
-}
-
 impl MarkdownCodec for SuggestionBlock {
     fn to_markdown(&self, context: &mut MarkdownEncodeContext) {
         if matches!(

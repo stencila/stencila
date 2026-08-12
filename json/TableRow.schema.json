@@ -26,7 +26,7 @@
     "elem": "tr"
   },
   "jats": {
-    "special": true
+    "derive": false
   },
   "proptest": {},
   "required": [

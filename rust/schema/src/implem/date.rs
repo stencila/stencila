@@ -32,18 +32,19 @@ impl Date {
             .and_then(|day| day.parse().ok())
     }
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        (
-            elem("date", [("iso-8601-date", &self.value)], &self.value),
-            Losses::none(),
-        )
-    }
-
     /// Encode a date as a DOM HTML attribute
     pub fn to_dom_attr(name: &str, date: &Self, context: &mut DomEncodeContext) {
         context.push_attr(&name.to_kebab_case(), &date.value.to_string());
+    }
+}
+
+impl JatsCodec for Date {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("date")
+            .push_attr("iso-8601-date", &self.value)
+            .push_text(&self.value)
+            .exit_elem();
     }
 }
 

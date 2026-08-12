@@ -27,8 +27,7 @@
     }
   ],
   "jats": {
-    "elem": "inline-media",
-    "special": true
+    "derive": false
   },
   "required": [
     "type",

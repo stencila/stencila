@@ -2,10 +2,9 @@ use crate::{
     Block, HorizontalAlignment, Paragraph, TableCell, TableCellType, VerticalAlignment, prelude::*,
 };
 
-impl TableCell {
-    pub fn to_jats_special(&self) -> (String, Losses) {
+impl JatsCodec for TableCell {
+    fn to_jats(&self, _context: &mut JatsEncodeContext) {
         // Empty implementation because needs to be handled by table row
-        (String::new(), Losses::none())
     }
 }
 

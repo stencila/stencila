@@ -34,8 +34,7 @@
     "special": true
   },
   "jats": {
-    "elem": "title",
-    "special": true
+    "derive": false
   },
   "latex": {
     "derive": false

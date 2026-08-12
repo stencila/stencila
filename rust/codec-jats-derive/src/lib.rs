@@ -19,9 +19,6 @@ struct TypeAttr {
 
     #[darling(default)]
     attribs: HashMap<String, String>,
-
-    #[darling(default)]
-    special: bool,
 }
 
 #[derive(FromField)]
@@ -70,35 +67,18 @@ pub fn derive(input: proc_macro::TokenStream) -> proc_macro::TokenStream {
 fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     let struct_name = type_attr.ident;
 
-    if type_attr.special {
-        return quote! {
-            impl JatsCodec for #struct_name {
-                fn to_jats(&self) -> (String, Losses) {
-                    self.to_jats_special()
-                }
-
-                fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                    let (content, losses) = self.to_jats_special();
-                    (String::new(), Vec::new(), content, losses)
-                }
-            }
-        };
-    }
-
-    let elem = if let Some(elem) = type_attr.elem {
-        elem
+    let (enter_elem, exit_elem) = if let Some(elem) = type_attr.elem {
+        (
+            quote! { context.enter_elem(#elem); },
+            quote! { context.exit_elem(); },
+        )
     } else if struct_name.to_string().ends_with("Options") {
-        String::new()
+        (TokenStream::new(), TokenStream::new())
     } else {
         return quote! {
             impl JatsCodec for #struct_name {
-                fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                    (
-                        String::new(),
-                        Vec::new(),
-                        String::new(),
-                        Losses::one(stringify!(#struct_name))
-                    )
+                fn to_jats(&self, context: &mut JatsEncodeContext) {
+                    context.add_loss(stringify!(#struct_name));
                 }
             }
         };
@@ -108,15 +88,19 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
     for (name, value) in type_attr.attribs.iter().sorted() {
         let name = name.replace("__", "-").replace('_', ":");
         attrs.extend(quote! {
-            (#name.to_string(), #value.to_string()),
+            context.push_attr(#name, #value);
         })
     }
 
-    let mut fields = TokenStream::new();
+    let mut field_attrs = TokenStream::new();
+    let mut options = TokenStream::new();
+    let mut children = TokenStream::new();
     type_attr.data.map_struct_fields(|field_attr| {
         let Some(field_name) = field_attr.ident else {
-            return
+            return;
         };
+        let is_flatten = field_attr.flatten;
+        let is_attr = field_attr.attr.is_some();
 
         if field_name == "r#type" || field_name == "uid" {
             return;
@@ -124,42 +108,38 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
 
         let field_tokens = if field_attr.flatten {
             quote! {
-                let (.., mut field_attrs, field_content, field_losses) = self.#field_name.to_jats_parts();
-                attrs.append(&mut field_attrs);
-                content.push_str(&field_content);
-                losses.merge(field_losses);
+                self.#field_name.to_jats(context);
             }
         } else if let Some(attr) = field_attr.attr {
             quote! {
                 let field_text = self.#field_name.to_text();
                 if !field_text.is_empty() {
-                    attrs.push((#attr.to_string(), field_text));
+                    context.push_attr(#attr, field_text);
                 }
             }
         } else if let Some(elem) = field_attr.elem {
             quote! {
-                let (field_jats, field_losses) = self.#field_name.to_jats();
-                if !field_jats.is_empty() {
-                    content.push_str(&elem_no_attrs(#elem, field_jats));
-                }
-                losses.merge(field_losses);
+                context.enter_elem(#elem);
+                self.#field_name.to_jats(context);
+                context.exit_elem_omit_empty();
             }
         } else if field_name == "content" || field_attr.content {
             quote! {
-                let (field_jats, field_losses) = self.#field_name.to_jats();
-                content.push_str(&field_jats);
-                losses.merge(field_losses);
+                self.#field_name.to_jats(context);
             }
         } else {
             let Type::Path(type_path) = field_attr.ty else {
-                return
+                return;
             };
-            let Some(PathSegment{ident: field_type,..}) = type_path.path.segments.last() else {
-                return
+            let Some(PathSegment {
+                ident: field_type, ..
+            }) = type_path.path.segments.last()
+            else {
+                return;
             };
 
             let record_loss = quote! {
-                losses.add(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
+                context.add_loss(concat!(stringify!(#struct_name), ".", stringify!(#field_name)));
             };
 
             if field_name == "label_automatically" {
@@ -173,21 +153,24 @@ fn derive_struct(type_attr: TypeAttr) -> TokenStream {
                 record_loss
             }
         };
-        fields.extend(field_tokens)
+        if is_flatten {
+            options.extend(field_tokens)
+        } else if is_attr {
+            field_attrs.extend(field_tokens)
+        } else {
+            children.extend(field_tokens)
+        }
     });
 
     quote! {
         impl JatsCodec for #struct_name {
-            fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
-                use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
-
-                let mut attrs = vec![#attrs];
-                let mut content = String::new();
-                let mut losses = Losses::none();
-
-                #fields
-
-                (#elem.to_string(), attrs, content, losses)
+            fn to_jats(&self, context: &mut JatsEncodeContext) {
+                #enter_elem
+                #attrs
+                #field_attrs
+                #options
+                #children
+                #exit_elem
             }
         }
     }
@@ -204,14 +187,12 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
         match &variant.fields {
             Fields::Named(..) | Fields::Unnamed(..) => {
                 variants_to_jats.extend(quote! {
-                    Self::#variant_name(v) => v.to_jats_parts(),
+                    Self::#variant_name(v) => v.to_jats(context),
                 });
             }
             Fields::Unit => {
                 variants_to_jats.extend(quote! {
-                    Self::#variant_name => (
-                        String::new(), Vec::new(), stringify!(#variant_name).to_string(), Losses::none()
-                    ),
+                    Self::#variant_name => { context.push_text(stringify!(#variant_name)); },
                 });
             }
         };
@@ -219,7 +200,7 @@ fn derive_enum(type_attr: TypeAttr, data: &DataEnum) -> TokenStream {
 
     quote! {
         impl JatsCodec for #enum_name {
-            fn to_jats_parts(&self) -> (String, Vec<(String, String)>, String, Losses) {
+            fn to_jats(&self, context: &mut JatsEncodeContext) {
                 match self {
                     #variants_to_jats
                 }

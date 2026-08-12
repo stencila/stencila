@@ -21,7 +21,7 @@ analogues:
   - id: myst:role:cite
     notes: Close MyST analogue for citation syntax in authoring, though Stencila stores the citation as a resolved inline node with additional metadata.
 jats:
-  special: true
+  derive: false
 latex:
   derive: false
 markdown:

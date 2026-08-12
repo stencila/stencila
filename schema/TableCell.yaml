@@ -23,7 +23,7 @@ analogues:
 dom:
   derive: false
 jats:
-  special: true
+  derive: false
 html:
   elem: td
 proptest: {}

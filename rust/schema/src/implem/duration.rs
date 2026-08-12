@@ -50,21 +50,16 @@ impl Duration {
     pub fn to_dom_attr(name: &str, duration: &Self, context: &mut DomEncodeContext) {
         context.push_attr(&name.to_kebab_case(), &duration.value.to_string());
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        (
-            elem(
-                "duration",
-                [
-                    ("value", self.value.to_string()),
-                    ("unit", self.time_unit.to_string()),
-                ],
-                format!("{} {}s", self.value, self.time_unit),
-            ),
-            Losses::none(),
-        )
+impl JatsCodec for Duration {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("duration")
+            .push_attr("value", self.value)
+            .push_attr("unit", self.time_unit)
+            .push_text(format!("{} {}s", self.value, self.time_unit))
+            .exit_elem();
     }
 }
 

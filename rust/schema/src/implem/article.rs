@@ -1,14 +1,17 @@
 use std::collections::BTreeMap;
 
 use crate::{
-    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, Heading, Inline, Organization,
-    Person, PostalAddressOrString, RawBlock, Reference, Text,
+    Article, Author, AuthorRoleAuthor, Block, CreativeWorkType, CreativeWorkVariant, DateTime,
+    Heading, Inline, Organization, Person, PersonOrOrganization, PostalAddressOrString, RawBlock,
+    Reference, SectionType, Text,
     prelude::*,
     replicate,
     shortcuts::{h1, t},
 };
 use stencila_codec_markdown_trait::{MarkdownEncodeMode, to_markdown_with};
 use stencila_codec_text_trait::to_text;
+
+use super::reference::{encode_person_name, normalize_doi, normalize_orcid, organization_name};
 
 /// Get the person represented by an author, including authors wrapped in a role.
 fn author_person(author: &Author) -> Option<&Person> {
@@ -354,51 +357,449 @@ impl Article {
 
         vars
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::{elem, elem_no_attrs};
+fn encode_text_element(context: &mut JatsEncodeContext, name: &str, value: &str) {
+    let value = value.trim();
+    if !value.is_empty() {
+        context.enter_elem(name).push_text(value).exit_elem();
+    }
+}
 
-        let mut losses = Losses::none();
+fn date_value(date_time: &DateTime) -> Option<&str> {
+    let value = date_time.value.split('T').next()?.trim();
+    value
+        .split('-')
+        .next()
+        .is_some_and(|year| year.len() == 4 && year.chars().all(|char| char.is_ascii_digit()))
+        .then_some(value)
+}
 
-        let mut front = String::new();
-        if let Some(content) = &self.r#abstract {
-            let (abstract_jats, abstract_losses) = content.to_jats();
-            front.push_str(&elem_no_attrs("abstract", abstract_jats));
-            losses.merge(abstract_losses);
+fn encode_date_parts(context: &mut JatsEncodeContext, value: &str) {
+    let mut parts = value.split('-');
+    if let Some(year) = parts.next() {
+        encode_text_element(context, "year", year);
+    }
+    if let Some(month) = parts.next() {
+        encode_text_element(context, "month", month);
+    }
+    if let Some(day) = parts.next() {
+        encode_text_element(context, "day", day);
+    }
+}
+
+fn encode_article_date(
+    context: &mut JatsEncodeContext,
+    element: &str,
+    date_type: Option<&str>,
+    date_time: &DateTime,
+    loss: &str,
+) {
+    let Some(value) = date_value(date_time) else {
+        context.add_loss(loss);
+        return;
+    };
+
+    context.enter_elem(element);
+    if let Some(date_type) = date_type {
+        context.push_attr("date-type", date_type);
+    }
+    context.push_attr("iso-8601-date", value);
+    encode_date_parts(context, value);
+    context.exit_elem();
+}
+
+#[derive(Default)]
+struct JournalMetadata<'a> {
+    title: Option<&'a str>,
+    volume: Option<String>,
+    issue: Option<String>,
+}
+
+fn collect_journal_metadata<'a>(work: &'a CreativeWorkVariant, metadata: &mut JournalMetadata<'a>) {
+    match work {
+        CreativeWorkVariant::Periodical(periodical) => {
+            metadata.title = periodical.name.as_deref();
         }
-
-        let mut body = String::new();
-        for block in &self.content {
-            let (block_jats, block_losses) = block.to_jats();
-            body.push_str(&block_jats);
-            losses.merge(block_losses);
+        CreativeWorkVariant::PublicationVolume(volume) => {
+            metadata.volume = volume.volume_number.as_ref().map(TextCodec::to_text);
+            if let Some(parent) = &volume.is_part_of {
+                collect_journal_metadata(parent, metadata);
+            }
         }
-
-        let back = String::new();
-
-        let mut content = String::new();
-        if !front.is_empty() {
-            content.push_str(&elem_no_attrs("front", front));
+        CreativeWorkVariant::PublicationIssue(issue) => {
+            metadata.issue = issue.issue_number.as_ref().map(TextCodec::to_text);
+            if let Some(parent) = &issue.is_part_of {
+                collect_journal_metadata(parent, metadata);
+            }
         }
-        if !body.is_empty() {
-            content.push_str(&elem_no_attrs("body", body));
-        }
-        if !back.is_empty() {
-            content.push_str(&elem_no_attrs("back", back));
-        }
+        _ => {}
+    }
+}
 
-        (
-            elem(
-                "article",
-                [
-                    ("dtd-version", "1.3"),
-                    ("xmlns:xlink", "http://www.w3.org/1999/xlink"),
-                    ("xmlns:mml", "http://www.w3.org/1998/Math/MathML"),
-                ],
-                content,
+fn encode_publisher(publisher: &PersonOrOrganization, context: &mut JatsEncodeContext) {
+    let name = match publisher {
+        PersonOrOrganization::Person(person) => {
+            let name = person.name();
+            (!name.trim().is_empty()).then_some(name)
+        }
+        PersonOrOrganization::Organization(organization) => {
+            organization_name(organization).map(str::to_string)
+        }
+    };
+    if let Some(name) = name {
+        context.enter_elem("publisher");
+        encode_text_element(context, "publisher-name", &name);
+        context.exit_elem();
+    } else {
+        context.add_loss("Article.publisher");
+    }
+}
+
+fn encode_article_author(
+    author: &Author,
+    affiliations: &BTreeMap<String, String>,
+    context: &mut JatsEncodeContext,
+) {
+    context
+        .enter_elem("contrib")
+        .push_attr("contrib-type", "author");
+
+    let (person, role, encoded) = match author {
+        Author::Person(person) => (Some(person), None, encode_person_name(person, context)),
+        Author::Organization(organization) => {
+            let encoded = organization_name(organization).is_some_and(|name| {
+                context.enter_elem("collab").push_text(name).exit_elem();
+                true
+            });
+            (None, None, encoded)
+        }
+        Author::SoftwareApplication(software) => {
+            let name = software.name.trim();
+            let encoded = if name.is_empty() {
+                false
+            } else {
+                context.enter_elem("collab").push_text(name).exit_elem();
+                true
+            };
+            (None, None, encoded)
+        }
+        Author::AuthorRole(author_role) => match &author_role.author {
+            AuthorRoleAuthor::Person(person) => (
+                Some(person),
+                Some(author_role.role_name.to_string()),
+                encode_person_name(person, context),
             ),
-            losses,
-        )
+            AuthorRoleAuthor::Organization(organization) => {
+                let encoded = organization_name(organization).is_some_and(|name| {
+                    context.enter_elem("collab").push_text(name).exit_elem();
+                    true
+                });
+                (None, Some(author_role.role_name.to_string()), encoded)
+            }
+            AuthorRoleAuthor::SoftwareApplication(software) => {
+                let name = software.name.trim();
+                let encoded = if name.is_empty() {
+                    false
+                } else {
+                    context.enter_elem("collab").push_text(name).exit_elem();
+                    true
+                };
+                (None, Some(author_role.role_name.to_string()), encoded)
+            }
+            AuthorRoleAuthor::Thing(..) => {
+                context.add_loss("AuthorRole.author");
+                (None, Some(author_role.role_name.to_string()), false)
+            }
+        },
+    };
+
+    if !encoded {
+        context.add_loss("Article.authors");
+        context.exit_elem_omit_empty();
+        return;
+    }
+    if let Some(person) = person {
+        if let Some(orcid) = person
+            .orcid
+            .as_deref()
+            .map(str::trim)
+            .filter(|orcid| !orcid.is_empty())
+        {
+            context
+                .enter_elem("contrib-id")
+                .push_attr("contrib-id-type", "orcid")
+                .push_text(normalize_orcid(orcid))
+                .exit_elem();
+        }
+        if let Some(emails) = &person.options.emails {
+            for email in emails
+                .iter()
+                .map(|email| email.trim())
+                .filter(|email| !email.is_empty())
+            {
+                encode_text_element(context, "email", email);
+            }
+        }
+        if let Some(organizations) = &person.affiliations {
+            for organization in organizations {
+                if let Some(id) = affiliations.get(&affiliation_key(organization)) {
+                    context
+                        .enter_elem("xref")
+                        .push_attr("ref-type", "aff")
+                        .push_attr("rid", id)
+                        .exit_elem();
+                }
+            }
+        }
+    }
+    if let Some(role) = role {
+        encode_text_element(context, "role", &role);
+    }
+    context.exit_elem();
+}
+
+fn encode_affiliation(organization: &Organization, id: &str, context: &mut JatsEncodeContext) {
+    context.enter_elem("aff").push_attr("id", id);
+    let name = organization_name(organization);
+    let ror = organization
+        .ror
+        .as_deref()
+        .map(str::trim)
+        .filter(|ror| !ror.is_empty());
+    if name.is_some() || ror.is_some() {
+        context.enter_elem("institution-wrap");
+        if let Some(name) = name {
+            encode_text_element(context, "institution", name);
+        }
+        if let Some(ror) = ror {
+            let ror = format!(
+                "https://ror.org/{}",
+                ror.trim_start_matches("https://ror.org/")
+                    .trim_start_matches("http://ror.org/")
+                    .trim_end_matches('/')
+            );
+            context
+                .enter_elem("institution-id")
+                .push_attr("institution-id-type", "ror")
+                .push_text(ror)
+                .exit_elem();
+        }
+        context.exit_elem();
+    }
+    if let Some(address) = organization.options.address.as_ref() {
+        let address = address_parts(address).join(", ");
+        encode_text_element(context, "addr-line", &address);
+    }
+    context.exit_elem();
+}
+
+impl JatsCodec for Article {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        let reference_ids = self
+            .references
+            .iter()
+            .flatten()
+            .enumerate()
+            .map(|(index, reference)| {
+                context.register_reference_id(reference.id.as_deref(), &format!("ref{}", index + 1))
+            })
+            .collect_vec();
+
+        context
+            .enter_elem("article")
+            .push_attr("dtd-version", "1.4")
+            .push_attr("xmlns:xlink", "http://www.w3.org/1999/xlink")
+            .push_attr("xmlns:mml", "http://www.w3.org/1998/Math/MathML");
+        if let Some(id) = &self.id {
+            context.push_attr("id", id);
+        }
+
+        context.enter_elem("front");
+
+        let mut journal = JournalMetadata::default();
+        if let Some(work) = &self.options.is_part_of {
+            collect_journal_metadata(work, &mut journal);
+        }
+        if journal.title.is_some() || self.options.publisher.is_some() {
+            context.enter_elem("journal-meta");
+            if let Some(title) = journal.title {
+                context.enter_elem("journal-title-group");
+                encode_text_element(context, "journal-title", title);
+                context.exit_elem();
+            }
+            if let Some(publisher) = &self.options.publisher {
+                encode_publisher(publisher, context);
+            }
+            context.exit_elem_omit_empty();
+        }
+
+        context.enter_elem("article-meta");
+        if let Some(doi) = self
+            .doi
+            .as_deref()
+            .map(normalize_doi)
+            .filter(|doi| !doi.is_empty())
+        {
+            context
+                .enter_elem("article-id")
+                .push_attr("pub-id-type", "doi")
+                .push_text(doi)
+                .exit_elem();
+        }
+        if let Some(title) = self.title.as_ref().filter(|title| !title.is_empty()) {
+            context
+                .enter_elem("title-group")
+                .enter_elem("article-title");
+            title.to_jats(context);
+            context.exit_elem_omit_empty().exit_elem_omit_empty();
+        }
+
+        if let Some(authors) = self.authors.as_ref().filter(|authors| !authors.is_empty()) {
+            let organizations = article_affiliations(authors);
+            let affiliations = organizations
+                .iter()
+                .enumerate()
+                .map(|(index, organization)| {
+                    (affiliation_key(organization), format!("aff{}", index + 1))
+                })
+                .collect::<BTreeMap<_, _>>();
+            context.enter_elem("contrib-group");
+            for author in authors {
+                encode_article_author(author, &affiliations, context);
+            }
+            for organization in organizations {
+                if let Some(id) = affiliations.get(&affiliation_key(organization)) {
+                    encode_affiliation(organization, id, context);
+                }
+            }
+            context.exit_elem_omit_empty();
+        }
+
+        if let Some(date) = &self.date_published {
+            encode_article_date(context, "pub-date", None, date, "Article.datePublished");
+        }
+        if let Some(volume) = journal.volume.as_deref() {
+            encode_text_element(context, "volume", volume);
+        }
+        if let Some(issue) = journal.issue.as_deref() {
+            encode_text_element(context, "issue", issue);
+        }
+        for (name, value) in [
+            (
+                "fpage",
+                self.options.page_start.as_ref().map(TextCodec::to_text),
+            ),
+            (
+                "lpage",
+                self.options.page_end.as_ref().map(TextCodec::to_text),
+            ),
+            ("page-range", self.options.pagination.clone()),
+        ] {
+            if let Some(value) = value {
+                encode_text_element(context, name, &value);
+            }
+        }
+
+        if self.options.date_received.is_some() || self.options.date_accepted.is_some() {
+            context.enter_elem("history");
+            if let Some(date) = &self.options.date_received {
+                encode_article_date(
+                    context,
+                    "date",
+                    Some("received"),
+                    date,
+                    "Article.dateReceived",
+                );
+            }
+            if let Some(date) = &self.options.date_accepted {
+                encode_article_date(
+                    context,
+                    "date",
+                    Some("accepted"),
+                    date,
+                    "Article.dateAccepted",
+                );
+            }
+            context.exit_elem_omit_empty();
+        }
+        if let Some(abstract_content) = self
+            .r#abstract
+            .as_ref()
+            .filter(|content| !content.is_empty())
+        {
+            context.enter_elem("abstract");
+            abstract_content.to_jats(context);
+            context.exit_elem_omit_empty();
+        }
+        if let Some(keywords) = self.options.keywords.as_ref() {
+            context.enter_elem("kwd-group");
+            for keyword in keywords
+                .iter()
+                .map(|keyword| keyword.trim())
+                .filter(|keyword| !keyword.is_empty())
+            {
+                encode_text_element(context, "kwd", keyword);
+            }
+            context.exit_elem_omit_empty();
+        }
+        context.exit_elem().exit_elem();
+
+        context.enter_elem("body");
+        for block in &self.content {
+            match block {
+                Block::Section(section)
+                    if matches!(
+                        section.section_type,
+                        Some(SectionType::Acknowledgements | SectionType::Appendix)
+                    ) => {}
+                Block::AppendixBreak(..) => {}
+                block => block.to_jats(context),
+            }
+        }
+        context.exit_elem_omit_empty();
+
+        context.enter_elem("back");
+        for block in &self.content {
+            if let Block::Section(section) = block
+                && matches!(section.section_type, Some(SectionType::Acknowledgements))
+            {
+                context.enter_elem("ack");
+                section.content.to_jats(context);
+                context.exit_elem_omit_empty();
+            }
+        }
+
+        let appendices = self.content.iter().filter_map(|block| match block {
+            Block::Section(section)
+                if matches!(section.section_type, Some(SectionType::Appendix)) =>
+            {
+                Some(section)
+            }
+            _ => None,
+        });
+        context.enter_elem("app-group");
+        for section in appendices {
+            context.enter_elem("app");
+            if let Some(id) = &section.id {
+                context.push_attr("id", id);
+            }
+            section.content.to_jats(context);
+            context.exit_elem_omit_empty();
+        }
+        context.exit_elem_omit_empty();
+
+        if let Some(references) = &self.references
+            && !references.is_empty()
+        {
+            context.enter_elem("ref-list");
+            for (reference, id) in references.iter().zip(reference_ids) {
+                reference.to_jats_with_id(&id, context);
+            }
+            context.exit_elem_omit_empty();
+        }
+        context.exit_elem_omit_empty();
+        context.exit_elem();
     }
 }
 

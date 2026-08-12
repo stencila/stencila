@@ -2,11 +2,204 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Ichthyological surveys have traditionally been conducted using whole-specimen, capture-based sampling with varied but conventional fishing gear. Recently, environmental DNA (eDNA) metabarcoding has emerged as a complementary, and possible alternative, approach to whole-specimen methodologies. In the tropics, where much of the diversity remains undescribed, vast reaches continue unexplored, and anthropogenic activities are constant threats; there have been few eDNA attempts for ichthyological inventories. We tested the discriminatory power of eDNA using MiFish primers with existing public reference libraries and compared this with capture-based methods in two distinct ecosystems in the megadiverse Amazon basin. In our study, eDNA provided an accurate snapshot of the fishes at higher taxonomic levels and corroborated its effectiveness to detect specialized fish assemblages. Some flaws in fish metabarcoding studies are routine issues addressed in natural history museums. Thus, by expanding their archives and adopting a series of initiatives linking collection-based research, training and outreach, natural history museums can enable the effective use of eDNA to survey Earth’s hotspots of biodiversity before taxa go extinct. Our project surveying poorly explored rivers and using DNA vouchered archives to build metabarcoding libraries for Neotropical fishes can serve as a model of this protocol.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>Scientific Reports</journal-title>
+      </journal-title-group>
+      <publisher>
+        <publisher-name>Nature Publishing Group</publisher-name>
+      </publisher>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1038/s41598-021-97128-3</article-id>
+      <title-group>
+        <article-title>The critical role of natural history museums in advancing eDNA for biodiversity studies: a case study with Amazonian fishes</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>de Santana</surname>
+            <given-names>C David</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Parenti</surname>
+            <given-names>Lynne R</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Dillman</surname>
+            <given-names>Casey B</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff2">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Coddington</surname>
+            <given-names>Jonathan A</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff3">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Bastos</surname>
+            <given-names>Douglas A</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff4">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Baldwin</surname>
+            <given-names>Carole C</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Zuanon</surname>
+            <given-names>Jansen</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff5">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Torrente-Vilara</surname>
+            <given-names>Gislene</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff6">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Covain</surname>
+            <given-names>Raphaël</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff7">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Menezes</surname>
+            <given-names>Naércio A</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff8">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Datovo</surname>
+            <given-names>Aléssio</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff8">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Sado</surname>
+            <given-names>T</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff9">
+          </xref>
+        </contrib>
+        <contrib contrib-type="author">
+          <name>
+            <surname>Miya</surname>
+            <given-names>M</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff9">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Division of Fishes, Department of Vertebrate Zoology, MRC 159, National Museum of Natural History, Smithsonian Institution</institution>
+          </institution-wrap>
+          <addr-line>PO Box 37012, Washington, DC 20013-7012 USA</addr-line>
+        </aff>
+        <aff id="aff2">
+          <institution-wrap>
+            <institution>Cornell University Museum of Vertebrates, Department of Ecology and Evolutionary Biology, Cornell University</institution>
+          </institution-wrap>
+          <addr-line>Ithaca, NY 14850 USA</addr-line>
+        </aff>
+        <aff id="aff3">
+          <institution-wrap>
+            <institution>Global Genome Initiative, National Museum of Natural History, Smithsonian Institution</institution>
+          </institution-wrap>
+          <addr-line>PO Box 37012, Washington, DC 20013-7012 USA</addr-line>
+        </aff>
+        <aff id="aff4">
+          <institution-wrap>
+            <institution>Programa de Pós‐Graduação em Ciências Biológicas (BADPI), Instituto Nacional de Pesquisas da Amazônia</institution>
+          </institution-wrap>
+          <addr-line>Manaus, Brazil</addr-line>
+        </aff>
+        <aff id="aff5">
+          <institution-wrap>
+            <institution>Coordenação de Biodiversidade, Instituto Nacional de Pesquisas da Amazônia</institution>
+          </institution-wrap>
+          <addr-line>Manaus, Amazonas Brazil</addr-line>
+        </aff>
+        <aff id="aff6">
+          <institution-wrap>
+            <institution>Instituto do Mar, Universidade Federal de São Paulo</institution>
+          </institution-wrap>
+          <addr-line>Campus Baixada Santista, Santos, São Paulo Brazil</addr-line>
+        </aff>
+        <aff id="aff7">
+          <institution-wrap>
+            <institution>Museum of Natural History, Department of Herpetology and Ichthyology, route de Malagnou 1, PO Box 6434, 1211 Geneva 6, Switzerland</institution>
+          </institution-wrap>
+        </aff>
+        <aff id="aff8">
+          <institution-wrap>
+            <institution>Museu de Zoologia da Universidade de São Paulo (MZUSP)</institution>
+          </institution-wrap>
+          <addr-line>Av. Nazaré, 481, São Paulo, SP 04263-000 Brazil</addr-line>
+        </aff>
+        <aff id="aff9">
+          <institution-wrap>
+            <institution>Natural History Museum and Institute</institution>
+          </institution-wrap>
+          <addr-line>Chuo-ku, Chiba, 260-8682 Japan</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2021">
+        <year>2021</year>
+      </pub-date>
+      <volume>11</volume>
+      <history>
+        <date date-type="received" iso-8601-date="2021-4-23">
+          <year>2021</year>
+          <month>4</month>
+          <day>23</day>
+        </date>
+        <date date-type="accepted" iso-8601-date="2021-8-12">
+          <year>2021</year>
+          <month>8</month>
+          <day>12</day>
+        </date>
+      </history>
+      <abstract>
+        <p>Ichthyological surveys have traditionally been conducted using whole-specimen, capture-based sampling with varied but conventional fishing gear. Recently, environmental DNA (eDNA) metabarcoding has emerged as a complementary, and possible alternative, approach to whole-specimen methodologies. In the tropics, where much of the diversity remains undescribed, vast reaches continue unexplored, and anthropogenic activities are constant threats; there have been few eDNA attempts for ichthyological inventories. We tested the discriminatory power of eDNA using MiFish primers with existing public reference libraries and compared this with capture-based methods in two distinct ecosystems in the megadiverse Amazon basin. In our study, eDNA provided an accurate snapshot of the fishes at higher taxonomic levels and corroborated its effectiveness to detect specialized fish assemblages. Some flaws in fish metabarcoding studies are routine issues addressed in natural history museums. Thus, by expanding their archives and adopting a series of initiatives linking collection-based research, training and outreach, natural history museums can enable the effective use of eDNA to survey Earth’s hotspots of biodiversity before taxa go extinct. Our project surveying poorly explored rivers and using DNA vouchered archives to build metabarcoding libraries for Neotropical fishes can serve as a model of this protocol.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>Ecology</kwd>
+        <kwd>Biodiversity</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -1837,10 +2030,6 @@ expression: jats
         </caption>
       </supplementary-material>
     </sec>
-    <sec sec-type="Acknowledgements">
-      <title level="1">Acknowledgements</title>
-      <p>The expedition to the Javari River was funded by São Paulo State Research Foundation grant to GTV (FAPESP #2016/07910-0) and Global Genome Initiative grant to CDS, CBD, and LRP (GGI-Peer-2017-149). A Global Genome Initiative grant to CDS to survey African rivers and build DNA barcoding and metabarcoding archives for freshwater fishes (GGI-Peer-2020-258). CDS wish to acknowledge funding and technical support from the Smithsonian Institution Barcode Network (2018, 2019, 2020 Award Cycle) and the use of facilities at the Laboratories of Analytical Biology, National Museum of Natural History, Smithsonian Institution. JZ received a productivity grant from Brazil’s CNPq (#313183/2014-7). AD, CDS, and NAM are funded by FAPESP (#2016/19075-9). MM and TS were supported by Environment Research and Technology Development Fund (4-1602) of the Ministry of the Environment, Japan.</p>
-    </sec>
     <sec sec-type="AuthorContributions">
       <title level="1">Author contributions</title>
       <p>The study was conceived by C.D.S. and designed by C.D.S. and MM. Environmental samples were collected by C.D.S., D.A.B., J.Z., G.T.V. M.M. and T.S. performed laboratory analyses. Bioinformatic and statistical analyses were performed by C.D.S. and M.M. The manuscript was written by C.D.S. with input from all the authors. C.D.S. coordinated the study.</p>
@@ -1854,4 +2043,2607 @@ expression: jats
       <p>The authors declare no competing interests.</p>
     </sec>
   </body>
+  <back>
+    <ack>
+      <title level="1">Acknowledgements</title>
+      <p>The expedition to the Javari River was funded by São Paulo State Research Foundation grant to GTV (FAPESP #2016/07910-0) and Global Genome Initiative grant to CDS, CBD, and LRP (GGI-Peer-2017-149). A Global Genome Initiative grant to CDS to survey African rivers and build DNA barcoding and metabarcoding archives for freshwater fishes (GGI-Peer-2020-258). CDS wish to acknowledge funding and technical support from the Smithsonian Institution Barcode Network (2018, 2019, 2020 Award Cycle) and the use of facilities at the Laboratories of Analytical Biology, National Museum of Natural History, Smithsonian Institution. JZ received a productivity grant from Brazil’s CNPq (#313183/2014-7). AD, CDS, and NAM are funded by FAPESP (#2016/19075-9). MM and TS were supported by Environment Research and Technology Development Fund (4-1602) of the Ministry of the Environment, Japan.</p>
+    </ack>
+    <ref-list>
+      <ref id="CR1">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lundberg</surname>
+              <given-names>J G</given-names>
+            </name>
+            <name>
+              <surname>Kottelat</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>G R</given-names>
+            </name>
+            <name>
+              <surname>Stiassny</surname>
+              <given-names>M L J</given-names>
+            </name>
+            <name>
+              <surname>Gill</surname>
+              <given-names>A C</given-names>
+            </name>
+          </person-group>
+          <article-title>So many fishes, so little time: An overview of recent ichthyological discovery in continental waters</article-title>
+          <source>Ann. Mo. Bot. Gard.</source>
+          <year>2000</year>
+          <fpage>26</fpage>
+          <lpage>62</lpage>
+          <pub-id pub-id-type="doi">10.2307/2666207</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR2">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Relyea</surname>
+              <given-names>R A</given-names>
+            </name>
+          </person-group>
+          <article-title>The impact of insecticides and herbicides on the biodiversity and productivity of aquatic communities</article-title>
+          <source>Ecol. Appl.</source>
+          <year>2005</year>
+          <fpage>618</fpage>
+          <lpage>627</lpage>
+          <pub-id pub-id-type="doi">10.1890/03-5342</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR3">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miya</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Sato</surname>
+              <given-names>Y</given-names>
+            </name>
+            <name>
+              <surname>Sado</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Poulsen</surname>
+              <given-names>J Y</given-names>
+            </name>
+            <name>
+              <surname>Sato</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Minamoto</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Yamamoto</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Yamanaka</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Araki</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Kondoh</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Ywasaki</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <article-title>MiFish, a set of universal PCR primers for metabarcoding environmental DNA from fishes: Detection of more than 230 subtropical marine species</article-title>
+          <source>R. Soc. Open Sci.</source>
+          <year>2015</year>
+          <fpage>150088</fpage>
+          <pub-id pub-id-type="doi">10.1098/rsos.150088</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR4">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Clare</surname>
+              <given-names>A I M</given-names>
+            </name>
+            <name>
+              <surname>Knapp</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Gemmell</surname>
+              <given-names>N J</given-names>
+            </name>
+            <name>
+              <surname>Gert-Jan</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Bunce</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Lamare</surname>
+              <given-names>M D</given-names>
+            </name>
+            <name>
+              <surname>Taylor</surname>
+              <given-names>H R</given-names>
+            </name>
+            <name>
+              <surname>Helen</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Beyond biodiversity: Can environmental DNA (eDNA) cut it as a population genetics tool?</article-title>
+          <source>Genes</source>
+          <year>2019</year>
+          <fpage>192</fpage>
+          <pub-id pub-id-type="doi">10.3390/genes10030192</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR5">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tsuji</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Shibata</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Sawada</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Ushio</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantitative evaluation of intraspecific genetic diversity in a natural fish population using environmental DNA</article-title>
+          <source>Mol. Ecol. Resour.</source>
+          <year>2020</year>
+          <fpage>1323</fpage>
+          <lpage>1332</lpage>
+          <pub-id pub-id-type="doi">10.1111/1755-0998.13200</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR6">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miya</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Gotoh</surname>
+              <given-names>R O</given-names>
+            </name>
+            <name>
+              <surname>Sado</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>MiFish metabarcoding: A high-throughput approach for simultaneous detection of multiple fish species from environmental DNA and other samples</article-title>
+          <source>Fish. Sci.</source>
+          <year>2020</year>
+          <fpage>939</fpage>
+          <lpage>970</lpage>
+          <pub-id pub-id-type="doi">10.1007/s12562-020-01461-x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR7">
+        <mixed-citation>Dagosta F. C. P. &amp; de Pinna, M. C. C. The fishes of the Amazon: Distribution and biogeographical patterns, with a comprehensive list of species. Bull. Am. Mus. Nat. Hist, 431 , 1–163 (2019).<person-group person-group-type="author">
+            <name>
+              <surname>Dagosta</surname>
+              <given-names>F C P</given-names>
+            </name>
+            <name>
+              <surname>de Pinna</surname>
+              <given-names>M C C</given-names>
+            </name>
+          </person-group>
+          <year>2019</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR8">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jézéquel</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Tedesco</surname>
+              <given-names>P A</given-names>
+            </name>
+            <name>
+              <surname>Bigorne</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>A database of freshwater fish species of the Amazon Basin</article-title>
+          <source>Sci. Data</source>
+          <year>2020</year>
+          <fpage>96</fpage>
+          <pub-id pub-id-type="doi">10.1038/s41597-020-0436-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR9">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Reis</surname>
+              <given-names>R E</given-names>
+            </name>
+            <name>
+              <surname>Kullander</surname>
+              <given-names>S O</given-names>
+            </name>
+            <name>
+              <surname>Ferraris</surname>
+              <given-names>C J</given-names>
+            </name>
+          </person-group>
+          <article-title>Check List of the Freshwater Fishes of South and Central America</article-title>
+          <source>(Edipucrs</source>
+          <year>2003</year>
+        </element-citation>
+      </ref>
+      <ref id="CR10">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Tedesco</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>A global database on freshwater fish species occurrence in drainage basins</article-title>
+          <source>Sci. Data</source>
+          <year>2017</year>
+          <fpage>170141</fpage>
+          <pub-id pub-id-type="doi">10.1038/sdata.2017.141</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR11">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Brito</surname>
+              <given-names>P M</given-names>
+            </name>
+            <name>
+              <surname>Meunier</surname>
+              <given-names>F J</given-names>
+            </name>
+            <name>
+              <surname>Leal</surname>
+              <given-names>M E C</given-names>
+            </name>
+          </person-group>
+          <article-title>Origine et diversification de líchthyofaune Neotropical: Une revue</article-title>
+          <source>Cybium</source>
+          <year>2007</year>
+          <fpage>139</fpage>
+          <lpage>153</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR12">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lowe-McConnell</surname>
+              <given-names>R H</given-names>
+            </name>
+          </person-group>
+          <article-title>Ecological Studies in Tropical Fish Communities</article-title>
+          <year>1987</year>
+        </element-citation>
+      </ref>
+      <ref id="CR13">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bloom</surname>
+              <given-names>D D</given-names>
+            </name>
+            <name>
+              <surname>Lovejoy</surname>
+              <given-names>N R</given-names>
+            </name>
+          </person-group>
+          <article-title>On the origins of marine derived fishes in South America</article-title>
+          <source>J. Biogeogr.</source>
+          <year>2017</year>
+          <fpage>1927</fpage>
+          <lpage>1938</lpage>
+          <pub-id pub-id-type="doi">10.1111/jbi.12954</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR14">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>de Santana</surname>
+              <given-names>C D</given-names>
+            </name>
+          </person-group>
+          <article-title>Unexpected species diversity in electric eels with a description of the strongest living bioelectricity generator</article-title>
+          <source>Nat. Commun.</source>
+          <year>2019</year>
+          <fpage>4000</fpage>
+          <pub-id pub-id-type="doi">10.1038/s41467-019-11690-z</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR15">
+        <mixed-citation>Carvalho, L. N., Zuanon, J. &amp; Sazima, I. Natural history of Amazon fishes. In Tropical Biology and Natural Resources Theme (ed. Del-Claro, K.), K. Del-Claro &amp; R. J. Marquis (Session Eds. the Natural History Session), Encyclopedia of Life Support Systems (EOLSS) (Eolss Publishers, 2007).<person-group person-group-type="author">
+            <name>
+              <surname>Carvalho</surname>
+              <given-names>L N</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Sazima</surname>
+              <given-names>I</given-names>
+            </name>
+          </person-group>
+          <year>2007</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR16">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cardoso</surname>
+              <given-names>Y P</given-names>
+            </name>
+            <name>
+              <surname>Rosso</surname>
+              <given-names>J J</given-names>
+            </name>
+            <name>
+              <surname>Mabragaña</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Gonzalez-Castro</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Delpiani</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Avigliano</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>A continental-wide molecular approach unraveling mtDNA diversity and geographic distribution of the Neotropical genus<italic>Hoplias</italic>
+          </article-title>
+          <source>PLoS ONE</source>
+          <year>2018</year>
+          <fpage>e0202024</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0202024</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR17">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hebert</surname>
+              <given-names>P D N</given-names>
+            </name>
+            <name>
+              <surname>Cywinska</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Ball</surname>
+              <given-names>S L</given-names>
+            </name>
+            <name>
+              <surname>de Waard</surname>
+              <given-names>J R</given-names>
+            </name>
+          </person-group>
+          <article-title>Biological identifications through DNA barcodes</article-title>
+          <source>Proc. R. Soc. Lond. Ser. B Biol. Sci.</source>
+          <year>2003</year>
+          <fpage>313</fpage>
+          <lpage>321</lpage>
+          <pub-id pub-id-type="doi">10.1098/rspb.2002.2218</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR18">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Baldwin</surname>
+              <given-names>C C</given-names>
+            </name>
+            <name>
+              <surname>Castillo</surname>
+              <given-names>C I</given-names>
+            </name>
+            <name>
+              <surname>Weigt</surname>
+              <given-names>L A</given-names>
+            </name>
+            <name>
+              <surname>Victor</surname>
+              <given-names>B C</given-names>
+            </name>
+          </person-group>
+          <article-title>Seven new species within western Atlantic<italic>Starksia atlantica</italic>,<italic>S. lepicoelia</italic>, and<italic>S. sluiteri</italic>(Teleostei, Labrisomidae), with comments on congruence of DNA barcodes and species</article-title>
+          <source>ZooKeys</source>
+          <year>2011</year>
+          <fpage>21</fpage>
+          <lpage>27</lpage>
+          <pub-id pub-id-type="doi">10.3897/zookeys.79.1045</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR19">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Robertson</surname>
+              <given-names>D R</given-names>
+            </name>
+            <name>
+              <surname>Angulo</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Baldwin</surname>
+              <given-names>C C</given-names>
+            </name>
+            <name>
+              <surname>Pitassy</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Diane</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Driskell</surname>
+              <given-names>A W</given-names>
+            </name>
+            <name>
+              <surname>Weigt</surname>
+              <given-names>L A</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Navarro</surname>
+              <given-names>I J F</given-names>
+            </name>
+          </person-group>
+          <article-title>Deep-water bony fishes collected by the B/O Miguel Oliver on the shelf edge of Pacific Central America: An annotated, illustrated and DNA-barcoded checklist</article-title>
+          <source>Zootaxa</source>
+          <year>2017</year>
+          <fpage>1</fpage>
+          <lpage>125</lpage>
+          <pub-id pub-id-type="doi">10.11646/zootaxa.4348.1.1</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR20">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Weigt</surname>
+              <given-names>L A</given-names>
+            </name>
+            <name>
+              <surname>Baldwin</surname>
+              <given-names>C C</given-names>
+            </name>
+            <name>
+              <surname>Driskell</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>D G</given-names>
+            </name>
+            <name>
+              <surname>Ormos</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Reyier</surname>
+              <given-names>E A</given-names>
+            </name>
+          </person-group>
+          <article-title>Using DNA barcoding to assess Caribbean reef fish biodiversity: Expanding taxonomic and geographic coverage</article-title>
+          <source>PLoS ONE</source>
+          <year>2012</year>
+          <fpage>e41059</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0041059</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR21">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Seberg</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Droege</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Barker</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Coddington</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Funk</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Gostel</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Petersen</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>P P</given-names>
+            </name>
+          </person-group>
+          <article-title>Global genome biodiversity network: Saving a blueprint of the tree of life—a botanical perspective</article-title>
+          <source>Ann. Bot.</source>
+          <year>2016</year>
+          <fpage>393</fpage>
+          <lpage>399</lpage>
+          <pub-id pub-id-type="doi">10.1093/aob/mcw121</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR22">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Parenti</surname>
+              <given-names>L R</given-names>
+            </name>
+            <name>
+              <surname>Pitassy</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Jaafar</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Vinnikov</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Redmond</surname>
+              <given-names>N E</given-names>
+            </name>
+            <name>
+              <surname>Cole</surname>
+              <given-names>K S</given-names>
+            </name>
+          </person-group>
+          <article-title>Fishes collected during the 2017 MarineGEO assessment of Kāne‘ohe Bay, O‘ahu, Hawai‘i</article-title>
+          <source>J. Mar. Biol. Assoc. UK</source>
+          <year>2020</year>
+          <fpage>607</fpage>
+          <lpage>637</lpage>
+          <pub-id pub-id-type="doi">10.1017/S0025315420000417</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR23">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Droege</surname>
+              <given-names>G</given-names>
+            </name>
+          </person-group>
+          <article-title>The Global Genome Biodiversity Network (GGBN) Data Standard specification</article-title>
+          <source>Database</source>
+          <year>2016</year>
+          <pub-id pub-id-type="doi">10.1093/database/baw125</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR24">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Marques</surname>
+              <given-names>V</given-names>
+            </name>
+            <name>
+              <surname>Guérin</surname>
+              <given-names>PÉ</given-names>
+            </name>
+            <name>
+              <surname>Rocle</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Valentini</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Manel</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Mouillot</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Dejean</surname>
+              <given-names>T</given-names>
+            </name>
+          </person-group>
+          <article-title>Blind assessment of vertebrate taxonomic diversity across spatial scales by clustering environmental DNA metabarcoding sequences</article-title>
+          <source>Ecography</source>
+          <year>2020</year>
+          <fpage>1779</fpage>
+          <lpage>1790</lpage>
+          <pub-id pub-id-type="doi">10.1111/ecog.05049</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR25">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Leray</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Knowlton</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Shien-Lei</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Nguyen</surname>
+              <given-names>B N</given-names>
+            </name>
+            <name>
+              <surname>Machida</surname>
+              <given-names>R J</given-names>
+            </name>
+          </person-group>
+          <article-title>GenBank is a reliable resource for 21st biodiversity research</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A.</source>
+          <year>2019</year>
+          <fpage>22651</fpage>
+          <lpage>22656</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.1911714116</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR26">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dillman</surname>
+              <given-names>C B</given-names>
+            </name>
+            <name>
+              <surname>Zhuang</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Zhang</surname>
+              <given-names>L-Z</given-names>
+            </name>
+            <name>
+              <surname>Mugue</surname>
+              <given-names>N</given-names>
+            </name>
+            <name>
+              <surname>Hilton</surname>
+              <given-names>E J</given-names>
+            </name>
+          </person-group>
+          <article-title>Forensic investigations into a GenBank anomaly: endangered taxa and the importance of voucher specimens in molecular studies</article-title>
+          <source>J. Appl. Ichthyol.</source>
+          <year>2014</year>
+          <fpage>1300</fpage>
+          <lpage>1309</lpage>
+          <pub-id pub-id-type="doi">10.1111/jai.12568</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR27">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Locatelli</surname>
+              <given-names>N S</given-names>
+            </name>
+            <name>
+              <surname>McIntyre</surname>
+              <given-names>P B</given-names>
+            </name>
+            <name>
+              <surname>Therkildsen</surname>
+              <given-names>N O</given-names>
+            </name>
+            <name>
+              <surname>Baetscher</surname>
+              <given-names>D S</given-names>
+            </name>
+          </person-group>
+          <article-title>GenBank’s reliability is uncertain for biodiversity researchers seeking species-level assignment for eDNA</article-title>
+          <source>Proc. Natl. Acad. Sci. U.S.A.</source>
+          <year>2020</year>
+          <fpage>32211</fpage>
+          <lpage>32212</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.2007421117</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR28">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jerde</surname>
+              <given-names>C L</given-names>
+            </name>
+            <name>
+              <surname>Wilson</surname>
+              <given-names>E A</given-names>
+            </name>
+            <name>
+              <surname>Dressler</surname>
+              <given-names>T L</given-names>
+            </name>
+          </person-group>
+          <article-title>Measuring global fish species richness with eDNA metabarcoding</article-title>
+          <source>Mol. Ecol. Resour.</source>
+          <year>2019</year>
+          <fpage>19</fpage>
+          <lpage>22</lpage>
+          <pub-id pub-id-type="doi">10.1111/1755-0998.12929</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR29">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Nobile</surname>
+              <given-names>A B</given-names>
+            </name>
+            <name>
+              <surname>Freitas-Souza</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Ruiz-Ruano</surname>
+              <given-names>F J</given-names>
+            </name>
+            <name>
+              <surname>Nobile</surname>
+              <given-names>M L M O</given-names>
+            </name>
+            <name>
+              <surname>Costa</surname>
+              <given-names>G O</given-names>
+            </name>
+            <name>
+              <surname>de Lima</surname>
+              <given-names>F P</given-names>
+            </name>
+            <name>
+              <surname>Camacho</surname>
+              <given-names>J P M</given-names>
+            </name>
+            <name>
+              <surname>Foresti</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Oliveira</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA metabarcoding of Neotropical ichthyoplankton: Enabling high accuracy with lower cost</article-title>
+          <source>Metabarcoding Metagenom.</source>
+          <year>2019</year>
+          <fpage>35060</fpage>
+          <pub-id pub-id-type="doi">10.3897/mbmg.3.35060</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR30">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cilleros</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Valentini</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Cerdan</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Dejean</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Iribar</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Taberlet</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Vigouroux</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Brosse</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Unlocking biodiversity and conservation studies in high diversity environments using environmental DNA (eDNA): A text with Guianese freshwater fishes</article-title>
+          <source>Mol. Ecol. Resour.</source>
+          <year>2019</year>
+          <fpage>27</fpage>
+          <lpage>46</lpage>
+          <pub-id pub-id-type="doi">10.1111/1755-0998.12900</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR31">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sales</surname>
+              <given-names>N G</given-names>
+            </name>
+            <name>
+              <surname>Wangensteen</surname>
+              <given-names>O S</given-names>
+            </name>
+            <name>
+              <surname>Carvalho</surname>
+              <given-names>D C</given-names>
+            </name>
+            <name>
+              <surname>Mariani</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Influence of preservation methods, sample medium and sampling time on eDNA recovery in a neotropical river</article-title>
+          <source>Environ. DNA</source>
+          <year>2019</year>
+          <fpage>119</fpage>
+          <lpage>130</lpage>
+          <pub-id pub-id-type="doi">10.1002/edn3.14</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR32">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jackman</surname>
+              <given-names>J M C</given-names>
+            </name>
+          </person-group>
+          <article-title>eDNA in a bottleneck: Obstacles to fish metabarcoding studies in megadiverse freshwater systems</article-title>
+          <source>Environ. DNA</source>
+          <year>2021</year>
+          <pub-id pub-id-type="doi">10.1002/edna3.191</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR33">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Valentini</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Next-generation monitoring of aquatic biodiversity using environmental DNA metabarcoding</article-title>
+          <source>Mol. Ecol.</source>
+          <year>2016</year>
+          <fpage>929</fpage>
+          <lpage>942</lpage>
+          <pub-id pub-id-type="doi">10.1111/mec.13428</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR34">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>McElroy</surname>
+              <given-names>M E</given-names>
+            </name>
+          </person-group>
+          <article-title>Calibrating environmental DNA metabarcoding to conventional surveys for measuring fish species richness</article-title>
+          <source>Front. Ecol. Evol.</source>
+          <year>2020</year>
+          <fpage>276</fpage>
+          <pub-id pub-id-type="doi">10.3389/fevo.2020.00276</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR35">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dudgeon</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Freshwater Biodiversity: Status</article-title>
+          <year>2020</year>
+        </element-citation>
+      </ref>
+      <ref id="CR36">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Clarke</surname>
+              <given-names>K R</given-names>
+            </name>
+          </person-group>
+          <article-title>Non-parametric multivariate analyses of changes in community structure</article-title>
+          <source>Austral Ecol.</source>
+          <year>1993</year>
+          <fpage>117</fpage>
+          <lpage>143</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1442-9993.1993.tb00438.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR37">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Milan</surname>
+              <given-names>D T</given-names>
+            </name>
+            <name>
+              <surname>Mendes</surname>
+              <given-names>I S</given-names>
+            </name>
+            <name>
+              <surname>Carvalho</surname>
+              <given-names>D C</given-names>
+            </name>
+          </person-group>
+          <article-title>New 12S metabarcoding primers for enhanced Neotropical freshwater fish biodiversity assessment</article-title>
+          <source>Sci. Rep.</source>
+          <year>2020</year>
+          <fpage>17966</fpage>
+          <pub-id pub-id-type="doi">10.1038/s41598-020-74902-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR38">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Deagle</surname>
+              <given-names>B E</given-names>
+            </name>
+            <name>
+              <surname>Jarman</surname>
+              <given-names>S N</given-names>
+            </name>
+            <name>
+              <surname>Coissac</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Pompanon</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Taberlet</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>DNA metabarcoding and the cytochrome c oxidase subunit I marker: Not a perfect match</article-title>
+          <source>Biol. Lett.</source>
+          <year>2014</year>
+          <fpage>20140562</fpage>
+          <pub-id pub-id-type="doi">10.1098/rsbl.2014.0562</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR39">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Collins</surname>
+              <given-names>R A</given-names>
+            </name>
+            <name>
+              <surname>Bakker</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Wangensteen</surname>
+              <given-names>O S</given-names>
+            </name>
+            <name>
+              <surname>Soto</surname>
+              <given-names>A Z</given-names>
+            </name>
+            <name>
+              <surname>Corrigan</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Sims</surname>
+              <given-names>D W</given-names>
+            </name>
+            <name>
+              <surname>Genner</surname>
+              <given-names>M J</given-names>
+            </name>
+            <name>
+              <surname>Mariani</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Non-specific amplification compromises environmental DNA metabarcoding with COI</article-title>
+          <source>Methods Ecol. Evol.</source>
+          <year>2019</year>
+          <fpage>1985</fpage>
+          <lpage>2001</lpage>
+          <pub-id pub-id-type="doi">10.1111/2041-210X.13276</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR40">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Antich</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>To denoise or to cluster, that is not the question: optimizing pipelines for COI metabarcoding and metaphylogeography</article-title>
+          <source>BMC Bioinf.</source>
+          <year>2021</year>
+          <fpage>177</fpage>
+          <pub-id pub-id-type="doi">10.1186/s12859-021-04115-6</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR41">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vieira</surname>
+              <given-names>T B</given-names>
+            </name>
+            <name>
+              <surname>Pavanelli</surname>
+              <given-names>C S</given-names>
+            </name>
+            <name>
+              <surname>Casatti</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Smith</surname>
+              <given-names>W S</given-names>
+            </name>
+            <name>
+              <surname>Benedito</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Mazzoni</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>A multiple hypothesis approach to explain species richness patterns in neotropical stream-dweller fish communities</article-title>
+          <source>PLoS ONE</source>
+          <year>2018</year>
+          <fpage>e0204114</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0204114</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR42">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Bockmann</surname>
+              <given-names>F A</given-names>
+            </name>
+            <name>
+              <surname>Sazima</surname>
+              <given-names>I</given-names>
+            </name>
+          </person-group>
+          <article-title>A remarkable sand-dwelling fish assemblage from central Amazonia, with comments on the evolution of psammophily in South American freshwater fishes</article-title>
+          <source>Neotrop. Ichthyol.</source>
+          <year>2006</year>
+          <fpage>107</fpage>
+          <lpage>118</lpage>
+          <pub-id pub-id-type="doi">10.1590/S1679-62252006000100012</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR43">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sazima</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Carvalho</surname>
+              <given-names>L N</given-names>
+            </name>
+            <name>
+              <surname>Mendonça</surname>
+              <given-names>F P</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Fallen leaves on the water-bed: Diurnal camouflage of three night-active fish species in an Amazonian streamlet</article-title>
+          <source>Neotrop. Ichthyol.</source>
+          <year>2006</year>
+          <fpage>119</fpage>
+          <lpage>122</lpage>
+          <pub-id pub-id-type="doi">10.1590/S1679-62252006000100013</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR44">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Espírito-Santo</surname>
+              <given-names>H M V</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Temporary pools provide stability to fish assemblages in Amazon headwater streams</article-title>
+          <source>Ecol. Freshw. Fish</source>
+          <year>2017</year>
+          <fpage>475</fpage>
+          <lpage>483</lpage>
+          <pub-id pub-id-type="doi">10.1111/eff.12292</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR45">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>de Pinna</surname>
+              <given-names>M C C</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Rapp-Py-Daniel</surname>
+              <given-names>L R</given-names>
+            </name>
+            <name>
+              <surname>Petry</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>A new family of neotropical freshwater fishes from deep fossorial Amazonian habitat, with a reappraisal of morphological characiform phylogeny (Teleostei: Ostariophysi)</article-title>
+          <source>Zool. J. Linn. Soc.</source>
+          <year>2018</year>
+          <fpage>76</fpage>
+          <lpage>106</lpage>
+          <pub-id pub-id-type="doi">10.1093/zoolinnean/zlx028</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR46">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>López-Rojas</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Lundberg</surname>
+              <given-names>J G</given-names>
+            </name>
+            <name>
+              <surname>Marsh</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Design and operation of a small trawling apparatus for use with dugout canoes</article-title>
+          <source>North Am. J. Fish. Manag.</source>
+          <year>1984</year>
+          <fpage>331</fpage>
+          <lpage>334</lpage>
+          <pub-id pub-id-type="doi">10.1577/1548-8659(1984)4&amp;#x0003c;331:DAOOAS&amp;#x0003e;2.0.CO;2</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR47">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Marrero</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Taphorn</surname>
+              <given-names>D C</given-names>
+            </name>
+          </person-group>
+          <article-title>Notas sobre la historia natural y la distribution de los peces Gymnotiformes in la cuenca del Rio Apure y otros rios de la Orinoquia</article-title>
+          <source>Biollania</source>
+          <year>1991</year>
+          <fpage>123</fpage>
+          <lpage>142</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR48">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cox-Fernandes</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Podos</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Lundberg</surname>
+              <given-names>J G</given-names>
+            </name>
+          </person-group>
+          <article-title>Amazonian Ecology: Tributaries enhance the diversity of electric fishes</article-title>
+          <source>Science</source>
+          <year>2004</year>
+          <fpage>1960</fpage>
+          <lpage>1962</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.1101240</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR49">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Peixoto</surname>
+              <given-names>L A W</given-names>
+            </name>
+            <name>
+              <surname>Dutra</surname>
+              <given-names>G M</given-names>
+            </name>
+            <name>
+              <surname>Wosiack</surname>
+              <given-names>W B</given-names>
+            </name>
+          </person-group>
+          <article-title>The electric. Glassknife fishes of the<italic>Eigenmannia trilineata</italic>group (Gymnotiformes: Sternopygidae): monophyly and description of seven new species</article-title>
+          <source>Zool. J. Linn. Soc.</source>
+          <year>2015</year>
+          <fpage>384</fpage>
+          <lpage>414</lpage>
+          <pub-id pub-id-type="doi">10.1111/zoj.12274</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR50">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>de Santana</surname>
+              <given-names>C D</given-names>
+            </name>
+            <name>
+              <surname>Vari</surname>
+              <given-names>R P</given-names>
+            </name>
+          </person-group>
+          <article-title>Electric fishes of the genus<italic>Sternarchorhynchus</italic>(Teleostei, Ostariophysi, Gymnotiformes); phylogenetic and revisionary studies</article-title>
+          <source>Zool. J. Linn. Soc.</source>
+          <year>2010</year>
+          <fpage>223</fpage>
+          <lpage>371</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1096-3642.2009.00588.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR51">
+        <mixed-citation>Castro, R. M. C. Evolução da ictiofauna de riachos sul-americanos: Padrões gerais e possíveis processos causais. In Ecologia de peixes de riachos (eds Caramaschi, E. P., Mazzoni, R., &amp; Peres-Neto, P. R.) Série Oecologia Brasiliensis volume VI, PPGE-UFRJ, Rio de Janeiro, 139–155 (1999).<person-group person-group-type="author">
+            <name>
+              <surname>Castro</surname>
+              <given-names>R M C</given-names>
+            </name>
+          </person-group>
+          <year>1999</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR52">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mojica</surname>
+              <given-names>J I</given-names>
+            </name>
+            <name>
+              <surname>Castellanos</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Lobón-Cerviá</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>High temporal species turnover enhances the complexity of fish assemblages in Amazonian Terra firme streams</article-title>
+          <source>Ecol. Freshw. Fish</source>
+          <year>2009</year>
+          <fpage>518</fpage>
+          <lpage>526</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1600-0633.2009.00382.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR53">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>de Oliveira</surname>
+              <given-names>R R</given-names>
+            </name>
+            <name>
+              <surname>Rocha</surname>
+              <given-names>M M</given-names>
+            </name>
+            <name>
+              <surname>Anjos</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Rapp Py-Daniel</surname>
+              <given-names>L H</given-names>
+            </name>
+          </person-group>
+          <article-title>Fish fauna of small streams of the Catua-Ipixuna Extractive Reserve, State of Amazonas, Brazil</article-title>
+          <source>Check List</source>
+          <year>2009</year>
+          <fpage>154</fpage>
+          <lpage>172</lpage>
+          <pub-id pub-id-type="doi">10.15560/5.2.154</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR54">
+        <mixed-citation>Caramaschi E., Mazzoni, P. R., Bizerril, C. R. S. F. &amp; Peres-Neto, P. R. Ecologia de Peixes de Riachos: Estado Atual e Perspectivas. Oecologia Brasiliensis, v. VI, Rio de Janeiro (1999).<person-group person-group-type="author">
+            <name>
+              <surname>Caramaschi</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Mazzoni</surname>
+              <given-names>P R</given-names>
+            </name>
+            <name>
+              <surname>Bizerril</surname>
+              <given-names>C R S F</given-names>
+            </name>
+            <name>
+              <surname>Peres-Neto</surname>
+              <given-names>P R</given-names>
+            </name>
+          </person-group>
+          <year>1999</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR55">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Anjos</surname>
+              <given-names>M B</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Sampling effort and fish species richness in small Terra firme forest streams of central Amazonia, Brazil</article-title>
+          <source>Neotrop. Ichthyol.</source>
+          <year>2007</year>
+          <fpage>45</fpage>
+          <lpage>52</lpage>
+          <pub-id pub-id-type="doi">10.1590/S1679-62252007000100006</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR56">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mojica</surname>
+              <given-names>J I</given-names>
+            </name>
+            <name>
+              <surname>Lobón-Cerviá</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Castellanos</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Quantifying fish species richness and abundance in Amazonian streams: Assessment of a multiple gear method suitable for Terra firme stream fish assemblages</article-title>
+          <source>Fish. Manag. Ecol.</source>
+          <year>2014</year>
+          <fpage>220</fpage>
+          <lpage>233</lpage>
+          <pub-id pub-id-type="doi">10.1111/fme.12067</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR57">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Barros</surname>
+              <given-names>D F</given-names>
+            </name>
+            <name>
+              <surname>Zuanon</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Mendonça</surname>
+              <given-names>F P</given-names>
+            </name>
+            <name>
+              <surname>Espirito-Santo</surname>
+              <given-names>H M V</given-names>
+            </name>
+            <name>
+              <surname>Galuch</surname>
+              <given-names>A V</given-names>
+            </name>
+            <name>
+              <surname>Albernaz</surname>
+              <given-names>A L M</given-names>
+            </name>
+          </person-group>
+          <article-title>The fish fauna of streams in the Madeira-Purus interfluvial region, Brazilian Amazon</article-title>
+          <source>Check List</source>
+          <year>2011</year>
+          <fpage>768</fpage>
+          <lpage>773</lpage>
+          <pub-id pub-id-type="doi">10.15560/11022</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR58">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Escobar-Camacho</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Barriga</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Ron</surname>
+              <given-names>S R</given-names>
+            </name>
+          </person-group>
+          <article-title>Discovering hidden diversity of characins (Teleostei: Characiformes) in Ecuador&apos;s Yasuní National Park</article-title>
+          <source>PLoS ONE</source>
+          <year>2015</year>
+          <fpage>e0135569</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0135569</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR59">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ramirez</surname>
+              <given-names>J L</given-names>
+            </name>
+            <name>
+              <surname>Birindelli</surname>
+              <given-names>J L</given-names>
+            </name>
+            <name>
+              <surname>Carvalho</surname>
+              <given-names>D C</given-names>
+            </name>
+            <name>
+              <surname>Affonso</surname>
+              <given-names>P R A M</given-names>
+            </name>
+            <name>
+              <surname>Venere</surname>
+              <given-names>P C</given-names>
+            </name>
+            <name>
+              <surname>Ortega</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Carrillo-Avila</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Rodríguez-Pulido</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Galetti</surname>
+              <given-names>P M</given-names>
+            </name>
+          </person-group>
+          <article-title>Revealing hidden diversity of the underestimated neotropical ichthyofauna: DNA barcoding in the recently described genus<italic>Megaleporinus</italic>(Characiformes: Anostomidae)</article-title>
+          <source>Front. Genet.</source>
+          <year>2017</year>
+          <fpage>149</fpage>
+          <pub-id pub-id-type="doi">10.3389/fgene.2017.00149</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR60">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Crampton</surname>
+              <given-names>W G R</given-names>
+            </name>
+            <name>
+              <surname>de Santana</surname>
+              <given-names>C D</given-names>
+            </name>
+            <name>
+              <surname>Waddell</surname>
+              <given-names>J C</given-names>
+            </name>
+            <name>
+              <surname>Lovejoy</surname>
+              <given-names>N R</given-names>
+            </name>
+          </person-group>
+          <article-title>The Neotropical electric fish genus<italic>Brachyhypopomus</italic>(Ostariophysi: Gymnotiformes: Hypopomidae): taxonomy and biology, with descriptions of 15 new species</article-title>
+          <source>Neotrop. Ichthyol.</source>
+          <year>2016</year>
+          <fpage>639</fpage>
+          <lpage>790</lpage>
+          <pub-id pub-id-type="doi">10.1590/1982-0224-20150146</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR61">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Abel</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Conservation biology for the biodiversity crisis: A freshwater follow-up</article-title>
+          <source>Conserv. Biol.</source>
+          <year>2002</year>
+          <fpage>1435</fpage>
+          <lpage>1437</lpage>
+          <pub-id pub-id-type="doi">10.1046/j.1523-1739.2002.01532.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR62">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Dudgeon</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>Prospects for sustaining freshwater biodiversity in the 21st century: Linking ecosystem structure and function</article-title>
+          <source>Curr. Opin. Environ. Sustain.</source>
+          <year>2010</year>
+          <fpage>422</fpage>
+          <lpage>430</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.cosust.2010.09.001</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR63">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jenkins</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Prospects for biodiversity</article-title>
+          <source>Science</source>
+          <year>2003</year>
+          <fpage>1175</fpage>
+          <lpage>1177</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.1088666</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR64">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bunn</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Sullivan</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Liermann</surname>
+              <given-names>C R</given-names>
+            </name>
+            <name>
+              <surname>Davies</surname>
+              <given-names>P M</given-names>
+            </name>
+            <name>
+              <surname>Vörösmarty</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>McIntire</surname>
+              <given-names>P B</given-names>
+            </name>
+            <name>
+              <surname>Gessner</surname>
+              <given-names>M O</given-names>
+            </name>
+            <name>
+              <surname>Dudgeon</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Prusevich</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Green</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Glidden</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Global threats to human water security and river biodiversity</article-title>
+          <source>Nature</source>
+          <year>2010</year>
+          <fpage>555</fpage>
+          <lpage>561</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature09440</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR65">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Albert</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>Scientists’ warning to humanity on the freshwater biodiversity crisis</article-title>
+          <source>Ambio</source>
+          <year>2020</year>
+          <fpage>85</fpage>
+          <lpage>94</lpage>
+          <pub-id pub-id-type="doi">10.1007/s13280-020-01318-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR66">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gilbert</surname>
+              <given-names>M T P</given-names>
+            </name>
+            <name>
+              <surname>Haselkorn</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Bunce</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Sanchez</surname>
+              <given-names>J J</given-names>
+            </name>
+            <name>
+              <surname>Lucas</surname>
+              <given-names>S B</given-names>
+            </name>
+            <name>
+              <surname>Jewell</surname>
+              <given-names>L D</given-names>
+            </name>
+            <name>
+              <surname>Worobey</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>The isolation of nucleic acids from fixed, paraffin-embedded tissues–which methods are useful when?</article-title>
+          <source>PLoS ONE</source>
+          <year>2007</year>
+          <fpage>e537</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0000537</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR67">
+        <mixed-citation>Campos, P. F. &amp; Gilbert, T. M. DNA extraction from formalin-fixed material. In Ancient DNA 81–85 (Humana Press, 2012). 10.1007/978-1-61779-516-9_11 22237525<person-group person-group-type="author">
+            <name>
+              <surname>Campos</surname>
+              <given-names>P F</given-names>
+            </name>
+            <name>
+              <surname>Gilbert</surname>
+              <given-names>T M</given-names>
+            </name>
+          </person-group>
+          <year>2012</year>
+          <pub-id pub-id-type="doi">10.1007/978-1-61779-516-9_11</pub-id>
+        </mixed-citation>
+      </ref>
+      <ref id="CR68">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hykin</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Bi</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>McGuire</surname>
+              <given-names>J A</given-names>
+            </name>
+          </person-group>
+          <article-title>Fixing formalin: a method to recover genomic-scale DNA sequence data from formalin-fixed museum specimens using high-throughput sequencing</article-title>
+          <source>PLoS ONE</source>
+          <year>2015</year>
+          <fpage>e0141579</fpage>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0141579</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR69">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hagedorn</surname>
+              <given-names>M M</given-names>
+            </name>
+            <name>
+              <surname>Daly</surname>
+              <given-names>J P</given-names>
+            </name>
+            <name>
+              <surname>Carter</surname>
+              <given-names>V L</given-names>
+            </name>
+            <name>
+              <surname>Cole</surname>
+              <given-names>K S</given-names>
+            </name>
+            <name>
+              <surname>Jaafar</surname>
+              <given-names>Z</given-names>
+            </name>
+            <name>
+              <surname>Lager</surname>
+              <given-names>C V</given-names>
+            </name>
+            <name>
+              <surname>Parenti</surname>
+              <given-names>L R</given-names>
+            </name>
+          </person-group>
+          <article-title>Cryopreservation of fish spermatogonial cells: the future of natural history collections</article-title>
+          <source>Sci. Rep.</source>
+          <year>2018</year>
+          <fpage>6149</fpage>
+          <pub-id pub-id-type="doi">10.1038/s41598-018-24269-3</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR70">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Albert</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Reis</surname>
+              <given-names>R E</given-names>
+            </name>
+          </person-group>
+          <article-title>Historical Biogeography of Neotropical Freshwater Fishes</article-title>
+          <year>2011</year>
+        </element-citation>
+      </ref>
+      <ref id="CR71">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sabaj Pérez</surname>
+              <given-names>M H</given-names>
+            </name>
+          </person-group>
+          <article-title>Where the Xingu bends and will soon break</article-title>
+          <source>Am. Sci.</source>
+          <year>2015</year>
+          <fpage>395</fpage>
+          <lpage>403</lpage>
+          <pub-id pub-id-type="doi">10.1511/2015.117.395</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR72">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Amigo</surname>
+              <given-names>I</given-names>
+            </name>
+          </person-group>
+          <article-title>When will the Amazon hit a tipping point?</article-title>
+          <source>Nature</source>
+          <year>2020</year>
+          <fpage>505</fpage>
+          <lpage>507</lpage>
+          <pub-id pub-id-type="doi">10.1038/d41586-020-00508-4</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR73">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Murienne</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Cantera</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Cerdan</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Decotte</surname>
+              <given-names>J B</given-names>
+            </name>
+            <name>
+              <surname>Dejean</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Vigouroux</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Brosse</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>Aquatic DNA for monitoring French Guiana biodiversity</article-title>
+          <source>Biodivers. Data J.</source>
+          <year>2019</year>
+          <fpage>37518</fpage>
+          <pub-id pub-id-type="doi">10.3897/BDJ.7.e37518</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR74">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>McDevitt</surname>
+              <given-names>A D</given-names>
+            </name>
+          </person-group>
+          <article-title>Environmental DNA metabarcoding as an effective and rapid tool for fish monitoring in canals</article-title>
+          <source>J. Fish Biol.</source>
+          <year>2019</year>
+          <fpage>679</fpage>
+          <lpage>682</lpage>
+          <pub-id pub-id-type="doi">10.1111/jfb.14053</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR75">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fernandes</surname>
+              <given-names>G W</given-names>
+            </name>
+            <name>
+              <surname>Vale</surname>
+              <given-names>M M</given-names>
+            </name>
+            <name>
+              <surname>Overbeck</surname>
+              <given-names>G E</given-names>
+            </name>
+            <name>
+              <surname>Bustamante</surname>
+              <given-names>M M</given-names>
+            </name>
+            <name>
+              <surname>Grelle</surname>
+              <given-names>C E</given-names>
+            </name>
+            <name>
+              <surname>Bergallo</surname>
+              <given-names>H G</given-names>
+            </name>
+            <name>
+              <surname>Araújo</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Dismantling Brazil&apos;s science threatens global biodiversity heritage</article-title>
+          <source>Perspect. Ecol. Conserv.</source>
+          <year>2017</year>
+          <fpage>239</fpage>
+          <lpage>243</lpage>
+        </element-citation>
+      </ref>
+      <ref id="CR76">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Alves</surname>
+              <given-names>R J V</given-names>
+            </name>
+            <name>
+              <surname>Weksler</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Oliveira</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Buckup</surname>
+              <given-names>P A</given-names>
+            </name>
+            <name>
+              <surname>Santana</surname>
+              <given-names>H R</given-names>
+            </name>
+            <name>
+              <surname>Peracchi</surname>
+              <given-names>A L</given-names>
+            </name>
+            <name>
+              <surname>Albernaz</surname>
+              <given-names>A L</given-names>
+            </name>
+          </person-group>
+          <article-title>Brazilian legislation on genetic heritage harms Biodiversity Convention goals and threatens basic biology research and education</article-title>
+          <source>An. Acad. Bras. Ciênc.</source>
+          <year>2018</year>
+          <fpage>1279</fpage>
+          <lpage>1284</lpage>
+          <pub-id pub-id-type="doi">10.1590/0001-3765201820180460</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR77">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Overbeck</surname>
+              <given-names>G E</given-names>
+            </name>
+            <name>
+              <surname>Bergallo</surname>
+              <given-names>H G</given-names>
+            </name>
+            <name>
+              <surname>Grelle</surname>
+              <given-names>C E</given-names>
+            </name>
+            <name>
+              <surname>Akama</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Bravo</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Colli</surname>
+              <given-names>G R</given-names>
+            </name>
+            <name>
+              <surname>Fernandes</surname>
+              <given-names>G W</given-names>
+            </name>
+          </person-group>
+          <article-title>Global biodiversity threatened by science budget cuts in Brazil</article-title>
+          <source>Bioscience</source>
+          <year>2018</year>
+          <fpage>11</fpage>
+          <lpage>12</lpage>
+          <pub-id pub-id-type="doi">10.1093/biosci/bix130</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR78">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miya</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Minamoto</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Yamanaka</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Oka</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Sato</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Yamamoto</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Sado</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>Doi</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Use of a filter cartridge for filtration of water samples and extraction of environmental DNA</article-title>
+          <source>J. Vis. Exp.</source>
+          <year>2016</year>
+          <fpage>54741</fpage>
+          <pub-id pub-id-type="doi">10.3791/54741</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR79">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Edgar</surname>
+              <given-names>R C</given-names>
+            </name>
+          </person-group>
+          <article-title>Search and clustering orders of magnitude faster than BLAST</article-title>
+          <source>Bioinformatics</source>
+          <year>2010</year>
+          <fpage>2460</fpage>
+          <lpage>2461</lpage>
+          <pub-id pub-id-type="doi">10.1093/bioinformatics/btq461</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR80">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Callahan</surname>
+              <given-names>B J</given-names>
+            </name>
+            <name>
+              <surname>McMurdie</surname>
+              <given-names>P J</given-names>
+            </name>
+            <name>
+              <surname>Holmes</surname>
+              <given-names>S P</given-names>
+            </name>
+          </person-group>
+          <article-title>Exact sequence variants should replace operational taxonomic units in marker-gene data analysis</article-title>
+          <source>ISME J.</source>
+          <year>2017</year>
+          <fpage>2639</fpage>
+          <lpage>2643</lpage>
+          <pub-id pub-id-type="doi">10.1038/ismej.2017.119</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR81">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Katoh</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Standley</surname>
+              <given-names>D M</given-names>
+            </name>
+          </person-group>
+          <article-title>MAFFT multiple sequence alignment software version 7: Improvements in performance and usability</article-title>
+          <source>Mol. Biol. Evol.</source>
+          <year>2013</year>
+          <fpage>772</fpage>
+          <lpage>780</lpage>
+          <pub-id pub-id-type="doi">10.1093/molbev/mst010</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR82">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kumar</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Stecher</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Tamura</surname>
+              <given-names>K</given-names>
+            </name>
+          </person-group>
+          <article-title>MEGA7: Molecular evolutionary genetics analysis version 7.0 for bigger datasets</article-title>
+          <source>Mol. Biol. Evol.</source>
+          <year>2016</year>
+          <fpage>1870</fpage>
+          <lpage>1874</lpage>
+          <pub-id pub-id-type="doi">10.1093/molbev/msw054</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR83">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kimura</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>A simple method for estimating evolutionary rates of base substitutions through comparative studies of nucleotide sequences</article-title>
+          <source>J. Mol. Evol.</source>
+          <year>1980</year>
+          <fpage>111</fpage>
+          <lpage>120</lpage>
+          <pub-id pub-id-type="doi">10.1007/BF01731581</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR84">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Darriba</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Taboada</surname>
+              <given-names>G L</given-names>
+            </name>
+            <name>
+              <surname>Doallo</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Posada</surname>
+              <given-names>D</given-names>
+            </name>
+          </person-group>
+          <article-title>jModelTest 2: More models, new heuristics and parallel computing</article-title>
+          <source>Nat. Methods</source>
+          <year>2012</year>
+          <fpage>772</fpage>
+          <pub-id pub-id-type="doi">10.1038/nmeth.2109</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR85">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ronquist</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Teslenko</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>van der Mark</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Ayres</surname>
+              <given-names>D L</given-names>
+            </name>
+            <name>
+              <surname>Darling</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Höhna</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Larget</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Liu</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Suchard</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Huelsenbeck</surname>
+              <given-names>J P</given-names>
+            </name>
+          </person-group>
+          <article-title>MrBayes 3.2: Efficient Bayesian phylogenetic inference and model choice across a large model space</article-title>
+          <source>Systematics Biology</source>
+          <year>2012</year>
+          <fpage>539</fpage>
+          <lpage>542</lpage>
+          <pub-id pub-id-type="doi">10.1093/sysbio/sys029</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR86">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Miller</surname>
+              <given-names>M A</given-names>
+            </name>
+          </person-group>
+          <article-title>A RESTful API for access to phylogenetic tools via the CIPRES science gateway</article-title>
+          <source>Evol. Bioinf.</source>
+          <year>2015</year>
+          <fpage>43</fpage>
+          <lpage>48</lpage>
+          <pub-id pub-id-type="doi">10.4137/EBO.S21501</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR87">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ciccarelli</surname>
+              <given-names>F D</given-names>
+            </name>
+            <name>
+              <surname>Goerks</surname>
+              <given-names>T</given-names>
+            </name>
+            <name>
+              <surname>von Mering</surname>
+              <given-names>C</given-names>
+            </name>
+            <name>
+              <surname>Creevery</surname>
+              <given-names>C J</given-names>
+            </name>
+            <name>
+              <surname>Snel</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Bork</surname>
+              <given-names>P</given-names>
+            </name>
+          </person-group>
+          <article-title>Toward automatic reconstruction of a highly resolved tree of life</article-title>
+          <source>Science</source>
+          <year>2006</year>
+          <fpage>1283</fpage>
+          <lpage>1287</lpage>
+          <pub-id pub-id-type="doi">10.1126/science.1123061</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR88">
+        <mixed-citation publication-type="website">R Core Team. R: A Language and Environment for Statistical Computing. (R Foundation for Statistical Computing, 2020). https://www.Rproject.org/ .<person-group person-group-type="author">
+            <name>
+              <surname>Core Team</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <year>2020</year>
+          <ext-link ext-link-type="uri" xlink:href="https://www.Rproject.org/">https://www.Rproject.org/</ext-link>
+        </mixed-citation>
+      </ref>
+      <ref id="CR89">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Wickham</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>Ggplot2: Elegant graphics for data analysis</article-title>
+          <year>2016</year>
+        </element-citation>
+      </ref>
+      <ref id="CR90">
+        <mixed-citation>Oksanen, J., Kindt, R. &amp; O’Hara, B. Package VEGAN. Community Ecology Package , Version 2 (2013).<person-group person-group-type="author">
+            <name>
+              <surname>Oksanen</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Kindt</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>O’Hara</surname>
+              <given-names>B</given-names>
+            </name>
+          </person-group>
+          <year>2013</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR91">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Fox</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Weisberg</surname>
+              <given-names>S</given-names>
+            </name>
+          </person-group>
+          <article-title>An R Companion to Applied Regression</article-title>
+          <year>2019</year>
+        </element-citation>
+      </ref>
+      <ref id="CR92">
+        <mixed-citation publication-type="website">Adler D., Nenadic, O. &amp; Zucchini, W. rgl: 3D visualization device system (OpenGL). R package version 0.93.945. http://CRAN.R-project.org/package=rgl (2013).<person-group person-group-type="author">
+            <name>
+              <surname>Adler</surname>
+              <given-names>D</given-names>
+            </name>
+            <name>
+              <surname>Nenadic</surname>
+              <given-names>O</given-names>
+            </name>
+            <name>
+              <surname>Zucchini</surname>
+              <given-names>W</given-names>
+            </name>
+          </person-group>
+          <year>2013</year>
+          <ext-link ext-link-type="uri" xlink:href="http://CRAN.R-project.org/package=rgl">http://CRAN.R-project.org/package=rgl</ext-link>
+        </mixed-citation>
+      </ref>
+      <ref id="CR93">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gu</surname>
+              <given-names>Z</given-names>
+            </name>
+          </person-group>
+          <article-title>Circlize implements and enhances circular visualization in R</article-title>
+          <source>Bioinformatics</source>
+          <year>2014</year>
+          <fpage>2811</fpage>
+          <lpage>2812</lpage>
+          <pub-id pub-id-type="doi">10.1093/bioinformatics/btu393</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR94">
+        <mixed-citation>Schiettekatte, N. M. D., Brandl, S. J. &amp; Casey, J. M. Fishualize: Color Palettes Based On Fish Species . CRAN version 0.2.0 (2019).<person-group person-group-type="author">
+            <name>
+              <surname>Schiettekatte</surname>
+              <given-names>N M D</given-names>
+            </name>
+            <name>
+              <surname>Brandl</surname>
+              <given-names>S J</given-names>
+            </name>
+            <name>
+              <surname>Casey</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <year>2019</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR95">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chao</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <article-title>Estimating population size for sparse data in capture-recapture experiments</article-title>
+          <source>Biometrics</source>
+          <year>1989</year>
+          <fpage>427</fpage>
+          <pub-id pub-id-type="doi">10.2307/2531487</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR96">
+        <mixed-citation>Hsieh T. C., Ma, K. H. &amp; Chao, A. iNEXT: Interpolation and Extrapolation for Species Diversity . R package version 2.0.20 (2020).<person-group person-group-type="author">
+            <name>
+              <surname>Hsieh</surname>
+              <given-names>T C</given-names>
+            </name>
+            <name>
+              <surname>Ma</surname>
+              <given-names>K H</given-names>
+            </name>
+            <name>
+              <surname>Chao</surname>
+              <given-names>A</given-names>
+            </name>
+          </person-group>
+          <year>2020</year>
+        </mixed-citation>
+      </ref>
+      <ref id="CR97">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Chao</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Chazdon</surname>
+              <given-names>R L</given-names>
+            </name>
+            <name>
+              <surname>Colwell</surname>
+              <given-names>R K</given-names>
+            </name>
+            <name>
+              <surname>Shen</surname>
+              <given-names>T-J</given-names>
+            </name>
+          </person-group>
+          <article-title>A new statistical approach for assessing compositional similarity based on incidence and abundance data</article-title>
+          <source>Ecol. Lett.</source>
+          <year>2005</year>
+          <fpage>148</fpage>
+          <lpage>215</lpage>
+          <pub-id pub-id-type="doi">10.1111/j.1461-0248.2004.00707.x</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR98">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Olds</surname>
+              <given-names>B P</given-names>
+            </name>
+            <name>
+              <surname>Jerde</surname>
+              <given-names>C L</given-names>
+            </name>
+            <name>
+              <surname>Renshaw</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Yiuan</surname>
+              <given-names>L</given-names>
+            </name>
+            <name>
+              <surname>Evans</surname>
+              <given-names>N T</given-names>
+            </name>
+            <name>
+              <surname>Turner</surname>
+              <given-names>C R</given-names>
+            </name>
+            <name>
+              <surname>Deiner</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Mahon</surname>
+              <given-names>A R</given-names>
+            </name>
+            <name>
+              <surname>Brueseke</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Shirey</surname>
+              <given-names>P D</given-names>
+            </name>
+            <name>
+              <surname>Pfrende</surname>
+              <given-names>M E</given-names>
+            </name>
+            <name>
+              <surname>Lodge</surname>
+              <given-names>D M</given-names>
+            </name>
+            <name>
+              <surname>Lambert</surname>
+              <given-names>G A</given-names>
+            </name>
+          </person-group>
+          <article-title>Estimating species richness using environmental DNA</article-title>
+          <source>Ecol. Evol.</source>
+          <year>2016</year>
+          <fpage>4214</fpage>
+          <lpage>4226</lpage>
+          <pub-id pub-id-type="doi">10.1002/ece3.2186</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="CR99">
+        <mixed-citation publication-type="website">Chao A., Ma, K. H., Hsieh, T. C. &amp; Chiu, C. H. SpadeR (Species-richness Prediction and Diversity Estimation in R): An R package in CRAN. Program and User’s Guide also published at http://chao.stat.nthu.edu.tw/wordpress/software_download/ (2016).<person-group person-group-type="author">
+            <name>
+              <surname>Chao</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Ma</surname>
+              <given-names>K H</given-names>
+            </name>
+            <name>
+              <surname>Hsieh</surname>
+              <given-names>T C</given-names>
+            </name>
+            <name>
+              <surname>Chiu</surname>
+              <given-names>C H</given-names>
+            </name>
+          </person-group>
+          <year>2016</year>
+          <ext-link ext-link-type="uri" xlink:href="http://chao.stat.nthu.edu.tw/wordpress/software_download/">http://chao.stat.nthu.edu.tw/wordpress/software_download/</ext-link>
+        </mixed-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

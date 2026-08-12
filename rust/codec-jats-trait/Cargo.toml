@@ -6,7 +6,6 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-itertools = { workspace = true }
 stencila-codec-info = { path = "../codec-info" }
 stencila-codec-jats-derive = { path = "../codec-jats-derive" }
 

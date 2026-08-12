@@ -13,18 +13,15 @@ impl DateTime {
     pub fn to_dom_attr(name: &str, date_time: &Self, context: &mut DomEncodeContext) {
         context.push_attr(&name.to_kebab_case(), &date_time.value.to_string());
     }
+}
 
-    pub fn to_jats_special(&self) -> (String, Losses) {
-        use stencila_codec_jats_trait::encode::elem;
-
-        (
-            elem(
-                "date-time",
-                [("iso-8601-date-time", &self.value)],
-                &self.value,
-            ),
-            Losses::none(),
-        )
+impl JatsCodec for DateTime {
+    fn to_jats(&self, context: &mut JatsEncodeContext) {
+        context
+            .enter_elem("date-time")
+            .push_attr("iso-8601-date-time", &self.value)
+            .push_text(&self.value)
+            .exit_elem();
     }
 }
 

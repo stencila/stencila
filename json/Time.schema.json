@@ -20,8 +20,7 @@
     }
   ],
   "jats": {
-    "elem": "time",
-    "special": true
+    "derive": false
   },
   "proptest": {},
   "required": [

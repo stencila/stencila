@@ -1,7 +1,8 @@
 use pretty_assertions::assert_eq;
 use stencila_codec::stencila_schema::{
-    Author, Node,
-    shortcuts::{art, aud, img, p, sti, vid},
+    Article, Author, Block, CreativeWorkType, Date, DateTime, Node, Organization, Person,
+    Reference, SectionType,
+    shortcuts::{art, aud, h1, img, p, sec, sti, t, vid},
 };
 
 use super::*;
@@ -28,7 +29,7 @@ async fn media_objects() -> Result<()> {
         .await?;
     assert_eq!(
         jats,
-        r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><inline-media xlink:href="http://example.org/audio.mp3" mimetype="audio"></inline-media><inline-graphic xlink:href="http://example.org/image.png"></inline-graphic><inline-media xlink:href="http://example.org/video.mp4" mimetype="video"></inline-media></p></body></article>"#
+        r#"<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><front><article-meta></article-meta></front><body><p><inline-media xlink:href="http://example.org/audio.mp3" mimetype="audio"></inline-media><inline-graphic xlink:href="http://example.org/image.png"></inline-graphic><inline-media xlink:href="http://example.org/video.mp4" mimetype="video"></inline-media></p></body></article>"#
     );
 
     let (doc2, ..) = codec.from_str(&jats, None).await?;
@@ -58,7 +59,7 @@ async fn spans() -> Result<()> {
         .await?;
     assert_eq!(
         jats,
-        r#"<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><body><p><styled-content style="&#9;&#10;&#13;"></styled-content></p></body></article>"#
+        r#"<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML"><front><article-meta></article-meta></front><body><p><styled-content style="&#9;&#10;&#13;"></styled-content></p></body></article>"#
     );
 
     let (doc2, ..) = codec.from_str(&jats, None).await?;
@@ -100,6 +101,284 @@ async fn contributor_correspondence_email() -> Result<()> {
     };
 
     assert_eq!(person.options.emails, Some(vec!["jane@example.org".into()]));
+
+    Ok(())
+}
+
+/// Front and back matter should be emitted in the locations expected by JATS consumers.
+#[tokio::test]
+async fn article_front_and_back_matter() -> Result<()> {
+    let mut affiliation = Organization::new();
+    affiliation.name = Some("Example University".into());
+    affiliation.ror = Some("03yrm5c26".into());
+
+    let mut person = Person::new();
+    person.given_names = Some(vec!["Jane".into()]);
+    person.family_names = Some(vec!["Doe".into()]);
+    person.orcid = Some("0000-0002-1825-0097".into());
+    person.affiliations = Some(vec![affiliation]);
+    person.options.emails = Some(vec!["jane@example.org".into()]);
+    let mut second_person = person.clone();
+    second_person.given_names = Some(vec!["John".into()]);
+    second_person.family_names = Some(vec!["Roe".into()]);
+    second_person.orcid = None;
+    second_person.options.emails = None;
+
+    let mut reference = Reference::new();
+    reference.id = Some("doe-2024".into());
+    reference.work_type = Some(CreativeWorkType::Article);
+    reference.authors = Some(vec![Author::Person(person.clone())]);
+    reference.date = Some(Date::new("2024-02-03".into()));
+    reference.title = Some(vec![t("Referenced work")]);
+    reference.doi = Some("https://doi.org/10.1234/example".into());
+    reference.options.text = Some("Doe (2024). Referenced work.".into());
+
+    let mut acknowledgement = match sec([h1([t("Acknowledgements")]), p([t("Thanks")])]) {
+        stencila_codec::stencila_schema::Block::Section(section) => section,
+        _ => return Err(stencila_codec::eyre::eyre!("expected section")),
+    };
+    acknowledgement.section_type = Some(SectionType::Acknowledgements);
+
+    let mut appendix = match sec([h1([t("Appendix A")]), p([t("Details")])]) {
+        stencila_codec::stencila_schema::Block::Section(section) => section,
+        _ => return Err(stencila_codec::eyre::eyre!("expected section")),
+    };
+    appendix.section_type = Some(SectionType::Appendix);
+
+    let mut article = Article::new(vec![
+        sec([h1([t("Introduction")]), p([t("Body")])]),
+        Block::Section(acknowledgement),
+        Block::Section(appendix),
+    ]);
+    article.id = Some("article-1".into());
+    article.doi = Some("doi:10.5678/article".into());
+    article.title = Some(vec![t("Article title")]);
+    article.r#abstract = Some(vec![p([t("Summary")])]);
+    article.authors = Some(vec![Author::Person(person), Author::Person(second_person)]);
+    article.date_published = Some(DateTime::new("2025-04-05T12:00:00Z".into()));
+    article.references = Some(vec![reference]);
+    article.options.date_received = Some(DateTime::new("2025-01-02".into()));
+    article.options.date_accepted = Some(DateTime::new("2025-03-04".into()));
+    article.options.keywords = Some(vec!["testing".into(), "JATS".into()]);
+
+    let (jats, info) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    let document = roxmltree::Document::parse(&jats)?;
+    let root = document.root_element();
+    assert_eq!(root.attribute("dtd-version"), Some("1.4"));
+    assert_eq!(root.attribute("id"), Some("article-1"));
+
+    let article_meta = root
+        .descendants()
+        .find(|node| node.has_tag_name("article-meta"))
+        .ok_or_else(|| stencila_codec::eyre::eyre!("missing article-meta"))?;
+    let child_names = article_meta
+        .children()
+        .filter(|node| node.is_element())
+        .map(|node| node.tag_name().name())
+        .collect::<Vec<_>>();
+    assert_eq!(
+        child_names,
+        [
+            "article-id",
+            "title-group",
+            "contrib-group",
+            "pub-date",
+            "history",
+            "abstract",
+            "kwd-group"
+        ]
+    );
+    assert_eq!(
+        article_meta
+            .descendants()
+            .find(|node| node.has_tag_name("article-title"))
+            .and_then(|node| node.text()),
+        Some("Article title")
+    );
+    assert_eq!(
+        article_meta
+            .descendants()
+            .find(|node| node.has_tag_name("surname"))
+            .and_then(|node| node.text()),
+        Some("Doe")
+    );
+    assert_eq!(
+        article_meta
+            .descendants()
+            .find(|node| node.has_tag_name("aff"))
+            .and_then(|node| node.attribute("id")),
+        Some("aff1")
+    );
+    assert_eq!(
+        article_meta
+            .descendants()
+            .filter(|node| node.has_tag_name("aff"))
+            .count(),
+        1
+    );
+    assert_eq!(
+        article_meta
+            .descendants()
+            .filter(|node| {
+                node.has_tag_name("xref")
+                    && node.attribute("ref-type") == Some("aff")
+                    && node.attribute("rid") == Some("aff1")
+            })
+            .count(),
+        2
+    );
+    assert!(root.descendants().any(|node| node.has_tag_name("ack")));
+    assert!(root.descendants().any(|node| node.has_tag_name("app")));
+
+    let citation = root
+        .descendants()
+        .find(|node| node.has_tag_name("mixed-citation"))
+        .ok_or_else(|| stencila_codec::eyre::eyre!("missing mixed-citation"))?;
+    assert_eq!(citation.attribute("publication-type"), Some("journal"));
+    assert_eq!(
+        citation
+            .descendants()
+            .find(|node| node.has_tag_name("pub-id"))
+            .and_then(|node| node.text()),
+        Some("10.1234/example")
+    );
+    assert!(
+        citation
+            .text()
+            .is_some_and(|text| text.contains("Doe (2024)"))
+    );
+    assert!(info.losses.is_empty());
+
+    Ok(())
+}
+
+#[tokio::test]
+async fn raw_reference_and_standalone_doctype() -> Result<()> {
+    let mut reference = Reference::new();
+    reference.options.text = Some("An unstructured reference".into());
+
+    let mut article = Article::new(Vec::new());
+    article.references = Some(vec![reference]);
+
+    let (jats, ..) = JatsCodec
+        .to_string(
+            &Node::Article(article),
+            Some(EncodeOptions {
+                compact: Some(true),
+                standalone: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+
+    assert!(jats.starts_with(concat!(
+        "<?xml version=\"1.0\" encoding=\"utf-8\" standalone=\"yes\" ?>\n",
+        "<!DOCTYPE article SYSTEM \"https://jats.nlm.nih.gov/archiving/1.4/",
+        "JATS-archivearticle1-4-mathml3.dtd\">\n"
+    )));
+    assert!(jats.contains("<front><article-meta></article-meta></front>"));
+    assert!(jats.contains(
+        "<ref id=\"ref1\"><mixed-citation>An unstructured reference</mixed-citation></ref>"
+    ));
+    Ok(())
+}
+
+#[tokio::test]
+async fn front_and_back_matter_roundtrip() -> Result<()> {
+    let source = r#"
+        <article dtd-version="1.4">
+          <front>
+            <article-meta>
+              <article-id pub-id-type="doi">10.5678/article</article-id>
+              <title-group><article-title>Roundtrip title</article-title></title-group>
+              <contrib-group>
+                <contrib contrib-type="author">
+                  <name><surname>Doe</surname><given-names>Jane</given-names></name>
+                  <contrib-id contrib-id-type="orcid">https://orcid.org/0000-0002-1825-0097</contrib-id>
+                  <xref ref-type="aff" rid="aff1"/>
+                </contrib>
+                <aff id="aff1"><institution>Example University</institution></aff>
+              </contrib-group>
+              <pub-date iso-8601-date="2025-04-05"><year>2025</year><month>04</month><day>05</day></pub-date>
+              <history><date date-type="accepted" iso-8601-date="2025-03-04"><year>2025</year><month>03</month><day>04</day></date></history>
+              <abstract><p>Roundtrip summary</p></abstract>
+              <kwd-group><kwd>testing</kwd></kwd-group>
+            </article-meta>
+          </front>
+          <body><sec><title>Introduction</title><p>Body</p></sec></body>
+          <back>
+            <ack><p>Thanks</p></ack>
+            <ref-list>
+              <ref id="ref1">
+                <element-citation publication-type="journal">
+                  <person-group person-group-type="author"><name><surname>Smith</surname><given-names>Alex</given-names></name></person-group>
+                  <article-title>Referenced work</article-title>
+                  <year>2024</year>
+                  <pub-id pub-id-type="doi">10.1234/reference</pub-id>
+                </element-citation>
+              </ref>
+            </ref-list>
+          </back>
+        </article>
+    "#;
+
+    let (node, ..) = JatsCodec.from_str(source, None).await?;
+    let (encoded, info) = JatsCodec
+        .to_string(
+            &node,
+            Some(EncodeOptions {
+                compact: Some(true),
+                ..Default::default()
+            }),
+        )
+        .await?;
+    assert!(info.losses.is_empty());
+
+    let document = roxmltree::Document::parse(&encoded)?;
+    let root = document.root_element();
+    for (element, expected) in [
+        ("article-id", "10.5678/article"),
+        ("article-title", "Roundtrip title"),
+        ("surname", "Doe"),
+        ("institution", "Example University"),
+        ("abstract", "Roundtrip summary"),
+        ("kwd", "testing"),
+        ("ack", "Thanks"),
+    ] {
+        let actual = root
+            .descendants()
+            .find(|node| node.has_tag_name(element))
+            .map(|node| {
+                node.descendants()
+                    .filter_map(|node| node.is_text().then(|| node.text()).flatten())
+                    .collect::<String>()
+            });
+        assert_eq!(
+            actual.as_deref(),
+            Some(expected),
+            "missing or changed {element}"
+        );
+    }
+    let reference = root
+        .descendants()
+        .find(|node| node.has_tag_name("ref"))
+        .ok_or_else(|| stencila_codec::eyre::eyre!("missing ref"))?;
+    assert!(reference.descendants().any(|node| {
+        node.has_tag_name("article-title") && node.text() == Some("Referenced work")
+    }));
+    assert!(
+        reference.descendants().any(|node| {
+            node.has_tag_name("pub-id") && node.text() == Some("10.1234/reference")
+        })
+    );
 
     Ok(())
 }

@@ -16,7 +16,7 @@ use super::string_or_number::StringOrNumber;
 /// A reference to a creative work, including books, movies, photographs, software programs, etc.
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 #[derive(derive_more::Display)]
 #[display("Reference")]
@@ -29,7 +29,6 @@ pub struct Reference {
     #[strip(metadata)]
     #[patch(format = "md", format = "smd", format = "myst", format = "qmd", format = "tiptap")]
     #[html(attr = "id")]
-    #[jats(attr = "id")]
     pub id: Option<String>,
 
     /// The type of `CreativeWork` being referenced (e.g. Article, Book, Dataset).
@@ -65,7 +64,6 @@ pub struct Reference {
     /// Non-core optional fields
     #[serde(flatten)]
     #[html(flatten)]
-    #[jats(flatten)]
     pub options: Box<ReferenceOptions>,
 
     /// A unique identifier for a node within a document
@@ -75,7 +73,7 @@ pub struct Reference {
 
 #[skip_serializing_none]
 #[serde_as]
-#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, JatsCodec, LatexCodec, TextCodec)]
+#[derive(Debug, SmartDefault, Clone, PartialEq, Serialize, Deserialize, ProbeNode, StripNode, WalkNode, WriteNode, ReadNode, PatchNode, DomCodec, HtmlCodec, LatexCodec, TextCodec)]
 #[serde(rename_all = "camelCase")]
 pub struct ReferenceOptions {
     /// People who edited the referenced work.

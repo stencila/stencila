@@ -2,11 +2,52 @@
 source: rust/codec-jats/tests/examples.rs
 expression: jats
 ---
-<article dtd-version="1.3" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
+<article dtd-version="1.4" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:mml="http://www.w3.org/1998/Math/MathML">
   <front>
-    <abstract>
-      <p>Comparative study of terrestrial locomotion of 4 fish genera including<italic>Anabas</italic>,<italic>Channa, Clarias</italic>, and<italic>Monopterus</italic>, was performed in experimental setting with the substrate surface of wet clay. No special adaptations for terrestrial locomotion were found. Every fish uses for propulsion on land what it already has. Eel‐shaped<italic>Monopterus</italic>crawls by body undulations in a serpentine or sidewinding technique, the latter of which was not previously observed beyond snakes. The other 3 fish genera walk by body oscillations using stiff appendages as propulsors. When they are located anteriorly, as the serrate operculum in<italic>Anabas</italic>and the preaxial spine of the pectoral fin in<italic>Clarias</italic>, the propulsion is termed prolocomotor, when posteriorly, as the spiny anal fin in<italic>Channa</italic>—metalocomotor.<italic>Channa</italic>is the heaviest fish walking out of water in our days, quite comparable in size with first Devonian tetrapods<italic>Acanthostega</italic>and<italic>Tulerpeton</italic>. A theoretical calculation is suggested for the upper size limit of a fish capable of terrestrial walking without special locomotor adaptations. It should be roughly 20 cm in the vertical dimension of the trunk, which is just a little above the known size of Devonian tetrapodomorph fishes<italic>Panderichthys</italic>and<italic>Elpistostege</italic>. The metalocomotor walking technique of<italic>Channa</italic>is suggested as the closest extant model for terrestrial locomotion at the fish‐tetrapod transition. The major difference is that the metalocomotor propulsor in<italic>Channa</italic>is represented by the anal fin, while in tetrapodomorphs by the pelvic fins. The sprawled pelvic fins were advantageous in respect of reduced requirement for side‐to‐side tail swinging.</p>
-    </abstract>
+    <journal-meta>
+      <journal-title-group>
+        <journal-title>Integrative Zoology</journal-title>
+      </journal-title-group>
+    </journal-meta>
+    <article-meta>
+      <article-id pub-id-type="doi">10.1111/1749-4877.12599</article-id>
+      <title-group>
+        <article-title>How big can a walking fish be? A theoretical inference based on observations on four land‐dwelling fish genera of South Vietnam</article-title>
+      </title-group>
+      <contrib-group>
+        <contrib contrib-type="author">
+          <name>
+            <surname>KUZNETSOV</surname>
+            <given-names>Alexander N</given-names>
+          </name>
+          <xref ref-type="aff" rid="aff1">
+          </xref>
+        </contrib>
+        <aff id="aff1">
+          <institution-wrap>
+            <institution>Borissiak Paleontological Institute, Russian Academy of Sciences</institution>
+          </institution-wrap>
+          <addr-line>Moscow, Russia</addr-line>
+        </aff>
+      </contrib-group>
+      <pub-date iso-8601-date="2022-9">
+        <year>2022</year>
+        <month>9</month>
+      </pub-date>
+      <volume>17</volume>
+      <issue>5</issue>
+      <fpage>849</fpage>
+      <lpage>878</lpage>
+      <abstract>
+        <p>Comparative study of terrestrial locomotion of 4 fish genera including<italic>Anabas</italic>,<italic>Channa, Clarias</italic>, and<italic>Monopterus</italic>, was performed in experimental setting with the substrate surface of wet clay. No special adaptations for terrestrial locomotion were found. Every fish uses for propulsion on land what it already has. Eel‐shaped<italic>Monopterus</italic>crawls by body undulations in a serpentine or sidewinding technique, the latter of which was not previously observed beyond snakes. The other 3 fish genera walk by body oscillations using stiff appendages as propulsors. When they are located anteriorly, as the serrate operculum in<italic>Anabas</italic>and the preaxial spine of the pectoral fin in<italic>Clarias</italic>, the propulsion is termed prolocomotor, when posteriorly, as the spiny anal fin in<italic>Channa</italic>—metalocomotor.<italic>Channa</italic>is the heaviest fish walking out of water in our days, quite comparable in size with first Devonian tetrapods<italic>Acanthostega</italic>and<italic>Tulerpeton</italic>. A theoretical calculation is suggested for the upper size limit of a fish capable of terrestrial walking without special locomotor adaptations. It should be roughly 20 cm in the vertical dimension of the trunk, which is just a little above the known size of Devonian tetrapodomorph fishes<italic>Panderichthys</italic>and<italic>Elpistostege</italic>. The metalocomotor walking technique of<italic>Channa</italic>is suggested as the closest extant model for terrestrial locomotion at the fish‐tetrapod transition. The major difference is that the metalocomotor propulsor in<italic>Channa</italic>is represented by the anal fin, while in tetrapodomorphs by the pelvic fins. The sprawled pelvic fins were advantageous in respect of reduced requirement for side‐to‐side tail swinging.</p>
+      </abstract>
+      <kwd-group>
+        <kwd>fish‐tetrapod transition</kwd>
+        <kwd>metalocomotor propulsion</kwd>
+        <kwd>prolocomotor propulsion</kwd>
+        <kwd>snakehead</kwd>
+      </kwd-group>
+    </article-meta>
   </front>
   <body>
     <sec sec-type="Introduction">
@@ -563,9 +604,1253 @@ expression: jats
         </caption>
       </supplementary-material>
     </sec>
-    <sec sec-type="Acknowledgements">
+  </body>
+  <back>
+    <ack>
       <title level="1">ACKNOWLEDGMENTS</title>
       <p>I am grateful to the staff of Vietnam‐Russia Tropical Centre for support of this research, and especially to I. V. Palko who introduced me to the tropical life and fruits in Cat Tien national park, as well as to A. B. Vassilieva and N. A. Poyarkov for assistance in the field and town.</p>
-    </sec>
-  </body>
+    </ack>
+    <ref-list>
+      <ref id="inz212599-bib-0001">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ahlberg</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>Humeral homology and the origin of the tetrapod elbow: a reinterpretation of the enigmatic specimens ANSP 21350 and GSM 104536</article-title>
+          <source>Special Papers in Palaeontology</source>
+          <year>2011</year>
+          <fpage>17</fpage>
+          <lpage>29</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0002">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ahlberg</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>Follow the footprints and mind the gaps: a new look at the origin of tetrapods</article-title>
+          <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
+          <year>2019</year>
+          <fpage>115</fpage>
+          <lpage>37</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0003">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ahlberg</surname>
+              <given-names>P E</given-names>
+            </name>
+            <name>
+              <surname>Clack</surname>
+              <given-names>J A</given-names>
+            </name>
+            <name>
+              <surname>Blom</surname>
+              <given-names>H</given-names>
+            </name>
+          </person-group>
+          <article-title>The axial skeleton of the Devonian tetrapod<italic>Ichthyostega</italic>&#10;</article-title>
+          <source>Nature</source>
+          <year>2005</year>
+          <fpage>137</fpage>
+          <lpage>40</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature03893</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0004">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Andrews</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Westoll</surname>
+              <given-names>T S</given-names>
+            </name>
+          </person-group>
+          <article-title>IX.—The postcranial skeleton of<italic>Eusthenopteron foordi</italic>Whiteaves</article-title>
+          <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
+          <year>1970</year>
+          <fpage>207</fpage>
+          <lpage>329</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0005">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Azizi</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Horton</surname>
+              <given-names>J M</given-names>
+            </name>
+          </person-group>
+          <article-title>Patterns of axial and appendicular movements during aquatic walking in the salamander<italic>Siren lacertina</italic>&#10;</article-title>
+          <source>Zoology</source>
+          <year>2004</year>
+          <fpage>111</fpage>
+          <lpage>20</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.zool.2004.03.002</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0006">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Béchard</surname>
+              <given-names>I</given-names>
+            </name>
+            <name>
+              <surname>Arsenault</surname>
+              <given-names>F</given-names>
+            </name>
+            <name>
+              <surname>Cloutier</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Kerr</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>The Devonian placoderm fish<italic>Bothriolepis canadensis</italic>revisited with three‐dimensional digital imagery</article-title>
+          <source>Palaeontologia Electronica</source>
+          <year>2014</year>
+          <fpage>1</fpage>
+          <lpage>19</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0007">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Boisvert</surname>
+              <given-names>C A</given-names>
+            </name>
+          </person-group>
+          <article-title>The pelvic fin and girdle of<italic>Panderichthys</italic>and the origin of tetrapod locomotion</article-title>
+          <source>Nature</source>
+          <year>2005</year>
+          <fpage>1145</fpage>
+          <lpage>7</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature04119</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0008">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Boisvert</surname>
+              <given-names>C A</given-names>
+            </name>
+            <name>
+              <surname>Mark‐Kurik</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Ahlberg</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>The pectoral fin of<italic>Panderichthys</italic>and the origin of digits</article-title>
+          <source>Nature</source>
+          <year>2008</year>
+          <fpage>636</fpage>
+          <lpage>8</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature07339</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0009">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bressman</surname>
+              <given-names>N R</given-names>
+            </name>
+            <name>
+              <surname>Gibb</surname>
+              <given-names>A C</given-names>
+            </name>
+            <name>
+              <surname>Farina</surname>
+              <given-names>S C</given-names>
+            </name>
+          </person-group>
+          <article-title>A walking behavior generates functional overland movements in the tidepool sculpin,<italic>Oligocottus maculosus</italic>&#10;</article-title>
+          <source>Zoology</source>
+          <year>2018</year>
+          <fpage>20</fpage>
+          <lpage>8</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.zool.2018.10.003</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0010">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bressman</surname>
+              <given-names>N R</given-names>
+            </name>
+            <name>
+              <surname>Love</surname>
+              <given-names>J W</given-names>
+            </name>
+            <name>
+              <surname>King</surname>
+              <given-names>T W</given-names>
+            </name>
+            <name>
+              <surname>Horne</surname>
+              <given-names>C G</given-names>
+            </name>
+            <name>
+              <surname>Ashley‐Ross</surname>
+              <given-names>M A</given-names>
+            </name>
+          </person-group>
+          <article-title>Emersion and terrestrial locomotion of the northern snakehead (<italic>Channa argus</italic>) on multiple substrates</article-title>
+          <source>Integrative Organismal Biology</source>
+          <pub-id pub-id-type="doi">10.1093/iob/obz026</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0011">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Bressman</surname>
+              <given-names>N R</given-names>
+            </name>
+            <name>
+              <surname>Simms</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Perlman</surname>
+              <given-names>B M</given-names>
+            </name>
+            <name>
+              <surname>Ashley‐Ross</surname>
+              <given-names>M A</given-names>
+            </name>
+          </person-group>
+          <article-title>Where do fish go when stranded on land? Terrestrial orientation of the mangrove rivulus<italic>Kryptolebias marmoratus</italic>&#10;</article-title>
+          <source>Journal of Fish Biology</source>
+          <fpage>335</fpage>
+          <lpage>44</lpage>
+          <pub-id pub-id-type="doi">10.1111/jfb.13802</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0012">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Clack</surname>
+              <given-names>J A</given-names>
+            </name>
+          </person-group>
+          <article-title>Devonian climate change, breathing, and the origin of the tetrapod stem group</article-title>
+          <source>Integrative and Comparative Biology</source>
+          <year>2007</year>
+          <fpage>510</fpage>
+          <lpage>23</lpage>
+          <pub-id pub-id-type="doi">10.1093/icb/icm055</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0013">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Cloutier</surname>
+              <given-names>R</given-names>
+            </name>
+            <name>
+              <surname>Clement</surname>
+              <given-names>A M</given-names>
+            </name>
+            <name>
+              <surname>Lee</surname>
+              <given-names>M S</given-names>
+            </name>
+          </person-group>
+          <article-title>&#10;<italic>Elpistostege</italic>and the origin of the vertebrate hand</article-title>
+          <source>Nature</source>
+          <year>2020</year>
+          <fpage>549</fpage>
+          <lpage>54</lpage>
+          <pub-id pub-id-type="doi">10.1038/s41586-020-2100-8</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0014">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coates</surname>
+              <given-names>M I</given-names>
+            </name>
+          </person-group>
+          <article-title>The Devonian tetrapod<italic>Acanthostega gunnari</italic>Jarvik: postcranial anatomy, basal tetrapod interrelationships and patterns of skeletal evolution</article-title>
+          <source>Earth and Environmental Science Transactions of the Royal Society of Edinburgh</source>
+          <year>1996</year>
+          <fpage>363</fpage>
+          <lpage>421</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0015">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Coates</surname>
+              <given-names>M I</given-names>
+            </name>
+            <name>
+              <surname>Clack</surname>
+              <given-names>J A</given-names>
+            </name>
+          </person-group>
+          <article-title>Polydactyly in the earliest known tetrapod limbs</article-title>
+          <source>Nature</source>
+          <year>1990</year>
+          <fpage>66</fpage>
+          <lpage>9</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0016">
+        <mixed-citation>Courtenay  WR  Jr  ,  Williams  JD  ( 2004 ). Snakeheads (Pisces, Channidae): A biological synopsis and risk assessment. Circular 1251. US Geological Survey, Reston, VA, 143 pp.<year>2004</year>
+        </mixed-citation>
+      </ref>
+      <ref id="inz212599-bib-0017">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Daeschler</surname>
+              <given-names>E B</given-names>
+            </name>
+            <name>
+              <surname>Shubin</surname>
+              <given-names>N H</given-names>
+            </name>
+            <name>
+              <surname>Jenkins</surname>
+              <given-names>F A</given-names>
+            </name>
+          </person-group>
+          <article-title>A Devonian tetrapod‐like fish and the evolution of the tetrapod body plan</article-title>
+          <source>Nature</source>
+          <year>2006</year>
+          <fpage>757</fpage>
+          <lpage>63</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature04639</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0018">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Davenport</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Matin</surname>
+              <given-names>A A</given-names>
+            </name>
+          </person-group>
+          <article-title>Terrestrial locomotion in the climbing perch,<italic>Anabas testudineus</italic>(Bloch) (Anabantidea, Pisces)</article-title>
+          <source>Journal of Fish Biology</source>
+          <year>1990</year>
+          <fpage>175</fpage>
+          <lpage>84</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0019">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Denison</surname>
+              <given-names>R H</given-names>
+            </name>
+          </person-group>
+          <article-title>The soft anatomy of<italic>Bothriolepis</italic>&#10;</article-title>
+          <source>Journal of Paleontology</source>
+          <year>1941</year>
+          <fpage>553</fpage>
+          <lpage>61</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0020">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Družinin</surname>
+              <given-names>A N</given-names>
+            </name>
+          </person-group>
+          <article-title>Ähnlichkeit im Bau der Extremitäten der Dipnoi und Quadrupeda</article-title>
+          <source>Travaux du Laboratoire de Morphologie Évolutive</source>
+          <year>1933</year>
+          <fpage>1</fpage>
+          <lpage>68</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0021">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Du</surname>
+              <given-names>T Y</given-names>
+            </name>
+            <name>
+              <surname>Larsson</surname>
+              <given-names>H C E</given-names>
+            </name>
+            <name>
+              <surname>Standen</surname>
+              <given-names>E M</given-names>
+            </name>
+          </person-group>
+          <article-title>Observations of terrestrial locomotion in wild<italic>Polypterus senegalus</italic>from Lake Albert, Uganda</article-title>
+          <source>African Journal of Aquatic Science</source>
+          <year>2016</year>
+          <fpage>67</fpage>
+          <lpage>71</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0022">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Eaton</surname>
+              <given-names>T H</given-names>
+            </name>
+          </person-group>
+          <article-title>The aquatic origin of tetrapods</article-title>
+          <source>Transactions of the Kansas Academy of Science</source>
+          <year>1960</year>
+          <fpage>115</fpage>
+          <lpage>20</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0023">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Edwards</surname>
+              <given-names>J L</given-names>
+            </name>
+          </person-group>
+          <article-title>Two perspectives on the evolution of the tetrapod limb</article-title>
+          <source>American Zoologist</source>
+          <year>1989</year>
+          <fpage>235</fpage>
+          <lpage>54</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0024">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Falkingham</surname>
+              <given-names>P L</given-names>
+            </name>
+            <name>
+              <surname>Horner</surname>
+              <given-names>A M</given-names>
+            </name>
+          </person-group>
+          <article-title>Trackways produced by lungfish during terrestrial locomotion</article-title>
+          <source>Scientific Reports</source>
+          <year>2016</year>
+          <fpage>1</fpage>
+          <lpage>10</lpage>
+          <pub-id pub-id-type="doi">10.1038/srep33734</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0025">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Janvier</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Desbiens</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Willett</surname>
+              <given-names>J A</given-names>
+            </name>
+          </person-group>
+          <article-title>New evidence for the controversial “lungs” of the Late Devonian antiarch<italic>Bothriolepis canadensis</italic>(Whiteaves, 1880) (Placodermi: Antiarcha)</article-title>
+          <source>Journal of Vertebrate Paleontology</source>
+          <year>2007</year>
+          <fpage>709</fpage>
+          <lpage>10</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0026">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gambaryan</surname>
+              <given-names>P P</given-names>
+            </name>
+          </person-group>
+          <article-title>How Mammals Run. Anatomical Adaptations</article-title>
+          <year>1974</year>
+          <fpage>367</fpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0027">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gans</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Terrestrial locomotion without limbs</article-title>
+          <source>American Zoologist</source>
+          <year>1962</year>
+          <fpage>167</fpage>
+          <lpage>82</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0028">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gibb</surname>
+              <given-names>A C</given-names>
+            </name>
+            <name>
+              <surname>Ashley‐Ross</surname>
+              <given-names>M A</given-names>
+            </name>
+            <name>
+              <surname>Hsieh</surname>
+              <given-names>S T</given-names>
+            </name>
+          </person-group>
+          <article-title>Thrash, flip, or jump: the behavioral and functional continuum of terrestrial locomotion in teleost fishes</article-title>
+          <source>Integrative and Comparative Biology</source>
+          <year>2013</year>
+          <fpage>295</fpage>
+          <lpage>306</lpage>
+          <pub-id pub-id-type="doi">10.1093/icb/ict052</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0029">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Gray</surname>
+              <given-names>J</given-names>
+            </name>
+          </person-group>
+          <article-title>Studies in the mechanics of the tetrapod skeleton</article-title>
+          <source>Journal of Experimental Biology</source>
+          <year>1944</year>
+          <fpage>88</fpage>
+          <lpage>116</lpage>
+          <pub-id pub-id-type="doi">10.1242/jeb.000687</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0030">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Harris</surname>
+              <given-names>V A</given-names>
+            </name>
+          </person-group>
+          <article-title>On the locomotion of the mudskipper<italic>Periophthalmus koelreuteri</italic>(Pallas): (Gobiidae)</article-title>
+          <source>Proceedings of the Zoological Society of London</source>
+          <year>1960</year>
+          <fpage>107</fpage>
+          <lpage>35</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0031">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hildebrand</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Analysis of the symmetrical gaits of tetrapods</article-title>
+          <source>Folia Biotheoretica</source>
+          <year>1966</year>
+          <fpage>9</fpage>
+          <lpage>22</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0032">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hill</surname>
+              <given-names>A V</given-names>
+            </name>
+          </person-group>
+          <article-title>The heat of shortening and the dynamic constants of muscle</article-title>
+          <source>Proceedings of the Royal Society of London B</source>
+          <year>1938</year>
+          <fpage>136</fpage>
+          <lpage>95</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0033">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Hohn‐Schulte</surname>
+              <given-names>B</given-names>
+            </name>
+            <name>
+              <surname>Preuschoft</surname>
+              <given-names>H</given-names>
+            </name>
+            <name>
+              <surname>Witzel</surname>
+              <given-names>U</given-names>
+            </name>
+            <name>
+              <surname>Distler‐Hoffmann</surname>
+              <given-names>C</given-names>
+            </name>
+          </person-group>
+          <article-title>Biomechanics and functional preconditions for terrestrial lifestyle in basal tetrapods, with special consideration of<italic>Tiktaalik roseae</italic>&#10;</article-title>
+          <source>Historical Biology</source>
+          <year>2013</year>
+          <fpage>167</fpage>
+          <lpage>81</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0034">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Horner</surname>
+              <given-names>A M</given-names>
+            </name>
+            <name>
+              <surname>Jayne</surname>
+              <given-names>B C</given-names>
+            </name>
+          </person-group>
+          <article-title>Lungfish axial muscle function and the vertebrate water to land transition</article-title>
+          <source>PLoS ONE</source>
+          <year>2014</year>
+          <pub-id pub-id-type="doi">10.1371/journal.pone.0096516</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0035">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Jarvik</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>On the morphology and taxonomy of the Middle Devonian osteolepid fishes of Scotland</article-title>
+          <source>Kungliga Svenska Vetenskapsakademiens Handlingar</source>
+          <year>1948</year>
+          <fpage>1</fpage>
+          <lpage>301</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0036">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Johnels</surname>
+              <given-names>A G</given-names>
+            </name>
+          </person-group>
+          <article-title>The mode of terrestrial locomotion in<italic>Clarias</italic>&#10;</article-title>
+          <source>Oikos</source>
+          <year>1957</year>
+          <fpage>122</fpage>
+          <lpage>9</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0037">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Kawano</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Blob</surname>
+              <given-names>R W</given-names>
+            </name>
+          </person-group>
+          <article-title>Propulsive forces of mudskipper fins and salamander limbs during terrestrial locomotion: Implications for the invasion of land</article-title>
+          <source>Integrative and Comparative Biology</source>
+          <year>2013</year>
+          <fpage>283</fpage>
+          <lpage>94</lpage>
+          <pub-id pub-id-type="doi">10.1093/icb/ict051</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0038">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lebedev</surname>
+              <given-names>O A</given-names>
+            </name>
+            <name>
+              <surname>Coates</surname>
+              <given-names>M I</given-names>
+            </name>
+          </person-group>
+          <article-title>The postcranial skeleton of the Devonian tetrapod<italic>Tulerpeton curtum</italic>Lebedev</article-title>
+          <source>Zoological Journal of the Linnean Society</source>
+          <year>1995</year>
+          <fpage>307</fpage>
+          <lpage>48</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0039">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Lucas</surname>
+              <given-names>S G</given-names>
+            </name>
+          </person-group>
+          <article-title>&#10;<italic>Thinopus</italic>and a critical review of Devonian tetrapod footprints</article-title>
+          <source>Ichnos</source>
+          <year>2015</year>
+          <fpage>136</fpage>
+          <lpage>54</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0040">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Mazlan</surname>
+              <given-names>A G</given-names>
+            </name>
+            <name>
+              <surname>Rohaya</surname>
+              <given-names>M</given-names>
+            </name>
+          </person-group>
+          <article-title>Size, growth and reproductive biology of the giant mudskipper,<italic>Periophthalmodon schlosseri</italic>(Pallas, 1770), in Malaysian waters</article-title>
+          <source>Journal of Applied Ichthyology</source>
+          <year>2008</year>
+          <fpage>290</fpage>
+          <lpage>6</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0041">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Niedźwiedzki</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Szrek</surname>
+              <given-names>P</given-names>
+            </name>
+            <name>
+              <surname>Narkiewicz</surname>
+              <given-names>K</given-names>
+            </name>
+            <name>
+              <surname>Narkiewicz</surname>
+              <given-names>M</given-names>
+            </name>
+            <name>
+              <surname>Ahlberg</surname>
+              <given-names>P E</given-names>
+            </name>
+          </person-group>
+          <article-title>Tetrapod trackways from the early Middle Devonian period of Poland</article-title>
+          <source>Nature</source>
+          <year>2010</year>
+          <fpage>43</fpage>
+          <lpage>8</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature08623</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0042">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>O&apos;Rahilly</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>Morphological patterns in limb deficiencies and duplications</article-title>
+          <source>American Journal of Anatomy</source>
+          <year>1951</year>
+          <fpage>135</fpage>
+          <lpage>93</lpage>
+          <pub-id pub-id-type="doi">10.1002/aja.1000890202</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0043">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pace</surname>
+              <given-names>C M</given-names>
+            </name>
+            <name>
+              <surname>Gibb</surname>
+              <given-names>A C</given-names>
+            </name>
+          </person-group>
+          <article-title>Sustained periodic terrestrial locomotion in air‐breathing fishes</article-title>
+          <source>Journal of Fish Biology</source>
+          <year>2014</year>
+          <fpage>639</fpage>
+          <lpage>60</lpage>
+          <pub-id pub-id-type="doi">10.1111/jfb.12318</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0044">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Panchen</surname>
+              <given-names>A L</given-names>
+            </name>
+            <name>
+              <surname>Smithson</surname>
+              <given-names>T R</given-names>
+            </name>
+          </person-group>
+          <article-title>The pelvic girdle and hind limb of<italic>Crassigyrinus scoticus</italic>(Lydekker) from the Scottish Carboniferous and the origin of the tetrapod pelvic skeleton</article-title>
+          <source>Earth and Environmental Science Transactions of The Royal Society of Edinburgh</source>
+          <year>1990</year>
+          <fpage>31</fpage>
+          <lpage>44</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0045">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pierce</surname>
+              <given-names>S E</given-names>
+            </name>
+            <name>
+              <surname>Hutchinson</surname>
+              <given-names>J R</given-names>
+            </name>
+            <name>
+              <surname>Clack</surname>
+              <given-names>J A</given-names>
+            </name>
+          </person-group>
+          <article-title>Historical perspectives on the evolution of tetrapodomorph movement</article-title>
+          <source>Integrative and Comparative Biology</source>
+          <year>2013</year>
+          <fpage>209</fpage>
+          <lpage>23</lpage>
+          <pub-id pub-id-type="doi">10.1093/icb/ict022</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0046">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Pridmore</surname>
+              <given-names>P A</given-names>
+            </name>
+          </person-group>
+          <article-title>Submerged walking in the epaulette shark<italic>Hemiscyllium ocellatum</italic>(Hemiscyllidae) and its implications for locomotion in rhipidistian fishes and early tetrapods</article-title>
+          <source>Zoology</source>
+          <year>1994</year>
+          <fpage>278</fpage>
+          <lpage>97</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0047">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Rackoff</surname>
+              <given-names>J S</given-names>
+            </name>
+          </person-group>
+          <article-title>The origin of the tetrapod limb and the ancestry of tetrapods</article-title>
+          <source>The Terrestrial Environment and the Origin of Land Vertebrates</source>
+          <year>1980</year>
+          <fpage>255</fpage>
+          <lpage>92</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0048">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Renous</surname>
+              <given-names>S</given-names>
+            </name>
+            <name>
+              <surname>Davenport</surname>
+              <given-names>J</given-names>
+            </name>
+            <name>
+              <surname>Bels</surname>
+              <given-names>V</given-names>
+            </name>
+          </person-group>
+          <article-title>To move on immersed and emersed substrata: adaptive solutions in extant “fishes”</article-title>
+          <source>How Vertebrates Moved onto Land</source>
+          <year>2011</year>
+          <fpage>91</fpage>
+          <lpage>128</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0049">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Romer</surname>
+              <given-names>A S</given-names>
+            </name>
+          </person-group>
+          <article-title>Tetrapod limbs and early tetrapod life</article-title>
+          <source>Evolution; Internation Journal of Organic Evolution</source>
+          <year>1958</year>
+          <fpage>365</fpage>
+          <lpage>9</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0050">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Romer</surname>
+              <given-names>A S</given-names>
+            </name>
+            <name>
+              <surname>Byrne</surname>
+              <given-names>F</given-names>
+            </name>
+          </person-group>
+          <article-title>The pes of<italic>Diadectes</italic>: Notes on the primitive tetrapod limb</article-title>
+          <source>Paleobiologica</source>
+          <year>1931</year>
+          <fpage>25</fpage>
+          <lpage>48</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0051">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Schmalhausen</surname>
+              <given-names>I I</given-names>
+            </name>
+          </person-group>
+          <article-title>The origin of terrestrial vertebrates</article-title>
+          <year>1968</year>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0052">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Secor</surname>
+              <given-names>S M</given-names>
+            </name>
+            <name>
+              <surname>Jayne</surname>
+              <given-names>B C</given-names>
+            </name>
+            <name>
+              <surname>Bennett</surname>
+              <given-names>A F</given-names>
+            </name>
+          </person-group>
+          <article-title>Locomotor performance and energetic cost of sidewinding by the snake<italic>Crotalus cerastes</italic>&#10;</article-title>
+          <source>Journal of Experimental Biology</source>
+          <year>1992</year>
+          <fpage>1</fpage>
+          <lpage>14</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0053">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shubin</surname>
+              <given-names>N H</given-names>
+            </name>
+          </person-group>
+          <article-title>The evolution of paired fins and the origin of tetrapod limbs</article-title>
+          <source>Evolutionary Biology</source>
+          <year>1995</year>
+          <fpage>39</fpage>
+          <lpage>86</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0054">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shubin</surname>
+              <given-names>N H</given-names>
+            </name>
+            <name>
+              <surname>Daeschler</surname>
+              <given-names>E B</given-names>
+            </name>
+            <name>
+              <surname>Jenkins</surname>
+              <given-names>F A</given-names>
+            </name>
+          </person-group>
+          <article-title>The pectoral fin of<italic>Tiktaalik roseae</italic>and the origin of the tetrapod limb</article-title>
+          <source>Nature</source>
+          <year>2006</year>
+          <fpage>764</fpage>
+          <lpage>71</lpage>
+          <pub-id pub-id-type="doi">10.1038/nature04637</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0055">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Shubin</surname>
+              <given-names>N H</given-names>
+            </name>
+            <name>
+              <surname>Daeschler</surname>
+              <given-names>E B</given-names>
+            </name>
+            <name>
+              <surname>Jenkins</surname>
+              <given-names>F A</given-names>
+            </name>
+          </person-group>
+          <article-title>Pelvic girdle and fin of<italic>Tiktaalik roseae</italic>&#10;</article-title>
+          <source>PNAS</source>
+          <year>2014</year>
+          <fpage>893</fpage>
+          <lpage>9</lpage>
+          <pub-id pub-id-type="doi">10.1073/pnas.1322559111</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0056">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Sutton</surname>
+              <given-names>G</given-names>
+            </name>
+            <name>
+              <surname>Mendoza</surname>
+              <given-names>E</given-names>
+            </name>
+            <name>
+              <surname>Azizi</surname>
+              <given-names>E</given-names>
+            </name>
+          </person-group>
+          <article-title>Why don&apos;t large animals exclusively use springs to jump? Because they can jump higher without them</article-title>
+          <source>Integrative and Comparative Biology</source>
+          <year>2019</year>
+          <fpage>1609</fpage>
+          <lpage>18</lpage>
+          <pub-id pub-id-type="doi">10.1093/icb/icz145</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0057">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Swanson</surname>
+              <given-names>B O</given-names>
+            </name>
+            <name>
+              <surname>Gibb</surname>
+              <given-names>A C</given-names>
+            </name>
+          </person-group>
+          <article-title>Kinematics of aquatic and terrestrial escape responses in mudskippers</article-title>
+          <source>Journal of Experimental Biology</source>
+          <year>2004</year>
+          <fpage>4037</fpage>
+          <lpage>44</lpage>
+          <pub-id pub-id-type="doi">10.1242/jeb.01237</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0058">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Thomson</surname>
+              <given-names>T J</given-names>
+            </name>
+          </person-group>
+          <article-title>Three‐legged locomotion and the constraints on limb number: why tripeds don&apos;t have a leg to stand on</article-title>
+          <source>Bioessays</source>
+          <year>2019</year>
+          <pub-id pub-id-type="doi">10.1002/bies.201900061</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0059">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vorobyeva</surname>
+              <given-names>E I</given-names>
+            </name>
+            <name>
+              <surname>Kuznetsov</surname>
+              <given-names>A N</given-names>
+            </name>
+          </person-group>
+          <article-title>The locomotor apparatus of<italic>Panderichthys rhombolepis</italic>(Gross), a supplement to the problem of fish‐tetrapod transition</article-title>
+          <source>Fossil Fishes as Living Animals</source>
+          <year>1992</year>
+          <fpage>131</fpage>
+          <lpage>40</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0060">
+        <element-citation publication-type="book">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vorobyeva</surname>
+              <given-names>E I</given-names>
+            </name>
+            <name>
+              <surname>Schultze</surname>
+              <given-names>H‐P</given-names>
+            </name>
+          </person-group>
+          <article-title>Description and systematics of panderichthyid fishes with comments on their relationship to tetrapods</article-title>
+          <source>Origins of the Higher Groups of Tetrapods: Controversy and Consensus</source>
+          <year>1991</year>
+          <fpage>68</fpage>
+          <lpage>109</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0061">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Vorobyeva</surname>
+              <given-names>E I</given-names>
+            </name>
+            <name>
+              <surname>Tsessarsky</surname>
+              <given-names>A A</given-names>
+            </name>
+          </person-group>
+          <article-title>On origin of vertebrae in lower tetrapods</article-title>
+          <source>Journal of General Biology</source>
+          <year>1986</year>
+          <fpage>735</fpage>
+          <lpage>47</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0062">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Ward</surname>
+              <given-names>A B</given-names>
+            </name>
+            <name>
+              <surname>Costa</surname>
+              <given-names>A</given-names>
+            </name>
+            <name>
+              <surname>Monroe</surname>
+              <given-names>S L</given-names>
+            </name>
+            <name>
+              <surname>Aluck</surname>
+              <given-names>R J</given-names>
+            </name>
+            <name>
+              <surname>Mehta</surname>
+              <given-names>R S</given-names>
+            </name>
+          </person-group>
+          <article-title>Locomotion in elongate fishes: A contact sport</article-title>
+          <source>Zoology</source>
+          <year>2015</year>
+          <fpage>312</fpage>
+          <lpage>9</lpage>
+          <pub-id pub-id-type="doi">10.1016/j.zool.2015.06.002</pub-id>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0063">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Warren</surname>
+              <given-names>J W</given-names>
+            </name>
+            <name>
+              <surname>Wakefield</surname>
+              <given-names>N A</given-names>
+            </name>
+          </person-group>
+          <article-title>Trackways of tetrapod vertebrates from the Upper Devonian of Victoria, Australia</article-title>
+          <source>Nature</source>
+          <year>1972</year>
+          <fpage>469</fpage>
+          <lpage>70</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0064">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Westoll</surname>
+              <given-names>T S</given-names>
+            </name>
+          </person-group>
+          <article-title>The origin of the primitive tetrapod limb</article-title>
+          <source>Proceedings of the Royal Society of London B</source>
+          <year>1943</year>
+          <fpage>373</fpage>
+          <lpage>93</lpage>
+        </element-citation>
+      </ref>
+      <ref id="inz212599-bib-0065">
+        <element-citation publication-type="journal">
+          <person-group person-group-type="author">
+            <name>
+              <surname>Winterbottom</surname>
+              <given-names>R</given-names>
+            </name>
+          </person-group>
+          <article-title>A descriptive synonymy of the striated muscles of the Teleostei</article-title>
+          <source>Proceedings of the Academy of Natural Sciences of Philadelphia</source>
+          <year>1973</year>
+          <fpage>225</fpage>
+          <lpage>317</lpage>
+        </element-citation>
+      </ref>
+    </ref-list>
+  </back>
 </article>

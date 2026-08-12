@@ -10680,7 +10680,6 @@ dependencies = [
 name = "stencila-codec-jats-trait"
 version = "0.0.0"
 dependencies = [
- "itertools 0.14.0",
  "stencila-codec-info",
  "stencila-codec-jats-derive",
 ]
